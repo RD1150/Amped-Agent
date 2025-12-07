@@ -1,17 +1,10 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
  */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
@@ -25,4 +18,136 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Persona & Brand settings for each user
+ */
+export const personas = mysqlTable("personas", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  businessName: varchar("businessName", { length: 255 }),
+  tagline: varchar("tagline", { length: 500 }),
+  targetAudience: text("targetAudience"),
+  brandVoice: mysqlEnum("brandVoice", ["professional", "friendly", "luxury", "casual", "authoritative"]).default("professional"),
+  primaryColor: varchar("primaryColor", { length: 7 }).default("#C9A962"),
+  logoUrl: text("logoUrl"),
+  websiteUrl: varchar("websiteUrl", { length: 500 }),
+  phoneNumber: varchar("phoneNumber", { length: 20 }),
+  emailAddress: varchar("emailAddress", { length: 320 }),
+  socialHandles: text("socialHandles"), // JSON stored as text
+  isCompleted: boolean("isCompleted").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Persona = typeof personas.$inferSelect;
+export type InsertPersona = typeof personas.$inferInsert;
+
+/**
+ * Content posts - the main content items
+ */
+export const contentPosts = mysqlTable("content_posts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 500 }),
+  content: text("content").notNull(),
+  contentType: mysqlEnum("contentType", ["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]).default("custom"),
+  status: mysqlEnum("status", ["draft", "scheduled", "published", "expired"]).default("draft"),
+  scheduledAt: timestamp("scheduledAt"),
+  publishedAt: timestamp("publishedAt"),
+  platforms: text("platforms"), // JSON array stored as text
+  imageUrl: text("imageUrl"),
+  propertyAddress: varchar("propertyAddress", { length: 500 }),
+  propertyPrice: int("propertyPrice"),
+  propertyBedrooms: int("propertyBedrooms"),
+  propertyBathrooms: int("propertyBathrooms"),
+  propertySqft: int("propertySqft"),
+  propertyDescription: text("propertyDescription"),
+  propertyListingType: varchar("propertyListingType", { length: 50 }),
+  aiGenerated: boolean("aiGenerated").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContentPost = typeof contentPosts.$inferSelect;
+export type InsertContentPost = typeof contentPosts.$inferInsert;
+
+/**
+ * Calendar events - for scheduling and viewing content
+ */
+export const calendarEvents = mysqlTable("calendar_events", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  contentPostId: int("contentPostId"),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  eventDate: timestamp("eventDate").notNull(),
+  eventTime: varchar("eventTime", { length: 10 }),
+  eventType: mysqlEnum("eventType", ["post", "reminder", "task"]).default("post"),
+  isAllDay: boolean("isAllDay").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CalendarEvent = typeof calendarEvents.$inferSelect;
+export type InsertCalendarEvent = typeof calendarEvents.$inferInsert;
+
+/**
+ * Social media integrations
+ */
+export const integrations = mysqlTable("integrations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  platform: mysqlEnum("platform", ["facebook", "instagram", "linkedin", "twitter"]).notNull(),
+  accountName: varchar("accountName", { length: 255 }),
+  accountId: varchar("accountId", { length: 255 }),
+  accessToken: text("accessToken"),
+  refreshToken: text("refreshToken"),
+  tokenExpiresAt: timestamp("tokenExpiresAt"),
+  isConnected: boolean("isConnected").default(false),
+  connectedAt: timestamp("connectedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Integration = typeof integrations.$inferSelect;
+export type InsertIntegration = typeof integrations.$inferInsert;
+
+/**
+ * Uploaded files/assets
+ */
+export const uploads = mysqlTable("uploads", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  fileName: varchar("fileName", { length: 500 }).notNull(),
+  fileKey: varchar("fileKey", { length: 500 }).notNull(),
+  fileUrl: text("fileUrl").notNull(),
+  fileType: varchar("fileType", { length: 100 }),
+  fileSize: int("fileSize"),
+  category: mysqlEnum("category", ["image", "document", "csv", "other"]).default("other"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Upload = typeof uploads.$inferSelect;
+export type InsertUpload = typeof uploads.$inferInsert;
+
+/**
+ * Import jobs - track CSV/Google Docs imports
+ */
+export const importJobs = mysqlTable("import_jobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  fileName: varchar("fileName", { length: 500 }),
+  fileUrl: text("fileUrl"),
+  importType: mysqlEnum("importType", ["csv", "google_doc"]).notNull(),
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
+  totalRows: int("totalRows").default(0),
+  processedRows: int("processedRows").default(0),
+  generatedPosts: int("generatedPosts").default(0),
+  errorMessage: text("errorMessage"),
+  settings: text("settings"), // JSON stored as text
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type ImportJob = typeof importJobs.$inferSelect;
+export type InsertImportJob = typeof importJobs.$inferInsert;

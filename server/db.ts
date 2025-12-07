@@ -1,11 +1,18 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, and, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { 
+  InsertUser, users, 
+  InsertPersona, personas,
+  InsertContentPost, contentPosts,
+  InsertCalendarEvent, calendarEvents,
+  InsertIntegration, integrations,
+  InsertUpload, uploads,
+  InsertImportJob, importJobs
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -17,6 +24,8 @@ export async function getDb() {
   }
   return _db;
 }
+
+// ============ USER HELPERS ============
 
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
@@ -89,4 +98,174 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// ============ PERSONA HELPERS ============
+
+export async function getPersonaByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(personas).where(eq(personas.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertPersona(userId: number, data: Partial<InsertPersona>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await getPersonaByUserId(userId);
+  if (existing) {
+    await db.update(personas).set({ ...data, updatedAt: new Date() }).where(eq(personas.userId, userId));
+    return { ...existing, ...data };
+  } else {
+    const result = await db.insert(personas).values({ ...data, userId });
+    return { id: Number(result[0].insertId), userId, ...data };
+  }
+}
+
+// ============ CONTENT POST HELPERS ============
+
+export async function getContentPostsByUserId(userId: number, limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(contentPosts).where(eq(contentPosts.userId, userId)).orderBy(desc(contentPosts.createdAt)).limit(limit);
+}
+
+export async function getContentPostById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(contentPosts).where(eq(contentPosts.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createContentPost(data: InsertContentPost) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(contentPosts).values(data);
+  return { id: Number(result[0].insertId), ...data };
+}
+
+export async function updateContentPost(id: number, data: Partial<InsertContentPost>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(contentPosts).set({ ...data, updatedAt: new Date() }).where(eq(contentPosts.id, id));
+  return getContentPostById(id);
+}
+
+export async function deleteContentPost(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(contentPosts).where(eq(contentPosts.id, id));
+}
+
+// ============ CALENDAR EVENT HELPERS ============
+
+export async function getCalendarEventsByUserId(userId: number, startDate?: Date, endDate?: Date) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let query = db.select().from(calendarEvents).where(eq(calendarEvents.userId, userId));
+  
+  if (startDate && endDate) {
+    query = db.select().from(calendarEvents).where(
+      and(
+        eq(calendarEvents.userId, userId),
+        gte(calendarEvents.eventDate, startDate),
+        lte(calendarEvents.eventDate, endDate)
+      )
+    );
+  }
+  
+  return query.orderBy(calendarEvents.eventDate);
+}
+
+export async function createCalendarEvent(data: InsertCalendarEvent) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(calendarEvents).values(data);
+  return { id: Number(result[0].insertId), ...data };
+}
+
+export async function updateCalendarEvent(id: number, data: Partial<InsertCalendarEvent>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(calendarEvents).set({ ...data, updatedAt: new Date() }).where(eq(calendarEvents.id, id));
+}
+
+export async function deleteCalendarEvent(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(calendarEvents).where(eq(calendarEvents.id, id));
+}
+
+// ============ INTEGRATION HELPERS ============
+
+export async function getIntegrationsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(integrations).where(eq(integrations.userId, userId));
+}
+
+export async function upsertIntegration(userId: number, platform: "facebook" | "instagram" | "linkedin" | "twitter", data: Partial<InsertIntegration>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await db.select().from(integrations).where(
+    and(eq(integrations.userId, userId), eq(integrations.platform, platform))
+  ).limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(integrations).set({ ...data, updatedAt: new Date() }).where(eq(integrations.id, existing[0].id));
+    return { ...existing[0], ...data };
+  } else {
+    const result = await db.insert(integrations).values({ ...data, userId, platform });
+    return { id: Number(result[0].insertId), userId, platform, ...data };
+  }
+}
+
+// ============ UPLOAD HELPERS ============
+
+export async function getUploadsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(uploads).where(eq(uploads.userId, userId)).orderBy(desc(uploads.createdAt));
+}
+
+export async function createUpload(data: InsertUpload) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(uploads).values(data);
+  return { id: Number(result[0].insertId), ...data };
+}
+
+export async function deleteUpload(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(uploads).where(eq(uploads.id, id));
+}
+
+// ============ IMPORT JOB HELPERS ============
+
+export async function getImportJobsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(importJobs).where(eq(importJobs.userId, userId)).orderBy(desc(importJobs.createdAt));
+}
+
+export async function createImportJob(data: InsertImportJob) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(importJobs).values(data);
+  return { id: Number(result[0].insertId), ...data };
+}
+
+export async function updateImportJob(id: number, data: Partial<InsertImportJob>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(importJobs).set(data).where(eq(importJobs.id, id));
+}
+
+export async function getImportJobById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(importJobs).where(eq(importJobs.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}

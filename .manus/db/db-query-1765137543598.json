@@ -1,0 +1,170 @@
+{
+  "query": "DESCRIBE content_posts;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute DESCRIBE content_posts;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "userId",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "title",
+      "Type": "varchar(500)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "content",
+      "Type": "text",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "contentType",
+      "Type": "enum('property_listing','market_report','trending_news','tips','neighborhood','custom')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "custom",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "enum('draft','scheduled','published','expired')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "draft",
+      "Extra": ""
+    },
+    {
+      "Field": "scheduledAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "publishedAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "platforms",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "imageUrl",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "propertyAddress",
+      "Type": "varchar(500)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "propertyPrice",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "propertyBedrooms",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "propertyBathrooms",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "propertySqft",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "propertyDescription",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "propertyListingType",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "aiGenerated",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint(11)\tNO\tPRI\tNULL\tauto_increment\nuserId\tint(11)\tNO\t\tNULL\t\ntitle\tvarchar(500)\tYES\t\tNULL\t\ncontent\ttext\tNO\t\tNULL\t\ncontentType\tenum('property_listing','market_report','trending_news','tips','neighborhood','custom')\tYES\t\tcustom\t\nstatus\tenum('draft','scheduled','published','expired')\tYES\t\tdraft\t\nscheduledAt\ttimestamp\tYES\t\tNULL\t\npublishedAt\ttimestamp\tYES\t\tNULL\t\nplatforms\ttext\tYES\t\tNULL\t\nimageUrl\ttext\tYES\t\tNULL\t\npropertyAddress\tvarchar(500)\tYES\t\tNULL\t\npropertyPrice\tint(11)\tYES\t\tNULL\t\npropertyBedrooms\tint(11)\tYES\t\tNULL\t\npropertyBathrooms\tint(11)\tYES\t\tNULL\t\npropertySqft\tint(11)\tYES\t\tNULL\t\npropertyDescription\ttext\tYES\t\tNULL\t\npropertyListingType\tvarchar(50)\tYES\t\tNULL\t\naiGenerated\ttinyint(1)\tYES\t\t0\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nupdatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\n",
+  "stderr": "",
+  "execution_time_ms": 47
+}

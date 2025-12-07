@@ -1,0 +1,9 @@
+{
+  "query": "DROP TABLE IF EXISTS import_jobs; DROP TABLE IF EXISTS uploads; DROP TABLE IF EXISTS integrations; DROP TABLE IF EXISTS calendar_events; DROP TABLE IF EXISTS content_posts; DROP TABLE IF EXISTS personas;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute DROP TABLE IF EXISTS import_jobs; DROP TABLE IF EXISTS uploads; DROP TABLE IF EXISTS integrations; DROP TABLE IF EXISTS calendar_events; DROP TABLE IF EXISTS content_posts; DROP TABLE IF EXISTS personas;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 466
+}
