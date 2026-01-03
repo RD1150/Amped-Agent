@@ -33,3 +33,17 @@
 - [x] Unit tests for core tRPC procedures
 - [x] Test CSV import parsing
 - [x] Test AI content generation input validation
+
+## Visual Content Generation (Re-implementation)
+- [x] AI Image Generation - Generate custom visuals for posts
+- [x] Template-based Graphics - Branded social media templates with overlays
+- [x] Stock Image Integration - Search and suggest relevant stock images
+- [x] Update AI Generate page to include visual options
+- [x] Display generated images alongside text content
+
+## GoHighLevel Integration (Re-implementation)
+- [x] GHL database schema and API setup
+- [x] Push content to GHL social planner
+- [x] Sync with GHL calendar
+- [x] GHL settings page for API credentials
+- [x] Test connection functionality

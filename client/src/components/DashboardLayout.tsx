@@ -31,7 +31,8 @@ import {
   PanelLeft,
   User,
   FileSpreadsheet,
-  Sparkles
+  Sparkles,
+  Zap
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -45,6 +46,7 @@ const menuItems = [
   { icon: FileSpreadsheet, label: "Import Data", path: "/import" },
   { icon: Link2, label: "Integrations", path: "/integrations" },
   { icon: Sparkles, label: "AI Generate", path: "/generate" },
+  { icon: Zap, label: "GoHighLevel", path: "/ghl" },
   { icon: Settings, label: "Settings", path: "/settings" },
   { icon: HelpCircle, label: "Help & Support", path: "/help" },
 ];

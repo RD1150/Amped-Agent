@@ -13,6 +13,7 @@ import Integrations from "./pages/Integrations";
 import AIGenerate from "./pages/AIGenerate";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
+import GHLSettings from "./pages/GHLSettings";
 
 function Router() {
   return (
@@ -24,6 +25,7 @@ function Router() {
         <Route path="/import" component={ImportData} />
         <Route path="/integrations" component={Integrations} />
         <Route path="/generate" component={AIGenerate} />
+        <Route path="/ghl" component={GHLSettings} />
         <Route path="/settings" component={Settings} />
         <Route path="/help" component={Help} />
         <Route path="/404" component={NotFound} />

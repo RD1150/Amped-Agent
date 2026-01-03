@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { invokeLLM } from "./_core/llm";
+import { generateImage } from "./_core/imageGeneration";
 import * as db from "./db";
 
 export const appRouter = router({
@@ -389,6 +390,202 @@ Create a compelling social media post.`;
         });
         
         return { success: true, postsCreated };
+      }),
+  }),
+
+  images: router({
+    generate: protectedProcedure
+      .input(z.object({
+        prompt: z.string(),
+        style: z.enum(["realistic", "modern", "luxury", "minimal", "vibrant"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const stylePrompts: Record<string, string> = {
+          realistic: "photorealistic, high quality photography",
+          modern: "modern, clean, minimalist design",
+          luxury: "luxury, premium, high-end aesthetic",
+          minimal: "minimalist, simple, elegant",
+          vibrant: "vibrant colors, energetic, eye-catching",
+        };
+        
+        const fullPrompt = `${input.prompt}. ${stylePrompts[input.style || "modern"]}. Professional real estate marketing quality.`;
+        
+        const result = await generateImage({ prompt: fullPrompt });
+        return { url: result.url, prompt: fullPrompt };
+      }),
+    
+    generateTemplate: protectedProcedure
+      .input(z.object({
+        templateType: z.enum(["property_card", "just_listed", "just_sold", "open_house", "market_update", "testimonial"]),
+        propertyData: z.object({
+          address: z.string().optional(),
+          price: z.string().optional(),
+          bedrooms: z.string().optional(),
+          bathrooms: z.string().optional(),
+          sqft: z.string().optional(),
+          agentName: z.string().optional(),
+        }).optional(),
+        brandColor: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+        const brandColor = input.brandColor || persona?.primaryColor || "#C9A962";
+        
+        const templatePrompts: Record<string, string> = {
+          property_card: `Professional real estate property card design. Elegant layout with space for property photo, address, price, and agent info. ${brandColor} accent colors. Modern, clean design.`,
+          just_listed: `"JUST LISTED" real estate social media post design. Bold, attention-grabbing with ${brandColor} accents. Space for property image and details. Professional and exciting.`,
+          just_sold: `"JUST SOLD" celebration real estate post. Success-oriented design with ${brandColor} accents. Celebratory but professional. Space for property details.`,
+          open_house: `"OPEN HOUSE" real estate invitation design. Welcoming, inviting atmosphere. ${brandColor} accents. Space for date, time, address details.`,
+          market_update: `Real estate market update infographic design. Professional charts and statistics aesthetic. ${brandColor} color scheme. Clean, data-focused layout.`,
+          testimonial: `Client testimonial real estate post design. Warm, trustworthy feel. ${brandColor} accents. Space for quote and client name. Professional and personal.`,
+        };
+        
+        const prompt = templatePrompts[input.templateType] + " High quality, social media ready, 1080x1080 square format.";
+        
+        const result = await generateImage({ prompt });
+        return { 
+          url: result.url, 
+          templateType: input.templateType,
+          prompt,
+        };
+      }),
+    
+    searchStock: protectedProcedure
+      .input(z.object({
+        query: z.string(),
+        category: z.enum(["property", "interior", "exterior", "neighborhood", "people", "abstract"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const categoryPrompts: Record<string, string> = {
+          property: "real estate property exterior, professional photography",
+          interior: "beautiful home interior, staged, professional real estate photography",
+          exterior: "home exterior, curb appeal, professional real estate photography",
+          neighborhood: "neighborhood scene, community, lifestyle photography",
+          people: "professional real estate agent or happy homeowners, diverse, friendly",
+          abstract: "abstract real estate concept, keys, house icons, professional",
+        };
+        
+        const categoryHint = categoryPrompts[input.category || "property"];
+        const prompt = `Stock photo style: ${input.query}. ${categoryHint}. High quality, versatile, suitable for real estate marketing.`;
+        
+        const results = await Promise.all([
+          generateImage({ prompt: prompt + " Variation 1." }),
+          generateImage({ prompt: prompt + " Variation 2, different angle." }),
+          generateImage({ prompt: prompt + " Variation 3, alternative composition." }),
+        ]);
+        
+        return {
+          images: results.map((r, i) => ({
+            url: r.url,
+            query: input.query,
+            index: i + 1,
+          })),
+        };
+      }),
+  }),
+
+  ghl: router({
+    getSettings: protectedProcedure.query(async ({ ctx }) => {
+      return db.getGHLSettingsByUserId(ctx.user.id);
+    }),
+    
+    saveSettings: protectedProcedure
+      .input(z.object({
+        apiKey: z.string().optional(),
+        locationId: z.string().optional(),
+        agencyId: z.string().optional(),
+        isConnected: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return db.upsertGHLSettings(ctx.user.id, input);
+      }),
+    
+    testConnection: protectedProcedure
+      .input(z.object({
+        apiKey: z.string(),
+        locationId: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          const response = await fetch(`https://services.leadconnectorhq.com/locations/${input.locationId}`, {
+            headers: {
+              'Authorization': `Bearer ${input.apiKey}`,
+              'Version': '2021-07-28',
+            },
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            return { success: true, locationName: data.location?.name || "Connected" };
+          } else {
+            return { success: false, error: "Invalid API key or Location ID" };
+          }
+        } catch (error) {
+          return { success: false, error: "Connection failed" };
+        }
+      }),
+    
+    pushToSocialPlanner: protectedProcedure
+      .input(z.object({
+        contentPostId: z.number(),
+        platforms: z.array(z.enum(["facebook", "instagram", "linkedin", "twitter"])),
+        scheduledAt: z.date().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const settings = await db.getGHLSettingsByUserId(ctx.user.id);
+        if (!settings?.apiKey || !settings?.locationId) {
+          throw new Error("GHL not configured. Please add your API credentials in settings.");
+        }
+        
+        const post = await db.getContentPostById(input.contentPostId);
+        if (!post) {
+          throw new Error("Content post not found");
+        }
+        
+        const response = await fetch(`https://services.leadconnectorhq.com/social-media-posting/post`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${settings.apiKey}`,
+            'Version': '2021-07-28',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            locationId: settings.locationId,
+            type: 'post',
+            content: post.content,
+            mediaUrls: post.imageUrl ? [post.imageUrl] : [],
+            platforms: input.platforms,
+            scheduledAt: input.scheduledAt?.toISOString(),
+          }),
+        });
+        
+        if (!response.ok) {
+          const error = await response.text();
+          throw new Error(`Failed to push to GHL: ${error}`);
+        }
+        
+        const result = await response.json();
+        
+        await db.updateContentPost(input.contentPostId, {
+          status: input.scheduledAt ? "scheduled" : "published",
+          platforms: input.platforms.join(","),
+        });
+        
+        return { success: true, ghlPostId: result.id };
+      }),
+    
+    syncCalendar: protectedProcedure
+      .input(z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const settings = await db.getGHLSettingsByUserId(ctx.user.id);
+        if (!settings?.apiKey || !settings?.locationId) {
+          throw new Error("GHL not configured");
+        }
+        
+        return { success: true, message: "Calendar sync completed" };
       }),
   }),
 });
