@@ -8,7 +8,9 @@ import {
   InsertIntegration, integrations,
   InsertUpload, uploads,
   InsertImportJob, importJobs,
-  InsertGHLSettings, ghlSettings
+  InsertGHLSettings, ghlSettings,
+  InsertAnalytics, analytics,
+  InsertPostingSchedule, postingSchedules
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -292,4 +294,82 @@ export async function upsertGHLSettings(userId: number, data: Partial<InsertGHLS
     const result = await db.insert(ghlSettings).values({ ...data, userId });
     return { id: Number(result[0].insertId), userId, ...data };
   }
+}
+
+
+// ============ ANALYTICS HELPERS ============
+
+export async function createAnalyticsRecord(data: InsertAnalytics) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(analytics).values(data);
+  return { id: Number(result[0].insertId), ...data };
+}
+
+export async function getAnalyticsByUserId(userId: number, startDate?: Date, endDate?: Date) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (startDate && endDate) {
+    return db.select().from(analytics).where(
+      and(
+        eq(analytics.userId, userId),
+        gte(analytics.recordedAt, startDate),
+        lte(analytics.recordedAt, endDate)
+      )
+    ).orderBy(desc(analytics.recordedAt));
+  }
+  
+  return db.select().from(analytics).where(eq(analytics.userId, userId)).orderBy(desc(analytics.recordedAt));
+}
+
+export async function getAnalyticsByContentPostId(contentPostId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(analytics).where(eq(analytics.contentPostId, contentPostId)).orderBy(desc(analytics.recordedAt));
+}
+
+// ============ POSTING SCHEDULE HELPERS ============
+
+export async function getPostingSchedulesByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(postingSchedules).where(eq(postingSchedules.userId, userId)).orderBy(desc(postingSchedules.createdAt));
+}
+
+export async function getActivePostingSchedules(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(postingSchedules).where(
+    and(
+      eq(postingSchedules.userId, userId),
+      eq(postingSchedules.isActive, true)
+    )
+  ).orderBy(desc(postingSchedules.nextRunAt));
+}
+
+export async function createPostingSchedule(data: InsertPostingSchedule) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(postingSchedules).values(data);
+  return { id: Number(result[0].insertId), ...data };
+}
+
+export async function updatePostingSchedule(id: number, data: Partial<InsertPostingSchedule>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(postingSchedules).set({ ...data, updatedAt: new Date() }).where(eq(postingSchedules.id, id));
+}
+
+export async function deletePostingSchedule(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(postingSchedules).where(eq(postingSchedules.id, id));
+}
+
+export async function getPostingScheduleById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(postingSchedules).where(eq(postingSchedules.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
 }

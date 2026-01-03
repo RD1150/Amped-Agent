@@ -32,7 +32,9 @@ import {
   User,
   FileSpreadsheet,
   Sparkles,
-  Zap
+  Zap,
+  BarChart3,
+  Clock
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -47,6 +49,8 @@ const menuItems = [
   { icon: Link2, label: "Integrations", path: "/integrations" },
   { icon: Sparkles, label: "AI Generate", path: "/generate" },
   { icon: Zap, label: "GoHighLevel", path: "/ghl" },
+  { icon: BarChart3, label: "Analytics", path: "/analytics" },
+  { icon: Clock, label: "Schedules", path: "/schedules" },
   { icon: Settings, label: "Settings", path: "/settings" },
   { icon: HelpCircle, label: "Help & Support", path: "/help" },
 ];

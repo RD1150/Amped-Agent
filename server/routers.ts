@@ -588,6 +588,225 @@ Create a compelling social media post.`;
         return { success: true, message: "Calendar sync completed" };
       }),
   }),
+
+  analytics: router({
+    getMetrics: protectedProcedure
+      .input(z.object({
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const records = await db.getAnalyticsByUserId(ctx.user.id, input.startDate, input.endDate);
+        
+        const totalViews = records.reduce((sum, r) => sum + (r.views || 0), 0);
+        const totalLikes = records.reduce((sum, r) => sum + (r.likes || 0), 0);
+        const totalComments = records.reduce((sum, r) => sum + (r.comments || 0), 0);
+        const totalShares = records.reduce((sum, r) => sum + (r.shares || 0), 0);
+        const totalClicks = records.reduce((sum, r) => sum + (r.clicks || 0), 0);
+        const avgEngagement = records.length > 0 
+          ? records.reduce((sum, r) => sum + (r.engagementRate || 0), 0) / records.length 
+          : 0;
+        
+        return {
+          totalViews,
+          totalLikes,
+          totalComments,
+          totalShares,
+          totalClicks,
+          avgEngagement: avgEngagement / 100,
+          totalPosts: records.length,
+        };
+      }),
+    
+    getTopPosts: protectedProcedure
+      .input(z.object({
+        limit: z.number().default(10),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const records = await db.getAnalyticsByUserId(ctx.user.id, input.startDate, input.endDate);
+        
+        const postMetrics = new Map<number, any>();
+        
+        for (const record of records) {
+          const existing = postMetrics.get(record.contentPostId) || {
+            contentPostId: record.contentPostId,
+            totalViews: 0,
+            totalLikes: 0,
+            totalComments: 0,
+            totalShares: 0,
+            totalClicks: 0,
+            avgEngagement: 0,
+            platforms: new Set(),
+          };
+          
+          existing.totalViews += record.views || 0;
+          existing.totalLikes += record.likes || 0;
+          existing.totalComments += record.comments || 0;
+          existing.totalShares += record.shares || 0;
+          existing.totalClicks += record.clicks || 0;
+          existing.platforms.add(record.platform);
+          
+          postMetrics.set(record.contentPostId, existing);
+        }
+        
+        const topPosts = Array.from(postMetrics.values())
+          .map(p => ({
+            ...p,
+            platforms: Array.from(p.platforms),
+            totalEngagement: p.totalLikes + p.totalComments + p.totalShares,
+          }))
+          .sort((a, b) => b.totalEngagement - a.totalEngagement)
+          .slice(0, input.limit);
+        
+        return topPosts;
+      }),
+    
+    getTrends: protectedProcedure
+      .input(z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+        groupBy: z.enum(["day", "week", "month"]).default("day"),
+      }))
+      .query(async ({ ctx, input }) => {
+        const records = await db.getAnalyticsByUserId(ctx.user.id, input.startDate, input.endDate);
+        
+        const trends = records.map(r => ({
+          date: r.recordedAt,
+          views: r.views || 0,
+          likes: r.likes || 0,
+          comments: r.comments || 0,
+          shares: r.shares || 0,
+          engagement: (r.engagementRate || 0) / 100,
+          platform: r.platform,
+        }));
+        
+        return trends;
+      }),
+  }),
+
+  schedules: router({
+    list: protectedProcedure
+      .query(async ({ ctx }) => {
+        return db.getPostingSchedulesByUserId(ctx.user.id);
+      }),
+    
+    getActive: protectedProcedure
+      .query(async ({ ctx }) => {
+        return db.getActivePostingSchedules(ctx.user.id);
+      }),
+    
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]),
+        frequency: z.enum(["daily", "weekly", "biweekly", "monthly"]),
+        dayOfWeek: z.number().min(0).max(6).optional(),
+        dayOfMonth: z.number().min(1).max(31).optional(),
+        timeOfDay: z.string(),
+        platforms: z.array(z.string()).optional(),
+        autoGenerate: z.boolean().default(true),
+        templateSettings: z.any().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const nextRunAt = calculateNextRunTime(
+          input.frequency,
+          input.timeOfDay,
+          input.dayOfWeek,
+          input.dayOfMonth
+        );
+        
+        return db.createPostingSchedule({
+          userId: ctx.user.id,
+          name: input.name,
+          contentType: input.contentType,
+          frequency: input.frequency,
+          dayOfWeek: input.dayOfWeek,
+          dayOfMonth: input.dayOfMonth,
+          timeOfDay: input.timeOfDay,
+          platforms: input.platforms ? JSON.stringify(input.platforms) : null,
+          autoGenerate: input.autoGenerate,
+          templateSettings: input.templateSettings ? JSON.stringify(input.templateSettings) : null,
+          nextRunAt,
+        });
+      }),
+    
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        isActive: z.boolean().optional(),
+        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]).optional(),
+        frequency: z.enum(["daily", "weekly", "biweekly", "monthly"]).optional(),
+        dayOfWeek: z.number().min(0).max(6).optional(),
+        dayOfMonth: z.number().min(1).max(31).optional(),
+        timeOfDay: z.string().optional(),
+        platforms: z.array(z.string()).optional(),
+        autoGenerate: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const updateData: any = { ...input };
+        delete updateData.id;
+        
+        if (input.platforms) {
+          updateData.platforms = JSON.stringify(input.platforms);
+        }
+        
+        if (input.frequency || input.timeOfDay || input.dayOfWeek || input.dayOfMonth) {
+          const schedule = await db.getPostingScheduleById(input.id);
+          if (schedule) {
+            updateData.nextRunAt = calculateNextRunTime(
+              input.frequency || schedule.frequency,
+              input.timeOfDay || schedule.timeOfDay,
+              input.dayOfWeek ?? schedule.dayOfWeek,
+              input.dayOfMonth ?? schedule.dayOfMonth
+            );
+          }
+        }
+        
+        return db.updatePostingSchedule(input.id, updateData);
+      }),
+    
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return db.deletePostingSchedule(input.id);
+      }),
+  }),
 });
+
+function calculateNextRunTime(
+  frequency: string,
+  timeOfDay: string,
+  dayOfWeek?: number | null,
+  dayOfMonth?: number | null
+): Date {
+  const now = new Date();
+  const [hours, minutes] = timeOfDay.split(":").map(Number);
+  const next = new Date(now);
+  next.setHours(hours, minutes, 0, 0);
+  
+  if (frequency === "daily") {
+    if (next <= now) {
+      next.setDate(next.getDate() + 1);
+    }
+  } else if (frequency === "weekly" && dayOfWeek !== null && dayOfWeek !== undefined) {
+    const currentDay = next.getDay();
+    const daysUntil = (dayOfWeek - currentDay + 7) % 7;
+    next.setDate(next.getDate() + (daysUntil === 0 && next <= now ? 7 : daysUntil));
+  } else if (frequency === "biweekly" && dayOfWeek !== null && dayOfWeek !== undefined) {
+    const currentDay = next.getDay();
+    const daysUntil = (dayOfWeek - currentDay + 7) % 7;
+    next.setDate(next.getDate() + (daysUntil === 0 && next <= now ? 14 : daysUntil));
+  } else if (frequency === "monthly" && dayOfMonth !== null && dayOfMonth !== undefined) {
+    next.setDate(dayOfMonth);
+    if (next <= now) {
+      next.setMonth(next.getMonth() + 1);
+    }
+  }
+  
+  return next;
+}
 
 export type AppRouter = typeof appRouter;

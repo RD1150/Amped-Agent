@@ -169,3 +169,49 @@ export const ghlSettings = mysqlTable("ghl_settings", {
 
 export type GHLSettings = typeof ghlSettings.$inferSelect;
 export type InsertGHLSettings = typeof ghlSettings.$inferInsert;
+
+/**
+ * Analytics - track post performance metrics
+ */
+export const analytics = mysqlTable("analytics", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  contentPostId: int("contentPostId").notNull(),
+  platform: varchar("platform", { length: 50 }).notNull(),
+  views: int("views").default(0),
+  likes: int("likes").default(0),
+  comments: int("comments").default(0),
+  shares: int("shares").default(0),
+  clicks: int("clicks").default(0),
+  engagementRate: int("engagementRate").default(0), // stored as percentage * 100
+  recordedAt: timestamp("recordedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Analytics = typeof analytics.$inferSelect;
+export type InsertAnalytics = typeof analytics.$inferInsert;
+
+/**
+ * Posting schedules - automated recurring content patterns
+ */
+export const postingSchedules = mysqlTable("posting_schedules", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  isActive: boolean("isActive").default(true),
+  contentType: mysqlEnum("contentType", ["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]).notNull(),
+  frequency: mysqlEnum("frequency", ["daily", "weekly", "biweekly", "monthly"]).notNull(),
+  dayOfWeek: int("dayOfWeek"), // 0-6 for Sunday-Saturday
+  dayOfMonth: int("dayOfMonth"), // 1-31 for monthly schedules
+  timeOfDay: varchar("timeOfDay", { length: 10 }).notNull(), // HH:MM format
+  platforms: text("platforms"), // JSON array stored as text
+  autoGenerate: boolean("autoGenerate").default(true),
+  templateSettings: text("templateSettings"), // JSON stored as text
+  lastRunAt: timestamp("lastRunAt"),
+  nextRunAt: timestamp("nextRunAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PostingSchedule = typeof postingSchedules.$inferSelect;
+export type InsertPostingSchedule = typeof postingSchedules.$inferInsert;
