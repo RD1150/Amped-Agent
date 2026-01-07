@@ -215,3 +215,111 @@ export const postingSchedules = mysqlTable("posting_schedules", {
 
 export type PostingSchedule = typeof postingSchedules.$inferSelect;
 export type InsertPostingSchedule = typeof postingSchedules.$inferInsert;
+
+/**
+ * White-label settings - custom branding for agencies
+ */
+export const whiteLabelSettings = mysqlTable("white_label_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(), // The agency owner
+  appName: varchar("appName", { length: 255 }).default("LuxEstate"),
+  appTagline: varchar("appTagline", { length: 500 }),
+  logoUrl: text("logoUrl"),
+  faviconUrl: text("faviconUrl"),
+  primaryColor: varchar("primaryColor", { length: 7 }).default("#C9A962"),
+  secondaryColor: varchar("secondaryColor", { length: 7 }).default("#1a1a1a"),
+  accentColor: varchar("accentColor", { length: 7 }).default("#C9A962"),
+  customDomain: varchar("customDomain", { length: 255 }),
+  customCss: text("customCss"),
+  hideOriginalBranding: boolean("hideOriginalBranding").default(false),
+  supportEmail: varchar("supportEmail", { length: 320 }),
+  supportPhone: varchar("supportPhone", { length: 20 }),
+  termsUrl: text("termsUrl"),
+  privacyUrl: text("privacyUrl"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WhiteLabelSettings = typeof whiteLabelSettings.$inferSelect;
+export type InsertWhiteLabelSettings = typeof whiteLabelSettings.$inferInsert;
+
+/**
+ * Subscription tiers - pricing plans
+ */
+export const subscriptionTiers = mysqlTable("subscription_tiers", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 50 }).notNull(), // "Basic", "Pro", "Agency"
+  displayName: varchar("displayName", { length: 100 }).notNull(),
+  monthlyPrice: int("monthlyPrice").notNull(), // in cents
+  yearlyPrice: int("yearlyPrice"), // in cents
+  postsPerMonth: int("postsPerMonth"), // null = unlimited
+  imagesPerMonth: int("imagesPerMonth"), // null = unlimited
+  platformsAllowed: int("platformsAllowed").default(2),
+  teamMembersAllowed: int("teamMembersAllowed").default(1),
+  clientsAllowed: int("clientsAllowed").default(1), // for agencies
+  whiteLabelEnabled: boolean("whiteLabelEnabled").default(false),
+  analyticsEnabled: boolean("analyticsEnabled").default(true),
+  prioritySupport: boolean("prioritySupport").default(false),
+  features: text("features"), // JSON array of feature flags
+  isActive: boolean("isActive").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SubscriptionTier = typeof subscriptionTiers.$inferSelect;
+export type InsertSubscriptionTier = typeof subscriptionTiers.$inferInsert;
+
+/**
+ * User subscriptions - links users to their tier
+ */
+export const userSubscriptions = mysqlTable("user_subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  tierId: int("tierId").notNull(),
+  status: mysqlEnum("status", ["active", "cancelled", "suspended", "trial"]).default("trial"),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
+  currentPeriodStart: timestamp("currentPeriodStart"),
+  currentPeriodEnd: timestamp("currentPeriodEnd"),
+  cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").default(false),
+  trialEndsAt: timestamp("trialEndsAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserSubscription = typeof userSubscriptions.$inferSelect;
+export type InsertUserSubscription = typeof userSubscriptions.$inferInsert;
+
+/**
+ * Usage tracking - monitor user consumption
+ */
+export const usageTracking = mysqlTable("usage_tracking", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  month: varchar("month", { length: 7 }).notNull(), // "2026-01" format
+  postsGenerated: int("postsGenerated").default(0),
+  imagesGenerated: int("imagesGenerated").default(0),
+  aiCallsMade: int("aiCallsMade").default(0),
+  storageUsedMb: int("storageUsedMb").default(0),
+  apiCallsMade: int("apiCallsMade").default(0),
+  lastUpdated: timestamp("lastUpdated").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type UsageTracking = typeof usageTracking.$inferSelect;
+export type InsertUsageTracking = typeof usageTracking.$inferInsert;
+
+/**
+ * Usage alerts - notify users when approaching limits
+ */
+export const usageAlerts = mysqlTable("usage_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  alertType: mysqlEnum("alertType", ["posts_80", "posts_90", "posts_100", "images_80", "images_90", "images_100"]).notNull(),
+  month: varchar("month", { length: 7 }).notNull(),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  acknowledged: boolean("acknowledged").default(false),
+});
+
+export type UsageAlert = typeof usageAlerts.$inferSelect;
+export type InsertUsageAlert = typeof usageAlerts.$inferInsert;

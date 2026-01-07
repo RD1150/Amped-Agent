@@ -71,3 +71,57 @@
 - [x] Test actual GHL API integration
 - [x] Add error handling and retry logic
 - [x] Display connection status in dashboard
+
+## Usage Tracking System (Phase 1 - Priority)
+- [x] Create subscription tiers database schema (Basic, Pro, Agency)
+- [x] Track usage metrics (posts generated, images created, API calls)
+- [x] Enforce tier limits with graceful error messages
+- [x] Usage dashboard for users to see their consumption
+- [x] Admin analytics for overall platform usage
+- [x] Usage alert system (80%, 90%, 100% of limit)
+
+## GHL Webhook Handler (Phase 2 - Priority)
+- [x] Webhook endpoint to receive GHL events
+- [x] Handle user signup events from GHL
+- [x] Handle subscription tier updates
+- [x] Handle cancellation/suspension events
+- [x] Sync user status between GHL and LuxEstate
+- [x] Error handling and retry logic
+- [ ] Webhook security (signature verification) - TODO: Add HMAC verification
+
+## Social Media OAuth (Phase 3 - Priority)
+- [ ] Facebook OAuth flow implementation - See comprehensive guide
+- [ ] Instagram OAuth (via Facebook Business) - See comprehensive guide
+- [ ] LinkedIn OAuth implementation - See comprehensive guide
+- [ ] Twitter/X OAuth implementation - See comprehensive guide
+- [ ] Token refresh automation - See comprehensive guide
+- [ ] Actual post publishing to each platform - See comprehensive guide
+- [ ] Error handling for failed posts - See comprehensive guide
+- [x] OAuth comprehensive implementation guide - Created Social-Media-OAuth-Guide.md
+
+## White-label Capabilities (Phase 4)
+- [ ] Create white-label settings database schema
+- [ ] Custom branding configuration (logo, colors, app name)
+- [ ] Custom domain support
+- [ ] Dynamic theme system based on white-label settings
+- [ ] Agency-specific styling and assets
+- [ ] White-label settings UI page
+- [ ] Remove hardcoded "LuxEstate" branding
+
+## Team Collaboration (Phase 2)
+- [ ] Multi-user organization/team database schema
+- [ ] Role-based permissions (Admin, Editor, Viewer)
+- [ ] Team member invitation system
+- [ ] User management UI for admins
+- [ ] Activity logs and audit trails
+- [ ] Shared content library per team
+- [ ] Permission checks on all protected routes
+
+## Client Management (Phase 3)
+- [ ] Client accounts database schema
+- [ ] Agency dashboard to manage multiple clients
+- [ ] Per-client branding and settings
+- [ ] Client switching interface
+- [ ] Separate analytics per client
+- [ ] Billing and usage tracking per client
+- [ ] Client onboarding workflow

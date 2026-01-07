@@ -10,7 +10,12 @@ import {
   InsertImportJob, importJobs,
   InsertGHLSettings, ghlSettings,
   InsertAnalytics, analytics,
-  InsertPostingSchedule, postingSchedules
+  InsertPostingSchedule, postingSchedules,
+  subscriptionTiers, SubscriptionTier,
+  userSubscriptions, UserSubscription, InsertUserSubscription,
+  usageTracking, UsageTracking, InsertUsageTracking,
+  usageAlerts, UsageAlert, InsertUsageAlert,
+  whiteLabelSettings, WhiteLabelSettings, InsertWhiteLabelSettings
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -371,5 +376,184 @@ export async function getPostingScheduleById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
   const result = await db.select().from(postingSchedules).where(eq(postingSchedules.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// ============ SUBSCRIPTION & USAGE TRACKING HELPERS ============
+
+export async function getAllSubscriptionTiers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(subscriptionTiers).where(eq(subscriptionTiers.isActive, true));
+}
+
+export async function getSubscriptionTierByName(name: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(subscriptionTiers).where(eq(subscriptionTiers.name, name)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserSubscription(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(userSubscriptions).where(eq(userSubscriptions.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertUserSubscription(data: InsertUserSubscription) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(userSubscriptions).values(data).onDuplicateKeyUpdate({
+    set: {
+      tierId: data.tierId,
+      status: data.status,
+      stripeCustomerId: data.stripeCustomerId,
+      stripeSubscriptionId: data.stripeSubscriptionId,
+      currentPeriodStart: data.currentPeriodStart,
+      currentPeriodEnd: data.currentPeriodEnd,
+      cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+      trialEndsAt: data.trialEndsAt,
+      updatedAt: new Date(),
+    }
+  });
+}
+
+export async function getUserUsageForMonth(userId: number, month: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(usageTracking).where(
+    and(
+      eq(usageTracking.userId, userId),
+      eq(usageTracking.month, month)
+    )
+  ).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function incrementUsage(userId: number, type: 'posts' | 'images' | 'ai_calls' | 'api_calls', amount: number = 1) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const month = new Date().toISOString().slice(0, 7); // "2026-01" format
+  const existing = await getUserUsageForMonth(userId, month);
+  
+  if (existing) {
+    const updates: Partial<InsertUsageTracking> = { lastUpdated: new Date() };
+    if (type === 'posts') updates.postsGenerated = (existing.postsGenerated || 0) + amount;
+    if (type === 'images') updates.imagesGenerated = (existing.imagesGenerated || 0) + amount;
+    if (type === 'ai_calls') updates.aiCallsMade = (existing.aiCallsMade || 0) + amount;
+    if (type === 'api_calls') updates.apiCallsMade = (existing.apiCallsMade || 0) + amount;
+    
+    await db.update(usageTracking).set(updates).where(eq(usageTracking.id, existing.id));
+  } else {
+    const newUsage: InsertUsageTracking = {
+      userId,
+      month,
+      postsGenerated: type === 'posts' ? amount : 0,
+      imagesGenerated: type === 'images' ? amount : 0,
+      aiCallsMade: type === 'ai_calls' ? amount : 0,
+      apiCallsMade: type === 'api_calls' ? amount : 0,
+    };
+    await db.insert(usageTracking).values(newUsage);
+  }
+}
+
+export async function checkUsageLimits(userId: number): Promise<{ allowed: boolean; reason?: string; usage?: UsageTracking; tier?: SubscriptionTier }> {
+  const subscription = await getUserSubscription(userId);
+  if (!subscription) {
+    return { allowed: false, reason: "No active subscription" };
+  }
+  
+  const db = await getDb();
+  if (!db) return { allowed: false, reason: "Database not available" };
+  
+  const tierResult = await db.select().from(subscriptionTiers).where(eq(subscriptionTiers.id, subscription.tierId)).limit(1);
+  if (tierResult.length === 0) {
+    return { allowed: false, reason: "Invalid subscription tier" };
+  }
+  
+  const tier = tierResult[0];
+  const month = new Date().toISOString().slice(0, 7);
+  const usage = await getUserUsageForMonth(userId, month);
+  
+  // If tier has null limits, it's unlimited
+  if (tier.postsPerMonth === null && tier.imagesPerMonth === null) {
+    return { allowed: true, usage: usage || undefined, tier };
+  }
+  
+  // Check if user has exceeded limits
+  if (tier.postsPerMonth !== null && usage && (usage.postsGenerated || 0) >= tier.postsPerMonth) {
+    return { allowed: false, reason: `Monthly post limit reached (${tier.postsPerMonth})`, usage, tier };
+  }
+  
+  if (tier.imagesPerMonth !== null && usage && (usage.imagesGenerated || 0) >= tier.imagesPerMonth) {
+    return { allowed: false, reason: `Monthly image limit reached (${tier.imagesPerMonth})`, usage, tier };
+  }
+  
+  return { allowed: true, usage: usage || undefined, tier };
+}
+
+export async function createUsageAlert(data: InsertUsageAlert) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(usageAlerts).values(data);
+}
+
+export async function getUnacknowledgedAlerts(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(usageAlerts).where(
+    and(
+      eq(usageAlerts.userId, userId),
+      eq(usageAlerts.acknowledged, false)
+    )
+  ).orderBy(desc(usageAlerts.sentAt));
+}
+
+// ============ WHITE-LABEL HELPERS ============
+
+export async function getWhiteLabelSettings(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(whiteLabelSettings).where(eq(whiteLabelSettings.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertWhiteLabelSettings(data: InsertWhiteLabelSettings) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(whiteLabelSettings).values(data).onDuplicateKeyUpdate({
+    set: {
+      appName: data.appName,
+      appTagline: data.appTagline,
+      logoUrl: data.logoUrl,
+      faviconUrl: data.faviconUrl,
+      primaryColor: data.primaryColor,
+      secondaryColor: data.secondaryColor,
+      accentColor: data.accentColor,
+      customDomain: data.customDomain,
+      customCss: data.customCss,
+      hideOriginalBranding: data.hideOriginalBranding,
+      supportEmail: data.supportEmail,
+      supportPhone: data.supportPhone,
+      termsUrl: data.termsUrl,
+      privacyUrl: data.privacyUrl,
+      updatedAt: new Date(),
+    }
+  });
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
   return result.length > 0 ? result[0] : undefined;
 }

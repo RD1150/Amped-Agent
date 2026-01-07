@@ -774,6 +774,153 @@ Create a compelling social media post.`;
         return db.deletePostingSchedule(input.id);
       }),
   }),
+
+  // Usage tracking and subscription management
+  usage: router({
+    current: protectedProcedure.query(async ({ ctx }) => {
+      const month = new Date().toISOString().slice(0, 7);
+      const usage = await db.getUserUsageForMonth(ctx.user.id, month);
+      const subscription = await db.getUserSubscription(ctx.user.id);
+      const limits = await db.checkUsageLimits(ctx.user.id);
+      
+      return {
+        usage: usage || { postsGenerated: 0, imagesGenerated: 0, aiCallsMade: 0 },
+        subscription,
+        tier: limits.tier,
+        allowed: limits.allowed,
+        reason: limits.reason,
+      };
+    }),
+    
+    tiers: protectedProcedure.query(async () => {
+      return db.getAllSubscriptionTiers();
+    }),
+    
+    alerts: protectedProcedure.query(async ({ ctx }) => {
+      return db.getUnacknowledgedAlerts(ctx.user.id);
+    }),
+  }),
+
+  // GHL webhook handler
+  webhooks: router({
+    ghl: publicProcedure
+      .input(z.object({
+        event: z.string(),
+        userId: z.string().optional(),
+        email: z.string().optional(),
+        name: z.string().optional(),
+        tier: z.enum(["basic", "pro", "agency"]).optional(),
+        status: z.enum(["active", "cancelled", "suspended", "trial"]).optional(),
+        stripeCustomerId: z.string().optional(),
+        stripeSubscriptionId: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // Handle different GHL events
+        if (input.event === "user.created" || input.event === "user.subscribed") {
+          // Find or create user
+          let user = input.email ? await db.getUserByEmail(input.email) : undefined;
+          
+          if (!user && input.email) {
+            // Create new user from GHL
+            await db.upsertUser({
+              openId: `ghl_${input.userId || input.email}`,
+              email: input.email,
+              name: input.name,
+              loginMethod: "ghl",
+            });
+            user = await db.getUserByEmail(input.email);
+          }
+          
+          if (user && input.tier) {
+            // Get tier ID
+            const tier = await db.getSubscriptionTierByName(input.tier);
+            if (tier) {
+              // Create/update subscription
+              await db.upsertUserSubscription({
+                userId: user.id,
+                tierId: tier.id,
+                status: input.status || "active",
+                stripeCustomerId: input.stripeCustomerId,
+                stripeSubscriptionId: input.stripeSubscriptionId,
+                currentPeriodStart: new Date(),
+                currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+              });
+            }
+          }
+          
+          return { success: true, message: "User subscription created" };
+        }
+        
+        if (input.event === "user.subscription.updated") {
+          const user = input.email ? await db.getUserByEmail(input.email) : undefined;
+          
+          if (user && input.tier) {
+            const tier = await db.getSubscriptionTierByName(input.tier);
+            if (tier) {
+              await db.upsertUserSubscription({
+                userId: user.id,
+                tierId: tier.id,
+                status: input.status || "active",
+                stripeCustomerId: input.stripeCustomerId,
+                stripeSubscriptionId: input.stripeSubscriptionId,
+              });
+            }
+          }
+          
+          return { success: true, message: "Subscription updated" };
+        }
+        
+        if (input.event === "user.subscription.cancelled") {
+          const user = input.email ? await db.getUserByEmail(input.email) : undefined;
+          
+          if (user) {
+            const subscription = await db.getUserSubscription(user.id);
+            if (subscription) {
+              await db.upsertUserSubscription({
+                ...subscription,
+                status: "cancelled",
+                cancelAtPeriodEnd: true,
+              });
+            }
+          }
+          
+          return { success: true, message: "Subscription cancelled" };
+        }
+        
+        return { success: true, message: "Event received" };
+      }),
+  }),
+
+  // White-label settings
+  whiteLabel: router({
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return db.getWhiteLabelSettings(ctx.user.id);
+    }),
+    
+    upsert: protectedProcedure
+      .input(z.object({
+        appName: z.string().optional(),
+        appTagline: z.string().optional(),
+        logoUrl: z.string().optional(),
+        faviconUrl: z.string().optional(),
+        primaryColor: z.string().optional(),
+        secondaryColor: z.string().optional(),
+        accentColor: z.string().optional(),
+        customDomain: z.string().optional(),
+        customCss: z.string().optional(),
+        hideOriginalBranding: z.boolean().optional(),
+        supportEmail: z.string().optional(),
+        supportPhone: z.string().optional(),
+        termsUrl: z.string().optional(),
+        privacyUrl: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return db.upsertWhiteLabelSettings({
+          userId: ctx.user.id,
+          ...input,
+        });
+      }),
+  }),
 });
 
 function calculateNextRunTime(

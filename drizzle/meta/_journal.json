@@ -22,6 +22,20 @@
       "when": 1767467219955,
       "tag": "0002_white_maximus",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1767770364469,
+      "tag": "0003_dapper_reavers",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1767808477910,
+      "tag": "0004_lively_starjammers",
+      "breakpoints": true
     }
   ]
 }
