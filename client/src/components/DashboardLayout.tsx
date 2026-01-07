@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { 
+import {
   Calendar, 
   Upload, 
   Link2, 
@@ -34,12 +34,15 @@ import {
   Sparkles,
   Zap,
   BarChart3,
-  Clock
+  Clock,
+  Sun,
+  Moon
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const menuItems = [
   { icon: Calendar, label: "Content Calendar", path: "/" },
@@ -59,6 +62,29 @@ const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
 const MIN_WIDTH = 200;
 const MAX_WIDTH = 480;
+
+function ThemeToggleMenuItem() {
+  const { theme, toggleTheme } = useTheme();
+  
+  return (
+    <DropdownMenuItem
+      onClick={toggleTheme}
+      className="cursor-pointer"
+    >
+      {theme === "dark" ? (
+        <>
+          <Sun className="mr-2 h-4 w-4" />
+          <span>Light mode</span>
+        </>
+      ) : (
+        <>
+          <Moon className="mr-2 h-4 w-4" />
+          <span>Dark mode</span>
+        </>
+      )}
+    </DropdownMenuItem>
+  );
+}
 
 export default function DashboardLayout({
   children,
@@ -250,6 +276,7 @@ function DashboardLayoutContent({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                <ThemeToggleMenuItem />
                 <DropdownMenuItem
                   onClick={logout}
                   className="cursor-pointer text-destructive focus:text-destructive"

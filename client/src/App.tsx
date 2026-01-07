@@ -16,12 +16,22 @@ import Help from "./pages/Help";
 import GHLSettings from "./pages/GHLSettings";
 import Analytics from "./pages/Analytics";
 import Schedules from "./pages/Schedules";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import DataDeletion from "./pages/DataDeletion";
 
 function Router() {
   return (
-    <DashboardLayout>
-      <Switch>
-        <Route path="/" component={ContentCalendar} />
+    <Switch>
+      {/* Public routes without dashboard layout */}
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/data-deletion" component={DataDeletion} />
+      
+      {/* Dashboard routes */}
+      <Route>
+        {() => (
+          <DashboardLayout>
+            <Switch>
+              <Route path="/" component={ContentCalendar} />
         <Route path="/persona" component={PersonaBrand} />
         <Route path="/uploads" component={Uploads} />
         <Route path="/import" component={ImportData} />
@@ -32,17 +42,20 @@ function Router() {
         <Route path="/schedules" component={Schedules} />
         <Route path="/settings" component={Settings} />
         <Route path="/help" component={Help} />
-        <Route path="/404" component={NotFound} />
-        <Route component={NotFound} />
-      </Switch>
-    </DashboardLayout>
+              <Route path="/404" component={NotFound} />
+              <Route component={NotFound} />
+            </Switch>
+          </DashboardLayout>
+        )}
+      </Route>
+    </Switch>
   );
 }
 
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
+      <ThemeProvider defaultTheme="dark" switchable={true}>
         <TooltipProvider>
           <Toaster />
           <Router />

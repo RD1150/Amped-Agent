@@ -125,3 +125,53 @@
 - [ ] Separate analytics per client
 - [ ] Billing and usage tracking per client
 - [ ] Client onboarding workflow
+
+## Facebook/Instagram OAuth Implementation (New Priority)
+- [x] Set up Facebook App in Meta Developer Console
+- [x] Implement Facebook OAuth callback endpoint
+- [x] Store Facebook access tokens securely (encrypted)
+- [ ] Implement token refresh automation
+- [ ] Build Facebook posting API integration
+- [ ] Add Instagram Business Account connection
+- [ ] Implement Instagram posting via Facebook Graph API
+- [ ] Test posting to both platforms
+- [ ] Error handling for failed posts and expired tokens
+
+## Usage Dashboard UI (New Priority)
+- [ ] Create Usage Dashboard page component
+- [ ] Display current usage metrics (posts, images, API calls)
+- [ ] Show tier limits and remaining quota
+- [ ] Add progress bars for visual usage tracking
+- [ ] Implement upgrade prompts at 80%, 90%, 100% thresholds
+- [ ] Add tier comparison table
+- [ ] Link to GHL payment/upgrade flow
+- [ ] Add usage history chart
+
+## Webhook Signature Verification (New Priority)
+- [ ] Add HMAC signature generation for outgoing webhooks
+- [ ] Implement HMAC signature verification for incoming GHL webhooks
+- [ ] Add webhook secret configuration
+- [ ] Reject webhooks with invalid signatures
+- [ ] Log webhook verification failures
+- [ ] Add webhook testing endpoint for development
+
+## Facebook App Submission Requirements
+- [x] Generate 1024x1024 app icon for LuxEstate
+- [x] Create Privacy Policy page
+- [x] Create Data Deletion Request page/form
+- [ ] Add Terms of Service page
+- [x] Upload app icon to Facebook Developer Console
+- [x] Configure app category in Facebook Developer Console
+- [x] Complete Facebook OAuth integration with real flow
+- [ ] Write unit tests for Facebook OAuth procedures
+- [x] Test Facebook OAuth flow end-to-end
+
+## Theme Toggle Feature
+- [x] Add theme toggle to user profile dropdown
+- [x] Update light theme colors in index.css
+- [x] Test theme switching functionality
+
+## Facebook OAuth Integration Fixes
+- [x] Update Facebook OAuth scopes to Development Mode compatible scopes
+- [x] Test Facebook connection with fixed scopes
+- [x] Verify Reena Dutta Real Estate page access

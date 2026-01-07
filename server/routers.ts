@@ -6,6 +6,7 @@ import { z } from "zod";
 import { invokeLLM } from "./_core/llm";
 import { generateImage } from "./_core/imageGeneration";
 import * as db from "./db";
+import { facebookRouter } from "./routers/facebook";
 
 export const appRouter = router({
   system: systemRouter,
@@ -921,6 +922,9 @@ Create a compelling social media post.`;
         });
       }),
   }),
+
+  // Facebook OAuth Integration
+  facebook: facebookRouter,
 });
 
 function calculateNextRunTime(

@@ -2,8 +2,9 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, Check, ExternalLink } from "lucide-react";
+import { RefreshCw, Check, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 const platforms = [
   {
@@ -37,8 +38,70 @@ const platforms = [
 ];
 
 export default function Integrations() {
-  const { data: integrations = [], isLoading } = trpc.integrations.list.useQuery();
+  const [isConnecting, setIsConnecting] = useState(false);
   const utils = trpc.useUtils();
+
+  // Get Facebook connection status
+  const { data: facebookConnection, isLoading: fbLoading } = trpc.facebook.getConnection.useQuery();
+  
+  // Get all integrations (for other platforms)
+  const { data: integrations = [], isLoading } = trpc.integrations.list.useQuery();
+
+  // Facebook OAuth mutations
+  const getAuthUrl = trpc.facebook.getAuthUrl.useMutation();
+  const handleCallback = trpc.facebook.handleCallback.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Connected to Facebook as ${data.accountName}`);
+      utils.facebook.getConnection.invalidate();
+      setIsConnecting(false);
+      // Clear URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+    },
+    onError: (error) => {
+      toast.error(`Failed to connect Facebook: ${error.message}`);
+      setIsConnecting(false);
+    },
+  });
+
+  const disconnectFacebook = trpc.facebook.disconnect.useMutation({
+    onSuccess: () => {
+      toast.success("Disconnected from Facebook");
+      utils.facebook.getConnection.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`Failed to disconnect: ${error.message}`);
+    },
+  });
+
+  const testConnection = trpc.facebook.testConnection.useMutation({
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success(`Connection verified: ${data.accountName}`);
+      } else {
+        toast.error(`Connection failed: ${data.error}`);
+      }
+    },
+  });
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const state = params.get("state");
+    const error = params.get("error");
+
+    if (error) {
+      toast.error(`Facebook OAuth error: ${error}`);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+
+    if (code && state) {
+      setIsConnecting(true);
+      const redirectUri = `${window.location.origin}${window.location.pathname}`;
+      handleCallback.mutate({ code, state, redirectUri });
+    }
+  }, []);
 
   const upsertIntegration = trpc.integrations.upsert.useMutation({
     onSuccess: () => {
@@ -50,9 +113,34 @@ export default function Integrations() {
     return integrations.find(i => i.platform === platformId);
   };
 
+  const handleConnectFacebook = async () => {
+    try {
+      setIsConnecting(true);
+      const redirectUri = `${window.location.origin}${window.location.pathname}`;
+      const result = await getAuthUrl.mutateAsync({ redirectUri });
+      
+      // Redirect to Facebook OAuth
+      window.location.href = result.authUrl;
+    } catch (error: any) {
+      toast.error(`Failed to start OAuth: ${error.message}`);
+      setIsConnecting(false);
+    }
+  };
+
+  const handleDisconnectFacebook = () => {
+    if (confirm("Are you sure you want to disconnect your Facebook account?")) {
+      disconnectFacebook.mutate();
+    }
+  };
+
   const handleConnect = (platformId: "facebook" | "instagram" | "linkedin" | "twitter") => {
-    // In a real implementation, this would redirect to OAuth flow
-    toast.info("Social media integration coming soon! This feature requires OAuth setup.");
+    if (platformId === "facebook") {
+      handleConnectFacebook();
+      return;
+    }
+
+    // For other platforms, show coming soon message
+    toast.info("This integration is coming soon! Facebook is available now.");
     
     // For demo purposes, toggle connection status
     const existing = getIntegration(platformId);
@@ -64,10 +152,14 @@ export default function Integrations() {
   };
 
   const handleRefresh = (platformId: string) => {
-    toast.info(`Refreshing ${platformId} connection...`);
+    if (platformId === "facebook") {
+      testConnection.mutate();
+    } else {
+      toast.info(`Refreshing ${platformId} connection...`);
+    }
   };
 
-  if (isLoading) {
+  if (isLoading || fbLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -86,8 +178,12 @@ export default function Integrations() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {platforms.map((platform) => {
-          const integration = getIntegration(platform.id);
+          // Use real Facebook connection data
+          const integration = platform.id === "facebook" 
+            ? facebookConnection 
+            : getIntegration(platform.id);
           const isConnected = integration?.isConnected;
+          const isExpired = platform.id === "facebook" && facebookConnection?.isExpired;
 
           return (
             <Card key={platform.id} className="bg-card border-border">
@@ -97,97 +193,135 @@ export default function Integrations() {
                     <span className="text-3xl">{platform.icon}</span>
                     <div>
                       <CardTitle className="text-lg">{platform.name}</CardTitle>
-                      {isConnected && (
-                        <Badge className="bg-green-500/20 text-green-400 mt-1">
-                          <Check className="h-3 w-3 mr-1" />
+                      {isConnected && !isExpired && (
+                        <Badge variant="outline" className="mt-1 bg-green-500/20 text-green-400 border-green-500/30">
+                          <Check className="w-3 h-3 mr-1" />
                           Connected
+                        </Badge>
+                      )}
+                      {isExpired && (
+                        <Badge variant="outline" className="mt-1 bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                          Token Expired
                         </Badge>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {isConnected && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRefresh(platform.id)}
-                      >
-                        <RefreshCw className="h-4 w-4 mr-1" />
-                        Refresh
-                      </Button>
-                    )}
-                  </div>
+                  {isConnected && !isExpired && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRefresh(platform.id)}
+                      disabled={testConnection.isPending}
+                    >
+                      <RefreshCw className={`w-4 h-4 ${testConnection.isPending ? 'animate-spin' : ''}`} />
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <CardDescription>{platform.description}</CardDescription>
+                <p className="text-sm text-muted-foreground">
+                  {platform.description}
+                </p>
 
                 {isConnected && integration?.accountName && (
-                  <div className="p-3 rounded-lg bg-secondary/50 border border-border">
-                    <p className="text-sm font-medium">Connected Account:</p>
-                    <p className="text-sm text-primary">{integration.accountName}</p>
+                  <div className="p-3 rounded-lg bg-muted/50">
+                    <p className="text-sm font-medium text-foreground">
+                      Connected as: {integration.accountName}
+                    </p>
+                    {integration.connectedAt && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Connected on {new Date(integration.connectedAt).toLocaleDateString()}
+                      </p>
+                    )}
                   </div>
                 )}
 
-                <div className="flex items-center justify-between">
-                  <Button
-                    variant={isConnected ? "outline" : "default"}
-                    onClick={() => handleConnect(platform.id)}
-                    className={isConnected ? "" : "bg-primary text-primary-foreground hover:bg-primary/90"}
-                  >
-                    {isConnected ? "Disconnect" : "Connect"}
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
-                    <ExternalLink className="h-4 w-4 mr-1" />
-                    Need help?
-                  </Button>
+                <div className="flex gap-2">
+                  {!isConnected || isExpired ? (
+                    <Button
+                      onClick={() => handleConnect(platform.id)}
+                      disabled={isConnecting || getAuthUrl.isPending}
+                      className="flex-1"
+                    >
+                      {(isConnecting || getAuthUrl.isPending) && platform.id === "facebook" ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : (
+                        <>Connect {platform.name}</>
+                      )}
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (platform.id === "facebook") {
+                            handleDisconnectFacebook();
+                          } else {
+                            handleConnect(platform.id);
+                          }
+                        }}
+                        disabled={disconnectFacebook.isPending}
+                        className="flex-1"
+                      >
+                        {disconnectFacebook.isPending && platform.id === "facebook" ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Disconnecting...
+                          </>
+                        ) : (
+                          <>Disconnect</>
+                        )}
+                      </Button>
+                      {platform.id === "facebook" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open("https://www.facebook.com/settings?tab=business_tools", "_blank")}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </div>
+
+                {platform.id === "facebook" && !isConnected && (
+                  <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-border">
+                    <p className="font-medium">Requirements:</p>
+                    <ul className="list-disc list-inside space-y-1 ml-2">
+                      <li>Facebook Business Page (not personal profile)</li>
+                      <li>Admin access to the page</li>
+                      <li>Page must be published</li>
+                    </ul>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      {/* Integration Tips */}
+      {/* Help Section */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle>Integration Tips</CardTitle>
+          <CardTitle className="text-lg">Need Help?</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="p-4 rounded-lg bg-secondary/50">
-              <h4 className="font-medium mb-2">📘 Facebook Setup</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Must have a Facebook Business Page</li>
-                <li>• Personal profiles are not supported</li>
-                <li>• Admin access required for the page</li>
-              </ul>
-            </div>
-            <div className="p-4 rounded-lg bg-secondary/50">
-              <h4 className="font-medium mb-2">📸 Instagram Setup</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Switch to Business or Creator account</li>
-                <li>• Link to your Facebook Business Page</li>
-                <li>• Enable third-party app access</li>
-              </ul>
-            </div>
-            <div className="p-4 rounded-lg bg-secondary/50">
-              <h4 className="font-medium mb-2">💼 LinkedIn Setup</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Works with personal or company pages</li>
-                <li>• Requires LinkedIn authorization</li>
-                <li>• Best for B2B real estate content</li>
-              </ul>
-            </div>
-            <div className="p-4 rounded-lg bg-secondary/50">
-              <h4 className="font-medium mb-2">🐦 X (Twitter) Setup</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Connect your X account</li>
-                <li>• Great for quick market updates</li>
-                <li>• Supports threads for longer content</li>
-              </ul>
-            </div>
-          </div>
+        <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>
+            <strong className="text-foreground">Facebook & Instagram:</strong> Requires a Facebook Business Page and Instagram Business Account. 
+            Personal profiles cannot be connected due to Meta's API restrictions.
+          </p>
+          <p>
+            <strong className="text-foreground">Permissions:</strong> You'll be asked to grant permissions to manage posts and read engagement metrics. 
+            We never access your personal messages or private information.
+          </p>
+          <p>
+            <strong className="text-foreground">Troubleshooting:</strong> If you encounter issues, try disconnecting and reconnecting your account. 
+            Make sure you're logged into the correct Facebook account before connecting.
+          </p>
         </CardContent>
       </Card>
     </div>
