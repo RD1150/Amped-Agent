@@ -44,6 +44,15 @@ export default function Integrations() {
   // Get Facebook connection status
   const { data: facebookConnection, isLoading: fbLoading } = trpc.facebook.getConnection.useQuery();
   
+  // Get Instagram connection status
+  const { data: instagramConnection, isLoading: igLoading } = trpc.facebook.getInstagramConnection.useQuery();
+  
+  // Get Instagram accounts available to connect
+  const { data: instagramAccounts } = trpc.facebook.getInstagramAccounts.useQuery(
+    undefined,
+    { enabled: !!facebookConnection?.isConnected && !instagramConnection?.isConnected }
+  );
+  
   // Get all integrations (for other platforms)
   const { data: integrations = [], isLoading } = trpc.integrations.list.useQuery();
 
@@ -67,6 +76,26 @@ export default function Integrations() {
     onSuccess: () => {
       toast.success("Disconnected from Facebook");
       utils.facebook.getConnection.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`Failed to disconnect: ${error.message}`);
+    },
+  });
+
+  const connectInstagram = trpc.facebook.connectInstagram.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Connected to Instagram as @${data.instagramUsername}`);
+      utils.facebook.getInstagramConnection.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`Failed to connect Instagram: ${error.message}`);
+    },
+  });
+
+  const disconnectInstagram = trpc.facebook.disconnectInstagram.useMutation({
+    onSuccess: () => {
+      toast.success("Disconnected from Instagram");
+      utils.facebook.getInstagramConnection.invalidate();
     },
     onError: (error) => {
       toast.error(`Failed to disconnect: ${error.message}`);
@@ -139,8 +168,33 @@ export default function Integrations() {
       return;
     }
 
+    if (platformId === "instagram") {
+      // Check if Facebook is connected first
+      if (!facebookConnection?.isConnected) {
+        toast.error("Please connect Facebook first to access Instagram Business Accounts");
+        return;
+      }
+
+      // Check if Instagram accounts are available
+      if (!instagramAccounts?.accounts || instagramAccounts.accounts.length === 0) {
+        toast.error("No Instagram Business Accounts found. Make sure your Facebook Page is connected to an Instagram Business Account.");
+        return;
+      }
+
+      // Connect the first available Instagram account
+      const account = instagramAccounts.accounts[0];
+      connectInstagram.mutate({
+        pageId: account.pageId,
+        pageName: account.pageName,
+        pageAccessToken: account.pageAccessToken,
+        instagramId: account.instagramId,
+        instagramUsername: account.instagramUsername,
+      });
+      return;
+    }
+
     // For other platforms, show coming soon message
-    toast.info("This integration is coming soon! Facebook is available now.");
+    toast.info("This integration is coming soon! Facebook and Instagram are available now.");
     
     // For demo purposes, toggle connection status
     const existing = getIntegration(platformId);
@@ -159,7 +213,7 @@ export default function Integrations() {
     }
   };
 
-  if (isLoading || fbLoading) {
+  if (isLoading || fbLoading || igLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -178,9 +232,11 @@ export default function Integrations() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {platforms.map((platform) => {
-          // Use real Facebook connection data
+          // Use real connection data for Facebook and Instagram
           const integration = platform.id === "facebook" 
             ? facebookConnection 
+            : platform.id === "instagram"
+            ? instagramConnection
             : getIntegration(platform.id);
           const isConnected = integration?.isConnected;
           const isExpired = platform.id === "facebook" && facebookConnection?.isExpired;
@@ -223,12 +279,12 @@ export default function Integrations() {
                   {platform.description}
                 </p>
 
-                {isConnected && integration?.accountName && (
+                {isConnected && (
                   <div className="p-3 rounded-lg bg-muted/50">
                     <p className="text-sm font-medium text-foreground">
-                      Connected as: {integration.accountName}
+                      Connected as: {platform.id === "instagram" && instagramConnection ? `@${instagramConnection.instagramUsername}` : integration && 'accountName' in integration ? integration.accountName : "Unknown"}
                     </p>
-                    {integration.connectedAt && (
+                    {integration?.connectedAt && (
                       <p className="text-xs text-muted-foreground mt-1">
                         Connected on {new Date(integration.connectedAt).toLocaleDateString()}
                       </p>
@@ -259,14 +315,18 @@ export default function Integrations() {
                         onClick={() => {
                           if (platform.id === "facebook") {
                             handleDisconnectFacebook();
+                          } else if (platform.id === "instagram") {
+                            if (confirm("Are you sure you want to disconnect your Instagram account?")) {
+                              disconnectInstagram.mutate();
+                            }
                           } else {
                             handleConnect(platform.id);
                           }
                         }}
-                        disabled={disconnectFacebook.isPending}
+                        disabled={disconnectFacebook.isPending || disconnectInstagram.isPending}
                         className="flex-1"
                       >
-                        {disconnectFacebook.isPending && platform.id === "facebook" ? (
+                        {(disconnectFacebook.isPending && platform.id === "facebook") || (disconnectInstagram.isPending && platform.id === "instagram") ? (
                           <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                             Disconnecting...
@@ -295,6 +355,17 @@ export default function Integrations() {
                       <li>Facebook Business Page (not personal profile)</li>
                       <li>Admin access to the page</li>
                       <li>Page must be published</li>
+                    </ul>
+                  </div>
+                )}
+
+                {platform.id === "instagram" && !isConnected && (
+                  <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-border">
+                    <p className="font-medium">Requirements:</p>
+                    <ul className="list-disc list-inside space-y-1 ml-2">
+                      <li>Connect Facebook first</li>
+                      <li>Instagram Business or Creator account</li>
+                      <li>Instagram account must be linked to your Facebook Page</li>
                     </ul>
                   </div>
                 )}

@@ -55,10 +55,15 @@ export const facebookRouter = router({
       const stateData = JSON.stringify({ userId, timestamp: Date.now() });
       const encodedState = Buffer.from(stateData).toString("base64url");
 
-      // Facebook OAuth scopes - using only default scope that requires no setup
-      // Additional scopes need to be added in Facebook Developer Console first
+      // Facebook OAuth scopes - includes Instagram permissions
+      // Note: These scopes require Facebook App Review for production use
+      // For Development Mode, only test users and app developers can use these
       const scopes = [
         "public_profile", // Basic profile info (always available)
+        "pages_show_list", // Access to user's Facebook Pages
+        "pages_read_engagement", // Read engagement data from Pages
+        "instagram_basic", // Access to Instagram account info
+        "instagram_content_publish", // Publish content to Instagram
       ];
 
       const authUrl = new URL("https://www.facebook.com/v18.0/dialog/oauth");
@@ -130,8 +135,9 @@ export const facebookRouter = router({
       }
 
       // Get user's Facebook Pages (required for posting)
+      // Also fetch instagram_business_account to detect connected Instagram accounts
       const pagesResponse = await fetch(
-        `https://graph.facebook.com/v18.0/me/accounts?access_token=${access_token}`
+        `https://graph.facebook.com/v18.0/me/accounts?access_token=${access_token}&fields=id,name,access_token,instagram_business_account`
       );
       const pagesData = await pagesResponse.json();
 
@@ -321,4 +327,244 @@ export const facebookRouter = router({
       accountId: data.id,
     };
   }),
+
+  /**
+   * Get Instagram Business Accounts connected to Facebook Pages
+   */
+  getInstagramAccounts: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    const connection = await db
+      .select()
+      .from(integrations)
+      .where(and(eq(integrations.userId, userId), eq(integrations.platform, "facebook")))
+      .limit(1);
+
+    if (connection.length === 0 || !connection[0].accessToken) {
+      throw new Error("Facebook account not connected");
+    }
+
+    const accessToken = decryptToken(connection[0].accessToken);
+
+    // Get user's Facebook Pages with Instagram Business Accounts
+    const pagesResponse = await fetch(
+      `https://graph.facebook.com/v18.0/me/accounts?access_token=${accessToken}&fields=id,name,access_token,instagram_business_account{id,username,profile_picture_url}`
+    );
+    const pagesData = await pagesResponse.json();
+
+    if (pagesData.error) {
+      throw new Error(`Failed to fetch Instagram accounts: ${pagesData.error.message}`);
+    }
+
+    // Filter pages that have Instagram Business Accounts
+    const instagramAccounts = (pagesData.data || [])
+      .filter((page: any) => page.instagram_business_account)
+      .map((page: any) => ({
+        pageId: page.id,
+        pageName: page.name,
+        pageAccessToken: page.access_token,
+        instagramId: page.instagram_business_account.id,
+        instagramUsername: page.instagram_business_account.username,
+        instagramProfilePicture: page.instagram_business_account.profile_picture_url,
+      }));
+
+    return {
+      accounts: instagramAccounts,
+    };
+  }),
+
+  /**
+   * Connect an Instagram Business Account
+   */
+  connectInstagram: protectedProcedure
+    .input(
+      z.object({
+        pageId: z.string(),
+        pageName: z.string(),
+        pageAccessToken: z.string(),
+        instagramId: z.string(),
+        instagramUsername: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { pageId, pageName, pageAccessToken, instagramId, instagramUsername } = input;
+      const userId = ctx.user.id;
+
+      // Encrypt the page access token
+      const encryptedPageToken = encryptToken(pageAccessToken);
+
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Check if Instagram integration already exists
+      const existing = await db
+        .select()
+        .from(integrations)
+        .where(and(eq(integrations.userId, userId), eq(integrations.platform, "instagram")))
+        .limit(1);
+
+      if (existing.length > 0) {
+        // Update existing integration
+        await db
+          .update(integrations)
+          .set({
+            accountName: instagramUsername,
+            accountId: instagramId,
+            instagramBusinessAccountId: instagramId,
+            instagramUsername,
+            facebookPageId: pageId,
+            facebookPageAccessToken: encryptedPageToken,
+            isConnected: true,
+            connectedAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(eq(integrations.id, existing[0].id));
+      } else {
+        // Create new integration
+        await db.insert(integrations).values({
+          userId,
+          platform: "instagram",
+          accountName: instagramUsername,
+          accountId: instagramId,
+          instagramBusinessAccountId: instagramId,
+          instagramUsername,
+          facebookPageId: pageId,
+          facebookPageAccessToken: encryptedPageToken,
+          isConnected: true,
+          connectedAt: new Date(),
+        });
+      }
+
+      return {
+        success: true,
+        instagramUsername,
+        instagramId,
+      };
+    }),
+
+  /**
+   * Get connected Instagram account
+   */
+  getInstagramConnection: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    const connection = await db
+      .select()
+      .from(integrations)
+      .where(and(eq(integrations.userId, userId), eq(integrations.platform, "instagram")))
+      .limit(1);
+
+    if (connection.length === 0) {
+      return null;
+    }
+
+    const conn = connection[0];
+
+    return {
+      id: conn.id,
+      instagramUsername: conn.instagramUsername,
+      instagramId: conn.instagramBusinessAccountId,
+      facebookPageId: conn.facebookPageId,
+      isConnected: conn.isConnected,
+      connectedAt: conn.connectedAt,
+    };
+  }),
+
+  /**
+   * Disconnect Instagram account
+   */
+  disconnectInstagram: protectedProcedure.mutation(async ({ ctx }) => {
+    const userId = ctx.user.id;
+
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    await db
+      .update(integrations)
+      .set({
+        isConnected: false,
+        facebookPageAccessToken: null,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(integrations.userId, userId), eq(integrations.platform, "instagram")));
+
+    return { success: true };
+  }),
+
+  /**
+   * Post image to Instagram feed
+   */
+  postToInstagram: protectedProcedure
+    .input(
+      z.object({
+        imageUrl: z.string().url(),
+        caption: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { imageUrl, caption } = input;
+      const userId = ctx.user.id;
+
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const connection = await db
+        .select()
+        .from(integrations)
+        .where(and(eq(integrations.userId, userId), eq(integrations.platform, "instagram")))
+        .limit(1);
+
+      if (connection.length === 0 || !connection[0].facebookPageAccessToken) {
+        throw new Error("Instagram account not connected");
+      }
+
+      const pageAccessToken = decryptToken(connection[0].facebookPageAccessToken);
+      const instagramAccountId = connection[0].instagramBusinessAccountId;
+
+      // Step 1: Create media container
+      const containerResponse = await fetch(
+        `https://graph.facebook.com/v18.0/${instagramAccountId}/media`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            image_url: imageUrl,
+            caption,
+            access_token: pageAccessToken,
+          }),
+        }
+      );
+      const containerData = await containerResponse.json();
+
+      if (containerData.error) {
+        throw new Error(`Failed to create Instagram media container: ${containerData.error.message}`);
+      }
+
+      const creationId = containerData.id;
+
+      // Step 2: Publish the media container
+      const publishResponse = await fetch(
+        `https://graph.facebook.com/v18.0/${instagramAccountId}/media_publish`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            creation_id: creationId,
+            access_token: pageAccessToken,
+          }),
+        }
+      );
+      const publishData = await publishResponse.json();
+
+      if (publishData.error) {
+        throw new Error(`Failed to publish Instagram post: ${publishData.error.message}`);
+      }
+
+      return {
+        success: true,
+        postId: publishData.id,
+      };
+    }),
 });

@@ -175,3 +175,15 @@
 - [x] Update Facebook OAuth scopes to Development Mode compatible scopes
 - [x] Test Facebook connection with fixed scopes
 - [x] Verify Reena Dutta Real Estate page access
+
+## Instagram Business Account Integration (Current Priority)
+- [x] Update Facebook OAuth scopes to include Instagram permissions (instagram_basic, instagram_content_publish, pages_show_list, pages_read_engagement)
+- [x] Extend database schema to store Instagram Business Account ID and username
+- [x] Implement Instagram Business Account detection via Facebook Pages
+- [x] Build Instagram feed post creation (image + caption)
+- [ ] Build Instagram story posting capability
+- [x] Add Instagram connection status to Integrations page UI
+- [x] Display connected Instagram account details (username, profile picture)
+- [x] Add disconnect Instagram functionality
+- [x] Write unit tests for Instagram procedures
+- [x] Test end-to-end Instagram posting flow

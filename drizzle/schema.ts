@@ -105,6 +105,11 @@ export const integrations = mysqlTable("integrations", {
   tokenExpiresAt: timestamp("tokenExpiresAt"),
   isConnected: boolean("isConnected").default(false),
   connectedAt: timestamp("connectedAt"),
+  // Instagram-specific fields
+  instagramBusinessAccountId: varchar("instagramBusinessAccountId", { length: 255 }),
+  instagramUsername: varchar("instagramUsername", { length: 255 }),
+  facebookPageId: varchar("facebookPageId", { length: 255 }), // The Facebook Page connected to Instagram
+  facebookPageAccessToken: text("facebookPageAccessToken"), // Page access token for Instagram posting
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
