@@ -26,6 +26,11 @@ export default function PersonaBrand() {
     brandVoice: "professional" as BrandVoice,
     primaryColor: "#C9A962",
     logoUrl: "",
+    headshotUrl: "",
+    bio: "",
+    brokerage: "",
+    licenseNumber: "",
+    serviceAreas: "",
     websiteUrl: "",
     phoneNumber: "",
     emailAddress: "",
@@ -54,6 +59,11 @@ export default function PersonaBrand() {
         brandVoice: (persona.brandVoice as BrandVoice) || "professional",
         primaryColor: persona.primaryColor || "#C9A962",
         logoUrl: persona.logoUrl || "",
+        headshotUrl: persona.headshotUrl || "",
+        bio: persona.bio || "",
+        brokerage: persona.brokerage || "",
+        licenseNumber: persona.licenseNumber || "",
+        serviceAreas: persona.serviceAreas || "",
         websiteUrl: persona.websiteUrl || "",
         phoneNumber: persona.phoneNumber || "",
         emailAddress: persona.emailAddress || "",
@@ -135,6 +145,60 @@ export default function PersonaBrand() {
                 className="bg-secondary border-border"
               />
             </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="brokerage">Brokerage</Label>
+              <Input
+                id="brokerage"
+                placeholder="e.g., Keller Williams"
+                value={formData.brokerage}
+                onChange={(e) => setFormData({ ...formData, brokerage: e.target.value })}
+                className="bg-secondary border-border"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="licenseNumber">License Number</Label>
+              <Input
+                id="licenseNumber"
+                placeholder="e.g., DRE #01234567"
+                value={formData.licenseNumber}
+                onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+                className="bg-secondary border-border"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="headshotUrl">Headshot URL</Label>
+            <Input
+              id="headshotUrl"
+              placeholder="https://example.com/headshot.jpg"
+              value={formData.headshotUrl}
+              onChange={(e) => setFormData({ ...formData, headshotUrl: e.target.value })}
+              className="bg-secondary border-border"
+            />
+            <p className="text-xs text-muted-foreground">Upload your professional headshot to a service like Imgur and paste the URL here</p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio / About</Label>
+            <Textarea
+              id="bio"
+              placeholder="Tell us about yourself and your real estate experience..."
+              value={formData.bio}
+              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              className="bg-secondary border-border min-h-[100px]"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="serviceAreas">Service Areas</Label>
+            <Textarea
+              id="serviceAreas"
+              placeholder="e.g., San Francisco, Oakland, Berkeley, Marin County"
+              value={formData.serviceAreas}
+              onChange={(e) => setFormData({ ...formData, serviceAreas: e.target.value })}
+              className="bg-secondary border-border"
+            />
+            <p className="text-xs text-muted-foreground">List the cities, neighborhoods, or regions you serve</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="targetAudience">Target Audience</Label>

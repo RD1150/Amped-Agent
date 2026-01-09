@@ -43,6 +43,13 @@
       "when": 1767822494823,
       "tag": "0005_slimy_killmonger",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1767919964633,
+      "tag": "0006_spicy_aaron_stack",
+      "breakpoints": true
     }
   ]
 }

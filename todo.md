@@ -187,3 +187,105 @@
 - [x] Add disconnect Instagram functionality
 - [x] Write unit tests for Instagram procedures
 - [x] Test end-to-end Instagram posting flow
+
+## Actual Posting Flow (Priority 1)
+- [ ] Add "Publish Now" functionality to Content Calendar
+- [ ] Implement post publishing to Facebook via Graph API
+- [ ] Implement post publishing to Instagram via Graph API
+- [ ] Add platform selection (Facebook, Instagram, both)
+- [ ] Handle image upload to public URL for posting
+- [ ] Add posting status tracking (pending, published, failed)
+- [ ] Show success/error notifications after posting
+- [ ] Add "View Post" link after successful publish
+- [ ] Write unit tests for posting procedures
+- [ ] Test end-to-end posting flow
+
+## Market Stats Feature (Priority 2)
+- [ ] Create Market Stats page component
+- [ ] Add Market Stats navigation item to sidebar
+- [ ] Build location search input (city, zipcode, address)
+- [ ] Integrate real estate data API for market statistics
+- [ ] Display key metrics (median price, days on market, inventory, price per sqft)
+- [ ] Add charts/visualizations for trends
+- [ ] Implement "Generate Post" button to create market update content
+- [ ] Use AI to generate market insights and social media captions
+- [ ] Save generated market posts to Content Calendar
+- [ ] Write unit tests for market stats procedures
+- [ ] Test market stats data fetching and post generation
+
+## Generate Full Month Feature (Priority 3)
+- [ ] Add "Generate Full Month" button to Content Calendar
+- [ ] Create content generation strategy (variety of post types)
+- [ ] Implement 30-day content planning algorithm
+- [ ] Generate mix of content types (listings, tips, market updates, neighborhoods)
+- [ ] Space content evenly across the month
+- [ ] Use AI to generate unique content for each post
+- [ ] Generate images for each post (AI or templates)
+- [ ] Save all generated posts to calendar
+- [ ] Add progress indicator for generation process
+- [ ] Allow customization of content mix preferences
+- [ ] Write unit tests for bulk generation
+- [ ] Test full month generation end-to-end
+
+## GHL Social Posting Integration (Priority 1)
+- [x] Research GHL Social Planner API endpoints and authentication
+- [x] Implement GHL API client with location/account selection
+- [x] Add "Publish to Social Media" button on Content Calendar posts
+- [x] Build post formatting for GHL Social Planner (text, image, platforms)
+- [x] Handle image upload to GHL or public URL
+- [x] Add platform selection UI (uses all connected accounts)
+- [x] Implement scheduling to GHL (immediate or future date with date/time picker)
+- [x] Add posting status tracking (pending, sent to GHL, published, failed)
+- [x] Show success notifications after posting
+- [x] Handle GHL API errors gracefully
+- [ ] Write unit tests for GHL posting procedures
+- [ ] Test end-to-end posting flow to GHL
+
+## Market Stats Feature (Priority 2)
+- [x] Create Market Stats page component
+- [x] Add Market Stats to sidebar navigation
+- [x] Build location search input (city, state, zipcode)
+- [ ] Research and integrate real estate data API (Zillow, Realtor.com, or public data)
+- [x] Display key metrics placeholders: median home price, days on market, inventory levels, price per sqft
+- [ ] Add year-over-year comparison charts
+- [ ] Show market temperature indicator (hot/balanced/cold)
+- [ ] Implement "Generate Market Update Post" button
+- [ ] Use AI to analyze data and create insights
+- [ ] Generate social media caption with market stats
+- [ ] Generate accompanying image (chart or template)
+- [ ] Save generated post to Content Calendar
+- [ ] Write unit tests for market stats data fetching
+- [ ] Test market stats post generation end-to-end
+
+## Generate Full Month Feature (Priority 3)
+- [x] Add "Generate Full Month" button to Content Calendar header
+- [x] Create content strategy configuration (post type mix, frequency)
+- [x] Design 30-day content distribution algorithm
+- [x] Generate variety of post types: property listings, tips, market updates, neighborhood spotlights
+- [x] Use AI to create unique content for each post
+- [ ] Generate or select images for each post (currently text only)
+- [x] Space posts evenly across month (one post per day)
+- [ ] Add progress modal showing generation status
+- [x] Bulk save all posts to Content Calendar
+- [ ] Add option to customize content mix preferences
+- [ ] Write unit tests for bulk content generation
+- [ ] Test full month generation end-to-end
+
+## View/Edit Content Posts Feature
+- [ ] Add View/Edit option to post dropdown menu
+- [ ] Create dialog to display full post content
+- [ ] Add edit functionality to modify post text
+- [ ] Save edited content back to database
+- [ ] Test viewing and editing posts
+
+## Profile Page (New Priority)
+- [ ] Create profile database schema (headshot, bio, business info, branding)
+- [ ] Add profile backend procedures (get, update)
+- [ ] Build Profile page UI component
+- [ ] Add headshot upload with S3 storage
+- [ ] Add bio/about text area
+- [ ] Add business information fields (brokerage, license, phone, email, website)
+- [ ] Add branding fields (logo upload, colors, tagline)
+- [ ] Add service areas field (cities/neighborhoods)
+- [ ] Integrate profile data into AI content generation
+- [ ] Test profile creation and updates

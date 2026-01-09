@@ -36,7 +36,8 @@ import {
   BarChart3,
   Clock,
   Sun,
-  Moon
+  Moon,
+  TrendingUp
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -51,6 +52,7 @@ const menuItems = [
   { icon: FileSpreadsheet, label: "Import Data", path: "/import" },
   { icon: Link2, label: "Integrations", path: "/integrations" },
   { icon: Sparkles, label: "AI Generate", path: "/generate" },
+  { icon: TrendingUp, label: "Market Stats", path: "/market-stats" },
   { icon: Zap, label: "GoHighLevel", path: "/ghl" },
   { icon: BarChart3, label: "Analytics", path: "/analytics" },
   { icon: Clock, label: "Schedules", path: "/schedules" },

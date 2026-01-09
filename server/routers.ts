@@ -166,6 +166,114 @@ Highlight the best features, amenities, and lifestyle of the area.`;
           contentType: input.contentType,
         };
       }),
+
+    generateFullMonth: protectedProcedure
+      .input(z.object({
+        startDate: z.date(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+        const tone = persona?.brandVoice || "professional";
+        
+        // Define content mix for 30 days
+        const contentTypes: Array<{type: "property_listing" | "market_report" | "trending_news" | "tips" | "neighborhood", topic: string}> = [
+          // Week 1
+          { type: "tips", topic: "First-time homebuyer tips" },
+          { type: "property_listing", topic: "Featured luxury property" },
+          { type: "neighborhood", topic: "Local neighborhood spotlight" },
+          { type: "tips", topic: "Home staging tips for sellers" },
+          { type: "market_report", topic: "Current market trends" },
+          { type: "tips", topic: "Mortgage pre-approval advice" },
+          { type: "property_listing", topic: "New listing announcement" },
+          
+          // Week 2
+          { type: "tips", topic: "Home maintenance checklist" },
+          { type: "neighborhood", topic: "Best local restaurants and amenities" },
+          { type: "tips", topic: "Investment property strategies" },
+          { type: "market_report", topic: "Price trends and forecasts" },
+          { type: "property_listing", topic: "Open house announcement" },
+          { type: "tips", topic: "Negotiation tips for buyers" },
+          { type: "trending_news", topic: "Real estate market news" },
+          
+          // Week 3
+          { type: "tips", topic: "Home inspection essentials" },
+          { type: "property_listing", topic: "Just sold celebration" },
+          { type: "neighborhood", topic: "School district highlights" },
+          { type: "tips", topic: "Downsizing advice for empty nesters" },
+          { type: "market_report", topic: "Inventory levels and demand" },
+          { type: "tips", topic: "Curb appeal improvements" },
+          { type: "property_listing", topic: "Price reduction alert" },
+          
+          // Week 4
+          { type: "tips", topic: "Closing process explained" },
+          { type: "neighborhood", topic: "Parks and recreation spots" },
+          { type: "tips", topic: "Home warranty benefits" },
+          { type: "market_report", topic: "Days on market statistics" },
+          { type: "property_listing", topic: "Coming soon preview" },
+          { type: "tips", topic: "Moving day checklist" },
+          { type: "trending_news", topic: "Interest rate updates" },
+          
+          // Extra days
+          { type: "tips", topic: "Real estate investment tips" },
+          { type: "neighborhood", topic: "Community events" },
+        ];
+
+        const createdPosts = [];
+        
+        for (let i = 0; i < 30; i++) {
+          const contentConfig = contentTypes[i % contentTypes.length];
+          const postDate = new Date(input.startDate);
+          postDate.setDate(postDate.getDate() + i);
+          
+          // Generate content using AI
+          let systemPrompt = `You are a real estate content creator. Create engaging social media content for real estate professionals. 
+Use a ${tone} tone. Keep the content concise and suitable for social media platforms like Facebook and Instagram.
+Focus on creating compelling, shareable content that drives engagement.`;
+
+          let userPrompt = "";
+          
+          if (contentConfig.type === "property_listing") {
+            userPrompt = `Create an engaging property listing post about: ${contentConfig.topic}. Make it compelling and create urgency.`;
+          } else if (contentConfig.type === "market_report") {
+            userPrompt = `Create a market report post about: ${contentConfig.topic}. Include relevant statistics and trends.`;
+          } else if (contentConfig.type === "trending_news") {
+            userPrompt = `Create a trending news post about: ${contentConfig.topic}. Make it relevant to real estate.`;
+          } else if (contentConfig.type === "tips") {
+            userPrompt = `Create a helpful tips post about: ${contentConfig.topic}. Provide actionable advice.`;
+          } else if (contentConfig.type === "neighborhood") {
+            userPrompt = `Create a neighborhood spotlight post about: ${contentConfig.topic}. Highlight the best features.`;
+          }
+
+          const response = await invokeLLM({
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+          });
+
+          const messageContent = response.choices[0]?.message?.content;
+          const generatedContent = typeof messageContent === 'string' ? messageContent : '';
+          
+          // Create the post
+          const post = await db.createContentPost({
+            userId: ctx.user.id,
+            title: contentConfig.topic,
+            content: generatedContent,
+            contentType: contentConfig.type,
+            status: "draft",
+            scheduledAt: postDate,
+            aiGenerated: true,
+          });
+          
+          createdPosts.push(post);
+        }
+        
+        return {
+          success: true,
+          postsCreated: createdPosts.length,
+          posts: createdPosts,
+        };
+      }),
   }),
 
   calendar: router({
@@ -487,7 +595,8 @@ Create a compelling social media post.`;
 
   ghl: router({
     getSettings: protectedProcedure.query(async ({ ctx }) => {
-      return db.getGHLSettingsByUserId(ctx.user.id);
+      const settings = await db.getGHLSettingsByUserId(ctx.user.id);
+      return settings || null;
     }),
     
     saveSettings: protectedProcedure
@@ -526,10 +635,38 @@ Create a compelling social media post.`;
         }
       }),
     
+    getSocialAccounts: protectedProcedure.query(async ({ ctx }) => {
+      const settings = await db.getGHLSettingsByUserId(ctx.user.id);
+      if (!settings?.apiKey || !settings?.locationId) {
+        throw new Error("GHL not configured. Please add your API credentials in settings.");
+      }
+      
+      try {
+        const response = await fetch(
+          `https://services.leadconnectorhq.com/social-media-posting/${settings.locationId}/accounts`,
+          {
+            headers: {
+              'Authorization': `Bearer ${settings.apiKey}`,
+              'Version': '2021-07-28',
+            },
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch social accounts from GHL");
+        }
+        
+        const data = await response.json();
+        return { accounts: data.accounts || [] };
+      } catch (error: any) {
+        throw new Error(`Failed to get social accounts: ${error.message}`);
+      }
+    }),
+
     pushToSocialPlanner: protectedProcedure
       .input(z.object({
         contentPostId: z.number(),
-        platforms: z.array(z.enum(["facebook", "instagram", "linkedin", "twitter"])),
+        accountIds: z.array(z.string()),
         scheduledAt: z.date().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -543,22 +680,41 @@ Create a compelling social media post.`;
           throw new Error("Content post not found");
         }
         
-        const response = await fetch(`https://services.leadconnectorhq.com/social-media-posting/post`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${settings.apiKey}`,
-            'Version': '2021-07-28',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            locationId: settings.locationId,
-            type: 'post',
-            content: post.content,
-            mediaUrls: post.imageUrl ? [post.imageUrl] : [],
-            platforms: input.platforms,
-            scheduledAt: input.scheduledAt?.toISOString(),
-          }),
-        });
+        // Build media array if image exists
+        const media = post.imageUrl ? [{
+          url: post.imageUrl,
+          type: 'image/png',
+        }] : [];
+        
+        // Build request body matching GHL API format
+        const requestBody: any = {
+          accountIds: input.accountIds,
+          summary: post.content || "",
+        };
+        
+        if (media.length > 0) {
+          requestBody.media = media;
+        }
+        
+        if (input.scheduledAt) {
+          requestBody.scheduleDate = input.scheduledAt.toISOString();
+          requestBody.status = "scheduled";
+        } else {
+          requestBody.status = "published";
+        }
+        
+        const response = await fetch(
+          `https://services.leadconnectorhq.com/social-media-posting/${settings.locationId}/post`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${settings.apiKey}`,
+              'Version': '2021-07-28',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+          }
+        );
         
         if (!response.ok) {
           const error = await response.text();
@@ -567,9 +723,9 @@ Create a compelling social media post.`;
         
         const result = await response.json();
         
+        // Update post status
         await db.updateContentPost(input.contentPostId, {
           status: input.scheduledAt ? "scheduled" : "published",
-          platforms: input.platforms.join(","),
         });
         
         return { success: true, ghlPostId: result.id };

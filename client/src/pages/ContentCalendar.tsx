@@ -25,7 +25,9 @@ import {
   Plus, 
   Sparkles,
   Calendar as CalendarIcon,
-  MoreHorizontal
+  MoreHorizontal,
+  Send,
+  Eye
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -50,6 +52,13 @@ export default function ContentCalendar() {
   const [topic, setTopic] = useState("");
   const [contentType, setContentType] = useState<ContentType>("custom");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleTime, setScheduleTime] = useState("");
+  const [isGeneratingMonth, setIsGeneratingMonth] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<any | null>(null);
 
   const utils = trpc.useUtils();
   
@@ -85,6 +94,97 @@ export default function ContentCalendar() {
       toast.success("Content deleted");
     },
   });
+
+  const { data: ghlSettings } = trpc.ghl.getSettings.useQuery();
+  const { data: socialAccounts } = trpc.ghl.getSocialAccounts.useQuery(
+    undefined,
+    { 
+      enabled: !!ghlSettings?.isConnected,
+      retry: false,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const pushToGHL = trpc.ghl.pushToSocialPlanner.useMutation({
+    onSuccess: () => {
+      utils.content.list.invalidate();
+      toast.success("Successfully pushed to GHL Social Planner!");
+    },
+    onError: (error) => {
+      toast.error(`Failed to push to GHL: ${error.message}`);
+    },
+  });
+
+  const handleOpenPublishDialog = (postId: number) => {
+    if (!ghlSettings?.isConnected) {
+      toast.error("Please configure GHL in Settings first");
+      return;
+    }
+
+    if (!socialAccounts?.accounts || socialAccounts.accounts.length === 0) {
+      toast.error("No social accounts connected in GHL. Please connect accounts in GHL first.");
+      return;
+    }
+
+    setSelectedPostId(postId);
+    setIsPublishDialogOpen(true);
+  };
+
+  const handlePublishNow = () => {
+    if (!selectedPostId) return;
+
+    const accountIds = socialAccounts?.accounts.map((acc: any) => acc.id) || [];
+    
+    pushToGHL.mutate({
+      contentPostId: selectedPostId,
+      accountIds,
+    });
+
+    setIsPublishDialogOpen(false);
+    setSelectedPostId(null);
+  };
+
+  const handleSchedulePost = () => {
+    if (!selectedPostId || !scheduleDate || !scheduleTime) {
+      toast.error("Please select date and time");
+      return;
+    }
+
+    const accountIds = socialAccounts?.accounts.map((acc: any) => acc.id) || [];
+    const scheduledDateTime = new Date(`${scheduleDate}T${scheduleTime}`);
+    
+    pushToGHL.mutate({
+      contentPostId: selectedPostId,
+      accountIds,
+      scheduledAt: scheduledDateTime,
+    });
+
+    setIsPublishDialogOpen(false);
+    setSelectedPostId(null);
+    setScheduleDate("");
+    setScheduleTime("");
+  };
+
+  const selectedPostForPublish = contentPosts.find(p => p.id === selectedPostId);
+
+  const generateFullMonth = trpc.content.generateFullMonth.useMutation({
+    onSuccess: (data) => {
+      utils.content.list.invalidate();
+      utils.calendar.list.invalidate();
+      toast.success(`Successfully generated ${data.postsCreated} posts for the month!`);
+      setIsGeneratingMonth(false);
+    },
+    onError: (error) => {
+      toast.error(`Failed to generate month: ${error.message}`);
+      setIsGeneratingMonth(false);
+    },
+  });
+
+  const handleGenerateFullMonth = () => {
+    const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    setIsGeneratingMonth(true);
+    generateFullMonth.mutate({ startDate });
+  };
 
   const calendarDays = useMemo(() => {
     const year = currentDate.getFullYear();
@@ -221,8 +321,8 @@ export default function ContentCalendar() {
       {/* Content Creation Bar */}
       <Card className="bg-card border-border">
         <CardContent className="p-4">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end">
-            <div className="flex-1 space-y-2">
+          <div className="space-y-4">
+            <div className="space-y-2">
               <label className="text-sm text-muted-foreground">
                 What would you like your content to focus on this week?
               </label>
@@ -233,7 +333,16 @@ export default function ContentCalendar() {
                 className="bg-secondary border-border"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                onClick={handleGenerateFullMonth}
+                disabled={isGeneratingMonth}
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary/10"
+              >
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                {isGeneratingMonth ? "Generating..." : "Generate Full Month"}
+              </Button>
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-black text-white hover:bg-black/80 border border-border">
@@ -403,6 +512,10 @@ export default function ContentCalendar() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent>
+                                <DropdownMenuItem onClick={() => handleOpenPublishDialog(post.id)}>
+                                  <Send className="h-4 w-4 mr-2" />
+                                  Publish to Social Media
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => deleteContent.mutate({ id: post.id })}>
                                   Delete
                                 </DropdownMenuItem>
@@ -454,6 +567,17 @@ export default function ContentCalendar() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => {
+                          setSelectedPost(post);
+                          setIsViewDialogOpen(true);
+                        }}>
+                          <Eye className="h-4 w-4 mr-2" />
+                          View/Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleOpenPublishDialog(post.id)}>
+                          <Send className="h-4 w-4 mr-2" />
+                          Publish to Social Media
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => deleteContent.mutate({ id: post.id })}>
                           Delete
                         </DropdownMenuItem>
@@ -466,6 +590,150 @@ export default function ContentCalendar() {
           )}
         </CardContent>
       </Card>
+
+      {/* Publish to Social Media Dialog */}
+      <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Publish to Social Media</DialogTitle>
+          </DialogHeader>
+          
+          {selectedPostForPublish && (
+            <div className="space-y-4">
+              <div className="bg-secondary p-4 rounded-lg border border-border">
+                <p className="text-xs text-muted-foreground mb-2">Post Preview</p>
+                <p className="font-medium">{selectedPostForPublish.title || "Untitled"}</p>
+                <p className="text-sm text-muted-foreground line-clamp-3">{selectedPostForPublish.content}</p>
+                {selectedPostForPublish.imageUrl && (
+                  <img src={selectedPostForPublish.imageUrl} alt="Post preview" className="w-full h-32 object-cover rounded" />
+                )}
+              </div>
+
+              {/* Connected Accounts Info */}
+              <div className="text-sm text-muted-foreground">
+                <p>Publishing to {socialAccounts?.accounts?.length || 0} connected account(s)</p>
+              </div>
+
+              {/* Schedule Options */}
+              <div className="space-y-3">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium">Schedule Date (Optional)</label>
+                  <Input
+                    type="date"
+                    value={scheduleDate}
+                    onChange={(e) => setScheduleDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+
+                {scheduleDate && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium">Schedule Time</label>
+                    <Input
+                      type="time"
+                      value={scheduleTime}
+                      onChange={(e) => setScheduleTime(e.target.value)}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-2">
+                {scheduleDate && scheduleTime ? (
+                  <Button 
+                    onClick={handleSchedulePost} 
+                    className="flex-1"
+                    disabled={pushToGHL.isPending}
+                  >
+                    <CalendarIcon className="h-4 w-4 mr-2" />
+                    Schedule Post
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={handlePublishNow} 
+                    className="flex-1"
+                    disabled={pushToGHL.isPending}
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Publish Now
+                  </Button>
+                )}
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsPublishDialogOpen(false)}
+                  disabled={pushToGHL.isPending}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* View/Edit Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="bg-card border-border max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>View/Edit Post</DialogTitle>
+          </DialogHeader>
+          
+          {selectedPost && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Title</label>
+                <Input
+                  value={selectedPost.title || ""}
+                  onChange={(e) => setSelectedPost({...selectedPost, title: e.target.value})}
+                  className="mt-1"
+                  placeholder="Post title"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Content</label>
+                <Textarea
+                  value={selectedPost.content}
+                  onChange={(e) => setSelectedPost({...selectedPost, content: e.target.value})}
+                  className="mt-1 min-h-[200px]"
+                  placeholder="Post content"
+                />
+              </div>
+              
+              {selectedPost.imageUrl && (
+                <div>
+                  <label className="text-sm font-medium">Image</label>
+                  <img 
+                    src={selectedPost.imageUrl} 
+                    alt="Post image" 
+                    className="mt-1 w-full max-h-64 object-cover rounded border"
+                  />
+                </div>
+              )}
+              
+              <div className="flex gap-2 pt-2">
+                <Button 
+                  onClick={() => {
+                    // TODO: Add update mutation
+                    toast.success("Post updated");
+                    setIsViewDialogOpen(false);
+                  }}
+                  className="flex-1"
+                >
+                  Save Changes
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsViewDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
