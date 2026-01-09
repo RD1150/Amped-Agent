@@ -289,3 +289,79 @@
 - [ ] Add service areas field (cities/neighborhoods)
 - [ ] Integrate profile data into AI content generation
 - [ ] Test profile creation and updates
+
+## Landing Page & Pricing (HIGH PRIORITY)
+- [ ] Create public landing page for Realty Content Agent
+- [ ] Add hero section with value proposition
+- [ ] Add features comparison vs RealEstateContent.ai
+- [ ] Add pricing section ($79/mo Content Creator tier)
+- [ ] Add 14-day free trial signup flow
+- [ ] Add testimonials section (ready for customer feedback)
+- [ ] Add FAQ section
+- [ ] Add CTA buttons throughout page
+
+## Content Format Differentiators (HIGH PRIORITY)
+- [x] Add format selector UI (Static Post, Reel Script, Carousel)
+- [x] Update database schema with 'format' field
+- [x] Create format-specific AI prompts for each type
+- [ ] Add format icons/badges to calendar posts
+- [ ] Update preview dialog to show format-appropriate layout
+- [ ] Add format filter to calendar view
+
+## Stripe Billing Integration (HIGH PRIORITY)
+- [ ] Set up Stripe products and prices
+- [ ] Create subscription management endpoints
+- [ ] Add trial period handling (14 days)
+- [ ] Build subscription status checking
+- [ ] Add usage limits enforcement
+- [ ] Create billing portal for users
+- [ ] Add webhook handlers for subscription events
+
+## Slideshow Video Generation (HIGH PRIORITY)
+- [ ] Install FFmpeg for video processing
+- [ ] Create video generation service using FFmpeg
+- [ ] Generate vertical (9:16) videos for Reels/TikTok
+- [ ] Add text overlays to video frames
+- [ ] Add background music to videos
+- [ ] Support 3-10 images per video
+- [ ] Add transitions between images
+- [ ] Export as MP4 format
+- [ ] Upload generated videos to S3
+- [ ] Add video generation to content creation flow
+- [ ] Show video preview in calendar
+- [ ] Add "Generate Video" option for posts with images
+- [ ] Track video generation usage per user
+
+## Done-For-You Content Generation (HIGHEST PRIORITY - Current Sprint)
+- [x] Add AI image generation for static posts (with text overlays)
+- [ ] Generate ready-to-post images with captions embedded
+- [ ] Add carousel slide image generation (10 designed slides per carousel)
+- [x] Add download button for static post images (JPG format)
+- [ ] Add download button for carousel slides (ZIP of 10 images)
+- [ ] Add preview modal before download
+- [x] Store generated images in S3
+- [ ] Track image generation usage per user
+- [ ] Add image templates with professional designs
+- [ ] Support different aspect ratios (1:1 square, 4:5 portrait, 16:9 landscape)
+
+## Rebranding to Realty Content Agent (HIGHEST PRIORITY)
+- [ ] Update VITE_APP_TITLE to "Realty Content Agent"
+- [ ] Update all "LuxEstate" references in codebase
+- [ ] Update meta tags and page titles
+- [ ] Update email templates
+- [ ] Update AI-generated content placeholders
+- [ ] Create new logo/favicon for Realty Content Agent
+- [ ] Update domain/subdomain configuration
+
+## Template Graphics System (HIGHEST PRIORITY - Current Sprint)
+- [ ] Design 3 Property Listing templates (Modern Luxury, Bold & Bright, Classic Elegant)
+- [ ] Design 3 Market Update templates (Data Dashboard, News Flash, Trend Report)
+- [ ] Design 3 Tips/Advice templates (Numbered List, Icon Grid, Quote Card)
+- [ ] Design 3 Neighborhood templates (Photo Collage, Map Feature, Lifestyle Focus)
+- [ ] Design 3 Engagement templates (Question Card, Quote/Motivation, Did You Know)
+- [ ] Build template rendering system (HTML Canvas)
+- [ ] Add text overlay system for dynamic content
+- [ ] Create template selection UI
+- [ ] Add "Use Template" vs "AI Generate" choice
+- [ ] Implement template download functionality
+- [ ] Test all 15 templates with real content

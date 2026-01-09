@@ -19,7 +19,7 @@ import {
 const faqs = [
   {
     question: "How do I connect my social media accounts?",
-    answer: "Navigate to the Integrations page from the sidebar. Click 'Connect' on the platform you want to link. You'll be redirected to authorize LuxEstate to post on your behalf. Make sure you have a business account for Facebook and Instagram."
+    answer: "Navigate to the Integrations page from the sidebar. Click 'Connect' on the platform you want to link. You'll be redirected to authorize Realty Content Agent to post on your behalf. Make sure you have a business account for Facebook and Instagram."
   },
   {
     question: "How does the AI content generation work?",
@@ -35,7 +35,7 @@ const faqs = [
   },
   {
     question: "What social media platforms are supported?",
-    answer: "LuxEstate currently supports Facebook Business Pages, Instagram Business/Creator accounts, LinkedIn, and X (Twitter). Each platform requires proper authorization and business account setup."
+    answer: "Realty Content Agent currently supports Facebook Business Pages, Instagram Business/Creator accounts, LinkedIn, and X (Twitter). Each platform requires proper authorization and business account setup."
   },
   {
     question: "How do I customize my brand voice?",
@@ -57,7 +57,7 @@ export default function Help() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Help & Support</h1>
         <p className="text-muted-foreground mt-1">
-          Get help with LuxEstate and learn how to make the most of your content
+          Get help with Realty Content Agent and learn how to make the most of your content
         </p>
       </div>
 
@@ -101,7 +101,7 @@ export default function Help() {
             Getting Started
           </CardTitle>
           <CardDescription>
-            Follow these steps to set up your LuxEstate account
+            Follow these steps to set up your Realty Content Agent account
           </CardDescription>
         </CardHeader>
         <CardContent>

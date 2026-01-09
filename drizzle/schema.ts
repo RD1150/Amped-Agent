@@ -56,6 +56,7 @@ export const contentPosts = mysqlTable("content_posts", {
   title: varchar("title", { length: 500 }),
   content: text("content").notNull(),
   contentType: mysqlEnum("contentType", ["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]).default("custom"),
+  format: mysqlEnum("format", ["static_post", "carousel", "reel_script", "video_reel", "story"]).default("static_post").notNull(),
   status: mysqlEnum("status", ["draft", "scheduled", "published", "expired"]).default("draft"),
   scheduledAt: timestamp("scheduledAt"),
   publishedAt: timestamp("publishedAt"),

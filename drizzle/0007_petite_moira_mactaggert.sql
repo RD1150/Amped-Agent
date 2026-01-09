@@ -1,0 +1,1 @@
+ALTER TABLE `content_posts` ADD `format` enum('static_post','carousel','reel_script','video_reel','story') DEFAULT 'static_post' NOT NULL;

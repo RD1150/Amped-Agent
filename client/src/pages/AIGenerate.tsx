@@ -31,6 +31,7 @@ import { Streamdown } from "streamdown";
 import DashboardLayout from "@/components/DashboardLayout";
 
 type ContentType = "property_listing" | "market_report" | "trending_news" | "tips" | "neighborhood" | "custom";
+type ContentFormat = "static_post" | "carousel" | "reel_script";
 type BrandVoice = "professional" | "friendly" | "luxury" | "casual" | "authoritative";
 type ImageStyle = "realistic" | "modern" | "luxury" | "minimal" | "vibrant";
 type TemplateType = "property_card" | "just_listed" | "just_sold" | "open_house" | "market_update" | "testimonial";
@@ -39,6 +40,7 @@ type StockCategory = "property" | "interior" | "exterior" | "neighborhood" | "pe
 export default function AIGenerate() {
   const [topic, setTopic] = useState("");
   const [contentType, setContentType] = useState<ContentType>("custom");
+  const [contentFormat, setContentFormat] = useState<ContentFormat>("static_post");
   const [tone, setTone] = useState<BrandVoice>("professional");
   const [generatedContent, setGeneratedContent] = useState("");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -69,6 +71,9 @@ export default function AIGenerate() {
   const generateContent = trpc.content.generate.useMutation({
     onSuccess: (result) => {
       setGeneratedContent(result.content);
+      if (result.imageUrl) {
+        setGeneratedImage(result.imageUrl);
+      }
       setIsGenerating(false);
     },
     onError: (error) => {
@@ -127,10 +132,12 @@ export default function AIGenerate() {
 
     setIsGenerating(true);
     setGeneratedContent("");
+    setGeneratedImage(null);
 
     generateContent.mutate({
       topic: topic || propertyData.description || propertyData.address,
       contentType,
+      format: contentFormat,
       tone: tone || (persona?.brandVoice as BrandVoice) || "professional",
       propertyData: contentType === "property_listing" ? {
         address: propertyData.address,
@@ -142,6 +149,8 @@ export default function AIGenerate() {
       } : undefined,
     });
   };
+
+
 
   const handleGenerateImage = () => {
     if (!imagePrompt.trim()) {
@@ -226,6 +235,49 @@ export default function AIGenerate() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Content Format Selector */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">What type of content do you want to create?</Label>
+                  <div className="grid grid-cols-3 gap-4">
+                    <button
+                      onClick={() => setContentFormat("static_post")}
+                      className={`flex flex-col items-center gap-3 p-6 rounded-lg border-2 transition-all hover:border-primary ${
+                        contentFormat === "static_post" ? "border-primary bg-primary/5" : "border-border"
+                      }`}
+                    >
+                      <div className="text-4xl">📝</div>
+                      <div className="text-center">
+                        <div className="font-semibold">Static Post</div>
+                        <div className="text-xs text-muted-foreground mt-1">Image + Caption</div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setContentFormat("carousel")}
+                      className={`flex flex-col items-center gap-3 p-6 rounded-lg border-2 transition-all hover:border-primary ${
+                        contentFormat === "carousel" ? "border-primary bg-primary/5" : "border-border"
+                      }`}
+                    >
+                      <div className="text-4xl">📊</div>
+                      <div className="text-center">
+                        <div className="font-semibold">Carousel</div>
+                        <div className="text-xs text-muted-foreground mt-1">Multi-slide post</div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setContentFormat("reel_script")}
+                      className={`flex flex-col items-center gap-3 p-6 rounded-lg border-2 transition-all hover:border-primary ${
+                        contentFormat === "reel_script" ? "border-primary bg-primary/5" : "border-border"
+                      }`}
+                    >
+                      <div className="text-4xl">🎬</div>
+                      <div className="text-center">
+                        <div className="font-semibold">Reel Script</div>
+                        <div className="text-xs text-muted-foreground mt-1">Video script</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Content Type</Label>
@@ -380,6 +432,25 @@ export default function AIGenerate() {
 
                 {generatedContent && (
                   <div className="space-y-4">
+                    {generatedImage && (
+                      <div className="border rounded-lg p-4 bg-muted/50">
+                        <img src={generatedImage} alt="Generated content image" className="w-full rounded-lg mb-4" />
+                        <Button 
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = generatedImage;
+                            link.download = `realty-content-${Date.now()}.jpg`;
+                            link.click();
+                            toast.success('Image downloaded!');
+                          }} 
+                          variant="outline" 
+                          className="w-full"
+                        >
+                          <ImageIcon className="mr-2 h-4 w-4" />
+                          Download Image
+                        </Button>
+                      </div>
+                    )}
                     <div className="border rounded-lg p-4 bg-muted/50">
                       <Streamdown>{generatedContent}</Streamdown>
                     </div>

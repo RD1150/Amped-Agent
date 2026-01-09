@@ -114,9 +114,9 @@ export default function DashboardLayout({
           <div className="flex flex-col items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                <span className="text-2xl font-bold text-primary">L</span>
+                <span className="text-xl font-bold text-primary">RCA</span>
               </div>
-              <span className="text-2xl font-bold text-gold-gradient">LuxEstate</span>
+              <span className="text-2xl font-bold text-gold-gradient">Realty Content Agent</span>
             </div>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
               Premium real estate content creation and scheduling platform. Sign in to access your dashboard.
@@ -129,7 +129,7 @@ export default function DashboardLayout({
             size="lg"
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all"
           >
-            Sign in to LuxEstate
+            Sign in to Realty Content Agent
           </Button>
         </div>
       </div>
@@ -225,10 +225,10 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">L</span>
+                    <span className="text-xs font-bold text-primary">RCA</span>
                   </div>
                   <span className="font-semibold tracking-tight truncate text-gold-gradient">
-                    LuxEstate
+                    Realty Content Agent
                   </span>
                 </div>
               ) : null}

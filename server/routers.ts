@@ -105,6 +105,7 @@ export const appRouter = router({
       .input(z.object({
         topic: z.string(),
         contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]),
+        format: z.enum(["static_post", "carousel", "reel_script"]).default("static_post"),
         propertyData: z.object({
           address: z.string().optional(),
           price: z.number().optional(),
@@ -119,14 +120,92 @@ export const appRouter = router({
         const persona = await db.getPersonaByUserId(ctx.user.id);
         const tone = input.tone || persona?.brandVoice || "professional";
         
-        let systemPrompt = `You are a real estate content creator. Create engaging social media content for real estate professionals. 
-Use a ${tone} tone. Keep the content concise and suitable for social media platforms like Facebook and Instagram.
-Focus on creating compelling, shareable content that drives engagement.`;
-
+        // Format-specific system prompts
+        let systemPrompt = "";
         let userPrompt = "";
         
+        if (input.format === "carousel") {
+          systemPrompt = `You are a real estate content creator specializing in carousel posts. Create engaging multi-slide content for Instagram/Facebook carousels.
+Use a ${tone} tone.
+
+Format your response as:
+
+📊 CAROUSEL POST: [Catchy Title]
+
+SLIDE 1 (COVER):
+🎯 Title: [Eye-catching cover title]
+📝 Content: [Brief teaser or hook]
+
+SLIDE 2:
+🎯 Title: [Slide title]
+📝 Content: [Main content for this slide]
+
+SLIDE 3:
+🎯 Title: [Slide title]
+📝 Content: [Main content for this slide]
+
+[Continue for 5-10 slides total]
+
+FINAL SLIDE (CTA):
+🎯 Title: [Call to action]
+📝 Content: [Contact info, next steps, or compelling CTA]
+
+#️⃣ HASHTAGS: [5-10 relevant hashtags]
+💡 DESIGN TIP: [Visual suggestion for the carousel]
+
+Make each slide concise (2-3 sentences max), use emojis, and ensure the content flows naturally from slide to slide.`;
+        } else if (input.format === "reel_script") {
+          systemPrompt = `You are a real estate content creator specializing in short-form video scripts (Reels/TikTok/YouTube Shorts).
+Use a ${tone} tone. Create a 30-60 second video script formatted EXACTLY like this:
+
+🎬 REEL SCRIPT: [Catchy Title]
+
+HOOK (0-3s):
+[On-screen: "TEXT HERE"]
+"What you say out loud"
+
+SCENE 1 (3-12s):
+[Show: What to film]
+[On-screen: "TEXT HERE"]
+"What you say out loud"
+
+SCENE 2 (12-21s):
+[Show: What to film]
+[On-screen: "TEXT HERE"]
+"What you say out loud"
+
+SCENE 3 (21-28s):
+[Show: What to film]
+[On-screen: "TEXT HERE"]
+"What you say out loud"
+
+CTA (28-30s):
+[On-screen: "@YourHandle"]
+"What you say out loud"
+
+🎵 MUSIC: [Specific music suggestion]
+📱 FORMAT: Vertical 9:16 (1080x1920px)
+💡 FILMING TIP: [One helpful tip]
+#️⃣ HASHTAGS: [5-10 relevant hashtags]
+
+Use emojis, be specific about what to show on camera, and make the hook IRRESISTIBLE.`;
+        } else {
+          systemPrompt = `You are a real estate content creator. Create engaging social media content for real estate professionals.
+Use a ${tone} tone. Generate 3 different caption variations:
+1. Elegant & Evocative (long-form, emotional)
+2. Direct & Benefit-Oriented (medium, value-focused)
+3. Short & Punchy (quick, CTA-driven)
+Include relevant hashtags and emojis.`;
+        }
+        
         if (input.contentType === "property_listing" && input.propertyData) {
-          userPrompt = `Create an engaging property listing post for:
+          const formatInstructions = input.format === "carousel" 
+            ? "Create a 7-slide carousel: Slide 1 (cover with property highlight), Slides 2-5 (key features), Slide 6 (neighborhood/lifestyle), Slide 7 (CTA with contact info)."
+            : input.format === "reel_script"
+            ? "Create a 30-second property tour script with hook, 3 feature highlights, and contact CTA."
+            : "Create 3 caption variations highlighting the property's best features.";
+          
+          userPrompt = `Create an engaging property listing ${input.format === "carousel" ? "carousel" : input.format === "reel_script" ? "reel script" : "post"} for:
 Address: ${input.propertyData.address || "Luxury Home"}
 Price: ${input.propertyData.price ? `$${input.propertyData.price.toLocaleString()}` : "Contact for price"}
 Bedrooms: ${input.propertyData.bedrooms || "N/A"}
@@ -134,21 +213,51 @@ Bathrooms: ${input.propertyData.bathrooms || "N/A"}
 Square Feet: ${input.propertyData.sqft || "N/A"}
 Description: ${input.propertyData.description || input.topic}
 
-Create a compelling social media post that highlights the best features and creates urgency.`;
+${formatInstructions}`;
         } else if (input.contentType === "market_report") {
-          userPrompt = `Create a market report post about: ${input.topic}
+          const formatInstructions = input.format === "carousel"
+            ? "Create a 6-8 slide carousel with market data, trends, and insights. Use charts/stats language."
+            : input.format === "reel_script"
+            ? "Create a 45-second market update script with key stats and what they mean for buyers/sellers."
+            : "Create 3 caption variations with market insights and actionable advice.";
+          userPrompt = `Create a market report ${input.format === "carousel" ? "carousel" : input.format === "reel_script" ? "reel script" : "post"} about: ${input.topic}
+${formatInstructions}
 Include relevant statistics, trends, and actionable insights for buyers and sellers.`;
         } else if (input.contentType === "trending_news") {
-          userPrompt = `Create a trending news post about: ${input.topic}
+          const formatInstructions = input.format === "carousel"
+            ? "Create a 5-slide carousel breaking down the news and its real estate impact."
+            : input.format === "reel_script"
+            ? "Create a 30-second news breakdown script with hook, explanation, and impact."
+            : "Create 3 caption variations explaining the news and its relevance.";
+          userPrompt = `Create a trending news ${input.format === "carousel" ? "carousel" : input.format === "reel_script" ? "reel script" : "post"} about: ${input.topic}
+${formatInstructions}
 Make it relevant to real estate and provide value to your audience.`;
         } else if (input.contentType === "tips") {
-          userPrompt = `Create a helpful tips post about: ${input.topic}
+          const formatInstructions = input.format === "carousel"
+            ? "Create a 6-10 slide carousel with one tip per slide. Cover slide + tips + CTA slide."
+            : input.format === "reel_script"
+            ? "Create a 45-second tips script covering 3-5 quick tips with on-screen text."
+            : "Create 3 caption variations with helpful, actionable tips.";
+          userPrompt = `Create a helpful tips ${input.format === "carousel" ? "carousel" : input.format === "reel_script" ? "reel script" : "post"} about: ${input.topic}
+${formatInstructions}
 Provide actionable advice that homebuyers, sellers, or investors can use.`;
         } else if (input.contentType === "neighborhood") {
-          userPrompt = `Create a neighborhood spotlight post about: ${input.topic}
+          const formatInstructions = input.format === "carousel"
+            ? "Create a 7-slide carousel: cover, location, amenities, schools, dining, lifestyle, CTA."
+            : input.format === "reel_script"
+            ? "Create a 45-second neighborhood tour script highlighting key features and lifestyle."
+            : "Create 3 caption variations showcasing the neighborhood's best features.";
+          userPrompt = `Create a neighborhood spotlight ${input.format === "carousel" ? "carousel" : input.format === "reel_script" ? "reel script" : "post"} about: ${input.topic}
+${formatInstructions}
 Highlight the best features, amenities, and lifestyle of the area.`;
         } else {
-          userPrompt = `Create engaging real estate content about: ${input.topic}`;
+          const formatInstructions = input.format === "carousel"
+            ? "Create a 5-8 slide carousel with engaging, shareable content."
+            : input.format === "reel_script"
+            ? "Create a 30-45 second video script with hook, content, and CTA."
+            : "Create 3 caption variations (long, medium, short).";
+          userPrompt = `Create engaging real estate ${input.format === "carousel" ? "carousel" : input.format === "reel_script" ? "reel script" : "content"} about: ${input.topic}
+${formatInstructions}`;
         }
 
         const response = await invokeLLM({
@@ -159,11 +268,28 @@ Highlight the best features, amenities, and lifestyle of the area.`;
         });
 
         const messageContent = response.choices[0]?.message?.content;
-            const generatedContent = typeof messageContent === 'string' ? messageContent : '';
+        const generatedContent = typeof messageContent === 'string' ? messageContent : '';
+        
+        // Generate image for static posts
+        let imageUrl: string | undefined;
+        if (input.format === "static_post") {
+          try {
+            // Extract first caption variation for image generation
+            const firstCaption = generatedContent.split('\n').slice(0, 5).join(' ').substring(0, 200);
+            const imagePrompt = `Professional real estate social media post image about: ${input.topic}. Style: modern, clean, eye-catching. Include text overlay space. ${tone} aesthetic.`;
+            
+            const imageResult = await generateImage({ prompt: imagePrompt });
+            imageUrl = imageResult.url;
+          } catch (error) {
+            console.error('Image generation failed:', error);
+            // Continue without image if generation fails
+          }
+        }
         
         return {
           content: generatedContent,
           contentType: input.contentType,
+          imageUrl,
         };
       }),
 

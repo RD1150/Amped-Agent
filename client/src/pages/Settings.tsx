@@ -118,7 +118,7 @@ export default function Settings() {
             <Switch defaultChecked disabled />
           </div>
           <p className="text-xs text-muted-foreground">
-            LuxEstate uses a premium dark theme by default.
+            Realty Content Agent uses a premium dark theme by default.
           </p>
         </CardContent>
       </Card>
@@ -167,7 +167,7 @@ export default function Settings() {
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Sign Out</p>
-              <p className="text-sm text-muted-foreground">Sign out of your LuxEstate account</p>
+              <p className="text-sm text-muted-foreground">Sign out of your Realty Content Agent account</p>
             </div>
             <Button variant="outline" onClick={logout}>
               <LogOut className="h-4 w-4 mr-2" />

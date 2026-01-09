@@ -16,11 +16,11 @@ export default function PrivacyPolicy() {
         </CardHeader>
         <CardContent className="space-y-4 text-muted-foreground">
           <p>
-            Welcome to LuxEstate ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. 
+            Welcome to Realty Content Agent ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. 
             This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.
           </p>
           <p>
-            LuxEstate is a premium real estate content AI platform that helps real estate professionals create, schedule, and publish 
+            Realty Content Agent is a premium real estate content AI platform that helps real estate professionals create, schedule, and publish 
             engaging social media content. By using our service, you agree to the collection and use of information in accordance with this policy.
           </p>
         </CardContent>
@@ -33,7 +33,7 @@ export default function PrivacyPolicy() {
         <CardContent className="space-y-4 text-muted-foreground">
           <div>
             <h3 className="text-foreground font-semibold mb-2">Personal Information</h3>
-            <p>When you register for LuxEstate, we collect:</p>
+            <p>When you register for Realty Content Agent, we collect:</p>
             <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
               <li>Name and email address</li>
               <li>Business information (business name, website, phone number)</li>
@@ -212,7 +212,7 @@ export default function PrivacyPolicy() {
         </CardHeader>
         <CardContent className="space-y-4 text-muted-foreground">
           <p>
-            LuxEstate is not intended for use by individuals under 18 years of age. We do not knowingly collect 
+            Realty Content Agent is not intended for use by individuals under 18 years of age. We do not knowingly collect 
             personal information from children. If you believe we have collected data from a child, please contact us immediately.
           </p>
         </CardContent>
@@ -237,7 +237,7 @@ export default function PrivacyPolicy() {
         <CardContent className="space-y-4 text-muted-foreground">
           <p>
             We may update this Privacy Policy from time to time. We will notify you of significant changes by email or 
-            through a prominent notice on our platform. Your continued use of LuxEstate after changes constitutes acceptance 
+            through a prominent notice on our platform. Your continued use of Realty Content Agent after changes constitutes acceptance 
             of the updated policy.
           </p>
         </CardContent>
