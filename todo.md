@@ -469,3 +469,50 @@
 - [x] Create Fair Housing Disclaimer page
 - [ ] Add footer links to all legal pages
 - [ ] Make legal pages accessible without login
+
+
+## New Features - Phase 9
+
+### Stripe Setup
+- [ ] Create Stripe product "Realty Content Agent Pro" in test environment
+- [ ] Create price ($79/month with 14-day trial)
+- [ ] Get STRIPE_PRICE_ID and update environment variable
+- [ ] Test checkout flow end-to-end
+
+### Instagram Integration
+- [ ] Set up Instagram Business API credentials
+- [ ] Build Instagram OAuth flow
+- [ ] Create Instagram posting endpoint
+- [ ] Add Instagram to platform selection in content creation
+- [ ] Handle Instagram-specific requirements (image formats, captions)
+- [ ] Add Instagram connection status to Integrations page
+
+### LinkedIn Integration
+- [ ] Set up LinkedIn API credentials
+- [ ] Build LinkedIn OAuth flow
+- [ ] Create LinkedIn posting endpoint
+- [ ] Add LinkedIn to platform selection in content creation
+- [ ] Handle LinkedIn-specific requirements (post formats, character limits)
+- [ ] Add LinkedIn connection status to Integrations page
+
+### Analytics Dashboard
+- [ ] Create analytics database schema (views, clicks, engagement by post)
+- [ ] Build analytics data collection system
+- [ ] Create analytics dashboard page with charts
+- [ ] Show top performing posts
+- [ ] Display engagement metrics by platform
+- [ ] Add date range filters
+- [ ] Export analytics data feature
+
+### Convert to Video Feature
+- [x] Create video conversion UI modal
+- [x] Add slide pause time selector (seconds)
+- [x] Add slide transition selector (Wipe Left, Fade, Slide, Zoom, etc.)
+- [x] Add background music library with genre filters (All, Pop, Country, Rock, Dance, Trendy)
+- [x] Implement music preview player
+- [x] Build video generation endpoint (carousel images → video slideshow)
+- [x] Add video rendering with transitions and audio
+- [x] Save generated video to storage
+- [x] Update content post with video URL
+- [x] Add "Convert to Video" button to carousel posts
+- [x] Show video preview after generation

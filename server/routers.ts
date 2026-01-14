@@ -10,6 +10,7 @@ import { facebookRouter } from "./routers/facebook";
 import { newsRouter } from "./routers/news";
 import { marketStatsRouter } from "./routers/marketStats";
 import { stripeRouter } from "./routers/stripe";
+import { videoRouter } from "./routers/video";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1219,6 +1220,9 @@ Create a compelling social media post.`;
 
   // Stripe Billing
   stripe: stripeRouter,
+
+  // Video Conversion
+  video: videoRouter,
 });
 
 function calculateNextRunTime(

@@ -27,7 +27,8 @@ import {
   Calendar as CalendarIcon,
   MoreHorizontal,
   Send,
-  Eye
+  Eye,
+  Video
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -36,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import ConvertToVideoModal from "@/components/ConvertToVideoModal";
 
 const DAYS = ["SUN", "MON", "TUE", "WED", "THUR", "FRI", "SAT"];
 const MONTHS = [
@@ -48,6 +50,8 @@ type ContentType = "property_listing" | "market_report" | "trending_news" | "tip
 export default function ContentCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isConvertVideoOpen, setIsConvertVideoOpen] = useState(false);
+  const [postToConvert, setPostToConvert] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [topic, setTopic] = useState("");
   const [contentType, setContentType] = useState<ContentType>("custom");
@@ -709,6 +713,21 @@ export default function ContentCalendar() {
                     alt="Post image" 
                     className="mt-1 w-full max-h-64 object-cover rounded border"
                   />
+                  {selectedPost.format === 'carousel' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2 w-full"
+                      onClick={() => {
+                        setPostToConvert(selectedPost);
+                        setIsConvertVideoOpen(true);
+                        setIsViewDialogOpen(false);
+                      }}
+                    >
+                      <Video className="h-4 w-4 mr-2" />
+                      Convert to Video
+                    </Button>
+                  )}
                 </div>
               )}
               
@@ -734,6 +753,33 @@ export default function ContentCalendar() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Convert to Video Modal */}
+      {postToConvert && (
+        <ConvertToVideoModal
+          open={isConvertVideoOpen}
+          onOpenChange={setIsConvertVideoOpen}
+          postId={postToConvert.id}
+          carouselImages={(() => {
+            if (!postToConvert.imageUrl) return [];
+            try {
+              // Try to parse as JSON array first (for carousel posts)
+              const parsed = JSON.parse(postToConvert.imageUrl);
+              return Array.isArray(parsed) ? parsed : [postToConvert.imageUrl];
+            } catch {
+              // If not JSON, treat as single image URL
+              return [postToConvert.imageUrl];
+            }
+          })()}
+          onVideoGenerated={(videoUrl) => {
+            toast.success("Video generated successfully!");
+            setIsConvertVideoOpen(false);
+            setPostToConvert(null);
+            // Refresh posts
+            window.location.reload();
+          }}
+        />
+      )}
     </div>
   );
 }
