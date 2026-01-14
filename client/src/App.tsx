@@ -20,11 +20,22 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
 import MarketStats from "./pages/MarketStats";
 import TrendingNews from "./pages/TrendingNews";
+import Upgrade from "./pages/Upgrade";
+import Landing from "./pages/Landing";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import AIDisclaimer from "./pages/AIDisclaimer";
+import FairHousing from "./pages/FairHousing";
 
 function Router() {
   return (
     <Switch>
       {/* Public routes without dashboard layout */}
+      <Route path="/landing" component={Landing} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/ai-disclaimer" component={AIDisclaimer} />
+      <Route path="/fair-housing" component={FairHousing} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/data-deletion" component={DataDeletion} />
       
@@ -41,6 +52,7 @@ function Router() {
         <Route path="/generate" component={AIGenerate} />
         <Route path="/market-stats" component={MarketStats} />
         <Route path="/trending-news" component={TrendingNews} />
+        <Route path="/upgrade" component={Upgrade} />
         <Route path="/ghl" component={GHLSettings} />
         <Route path="/analytics" component={Analytics} />
         <Route path="/schedules" component={Schedules} />

@@ -9,6 +9,7 @@ import * as db from "./db";
 import { facebookRouter } from "./routers/facebook";
 import { newsRouter } from "./routers/news";
 import { marketStatsRouter } from "./routers/marketStats";
+import { stripeRouter } from "./routers/stripe";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1215,6 +1216,9 @@ Create a compelling social media post.`;
 
   // Market Stats Feature
   marketStats: marketStatsRouter,
+
+  // Stripe Billing
+  stripe: stripeRouter,
 });
 
 function calculateNextRunTime(

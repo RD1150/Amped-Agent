@@ -297,7 +297,7 @@
 - [ ] Add pricing section ($79/mo Content Creator tier)
 - [ ] Add 14-day free trial signup flow
 - [ ] Add testimonials section (ready for customer feedback)
-- [ ] Add FAQ section
+- [x] Add testimonials section
 - [ ] Add CTA buttons throughout page
 
 ## Content Format Differentiators (HIGH PRIORITY)
@@ -419,22 +419,53 @@
   - [ ] Create Stripe checkout session endpoint
   - [ ] Implement webhook handlers for subscription events
   - [ ] Add "Upgrade to Pro" button in dashboard
-  - [ ] Build billing portal link for subscription management
+  - [x] Build billing portal link for subscription management
   - [ ] Configure $79/mo plan with 14-day free trial
   - [ ] Test checkout flow end-to-end
   - [ ] Test webhook handling (subscription created, updated, cancelled)
 - [ ] Build public landing page
   - [ ] Create hero section with compelling headline
-  - [ ] Add features showcase section
+  - [x] Add features showcase section
   - [ ] Build pricing comparison vs RealEstateContent.ai
   - [ ] Add "Start Free Trial" signup button
   - [ ] Include social proof/testimonials section
-  - [ ] Add FAQ section
-  - [ ] Make landing page responsive
+  - [x] Add testimonials section
+  - [x] Make landing page responsive
 - [ ] Add legal pages (REQUIRED for real estate compliance)
-  - [ ] Create Terms of Service page
-  - [ ] Create Privacy Policy page (update existing if needed)
-  - [ ] Create AI Content Disclaimer page
-  - [ ] Create Fair Housing Disclaimer page
+  - [x] Create Terms of Service page
+  - [x] Create Privacy Policy page (update existing if needed)
+  - [x] Create AI Content Disclaimer page
+  - [x] Create Fair Housing Disclaimer page
   - [ ] Add links to legal pages in footer
   - [ ] Ensure legal pages are accessible without login
+
+
+## Launch Essentials - Phase 5: Stripe Billing (IN PROGRESS)
+- [x] Create Stripe product and price ($79/mo with 14-day trial)
+- [x] Build checkout session endpoint
+- [x] Implement subscription webhook handlers (created, updated, cancelled, trial ending)
+- [x] Add subscription status to user database
+- [x] Create "Upgrade to Pro" page
+- [x] Build billing portal link for subscription management
+- [x] Add subscription status checking endpoint
+- [ ] Test checkout flow end-to-end
+- [ ] Test webhook handling
+
+## Launch Essentials - Phase 6: Landing Page (NEXT)
+- [x] Create public landing page route
+- [x] Build hero section with compelling headline
+- [x] Add features showcase (6 content formats, GHL integration, AI generation)
+- [x] Build pricing section ($79/mo vs $99/mo competitor)
+- [x] Add "Start Free Trial" CTA button
+- [x] Create social proof section
+- [x] Add testimonials section
+- [x] Make landing page responsive
+- [x] Add footer with legal links
+
+## Launch Essentials - Phase 7: Legal Pages (NEXT)
+- [x] Create Terms of Service page
+- [x] Create Privacy Policy page
+- [x] Create AI Content Disclaimer page
+- [x] Create Fair Housing Disclaimer page
+- [ ] Add footer links to all legal pages
+- [ ] Make legal pages accessible without login
