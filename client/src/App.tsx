@@ -19,6 +19,7 @@ import Schedules from "./pages/Schedules";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
 import MarketStats from "./pages/MarketStats";
+import TrendingNews from "./pages/TrendingNews";
 
 function Router() {
   return (
@@ -39,6 +40,7 @@ function Router() {
         <Route path="/integrations" component={Integrations} />
         <Route path="/generate" component={AIGenerate} />
         <Route path="/market-stats" component={MarketStats} />
+        <Route path="/trending-news" component={TrendingNews} />
         <Route path="/ghl" component={GHLSettings} />
         <Route path="/analytics" component={Analytics} />
         <Route path="/schedules" component={Schedules} />

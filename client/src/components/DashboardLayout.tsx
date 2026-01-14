@@ -37,7 +37,8 @@ import {
   Clock,
   Sun,
   Moon,
-  TrendingUp
+  TrendingUp,
+  Newspaper
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -52,6 +53,7 @@ const menuItems = [
   { icon: FileSpreadsheet, label: "Import Data", path: "/import" },
   { icon: Link2, label: "Integrations", path: "/integrations" },
   { icon: Sparkles, label: "AI Generate", path: "/generate" },
+  { icon: Newspaper, label: "Trending News", path: "/trending-news" },
   { icon: TrendingUp, label: "Market Stats", path: "/market-stats" },
   { icon: Zap, label: "GoHighLevel", path: "/ghl" },
   { icon: BarChart3, label: "Analytics", path: "/analytics" },
@@ -224,14 +226,13 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <span className="text-xs font-bold text-primary">RCA</span>
-                  </div>
-                  <span className="font-semibold tracking-tight truncate text-gold-gradient">
-                    Realty Content Agent
-                  </span>
+                  <img src="/rca-logo.png" alt="Realty Content Agent" className="h-8 object-contain" />
                 </div>
-              ) : null}
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <span className="text-xs font-bold text-primary">RCA</span>
+                </div>
+              )}
             </div>
           </SidebarHeader>
 

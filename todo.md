@@ -248,7 +248,7 @@
 - [ ] Research and integrate real estate data API (Zillow, Realtor.com, or public data)
 - [x] Display key metrics placeholders: median home price, days on market, inventory levels, price per sqft
 - [ ] Add year-over-year comparison charts
-- [ ] Show market temperature indicator (hot/balanced/cold)
+- [x] Show market temperature indicator (hot/balanced/cold)
 - [ ] Implement "Generate Market Update Post" button
 - [ ] Use AI to analyze data and create insights
 - [ ] Generate social media caption with market stats
@@ -365,3 +365,76 @@
 - [ ] Add "Use Template" vs "AI Generate" choice
 - [ ] Implement template download functionality
 - [ ] Test all 15 templates with real content
+
+## Launch Essentials (CURRENT PRIORITY)
+- [ ] Rebuild Stripe billing integration ($79/mo + 14-day trial)
+- [ ] Create public landing page with pricing and features
+- [ ] Add Terms of Service page
+- [ ] Add Privacy Policy page
+- [ ] Add AI Content Disclaimer
+- [ ] Add Fair Housing Disclaimer
+- [ ] Test all flows and save final checkpoint
+
+## Trending News Post Feature (NEW - Priority 1)
+- [ ] Research real estate news APIs (NAR, Realtor.com, NewsAPI with real estate filter)
+- [x] Create Trending News page component
+- [x] Add Trending News to sidebar navigation
+- [ ] Implement news fetching from API (latest real estate headlines)
+- [x] Display news articles with title, summary, source, date
+- [x] Add "Generate Post" button for each news article
+- [x] Use AI to generate engaging social media post about the news
+- [ ] Include agent's local market perspective in generated content
+- [x] Save generated news posts to Content Calendar
+- [x] Add news refresh functionality
+- [ ] Write unit tests for news fetching and post generation
+- [ ] Test end-to-end news post generation flow
+
+## Market Stats Post Feature (NEW - Priority 1)
+- [x] Create Market Stats page component
+- [x] Add Market Stats to sidebar navigation
+- [x] Build location search input (city, state, zipcode)
+- [ ] Research and integrate real estate data API (Zillow, Redfin, Census data, or mock data)
+- [x] Display key metrics: median home price, days on market, inventory levels, price per sqft
+- [x] Add year-over-year comparison data
+- [x] Show market temperature indicator (hot/balanced/cold)
+- [x] Implement "Generate Market Stats Post" button
+- [x] Use AI to analyze data and create insights with local context
+- [x] Generate social media caption with formatted market stats
+- [ ] Option to generate with or without chart/graph image
+- [x] Save generated market stats posts to Content Calendar
+- [ ] Write unit tests for market stats procedures
+- [ ] Test end-to-end market stats post generation flow
+
+## Logo Update (NEW - Priority 1)
+- [x] Copy new RCA horizontal logo to project assets folder
+- [x] Update app header to use new logo
+- [ ] Generate favicon versions (16x16, 32x32, 192x192, 512x512)
+- [ ] Update favicon in index.html
+- [ ] Update logo in login/signup pages
+- [ ] Update logo in email templates (if any)
+- [ ] Test logo display on all pages
+
+## Launch Essentials (Priority 2 - REQUIRED BEFORE PUBLISH)
+- [ ] Complete Stripe billing integration
+  - [ ] Create Stripe checkout session endpoint
+  - [ ] Implement webhook handlers for subscription events
+  - [ ] Add "Upgrade to Pro" button in dashboard
+  - [ ] Build billing portal link for subscription management
+  - [ ] Configure $79/mo plan with 14-day free trial
+  - [ ] Test checkout flow end-to-end
+  - [ ] Test webhook handling (subscription created, updated, cancelled)
+- [ ] Build public landing page
+  - [ ] Create hero section with compelling headline
+  - [ ] Add features showcase section
+  - [ ] Build pricing comparison vs RealEstateContent.ai
+  - [ ] Add "Start Free Trial" signup button
+  - [ ] Include social proof/testimonials section
+  - [ ] Add FAQ section
+  - [ ] Make landing page responsive
+- [ ] Add legal pages (REQUIRED for real estate compliance)
+  - [ ] Create Terms of Service page
+  - [ ] Create Privacy Policy page (update existing if needed)
+  - [ ] Create AI Content Disclaimer page
+  - [ ] Create Fair Housing Disclaimer page
+  - [ ] Add links to legal pages in footer
+  - [ ] Ensure legal pages are accessible without login

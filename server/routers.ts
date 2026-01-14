@@ -7,6 +7,8 @@ import { invokeLLM } from "./_core/llm";
 import { generateImage } from "./_core/imageGeneration";
 import * as db from "./db";
 import { facebookRouter } from "./routers/facebook";
+import { newsRouter } from "./routers/news";
+import { marketStatsRouter } from "./routers/marketStats";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1207,6 +1209,12 @@ Create a compelling social media post.`;
 
   // Facebook OAuth Integration
   facebook: facebookRouter,
+
+  // Trending News Feature
+  news: newsRouter,
+
+  // Market Stats Feature
+  marketStats: marketStatsRouter,
 });
 
 function calculateNextRunTime(
