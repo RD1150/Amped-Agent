@@ -10,4 +10,6 @@ export const ENV = {
   facebookAppId: process.env.FACEBOOK_APP_ID ?? "",
   facebookAppSecret: process.env.FACEBOOK_APP_SECRET ?? "",
   ghlWebhookSecret: process.env.GHL_WEBHOOK_SECRET ?? "",
+  ghlAgencyApiKey: process.env.GHL_AGENCY_API_KEY ?? "",
+  ghlAgencyId: process.env.GHL_AGENCY_ID ?? "",
 };

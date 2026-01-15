@@ -4,22 +4,18 @@ import { getDb } from '../db';
 import { users } from '../../drizzle/schema';
 import { eq } from 'drizzle-orm';
 import Stripe from 'stripe';
+import { STRIPE_PRODUCTS, getProductByTier, getTierByPriceId } from '../stripe-products';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-12-15.clover',
 });
-
-const PRICE_ID = process.env.STRIPE_PRICE_ID || 'price_1234567890'; // Will be set after creating product
-const PRODUCT_NAME = 'Realty Content Agent Pro';
-const PRODUCT_DESCRIPTION = 'AI-powered real estate content creation and scheduling platform';
-const PRICE_AMOUNT = 7900; // $79.00 in cents
-const TRIAL_DAYS = 14;
 
 export const stripeRouter = router({
   // Create checkout session for subscription
   createCheckoutSession: protectedProcedure
     .input(
       z.object({
+        tier: z.enum(['starter', 'professional', 'agency']),
         successUrl: z.string(),
         cancelUrl: z.string(),
       })
@@ -27,6 +23,13 @@ export const stripeRouter = router({
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
       const userEmail = ctx.user.email;
+      const { tier } = input;
+
+      // Get product configuration
+      const product = getProductByTier(tier);
+      if (!product || !product.priceId) {
+        throw new Error(`Product not found for tier: ${tier}`);
+      }
 
       try {
         // Create Stripe checkout session
@@ -37,14 +40,15 @@ export const stripeRouter = router({
           client_reference_id: userId.toString(),
           line_items: [
             {
-              price: PRICE_ID,
+              price: product.priceId,
               quantity: 1,
             },
           ],
           subscription_data: {
-            trial_period_days: TRIAL_DAYS,
+            trial_period_days: product.trialDays,
             metadata: {
               userId: userId.toString(),
+              tier: tier,
             },
           },
           success_url: input.successUrl,
@@ -160,16 +164,18 @@ export const stripeRouter = router({
         case 'checkout.session.completed': {
           const session = event.data.object as Stripe.Checkout.Session;
           const userId = parseInt(session.metadata?.userId || '0');
+          const tier = session.metadata?.tier as 'starter' | 'professional' | 'agency' | undefined;
           const customerId = session.customer as string;
           const subscriptionId = session.subscription as string;
 
-          if (userId && customerId) {
+          if (userId && customerId && tier) {
             await db
               .update(users)
               .set({
                 stripeCustomerId: customerId,
                 stripeSubscriptionId: subscriptionId,
                 subscriptionStatus: 'trialing',
+                subscriptionTier: tier,
               })
               .where(eq(users.id, userId));
           }
@@ -180,19 +186,27 @@ export const stripeRouter = router({
         case 'customer.subscription.updated': {
           const subscription = event.data.object as Stripe.Subscription;
           const customerId = subscription.customer as string;
+          const tier = subscription.metadata?.tier as 'starter' | 'professional' | 'agency' | undefined;
 
           // Find user by customer ID
           const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, customerId)).limit(1);
 
           if (user) {
+            const updateData: any = {
+              stripeSubscriptionId: subscription.id,
+              subscriptionStatus: subscription.status as any,
+              subscriptionEndDate: new Date((subscription as any).current_period_end * 1000),
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            };
+            
+            // Update tier if provided in metadata
+            if (tier) {
+              updateData.subscriptionTier = tier;
+            }
+
             await db
               .update(users)
-              .set({
-                stripeSubscriptionId: subscription.id,
-                subscriptionStatus: subscription.status as any,
-                subscriptionEndDate: new Date((subscription as any).current_period_end * 1000),
-                cancelAtPeriodEnd: subscription.cancel_at_period_end,
-              })
+              .set(updateData)
               .where(eq(users.id, user.id));
           }
           break;

@@ -6,12 +6,9 @@ import { z } from "zod";
 import { invokeLLM } from "./_core/llm";
 import { generateImage } from "./_core/imageGeneration";
 import * as db from "./db";
-import { facebookRouter } from "./routers/facebook";
-import { newsRouter } from "./routers/news";
 import { marketStatsRouter } from "./routers/marketStats";
 import { stripeRouter } from "./routers/stripe";
 import { videoRouter } from "./routers/video";
-import { linkedinRouter } from "./routers/linkedin";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1209,15 +1206,6 @@ Create a compelling social media post.`;
         });
       }),
   }),
-
-  // Facebook OAuth Integration
-  facebook: facebookRouter,
-
-  // LinkedIn OAuth Integration
-  linkedin: linkedinRouter,
-
-  // Trending News Feature
-  news: newsRouter,
 
   // Market Stats Feature
   marketStats: marketStatsRouter,

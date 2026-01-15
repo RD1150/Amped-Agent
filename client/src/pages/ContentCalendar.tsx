@@ -120,111 +120,40 @@ export default function ContentCalendar() {
     },
   });
 
-  // Get connection status for all platforms
-  const { data: facebookConnection } = trpc.facebook.getConnection.useQuery();
-  const { data: instagramConnection } = trpc.facebook.getInstagramConnection.useQuery();
-  const { data: linkedinConnection } = trpc.linkedin.getConnection.useQuery();
-
-  // Direct posting mutations
-  const postToFacebook = trpc.facebook.postToFacebook.useMutation({
-    onSuccess: () => {
-      toast.success("Posted to Facebook successfully!");
-    },
-    onError: (error: any) => {
-      toast.error(`Failed to post to Facebook: ${error.message}`);
-    },
-  });
-
-  const postToInstagram = trpc.facebook.postToInstagram.useMutation({
-    onSuccess: () => {
-      toast.success("Posted to Instagram successfully!");
-    },
-    onError: (error: any) => {
-      toast.error(`Failed to post to Instagram: ${error.message}`);
-    },
-  });
-
-  const postToLinkedIn = trpc.linkedin.post.useMutation({
-    onSuccess: () => {
-      toast.success("Posted to LinkedIn successfully!");
-    },
-    onError: (error: any) => {
-      toast.error(`Failed to post to LinkedIn: ${error.message}`);
-    },
-  });
+  // Get GHL connection status
+  const isGHLConnected = ghlSettings?.isConnected && ghlSettings?.apiKey && ghlSettings?.locationId;
 
   const handleOpenPublishDialog = (postId: number) => {
-    // Check if any platform is connected
-    const hasConnections = facebookConnection?.isConnected || instagramConnection?.isConnected || linkedinConnection?.isConnected;
-    
-    if (!hasConnections) {
-      toast.error("Please connect at least one social media platform in Integrations first");
+    // Check if GHL is connected
+    if (!isGHLConnected) {
+      toast.error("Please connect GoHighLevel in Integrations first");
       return;
     }
-
-    // Pre-select connected platforms
-    const connected = [];
-    if (facebookConnection?.isConnected) connected.push("facebook");
-    if (instagramConnection?.isConnected) connected.push("instagram");
-    if (linkedinConnection?.isConnected) connected.push("linkedin");
-    setSelectedPlatforms(connected);
 
     setSelectedPostId(postId);
     setIsPublishDialogOpen(true);
   };
 
   const handlePublishNow = async () => {
-    if (!selectedPostId || selectedPlatforms.length === 0) {
-      toast.error("Please select at least one platform");
+    if (!selectedPostId) {
+      toast.error("No post selected");
       return;
     }
 
-    const post = contentPosts.find(p => p.id === selectedPostId);
-    if (!post) return;
-
-    // Post to each selected platform
-    const promises = [];
+    const accountIds = socialAccounts?.accounts.map((acc: any) => acc.id) || [];
     
-    if (selectedPlatforms.includes("facebook") && facebookConnection?.isConnected) {
-      promises.push(
-        postToFacebook.mutateAsync({
-          message: post.content,
-          imageUrl: post.imageUrl || undefined,
-        })
-      );
+    if (accountIds.length === 0) {
+      toast.error("No social accounts connected in GoHighLevel");
+      return;
     }
 
-    if (selectedPlatforms.includes("instagram") && instagramConnection?.isConnected) {
-      promises.push(
-        postToInstagram.mutateAsync({
-          caption: post.content,
-          imageUrl: post.imageUrl || "",
-        })
-      );
-    }
-
-    if (selectedPlatforms.includes("linkedin") && linkedinConnection?.isConnected) {
-      promises.push(
-        postToLinkedIn.mutateAsync({
-          text: post.content,
-          imageUrl: post.imageUrl || undefined,
-        })
-      );
-    }
-
-    try {
-      await Promise.all(promises);
-      toast.success(`Posted to ${selectedPlatforms.length} platform(s) successfully!`);
-      
-      // Update post status to published
-      // TODO: Add updateContent mutation to mark post as published
-    } catch (error) {
-      // Individual errors are already handled by mutation onError
-    }
+    pushToGHL.mutate({
+      contentPostId: selectedPostId,
+      accountIds,
+    });
 
     setIsPublishDialogOpen(false);
     setSelectedPostId(null);
-    setSelectedPlatforms([]);
   };
 
   const handleSchedulePost = () => {
@@ -692,65 +621,19 @@ export default function ContentCalendar() {
                 )}
               </div>
 
-              {/* Platform Selection */}
+              {/* GHL Social Accounts Info */}
               <div className="space-y-3">
-                <label className="text-sm font-medium">Select Platforms</label>
-                <div className="space-y-2">
-                  {facebookConnection?.isConnected && (
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedPlatforms.includes("facebook")}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedPlatforms([...selectedPlatforms, "facebook"]);
-                          } else {
-                            setSelectedPlatforms(selectedPlatforms.filter(p => p !== "facebook"));
-                          }
-                        }}
-                        className="w-4 h-4"
-                      />
-                      <span>Facebook</span>
-                    </label>
-                  )}
-                  {instagramConnection?.isConnected && (
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedPlatforms.includes("instagram")}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedPlatforms([...selectedPlatforms, "instagram"]);
-                          } else {
-                            setSelectedPlatforms(selectedPlatforms.filter(p => p !== "instagram"));
-                          }
-                        }}
-                        className="w-4 h-4"
-                      />
-                      <span>Instagram</span>
-                    </label>
-                  )}
-                  {linkedinConnection?.isConnected && (
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedPlatforms.includes("linkedin")}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedPlatforms([...selectedPlatforms, "linkedin"]);
-                          } else {
-                            setSelectedPlatforms(selectedPlatforms.filter(p => p !== "linkedin"));
-                          }
-                        }}
-                        className="w-4 h-4"
-                      />
-                      <span>LinkedIn</span>
-                    </label>
+                <label className="text-sm font-medium">Posting Through GoHighLevel</label>
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    This post will be published to all social media accounts connected in your GoHighLevel location.
+                  </p>
+                  {socialAccounts?.accounts && socialAccounts.accounts.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {socialAccounts.accounts.length} account(s) connected
+                    </p>
                   )}
                 </div>
-                {selectedPlatforms.length === 0 && (
-                  <p className="text-sm text-destructive">Please select at least one platform</p>
-                )}
               </div>
 
               {/* Schedule Options */}

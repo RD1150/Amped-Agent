@@ -2,278 +2,15 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, Check, ExternalLink, Loader2 } from "lucide-react";
+import { ExternalLink, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
-
-const platforms = [
-  {
-    id: "facebook" as const,
-    name: "Facebook",
-    icon: "📘",
-    description: "This feature directly integrates with your Facebook Business Page, not your personal profile. Meta does not allow for connections to personal profiles.",
-    color: "bg-blue-500/20 text-blue-400",
-  },
-  {
-    id: "instagram" as const,
-    name: "Instagram",
-    icon: "📸",
-    description: "You must have a business or creator account on Instagram, this setting can be changed directly on your Instagram account.",
-    color: "bg-pink-500/20 text-pink-400",
-  },
-  {
-    id: "linkedin" as const,
-    name: "LinkedIn",
-    icon: "💼",
-    description: "Connect your LinkedIn profile or company page to share professional content with your network.",
-    color: "bg-blue-600/20 text-blue-300",
-  },
-  {
-    id: "twitter" as const,
-    name: "X (Twitter)",
-    icon: "🐦",
-    description: "Share updates and engage with your audience on X (formerly Twitter).",
-    color: "bg-gray-500/20 text-gray-300",
-  },
-];
 
 export default function Integrations() {
-  const [isConnecting, setIsConnecting] = useState(false);
-  const utils = trpc.useUtils();
+  // Get GHL connection status
+  const { data: ghlSettings, isLoading } = trpc.ghl.getSettings.useQuery();
+  const isConnected = ghlSettings?.isConnected && ghlSettings?.apiKey && ghlSettings?.locationId;
 
-  // Get Facebook connection status
-  const { data: facebookConnection, isLoading: fbLoading } = trpc.facebook.getConnection.useQuery();
-  
-  // Get Instagram connection status
-  const { data: instagramConnection, isLoading: igLoading } = trpc.facebook.getInstagramConnection.useQuery();
-  
-  // Get Instagram accounts available to connect
-  const { data: instagramAccounts } = trpc.facebook.getInstagramAccounts.useQuery(
-    undefined,
-    { enabled: !!facebookConnection?.isConnected && !instagramConnection?.isConnected }
-  );
-  
-  // Get all integrations (for other platforms)
-  const { data: integrations = [], isLoading } = trpc.integrations.list.useQuery();
-
-  // Facebook OAuth mutations
-  const getAuthUrl = trpc.facebook.getAuthUrl.useMutation();
-  const handleCallback = trpc.facebook.handleCallback.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Connected to Facebook as ${data.accountName}`);
-      utils.facebook.getConnection.invalidate();
-      setIsConnecting(false);
-      // Clear URL parameters
-      window.history.replaceState({}, document.title, window.location.pathname);
-    },
-    onError: (error) => {
-      toast.error(`Failed to connect Facebook: ${error.message}`);
-      setIsConnecting(false);
-    },
-  });
-
-  const disconnectFacebook = trpc.facebook.disconnect.useMutation({
-    onSuccess: () => {
-      toast.success("Disconnected from Facebook");
-      utils.facebook.getConnection.invalidate();
-    },
-    onError: (error) => {
-      toast.error(`Failed to disconnect: ${error.message}`);
-    },
-  });
-
-  const connectInstagram = trpc.facebook.connectInstagram.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Connected to Instagram as @${data.instagramUsername}`);
-      utils.facebook.getInstagramConnection.invalidate();
-    },
-    onError: (error) => {
-      toast.error(`Failed to connect Instagram: ${error.message}`);
-    },
-  });
-
-  const disconnectInstagram = trpc.facebook.disconnectInstagram.useMutation({
-    onSuccess: () => {
-      toast.success("Disconnected from Instagram");
-      utils.facebook.getInstagramConnection.invalidate();
-    },
-    onError: (error) => {
-      toast.error(`Failed to disconnect: ${error.message}`);
-    },
-  });
-
-  // LinkedIn OAuth mutations
-  const { data: linkedinConnection, isLoading: liLoading } = trpc.linkedin.getConnection.useQuery();
-  
-  const getLinkedInAuthUrl = trpc.linkedin.getAuthUrl.useMutation();
-  const handleLinkedInCallback = trpc.linkedin.handleCallback.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Connected to LinkedIn as ${data.accountName}`);
-      utils.linkedin.getConnection.invalidate();
-      setIsConnecting(false);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    },
-    onError: (error) => {
-      toast.error(`Failed to connect LinkedIn: ${error.message}`);
-      setIsConnecting(false);
-    },
-  });
-
-  const disconnectLinkedIn = trpc.linkedin.disconnect.useMutation({
-    onSuccess: () => {
-      toast.success("Disconnected from LinkedIn");
-      utils.linkedin.getConnection.invalidate();
-    },
-    onError: (error) => {
-      toast.error(`Failed to disconnect: ${error.message}`);
-    },
-  });
-
-  const testConnection = trpc.facebook.testConnection.useMutation({
-    onSuccess: (data) => {
-      if (data.success) {
-        toast.success(`Connection verified: ${data.accountName}`);
-      } else {
-        toast.error(`Connection failed: ${data.error}`);
-      }
-    },
-  });
-
-  // Handle OAuth callback
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-    const state = params.get("state");
-    const error = params.get("error");
-    const platform = params.get("platform"); // To distinguish between platforms
-
-    if (error) {
-      toast.error(`OAuth error: ${error}`);
-      window.history.replaceState({}, document.title, window.location.pathname);
-      return;
-    }
-
-    if (code && state) {
-      setIsConnecting(true);
-      const redirectUri = `${window.location.origin}${window.location.pathname}`;
-      
-      // Check if this is LinkedIn callback
-      if (platform === "linkedin") {
-        handleLinkedInCallback.mutate({ code, state, redirectUri });
-      } else {
-        // Default to Facebook
-        handleCallback.mutate({ code, state, redirectUri });
-      }
-    }
-  }, []);
-
-  const upsertIntegration = trpc.integrations.upsert.useMutation({
-    onSuccess: () => {
-      utils.integrations.list.invalidate();
-    },
-  });
-
-  const getIntegration = (platformId: string) => {
-    return integrations.find(i => i.platform === platformId);
-  };
-
-  const handleConnectFacebook = async () => {
-    try {
-      setIsConnecting(true);
-      const redirectUri = `${window.location.origin}${window.location.pathname}`;
-      const result = await getAuthUrl.mutateAsync({ redirectUri });
-      
-      // Redirect to Facebook OAuth
-      window.location.href = result.authUrl;
-    } catch (error: any) {
-      toast.error(`Failed to start OAuth: ${error.message}`);
-      setIsConnecting(false);
-    }
-  };
-
-  const handleDisconnectFacebook = () => {
-    if (confirm("Are you sure you want to disconnect your Facebook account?")) {
-      disconnectFacebook.mutate();
-    }
-  };
-
-  const handleConnectLinkedIn = async () => {
-    try {
-      setIsConnecting(true);
-      const redirectUri = `${window.location.origin}${window.location.pathname}?platform=linkedin`;
-      const result = await getLinkedInAuthUrl.mutateAsync({ redirectUri });
-      
-      // Redirect to LinkedIn OAuth
-      window.location.href = result.authUrl;
-    } catch (error: any) {
-      toast.error(`Failed to start LinkedIn OAuth: ${error.message}`);
-      setIsConnecting(false);
-    }
-  };
-
-  const handleDisconnectLinkedIn = () => {
-    if (confirm("Are you sure you want to disconnect your LinkedIn account?")) {
-      disconnectLinkedIn.mutate();
-    }
-  };
-
-  const handleConnect = (platformId: "facebook" | "instagram" | "linkedin" | "twitter") => {
-    if (platformId === "facebook") {
-      handleConnectFacebook();
-      return;
-    }
-
-    if (platformId === "instagram") {
-      // Check if Facebook is connected first
-      if (!facebookConnection?.isConnected) {
-        toast.error("Please connect Facebook first to access Instagram Business Accounts");
-        return;
-      }
-
-      // Check if Instagram accounts are available
-      if (!instagramAccounts?.accounts || instagramAccounts.accounts.length === 0) {
-        toast.error("No Instagram Business Accounts found. Make sure your Facebook Page is connected to an Instagram Business Account.");
-        return;
-      }
-
-      // Connect the first available Instagram account
-      const account = instagramAccounts.accounts[0];
-      connectInstagram.mutate({
-        pageId: account.pageId,
-        pageName: account.pageName,
-        pageAccessToken: account.pageAccessToken,
-        instagramId: account.instagramId,
-        instagramUsername: account.instagramUsername,
-      });
-      return;
-    }
-
-    if (platformId === "linkedin") {
-      handleConnectLinkedIn();
-      return;
-    }
-
-    // For Twitter, show coming soon message
-    toast.info("Twitter/X integration is coming soon! Facebook, Instagram, and LinkedIn are available now.");
-    
-    // For demo purposes, toggle connection status
-    const existing = getIntegration(platformId);
-    upsertIntegration.mutate({
-      platform: platformId,
-      isConnected: !existing?.isConnected,
-      accountName: existing?.isConnected ? undefined : `Demo ${platformId} Account`,
-    });
-  };
-
-  const handleRefresh = (platformId: string) => {
-    if (platformId === "facebook") {
-      testConnection.mutate();
-    } else {
-      toast.info(`Refreshing ${platformId} connection...`);
-    }
-  };
-
-  if (isLoading || fbLoading || igLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -286,177 +23,109 @@ export default function Integrations() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Integrations</h1>
         <p className="text-muted-foreground mt-1">
-          Connect Your Socials and Let AI Handle Your Content Creation and Scheduling—Automatically.
+          Connect GoHighLevel to automatically post your content to all your social media platforms.
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {platforms.map((platform) => {
-          // Use real connection data for Facebook, Instagram, and LinkedIn
-          const integration = platform.id === "facebook" 
-            ? facebookConnection 
-            : platform.id === "instagram"
-            ? instagramConnection
-            : platform.id === "linkedin"
-            ? linkedinConnection
-            : getIntegration(platform.id);
-          const isConnected = integration?.isConnected;
-          const isExpired = platform.id === "facebook" && facebookConnection?.isExpired;
-
-          return (
-            <Card key={platform.id} className="bg-card border-border">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">{platform.icon}</span>
-                    <div>
-                      <CardTitle className="text-lg">{platform.name}</CardTitle>
-                      {isConnected && !isExpired && (
-                        <Badge variant="outline" className="mt-1 bg-green-500/20 text-green-400 border-green-500/30">
-                          <Check className="w-3 h-3 mr-1" />
-                          Connected
-                        </Badge>
-                      )}
-                      {isExpired && (
-                        <Badge variant="outline" className="mt-1 bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
-                          Token Expired
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  {isConnected && !isExpired && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRefresh(platform.id)}
-                      disabled={testConnection.isPending}
-                    >
-                      <RefreshCw className={`w-4 h-4 ${testConnection.isPending ? 'animate-spin' : ''}`} />
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  {platform.description}
-                </p>
-
-                {isConnected && (
-                  <div className="p-3 rounded-lg bg-muted/50">
-                    <p className="text-sm font-medium text-foreground">
-                      Connected as: {platform.id === "instagram" && instagramConnection ? `@${instagramConnection.instagramUsername}` : platform.id === "linkedin" && linkedinConnection ? linkedinConnection.accountName : integration && 'accountName' in integration ? integration.accountName : "Unknown"}
-                    </p>
-                    {integration?.connectedAt && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Connected on {new Date(integration.connectedAt).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                <div className="flex gap-2">
-                  {!isConnected || isExpired ? (
-                    <Button
-                      onClick={() => handleConnect(platform.id)}
-                      disabled={isConnecting || getAuthUrl.isPending}
-                      className="flex-1"
-                    >
-                      {(isConnecting || getAuthUrl.isPending) && platform.id === "facebook" ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Connecting...
-                        </>
-                      ) : (
-                        <>Connect {platform.name}</>
-                      )}
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          if (platform.id === "facebook") {
-                            handleDisconnectFacebook();
-                          } else if (platform.id === "instagram") {
-                            if (confirm("Are you sure you want to disconnect your Instagram account?")) {
-                              disconnectInstagram.mutate();
-                            }
-                          } else if (platform.id === "linkedin") {
-                            handleDisconnectLinkedIn();
-                          } else {
-                            handleConnect(platform.id);
-                          }
-                        }}
-                        disabled={disconnectFacebook.isPending || disconnectInstagram.isPending}
-                        className="flex-1"
-                      >
-                        {(disconnectFacebook.isPending && platform.id === "facebook") || (disconnectInstagram.isPending && platform.id === "instagram") ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Disconnecting...
-                          </>
-                        ) : (
-                          <>Disconnect</>
-                        )}
-                      </Button>
-                      {platform.id === "facebook" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => window.open("https://www.facebook.com/settings?tab=business_tools", "_blank")}
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                {platform.id === "facebook" && !isConnected && (
-                  <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-border">
-                    <p className="font-medium">Requirements:</p>
-                    <ul className="list-disc list-inside space-y-1 ml-2">
-                      <li>Facebook Business Page (not personal profile)</li>
-                      <li>Admin access to the page</li>
-                      <li>Page must be published</li>
-                    </ul>
-                  </div>
-                )}
-
-                {platform.id === "instagram" && !isConnected && (
-                  <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-border">
-                    <p className="font-medium">Requirements:</p>
-                    <ul className="list-disc list-inside space-y-1 ml-2">
-                      <li>Connect Facebook first</li>
-                      <li>Instagram Business or Creator account</li>
-                      <li>Instagram account must be linked to your Facebook Page</li>
-                    </ul>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Help Section */}
-      <Card className="bg-card border-border">
+      {/* GoHighLevel Integration Card */}
+      <Card className="border-2 border-primary/20">
         <CardHeader>
-          <CardTitle className="text-lg">Need Help?</CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-2xl">
+                🚀
+              </div>
+              <div>
+                <CardTitle>GoHighLevel</CardTitle>
+                <CardDescription>
+                  Post to Facebook, Instagram, LinkedIn, and more through your GHL account
+                </CardDescription>
+              </div>
+            </div>
+            {isConnected ? (
+              <Badge variant="default" className="bg-green-500/20 text-green-400 border-green-500/30">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Connected
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="bg-muted text-muted-foreground">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Not Connected
+              </Badge>
+            )}
+          </div>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            <strong className="text-foreground">Facebook & Instagram:</strong> Requires a Facebook Business Page and Instagram Business Account. 
-            Personal profiles cannot be connected due to Meta's API restrictions.
-          </p>
-          <p>
-            <strong className="text-foreground">Permissions:</strong> You'll be asked to grant permissions to manage posts and read engagement metrics. 
-            We never access your personal messages or private information.
-          </p>
-          <p>
-            <strong className="text-foreground">Troubleshooting:</strong> If you encounter issues, try disconnecting and reconnecting your account. 
-            Make sure you're logged into the correct Facebook account before connecting.
-          </p>
+        <CardContent className="space-y-4">
+          {isConnected ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="text-sm font-medium">Location</p>
+                  <p className="text-xs text-muted-foreground">{ghlSettings?.locationId || "Not set"}</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    window.location.href = "/ghl";
+                  }}
+                >
+                  Manage
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Your content will be posted through GoHighLevel to all connected social media accounts in your GHL location.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                <p className="text-sm font-medium">Why GoHighLevel?</p>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Post to all platforms (Facebook, Instagram, LinkedIn, Twitter) from one place</li>
+                  <li>No token expiration issues - 98%+ reliability</li>
+                  <li>Avoid $5,000+ Facebook API authorization costs</li>
+                  <li>Manage all your social accounts in GHL</li>
+                </ul>
+              </div>
+              <Button
+                onClick={() => {
+                  window.location.href = "/ghl";
+                }}
+                className="w-full"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Connect GoHighLevel
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Information Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>How It Works</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
+            <p className="text-sm font-medium">1. Connect Your GHL Account</p>
+            <p className="text-xs text-muted-foreground">
+              Enter your GoHighLevel API key and select your location
+            </p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium">2. Connect Social Accounts in GHL</p>
+            <p className="text-xs text-muted-foreground">
+              Use GoHighLevel's Social Planner to connect Facebook, Instagram, LinkedIn, and other platforms
+            </p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium">3. Post Automatically</p>
+            <p className="text-xs text-muted-foreground">
+              Schedule posts from Realty Content Agent and they'll be published through GHL to all your connected platforms
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -20,6 +20,10 @@ export const users = mysqlTable("users", {
   subscriptionStatus: mysqlEnum("subscriptionStatus", ["active", "trialing", "past_due", "canceled", "incomplete", "incomplete_expired", "unpaid", "inactive"]).default("inactive"),
   subscriptionEndDate: timestamp("subscriptionEndDate"),
   cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").default(false),
+  // GHL sub-account fields (auto-provisioned, hidden from user)
+  ghlSubAccountId: varchar("ghlSubAccountId", { length: 255 }),
+  ghlLocationId: varchar("ghlLocationId", { length: 255 }),
+  ghlSubAccountCreatedAt: timestamp("ghlSubAccountCreatedAt"),
 });
 
 export type User = typeof users.$inferSelect;

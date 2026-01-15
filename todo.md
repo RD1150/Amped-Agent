@@ -1,4 +1,10 @@
-# LuxEstate - Project TODO
+# Realty Content Agent - Project TODO
+
+## Branding Update
+- [x] Update index.html page title to "Realty Content Agent"
+- [x] Update package.json name to "realty-content-agent"
+- [x] Verify landing page shows correct branding
+- [x] Verify dashboard logo shows RCA branding
 
 ## Core Features
 - [x] Database schema (users, content posts, calendar events, personas, integrations)
@@ -565,7 +571,7 @@
 - [ ] Create Starter product ($79/mo with 14-day trial)
 - [ ] Create Professional product ($197/mo with 14-day trial)
 - [ ] Create Agency product ($497/mo with 14-day trial)
-- [ ] Update webhook handler to set subscription tier
+- [x] Update webhook handler to set subscription tier
 - [ ] Add tier checking middleware
 - [ ] Build upgrade/downgrade flow
 
@@ -632,3 +638,58 @@
 - [ ] Test A/B testing workflow
 - [ ] Cross-browser testing (Chrome, Safari, Firefox)
 - [ ] Mobile responsiveness testing
+
+
+## Architecture Pivot: GHL-Only Posting (Better Reliability)
+
+### Remove Direct Social Posting
+- [ ] Remove Facebook OAuth code from facebook.ts router
+- [ ] Remove Instagram OAuth code  
+- [ ] Remove LinkedIn OAuth code from linkedin.ts router
+- [ ] Remove platform selection UI from ContentCalendar
+- [ ] Remove social connection UI from Integrations page
+- [ ] Update database schema to remove unused OAuth fields
+
+### Complete GHL Integration
+- [ ] Implement GHL OAuth flow for user sub-accounts
+- [ ] Build GHL posting API integration (send posts to GHL)
+- [ ] Add GHL connection status check
+- [ ] Build GHL webhook receiver for post status updates
+- [ ] Handle GHL posting errors gracefully
+
+### GHL Auto-Funnel Feature
+- [ ] Create GHL sub-account for each new user
+- [ ] Build funnel/page creation via GHL API
+- [ ] Generate landing pages from post content
+- [ ] Add lead capture forms to funnels
+- [ ] Configure automation (lead → CRM)
+- [ ] Return short URLs for social posts
+
+### Update UI for GHL-Only Flow
+- [ ] Simplify Integrations page (GHL only)
+- [ ] Update ContentCalendar publish flow (remove platform selection)
+- [ ] Add "Generate Funnel" button to posts
+- [ ] Show GHL connection status in dashboard
+- [ ] Update landing page copy (emphasize reliability)
+
+## GHL-Only Pivot (Current Priority)
+- [x] Remove Facebook/Instagram/LinkedIn OAuth routers
+- [x] Simplify Integrations.tsx to GHL-only
+- [x] Remove direct social OAuth code from ContentCalendar.tsx
+- [x] Update publish dialog to show GHL posting info
+- [x] Add GHL sub-account fields to database schema
+- [ ] Test GHL posting flow end-to-end (waiting for agency API)
+- [ ] Build GHL auto-funnel generation feature
+- [ ] Add GHL OAuth flow for sub-account creation (waiting for agency API)
+
+## GHL Sub-Account Auto-Provisioning (WAITING FOR AGENCY API)
+- [x] Store master GHL agency API key and agency ID in environment variables (env.ts ready)
+- [x] Store sub-account ID and location ID in users table (schema updated)
+- [ ] Contact GHL support to enable agency-level API access
+- [ ] Get agency API key from GHL support
+- [ ] Create GHL sub-account on user signup (automatic)
+- [ ] Remove GHL branding from Integrations page (users shouldn't know it's GHL)
+- [ ] Create "Connect Social Accounts" flow that opens user's GHL sub-account
+- [ ] Update posting logic to use user's sub-account location ID
+- [ ] Build sub-account management (view status, reset if needed)
+- [ ] Test full flow: signup → auto sub-account → connect socials → post
