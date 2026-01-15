@@ -60,6 +60,7 @@ export default function ContentCalendar() {
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [scheduleDate, setScheduleDate] = useState("");
   const [scheduleTime, setScheduleTime] = useState("");
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [isGeneratingMonth, setIsGeneratingMonth] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<any | null>(null);
@@ -119,33 +120,111 @@ export default function ContentCalendar() {
     },
   });
 
+  // Get connection status for all platforms
+  const { data: facebookConnection } = trpc.facebook.getConnection.useQuery();
+  const { data: instagramConnection } = trpc.facebook.getInstagramConnection.useQuery();
+  const { data: linkedinConnection } = trpc.linkedin.getConnection.useQuery();
+
+  // Direct posting mutations
+  const postToFacebook = trpc.facebook.postToFacebook.useMutation({
+    onSuccess: () => {
+      toast.success("Posted to Facebook successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to post to Facebook: ${error.message}`);
+    },
+  });
+
+  const postToInstagram = trpc.facebook.postToInstagram.useMutation({
+    onSuccess: () => {
+      toast.success("Posted to Instagram successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to post to Instagram: ${error.message}`);
+    },
+  });
+
+  const postToLinkedIn = trpc.linkedin.post.useMutation({
+    onSuccess: () => {
+      toast.success("Posted to LinkedIn successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to post to LinkedIn: ${error.message}`);
+    },
+  });
+
   const handleOpenPublishDialog = (postId: number) => {
-    if (!ghlSettings?.isConnected) {
-      toast.error("Please configure GHL in Settings first");
+    // Check if any platform is connected
+    const hasConnections = facebookConnection?.isConnected || instagramConnection?.isConnected || linkedinConnection?.isConnected;
+    
+    if (!hasConnections) {
+      toast.error("Please connect at least one social media platform in Integrations first");
       return;
     }
 
-    if (!socialAccounts?.accounts || socialAccounts.accounts.length === 0) {
-      toast.error("No social accounts connected in GHL. Please connect accounts in GHL first.");
-      return;
-    }
+    // Pre-select connected platforms
+    const connected = [];
+    if (facebookConnection?.isConnected) connected.push("facebook");
+    if (instagramConnection?.isConnected) connected.push("instagram");
+    if (linkedinConnection?.isConnected) connected.push("linkedin");
+    setSelectedPlatforms(connected);
 
     setSelectedPostId(postId);
     setIsPublishDialogOpen(true);
   };
 
-  const handlePublishNow = () => {
-    if (!selectedPostId) return;
+  const handlePublishNow = async () => {
+    if (!selectedPostId || selectedPlatforms.length === 0) {
+      toast.error("Please select at least one platform");
+      return;
+    }
 
-    const accountIds = socialAccounts?.accounts.map((acc: any) => acc.id) || [];
+    const post = contentPosts.find(p => p.id === selectedPostId);
+    if (!post) return;
+
+    // Post to each selected platform
+    const promises = [];
     
-    pushToGHL.mutate({
-      contentPostId: selectedPostId,
-      accountIds,
-    });
+    if (selectedPlatforms.includes("facebook") && facebookConnection?.isConnected) {
+      promises.push(
+        postToFacebook.mutateAsync({
+          message: post.content,
+          imageUrl: post.imageUrl || undefined,
+        })
+      );
+    }
+
+    if (selectedPlatforms.includes("instagram") && instagramConnection?.isConnected) {
+      promises.push(
+        postToInstagram.mutateAsync({
+          caption: post.content,
+          imageUrl: post.imageUrl || "",
+        })
+      );
+    }
+
+    if (selectedPlatforms.includes("linkedin") && linkedinConnection?.isConnected) {
+      promises.push(
+        postToLinkedIn.mutateAsync({
+          text: post.content,
+          imageUrl: post.imageUrl || undefined,
+        })
+      );
+    }
+
+    try {
+      await Promise.all(promises);
+      toast.success(`Posted to ${selectedPlatforms.length} platform(s) successfully!`);
+      
+      // Update post status to published
+      // TODO: Add updateContent mutation to mark post as published
+    } catch (error) {
+      // Individual errors are already handled by mutation onError
+    }
 
     setIsPublishDialogOpen(false);
     setSelectedPostId(null);
+    setSelectedPlatforms([]);
   };
 
   const handleSchedulePost = () => {
@@ -613,9 +692,65 @@ export default function ContentCalendar() {
                 )}
               </div>
 
-              {/* Connected Accounts Info */}
-              <div className="text-sm text-muted-foreground">
-                <p>Publishing to {socialAccounts?.accounts?.length || 0} connected account(s)</p>
+              {/* Platform Selection */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Select Platforms</label>
+                <div className="space-y-2">
+                  {facebookConnection?.isConnected && (
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedPlatforms.includes("facebook")}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedPlatforms([...selectedPlatforms, "facebook"]);
+                          } else {
+                            setSelectedPlatforms(selectedPlatforms.filter(p => p !== "facebook"));
+                          }
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <span>Facebook</span>
+                    </label>
+                  )}
+                  {instagramConnection?.isConnected && (
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedPlatforms.includes("instagram")}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedPlatforms([...selectedPlatforms, "instagram"]);
+                          } else {
+                            setSelectedPlatforms(selectedPlatforms.filter(p => p !== "instagram"));
+                          }
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <span>Instagram</span>
+                    </label>
+                  )}
+                  {linkedinConnection?.isConnected && (
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedPlatforms.includes("linkedin")}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedPlatforms([...selectedPlatforms, "linkedin"]);
+                          } else {
+                            setSelectedPlatforms(selectedPlatforms.filter(p => p !== "linkedin"));
+                          }
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <span>LinkedIn</span>
+                    </label>
+                  )}
+                </div>
+                {selectedPlatforms.length === 0 && (
+                  <p className="text-sm text-destructive">Please select at least one platform</p>
+                )}
               </div>
 
               {/* Schedule Options */}

@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -16,6 +16,7 @@ export const users = mysqlTable("users", {
   // Stripe subscription fields
   stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
   stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
+  subscriptionTier: mysqlEnum("subscriptionTier", ["starter", "professional", "agency"]).default("starter"),
   subscriptionStatus: mysqlEnum("subscriptionStatus", ["active", "trialing", "past_due", "canceled", "incomplete", "incomplete_expired", "unpaid", "inactive"]).default("inactive"),
   subscriptionEndDate: timestamp("subscriptionEndDate"),
   cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").default(false),
@@ -340,3 +341,45 @@ export const usageAlerts = mysqlTable("usage_alerts", {
 
 export type UsageAlert = typeof usageAlerts.$inferSelect;
 export type InsertUsageAlert = typeof usageAlerts.$inferInsert;
+
+/**
+ * Post Analytics - track engagement metrics for published posts
+ */
+export const postAnalytics = mysqlTable("post_analytics", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  contentPostId: int("contentPostId").notNull(),
+  platform: mysqlEnum("platform", ["facebook", "instagram", "linkedin", "twitter"]).notNull(),
+  platformPostId: varchar("platformPostId", { length: 255 }),
+  likes: int("likes").default(0),
+  comments: int("comments").default(0),
+  shares: int("shares").default(0),
+  reach: int("reach").default(0),
+  impressions: int("impressions").default(0),
+  clicks: int("clicks").default(0),
+  engagementRate: decimal("engagementRate", { precision: 5, scale: 2 }).default("0.00"),
+  fetchedAt: timestamp("fetchedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PostAnalytics = typeof postAnalytics.$inferSelect;
+export type InsertPostAnalytics = typeof postAnalytics.$inferInsert;
+
+/**
+ * A/B Tests - compare performance of post variations
+ */
+export const abTests = mysqlTable("ab_tests", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  testName: varchar("testName", { length: 255 }).notNull(),
+  variantAPostId: int("variantAPostId").notNull(),
+  variantBPostId: int("variantBPostId").notNull(),
+  winnerId: int("winnerId"), // Which variant won (postId)
+  status: mysqlEnum("status", ["running", "completed", "cancelled"]).default("running"),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AbTest = typeof abTests.$inferSelect;
+export type InsertAbTest = typeof abTests.$inferInsert;

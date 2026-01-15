@@ -102,6 +102,33 @@ export default function Integrations() {
     },
   });
 
+  // LinkedIn OAuth mutations
+  const { data: linkedinConnection, isLoading: liLoading } = trpc.linkedin.getConnection.useQuery();
+  
+  const getLinkedInAuthUrl = trpc.linkedin.getAuthUrl.useMutation();
+  const handleLinkedInCallback = trpc.linkedin.handleCallback.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Connected to LinkedIn as ${data.accountName}`);
+      utils.linkedin.getConnection.invalidate();
+      setIsConnecting(false);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    },
+    onError: (error) => {
+      toast.error(`Failed to connect LinkedIn: ${error.message}`);
+      setIsConnecting(false);
+    },
+  });
+
+  const disconnectLinkedIn = trpc.linkedin.disconnect.useMutation({
+    onSuccess: () => {
+      toast.success("Disconnected from LinkedIn");
+      utils.linkedin.getConnection.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`Failed to disconnect: ${error.message}`);
+    },
+  });
+
   const testConnection = trpc.facebook.testConnection.useMutation({
     onSuccess: (data) => {
       if (data.success) {
@@ -118,9 +145,10 @@ export default function Integrations() {
     const code = params.get("code");
     const state = params.get("state");
     const error = params.get("error");
+    const platform = params.get("platform"); // To distinguish between platforms
 
     if (error) {
-      toast.error(`Facebook OAuth error: ${error}`);
+      toast.error(`OAuth error: ${error}`);
       window.history.replaceState({}, document.title, window.location.pathname);
       return;
     }
@@ -128,7 +156,14 @@ export default function Integrations() {
     if (code && state) {
       setIsConnecting(true);
       const redirectUri = `${window.location.origin}${window.location.pathname}`;
-      handleCallback.mutate({ code, state, redirectUri });
+      
+      // Check if this is LinkedIn callback
+      if (platform === "linkedin") {
+        handleLinkedInCallback.mutate({ code, state, redirectUri });
+      } else {
+        // Default to Facebook
+        handleCallback.mutate({ code, state, redirectUri });
+      }
     }
   }, []);
 
@@ -159,6 +194,26 @@ export default function Integrations() {
   const handleDisconnectFacebook = () => {
     if (confirm("Are you sure you want to disconnect your Facebook account?")) {
       disconnectFacebook.mutate();
+    }
+  };
+
+  const handleConnectLinkedIn = async () => {
+    try {
+      setIsConnecting(true);
+      const redirectUri = `${window.location.origin}${window.location.pathname}?platform=linkedin`;
+      const result = await getLinkedInAuthUrl.mutateAsync({ redirectUri });
+      
+      // Redirect to LinkedIn OAuth
+      window.location.href = result.authUrl;
+    } catch (error: any) {
+      toast.error(`Failed to start LinkedIn OAuth: ${error.message}`);
+      setIsConnecting(false);
+    }
+  };
+
+  const handleDisconnectLinkedIn = () => {
+    if (confirm("Are you sure you want to disconnect your LinkedIn account?")) {
+      disconnectLinkedIn.mutate();
     }
   };
 
@@ -193,8 +248,13 @@ export default function Integrations() {
       return;
     }
 
-    // For other platforms, show coming soon message
-    toast.info("This integration is coming soon! Facebook and Instagram are available now.");
+    if (platformId === "linkedin") {
+      handleConnectLinkedIn();
+      return;
+    }
+
+    // For Twitter, show coming soon message
+    toast.info("Twitter/X integration is coming soon! Facebook, Instagram, and LinkedIn are available now.");
     
     // For demo purposes, toggle connection status
     const existing = getIntegration(platformId);
@@ -232,11 +292,13 @@ export default function Integrations() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {platforms.map((platform) => {
-          // Use real connection data for Facebook and Instagram
+          // Use real connection data for Facebook, Instagram, and LinkedIn
           const integration = platform.id === "facebook" 
             ? facebookConnection 
             : platform.id === "instagram"
             ? instagramConnection
+            : platform.id === "linkedin"
+            ? linkedinConnection
             : getIntegration(platform.id);
           const isConnected = integration?.isConnected;
           const isExpired = platform.id === "facebook" && facebookConnection?.isExpired;
@@ -282,7 +344,7 @@ export default function Integrations() {
                 {isConnected && (
                   <div className="p-3 rounded-lg bg-muted/50">
                     <p className="text-sm font-medium text-foreground">
-                      Connected as: {platform.id === "instagram" && instagramConnection ? `@${instagramConnection.instagramUsername}` : integration && 'accountName' in integration ? integration.accountName : "Unknown"}
+                      Connected as: {platform.id === "instagram" && instagramConnection ? `@${instagramConnection.instagramUsername}` : platform.id === "linkedin" && linkedinConnection ? linkedinConnection.accountName : integration && 'accountName' in integration ? integration.accountName : "Unknown"}
                     </p>
                     {integration?.connectedAt && (
                       <p className="text-xs text-muted-foreground mt-1">
@@ -319,6 +381,8 @@ export default function Integrations() {
                             if (confirm("Are you sure you want to disconnect your Instagram account?")) {
                               disconnectInstagram.mutate();
                             }
+                          } else if (platform.id === "linkedin") {
+                            handleDisconnectLinkedIn();
                           } else {
                             handleConnect(platform.id);
                           }

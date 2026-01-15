@@ -495,6 +495,66 @@ export const facebookRouter = router({
   }),
 
   /**
+   * Post to Facebook Page
+   */
+  postToFacebook: protectedProcedure
+    .input(
+      z.object({
+        message: z.string(),
+        imageUrl: z.string().url().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { message, imageUrl } = input;
+      const userId = ctx.user.id;
+
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const connection = await db
+        .select()
+        .from(integrations)
+        .where(and(eq(integrations.userId, userId), eq(integrations.platform, "facebook")))
+        .limit(1);
+
+      if (connection.length === 0 || !connection[0].facebookPageAccessToken) {
+        throw new Error("Facebook page not connected");
+      }
+
+      const pageAccessToken = decryptToken(connection[0].facebookPageAccessToken);
+      const pageId = connection[0].facebookPageId;
+
+      // Post to Facebook Page
+      const postData: any = {
+        message,
+        access_token: pageAccessToken,
+      };
+
+      if (imageUrl) {
+        postData.url = imageUrl;
+      }
+
+      const endpoint = imageUrl
+        ? `https://graph.facebook.com/v18.0/${pageId}/photos`
+        : `https://graph.facebook.com/v18.0/${pageId}/feed`;
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(postData),
+      });
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(`Failed to post to Facebook: ${data.error.message}`);
+      }
+
+      return {
+        success: true,
+        postId: data.id || data.post_id,
+      };
+    }),
+
+  /**
    * Post image to Instagram feed
    */
   postToInstagram: protectedProcedure

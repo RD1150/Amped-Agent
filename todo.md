@@ -516,3 +516,119 @@
 - [x] Update content post with video URL
 - [x] Add "Convert to Video" button to carousel posts
 - [x] Show video preview after generation
+
+
+## 3-Tier Subscription System (CURRENT SPRINT - Days 1-4)
+
+### Tier 1: Starter ($79/mo)
+- [ ] Direct posting to Facebook, Instagram, LinkedIn
+- [ ] AI content generation (all 6 formats)
+- [ ] 30-day content calendar
+- [ ] Trending news feature
+- [ ] Market stats feature
+- [ ] Video conversion feature
+
+### Tier 2: Professional ($197/mo) - MOST POPULAR
+- [ ] Everything in Starter tier
+- [ ] GHL CRM white label integration
+- [ ] Auto-generate landing pages/funnels from posts
+- [ ] Lead capture and tracking
+- [ ] Email/SMS automation (via GHL)
+- [ ] Content performance analytics
+- [ ] A/B testing feature
+
+### Tier 3: Agency ($497/mo)
+- [ ] Everything in Professional tier
+- [ ] Unlimited sub-accounts for team/agents
+- [ ] White label branding for brokerages
+- [ ] Priority support
+- [ ] Custom domain support
+
+## Technical Implementation - 3-Tier System
+
+### Database Changes (Day 1)
+- [ ] Add subscriptionTier field to users table (enum: starter, professional, agency)
+- [ ] Add subscriptionStatus field (active, canceled, past_due, trialing)
+- [ ] Add stripeSubscriptionId field
+- [ ] Add post_analytics table (postId, platform, likes, comments, shares, reach, timestamp)
+- [ ] Add ab_tests table (testId, postId, variantA, variantB, winnerId, status)
+
+### Direct Posting (Day 1)
+- [ ] Fix ContentCalendar publish dialog UI
+- [ ] Add platform selection checkboxes (FB, IG, LinkedIn)
+- [ ] Implement multi-platform posting logic
+- [ ] Handle platform-specific image requirements
+- [ ] Add posting status indicators
+- [ ] Error handling for failed posts
+
+### Stripe Integration (Day 2)
+- [ ] Create Starter product ($79/mo with 14-day trial)
+- [ ] Create Professional product ($197/mo with 14-day trial)
+- [ ] Create Agency product ($497/mo with 14-day trial)
+- [ ] Update webhook handler to set subscription tier
+- [ ] Add tier checking middleware
+- [ ] Build upgrade/downgrade flow
+
+### Feature Gating (Day 1-2)
+- [ ] Create tier checking utility function
+- [ ] Gate GHL features to Professional+ tiers
+- [ ] Gate analytics to Professional+ tiers
+- [ ] Gate A/B testing to Professional+ tiers
+- [ ] Gate sub-accounts to Agency tier
+- [ ] Show upgrade prompts for gated features
+- [ ] Add ENABLE_TIER_RESTRICTIONS env flag
+
+### GHL Auto-Funnel Integration (Day 2)
+- [ ] Research GHL API for funnel creation
+- [ ] Build GHL OAuth connection (if not using sub-account)
+- [ ] Create funnel template for property listings
+- [ ] Auto-populate funnel with post content (images, description, CTA)
+- [ ] Generate short link for funnel
+- [ ] Include funnel link in social posts
+- [ ] Track funnel performance (views, leads)
+
+### Content Performance Analytics (Day 3)
+- [ ] Fetch engagement data from Facebook API (likes, comments, shares)
+- [ ] Fetch engagement data from Instagram API
+- [ ] Fetch engagement data from LinkedIn API
+- [ ] Store analytics in post_analytics table
+- [ ] Build analytics dashboard page
+- [ ] Show top performing posts
+- [ ] Show engagement trends over time
+- [ ] Calculate ROI metrics (leads per post, cost per lead)
+
+### A/B Testing Feature (Day 3)
+- [ ] Generate 2 variations of each post (different headlines, CTAs, images)
+- [ ] Create A/B test record in database
+- [ ] Post both variations (staggered timing or different platforms)
+- [ ] Track performance of each variation
+- [ ] Determine winner based on engagement
+- [ ] Show A/B test results in dashboard
+- [ ] Recommend winning formula for future posts
+
+### Landing Page Updates (Day 2)
+- [ ] Update pricing section with 3 tiers
+- [ ] Add tier comparison table
+- [ ] Highlight Professional tier as "Most Popular"
+- [ ] Add feature badges (NEW, EXCLUSIVE, etc.)
+- [ ] Update testimonials section
+- [ ] Add FAQ for tier differences
+
+### Optional Features (Day 4 - If Time Permits)
+- [ ] Hashtag Suggestions: AI analyzes post and suggests 10-15 relevant hashtags
+- [ ] Best Time to Post: Analyze audience engagement patterns and recommend optimal posting times
+- [ ] Competitor Monitoring: Track other agents' posts for inspiration
+- [ ] Content Templates Library: Pre-built templates for common post types
+
+## Testing Checklist (Day 4)
+- [ ] Test Starter tier: Direct posting works, gated features blocked
+- [ ] Test Professional tier: All features accessible, auto-funnels work
+- [ ] Test Agency tier: Sub-accounts work, white label features work
+- [ ] Test upgrade flow: Starter → Professional → Agency
+- [ ] Test downgrade flow: Agency → Professional → Starter
+- [ ] Test payment failure handling
+- [ ] Test trial period expiration
+- [ ] Test analytics data collection
+- [ ] Test A/B testing workflow
+- [ ] Cross-browser testing (Chrome, Safari, Firefox)
+- [ ] Mobile responsiveness testing

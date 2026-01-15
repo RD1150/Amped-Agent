@@ -11,6 +11,7 @@ import { newsRouter } from "./routers/news";
 import { marketStatsRouter } from "./routers/marketStats";
 import { stripeRouter } from "./routers/stripe";
 import { videoRouter } from "./routers/video";
+import { linkedinRouter } from "./routers/linkedin";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1211,6 +1212,9 @@ Create a compelling social media post.`;
 
   // Facebook OAuth Integration
   facebook: facebookRouter,
+
+  // LinkedIn OAuth Integration
+  linkedin: linkedinRouter,
 
   // Trending News Feature
   news: newsRouter,
