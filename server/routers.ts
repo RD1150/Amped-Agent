@@ -758,36 +758,22 @@ Create a compelling social media post.`;
           }
           
           const createData = await createResponse.json();
-          const locationId = createData.location?.id;
+          const locationId = createData.id;
           
           if (!locationId) {
             throw new Error("Location created but no ID returned");
           }
           
-          // Step 2: Enable SaaS mode using Bulk Enable SaaS API
-          const saasResponse = await fetch(
-            `https://services.leadconnectorhq.com/saas/bulk-enable-saas/${ENV.ghlCompanyId}`,
-            {
-              method: "POST",
-              headers: {
-                "Authorization": `Bearer ${ENV.ghlAgencyApiKey}`,
-                "Version": "2021-04-15",
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                locationIds: [locationId],
-                isSaaSV2: true,
-                actionPayload: {
-                  // These will need to be configured based on your SaaS plan
-                  // For now, we'll skip this and enable SaaS without specific plan assignment
-                },
-              }),
-            }
-          );
-          
-          // Note: SaaS enablement might fail if plan details aren't configured
-          // We'll still return success if location was created
-          const saasEnabled = saasResponse.ok;
+          // Step 2: SaaS Mode Enablement (Optional)
+          // Note: Automatic SaaS enablement requires Stripe configuration:
+          // - priceId: Stripe Price ID for the SaaS plan
+          // - stripeAccountId: Connected Stripe Account ID
+          // - saasPlanId: GHL SaaS Plan ID from SaaS Configurator
+          // - providerLocationId: Parent location ID
+          //
+          // For now, the location is created successfully and the user can
+          // manually enable SaaS mode and assign a plan in the GHL dashboard.
+          const saasEnabled = false;
           
           // Update user record with sub-account info
           await db.updateUser(ctx.user.id, {

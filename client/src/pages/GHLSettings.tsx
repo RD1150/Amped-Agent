@@ -7,6 +7,92 @@ import { Label } from "@/components/ui/label";
 import { Zap, CheckCircle2, XCircle, Loader2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
+import { useAuth } from "@/_core/hooks/useAuth";
+
+function TestSubAccountButton() {
+  const { user } = useAuth();
+  const createSubAccountMutation = trpc.ghl.createSubAccount.useMutation({
+    onSuccess: (data) => {
+      toast.success("GHL Sub-Account Created!", {
+        description: `Location ID: ${data.locationId}`,
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to create sub-account", {
+        description: error.message,
+      });
+    },
+  });
+
+  const handleTest = () => {
+    if (!user) {
+      toast.error("Please log in first");
+      return;
+    }
+    createSubAccountMutation.mutate({
+      name: user.name || "Test User",
+      email: user.email || "test@example.com",
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="p-4 bg-white rounded-lg border">
+        <p className="text-sm text-muted-foreground mb-2">
+          <strong>User:</strong> {user?.name}
+        </p>
+        <p className="text-sm text-muted-foreground mb-2">
+          <strong>Email:</strong> {user?.email}
+        </p>
+        {user?.ghlLocationId && (
+          <p className="text-sm text-green-600">
+            ✓ GHL Location ID: {user.ghlLocationId}
+          </p>
+        )}
+      </div>
+
+      <Button
+        onClick={handleTest}
+        disabled={createSubAccountMutation.isPending}
+        className="w-full"
+        variant="default"
+      >
+        {createSubAccountMutation.isPending ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Creating Sub-Account...
+          </>
+        ) : (
+          <>
+            <Zap className="mr-2 h-4 w-4" />
+            Test: Create GHL Sub-Account
+          </>
+        )}
+      </Button>
+
+      {createSubAccountMutation.isSuccess && (
+        <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+          <p className="text-sm text-green-800 font-medium">✓ Sub-Account Created!</p>
+          <p className="text-xs text-green-600 mt-1">
+            Location ID: {createSubAccountMutation.data.locationId}
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            💡 To enable SaaS mode, go to your GHL dashboard and assign a plan to this location.
+          </p>
+        </div>
+      )}
+
+      {createSubAccountMutation.isError && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-sm text-red-800 font-medium">✗ Error</p>
+          <p className="text-xs text-red-600 mt-1">
+            {createSubAccountMutation.error.message}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function GHLSettings() {
   const [apiKey, setApiKey] = useState("");
@@ -229,6 +315,21 @@ export default function GHLSettings() {
               <ExternalLink className="mr-2 h-4 w-4" />
               View GoHighLevel API Documentation
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-yellow-200 bg-yellow-50/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-yellow-600" />
+              Test Sub-Account Creation
+            </CardTitle>
+            <CardDescription>
+              Test the automatic GHL sub-account provisioning (for debugging)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TestSubAccountButton />
           </CardContent>
         </Card>
 
