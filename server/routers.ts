@@ -1,10 +1,10 @@
-import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { invokeLLM } from "./_core/llm";
 import { generateImage } from "./_core/imageGeneration";
+import { ENV } from "./_core/env";
 import * as db from "./db";
 import { marketStatsRouter } from "./routers/marketStats";
 import { stripeRouter } from "./routers/stripe";
@@ -17,7 +17,7 @@ export const appRouter = router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+      ctx.res.clearCookie("session", { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
   }),
@@ -722,6 +722,91 @@ Create a compelling social media post.`;
   }),
 
   ghl: router({
+    createSubAccount: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        email: z.string().email(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          // Step 1: Create location using Locations API
+          const createResponse = await fetch(
+            `https://services.leadconnectorhq.com/locations/`,
+            {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${ENV.ghlAgencyApiKey}`,
+                "Version": "2021-07-28",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                companyId: ENV.ghlCompanyId,
+                name: input.name,
+                email: input.email,
+                country: "US",
+                address: "",
+                city: "",
+                state: "",
+                postalCode: "",
+              }),
+            }
+          );
+          
+          if (!createResponse.ok) {
+            const error = await createResponse.text();
+            throw new Error(`Failed to create location: ${error}`);
+          }
+          
+          const createData = await createResponse.json();
+          const locationId = createData.location?.id;
+          
+          if (!locationId) {
+            throw new Error("Location created but no ID returned");
+          }
+          
+          // Step 2: Enable SaaS mode using Bulk Enable SaaS API
+          const saasResponse = await fetch(
+            `https://services.leadconnectorhq.com/saas/bulk-enable-saas/${ENV.ghlCompanyId}`,
+            {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${ENV.ghlAgencyApiKey}`,
+                "Version": "2021-04-15",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                locationIds: [locationId],
+                isSaaSV2: true,
+                actionPayload: {
+                  // These will need to be configured based on your SaaS plan
+                  // For now, we'll skip this and enable SaaS without specific plan assignment
+                },
+              }),
+            }
+          );
+          
+          // Note: SaaS enablement might fail if plan details aren't configured
+          // We'll still return success if location was created
+          const saasEnabled = saasResponse.ok;
+          
+          // Update user record with sub-account info
+          await db.updateUser(ctx.user.id, {
+            ghlSubAccountId: locationId,
+            ghlLocationId: locationId,
+            ghlSubAccountCreatedAt: new Date(),
+          });
+          
+          return {
+            success: true,
+            subAccountId: locationId,
+            locationId,
+            saasEnabled,
+          };
+        } catch (error: any) {
+          throw new Error(`Failed to create sub-account: ${error.message}`);
+        }
+      }),
+    
     getSettings: protectedProcedure.query(async ({ ctx }) => {
       const settings = await db.getGHLSettingsByUserId(ctx.user.id);
       return settings || null;
@@ -764,17 +849,24 @@ Create a compelling social media post.`;
       }),
     
     getSocialAccounts: protectedProcedure.query(async ({ ctx }) => {
-      const settings = await db.getGHLSettingsByUserId(ctx.user.id);
-      if (!settings?.apiKey || !settings?.locationId) {
-        throw new Error("GHL not configured. Please add your API credentials in settings.");
+      const { ghlAgencyApiKey } = ENV;
+      
+      if (!ghlAgencyApiKey) {
+        throw new Error("GHL agency credentials not configured");
+      }
+      
+      // Use user's auto-provisioned sub-account location ID
+      const locationId = ctx.user.ghlLocationId;
+      if (!locationId) {
+        throw new Error("Social accounts not connected. Please connect your social media accounts first.");
       }
       
       try {
         const response = await fetch(
-          `https://services.leadconnectorhq.com/social-media-posting/${settings.locationId}/accounts`,
+          `https://services.leadconnectorhq.com/social-media-posting/${locationId}/accounts`,
           {
             headers: {
-              'Authorization': `Bearer ${settings.apiKey}`,
+              'Authorization': `Bearer ${ghlAgencyApiKey}`,
               'Version': '2021-07-28',
             },
           }
@@ -798,9 +890,16 @@ Create a compelling social media post.`;
         scheduledAt: z.date().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const settings = await db.getGHLSettingsByUserId(ctx.user.id);
-        if (!settings?.apiKey || !settings?.locationId) {
-          throw new Error("GHL not configured. Please add your API credentials in settings.");
+        const { ghlAgencyApiKey } = ENV;
+        
+        if (!ghlAgencyApiKey) {
+          throw new Error("GHL agency credentials not configured");
+        }
+        
+        // Use user's auto-provisioned sub-account location ID
+        const locationId = ctx.user.ghlLocationId;
+        if (!locationId) {
+          throw new Error("Social accounts not connected. Please connect your social media accounts first.");
         }
         
         const post = await db.getContentPostById(input.contentPostId);
@@ -832,11 +931,11 @@ Create a compelling social media post.`;
         }
         
         const response = await fetch(
-          `https://services.leadconnectorhq.com/social-media-posting/${settings.locationId}/post`,
+          `https://services.leadconnectorhq.com/social-media-posting/${locationId}/post`,
           {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${settings.apiKey}`,
+              'Authorization': `Bearer ${ghlAgencyApiKey}`,
               'Version': '2021-07-28',
               'Content-Type': 'application/json',
             },

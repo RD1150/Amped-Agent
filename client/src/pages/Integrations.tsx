@@ -21,24 +21,24 @@ export default function Integrations() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Integrations</h1>
+        <h1 className="text-2xl font-bold text-foreground">Social Media Accounts</h1>
         <p className="text-muted-foreground mt-1">
-          Connect GoHighLevel to automatically post your content to all your social media platforms.
+          Connect your social media accounts to automatically publish your generated content.
         </p>
       </div>
 
-      {/* GoHighLevel Integration Card */}
+      {/* Social Media Accounts Card */}
       <Card className="border-2 border-primary/20">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-2xl">
-                🚀
+                📱
               </div>
               <div>
-                <CardTitle>GoHighLevel</CardTitle>
+                <CardTitle>Social Media Accounts</CardTitle>
                 <CardDescription>
-                  Post to Facebook, Instagram, LinkedIn, and more through your GHL account
+                  Post to Facebook, Instagram, LinkedIn, and more automatically
                 </CardDescription>
               </div>
             </div>
@@ -74,18 +74,18 @@ export default function Integrations() {
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground">
-                Your content will be posted through GoHighLevel to all connected social media accounts in your GHL location.
+                Your content will be posted to all your connected social media accounts automatically.
               </p>
             </div>
           ) : (
             <div className="space-y-3">
               <div className="p-4 bg-muted/50 rounded-lg space-y-2">
-                <p className="text-sm font-medium">Why GoHighLevel?</p>
+                <p className="text-sm font-medium">Connect Your Social Accounts</p>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Post to all platforms (Facebook, Instagram, LinkedIn, Twitter) from one place</li>
-                  <li>No token expiration issues - 98%+ reliability</li>
-                  <li>Avoid $5,000+ Facebook API authorization costs</li>
-                  <li>Manage all your social accounts in GHL</li>
+                  <li>Post to Facebook, Instagram, LinkedIn, and Twitter automatically</li>
+                  <li>Reliable posting with 98%+ success rate</li>
+                  <li>No complex API setup required</li>
+                  <li>Manage all your social accounts in one place</li>
                 </ul>
               </div>
               <Button
@@ -95,7 +95,7 @@ export default function Integrations() {
                 className="w-full"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
-                Connect GoHighLevel
+                Connect Social Accounts
               </Button>
             </div>
           )}

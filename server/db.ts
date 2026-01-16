@@ -106,6 +106,14 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function updateUser(userId: number, data: Partial<InsertUser>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(users).set({ ...data, updatedAt: new Date() }).where(eq(users.id, userId));
+  return { success: true };
+}
+
 // ============ PERSONA HELPERS ============
 
 export async function getPersonaByUserId(userId: number) {

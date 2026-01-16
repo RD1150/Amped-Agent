@@ -12,4 +12,5 @@ export const ENV = {
   ghlWebhookSecret: process.env.GHL_WEBHOOK_SECRET ?? "",
   ghlAgencyApiKey: process.env.GHL_AGENCY_API_KEY ?? "",
   ghlAgencyId: process.env.GHL_AGENCY_ID ?? "",
+  ghlCompanyId: process.env.GHL_COMPANY_ID ?? "",
 };

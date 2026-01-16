@@ -682,14 +682,27 @@
 - [ ] Build GHL auto-funnel generation feature
 - [ ] Add GHL OAuth flow for sub-account creation (waiting for agency API)
 
-## GHL Sub-Account Auto-Provisioning (WAITING FOR AGENCY API)
+## GHL Sub-Account Auto-Provisioning (IN PROGRESS)
 - [x] Store master GHL agency API key and agency ID in environment variables (env.ts ready)
 - [x] Store sub-account ID and location ID in users table (schema updated)
-- [ ] Contact GHL support to enable agency-level API access
-- [ ] Get agency API key from GHL support
-- [ ] Create GHL sub-account on user signup (automatic)
-- [ ] Remove GHL branding from Integrations page (users shouldn't know it's GHL)
+- [x] Get GHL Private Integration credentials (API key + Location ID)
+- [x] Add credentials to environment secrets
+- [x] Build createSubAccount procedure in GHL router
+- [x] Add updateUser helper function to db.ts
+- [x] Validate GHL credentials with vitest test
+- [x] Trigger sub-account creation on user signup (automatic on first login)
+- [x] Set default theme to light background
+- [x] Remove GHL branding from Integrations page (now shows as "Social Media Accounts")
 - [ ] Create "Connect Social Accounts" flow that opens user's GHL sub-account
-- [ ] Update posting logic to use user's sub-account location ID
+- [x] Update posting logic to use user's sub-account location ID (pushToSocialPlanner and getSocialAccounts updated)
 - [ ] Build sub-account management (view status, reset if needed)
 - [ ] Test full flow: signup → auto sub-account → connect socials → post
+
+## Complete GHL Sub-Account Auto-Provisioning (FINAL IMPLEMENTATION)
+- [x] Update createSubAccount procedure to use Locations API
+- [x] Add bulkEnableSaaS logic for enabling SaaS mode
+- [x] Update auto-provision hook to call both APIs in sequence
+- [ ] Test sub-account creation with real GHL API
+- [ ] Update Integrations page with GHL sub-account login link
+- [ ] Write vitest test for complete workflow
+- [ ] Save final checkpoint
