@@ -721,3 +721,13 @@
 - [ ] Add publish status tracking (pending/published/failed)
 - [ ] Test publishing to each platform
 - [ ] Add error handling and retry logic
+
+## Branding Color Update (CURRENT)
+- [x] Update app color scheme from black/gold to orange/navy blue to match RCA logo
+- [x] Update CSS variables in index.css
+- [x] Update button and accent colors
+- [x] Verify all UI elements use new color scheme
+
+## Light Theme Switch (CURRENT)
+- [x] Change default theme from dark to light
+- [x] Update ThemeProvider defaultTheme setting

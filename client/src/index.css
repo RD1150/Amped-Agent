@@ -40,76 +40,81 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-gold: oklch(0.78 0.12 85);
-  --color-gold-light: oklch(0.85 0.1 75);
+  --color-orange: oklch(0.68 0.19 35);
+  --color-navy: oklch(0.25 0.08 250);
 }
 
-/* LuxEstate Premium Dark Theme with Gold Accents */
+/* Realty Content Agent Light Theme (Default) */
 :root {
   --radius: 0.5rem;
-  --primary: oklch(0.78 0.12 85);
-  --primary-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.78 0.12 85);
-  --sidebar-primary-foreground: oklch(0.145 0 0);
-  --chart-1: oklch(0.78 0.12 85);
-  --chart-2: oklch(0.7 0.15 160);
-  --chart-3: oklch(0.6 0.15 230);
-  --chart-4: oklch(0.75 0.15 75);
-  --chart-5: oklch(0.65 0.2 25);
-  --background: oklch(0.12 0 0);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.16 0 0);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.16 0 0);
-  --popover-foreground: oklch(0.95 0 0);
-  --secondary: oklch(0.22 0 0);
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.22 0 0);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.78 0.12 85);
-  --accent-foreground: oklch(0.145 0 0);
-  --destructive: oklch(0.65 0.2 25);
-  --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.28 0 0);
-  --input: oklch(0.28 0 0);
-  --ring: oklch(0.78 0.12 85);
-  --sidebar: oklch(0.1 0 0);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-accent: oklch(0.2 0 0);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.78 0.12 85);
-}
-
-/* LuxEstate Light Theme */
-.light {
   --background: oklch(0.98 0 0);
   --foreground: oklch(0.15 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.15 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.65 0.15 85);
+  --primary: oklch(0.65 0.19 35);
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.92 0 0);
   --secondary-foreground: oklch(0.15 0 0);
   --muted: oklch(0.94 0 0);
   --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.65 0.15 85);
+  --accent: oklch(0.65 0.19 35);
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.6 0.2 25);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(0.88 0 0);
   --input: oklch(0.88 0 0);
-  --ring: oklch(0.65 0.15 85);
+  --ring: oklch(0.65 0.19 35);
+  --chart-1: oklch(0.65 0.19 35);
+  --chart-2: oklch(0.7 0.15 160);
+  --chart-3: oklch(0.6 0.15 230);
+  --chart-4: oklch(0.75 0.15 75);
+  --chart-5: oklch(0.65 0.2 25);
   --sidebar: oklch(0.99 0 0);
   --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.65 0.15 85);
+  --sidebar-primary: oklch(0.65 0.19 35);
   --sidebar-primary-foreground: oklch(0.98 0 0);
   --sidebar-accent: oklch(0.94 0 0);
   --sidebar-accent-foreground: oklch(0.15 0 0);
   --sidebar-border: oklch(0.9 0 0);
-  --sidebar-ring: oklch(0.65 0.15 85);
+  --sidebar-ring: oklch(0.65 0.19 35);
+}
+
+/* Realty Content Agent Dark Theme */
+.dark {
+  --background: oklch(0.12 0 0);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.16 0 0);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.16 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(0.68 0.19 35);
+  --primary-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.22 0 0);
+  --secondary-foreground: oklch(0.95 0 0);
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+  --accent: oklch(0.68 0.19 35);
+  --accent-foreground: oklch(0.145 0 0);
+  --destructive: oklch(0.65 0.2 25);
+  --destructive-foreground: oklch(0.95 0 0);
+  --border: oklch(0.28 0 0);
+  --input: oklch(0.28 0 0);
+  --ring: oklch(0.68 0.19 35);
+  --chart-1: oklch(0.68 0.19 35);
+  --chart-2: oklch(0.7 0.15 160);
+  --chart-3: oklch(0.6 0.15 230);
+  --chart-4: oklch(0.75 0.15 75);
+  --chart-5: oklch(0.65 0.2 25);
+  --sidebar: oklch(0.1 0 0);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.68 0.19 35);
+  --sidebar-primary-foreground: oklch(0.145 0 0);
+  --sidebar-accent: oklch(0.2 0 0);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.25 0 0);
+  --sidebar-ring: oklch(0.68 0.19 35);
 }
 
 @layer base {
@@ -181,9 +186,9 @@
   background: oklch(0.4 0 0);
 }
 
-/* Gold gradient text utility */
-.text-gold-gradient {
-  background: linear-gradient(135deg, oklch(0.78 0.12 85), oklch(0.85 0.1 75));
+/* Orange gradient text utility */
+.text-orange-gradient {
+  background: linear-gradient(135deg, oklch(0.68 0.19 35), oklch(0.75 0.17 40));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -196,7 +201,7 @@
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(201, 169, 98, 0.15);
+  box-shadow: 0 8px 25px -5px rgba(249, 115, 22, 0.15);
 }
 
 /* Calendar grid styles */
@@ -218,7 +223,7 @@
 }
 
 .calendar-cell.today {
-  border: 2px solid oklch(0.78 0.12 85);
+  border: 2px solid oklch(0.68 0.19 35);
 }
 
 /* Status badges */
