@@ -731,3 +731,8 @@
 ## Light Theme Switch (CURRENT)
 - [x] Change default theme from dark to light
 - [x] Update ThemeProvider defaultTheme setting
+
+## Theme Persistence Bug (CURRENT)
+- [x] Fix issue where theme reverts to dark when returning to tab
+- [x] Investigate ThemeContext initialization logic
+- [x] Ensure light theme persists across page navigation

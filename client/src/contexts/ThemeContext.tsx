@@ -26,6 +26,8 @@ export function ThemeProvider({
       const stored = localStorage.getItem("theme");
       return (stored as Theme) || defaultTheme;
     }
+    // When not switchable, clear any stored theme and use defaultTheme
+    localStorage.removeItem("theme");
     return defaultTheme;
   });
 
@@ -39,6 +41,9 @@ export function ThemeProvider({
 
     if (switchable) {
       localStorage.setItem("theme", theme);
+    } else {
+      // When not switchable, ensure localStorage is cleared
+      localStorage.removeItem("theme");
     }
   }, [theme, switchable]);
 
