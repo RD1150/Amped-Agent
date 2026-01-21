@@ -736,3 +736,11 @@
 - [x] Fix issue where theme reverts to dark when returning to tab
 - [x] Investigate ThemeContext initialization logic
 - [x] Ensure light theme persists across page navigation
+
+## Carousel & Video Post Features (CURRENT)
+- [x] Add "Create Carousel Post" button with icon
+- [x] Add "Create Video Post" button with icon
+- [x] Add "Convert to Reel" feature/tab for existing posts
+- [x] Implement carousel post generation logic
+- [x] Implement video post generation logic
+- [x] Implement reel conversion functionality

@@ -61,7 +61,7 @@ export const appRouter = router({
       .input(z.object({
         title: z.string().optional(),
         content: z.string(),
-        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]).optional(),
+        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom", "carousel", "video"]).optional(),
         status: z.enum(["draft", "scheduled", "published", "expired"]).optional(),
         scheduledAt: z.date().optional(),
         platforms: z.string().optional(),
@@ -84,7 +84,7 @@ export const appRouter = router({
         id: z.number(),
         title: z.string().optional(),
         content: z.string().optional(),
-        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]).optional(),
+        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom", "carousel", "video"]).optional(),
         status: z.enum(["draft", "scheduled", "published", "expired"]).optional(),
         scheduledAt: z.date().optional(),
         publishedAt: z.date().optional(),
@@ -106,7 +106,7 @@ export const appRouter = router({
     generate: protectedProcedure
       .input(z.object({
         topic: z.string(),
-        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]),
+        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom", "carousel", "video"]),
         format: z.enum(["static_post", "carousel", "reel_script"]).default("static_post"),
         propertyData: z.object({
           address: z.string().optional(),
@@ -1070,7 +1070,7 @@ Create a compelling social media post.`;
     create: protectedProcedure
       .input(z.object({
         name: z.string(),
-        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]),
+        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom", "carousel", "video"]),
         frequency: z.enum(["daily", "weekly", "biweekly", "monthly"]),
         dayOfWeek: z.number().min(0).max(6).optional(),
         dayOfMonth: z.number().min(1).max(31).optional(),
@@ -1107,7 +1107,7 @@ Create a compelling social media post.`;
         id: z.number(),
         name: z.string().optional(),
         isActive: z.boolean().optional(),
-        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]).optional(),
+        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom", "carousel", "video"]).optional(),
         frequency: z.enum(["daily", "weekly", "biweekly", "monthly"]).optional(),
         dayOfWeek: z.number().min(0).max(6).optional(),
         dayOfMonth: z.number().min(1).max(31).optional(),

@@ -45,7 +45,7 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December"
 ];
 
-type ContentType = "property_listing" | "market_report" | "trending_news" | "tips" | "neighborhood" | "custom";
+type ContentType = "property_listing" | "market_report" | "trending_news" | "tips" | "neighborhood" | "custom" | "carousel" | "video";
 
 export default function ContentCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -132,6 +132,38 @@ export default function ContentCalendar() {
 
     setSelectedPostId(postId);
     setIsPublishDialogOpen(true);
+  };
+
+  const handleConvertToReel = async (postId: number) => {
+    const post = contentPosts.find(p => p.id === postId);
+    if (!post) {
+      toast.error("Post not found");
+      return;
+    }
+
+    try {
+      toast.info("Converting to reel format...");
+      
+      // Generate reel version using AI
+      const result = await generateContent.mutateAsync({
+        topic: post.title || "Untitled",
+        contentType: post.contentType as any,
+        format: "reel_script",
+      });
+
+      // Create new post with reel format
+      await createContent.mutateAsync({
+        title: `${post.title || "Untitled"} (Reel)`,
+        content: result.content,
+        contentType: "video",
+        status: "draft",
+        aiGenerated: true,
+      });
+
+      toast.success("Reel version created!");
+    } catch (error) {
+      toast.error("Failed to convert to reel");
+    }
   };
 
   const handlePublishNow = async () => {
@@ -450,6 +482,12 @@ export default function ContentCalendar() {
             <Button variant="outline" size="sm" className="text-xs" onClick={() => { setContentType("market_report"); setIsCreateDialogOpen(true); }}>
               📊 Create Market Report Post
             </Button>
+            <Button variant="outline" size="sm" className="text-xs" onClick={() => { setContentType("carousel"); setIsCreateDialogOpen(true); }}>
+              🎠 Create Carousel Post
+            </Button>
+            <Button variant="outline" size="sm" className="text-xs" onClick={() => { setContentType("video"); setIsCreateDialogOpen(true); }}>
+              🎬 Create Video Post
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -528,6 +566,9 @@ export default function ContentCalendar() {
                                   <Send className="h-4 w-4 mr-2" />
                                   Publish to Social Media
                                 </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleConvertToReel(post.id)}>
+                                  🎬 Convert to Reel
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => deleteContent.mutate({ id: post.id })}>
                                   Delete
                                 </DropdownMenuItem>
@@ -589,6 +630,9 @@ export default function ContentCalendar() {
                         <DropdownMenuItem onClick={() => handleOpenPublishDialog(post.id)}>
                           <Send className="h-4 w-4 mr-2" />
                           Publish to Social Media
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleConvertToReel(post.id)}>
+                          🎬 Convert to Reel
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => deleteContent.mutate({ id: post.id })}>
                           Delete

@@ -66,7 +66,7 @@ export const contentPosts = mysqlTable("content_posts", {
   userId: int("userId").notNull(),
   title: varchar("title", { length: 500 }),
   content: text("content").notNull(),
-  contentType: mysqlEnum("contentType", ["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]).default("custom"),
+  contentType: mysqlEnum("contentType", ["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom", "carousel", "video"]).default("custom"),
   format: mysqlEnum("format", ["static_post", "carousel", "reel_script", "video_reel", "story"]).default("static_post").notNull(),
   status: mysqlEnum("status", ["draft", "scheduled", "published", "expired"]).default("draft"),
   scheduledAt: timestamp("scheduledAt"),
@@ -221,7 +221,7 @@ export const postingSchedules = mysqlTable("posting_schedules", {
   userId: int("userId").notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   isActive: boolean("isActive").default(true),
-  contentType: mysqlEnum("contentType", ["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom"]).notNull(),
+  contentType: mysqlEnum("contentType", ["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom", "carousel", "video"]).notNull(),
   frequency: mysqlEnum("frequency", ["daily", "weekly", "biweekly", "monthly"]).notNull(),
   dayOfWeek: int("dayOfWeek"), // 0-6 for Sunday-Saturday
   dayOfMonth: int("dayOfMonth"), // 1-31 for monthly schedules
