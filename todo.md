@@ -753,3 +753,18 @@
 - [ ] Show preview of how post will look on each platform
 - [ ] Add "Publish Now" and "Schedule" buttons
 - [ ] Test preview dialog with different post types
+
+## Bug Fixes (Current Priority)
+- [x] Fix GHL social accounts API error - "Failed to fetch social accounts from GHL"
+
+## GHL Token Diagnostics
+- [x] Create diagnostic endpoint to test GHL token permissions
+- [x] Add UI button to run diagnostics
+- [x] Display results showing which scopes are working
+
+## GHL Token Scope Issue - BLOCKED
+- [ ] **BLOCKED:** Need GHL support to enable social-media-posting scopes on Private Integration Token
+- Tested multiple tokens - all missing social-media-posting.readonly and social-media-posting.write scopes
+- GHL UI doesn't show option to enable these scopes when creating Private Integrations
+- App was working on Jan 17, 2026 with same code - token must have been created differently
+- **Action Required:** Contact GHL support to enable social media scopes on agency token

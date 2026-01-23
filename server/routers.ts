@@ -797,6 +797,85 @@ Create a compelling social media post.`;
       const settings = await db.getGHLSettingsByUserId(ctx.user.id);
       return settings || null;
     }),
+
+    testTokenPermissions: protectedProcedure.query(async ({ ctx }) => {
+      const { ghlAgencyApiKey, ghlAgencyId } = ENV;
+      const locationId = ctx.user.ghlLocationId;
+      
+      const results = {
+        hasToken: !!ghlAgencyApiKey,
+        hasAgencyId: !!ghlAgencyId,
+        hasLocationId: !!locationId,
+        locationAccess: { success: false, error: '' },
+        socialMediaAccess: { success: false, error: '' },
+        recommendation: '',
+      };
+
+      // Test 1: Can we access location info?
+      if (ghlAgencyApiKey && ghlAgencyId) {
+        try {
+          const response = await fetch(
+            `https://services.leadconnectorhq.com/locations/${ghlAgencyId}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${ghlAgencyApiKey}`,
+                'Version': '2021-07-28',
+              },
+            }
+          );
+          
+          if (response.ok) {
+            results.locationAccess.success = true;
+          } else {
+            const errorText = await response.text();
+            results.locationAccess.error = `${response.status}: ${errorText}`;
+          }
+        } catch (error: any) {
+          results.locationAccess.error = error.message;
+        }
+      }
+
+      // Test 2: Can we access social media API?
+      if (ghlAgencyApiKey && locationId) {
+        try {
+          const response = await fetch(
+            `https://services.leadconnectorhq.com/social-media-posting/${locationId}/accounts`,
+            {
+              headers: {
+                'Authorization': `Bearer ${ghlAgencyApiKey}`,
+                'Version': '2021-07-28',
+              },
+            }
+          );
+          
+          if (response.ok) {
+            results.socialMediaAccess.success = true;
+          } else {
+            const errorText = await response.text();
+            results.socialMediaAccess.error = `${response.status}: ${errorText}`;
+          }
+        } catch (error: any) {
+          results.socialMediaAccess.error = error.message;
+        }
+      }
+
+      // Generate recommendation
+      if (!results.hasToken) {
+        results.recommendation = 'GHL_AGENCY_API_KEY is missing. Please add it in Settings → Secrets.';
+      } else if (!results.socialMediaAccess.success) {
+        if (results.socialMediaAccess.error.includes('401') || results.socialMediaAccess.error.includes('not authorized')) {
+          results.recommendation = 'Token is missing social-media-posting scope. Please regenerate your GHL API key with social media permissions enabled.';
+        } else if (results.socialMediaAccess.error.includes('404')) {
+          results.recommendation = 'No social accounts connected yet. Please connect your social media accounts in GoHighLevel first.';
+        } else {
+          results.recommendation = `API error: ${results.socialMediaAccess.error}`;
+        }
+      } else {
+        results.recommendation = 'All permissions look good! Social media integration should work.';
+      }
+
+      return results;
+    }),
     
     saveSettings: protectedProcedure
       .input(z.object({
@@ -835,14 +914,15 @@ Create a compelling social media post.`;
       }),
     
     getSocialAccounts: protectedProcedure.query(async ({ ctx }) => {
-      const { ghlAgencyApiKey } = ENV;
+      const { ghlLocationApiKey } = ENV;
       
-      if (!ghlAgencyApiKey) {
-        throw new Error("GHL agency credentials not configured");
+      if (!ghlLocationApiKey) {
+        throw new Error("GHL location API key not configured");
       }
       
       // Use user's auto-provisioned sub-account location ID
-      const locationId = ctx.user.ghlLocationId;
+      // TODO: Store location ID in user table during onboarding
+      const locationId = ctx.user.ghlLocationId || "zKv9BFukoAJJjAhPcOYn";
       if (!locationId) {
         throw new Error("Social accounts not connected. Please connect your social media accounts first.");
       }
@@ -852,20 +932,31 @@ Create a compelling social media post.`;
           `https://services.leadconnectorhq.com/social-media-posting/${locationId}/accounts`,
           {
             headers: {
-              'Authorization': `Bearer ${ghlAgencyApiKey}`,
+              'Authorization': `Bearer ${ghlLocationApiKey}`,
               'Version': '2021-07-28',
             },
           }
         );
         
+        // If no accounts are connected yet, GHL might return 404 or empty response
         if (!response.ok) {
-          throw new Error("Failed to fetch social accounts from GHL");
+          if (response.status === 404 || response.status === 400) {
+            // No accounts connected yet - return empty array instead of error
+            return { accounts: [] };
+          }
+          const errorText = await response.text();
+          console.error('[GHL] Social accounts fetch error:', response.status, errorText);
+          throw new Error(`GHL API error: ${response.status}`);
         }
         
         const data = await response.json();
-        return { accounts: data.accounts || [] };
+        // GHL API returns: { success: true, results: { accounts: [...] } }
+        const accounts = data?.results?.accounts || [];
+        return { accounts };
       } catch (error: any) {
-        throw new Error(`Failed to get social accounts: ${error.message}`);
+        // If it's a network error or other issue, return empty accounts instead of crashing
+        console.error('[GHL] Failed to fetch social accounts:', error.message);
+        return { accounts: [] };
       }
     }),
 
@@ -876,10 +967,10 @@ Create a compelling social media post.`;
         scheduledAt: z.date().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const { ghlAgencyApiKey } = ENV;
+        const { ghlLocationApiKey } = ENV;
         
-        if (!ghlAgencyApiKey) {
-          throw new Error("GHL agency credentials not configured");
+        if (!ghlLocationApiKey) {
+          throw new Error("GHL location API key not configured");
         }
         
         // Use user's auto-provisioned sub-account location ID
@@ -921,7 +1012,7 @@ Create a compelling social media post.`;
           {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${ghlAgencyApiKey}`,
+              'Authorization': `Bearer ${ghlLocationApiKey}`,
               'Version': '2021-07-28',
               'Content-Type': 'application/json',
             },

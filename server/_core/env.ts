@@ -13,4 +13,5 @@ export const ENV = {
   ghlAgencyApiKey: process.env.GHL_AGENCY_API_KEY ?? "",
   ghlAgencyId: process.env.GHL_AGENCY_ID ?? "",
   ghlCompanyId: process.env.GHL_COMPANY_ID ?? "",
+  ghlLocationApiKey: process.env.GHL_LOCATION_API_KEY ?? "",
 };
