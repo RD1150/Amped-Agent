@@ -40,11 +40,11 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-orange: oklch(0.68 0.19 35);
   --color-navy: oklch(0.25 0.08 250);
+  --color-gold: oklch(0.68 0.15 75);
 }
 
-/* Realty Content Agent Light Theme (Default) */
+/* Realty Content Agent Light Theme - Navy Blue + Gold */
 :root {
   --radius: 0.5rem;
   --background: oklch(0.98 0 0);
@@ -53,32 +53,32 @@
   --card-foreground: oklch(0.15 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.65 0.19 35);
+  --primary: oklch(0.25 0.08 250);
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.92 0 0);
   --secondary-foreground: oklch(0.15 0 0);
   --muted: oklch(0.94 0 0);
   --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.65 0.19 35);
+  --accent: oklch(0.68 0.15 75);
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.6 0.2 25);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(0.88 0 0);
   --input: oklch(0.88 0 0);
-  --ring: oklch(0.65 0.19 35);
-  --chart-1: oklch(0.65 0.19 35);
-  --chart-2: oklch(0.7 0.15 160);
+  --ring: oklch(0.68 0.15 75);
+  --chart-1: oklch(0.25 0.08 250);
+  --chart-2: oklch(0.68 0.15 75);
   --chart-3: oklch(0.6 0.15 230);
   --chart-4: oklch(0.75 0.15 75);
   --chart-5: oklch(0.65 0.2 25);
-  --sidebar: oklch(0.99 0 0);
-  --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.65 0.19 35);
+  --sidebar: oklch(0.25 0.08 250);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.68 0.15 75);
   --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.94 0 0);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
-  --sidebar-border: oklch(0.9 0 0);
-  --sidebar-ring: oklch(0.65 0.19 35);
+  --sidebar-accent: oklch(0.3 0.08 250);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.35 0.08 250);
+  --sidebar-ring: oklch(0.68 0.15 75);
 }
 
 /* Realty Content Agent Dark Theme */
@@ -89,32 +89,32 @@
   --card-foreground: oklch(0.95 0 0);
   --popover: oklch(0.16 0 0);
   --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.68 0.19 35);
-  --primary-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.3 0.1 250);
+  --primary-foreground: oklch(0.95 0 0);
   --secondary: oklch(0.22 0 0);
   --secondary-foreground: oklch(0.95 0 0);
   --muted: oklch(0.22 0 0);
   --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.68 0.19 35);
+  --accent: oklch(0.68 0.15 75);
   --accent-foreground: oklch(0.145 0 0);
   --destructive: oklch(0.65 0.2 25);
   --destructive-foreground: oklch(0.95 0 0);
   --border: oklch(0.28 0 0);
   --input: oklch(0.28 0 0);
-  --ring: oklch(0.68 0.19 35);
-  --chart-1: oklch(0.68 0.19 35);
-  --chart-2: oklch(0.7 0.15 160);
+  --ring: oklch(0.68 0.15 75);
+  --chart-1: oklch(0.3 0.1 250);
+  --chart-2: oklch(0.68 0.15 75);
   --chart-3: oklch(0.6 0.15 230);
   --chart-4: oklch(0.75 0.15 75);
   --chart-5: oklch(0.65 0.2 25);
   --sidebar: oklch(0.1 0 0);
   --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.68 0.19 35);
+  --sidebar-primary: oklch(0.68 0.15 75);
   --sidebar-primary-foreground: oklch(0.145 0 0);
   --sidebar-accent: oklch(0.2 0 0);
   --sidebar-accent-foreground: oklch(0.95 0 0);
   --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.68 0.19 35);
+  --sidebar-ring: oklch(0.68 0.15 75);
 }
 
 @layer base {
@@ -167,28 +167,28 @@
   }
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: oklch(0.14 0 0);
+  background: oklch(0.92 0 0);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.3 0 0);
+  background: oklch(0.7 0 0);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.4 0 0);
+  background: oklch(0.6 0 0);
 }
 
-/* Orange gradient text utility */
-.text-orange-gradient {
-  background: linear-gradient(135deg, oklch(0.68 0.19 35), oklch(0.75 0.17 40));
+/* Gold gradient text utility */
+.text-gold-gradient {
+  background: linear-gradient(135deg, oklch(0.68 0.15 75), oklch(0.75 0.17 80));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -201,7 +201,7 @@
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(249, 115, 22, 0.15);
+  box-shadow: 0 8px 25px -5px rgba(245, 158, 11, 0.15);
 }
 
 /* Calendar grid styles */
@@ -209,21 +209,21 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 1px;
-  background: oklch(0.25 0 0);
+  background: oklch(0.88 0 0);
 }
 
 .calendar-cell {
-  background: oklch(0.16 0 0);
+  background: oklch(1 0 0);
   min-height: 120px;
   padding: 0.5rem;
 }
 
 .calendar-cell:hover {
-  background: oklch(0.2 0 0);
+  background: oklch(0.96 0 0);
 }
 
 .calendar-cell.today {
-  border: 2px solid oklch(0.68 0.19 35);
+  border: 2px solid oklch(0.68 0.15 75);
 }
 
 /* Status badges */
@@ -232,13 +232,13 @@
 }
 
 .status-scheduled {
-  @apply bg-blue-500/20 text-blue-400;
+  @apply bg-blue-500/20 text-blue-600;
 }
 
 .status-published {
-  @apply bg-green-500/20 text-green-400;
+  @apply bg-green-500/20 text-green-600;
 }
 
 .status-expired {
-  @apply bg-red-500/20 text-red-400;
+  @apply bg-red-500/20 text-red-600;
 }

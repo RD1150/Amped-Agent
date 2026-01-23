@@ -58,7 +58,7 @@
 5. Page access token is encrypted and stored for posting
 
 ### Posting Flow
-1. User creates content with image in LuxEstate
+1. User creates content with image in RealtyContentAgent
 2. System calls `postToInstagram` procedure with image URL and caption
 3. Backend creates media container on Instagram
 4. Backend publishes the media container
@@ -87,7 +87,7 @@
 1. User needs to verify their Instagram account is a Business or Creator account
 2. User needs to link Instagram account to their Facebook Page
 3. User can then click "Connect Instagram" to complete the connection
-4. Once connected, user can post to Instagram directly from LuxEstate
+4. Once connected, user can post to Instagram directly from RealtyContentAgent
 
 ## 🔐 Security Notes
 
@@ -135,7 +135,7 @@
    - Connect to "Reena Dutta Real Estate" Facebook Page
    - Or in Facebook: Page Settings → Instagram → Connect Account
 
-3. **Connect in LuxEstate**:
+3. **Connect in RealtyContentAgent**:
    - Go to Integrations page
    - Click "Connect Instagram" button
    - System will automatically detect and connect the Instagram account

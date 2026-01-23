@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import ConvertToVideoModal from "@/components/ConvertToVideoModal";
+import PostPreviewDialog from "@/components/PostPreviewDialog";
 
 const DAYS = ["SUN", "MON", "TUE", "WED", "THUR", "FRI", "SAT"];
 const MONTHS = [
@@ -648,95 +649,31 @@ export default function ContentCalendar() {
       </Card>
 
       {/* Publish to Social Media Dialog */}
-      <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Publish to Social Media</DialogTitle>
-          </DialogHeader>
+      <PostPreviewDialog
+        open={isPublishDialogOpen}
+        onOpenChange={setIsPublishDialogOpen}
+        post={selectedPostForPublish || null}
+        onPublish={async (data) => {
+          const accountIds = socialAccounts?.accounts.map((acc: any) => acc.id) || [];
           
-          {selectedPostForPublish && (
-            <div className="space-y-4">
-              <div className="bg-secondary p-4 rounded-lg border border-border">
-                <p className="text-xs text-muted-foreground mb-2">Post Preview</p>
-                <p className="font-medium">{selectedPostForPublish.title || "Untitled"}</p>
-                <p className="text-sm text-muted-foreground line-clamp-3">{selectedPostForPublish.content}</p>
-                {selectedPostForPublish.imageUrl && (
-                  <img src={selectedPostForPublish.imageUrl} alt="Post preview" className="w-full h-32 object-cover rounded" />
-                )}
-              </div>
+          if (accountIds.length === 0) {
+            toast.error("No social accounts connected in GoHighLevel");
+            return;
+          }
 
-              {/* GHL Social Accounts Info */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium">Posting Through GoHighLevel</label>
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    This post will be published to all social media accounts connected in your GoHighLevel location.
-                  </p>
-                  {socialAccounts?.accounts && socialAccounts.accounts.length > 0 && (
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {socialAccounts.accounts.length} account(s) connected
-                    </p>
-                  )}
-                </div>
-              </div>
+          const scheduledDateTime = data.scheduleDate && data.scheduleTime
+            ? new Date(`${data.scheduleDate}T${data.scheduleTime}`)
+            : undefined;
 
-              {/* Schedule Options */}
-              <div className="space-y-3">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">Schedule Date (Optional)</label>
-                  <Input
-                    type="date"
-                    value={scheduleDate}
-                    onChange={(e) => setScheduleDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
+          pushToGHL.mutate({
+            contentPostId: data.postId,
+            accountIds,
+            scheduledAt: scheduledDateTime,
+          });
 
-                {scheduleDate && (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">Schedule Time</label>
-                    <Input
-                      type="time"
-                      value={scheduleTime}
-                      onChange={(e) => setScheduleTime(e.target.value)}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
-                {scheduleDate && scheduleTime ? (
-                  <Button 
-                    onClick={handleSchedulePost} 
-                    className="flex-1"
-                    disabled={pushToGHL.isPending}
-                  >
-                    <CalendarIcon className="h-4 w-4 mr-2" />
-                    Schedule Post
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={handlePublishNow} 
-                    className="flex-1"
-                    disabled={pushToGHL.isPending}
-                  >
-                    <Send className="h-4 w-4 mr-2" />
-                    Publish Now
-                  </Button>
-                )}
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsPublishDialogOpen(false)}
-                  disabled={pushToGHL.isPending}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          setSelectedPostId(null);
+        }}
+      />
 
       {/* View/Edit Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>

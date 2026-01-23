@@ -91,7 +91,7 @@
 - [x] Handle user signup events from GHL
 - [x] Handle subscription tier updates
 - [x] Handle cancellation/suspension events
-- [x] Sync user status between GHL and LuxEstate
+- [x] Sync user status between GHL and RealtyContentAgent
 - [x] Error handling and retry logic
 - [ ] Webhook security (signature verification) - TODO: Add HMAC verification
 
@@ -112,7 +112,7 @@
 - [ ] Dynamic theme system based on white-label settings
 - [ ] Agency-specific styling and assets
 - [ ] White-label settings UI page
-- [ ] Remove hardcoded "LuxEstate" branding
+- [ ] Remove hardcoded "RealtyContentAgent" branding
 
 ## Team Collaboration (Phase 2)
 - [ ] Multi-user organization/team database schema
@@ -162,7 +162,7 @@
 - [ ] Add webhook testing endpoint for development
 
 ## Facebook App Submission Requirements
-- [x] Generate 1024x1024 app icon for LuxEstate
+- [x] Generate 1024x1024 app icon for RealtyContentAgent
 - [x] Create Privacy Policy page
 - [x] Create Data Deletion Request page/form
 - [ ] Add Terms of Service page
@@ -352,7 +352,7 @@
 
 ## Rebranding to Realty Content Agent (HIGHEST PRIORITY)
 - [ ] Update VITE_APP_TITLE to "Realty Content Agent"
-- [ ] Update all "LuxEstate" references in codebase
+- [ ] Update all "RealtyContentAgent" references in codebase
 - [ ] Update meta tags and page titles
 - [ ] Update email templates
 - [ ] Update AI-generated content placeholders
@@ -744,3 +744,12 @@
 - [x] Implement carousel post generation logic
 - [x] Implement video post generation logic
 - [x] Implement reel conversion functionality
+
+## Post Preview Dialog (Current Priority)
+- [ ] Create post preview dialog component
+- [ ] Show post content (text, image, format)
+- [ ] Add platform selection checkboxes (Facebook, Instagram, LinkedIn, Twitter, TikTok)
+- [ ] Add date/time picker for scheduling
+- [ ] Show preview of how post will look on each platform
+- [ ] Add "Publish Now" and "Schedule" buttons
+- [ ] Test preview dialog with different post types
