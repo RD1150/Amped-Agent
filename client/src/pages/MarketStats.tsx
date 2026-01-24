@@ -14,6 +14,7 @@ interface MarketData {
   inventoryChange: number;
   pricePerSqft: number;
   marketTemperature: 'hot' | 'balanced' | 'cold';
+  insights?: string[];
 }
 
 export default function MarketStats() {
@@ -65,6 +66,7 @@ export default function MarketStats() {
       inventoryChange: marketData.inventoryChange,
       pricePerSqft: marketData.pricePerSqft,
       marketTemperature: marketData.marketTemperature,
+      insights: marketData.insights,
     });
   };
 
@@ -201,34 +203,48 @@ export default function MarketStats() {
             </Card>
           </div>
 
-          {/* Market Insights */}
+          {/* Market Insights - Now using real data from RapidAPI */}
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle>Market Insights</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
-                <p className="text-sm text-muted-foreground">
-                  The {marketData.location} market is currently <span className="font-semibold text-foreground">{marketData.marketTemperature}</span>, 
-                  with median home prices at <span className="font-semibold text-foreground">${marketData.medianPrice.toLocaleString()}</span>.
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
-                <p className="text-sm text-muted-foreground">
-                  Homes are selling in an average of <span className="font-semibold text-foreground">{marketData.daysOnMarket} days</span>, 
-                  {marketData.daysOnMarket < 30 ? ' indicating strong buyer demand.' : marketData.daysOnMarket > 60 ? ' suggesting a buyer-friendly market.' : ' showing a balanced market.'}
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
-                <p className="text-sm text-muted-foreground">
-                  Inventory is {marketData.inventoryChange > 0 ? 'up' : marketData.inventoryChange < 0 ? 'down' : 'stable'} 
-                  {marketData.inventoryChange !== 0 && ` ${Math.abs(marketData.inventoryChange)}%`} year-over-year, 
-                  with <span className="font-semibold text-foreground">{marketData.activeListings.toLocaleString()} active listings</span>.
-                </p>
-              </div>
+              {marketData.insights && marketData.insights.length > 0 ? (
+                marketData.insights.map((insight, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {insight}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                // Fallback to generic insights if API doesn't provide them
+                <>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                    <p className="text-sm text-muted-foreground">
+                      The {marketData.location} market is currently <span className="font-semibold text-foreground">{marketData.marketTemperature}</span>, 
+                      with median home prices at <span className="font-semibold text-foreground">${marketData.medianPrice.toLocaleString()}</span>.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                    <p className="text-sm text-muted-foreground">
+                      Homes are selling in an average of <span className="font-semibold text-foreground">{marketData.daysOnMarket} days</span>, 
+                      {marketData.daysOnMarket < 30 ? ' indicating strong buyer demand.' : marketData.daysOnMarket > 60 ? ' suggesting a buyer-friendly market.' : ' showing a balanced market.'}
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                    <p className="text-sm text-muted-foreground">
+                      Inventory is {marketData.inventoryChange > 0 ? 'up' : marketData.inventoryChange < 0 ? 'down' : 'stable'} 
+                      {marketData.inventoryChange !== 0 && ` ${Math.abs(marketData.inventoryChange)}%`} year-over-year, 
+                      with <span className="font-semibold text-foreground">{marketData.activeListings.toLocaleString()} active listings</span>.
+                    </p>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </>

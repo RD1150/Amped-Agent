@@ -3,41 +3,10 @@ import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
 import { contentPosts } from '../../drizzle/schema';
 import { invokeLLM } from '../_core/llm';
-
-// Mock market data generator (in production, this would call a real API like Zillow, Redfin, etc.)
-function generateMockMarketData(location: string) {
-  // Generate realistic-looking mock data
-  const basePrice = 300000 + Math.floor(Math.random() * 500000);
-  const priceChange = (Math.random() * 20 - 5).toFixed(1); // -5% to +15%
-  const daysOnMarket = Math.floor(Math.random() * 60) + 15; // 15-75 days
-  const activeListings = Math.floor(Math.random() * 500) + 100; // 100-600 listings
-  const inventoryChange = (Math.random() * 30 - 10).toFixed(1); // -10% to +20%
-  const pricePerSqft = Math.floor(basePrice / (1500 + Math.random() * 1000)); // Calculate price per sqft
-
-  // Determine market temperature based on days on market
-  let marketTemperature: 'hot' | 'balanced' | 'cold';
-  if (daysOnMarket < 30) {
-    marketTemperature = 'hot';
-  } else if (daysOnMarket > 60) {
-    marketTemperature = 'cold';
-  } else {
-    marketTemperature = 'balanced';
-  }
-
-  return {
-    location,
-    medianPrice: basePrice,
-    priceChange: parseFloat(priceChange),
-    daysOnMarket,
-    activeListings,
-    inventoryChange: parseFloat(inventoryChange),
-    pricePerSqft,
-    marketTemperature,
-  };
-}
+import { getMarketData } from '../marketStatsHelper';
 
 export const marketStatsRouter = router({
-  // Get market data for a location
+  // Get market data for a location (uses RapidAPI Realtor API)
   getMarketData: protectedProcedure
     .input(
       z.object({
@@ -45,10 +14,23 @@ export const marketStatsRouter = router({
       })
     )
     .mutation(async ({ input }: { input: any }) => {
-      // In production, this would call a real API
-      // For now, return mock data
-      const marketData = generateMockMarketData(input.location);
-      return marketData;
+      try {
+        const marketData = await getMarketData(input.location);
+        return {
+          location: marketData.location,
+          medianPrice: marketData.medianPrice,
+          priceChange: marketData.priceChange,
+          daysOnMarket: marketData.daysOnMarket,
+          activeListings: marketData.activeListings,
+          inventoryChange: marketData.listingsChange,
+          pricePerSqft: marketData.pricePerSqft,
+          marketTemperature: marketData.marketTemperature,
+          insights: marketData.insights,
+        };
+      } catch (error) {
+        console.error('Error fetching market data:', error);
+        throw new Error('Failed to fetch market data. Please try a different location.');
+      }
     }),
 
   // Generate social media post from market stats
@@ -61,6 +43,7 @@ export const marketStatsRouter = router({
         daysOnMarket: z.number(),
         activeListings: z.number(),
         inventoryChange: z.number(),
+        insights: z.array(z.string()).optional(),
         pricePerSqft: z.number(),
         marketTemperature: z.enum(['hot', 'balanced', 'cold']),
       })

@@ -387,3 +387,21 @@ export const abTests = mysqlTable("ab_tests", {
 
 export type AbTest = typeof abTests.$inferSelect;
 export type InsertAbTest = typeof abTests.$inferInsert;
+
+/**
+ * Hook Engine - Proven content hooks to start posts/videos/carousels
+ */
+export const hooks = mysqlTable("hooks", {
+  id: int("id").autoincrement().primaryKey(),
+  category: mysqlEnum("category", ["buyer", "seller", "investor", "local", "luxury", "relocation", "general"]).notNull(),
+  format: mysqlEnum("format", ["video", "email", "social", "carousel"]).notNull(),
+  hookText: text("hookText").notNull(),
+  useCase: text("useCase"), // Description of when to use this hook
+  exampleExpansion: text("exampleExpansion"), // Example of how this hook expands into full content
+  isPremium: boolean("isPremium").default(false), // Free tier gets ~20 hooks, Pro gets all
+  usageCount: int("usageCount").default(0), // Track popularity
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Hook = typeof hooks.$inferSelect;
+export type InsertHook = typeof hooks.$inferInsert;

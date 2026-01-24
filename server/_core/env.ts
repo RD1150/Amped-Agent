@@ -14,4 +14,5 @@ export const ENV = {
   ghlAgencyId: process.env.GHL_AGENCY_ID ?? "",
   ghlCompanyId: process.env.GHL_COMPANY_ID ?? "",
   ghlLocationApiKey: process.env.GHL_LOCATION_API_KEY ?? "",
+  rapidApiKey: process.env.RAPIDAPI_KEY ?? "",
 };

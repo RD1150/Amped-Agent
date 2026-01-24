@@ -1,4 +1,4 @@
-import { eq, desc, and, gte, lte } from "drizzle-orm";
+import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users, 
@@ -15,7 +15,8 @@ import {
   userSubscriptions, UserSubscription, InsertUserSubscription,
   usageTracking, UsageTracking, InsertUsageTracking,
   usageAlerts, UsageAlert, InsertUsageAlert,
-  whiteLabelSettings, WhiteLabelSettings, InsertWhiteLabelSettings
+  whiteLabelSettings, WhiteLabelSettings, InsertWhiteLabelSettings,
+  hooks, Hook
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -564,4 +565,62 @@ export async function getUserByEmail(email: string) {
   const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+// ============ HOOK ENGINE HELPERS ============
+
+export async function getAllHooks(isPremium?: boolean) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (isPremium === undefined) {
+    // Return all hooks
+    return await db.select().from(hooks).orderBy(desc(hooks.usageCount));
+  }
+  
+  // Filter by premium status
+  return await db.select().from(hooks).where(eq(hooks.isPremium, isPremium)).orderBy(desc(hooks.usageCount));
+}
+
+export async function getHooksByCategory(category: string, isPremium?: boolean) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (isPremium === undefined) {
+    return await db.select().from(hooks).where(sql`${hooks.category} = ${category}`).orderBy(desc(hooks.usageCount));
+  }
+  
+  return await db.select().from(hooks)
+    .where(sql`${hooks.category} = ${category} AND ${hooks.isPremium} = ${isPremium}`)
+    .orderBy(desc(hooks.usageCount));
+}
+
+export async function getHooksByFormat(format: string, isPremium?: boolean) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (isPremium === undefined) {
+    return await db.select().from(hooks).where(sql`${hooks.format} = ${format}`).orderBy(desc(hooks.usageCount));
+  }
+  
+  return await db.select().from(hooks)
+    .where(sql`${hooks.format} = ${format} AND ${hooks.isPremium} = ${isPremium}`)
+    .orderBy(desc(hooks.usageCount));
+}
+
+export async function getHookById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(hooks).where(eq(hooks.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function incrementHookUsage(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.update(hooks)
+    .set({ usageCount: sql`${hooks.usageCount} + 1` })
+    .where(eq(hooks.id, id));
 }

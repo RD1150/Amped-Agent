@@ -1391,6 +1391,43 @@ Create a compelling social media post.`;
 
   // Video Conversion
   video: videoRouter,
+
+  // Hook Engine
+  hooks: router({
+    list: protectedProcedure
+      .input(z.object({
+        category: z.enum(["buyer", "seller", "investor", "local", "luxury", "relocation", "general"]).optional(),
+        format: z.enum(["video", "email", "social", "carousel"]).optional(),
+      }).optional())
+      .query(async ({ ctx, input }) => {
+        // Check user subscription tier for premium hooks
+        const subscription = await db.getUserSubscription(ctx.user.id);
+        const isPremium = subscription?.status === "active" && subscription.tierId !== 1; // Assuming tier 1 is free
+        
+        if (input?.category) {
+          return db.getHooksByCategory(input.category, isPremium ? undefined : false);
+        }
+        
+        if (input?.format) {
+          return db.getHooksByFormat(input.format, isPremium ? undefined : false);
+        }
+        
+        return db.getAllHooks(isPremium ? undefined : false);
+      }),
+    
+    get: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return db.getHookById(input.id);
+      }),
+    
+    use: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.incrementHookUsage(input.id);
+        return { success: true };
+      }),
+  }),
 });
 
 function calculateNextRunTime(
