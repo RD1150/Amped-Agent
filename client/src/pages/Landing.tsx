@@ -28,13 +28,13 @@ export default function Landing() {
     },
     {
       icon: TrendingUp,
-      title: "Trending News Posts",
-      description: "Comment on real estate news to position yourself as the local expert"
+      title: "101 Proven Content Hooks",
+      description: "Start with battle-tested hooks that grab attention and drive engagement"
     },
     {
       icon: Home,
-      title: "Market Stats Reports",
-      description: "Generate data-driven market updates for any location"
+      title: "Real Market Stats",
+      description: "Generate data-driven market updates with real property data from RapidAPI"
     },
     {
       icon: Image,
@@ -44,7 +44,7 @@ export default function Landing() {
     {
       icon: Zap,
       title: "GoHighLevel Integration",
-      description: "Auto-post to Facebook and sync with your CRM"
+      description: "Auto-post to all social platforms through your GHL account"
     }
   ];
 

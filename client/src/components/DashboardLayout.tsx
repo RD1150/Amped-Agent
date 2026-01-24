@@ -39,7 +39,8 @@ import {
   Sun,
   Moon,
   TrendingUp,
-  Newspaper
+  Newspaper,
+  Lightbulb
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -54,6 +55,7 @@ const menuItems = [
   { icon: FileSpreadsheet, label: "Import Data", path: "/import" },
   { icon: Link2, label: "Integrations", path: "/integrations" },
   { icon: Sparkles, label: "AI Generate", path: "/generate" },
+  { icon: Lightbulb, label: "Content Hooks", path: "/hooks" },
   { icon: Newspaper, label: "Trending News", path: "/trending-news" },
   { icon: TrendingUp, label: "Market Stats", path: "/market-stats" },
   { icon: Zap, label: "GoHighLevel", path: "/ghl" },

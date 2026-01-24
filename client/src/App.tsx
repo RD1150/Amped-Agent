@@ -19,6 +19,7 @@ import Schedules from "./pages/Schedules";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
 import MarketStats from "./pages/MarketStats";
+import Hooks from "./pages/Hooks";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -51,6 +52,7 @@ function Router() {
         <Route path="/integrations" component={Integrations} />
         <Route path="/generate" component={AIGenerate} />
         <Route path="/market-stats" component={MarketStats} />
+        <Route path="/hooks" component={Hooks} />
 
         <Route path="/upgrade" component={Upgrade} />
         <Route path="/ghl" component={GHLSettings} />
