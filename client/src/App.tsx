@@ -20,6 +20,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
 import MarketStats from "./pages/MarketStats";
 import Hooks from "./pages/Hooks";
+import FacebookCallback from "./pages/FacebookCallback";
+import LinkedInCallback from "./pages/LinkedInCallback";
+import InstagramSetup from "./pages/InstagramSetup";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -39,6 +42,9 @@ function Router() {
       <Route path="/fair-housing" component={FairHousing} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/data-deletion" component={DataDeletion} />
+      <Route path="/integrations/facebook/callback" component={FacebookCallback} />
+      <Route path="/integrations/linkedin/callback" component={LinkedInCallback} />
+      <Route path="/integrations/instagram/setup" component={InstagramSetup} />
       
       {/* Dashboard routes */}
       <Route>

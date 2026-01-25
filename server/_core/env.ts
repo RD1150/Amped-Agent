@@ -15,4 +15,6 @@ export const ENV = {
   ghlCompanyId: process.env.GHL_COMPANY_ID ?? "",
   ghlLocationApiKey: process.env.GHL_LOCATION_API_KEY ?? "",
   rapidApiKey: process.env.RAPIDAPI_KEY ?? "",
+  linkedinClientId: process.env.LINKEDIN_CLIENT_ID ?? "",
+  linkedinClientSecret: process.env.LINKEDIN_CLIENT_SECRET ?? "",
 };

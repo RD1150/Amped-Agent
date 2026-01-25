@@ -811,3 +811,67 @@
 - [ ] Test actual posting to Facebook
 - [ ] Test actual posting to LinkedIn
 - [ ] Verify token refresh mechanisms
+
+## Social Media OAuth Testing (Current Priority - Jan 25, 2026)
+- [ ] Review current OAuth implementation for Facebook/Instagram
+- [ ] Review current OAuth implementation for LinkedIn
+- [ ] Review current OAuth implementation for Twitter/X
+- [ ] Identify required credentials for each platform
+- [ ] Guide user through obtaining Facebook App credentials
+- [ ] Guide user through obtaining Instagram credentials
+- [ ] Guide user through obtaining LinkedIn App credentials
+- [ ] Guide user through obtaining Twitter/X API credentials
+- [ ] Configure and test Facebook OAuth flow
+- [ ] Configure and test Instagram OAuth flow
+- [ ] Configure and test LinkedIn OAuth flow
+- [ ] Configure and test Twitter/X OAuth flow
+- [ ] Test direct posting to Facebook
+- [ ] Test direct posting to Instagram
+- [ ] Test direct posting to LinkedIn
+- [ ] Test direct posting to Twitter/X
+- [ ] Document OAuth setup process for each platform
+
+## Facebook/Instagram OAuth Restoration (Current - Jan 25, 2026)
+- [x] Restore Facebook OAuth router from git history (commit 1bad1e5)
+- [x] Add Facebook router to main appRouter
+- [x] Update Integrations page to show Facebook/Instagram connection options
+- [x] Create Facebook OAuth callback page
+- [x] Create Instagram setup page
+- [ ] Test Facebook OAuth connection flow
+- [ ] Test Instagram OAuth connection flow
+- [ ] Test posting to Facebook
+- [ ] Test posting to Instagram
+- [ ] Update publish dialog to support direct Facebook/Instagram posting
+- [ ] Document that LinkedIn/Twitter use GHL (no direct OAuth)
+
+## Social Media OAuth Testing (Current - Jan 25, 2026)
+- [x] Restore Facebook OAuth router from git history
+- [x] Add Facebook router to main appRouter
+- [x] Update Integrations page UI for Facebook/Instagram
+- [x] Create Facebook OAuth callback page
+- [x] Update Facebook app icon (1024x1024)
+- [x] Reduce Facebook OAuth to basic permissions (public_profile, email)
+- [ ] Test Facebook OAuth connection flow with basic permissions
+- [ ] Research how to request Pages/Instagram permissions in Facebook 2026 API
+- [ ] Submit for Facebook App Review for Pages/Instagram permissions
+- [ ] LinkedIn OAuth implementation
+- [ ] Twitter/X OAuth implementation
+- [ ] YouTube OAuth implementation
+- [ ] TikTok OAuth implementation
+
+
+## LinkedIn OAuth Integration (Current Session - Jan 25, 2026)
+- [ ] Add LinkedIn OAuth credentials to environment
+- [ ] Create LinkedIn OAuth router (server/routes/linkedin.ts)
+- [ ] Add LinkedIn callback handler (client/src/pages/integrations/LinkedInCallback.tsx)
+- [ ] Update Integrations page UI to show LinkedIn connection
+- [ ] Test LinkedIn OAuth flow
+- [ ] Create vitest test for LinkedIn integration
+
+## Facebook App Migration (Current Session - Jan 25, 2026)
+- [x] Created new Facebook app "RealtyContentAgent" (App ID: 1569792557606364)
+- [x] Submitted Facebook Business Verification for Mindrocket Systems LLC
+- [ ] Update environment with new Facebook app credentials (after verification approved)
+- [ ] Configure new app settings (logo, URLs, display name) after verification
+- [ ] Test OAuth flow with new app after verification
+- [ ] Migration ETA: 1-2 business days for verification approval

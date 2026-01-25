@@ -9,6 +9,8 @@ import * as db from "./db";
 import { marketStatsRouter } from "./routers/marketStats";
 import { stripeRouter } from "./routers/stripe";
 import { videoRouter } from "./routers/video";
+import { facebookRouter } from "./routers/facebook";
+import { linkedinRouter } from "./routers/linkedin";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1391,6 +1393,12 @@ Create a compelling social media post.`;
 
   // Video Conversion
   video: videoRouter,
+
+  // Facebook/Instagram OAuth
+  facebook: facebookRouter,
+
+  // LinkedIn OAuth
+  linkedin: linkedinRouter,
 
   // Hook Engine
   hooks: router({
