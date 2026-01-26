@@ -938,3 +938,8 @@
 - [ ] 6b. Add visual template selector (3-4 design options) - NEXT PHASE
 - [ ] 6c. Auto-generate branded graphic for each post - NEXT PHASE
 - [ ] 6d. Build post preview showing formatted text + graphic - NEXT PHASE
+
+## Legal Compliance (URGENT)
+- [x] Remove Mike Chen testimonial from landing page (not a real customer)
+- [x] Audit landing page for any brokerage logos (RE/MAX, Keller Williams, etc.)
+- [x] Replace brokerage references with generic authority messaging

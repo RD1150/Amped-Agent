@@ -342,22 +342,7 @@ export default function Landing() {
             </CardContent>
           </Card>
 
-          <Card className="border-border">
-            <CardContent className="pt-6">
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-primary text-primary" />
-                ))}
-              </div>
-              <p className="text-foreground mb-4">
-                "The confidence boost is real. I used to second-guess every post. Now I'm publishing data-driven insights that get shared and commented on. My engagement tripled in the first month."
-              </p>
-              <div>
-                <p className="font-semibold">Mike Chen</p>
-                <p className="text-sm text-muted-foreground">Team Leader, Keller Williams</p>
-              </div>
-            </CardContent>
-          </Card>
+
         </div>
       </section>
 

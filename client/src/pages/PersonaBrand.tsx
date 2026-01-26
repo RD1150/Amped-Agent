@@ -151,7 +151,7 @@ export default function PersonaBrand() {
               <Label htmlFor="brokerage">Brokerage</Label>
               <Input
                 id="brokerage"
-                placeholder="e.g., Keller Williams"
+                placeholder="e.g., Your Brokerage Name"
                 value={formData.brokerage}
                 onChange={(e) => setFormData({ ...formData, brokerage: e.target.value })}
                 className="bg-secondary border-border"
