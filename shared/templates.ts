@@ -1,4 +1,4 @@
-export type TemplateCategory = "buyers" | "sellers" | "investors" | "general" | "expireds" | "urgent_sellers";
+export type TemplateCategory = "buyers" | "sellers" | "investors" | "general" | "expireds" | "urgent_sellers" | "fsbos" | "luxury" | "first_time_sellers";
 
 export interface Template {
   id: string;
@@ -741,6 +741,282 @@ export const TEMPLATE_LIBRARY: Template[] = [
     designStyle: "modern",
     colorScheme: "green",
     useCase: "Generate leads from urgent seller situations"
+  },
+
+  // FSBOS (FOR SALE BY OWNER) TEMPLATES (10)
+  {
+    id: "fsbo_why_agent",
+    name: "Why FSBOs Need an Agent",
+    category: "fsbos",
+    description: "Educational content on benefits of hiring an agent",
+    designStyle: "data",
+    colorScheme: "blue",
+    useCase: "Position value proposition to FSBO sellers"
+  },
+  {
+    id: "fsbo_pricing_mistakes",
+    name: "Common FSBO Pricing Mistakes",
+    category: "fsbos",
+    description: "Highlight pricing errors FSBOs make",
+    designStyle: "bold",
+    colorScheme: "red",
+    useCase: "Show expertise in pricing strategy"
+  },
+  {
+    id: "fsbo_legal_pitfalls",
+    name: "Legal Pitfalls of Selling Alone",
+    category: "fsbos",
+    description: "Contract and disclosure risks",
+    designStyle: "elegant",
+    colorScheme: "orange",
+    useCase: "Demonstrate protection agents provide"
+  },
+  {
+    id: "fsbo_marketing_reach",
+    name: "MLS vs. FSBO Marketing Reach",
+    category: "fsbos",
+    description: "Data on buyer exposure differences",
+    designStyle: "data",
+    colorScheme: "teal",
+    useCase: "Show marketing advantage of MLS listing"
+  },
+  {
+    id: "fsbo_negotiation_expertise",
+    name: "Professional Negotiation Value",
+    category: "fsbos",
+    description: "How agents maximize sale price",
+    designStyle: "modern",
+    colorScheme: "gold",
+    useCase: "Highlight negotiation skills"
+  },
+  {
+    id: "fsbo_time_investment",
+    name: "Hidden Time Cost of FSBO",
+    category: "fsbos",
+    description: "Hours required to sell without agent",
+    designStyle: "minimal",
+    colorScheme: "purple",
+    useCase: "Show time savings of hiring agent"
+  },
+  {
+    id: "fsbo_buyer_concerns",
+    name: "Why Buyers Avoid FSBOs",
+    category: "fsbos",
+    description: "Buyer agent perspectives on FSBOs",
+    designStyle: "bold",
+    colorScheme: "red",
+    useCase: "Reveal buyer hesitations about FSBOs"
+  },
+  {
+    id: "fsbo_showing_management",
+    name: "Professional Showing Coordination",
+    category: "fsbos",
+    description: "Scheduling and safety benefits",
+    designStyle: "modern",
+    colorScheme: "blue",
+    useCase: "Show convenience of agent representation"
+  },
+  {
+    id: "fsbo_free_consultation",
+    name: "Free FSBO Market Analysis",
+    category: "fsbos",
+    description: "No-obligation CMA offer",
+    designStyle: "elegant",
+    colorScheme: "green",
+    useCase: "Generate leads from FSBO sellers"
+  },
+  {
+    id: "fsbo_success_rate",
+    name: "FSBO vs. Agent Success Rates",
+    category: "fsbos",
+    description: "Statistical comparison of outcomes",
+    designStyle: "data",
+    colorScheme: "orange",
+    useCase: "Use data to show agent advantage"
+  },
+
+  // LUXURY MARKET TEMPLATES (10)
+  {
+    id: "luxury_market_trends",
+    name: "Luxury Market Trends",
+    category: "luxury",
+    description: "High-end market analysis and insights",
+    designStyle: "luxury",
+    colorScheme: "gold",
+    useCase: "Position as luxury market expert"
+  },
+  {
+    id: "luxury_property_features",
+    name: "Must-Have Luxury Amenities",
+    category: "luxury",
+    description: "Premium features buyers expect",
+    designStyle: "elegant",
+    colorScheme: "purple",
+    useCase: "Showcase luxury property knowledge"
+  },
+  {
+    id: "luxury_staging",
+    name: "Luxury Home Staging Secrets",
+    category: "luxury",
+    description: "High-end presentation strategies",
+    designStyle: "luxury",
+    colorScheme: "gold",
+    useCase: "Demonstrate luxury staging expertise"
+  },
+  {
+    id: "luxury_photography",
+    name: "Professional Luxury Photography",
+    category: "luxury",
+    description: "Importance of premium visuals",
+    designStyle: "elegant",
+    colorScheme: "blue",
+    useCase: "Show commitment to quality marketing"
+  },
+  {
+    id: "luxury_buyer_profile",
+    name: "Understanding Luxury Buyers",
+    category: "luxury",
+    description: "Psychology of affluent purchasers",
+    designStyle: "modern",
+    colorScheme: "teal",
+    useCase: "Display understanding of luxury clientele"
+  },
+  {
+    id: "luxury_discretion",
+    name: "Discreet Luxury Sales",
+    category: "luxury",
+    description: "Privacy and confidentiality in high-end sales",
+    designStyle: "elegant",
+    colorScheme: "purple",
+    useCase: "Emphasize discretion for privacy-focused clients"
+  },
+  {
+    id: "luxury_international",
+    name: "International Luxury Buyers",
+    category: "luxury",
+    description: "Global marketing reach",
+    designStyle: "luxury",
+    colorScheme: "gold",
+    useCase: "Show international buyer network"
+  },
+  {
+    id: "luxury_investment",
+    name: "Luxury as Investment",
+    category: "luxury",
+    description: "High-end property appreciation",
+    designStyle: "data",
+    colorScheme: "green",
+    useCase: "Position luxury real estate as wealth building"
+  },
+  {
+    id: "luxury_concierge",
+    name: "White-Glove Concierge Service",
+    category: "luxury",
+    description: "Premium client experience",
+    designStyle: "elegant",
+    colorScheme: "gold",
+    useCase: "Highlight exceptional service standards"
+  },
+  {
+    id: "luxury_portfolio",
+    name: "Luxury Portfolio Showcase",
+    category: "luxury",
+    description: "Past high-end sales and listings",
+    designStyle: "luxury",
+    colorScheme: "purple",
+    useCase: "Build credibility with luxury sellers"
+  },
+
+  // FIRST-TIME SELLERS TEMPLATES (10)
+  {
+    id: "first_seller_process",
+    name: "Selling Process Step-by-Step",
+    category: "first_time_sellers",
+    description: "Complete guide for new sellers",
+    designStyle: "minimal",
+    colorScheme: "blue",
+    useCase: "Educate first-time sellers on process"
+  },
+  {
+    id: "first_seller_preparation",
+    name: "Preparing Your Home to Sell",
+    category: "first_time_sellers",
+    description: "Pre-listing home prep checklist",
+    designStyle: "modern",
+    colorScheme: "green",
+    useCase: "Help new sellers get ready"
+  },
+  {
+    id: "first_seller_pricing",
+    name: "How to Price Your First Home",
+    category: "first_time_sellers",
+    description: "Pricing strategy for beginners",
+    designStyle: "data",
+    colorScheme: "teal",
+    useCase: "Simplify pricing for new sellers"
+  },
+  {
+    id: "first_seller_costs",
+    name: "Understanding Closing Costs",
+    category: "first_time_sellers",
+    description: "Breakdown of seller expenses",
+    designStyle: "minimal",
+    colorScheme: "orange",
+    useCase: "Set realistic expectations on costs"
+  },
+  {
+    id: "first_seller_timeline",
+    name: "Realistic Selling Timeline",
+    category: "first_time_sellers",
+    description: "How long it really takes",
+    designStyle: "modern",
+    colorScheme: "blue",
+    useCase: "Manage timeline expectations"
+  },
+  {
+    id: "first_seller_repairs",
+    name: "Which Repairs to Make Before Listing",
+    category: "first_time_sellers",
+    description: "ROI on pre-sale improvements",
+    designStyle: "bold",
+    colorScheme: "green",
+    useCase: "Guide repair investment decisions"
+  },
+  {
+    id: "first_seller_showings",
+    name: "Preparing for Home Showings",
+    category: "first_time_sellers",
+    description: "Tips for successful showings",
+    designStyle: "minimal",
+    colorScheme: "purple",
+    useCase: "Help sellers present home well"
+  },
+  {
+    id: "first_seller_offers",
+    name: "Evaluating Buyer Offers",
+    category: "first_time_sellers",
+    description: "Beyond just the price",
+    designStyle: "data",
+    colorScheme: "teal",
+    useCase: "Teach offer evaluation criteria"
+  },
+  {
+    id: "first_seller_negotiation",
+    name: "Negotiation Tips for New Sellers",
+    category: "first_time_sellers",
+    description: "How to respond to offers",
+    designStyle: "modern",
+    colorScheme: "orange",
+    useCase: "Build confidence in negotiations"
+  },
+  {
+    id: "first_seller_mistakes",
+    name: "Top 10 First-Time Seller Mistakes",
+    category: "first_time_sellers",
+    description: "Common pitfalls to avoid",
+    designStyle: "bold",
+    colorScheme: "red",
+    useCase: "Prevent costly beginner errors"
   },
 ];
 

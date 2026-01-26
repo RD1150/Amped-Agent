@@ -131,6 +131,27 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
                     <div className="text-sm text-muted-foreground">Moving, divorce, job loss, foreclosure, medical needs</div>
                   </Label>
                 </div>
+                <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
+                  <RadioGroupItem value="fsbo" id="fsbo" />
+                  <Label htmlFor="fsbo" className="flex-1 cursor-pointer">
+                    <div className="font-semibold">FSBOs (For Sale By Owner)</div>
+                    <div className="text-sm text-muted-foreground">Homeowners selling without an agent, need guidance</div>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
+                  <RadioGroupItem value="luxury" id="luxury" />
+                  <Label htmlFor="luxury" className="flex-1 cursor-pointer">
+                    <div className="font-semibold">Luxury Market</div>
+                    <div className="text-sm text-muted-foreground">High-end properties, affluent buyers and sellers</div>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
+                  <RadioGroupItem value="first_seller" id="first_seller" />
+                  <Label htmlFor="first_seller" className="flex-1 cursor-pointer">
+                    <div className="font-semibold">First-Time Sellers</div>
+                    <div className="text-sm text-muted-foreground">New sellers who've never sold a home before</div>
+                  </Label>
+                </div>
               </RadioGroup>
               <Button
                 onClick={() => setStep(2)}
@@ -155,6 +176,9 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
                   audience === "investor" ? "investors" : 
                   audience === "expired" ? "expireds" : 
                   audience === "urgent" ? "urgent_sellers" : 
+                  audience === "fsbo" ? "fsbos" : 
+                  audience === "luxury" ? "luxury" : 
+                  audience === "first_seller" ? "first_time_sellers" : 
                   undefined
                 }
               />

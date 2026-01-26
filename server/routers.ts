@@ -297,6 +297,43 @@ ${formatInstructions}`;
         };
       }),
 
+    bulkGenerateFromCSV: protectedProcedure
+      .input(z.object({
+        topic: z.string(),
+        contentType: z.enum(["property_listing", "market_report", "trending_news", "tips", "neighborhood", "custom", "carousel", "video"]),
+        format: z.enum(["static_post", "carousel", "reel_script"]).default("static_post"),
+        tone: z.enum(["professional", "friendly", "luxury", "casual", "authoritative"]).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+        const tone = input.tone || persona?.brandVoice || "professional";
+        
+        // Generate content using LLM
+        const systemPrompt = `You are a real estate content creator. Create engaging social media content using a ${tone} tone.`;
+        const userPrompt = `Create a ${input.contentType} post about: ${input.topic}`;
+        
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        });
+        
+        const content = response.choices[0].message.content || "";
+        
+        // Save to database
+        const post = await db.createContentPost({
+          userId: ctx.user.id,
+          title: input.topic,
+          content,
+          contentType: input.contentType,
+          status: "draft",
+          aiGenerated: true,
+        });
+        
+        return post;
+      }),
+
     generateFullMonth: protectedProcedure
       .input(z.object({
         startDate: z.date(),

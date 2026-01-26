@@ -976,3 +976,34 @@
 - [x] Update template selector to show new categories
 - [x] Add Expireds and Urgent Sellers to audience selection screen
 - [x] Test new templates end-to-end
+
+## Bulk Import Feature (HIGH PRIORITY)
+- [ ] Design CSV/Google Doc upload UI
+- [ ] Implement CSV parser for bulk content topics
+- [ ] Add Google Doc integration for content import
+- [ ] Create bulk generation workflow (process all rows at once)
+- [ ] Add progress indicator for bulk generation
+- [ ] Test bulk import with sample CSV
+
+## Persona Profile Completion
+- [ ] Guide user to complete business name, tagline, colors
+- [ ] Help user upload headshot for branding
+- [ ] Verify persona data applies to template generation
+
+## Expand to 110 Templates (URGENT)
+- [ ] Add FSBOs category (10 templates for For Sale By Owner targeting)
+- [ ] Add Luxury Market category (10 templates for high-end properties)
+- [ ] Add First-Time Sellers category (10 templates for new sellers)
+- [ ] Update audience selection screen with new categories
+- [ ] Update template selector to filter new categories
+- [ ] Test all 110 templates
+
+## Expand to 110 Templates (COMPLETED)
+- [x] Add FSBOs category (10 templates for For Sale By Owner targeting)
+- [x] Add Luxury Market category (10 templates for high-end properties)
+- [x] Add First-Time Sellers category (10 templates for new sellers)
+- [x] Update TemplateCategory type to include new categories
+- [x] Add new categories to audience selection screen
+- [x] Update template selector categoryLabels
+- [x] Update FirstPostOnboarding audienceFilter mapping
+- [ ] Test all 110 templates end-to-end
