@@ -90,7 +90,7 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 max-h-[70vh] overflow-y-auto">
           {/* Step 1: Audience Selection */}
           {step === 1 && (
             <div className="space-y-4">

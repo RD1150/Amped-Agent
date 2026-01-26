@@ -1078,3 +1078,8 @@
 - [x] Update TemplateCategory type to include luxury_buyers and luxury_sellers
 - [x] Update ComprehensiveTemplateSelector categoryLabels
 - [x] Update FirstPostOnboarding audienceFilter mapping
+
+## Critical Bug Fix (COMPLETED)
+- [x] Fix FirstPostOnboarding modal scrolling - content is cut off, can't see INVESTING section
+- [x] Add overflow-y-auto and max-h-[70vh] to modal content container
+- [x] Test scrolling works on all screen sizes
