@@ -117,6 +117,20 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
                     <div className="text-sm text-muted-foreground">Buy-and-hold, fix-and-flip, commercial investors</div>
                   </Label>
                 </div>
+                <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
+                  <RadioGroupItem value="expired" id="expired" />
+                  <Label htmlFor="expired" className="flex-1 cursor-pointer">
+                    <div className="font-semibold">Expired Listings</div>
+                    <div className="text-sm text-muted-foreground">Sellers whose listings didn't sell, need fresh approach</div>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
+                  <RadioGroupItem value="urgent" id="urgent" />
+                  <Label htmlFor="urgent" className="flex-1 cursor-pointer">
+                    <div className="font-semibold">Urgent Sellers</div>
+                    <div className="text-sm text-muted-foreground">Moving, divorce, job loss, foreclosure, medical needs</div>
+                  </Label>
+                </div>
               </RadioGroup>
               <Button
                 onClick={() => setStep(2)}
@@ -135,7 +149,14 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
               <ComprehensiveTemplateSelector
                 selectedTemplateId={selectedTemplate?.id || null}
                 onSelectTemplate={(template) => setSelectedTemplate(template)}
-                audienceFilter={audience === "buyer" ? "buyers" : audience === "seller" ? "sellers" : audience === "investor" ? "investors" : undefined}
+                audienceFilter={
+                  audience === "buyer" ? "buyers" : 
+                  audience === "seller" ? "sellers" : 
+                  audience === "investor" ? "investors" : 
+                  audience === "expired" ? "expireds" : 
+                  audience === "urgent" ? "urgent_sellers" : 
+                  undefined
+                }
               />
               <div className="flex gap-3 sticky bottom-0 bg-background pt-4 border-t">
                 <Button

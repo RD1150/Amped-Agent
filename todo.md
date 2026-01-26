@@ -964,3 +964,15 @@
 ## Bug Fixes (URGENT)
 - [x] Fix persona.get query returning undefined when user has no persona record
 - [x] Ensure persona.get returns null instead of undefined (React Query compatible)
+
+## Critical Fixes
+- [x] Fix Landing.tsx unterminated JSX error at line 549 (resolved after server restart)
+- [ ] Test template generation with all 50 templates
+- [ ] Verify persona profile completion flow
+
+## New Template Categories
+- [x] Add 15 Expireds templates (targeting sellers whose listings expired)
+- [x] Add 15 Urgent Sellers templates (moving, divorce, job loss, foreclosure, etc.)
+- [x] Update template selector to show new categories
+- [x] Add Expireds and Urgent Sellers to audience selection screen
+- [x] Test new templates end-to-end

@@ -17,6 +17,8 @@ const categoryLabels: Record<TemplateCategory, string> = {
   sellers: "Sellers",
   investors: "Investors",
   general: "General/Authority",
+  expireds: "Expired Listings",
+  urgent_sellers: "Urgent Sellers",
 };
 
 const colorSchemeGradients: Record<string, string> = {
