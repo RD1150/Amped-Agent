@@ -912,3 +912,6 @@
 - [x] Remove specific realtor names from landing page testimonials
 - [x] Remove brokerage names (RE/MAX, Keller Williams, etc.) from testimonials
 - [x] Use generic titles like "Real Estate Agent", "Luxury Realtor", "Top Producer"
+
+## Logo Size Update
+- [x] Increase logo size in landing page header for better brand visibility
