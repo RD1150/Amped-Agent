@@ -13,8 +13,20 @@ import {
   Star
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { useEffect } from "react";
+import { useLocation } from "wouter";
 
 export default function Landing() {
+  const { user, loading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      setLocation("/generate");
+    }
+  }, [user, loading, setLocation]);
   const features = [
     {
     icon: Sparkles,

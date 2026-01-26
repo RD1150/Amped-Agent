@@ -915,3 +915,8 @@
 
 ## Logo Size Update
 - [x] Increase logo size in landing page header for better brand visibility
+
+## Auth Redirect Loop Bug (CRITICAL)
+- [x] Fix authentication redirect loop: clicking trial button → email selection → loops back to landing page
+- [x] Ensure authenticated users are redirected to dashboard instead of landing page
+- [x] Test complete signup flow from landing page to dashboard
