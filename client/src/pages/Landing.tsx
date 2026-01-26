@@ -59,20 +59,20 @@ export default function Landing() {
 
   const testimonials = [
     {
-      name: "Sarah Johnson",
+      name: "S.J.",
       role: "Luxury Real Estate Agent",
       content: "This tool saved me 10+ hours per week. I went from struggling to post once a week to having a full month of content ready to go.",
       rating: 5
     },
     {
-      name: "Mike Chen",
-      role: "Team Leader, Keller Williams",
+      name: "M.C.",
+      role: "Real Estate Team Leader",
       content: "The market stats feature is a game-changer. My engagement doubled since I started posting data-driven insights.",
       rating: 5
     },
     {
-      name: "Jessica Martinez",
-      role: "Realtor, RE/MAX",
+      name: "J.M.",
+      role: "Top Producer",
       content: "Finally, a tool that understands real estate content. The posts sound like me, not a robot.",
       rating: 5
     }

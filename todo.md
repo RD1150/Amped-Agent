@@ -907,3 +907,8 @@
 - [x] 7a. Use "Authority-driven", "Market-smart", "Expert content" instead
 - [x] 7b. Keep AI behind the scenes (no mentions in UI)
 - [x] 7c. Update all copy to sound credible, not gimmicky
+
+## Testimonial Updates (URGENT)
+- [x] Remove specific realtor names from landing page testimonials
+- [x] Remove brokerage names (RE/MAX, Keller Williams, etc.) from testimonials
+- [x] Use generic titles like "Real Estate Agent", "Luxury Realtor", "Top Producer"
