@@ -1,4 +1,5 @@
 import type { Template } from "../../../shared/templates";
+import { type SocialPlatform, getPlatformSize } from "../../../shared/platformSizes";
 
 interface RenderTemplateParams {
   template: Template;
@@ -7,6 +8,7 @@ interface RenderTemplateParams {
   tagline?: string;
   headshotUrl?: string;
   primaryColor?: string;
+  platform?: SocialPlatform;
 }
 
 const colorSchemeColors: Record<string, { primary: string; secondary: string; text: string }> = {
@@ -20,16 +22,19 @@ const colorSchemeColors: Record<string, { primary: string; secondary: string; te
 };
 
 export async function renderTemplate(params: RenderTemplateParams): Promise<string> {
-  const { template, postText, businessName, tagline, headshotUrl, primaryColor } = params;
+  const { template, postText, businessName, tagline, headshotUrl, primaryColor, platform = "multi" } = params;
+  
+  // Get platform-specific dimensions
+  const platformSize = getPlatformSize(platform);
   
   // Get color scheme
   const colors = colorSchemeColors[template.colorScheme] || colorSchemeColors.blue;
   const brandColor = primaryColor || colors.primary;
 
-  // Create canvas
+  // Create canvas with platform-specific dimensions
   const canvas = document.createElement("canvas");
-  canvas.width = 1080;
-  canvas.height = 1080;
+  canvas.width = platformSize.width;
+  canvas.height = platformSize.height;
   const ctx = canvas.getContext("2d");
   
   if (!ctx) {
@@ -37,7 +42,7 @@ export async function renderTemplate(params: RenderTemplateParams): Promise<stri
   }
 
   // Apply design style
-  await renderDesignStyle(ctx, template, colors, brandColor);
+  await renderDesignStyle(ctx, template, colors, brandColor, platformSize.width, platformSize.height);
 
   // Add content
   await renderContent(ctx, template, postText, businessName, tagline, colors);
@@ -63,116 +68,126 @@ async function renderDesignStyle(
   ctx: CanvasRenderingContext2D,
   template: Template,
   colors: { primary: string; secondary: string; text: string },
-  brandColor: string
+  brandColor: string,
+  width: number,
+  height: number
 ) {
   const { designStyle } = template;
 
   switch (designStyle) {
     case "modern":
       // Clean gradient background
-      const modernGradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+      const modernGradient = ctx.createLinearGradient(0, 0, width, height);
       modernGradient.addColorStop(0, colors.primary);
       modernGradient.addColorStop(1, colors.secondary);
       ctx.fillStyle = modernGradient;
-      ctx.fillRect(0, 0, 1080, 1080);
+      ctx.fillRect(0, 0, width, height);
       
       // Add subtle pattern
       ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-      for (let i = 0; i < 20; i++) {
-        ctx.fillRect(i * 60, 0, 30, 1080);
+      const patternCount = Math.floor(width / 60);
+      for (let i = 0; i < patternCount; i++) {
+        ctx.fillRect(i * 60, 0, 30, height);
       }
       break;
 
     case "bold":
       // Vibrant gradient
-      const boldGradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+      const boldGradient = ctx.createLinearGradient(0, 0, width, height);
       boldGradient.addColorStop(0, colors.primary);
       boldGradient.addColorStop(0.5, brandColor);
       boldGradient.addColorStop(1, colors.secondary);
       ctx.fillStyle = boldGradient;
-      ctx.fillRect(0, 0, 1080, 1080);
+      ctx.fillRect(0, 0, width, height);
       
-      // Add geometric shapes
+      // Add geometric shapes (scaled to canvas size)
       ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
       ctx.beginPath();
-      ctx.arc(900, 200, 300, 0, Math.PI * 2);
+      ctx.arc(width * 0.83, height * 0.19, width * 0.28, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(200, 900, 250, 0, Math.PI * 2);
+      ctx.arc(width * 0.19, height * 0.83, width * 0.23, 0, Math.PI * 2);
       ctx.fill();
       break;
 
     case "elegant":
       // Sophisticated solid background
       ctx.fillStyle = "#1a1a2e";
-      ctx.fillRect(0, 0, 1080, 1080);
+      ctx.fillRect(0, 0, width, height);
       
-      // Add gold accent border
+      // Add gold accent border (scaled)
       ctx.strokeStyle = brandColor;
       ctx.lineWidth = 8;
-      ctx.strokeRect(40, 40, 1000, 1000);
+      ctx.strokeRect(width * 0.037, height * 0.037, width * 0.926, height * 0.926);
       
       // Inner border
       ctx.strokeStyle = "rgba(201, 169, 98, 0.3)";
       ctx.lineWidth = 2;
-      ctx.strokeRect(60, 60, 960, 960);
+      ctx.strokeRect(width * 0.056, height * 0.056, width * 0.889, height * 0.889);
       break;
 
     case "data":
       // Clean background for data visualization
       ctx.fillStyle = "#0f172a";
-      ctx.fillRect(0, 0, 1080, 1080);
+      ctx.fillRect(0, 0, width, height);
       
       // Grid pattern
       ctx.strokeStyle = "rgba(148, 163, 184, 0.1)";
       ctx.lineWidth = 1;
-      for (let i = 0; i < 1080; i += 60) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, 1080);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(1080, i);
-        ctx.stroke();
+      const gridSize = 60;
+      for (let i = 0; i < Math.max(width, height); i += gridSize) {
+        if (i < width) {
+          ctx.beginPath();
+          ctx.moveTo(i, 0);
+          ctx.lineTo(i, height);
+          ctx.stroke();
+        }
+        if (i < height) {
+          ctx.beginPath();
+          ctx.moveTo(0, i);
+          ctx.lineTo(width, i);
+          ctx.stroke();
+        }
       }
       
       // Accent bar
       ctx.fillStyle = colors.primary;
-      ctx.fillRect(0, 0, 1080, 20);
+      ctx.fillRect(0, 0, width, height * 0.019);
       break;
 
     case "minimal":
       // Clean white background
       ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, 1080, 1080);
+      ctx.fillRect(0, 0, width, height);
       
       // Subtle accent
       ctx.fillStyle = brandColor;
-      ctx.fillRect(0, 0, 1080, 10);
-      ctx.fillRect(0, 1070, 1080, 10);
+      ctx.fillRect(0, 0, width, height * 0.009);
+      ctx.fillRect(0, height * 0.991, width, height * 0.009);
       break;
 
     case "luxury":
       // Dark elegant background
-      const luxuryGradient = ctx.createRadialGradient(540, 540, 0, 540, 540, 700);
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const luxuryGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.65);
       luxuryGradient.addColorStop(0, "#2d2d3a");
       luxuryGradient.addColorStop(1, "#1a1a2e");
       ctx.fillStyle = luxuryGradient;
-      ctx.fillRect(0, 0, 1080, 1080);
+      ctx.fillRect(0, 0, width, height);
       
       // Gold accents
       ctx.fillStyle = brandColor;
-      ctx.fillRect(0, 520, 1080, 40);
+      ctx.fillRect(0, height * 0.48, width, height * 0.037);
       break;
 
     default:
       // Default gradient
-      const defaultGradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+      const defaultGradient = ctx.createLinearGradient(0, 0, width, height);
       defaultGradient.addColorStop(0, colors.primary);
       defaultGradient.addColorStop(1, colors.secondary);
       ctx.fillStyle = defaultGradient;
-      ctx.fillRect(0, 0, 1080, 1080);
+      ctx.fillRect(0, 0, width, height);
   }
 }
 

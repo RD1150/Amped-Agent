@@ -1007,3 +1007,52 @@
 - [x] Update template selector categoryLabels
 - [x] Update FirstPostOnboarding audienceFilter mapping
 - [ ] Test all 110 templates end-to-end
+
+## Social Media Integrations (COMPLETED - Using GHL)
+- [x] GHL Social Planner integration handles all platforms (Instagram, TikTok, Facebook, LinkedIn)
+- [x] Push posts to GHL social accounts
+- [ ] Test posting through GHL to all 4 platforms
+
+## Multi-Platform Scheduling System (CRITICAL - Match realestatecontent.ai)
+
+### Platform-Specific Template Sizing
+- [x] Define platform size constants:
+  - Instagram Feed: 1080x1080
+  - Instagram Stories: 1080x1920
+  - Facebook: 1200x630
+  - LinkedIn: 1200x627
+  - X/Twitter: 1200x675
+- [x] Update templateRenderer to accept size parameter
+- [x] Render templates in platform-specific dimensions with dynamic scaling
+- [ ] Add platform selector UI (Instagram Feed, Stories, Facebook, LinkedIn, X/Twitter, Multi-platform)
+- [ ] Test all 110 templates across all platform sizes
+
+### Instagram Business Posting
+- [ ] Add Instagram OAuth via Facebook Graph API
+- [ ] Implement Instagram Business posting endpoint
+- [ ] Add Instagram account connection UI
+- [ ] Test posting to Instagram Business accounts
+
+### X/Twitter Posting
+- [ ] Add X/Twitter OAuth integration
+- [ ] Implement X/Twitter posting endpoint
+- [ ] Add X account connection UI
+- [ ] Handle 280-character limit with auto-truncation
+- [ ] Test posting to X/Twitter
+
+### Multi-Platform Scheduler
+- [ ] Build "Post to All" functionality
+- [ ] Generate platform-specific images in parallel
+- [ ] Post to Instagram + Facebook + LinkedIn + X simultaneously
+- [ ] Show success/failure status for each platform
+- [ ] Add scheduling interface (date/time picker)
+- [ ] Implement scheduled job execution
+- [ ] Send confirmation notifications
+
+## Blog Writing Feature (HIGH PRIORITY)
+- [ ] Create blog post generator (800-1500 words)
+- [ ] Add SEO optimization (keywords, meta descriptions, H2/H3 structure)
+- [ ] Add blog categories (Buyer Guides, Seller Tips, Market Updates, Neighborhoods, Investment)
+- [ ] Add export options (copy to clipboard, download Markdown/HTML)
+- [ ] Create blog writing UI page
+- [ ] Test blog generation end-to-end
