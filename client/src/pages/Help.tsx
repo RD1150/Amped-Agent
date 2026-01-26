@@ -22,8 +22,8 @@ const faqs = [
     answer: "Navigate to the Integrations page from the sidebar. Click 'Connect' on the platform you want to link. You'll be redirected to authorize Realty Content Agent to post on your behalf. Make sure you have a business account for Facebook and Instagram."
   },
   {
-    question: "How does the AI content generation work?",
-    answer: "Our AI analyzes your brand settings, target audience, and the topic you provide to create engaging real estate content. You can generate property listings, market reports, tips, and more. The AI uses your brand voice to ensure consistency."
+    question: "How does content generation work?",
+    answer: "Our smart content engine analyzes your brand settings, target audience, and the topic you provide to create engaging real estate content. You can generate property listings, market reports, tips, and more. The system uses your brand voice to ensure consistency."
   },
   {
     question: "Can I import my property listings from a CSV file?",
@@ -39,10 +39,10 @@ const faqs = [
   },
   {
     question: "How do I customize my brand voice?",
-    answer: "Visit the Persona & Brand page to set up your business information, target audience, and preferred brand voice (professional, friendly, luxury, casual, or authoritative). The AI will use these settings when generating content."
+    answer: "Visit the Persona & Brand page to set up your business information, target audience, and preferred brand voice (professional, friendly, luxury, casual, or authoritative). The system will use these settings when generating content."
   },
   {
-    question: "Can I edit AI-generated content before posting?",
+    question: "Can I edit generated content before posting?",
     answer: "Absolutely! All generated content is saved as drafts first. You can edit, refine, and customize any content before scheduling or publishing it to your social media accounts."
   },
   {
@@ -146,7 +146,7 @@ export default function Help() {
               <div>
                 <p className="font-medium">Generate & Schedule</p>
                 <p className="text-sm text-muted-foreground">
-                  Use the AI Generator or Content Calendar to create and schedule your posts.
+                  Use the Content Studio or Content Calendar to create and schedule your posts.
                 </p>
               </div>
             </div>

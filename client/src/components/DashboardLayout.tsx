@@ -47,22 +47,26 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
+import FirstPostOnboarding from "./FirstPostOnboarding";
 
+// Simplified menu grouped by function
 const menuItems = [
+  // CREATE section
+  { icon: Sparkles, label: "Create Content", path: "/generate" },
   { icon: Calendar, label: "Content Calendar", path: "/" },
-  { icon: User, label: "Persona & Brand", path: "/persona" },
-  { icon: Upload, label: "Uploads", path: "/uploads" },
-  { icon: FileSpreadsheet, label: "Import Data", path: "/import" },
-  { icon: Link2, label: "Integrations", path: "/integrations" },
-  { icon: Sparkles, label: "AI Generate", path: "/generate" },
-  { icon: Lightbulb, label: "Content Hooks", path: "/hooks" },
-  { icon: Newspaper, label: "Trending News", path: "/trending-news" },
-  { icon: TrendingUp, label: "Market Stats", path: "/market-stats" },
-  { icon: Zap, label: "GoHighLevel", path: "/ghl" },
-  { icon: BarChart3, label: "Analytics", path: "/analytics" },
-  { icon: Clock, label: "Schedules", path: "/schedules" },
+  
+  // SCHEDULE section
+  { icon: Clock, label: "Schedule Posts", path: "/schedules" },
+  { icon: Link2, label: "Connect Accounts", path: "/integrations" },
+  
+  // AUTHORITY section
+  { icon: TrendingUp, label: "Market Insights", path: "/market-stats" },
+  { icon: Newspaper, label: "Trending Topics", path: "/trending-news" },
+  { icon: Lightbulb, label: "Expert Hooks", path: "/hooks" },
+  
+  // SETTINGS section
+  { icon: User, label: "Your Brand", path: "/persona" },
   { icon: Settings, label: "Settings", path: "/settings" },
-  { icon: HelpCircle, label: "Help & Support", path: "/help" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -101,6 +105,9 @@ export default function DashboardLayout({
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
+  });
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem("rca_onboarding_complete");
   });
   const { loading, user } = useAuth();
   
@@ -141,6 +148,13 @@ export default function DashboardLayout({
           </Button>
         </div>
       </div>
+    );
+  }
+
+  // Show onboarding for first-time users
+  if (showOnboarding) {
+    return (
+      <FirstPostOnboarding onComplete={() => setShowOnboarding(false)} />
     );
   }
 

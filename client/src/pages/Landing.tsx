@@ -17,9 +17,9 @@ import { getLoginUrl } from "@/const";
 export default function Landing() {
   const features = [
     {
-      icon: Sparkles,
-      title: "AI Content Generation",
-      description: "Generate 30 days of professional real estate content in 60 seconds"
+    icon: Sparkles,
+    title: "Expert Content Generation",
+    description: "Generate 30 days of professional real estate content in 60 seconds"
     },
     {
       icon: Calendar,
@@ -37,9 +37,9 @@ export default function Landing() {
       description: "Generate data-driven market updates with real property data from RapidAPI"
     },
     {
-      icon: Image,
-      title: "AI Image Generation",
-      description: "Create stunning visuals for your posts automatically"
+    icon: Image,
+    title: "Professional Image Creation",
+    description: "Create stunning visuals for your posts automatically"
     },
     {
       icon: Zap,
@@ -73,7 +73,7 @@ export default function Landing() {
     {
       name: "Jessica Martinez",
       role: "Realtor, RE/MAX",
-      content: "Finally, a tool that understands real estate content. The AI sounds like me, not a robot.",
+      content: "Finally, a tool that understands real estate content. The posts sound like me, not a robot.",
       rating: 5
     }
   ];
@@ -109,19 +109,12 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-6">
-            <Sparkles className="h-4 w-4" />
-            <span className="text-sm font-medium">AI-Powered Content Creation</span>
-          </div>
-          
           <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Generate 30 Days of Real Estate Content in{" "}
-            <span className="text-primary">60 Seconds</span>
+            Post Like the Top 1% of Real Estate Agents — <span className="text-primary">Automatically</span>
           </h1>
           
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Stop staring at blank screens. Realty Content Agent creates professional social media content 
-            that positions you as the local market expert.
+            Authority-driven, market-smart social media content that helps you attract buyers and sellers without spending hours planning, writing, or designing.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
@@ -133,17 +126,17 @@ export default function Landing() {
               className="text-lg h-14 px-8 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all"
             >
               <Zap className="h-5 w-5 mr-2" />
-              Start 14-Day Free Trial
+              Create My First Expert Post
             </Button>
             <Button
               onClick={() => {
-                document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
               }}
               variant="outline"
               size="lg"
               className="text-lg h-14 px-8"
             >
-              See How It Works
+              See How It Works (2min demo)
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
           </div>
@@ -151,6 +144,52 @@ export default function Landing() {
           <p className="text-sm text-muted-foreground">
             No credit card required • 14-day free trial • Cancel anytime
           </p>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="container mx-auto px-4 py-20 bg-muted/30">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            How It Works
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Four simple steps to expert-level content
+          </p>
+        </div>
+
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-primary">1</span>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Choose your audience</h3>
+            <p className="text-muted-foreground">Select buyer, seller, or investor</p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-primary">2</span>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Select your market</h3>
+            <p className="text-muted-foreground">Enter your city or neighborhood</p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-primary">3</span>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Generate expert content instantly</h3>
+            <p className="text-muted-foreground">Get publish-ready posts in seconds</p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-primary">4</span>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Schedule or auto-publish</h3>
+            <p className="text-muted-foreground">Post now or schedule for later</p>
+          </div>
         </div>
       </section>
 
@@ -195,6 +234,90 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Proof Section */}
+      <section className="container mx-auto px-4 py-20 bg-muted/30">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Why This Works for Real Estate Agents
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            See the difference between amateur posts and authority-driven content
+          </p>
+        </div>
+
+        {/* Before/After Examples */}
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+          {/* Example 1 */}
+          <div>
+            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 mb-4">
+              <div className="text-sm font-semibold text-red-600 mb-2">❌ BEFORE: Generic Post</div>
+              <p className="text-muted-foreground italic">
+                "Just listed! Beautiful 3BR/2BA home in great neighborhood. DM me for details! 🏡 #realestate #justlisted"
+              </p>
+            </div>
+            <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+              <div className="text-sm font-semibold text-green-600 mb-2">✅ AFTER: Authority-Driven</div>
+              <p className="text-foreground">
+                "Homes in Riverside are selling 23% faster than last year. Here's what buyers in this market are prioritizing: open floor plans, home offices, and walkability to downtown. If you're thinking of selling, now is the time to position your home strategically."
+              </p>
+            </div>
+          </div>
+
+          {/* Example 2 */}
+          <div>
+            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 mb-4">
+              <div className="text-sm font-semibold text-red-600 mb-2">❌ BEFORE: Sales Pitch</div>
+              <p className="text-muted-foreground italic">
+                "Ready to buy or sell? I'm here to help! Call me today for a free consultation! 📞 #realtor #realestate"
+              </p>
+            </div>
+            <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+              <div className="text-sm font-semibold text-green-600 mb-2">✅ AFTER: Market Insight</div>
+              <p className="text-foreground">
+                "Inventory in our area just dropped to 2.1 months—the lowest I've seen in 18 months. For buyers, this means competition is heating up. For sellers, it means your home will likely receive multiple offers if priced correctly. Here's what the data tells us..."
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Rewritten Testimonials */}
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Card className="border-border">
+            <CardContent className="pt-6">
+              <div className="flex gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-primary text-primary" />
+                ))}
+              </div>
+              <p className="text-foreground mb-4">
+                "I went from posting sporadically to showing up every day with content that actually positions me as the local expert. My followers started asking ME about market trends instead of the other way around."
+              </p>
+              <div>
+                <p className="font-semibold">Sarah Johnson</p>
+                <p className="text-sm text-muted-foreground">Luxury Real Estate Agent</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border">
+            <CardContent className="pt-6">
+              <div className="flex gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-primary text-primary" />
+                ))}
+              </div>
+              <p className="text-foreground mb-4">
+                "The confidence boost is real. I used to second-guess every post. Now I'm publishing data-driven insights that get shared and commented on. My engagement tripled in the first month."
+              </p>
+              <div>
+                <p className="font-semibold">Mike Chen</p>
+                <p className="text-sm text-muted-foreground">Team Leader, Keller Williams</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* Pricing Section */}
       <section id="pricing" className="container mx-auto px-4 py-20">
         <div className="text-center mb-12">
@@ -231,7 +354,7 @@ export default function Landing() {
                 </li>
                 <li className="flex items-start gap-2 text-muted-foreground">
                   <Clock className="h-5 w-5 shrink-0 mt-0.5" />
-                  <span>Generic AI that sounds robotic</span>
+                  <span>Generic tools that sound robotic</span>
                 </li>
                 <li className="flex items-start gap-2 text-muted-foreground">
                   <Clock className="h-5 w-5 shrink-0 mt-0.5" />
@@ -250,10 +373,19 @@ export default function Landing() {
               <CardTitle className="text-2xl">Realty Content Agent Pro</CardTitle>
               <CardDescription>Everything you need to succeed</CardDescription>
               <div className="mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg line-through text-muted-foreground">Normally $149/month</span>
+                </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-bold">$79</span>
                   <span className="text-xl text-muted-foreground">/month</span>
                 </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  or $699/year (2 months free)
+                </p>
+                <p className="text-sm font-medium text-primary mt-3">
+                  🏆 One listing pays for this for years
+                </p>
                 <p className="text-sm text-muted-foreground mt-2">
                   14-day free trial • Cancel anytime
                 </p>
@@ -271,7 +403,7 @@ export default function Landing() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5 text-primary" />
-                  <span>Real estate-trained AI (sounds like you)</span>
+                  <span>Market-smart content that sounds like you</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5 text-primary" />
@@ -279,7 +411,7 @@ export default function Landing() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5 text-primary" />
-                  <span>AI image generation</span>
+                  <span>Professional image creation</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-5 w-5 shrink-0 mt-0.5 text-primary" />
@@ -372,7 +504,7 @@ export default function Landing() {
                 Privacy Policy
               </a>
               <a href="/ai-disclaimer" className="hover:text-foreground transition-colors">
-                AI Disclaimer
+                Content Disclaimer
               </a>
               <a href="/fair-housing" className="hover:text-foreground transition-colors">
                 Fair Housing

@@ -878,3 +878,32 @@
 
 ## Routing Fix for Public Landing Page (URGENT)
 - [x] Fix routing: Make landing page display at root URL (/) instead of login screen for public visitors
+
+## ChatGPT One-Day Execution Brief (HIGHEST PRIORITY)
+- [x] 1. Hero Section Redesign - Replace headline with "Post Like the Top 1% of Real Estate Agents — Automatically"
+- [x] 1a. Update subheadline to authority-driven copy (no "AI" mention)
+- [x] 1b. Change primary CTA to "Create My First Expert Post"
+- [x] 1c. Add secondary CTA "See How It Works (2min demo)"
+- [x] 1d. Remove feature list above the fold
+- [x] 2. Add "How It Works" Section - 4-step flow (Choose audience → Select market → Generate content → Schedule/publish)
+- [x] 2a. Use plain language only, no icons, no advanced settings mentions
+- [x] 3. Proof Section (Mandatory) - Add "Why This Works for Real Estate Agents"
+- [x] 3a. Create 2 before/after post examples showing transformation
+- [x] 3b. Rewrite 2 testimonials emphasizing confidence, authority, consistency
+- [x] 3c. Remove generic "saves time" language
+- [x] 4. Pricing Micro-Adjustments - Keep $79/month, add value anchor "Normally $149/month"
+- [x] 4a. Add annual option: $699/year (2 months free)
+- [x] 4b. Add ROI line: "One listing pays for this for years"
+- [x] 4c. Do NOT add new plans or upsells
+- [x] 5. Onboarding Flow - Force 90-second flow on first login
+- [x] 5a. Step 1: Select audience (buyer/seller/investor)
+- [x] 5b. Step 2: Select market (city/neighborhood)
+- [x] 5c. Step 3: Click "Generate My First Post"
+- [x] 5d. Immediately show publish-ready post (no empty states, tutorials, or dashboard detours)
+- [x] 6. UI De-Cluttering - Hide advanced settings until after first post generated
+- [x] 6a. Default all content to publish-ready state
+- [x] 6b. Group features by: Create, Schedule, Authority (not by platform/format)
+- [x] 7. Language Lock-In (Global) - Replace all "AI-powered" and "Generate content" with authority-driven language
+- [x] 7a. Use "Authority-driven", "Market-smart", "Expert content" instead
+- [x] 7b. Keep AI behind the scenes (no mentions in UI)
+- [x] 7c. Update all copy to sound credible, not gimmicky

@@ -101,7 +101,7 @@ export default function PersonaBrand() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Persona & Brand</h1>
           <p className="text-muted-foreground mt-1">
-            Define your brand identity to personalize AI-generated content
+            Define your brand identity to personalize your content
           </p>
         </div>
         {persona?.isCompleted && (
