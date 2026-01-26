@@ -35,6 +35,7 @@ function Router() {
   return (
     <Switch>
       {/* Public routes without dashboard layout */}
+      <Route path="/" component={Landing} />
       <Route path="/landing" component={Landing} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />

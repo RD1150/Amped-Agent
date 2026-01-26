@@ -875,3 +875,6 @@
 - [ ] Configure new app settings (logo, URLs, display name) after verification
 - [ ] Test OAuth flow with new app after verification
 - [ ] Migration ETA: 1-2 business days for verification approval
+
+## Routing Fix for Public Landing Page (URGENT)
+- [x] Fix routing: Make landing page display at root URL (/) instead of login screen for public visitors
