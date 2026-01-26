@@ -943,3 +943,20 @@
 - [x] Remove Mike Chen testimonial from landing page (not a real customer)
 - [x] Audit landing page for any brokerage logos (RE/MAX, Keller Williams, etc.)
 - [x] Replace brokerage references with generic authority messaging
+
+## Password Protection (URGENT)
+- [ ] Create password gate component for landing page
+- [ ] Add localStorage to remember password entry
+- [ ] Integrate password protection into Landing.tsx
+- [ ] Test password protection functionality
+
+## Visual Post Templates (HIGH PRIORITY - COMPLETED)
+- [x] Research realestatecontent.ai template designs
+- [x] Create 50-template database organized by audience (Buyers 15, Sellers 15, Investors 10, General 10)
+- [x] Build visual template selector UI with category filtering
+- [x] Add template preview thumbnails for all 50 templates
+- [x] Integrate template selector into AIGenerate.tsx
+- [x] Integrate template selector into FirstPostOnboarding.tsx
+- [x] Build HTML/CSS template renderer (zero AI costs)
+- [x] Generate post graphic + text together as single output
+- [ ] Test template generation end-to-end

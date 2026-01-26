@@ -30,12 +30,15 @@ import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import DashboardLayout from "@/components/DashboardLayout";
 import { getFirstPost } from "@/lib/postFormatter";
+import ComprehensiveTemplateSelector from "@/components/ComprehensiveTemplateSelector";
+import type { Template } from "../../../shared/templates";
 
 type ContentType = "property_listing" | "market_report" | "trending_news" | "tips" | "neighborhood" | "custom";
 type ContentFormat = "static_post" | "carousel" | "reel_script";
 type BrandVoice = "professional" | "friendly" | "luxury" | "casual" | "authoritative";
 type ImageStyle = "realistic" | "modern" | "luxury" | "minimal" | "vibrant";
 type TemplateType = "property_card" | "just_listed" | "just_sold" | "open_house" | "market_update" | "testimonial";
+type SelectedTemplate = Template | null;
 type StockCategory = "property" | "interior" | "exterior" | "neighborhood" | "people" | "abstract";
 
 export default function AIGenerate() {
@@ -47,6 +50,7 @@ export default function AIGenerate() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<SelectedTemplate>(null);
 
   // Image generation states
   const [imagePrompt, setImagePrompt] = useState("");
@@ -162,12 +166,38 @@ export default function AIGenerate() {
     generateImage.mutate({ prompt: imagePrompt, style: imageStyle });
   };
 
-  const handleGenerateTemplate = () => {
-    generateTemplate.mutate({
-      templateType,
-      propertyData: contentType === "property_listing" ? propertyData : undefined,
-      brandColor: persona?.primaryColor || undefined,
-    });
+  const handleGenerateTemplate = async () => {
+    if (!selectedTemplate) {
+      toast.error("Please select a template first");
+      return;
+    }
+
+    if (!generatedContent) {
+      toast.error("Please generate post content first (Content tab)");
+      return;
+    }
+
+    try {
+      setIsGenerating(true);
+      const { renderTemplate } = await import("@/lib/templateRenderer");
+      
+      const imageUrl = await renderTemplate({
+        template: selectedTemplate,
+        postText: generatedContent,
+        businessName: persona?.businessName || undefined,
+        tagline: persona?.tagline || undefined,
+        headshotUrl: persona?.headshotUrl || undefined,
+        primaryColor: persona?.primaryColor || undefined,
+      });
+      
+      setGeneratedImage(imageUrl);
+      toast.success("Template generated successfully!");
+    } catch (error) {
+      console.error("Template generation error:", error);
+      toast.error("Failed to generate template");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleSearchStock = () => {
@@ -560,62 +590,71 @@ export default function AIGenerate() {
           <TabsContent value="templates" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Branded Templates</CardTitle>
+                <CardTitle>Professional Templates</CardTitle>
                 <CardDescription>
-                  Generate professional social media templates with your branding
+                  Choose from 50 professionally designed templates for all content types
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Template Type</Label>
-                  <Select value={templateType} onValueChange={(v) => setTemplateType(v as TemplateType)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="property_card">Property Card</SelectItem>
-                      <SelectItem value="just_listed">Just Listed</SelectItem>
-                      <SelectItem value="just_sold">Just Sold</SelectItem>
-                      <SelectItem value="open_house">Open House</SelectItem>
-                      <SelectItem value="market_update">Market Update</SelectItem>
-                      <SelectItem value="testimonial">Testimonial</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <CardContent className="space-y-6">
+                <ComprehensiveTemplateSelector
+                  selectedTemplateId={selectedTemplate?.id || null}
+                  onSelectTemplate={(template) => setSelectedTemplate(template)}
+                />
 
-                <Button 
-                  onClick={handleGenerateTemplate} 
-                  disabled={generateTemplate.isPending}
-                  className="w-full"
-                  size="lg"
-                >
-                  {generateTemplate.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating Template...
-                    </>
-                  ) : (
-                    <>
-                      <ImageIcon className="mr-2 h-4 w-4" />
-                      Generate Template
-                    </>
-                  )}
-                </Button>
-
-                {generatedImage && (
+                {selectedTemplate && (
                   <div className="space-y-4">
-                    <img 
-                      src={generatedImage} 
-                      alt="Generated Template" 
-                      className="w-full rounded-lg border"
-                    />
+                    <div className="p-4 bg-secondary rounded-lg">
+                      <h4 className="font-semibold mb-2">Selected Template</h4>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        <strong>{selectedTemplate.name}</strong>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {selectedTemplate.useCase}
+                      </p>
+                    </div>
+
                     <Button 
-                      onClick={() => window.open(generatedImage, '_blank')} 
-                      variant="outline" 
+                      onClick={handleGenerateTemplate} 
+                      disabled={generateTemplate.isPending}
                       className="w-full"
+                      size="lg"
                     >
-                      Open Full Size
+                      {generateTemplate.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generating Template...
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon className="mr-2 h-4 w-4" />
+                          Generate {selectedTemplate.name}
+                        </>
+                      )}
                     </Button>
+
+                    {generatedImage && (
+                      <div className="space-y-4">
+                        <img 
+                          src={generatedImage} 
+                          alt="Generated Template" 
+                          className="w-full rounded-lg border"
+                        />
+                        <Button 
+                          onClick={() => window.open(generatedImage, '_blank')} 
+                          variant="outline" 
+                          className="w-full"
+                        >
+                          Download Template
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!selectedTemplate && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <ImageIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>Select a template above to get started</p>
                   </div>
                 )}
               </CardContent>

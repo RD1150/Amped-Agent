@@ -8,6 +8,8 @@ import { Loader2, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { getFirstPost, formatPostForDisplay } from "@/lib/postFormatter";
+import ComprehensiveTemplateSelector from "@/components/ComprehensiveTemplateSelector";
+import type { Template, TemplateCategory } from "../../../shared/templates";
 
 interface FirstPostOnboardingProps {
   onComplete: () => void;
@@ -16,31 +18,50 @@ interface FirstPostOnboardingProps {
 export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingProps) {
   const [step, setStep] = useState(1);
   const [audience, setAudience] = useState<string>("");
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [market, setMarket] = useState<string>("");
   const [generatedPost, setGeneratedPost] = useState<string>("");
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const generatePost = trpc.content.generate.useMutation();
 
+  const { data: persona } = trpc.persona.get.useQuery();
+
   const handleGeneratePost = async () => {
-    if (!audience || !market) {
-      toast.error("Please select audience and market");
+    if (!audience || !market || !selectedTemplate) {
+      toast.error("Please complete all steps");
       return;
     }
 
     setIsGenerating(true);
     try {
+      // Generate post content
       const result = await generatePost.mutateAsync({
-        topic: `Market insights for ${audience}s in ${market}`,
+        topic: `${selectedTemplate.name} for ${audience}s in ${market}`,
         contentType: "market_report",
         format: "static_post",
         tone: "authoritative"
       });
 
       setGeneratedPost(result.content);
-      setStep(3);
+
+      // Generate template image
+      const { renderTemplate } = await import("@/lib/templateRenderer");
+      const imageUrl = await renderTemplate({
+        template: selectedTemplate,
+        postText: result.content,
+        businessName: persona?.businessName || undefined,
+        tagline: persona?.tagline || undefined,
+        headshotUrl: persona?.headshotUrl || undefined,
+        primaryColor: persona?.primaryColor || undefined,
+      });
+
+      setGeneratedImage(imageUrl);
+      setStep(4);
       toast.success("Your first expert post is ready!");
     } catch (error) {
+      console.error("Generation error:", error);
       toast.error("Failed to generate post. Please try again.");
     } finally {
       setIsGenerating(false);
@@ -62,9 +83,10 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
             <CardTitle className="text-3xl">Create Your First Expert Post</CardTitle>
           </div>
           <CardDescription className="text-base">
-            {step === 1 && "Step 1 of 2: Choose your target audience"}
-            {step === 2 && "Step 2 of 2: Select your market"}
-            {step === 3 && "Your publish-ready post is ready!"}
+            {step === 1 && "Step 1 of 3: Choose your target audience"}
+            {step === 2 && "Step 2 of 3: Choose your template style"}
+            {step === 3 && "Step 3 of 3: Enter your market"}
+            {step === 4 && "Your publish-ready post is ready!"}
           </CardDescription>
         </CardHeader>
 
@@ -107,8 +129,37 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
             </div>
           )}
 
-          {/* Step 2: Market Selection */}
+          {/* Step 2: Template Selection */}
           {step === 2 && (
+            <div className="space-y-4 max-h-[600px] overflow-y-auto">
+              <ComprehensiveTemplateSelector
+                selectedTemplateId={selectedTemplate?.id || null}
+                onSelectTemplate={(template) => setSelectedTemplate(template)}
+                audienceFilter={audience === "buyer" ? "buyers" : audience === "seller" ? "sellers" : audience === "investor" ? "investors" : undefined}
+              />
+              <div className="flex gap-3 sticky bottom-0 bg-background pt-4 border-t">
+                <Button
+                  onClick={() => setStep(1)}
+                  variant="outline"
+                  size="lg"
+                  className="flex-1 text-lg h-12"
+                >
+                  Back
+                </Button>
+                <Button
+                  onClick={() => setStep(3)}
+                  disabled={!selectedTemplate}
+                  size="lg"
+                  className="flex-1 text-lg h-12"
+                >
+                  Continue
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Market Selection */}
+          {step === 3 && (
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="market" className="text-lg font-semibold">What's your primary market?</Label>
@@ -125,7 +176,7 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
               </div>
               <div className="flex gap-3">
                 <Button
-                  onClick={() => setStep(1)}
+                  onClick={() => setStep(2)}
                   variant="outline"
                   size="lg"
                   className="flex-1 text-lg h-12"
@@ -154,12 +205,22 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
             </div>
           )}
 
-          {/* Step 3: Generated Post */}
-          {step === 3 && (
+          {/* Step 4: Generated Post */}
+          {step === 4 && (
             <div className="space-y-4">
+              {generatedImage && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Your Branded Post Graphic</Label>
+                  <img 
+                    src={generatedImage} 
+                    alt="Generated Post" 
+                    className="w-full rounded-lg border-2 border-primary/20"
+                  />
+                </div>
+              )}
               <div className="bg-muted/50 border-2 border-primary/20 rounded-lg p-6">
                 <div className="text-sm font-semibold text-primary mb-3">
-                  ✅ YOUR EXPERT POST IS READY
+                  ✅ YOUR EXPERT POST TEXT
                 </div>
                 <div className="prose prose-sm max-w-none">
                   <p className="whitespace-pre-wrap text-foreground leading-relaxed">

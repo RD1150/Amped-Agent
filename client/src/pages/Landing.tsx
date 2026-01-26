@@ -16,6 +16,7 @@ import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
+import PasswordGate from "@/components/PasswordGate";
 
 export default function Landing() {
   const { user, loading } = useAuth();
@@ -91,6 +92,7 @@ export default function Landing() {
   ];
 
   return (
+    <PasswordGate>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-50">
@@ -545,5 +547,6 @@ export default function Landing() {
         </div>
       </footer>
     </div>
+    </PasswordGate>
   );
 }
