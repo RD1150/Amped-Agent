@@ -1056,3 +1056,25 @@
 - [ ] Add export options (copy to clipboard, download Markdown/HTML)
 - [ ] Create blog writing UI page
 - [ ] Test blog generation end-to-end
+
+## UI Improvements (IN PROGRESS)
+- [ ] Split Luxury Market into Luxury Buyers and Luxury Sellers (10 templates each)
+- [ ] Reorganize audience selection into grouped categories:
+  - BUYING: Buyers, Luxury Buyers
+  - SELLING: Sellers, First-Time Sellers, Expired Listings, Urgent Sellers, FSBOs, Luxury Sellers
+  - INVESTING: Investors
+- [ ] Add visual separators (horizontal lines) between groups
+- [ ] Add group headers with clear typography
+- [ ] Update TemplateCategory type to include luxury_buyers and luxury_sellers
+
+## UI Reorganization (COMPLETED)
+- [x] Split Luxury Market into Luxury Buyers and Luxury Sellers (5 templates each)
+- [x] Reorganize audience selection into grouped categories:
+  - BUYING: Buyers, Luxury Buyers
+  - SELLING: Sellers, First-Time Sellers, Expired Listings, Urgent Sellers, FSBOs, Luxury Sellers
+  - INVESTING: Investors
+- [x] Add visual separators (horizontal lines) between groups
+- [x] Add group headers with clear typography
+- [x] Update TemplateCategory type to include luxury_buyers and luxury_sellers
+- [x] Update ComprehensiveTemplateSelector categoryLabels
+- [x] Update FirstPostOnboarding audienceFilter mapping

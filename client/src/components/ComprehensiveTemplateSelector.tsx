@@ -20,7 +20,8 @@ const categoryLabels: Record<TemplateCategory, string> = {
   expireds: "Expired Listings",
   urgent_sellers: "Urgent Sellers",
   fsbos: "FSBOs (For Sale By Owner)",
-  luxury: "Luxury Market",
+  luxury_buyers: "Luxury Buyers",
+  luxury_sellers: "Luxury Sellers",
   first_time_sellers: "First-Time Sellers",
 };
 

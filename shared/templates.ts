@@ -1,4 +1,4 @@
-export type TemplateCategory = "buyers" | "sellers" | "investors" | "general" | "expireds" | "urgent_sellers" | "fsbos" | "luxury" | "first_time_sellers";
+export type TemplateCategory = "buyers" | "sellers" | "investors" | "general" | "expireds" | "urgent_sellers" | "fsbos" | "luxury_buyers" | "luxury_sellers" | "first_time_sellers";
 
 export interface Template {
   id: string;
@@ -839,7 +839,7 @@ export const TEMPLATE_LIBRARY: Template[] = [
   {
     id: "luxury_market_trends",
     name: "Luxury Market Trends",
-    category: "luxury",
+    category: "luxury_buyers",
     description: "High-end market analysis and insights",
     designStyle: "luxury",
     colorScheme: "gold",
@@ -848,7 +848,7 @@ export const TEMPLATE_LIBRARY: Template[] = [
   {
     id: "luxury_property_features",
     name: "Must-Have Luxury Amenities",
-    category: "luxury",
+    category: "luxury_buyers",
     description: "Premium features buyers expect",
     designStyle: "elegant",
     colorScheme: "purple",
@@ -857,7 +857,7 @@ export const TEMPLATE_LIBRARY: Template[] = [
   {
     id: "luxury_staging",
     name: "Luxury Home Staging Secrets",
-    category: "luxury",
+    category: "luxury_sellers",
     description: "High-end presentation strategies",
     designStyle: "luxury",
     colorScheme: "gold",
@@ -866,7 +866,7 @@ export const TEMPLATE_LIBRARY: Template[] = [
   {
     id: "luxury_photography",
     name: "Professional Luxury Photography",
-    category: "luxury",
+    category: "luxury_sellers",
     description: "Importance of premium visuals",
     designStyle: "elegant",
     colorScheme: "blue",
@@ -875,7 +875,7 @@ export const TEMPLATE_LIBRARY: Template[] = [
   {
     id: "luxury_buyer_profile",
     name: "Understanding Luxury Buyers",
-    category: "luxury",
+    category: "luxury_buyers",
     description: "Psychology of affluent purchasers",
     designStyle: "modern",
     colorScheme: "teal",
@@ -884,7 +884,7 @@ export const TEMPLATE_LIBRARY: Template[] = [
   {
     id: "luxury_discretion",
     name: "Discreet Luxury Sales",
-    category: "luxury",
+    category: "luxury_sellers",
     description: "Privacy and confidentiality in high-end sales",
     designStyle: "elegant",
     colorScheme: "purple",
@@ -893,7 +893,7 @@ export const TEMPLATE_LIBRARY: Template[] = [
   {
     id: "luxury_international",
     name: "International Luxury Buyers",
-    category: "luxury",
+    category: "luxury_buyers",
     description: "Global marketing reach",
     designStyle: "luxury",
     colorScheme: "gold",
@@ -902,7 +902,7 @@ export const TEMPLATE_LIBRARY: Template[] = [
   {
     id: "luxury_investment",
     name: "Luxury as Investment",
-    category: "luxury",
+    category: "luxury_buyers",
     description: "High-end property appreciation",
     designStyle: "data",
     colorScheme: "green",
@@ -911,7 +911,7 @@ export const TEMPLATE_LIBRARY: Template[] = [
   {
     id: "luxury_concierge",
     name: "White-Glove Concierge Service",
-    category: "luxury",
+    category: "luxury_sellers",
     description: "Premium client experience",
     designStyle: "elegant",
     colorScheme: "gold",
@@ -920,7 +920,7 @@ export const TEMPLATE_LIBRARY: Template[] = [
   {
     id: "luxury_portfolio",
     name: "Luxury Portfolio Showcase",
-    category: "luxury",
+    category: "luxury_sellers",
     description: "Past high-end sales and listings",
     designStyle: "luxury",
     colorScheme: "purple",

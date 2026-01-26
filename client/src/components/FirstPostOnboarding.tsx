@@ -96,6 +96,8 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
             <div className="space-y-4">
               <Label className="text-lg font-semibold">Who are you creating content for?</Label>
               <RadioGroup value={audience} onValueChange={setAudience}>
+                {/* BUYING SECTION */}
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mt-2 mb-2">Buying</div>
                 <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
                   <RadioGroupItem value="buyer" id="buyer" />
                   <Label htmlFor="buyer" className="flex-1 cursor-pointer">
@@ -104,6 +106,17 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
+                  <RadioGroupItem value="luxury_buyer" id="luxury_buyer" />
+                  <Label htmlFor="luxury_buyer" className="flex-1 cursor-pointer">
+                    <div className="font-semibold">Luxury Buyers</div>
+                    <div className="text-sm text-muted-foreground">Affluent buyers seeking high-end properties</div>
+                  </Label>
+                </div>
+
+                {/* SELLING SECTION */}
+                <div className="border-t border-border my-4"></div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Selling</div>
+                <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
                   <RadioGroupItem value="seller" id="seller" />
                   <Label htmlFor="seller" className="flex-1 cursor-pointer">
                     <div className="font-semibold">Sellers</div>
@@ -111,10 +124,10 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
-                  <RadioGroupItem value="investor" id="investor" />
-                  <Label htmlFor="investor" className="flex-1 cursor-pointer">
-                    <div className="font-semibold">Investors</div>
-                    <div className="text-sm text-muted-foreground">Buy-and-hold, fix-and-flip, commercial investors</div>
+                  <RadioGroupItem value="first_seller" id="first_seller" />
+                  <Label htmlFor="first_seller" className="flex-1 cursor-pointer">
+                    <div className="font-semibold">First-Time Sellers</div>
+                    <div className="text-sm text-muted-foreground">New sellers who've never sold a home before</div>
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
@@ -139,17 +152,21 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
                   </Label>
                 </div>
                 <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
-                  <RadioGroupItem value="luxury" id="luxury" />
-                  <Label htmlFor="luxury" className="flex-1 cursor-pointer">
-                    <div className="font-semibold">Luxury Market</div>
-                    <div className="text-sm text-muted-foreground">High-end properties, affluent buyers and sellers</div>
+                  <RadioGroupItem value="luxury_seller" id="luxury_seller" />
+                  <Label htmlFor="luxury_seller" className="flex-1 cursor-pointer">
+                    <div className="font-semibold">Luxury Sellers</div>
+                    <div className="text-sm text-muted-foreground">High-end property owners ready to list</div>
                   </Label>
                 </div>
+
+                {/* INVESTING SECTION */}
+                <div className="border-t border-border my-4"></div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Investing</div>
                 <div className="flex items-center space-x-3 border-2 border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
-                  <RadioGroupItem value="first_seller" id="first_seller" />
-                  <Label htmlFor="first_seller" className="flex-1 cursor-pointer">
-                    <div className="font-semibold">First-Time Sellers</div>
-                    <div className="text-sm text-muted-foreground">New sellers who've never sold a home before</div>
+                  <RadioGroupItem value="investor" id="investor" />
+                  <Label htmlFor="investor" className="flex-1 cursor-pointer">
+                    <div className="font-semibold">Investors</div>
+                    <div className="text-sm text-muted-foreground">Buy-and-hold, fix-and-flip, commercial investors</div>
                   </Label>
                 </div>
               </RadioGroup>
@@ -177,7 +194,8 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
                   audience === "expired" ? "expireds" : 
                   audience === "urgent" ? "urgent_sellers" : 
                   audience === "fsbo" ? "fsbos" : 
-                  audience === "luxury" ? "luxury" : 
+                  audience === "luxury_buyer" ? "luxury_buyers" : 
+                  audience === "luxury_seller" ? "luxury_sellers" : 
                   audience === "first_seller" ? "first_time_sellers" : 
                   undefined
                 }
