@@ -29,6 +29,7 @@ import {
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import DashboardLayout from "@/components/DashboardLayout";
+import { getFirstPost } from "@/lib/postFormatter";
 
 type ContentType = "property_listing" | "market_report" | "trending_news" | "tips" | "neighborhood" | "custom";
 type ContentFormat = "static_post" | "carousel" | "reel_script";
@@ -70,7 +71,8 @@ export default function AIGenerate() {
 
   const generateContent = trpc.content.generate.useMutation({
     onSuccess: (result) => {
-      setGeneratedContent(result.content);
+      // Extract first clean post variation
+      setGeneratedContent(getFirstPost(result.content));
       if (result.imageUrl) {
         setGeneratedImage(result.imageUrl);
       }

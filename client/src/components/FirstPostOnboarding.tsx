@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { getFirstPost, formatPostForDisplay } from "@/lib/postFormatter";
 
 interface FirstPostOnboardingProps {
   onComplete: () => void;
@@ -161,7 +162,9 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
                   ✅ YOUR EXPERT POST IS READY
                 </div>
                 <div className="prose prose-sm max-w-none">
-                  <p className="whitespace-pre-wrap text-foreground">{generatedPost}</p>
+                  <p className="whitespace-pre-wrap text-foreground leading-relaxed">
+                    {formatPostForDisplay(getFirstPost(generatedPost))}
+                  </p>
                 </div>
               </div>
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">

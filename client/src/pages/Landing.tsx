@@ -45,8 +45,8 @@ export default function Landing() {
     },
     {
       icon: Home,
-      title: "Real Market Stats",
-      description: "Generate data-driven market updates with real property data from RapidAPI"
+      title: "Real Market Insights",
+      description: "Post real market insights—not generic real estate advice. Data-driven content that positions you as the local authority."
     },
     {
     icon: Image,
@@ -73,19 +73,19 @@ export default function Landing() {
     {
       name: "S.J.",
       role: "Luxury Real Estate Agent",
-      content: "This tool saved me 10+ hours per week. I went from struggling to post once a week to having a full month of content ready to go.",
+      content: "I finally feel confident posting consistently. My content sounds knowledgeable and credible—like I actually know my market inside and out. Clients are reaching out because they see me as the local expert.",
       rating: 5
     },
     {
       name: "M.C.",
       role: "Real Estate Team Leader",
-      content: "The market stats feature is a game-changer. My engagement doubled since I started posting data-driven insights.",
+      content: "The market data makes me look like I have my finger on the pulse. I'm not guessing what to say anymore—I'm posting with authority, and my audience can tell the difference.",
       rating: 5
     },
     {
       name: "J.M.",
       role: "Top Producer",
-      content: "Finally, a tool that understands real estate content. The posts sound like me, not a robot.",
+      content: "I used to stress about sounding professional. Now I post every day without second-guessing myself. The consistency alone has doubled my visibility, and the content actually builds trust.",
       rating: 5
     }
   ];
@@ -122,11 +122,15 @@ export default function Landing() {
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Post Like the Top 1% of Real Estate Agents — <span className="text-primary">Automatically</span>
+            Sound Like the Market Expert Your Clients Expect — <span className="text-primary">Automatically</span>
           </h1>
           
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Authority-driven, market-smart social media content that helps you attract buyers and sellers without spending hours planning, writing, or designing.
+            Realty Content Agent creates authority-driven, market-smart content that builds trust, attracts buyers and sellers, and keeps you consistently visible without planning, writing, or second-guessing what to post.
+          </p>
+
+          <p className="text-lg font-semibold text-primary mb-8">
+            Generate 30 days of expert real estate content in 60 seconds.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
@@ -288,6 +292,33 @@ export default function Landing() {
               <p className="text-foreground">
                 "Inventory in our area just dropped to 2.1 months—the lowest I've seen in 18 months. For buyers, this means competition is heating up. For sellers, it means your home will likely receive multiple offers if priced correctly. Here's what the data tells us..."
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Authority Proof Bullets */}
+        <div className="max-w-3xl mx-auto mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-2">Real Data Builds Credibility</h3>
+              <p className="text-sm text-muted-foreground">Market stats and local insights position you as the expert</p>
+            </div>
+            <div>
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                <Home className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-2">Real Estate Language</h3>
+              <p className="text-sm text-muted-foreground">Not generic business advice—actual real estate terminology</p>
+            </div>
+            <div>
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-2">Local Insight</h3>
+              <p className="text-sm text-muted-foreground">Demonstrates neighborhood expertise that attracts clients</p>
             </div>
           </div>
         </div>

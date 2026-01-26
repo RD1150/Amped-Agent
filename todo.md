@@ -920,3 +920,21 @@
 - [x] Fix authentication redirect loop: clicking trial button → email selection → loops back to landing page
 - [x] Ensure authenticated users are redirected to dashboard instead of landing page
 - [x] Test complete signup flow from landing page to dashboard
+
+## ChatGPT Final Authority Upgrade (EXECUTION REQUIREMENTS)
+- [x] 1. Hero Section: Update headline to "Sound Like the Market Expert Your Clients Expect — Automatically"
+- [x] 1a. Update subheadline with authority/trust/credibility focus (not speed)
+- [x] 1b. Add proof line: "Generate 30 days of expert real estate content in 60 seconds"
+- [x] 2. Authority Proof Section (NEW): Add "Why Your Content Sounds Different with RCA"
+- [x] 2a. Create visual example: before/after post comparison OR real market-stat post
+- [x] 2b. Add 2-3 bullets: real data, real estate language, local insight
+- [x] 3. Testimonials: Rewrite existing to emphasize confidence, credibility, consistency
+- [x] 3a. Remove generic "easy to use" / "saves time" without context
+- [x] 4. CTA Updates: Replace "Start Free Trial" with "Create My First Expert Post"
+- [x] 4a. Use outcome-based language for all CTAs throughout page
+- [x] 5. Market Stats: Reframe as "Post real market insights — not generic advice"
+- [x] 6. Post Output (CRITICAL): Strip markdown syntax, fix escaped hashtags
+- [x] 6a. Show ONE clean post variation (not all 3)
+- [ ] 6b. Add visual template selector (3-4 design options) - NEXT PHASE
+- [ ] 6c. Auto-generate branded graphic for each post - NEXT PHASE
+- [ ] 6d. Build post preview showing formatted text + graphic - NEXT PHASE
