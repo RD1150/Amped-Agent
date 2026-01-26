@@ -119,9 +119,9 @@ export async function updateUser(userId: number, data: Partial<InsertUser>) {
 
 export async function getPersonaByUserId(userId: number) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const result = await db.select().from(personas).where(eq(personas.userId, userId)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function upsertPersona(userId: number, data: Partial<InsertPersona>) {

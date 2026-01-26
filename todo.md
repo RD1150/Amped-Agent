@@ -959,4 +959,8 @@
 - [x] Integrate template selector into FirstPostOnboarding.tsx
 - [x] Build HTML/CSS template renderer (zero AI costs)
 - [x] Generate post graphic + text together as single output
-- [ ] Test template generation end-to-end
+- [x] Test template generation end-to-end
+
+## Bug Fixes (URGENT)
+- [x] Fix persona.get query returning undefined when user has no persona record
+- [x] Ensure persona.get returns null instead of undefined (React Query compatible)
