@@ -52,7 +52,7 @@ export default function Landing() {
 
   return (
     <PasswordGate>
-      <div className="min-h-screen bg-gradient-to-b from-background to-accent/20">
+      <div className="min-h-screen bg-white">
         {/* Hero Section */}
         <div className="container mx-auto px-4 py-20">
           <div className="max-w-4xl mx-auto text-center space-y-8">
@@ -88,6 +88,7 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-20">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
+              <div className="inline-block w-16 h-1 bg-primary mb-6 rounded-full"></div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 See the Difference Instantly
               </h2>
@@ -143,12 +144,15 @@ export default function Landing() {
         </div>
 
         {/* Why Agents Trust This */}
-        <div className="bg-accent/30 py-20">
+        <div className="py-20 bg-white">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-                Why Agents Feel Confident Using This
-              </h2>
+              <div className="text-center mb-12">
+                <div className="inline-block w-16 h-1 bg-primary mb-6 rounded-full"></div>
+                <h2 className="text-3xl md:text-4xl font-bold">
+                  Why Agents Feel Confident Using This
+                </h2>
+              </div>
               
               <div className="grid md:grid-cols-3 gap-8">
                 {trustFactors.map((factor, index) => {
@@ -173,9 +177,10 @@ export default function Landing() {
         {/* Control & Customization */}
         <div className="container mx-auto px-4 py-20">
           <div className="max-w-4xl mx-auto text-center space-y-8">
-            <h2 className="text-3xl md:text-4xl font-bold">
-              You're Always in Control
-            </h2>
+              <div className="inline-block w-16 h-1 bg-primary mb-6 rounded-full"></div>
+              <h2 className="text-3xl md:text-4xl font-bold">
+                You're Always in Control
+              </h2>
             <p className="text-xl text-muted-foreground">
               The tool works for you — not the other way around.
             </p>
@@ -221,9 +226,10 @@ export default function Landing() {
         </div>
 
         {/* Reliability Section */}
-        <div className="bg-accent/30 py-20">
+        <div className="py-20 bg-gray-50 border-y">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center space-y-8">
+              <div className="inline-block w-16 h-1 bg-primary mb-6 rounded-full"></div>
               <h2 className="text-3xl md:text-4xl font-bold">
                 Never Post Content That Makes You Cringe
               </h2>

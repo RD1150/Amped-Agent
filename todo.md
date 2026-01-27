@@ -1216,3 +1216,26 @@ Core Message: "This tool produces content you'd be proud to put your name on."
 - [x] Bullets: No robotic phrasing, no generic hooks, no spammy CTAs, no "clearly AI" tone
 - [x] Removed: AI buzzwords, template counts from hero, "AI-powered" messaging
 - [ ] Test homepage on mobile and desktop
+
+## Content Format Selector Redesign - Intent-Based (Jan 27, 2026)
+Goal: Reduce decision friction and build trust by organizing formats by intent, not features
+
+- [ ] Change heading from "6 Content Formats" to "Choose What You're Creating"
+- [ ] Replace pill buttons with card-based design
+- [ ] Group 1: "Everyday Authority" (Static Posts, Carousel Posts, Story Posts)
+  - Microcopy: "Build credibility with buyers & sellers"
+- [ ] Group 2: "Video Presence" (Reel Scripts, Video Reels)
+  - Microcopy: "Designed for visibility and reach"
+- [ ] Group 3: "Listings & Promotions" (Property Listings)
+  - Microcopy: "Showcase active properties"
+- [ ] Add visual hierarchy with section headers
+- [ ] Use premium card design with hover states
+- [ ] Test on mobile and desktop
+
+## Landing Page Color Consistency (COMPLETED - Jan 27, 2026)
+- [x] Remove gradient backgrounds (bg-gradient-to-b)
+- [x] Use clean white background throughout
+- [x] Use accent colors strategically to break up sections (primary accent lines, subtle gray background)
+- [x] Add visual elements for depth (accent lines above headings, card shadows)
+- [x] Maintain professional, premium feel
+- [ ] Test on mobile and desktop
