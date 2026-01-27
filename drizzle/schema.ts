@@ -35,19 +35,23 @@ export type InsertUser = typeof users.$inferInsert;
 export const personas = mysqlTable("personas", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
+  agentName: varchar("agentName", { length: 255 }), // Agent's full name
+  licenseNumber: varchar("licenseNumber", { length: 100 }), // Agent DRE
+  brokerageName: varchar("brokerageName", { length: 255 }), // Brokerage name
+  brokerageDRE: varchar("brokerageDRE", { length: 100 }), // Brokerage DRE
+  phoneNumber: varchar("phoneNumber", { length: 20 }),
+  headshotUrl: text("headshotUrl"),
+  // Optional fields
   businessName: varchar("businessName", { length: 255 }),
   tagline: varchar("tagline", { length: 500 }),
   targetAudience: text("targetAudience"),
   brandVoice: mysqlEnum("brandVoice", ["professional", "friendly", "luxury", "casual", "authoritative"]).default("professional"),
   primaryColor: varchar("primaryColor", { length: 7 }).default("#C9A962"),
   logoUrl: text("logoUrl"),
-  headshotUrl: text("headshotUrl"),
   bio: text("bio"),
-  brokerage: varchar("brokerage", { length: 255 }),
-  licenseNumber: varchar("licenseNumber", { length: 100 }),
+  brokerage: varchar("brokerage", { length: 255 }), // Legacy field, use brokerageName instead
   serviceAreas: text("serviceAreas"),
   websiteUrl: varchar("websiteUrl", { length: 500 }),
-  phoneNumber: varchar("phoneNumber", { length: 20 }),
   emailAddress: varchar("emailAddress", { length: 320 }),
   socialHandles: text("socialHandles"), // JSON stored as text
   isCompleted: boolean("isCompleted").default(false),

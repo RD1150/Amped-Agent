@@ -1,2 +1,0 @@
-ALTER TABLE `content_posts` MODIFY COLUMN `contentType` enum('property_listing','market_report','trending_news','tips','neighborhood','custom','carousel','video') DEFAULT 'custom';--> statement-breakpoint
-ALTER TABLE `posting_schedules` MODIFY COLUMN `contentType` enum('property_listing','market_report','trending_news','tips','neighborhood','custom','carousel','video') NOT NULL;

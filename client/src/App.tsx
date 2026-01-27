@@ -23,6 +23,7 @@ import Hooks from "./pages/Hooks";
 import FacebookCallback from "./pages/FacebookCallback";
 import LinkedInCallback from "./pages/LinkedInCallback";
 import InstagramSetup from "./pages/InstagramSetup";
+import AgentOnboarding from "./components/AgentOnboarding";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -46,6 +47,7 @@ function Router() {
       <Route path="/integrations/facebook/callback" component={FacebookCallback} />
       <Route path="/integrations/linkedin/callback" component={LinkedInCallback} />
       <Route path="/integrations/instagram/setup" component={InstagramSetup} />
+      <Route path="/onboarding" component={AgentOnboarding} />
       
       {/* Dashboard routes */}
       <Route>

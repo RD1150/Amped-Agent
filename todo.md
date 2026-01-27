@@ -1134,3 +1134,26 @@
 - [x] Created uploadHeadshot tRPC procedure with S3 integration
 - [x] Added headshotUrl to persona upsert input schema
 - [ ] Test that uploaded headshot appears in generated templates (requires user to complete onboarding)
+
+## Onboarding Flow Redesign (COMPLETED - Jan 27, 2026)
+- [x] Create new onboarding flow that collects persona data BEFORE post creation
+- [x] Step 1: Welcome screen explaining the platform
+- [x] Step 2: Upload headshot (optional) with file upload component
+- [x] Step 3: Enter business information (agent name, DRE, brokerage name, brokerage DRE, phone)
+- [x] Step 4: Choose brand voice and primary color
+- [x] Step 5: Complete onboarding and redirect to dashboard
+- [x] Show branding reminder popup if agent skips headshot upload
+- [x] Add "Include my headshot on this post" checkbox to post generation UI (default: checked if headshot exists)
+- [x] Update template renderer to respect headshot toggle (show/hide headshot based on user choice)
+- [x] Pass includeHeadshot flag to template renderer
+- [ ] Allow agents to change persona settings later in Persona & Brand page
+- [ ] Redirect new users to /onboarding if persona is not complete
+
+## Updated Onboarding Fields (COMPLETED - Jan 27, 2026)
+- [x] Update persona schema to include: agentName, licenseNumber (DRE), brokerageName, brokerageDRE (no address field)
+- [x] Update AgentOnboarding form to collect: Name, DRE, Brokerage Name, Brokerage DRE, Phone, Headshot (optional)
+- [x] Remove tagline, websiteUrl, emailAddress from required fields
+- [x] Updated server persona upsert to handle new fields
+- [x] Add message customization textarea to post generation UI
+- [x] Pass custom message to template renderer
+- [x] Update template renderer to use custom message if provided, otherwise use generated content

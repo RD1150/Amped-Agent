@@ -31,15 +31,19 @@ export const appRouter = router({
     
     upsert: protectedProcedure
       .input(z.object({
+        agentName: z.string().optional(),
+        licenseNumber: z.string().optional(),
+        brokerageName: z.string().optional(),
+        brokerageDRE: z.string().optional(),
+        phoneNumber: z.string().optional(),
+        headshotUrl: z.string().optional(),
         businessName: z.string().optional(),
         tagline: z.string().optional(),
         targetAudience: z.string().optional(),
         brandVoice: z.enum(["professional", "friendly", "luxury", "casual", "authoritative"]).optional(),
         primaryColor: z.string().optional(),
         logoUrl: z.string().optional(),
-        headshotUrl: z.string().optional(),
         websiteUrl: z.string().optional(),
-        phoneNumber: z.string().optional(),
         emailAddress: z.string().optional(),
         socialHandles: z.string().optional(),
         isCompleted: z.boolean().optional(),

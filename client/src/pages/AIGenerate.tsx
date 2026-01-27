@@ -51,6 +51,8 @@ export default function AIGenerate() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<SelectedTemplate>(null);
+  const [includeHeadshot, setIncludeHeadshot] = useState(true);
+  const [customMessage, setCustomMessage] = useState("");
 
   // Image generation states
   const [imagePrompt, setImagePrompt] = useState("");
@@ -183,10 +185,10 @@ export default function AIGenerate() {
       
       const imageUrl = await renderTemplate({
         template: selectedTemplate,
-        postText: generatedContent,
+        postText: customMessage.trim() || generatedContent,
         businessName: persona?.businessName || undefined,
         tagline: persona?.tagline || undefined,
-        headshotUrl: persona?.headshotUrl || undefined,
+        headshotUrl: (includeHeadshot && persona?.headshotUrl) ? persona.headshotUrl : undefined,
         primaryColor: persona?.primaryColor || undefined,
         phone: persona?.phoneNumber || undefined,
         email: persona?.emailAddress || undefined,
@@ -613,6 +615,41 @@ export default function AIGenerate() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {selectedTemplate.useCase}
+                      </p>
+                    </div>
+
+                    {persona?.headshotUrl && (
+                      <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
+                        <input
+                          type="checkbox"
+                          id="includeHeadshot"
+                          checked={includeHeadshot}
+                          onChange={(e) => setIncludeHeadshot(e.target.checked)}
+                          className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                        />
+                        <label htmlFor="includeHeadshot" className="text-sm cursor-pointer flex-1">
+                          Include my headshot on this post
+                        </label>
+                        {!includeHeadshot && (
+                          <span className="text-xs text-muted-foreground">💡 Branded posts get more engagement</span>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="customMessage" className="text-sm font-medium">
+                        Customize Message (Optional)
+                      </Label>
+                      <Textarea
+                        id="customMessage"
+                        placeholder="Leave blank to use AI-generated content, or type your own message to appear on the graphic..."
+                        value={customMessage}
+                        onChange={(e) => setCustomMessage(e.target.value)}
+                        rows={4}
+                        className="bg-secondary border-border resize-none"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {customMessage.trim() ? "Using your custom message" : "Using AI-generated content"}
                       </p>
                     </div>
 
