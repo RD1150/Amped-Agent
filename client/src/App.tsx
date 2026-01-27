@@ -26,6 +26,7 @@ import InstagramSetup from "./pages/InstagramSetup";
 import AgentOnboarding from "./components/AgentOnboarding";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
+import Dashboard from "./pages/Dashboard";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -56,7 +57,8 @@ function Router() {
         {() => (
           <DashboardLayout>
             <Switch>
-              <Route path="/" component={ContentCalendar} />
+              <Route path="/dashboard" component={Dashboard} />
+              <Route path="/calendar" component={ContentCalendar} />
         <Route path="/persona" component={PersonaBrand} />
         <Route path="/uploads" component={Uploads} />
         <Route path="/import" component={ImportData} />

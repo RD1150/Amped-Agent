@@ -13,6 +13,10 @@ interface RenderTemplateParams {
   phone?: string;
   email?: string;
   website?: string;
+  agentName?: string;
+  licenseNumber?: string;
+  brokerageName?: string;
+  brokerageDRE?: string;
 }
 
 const colorSchemeColors: Record<string, { primary: string; secondary: string; text: string }> = {
@@ -26,7 +30,7 @@ const colorSchemeColors: Record<string, { primary: string; secondary: string; te
 };
 
 export async function renderTemplate(params: RenderTemplateParams): Promise<string> {
-  const { template, postText, businessName, tagline, headshotUrl, primaryColor, platform = "multi", phone, email, website } = params;
+  const { template, postText, businessName, tagline, headshotUrl, primaryColor, platform = "multi", phone, email, website, agentName, licenseNumber, brokerageName, brokerageDRE } = params;
   
   // Get platform-specific dimensions
   const platformSize = getPlatformSize(platform);
@@ -49,7 +53,7 @@ export async function renderTemplate(params: RenderTemplateParams): Promise<stri
   await renderBackgroundImage(ctx, template, platformSize.width, platformSize.height);
 
   // Add dark sidebar overlay
-  await renderSidebarOverlay(ctx, template, brandColor, businessName, tagline, headshotUrl, phone, email, website, platformSize.width, platformSize.height);
+  await renderSidebarOverlay(ctx, template, brandColor, businessName, tagline, headshotUrl, phone, email, website, agentName, licenseNumber, brokerageName, brokerageDRE, platformSize.width, platformSize.height);
 
   // Add main content text
   await renderMainContent(ctx, template, postText, platformSize.width, platformSize.height);
@@ -105,6 +109,10 @@ async function renderSidebarOverlay(
   phone?: string,
   email?: string,
   website?: string,
+  agentName?: string,
+  licenseNumber?: string,
+  brokerageName?: string,
+  brokerageDRE?: string,
   width: number = 1080,
   height: number = 1080
 ) {
@@ -190,7 +198,32 @@ async function renderSidebarOverlay(
     websiteLines.forEach((line, index) => {
       ctx.fillText(line, padding + 30, currentY + (index * 24));
     });
-    currentY += websiteLines.length * 24;
+    currentY += websiteLines.length * 24 + 20;
+  }
+
+  // DRE Compliance Information
+  if (agentName && licenseNumber) {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.font = "14px Arial, sans-serif";
+    ctx.textAlign = "left";
+    const dreText = `${agentName} | DRE #${licenseNumber}`;
+    const dreLines = wrapText(ctx, dreText, sidebarWidth - padding * 2);
+    dreLines.forEach((line, index) => {
+      ctx.fillText(line, padding, currentY + (index * 20));
+    });
+    currentY += dreLines.length * 20 + 10;
+  }
+
+  if (brokerageName && brokerageDRE) {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.font = "14px Arial, sans-serif";
+    ctx.textAlign = "left";
+    const brokerageDREText = `${brokerageName} | DRE #${brokerageDRE}`;
+    const brokerageLines = wrapText(ctx, brokerageDREText, sidebarWidth - padding * 2);
+    brokerageLines.forEach((line, index) => {
+      ctx.fillText(line, padding, currentY + (index * 20));
+    });
+    currentY += brokerageLines.length * 20;
   }
 }
 

@@ -41,7 +41,8 @@ import {
   Moon,
   TrendingUp,
   Newspaper,
-  Lightbulb
+  Lightbulb,
+  Home
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -50,23 +51,26 @@ import { Button } from "./ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
 import FirstPostOnboarding from "./FirstPostOnboarding";
 
-// Simplified menu grouped by function
+// Organized menu structure
 const menuItems = [
-  // CREATE section
-  { icon: Sparkles, label: "Create Content", path: "/generate" },
-  { icon: Calendar, label: "Content Calendar", path: "/" },
+  // HOME
+  { icon: Home, label: "Home", path: "/dashboard" },
+  
+  // CONTENT section
+  { icon: Sparkles, label: "Generate Post", path: "/generate" },
+  { icon: Calendar, label: "Content Calendar", path: "/calendar" },
+  { icon: Upload, label: "Upload Content", path: "/uploads" },
   
   // SCHEDULE section
   { icon: Clock, label: "Schedule Posts", path: "/schedules" },
-  { icon: Link2, label: "Connect Accounts", path: "/integrations" },
   
   // AUTHORITY section
   { icon: TrendingUp, label: "Market Insights", path: "/market-stats" },
-  { icon: Newspaper, label: "Trending Topics", path: "/trending-news" },
   { icon: Lightbulb, label: "Expert Hooks", path: "/hooks" },
   
   // SETTINGS section
-  { icon: User, label: "Your Brand", path: "/persona" },
+  { icon: User, label: "Persona & Brand", path: "/persona" },
+  { icon: Link2, label: "Integrations", path: "/integrations" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 

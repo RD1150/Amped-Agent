@@ -193,6 +193,10 @@ export default function AIGenerate() {
         phone: persona?.phoneNumber || undefined,
         email: persona?.emailAddress || undefined,
         website: persona?.websiteUrl || undefined,
+        agentName: persona?.agentName || undefined,
+        licenseNumber: persona?.licenseNumber || undefined,
+        brokerageName: persona?.brokerageName || undefined,
+        brokerageDRE: persona?.brokerageDRE || undefined,
       });
       
       setGeneratedImage(imageUrl);

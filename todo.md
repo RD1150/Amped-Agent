@@ -1173,3 +1173,26 @@
 - [x] Updated Privacy Policy page
 - [x] Terms and Privacy accessible via direct URLs (/terms, /privacy)
 - [ ] Add Terms and Privacy links to footer of dashboard pages
+
+## Routing & Welcome Dashboard (IN PROGRESS - Jan 27, 2026)
+- [x] Create welcoming Home/Dashboard page for logged-in users
+- [x] Show "Welcome back, [Agent Name]!" greeting
+- [x] Display quick stats (posts this month, scheduled posts, engagement)
+- [x] Add quick action buttons (Generate Post, View Calendar, Upload Content)
+- [x] Show getting started guide for new users
+- [x] Add helpful tips section
+- [x] Update App.tsx routing: /dashboard shows Home, /calendar shows ContentCalendar
+- [x] Update sidebar menu structure with organized sections
+- [x] Organize menu: Home, Content (Generate, Calendar, Uploads), Schedule, Authority (Market Insights, Hooks), Settings (Persona, Integrations, Settings)
+- [x] Add /dashboard route for home page
+- [x] Update sidebar "Home" link to point to /dashboard
+- [ ] Add collapsible dropdown sections to sidebar (future enhancement)
+
+## DRE Compliance on Templates (COMPLETED - Jan 27, 2026)
+- [x] Update template renderer to display agent DRE license number
+- [x] Display format: "Agent Name | DRE #XXXXX"
+- [x] Update template renderer to display brokerage DRE
+- [x] Display format: "Brokerage Name | DRE #XXXXX"
+- [x] Position compliance info on sidebar overlay (below contact info)
+- [x] Updated AIGenerate and FirstPostOnboarding to pass DRE fields
+- [ ] Test that DRE info appears on all generated templates
