@@ -1083,3 +1083,35 @@
 - [x] Fix FirstPostOnboarding modal scrolling - content is cut off, can't see INVESTING section
 - [x] Add overflow-y-auto and max-h-[70vh] to modal content container
 - [x] Test scrolling works on all screen sizes
+
+## Template Visual Redesign (CRITICAL - IN PROGRESS)
+- [ ] Design new template layout system with beautiful home photography backgrounds
+- [ ] Add professional overlay system (dark sidebar, transparent overlays)
+- [ ] Integrate image generation API for context-aware home photos:
+  - Luxury: Mansions, estates, high-end interiors
+  - Regular: Family homes, suburban houses, nice interiors
+  - First-Time: Starter homes, condos, townhomes
+  - Expired: Well-staged professional photos
+  - Urgent: Clean, move-in ready homes
+  - FSBOs: Homeowner-friendly properties
+  - Investors: Investment properties, rentals
+- [ ] Add agent branding elements:
+  - Agent headshot placement
+  - Contact info overlay (name, DRE#, brokerage, phone)
+  - Vertical sidebar text (like "NEW TRENDS")
+  - CTA buttons (Read Caption, Explore)
+- [ ] Create 5-6 layout variations matching example style
+- [ ] Update templateRenderer.ts to use new design system
+- [ ] Test all 110+ templates with new visual design
+- [ ] Ensure images are beautiful, inviting, and stop the scroll
+
+## Template Background Images (COMPLETED - Jan 26, 2026)
+- [x] Generated 50 high-quality background images for templates (8 luxury buyers, 8 luxury sellers, 6 buyers, 6 sellers, 4 first-time sellers, 6 expired listings, 4 urgent sellers, 4 FSBOs, 4 investors)
+- [x] Created background image mapping system (templateBackgrounds.ts)
+- [x] Implemented template renderer with background images and dark sidebar overlay design
+- [x] Integrated agent branding (headshot, contact info, business name) into templates
+- [x] Updated AIGenerate page to pass contact information to template renderer
+- [x] Updated FirstPostOnboarding to pass contact information to template renderer
+- [x] Created unit tests for template background system (7 tests passing)
+- [ ] Test template rendering end-to-end with complete persona data
+- [ ] Verify all 110 templates render correctly across all platform sizes

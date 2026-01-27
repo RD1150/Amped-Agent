@@ -55,6 +55,9 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
         tagline: persona?.tagline || undefined,
         headshotUrl: persona?.headshotUrl || undefined,
         primaryColor: persona?.primaryColor || undefined,
+        phone: persona?.phoneNumber || undefined,
+        email: persona?.emailAddress || undefined,
+        website: persona?.websiteUrl || undefined,
       });
 
       setGeneratedImage(imageUrl);

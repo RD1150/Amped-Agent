@@ -1,5 +1,6 @@
 import type { Template } from "../../../shared/templates";
 import { type SocialPlatform, getPlatformSize } from "../../../shared/platformSizes";
+import { getTemplateBackground } from "./templateBackgrounds";
 
 interface RenderTemplateParams {
   template: Template;
@@ -9,6 +10,9 @@ interface RenderTemplateParams {
   headshotUrl?: string;
   primaryColor?: string;
   platform?: SocialPlatform;
+  phone?: string;
+  email?: string;
+  website?: string;
 }
 
 const colorSchemeColors: Record<string, { primary: string; secondary: string; text: string }> = {
@@ -22,7 +26,7 @@ const colorSchemeColors: Record<string, { primary: string; secondary: string; te
 };
 
 export async function renderTemplate(params: RenderTemplateParams): Promise<string> {
-  const { template, postText, businessName, tagline, headshotUrl, primaryColor, platform = "multi" } = params;
+  const { template, postText, businessName, tagline, headshotUrl, primaryColor, platform = "multi", phone, email, website } = params;
   
   // Get platform-specific dimensions
   const platformSize = getPlatformSize(platform);
@@ -41,16 +45,14 @@ export async function renderTemplate(params: RenderTemplateParams): Promise<stri
     throw new Error("Could not get canvas context");
   }
 
-  // Apply design style
-  await renderDesignStyle(ctx, template, colors, brandColor, platformSize.width, platformSize.height);
+  // Load and render background image
+  await renderBackgroundImage(ctx, template, platformSize.width, platformSize.height);
 
-  // Add content
-  await renderContent(ctx, template, postText, businessName, tagline, colors);
+  // Add dark sidebar overlay
+  await renderSidebarOverlay(ctx, template, brandColor, businessName, tagline, headshotUrl, phone, email, website, platformSize.width, platformSize.height);
 
-  // Add headshot if provided
-  if (headshotUrl) {
-    await renderHeadshot(ctx, headshotUrl);
-  }
+  // Add main content text
+  await renderMainContent(ctx, template, postText, platformSize.width, platformSize.height);
 
   // Convert to blob and return URL
   return new Promise((resolve, reject) => {
@@ -64,198 +66,200 @@ export async function renderTemplate(params: RenderTemplateParams): Promise<stri
   });
 }
 
-async function renderDesignStyle(
+async function renderBackgroundImage(
   ctx: CanvasRenderingContext2D,
   template: Template,
-  colors: { primary: string; secondary: string; text: string },
-  brandColor: string,
   width: number,
   height: number
 ) {
-  const { designStyle } = template;
-
-  switch (designStyle) {
-    case "modern":
-      // Clean gradient background
-      const modernGradient = ctx.createLinearGradient(0, 0, width, height);
-      modernGradient.addColorStop(0, colors.primary);
-      modernGradient.addColorStop(1, colors.secondary);
-      ctx.fillStyle = modernGradient;
-      ctx.fillRect(0, 0, width, height);
-      
-      // Add subtle pattern
-      ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-      const patternCount = Math.floor(width / 60);
-      for (let i = 0; i < patternCount; i++) {
-        ctx.fillRect(i * 60, 0, 30, height);
-      }
-      break;
-
-    case "bold":
-      // Vibrant gradient
-      const boldGradient = ctx.createLinearGradient(0, 0, width, height);
-      boldGradient.addColorStop(0, colors.primary);
-      boldGradient.addColorStop(0.5, brandColor);
-      boldGradient.addColorStop(1, colors.secondary);
-      ctx.fillStyle = boldGradient;
-      ctx.fillRect(0, 0, width, height);
-      
-      // Add geometric shapes (scaled to canvas size)
-      ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-      ctx.beginPath();
-      ctx.arc(width * 0.83, height * 0.19, width * 0.28, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(width * 0.19, height * 0.83, width * 0.23, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-
-    case "elegant":
-      // Sophisticated solid background
+  return new Promise<void>((resolve, reject) => {
+    const backgroundUrl = getTemplateBackground(template.category, 0);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    
+    img.onload = () => {
+      // Draw background image to fill canvas
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve();
+    };
+    
+    img.onerror = () => {
+      console.warn("Failed to load background image, using solid color");
+      // Fallback to solid color
       ctx.fillStyle = "#1a1a2e";
       ctx.fillRect(0, 0, width, height);
-      
-      // Add gold accent border (scaled)
-      ctx.strokeStyle = brandColor;
-      ctx.lineWidth = 8;
-      ctx.strokeRect(width * 0.037, height * 0.037, width * 0.926, height * 0.926);
-      
-      // Inner border
-      ctx.strokeStyle = "rgba(201, 169, 98, 0.3)";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(width * 0.056, height * 0.056, width * 0.889, height * 0.889);
-      break;
+      resolve();
+    };
+    
+    img.src = backgroundUrl;
+  });
+}
 
-    case "data":
-      // Clean background for data visualization
-      ctx.fillStyle = "#0f172a";
-      ctx.fillRect(0, 0, width, height);
-      
-      // Grid pattern
-      ctx.strokeStyle = "rgba(148, 163, 184, 0.1)";
-      ctx.lineWidth = 1;
-      const gridSize = 60;
-      for (let i = 0; i < Math.max(width, height); i += gridSize) {
-        if (i < width) {
-          ctx.beginPath();
-          ctx.moveTo(i, 0);
-          ctx.lineTo(i, height);
-          ctx.stroke();
-        }
-        if (i < height) {
-          ctx.beginPath();
-          ctx.moveTo(0, i);
-          ctx.lineTo(width, i);
-          ctx.stroke();
-        }
-      }
-      
-      // Accent bar
-      ctx.fillStyle = colors.primary;
-      ctx.fillRect(0, 0, width, height * 0.019);
-      break;
+async function renderSidebarOverlay(
+  ctx: CanvasRenderingContext2D,
+  template: Template,
+  brandColor: string,
+  businessName?: string,
+  tagline?: string,
+  headshotUrl?: string,
+  phone?: string,
+  email?: string,
+  website?: string,
+  width: number = 1080,
+  height: number = 1080
+) {
+  // Calculate sidebar width (30% of canvas width)
+  const sidebarWidth = width * 0.3;
+  
+  // Draw dark overlay sidebar on the left
+  ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+  ctx.fillRect(0, 0, sidebarWidth, height);
 
-    case "minimal":
-      // Clean white background
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, width, height);
-      
-      // Subtle accent
-      ctx.fillStyle = brandColor;
-      ctx.fillRect(0, 0, width, height * 0.009);
-      ctx.fillRect(0, height * 0.991, width, height * 0.009);
-      break;
+  // Add brand color accent stripe
+  ctx.fillStyle = brandColor;
+  ctx.fillRect(0, 0, 8, height);
 
-    case "luxury":
-      // Dark elegant background
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const luxuryGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.65);
-      luxuryGradient.addColorStop(0, "#2d2d3a");
-      luxuryGradient.addColorStop(1, "#1a1a2e");
-      ctx.fillStyle = luxuryGradient;
-      ctx.fillRect(0, 0, width, height);
-      
-      // Gold accents
-      ctx.fillStyle = brandColor;
-      ctx.fillRect(0, height * 0.48, width, height * 0.037);
-      break;
+  // Vertical text positioning
+  let currentY = 80;
+  const padding = 40;
 
-    default:
-      // Default gradient
-      const defaultGradient = ctx.createLinearGradient(0, 0, width, height);
-      defaultGradient.addColorStop(0, colors.primary);
-      defaultGradient.addColorStop(1, colors.secondary);
-      ctx.fillStyle = defaultGradient;
-      ctx.fillRect(0, 0, width, height);
+  // Agent headshot at top (if provided)
+  if (headshotUrl) {
+    await renderHeadshot(ctx, headshotUrl, sidebarWidth / 2, currentY + 80);
+    currentY += 200;
+  }
+
+  // Business name
+  if (businessName) {
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 24px Arial, sans-serif";
+    ctx.textAlign = "center";
+    const nameLines = wrapText(ctx, businessName.toUpperCase(), sidebarWidth - padding * 2);
+    nameLines.forEach((line) => {
+      ctx.fillText(line, sidebarWidth / 2, currentY);
+      currentY += 32;
+    });
+    currentY += 20;
+  }
+
+  // Tagline
+  if (tagline) {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+    ctx.font = "18px Arial, sans-serif";
+    ctx.textAlign = "center";
+    const taglineLines = wrapText(ctx, tagline, sidebarWidth - padding * 2);
+    taglineLines.forEach((line) => {
+      ctx.fillText(line, sidebarWidth / 2, currentY);
+      currentY += 26;
+    });
+    currentY += 40;
+  }
+
+  // Divider line
+  ctx.strokeStyle = brandColor;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(padding, currentY);
+  ctx.lineTo(sidebarWidth - padding, currentY);
+  ctx.stroke();
+  currentY += 40;
+
+  // Contact information
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "16px Arial, sans-serif";
+  ctx.textAlign = "left";
+
+  if (phone) {
+    ctx.fillText("📞", padding, currentY);
+    ctx.fillText(phone, padding + 30, currentY);
+    currentY += 30;
+  }
+
+  if (email) {
+    ctx.fillText("✉️", padding, currentY);
+    const emailLines = wrapText(ctx, email, sidebarWidth - padding * 2 - 30);
+    emailLines.forEach((line, index) => {
+      ctx.fillText(line, padding + 30, currentY + (index * 24));
+    });
+    currentY += emailLines.length * 24 + 10;
+  }
+
+  if (website) {
+    ctx.fillText("🌐", padding, currentY);
+    const websiteLines = wrapText(ctx, website, sidebarWidth - padding * 2 - 30);
+    websiteLines.forEach((line, index) => {
+      ctx.fillText(line, padding + 30, currentY + (index * 24));
+    });
+    currentY += websiteLines.length * 24;
   }
 }
 
-async function renderContent(
+async function renderMainContent(
   ctx: CanvasRenderingContext2D,
   template: Template,
   postText: string,
-  businessName?: string,
-  tagline?: string,
-  colors?: { primary: string; secondary: string; text: string }
+  width: number = 1080,
+  height: number = 1080
 ) {
-  const textColor = colors?.text || "#ffffff";
-  
-  // Business name at top
-  if (businessName) {
-    ctx.fillStyle = textColor;
-    ctx.font = "bold 32px Arial, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(businessName.toUpperCase(), 540, 120);
-  }
+  const sidebarWidth = width * 0.3;
+  const contentX = sidebarWidth + 60;
+  const contentWidth = width - sidebarWidth - 120;
 
-  // Main content - extract title from post text
+  // Extract title from post text
   const title = extractTitle(postText, template);
-  ctx.fillStyle = textColor;
-  ctx.font = template.designStyle === "elegant" ? "bold 56px Georgia, serif" : "bold 56px Arial, sans-serif";
-  ctx.textAlign = "center";
-  
-  // Word wrap title
-  const titleLines = wrapText(ctx, title, 900);
-  const titleY = 540 - (titleLines.length * 35);
+
+  // Draw semi-transparent overlay for text readability
+  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+  ctx.fillRect(sidebarWidth, height * 0.35, width - sidebarWidth, height * 0.3);
+
+  // Main title
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 48px Arial, sans-serif";
+  ctx.textAlign = "left";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+
+  const titleLines = wrapText(ctx, title, contentWidth);
+  const titleY = height * 0.45;
   titleLines.forEach((line, index) => {
-    ctx.fillText(line, 540, titleY + (index * 70));
+    ctx.fillText(line, contentX, titleY + (index * 60));
   });
 
-  // Tagline at bottom
-  if (tagline) {
-    ctx.fillStyle = textColor;
-    ctx.font = "24px Arial, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(tagline, 540, 980);
-  }
-
-  // Template name watermark
-  ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-  ctx.font = "16px Arial, sans-serif";
-  ctx.textAlign = "right";
-  ctx.fillText(template.name, 1040, 1060);
+  // Reset shadow
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
 }
 
-async function renderHeadshot(ctx: CanvasRenderingContext2D, headshotUrl: string) {
-  return new Promise<void>((resolve, reject) => {
+async function renderHeadshot(
+  ctx: CanvasRenderingContext2D,
+  headshotUrl: string,
+  x: number,
+  y: number
+) {
+  return new Promise<void>((resolve) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
-      // Draw circular headshot in bottom left
+      const radius = 70;
+      
+      // Draw circular headshot
       ctx.save();
       ctx.beginPath();
-      ctx.arc(150, 930, 80, 0, Math.PI * 2);
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.closePath();
       ctx.clip();
-      ctx.drawImage(img, 70, 850, 160, 160);
+      ctx.drawImage(img, x - radius, y - radius, radius * 2, radius * 2);
       ctx.restore();
       
-      // Add border
+      // Add white border
       ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(150, 930, 80, 0, Math.PI * 2);
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.stroke();
       
       resolve();

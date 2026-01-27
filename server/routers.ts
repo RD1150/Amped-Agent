@@ -319,7 +319,9 @@ ${formatInstructions}`;
           ],
         });
         
-        const content = response.choices[0].message.content || "";
+        const content = typeof response.choices[0].message.content === 'string' 
+          ? response.choices[0].message.content 
+          : JSON.stringify(response.choices[0].message.content || "");
         
         // Save to database
         const post = await db.createContentPost({
