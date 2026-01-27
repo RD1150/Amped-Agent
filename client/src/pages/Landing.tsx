@@ -66,7 +66,7 @@ export default function Landing() {
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Realty Content Agent creates professional, market-aware content that looks like it came from an experienced real estate agent — not an AI tool.
+              Authority Content creates professional, market-aware content that looks like it came from an experienced real estate agent — not an AI tool.
             </p>
             
             <p className="text-lg font-medium">
@@ -119,12 +119,12 @@ export default function Landing() {
                 </CardContent>
               </Card>
 
-              {/* Realty Content Agent Example */}
+              {/* Authority Content Example */}
               <Card className="border-2 border-primary">
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-center gap-2 text-primary font-semibold">
                     <CheckCircle2 className="h-5 w-5" />
-                    Realty Content Agent
+                    Authority Content
                   </div>
                   <div className="bg-muted p-4 rounded-lg text-sm space-y-2">
                     <p className="font-medium">Beverly Hills inventory dropped 18% this quarter</p>
@@ -257,7 +257,7 @@ export default function Landing() {
               Ready to Create Content You're Proud Of?
             </h2>
             <p className="text-xl text-muted-foreground">
-              Join real estate professionals who trust Realty Content Agent to consistently produce high-quality, credible content.
+              Join real estate professionals who trust Authority Content to consistently produce high-quality, credible content.
             </p>
             <Button size="lg" className="text-lg px-8" asChild>
               <a href={getLoginUrl()}>

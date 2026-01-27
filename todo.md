@@ -1239,3 +1239,15 @@ Goal: Reduce decision friction and build trust by organizing formats by intent, 
 - [x] Add visual elements for depth (accent lines above headings, card shadows)
 - [x] Maintain professional, premium feel
 - [ ] Test on mobile and desktop
+
+## Rebrand to Authority Content (COMPLETED - Jan 27, 2026)
+- [x] Update VITE_APP_TITLE environment variable to "Authority Content" (requires user to update in Settings → General)
+- [x] Update index.html title and meta tags
+- [x] Update Landing page copy (all instances of "Realty Content Agent")
+- [x] Update Dashboard welcome message
+- [x] Update navigation and footer references
+- [x] Update all client-side code references
+- [x] Update CSS theme comments
+- [ ] Update package.json name
+- [ ] Update README.md
+- [ ] Test all pages for remaining "Realty Content Agent" references

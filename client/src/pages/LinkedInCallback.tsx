@@ -107,7 +107,7 @@ export default function LinkedInCallback() {
             <div className="space-y-4">
               <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
                 <p className="text-sm text-green-600 dark:text-green-400">
-                  You can now post directly to your LinkedIn profile from Realty Content Agent!
+                  You can now post directly to your LinkedIn profile from Authority Content!
                 </p>
               </div>
               <p className="text-sm text-muted-foreground text-center">

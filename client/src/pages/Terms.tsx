@@ -11,14 +11,14 @@ export default function Terms() {
           <section>
             <h2 className="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
             <p>
-              By accessing and using Realty Content Agent ("Service"), you accept and agree to be bound by the terms and provision of this agreement.
+              By accessing and using Authority Content ("Service"), you accept and agree to be bound by the terms and provision of this agreement.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold mb-4">2. Description of Service</h2>
             <p>
-              Realty Content Agent provides AI-powered social media content generation and scheduling tools for real estate professionals.
+              Authority Content provides AI-powered social media content generation and scheduling tools for real estate professionals.
             </p>
           </section>
 

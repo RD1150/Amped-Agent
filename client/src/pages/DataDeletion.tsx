@@ -106,7 +106,7 @@ export default function DataDeletion() {
       <div>
         <h1 className="text-3xl font-bold text-foreground">Data Deletion Request</h1>
         <p className="text-muted-foreground mt-2">
-          Request permanent deletion of your Realty Content Agent account and associated data
+          Request permanent deletion of your Authority Content account and associated data
         </p>
       </div>
 
@@ -174,7 +174,7 @@ export default function DataDeletion() {
                 className="bg-background"
               />
               <p className="text-xs text-muted-foreground">
-                Enter the email address associated with your Realty Content Agent account
+                Enter the email address associated with your Authority Content account
               </p>
             </div>
 

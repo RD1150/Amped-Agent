@@ -147,7 +147,7 @@ export default function DashboardLayout({
               <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
                 <span className="text-xl font-bold text-primary">RCA</span>
               </div>
-              <span className="text-2xl font-bold text-gold-gradient">Realty Content Agent</span>
+              <span className="text-2xl font-bold text-gold-gradient">Authority Content</span>
             </div>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
               Premium real estate content creation and scheduling platform. Sign in to access your dashboard.
@@ -160,7 +160,7 @@ export default function DashboardLayout({
             size="lg"
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all"
           >
-            Sign in to Realty Content Agent
+            Sign in to Authority Content
           </Button>
         </div>
       </div>
@@ -262,7 +262,7 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <img src="/rca-logo.png" alt="Realty Content Agent" className="h-8 object-contain" />
+                  <img src="/rca-logo.png" alt="Authority Content" className="h-8 object-contain" />
                 </div>
               ) : (
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">

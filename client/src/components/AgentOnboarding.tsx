@@ -131,7 +131,7 @@ export default function AgentOnboarding() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Sparkles className="h-6 w-6 text-primary" />
-              <CardTitle className="text-2xl">Welcome to Realty Content Agent</CardTitle>
+              <CardTitle className="text-2xl">Welcome to Authority Content</CardTitle>
             </div>
             <span className="text-sm text-muted-foreground">Step {step} of 4</span>
           </div>

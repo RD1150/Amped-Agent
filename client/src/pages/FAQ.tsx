@@ -9,8 +9,8 @@ import {
 export default function FAQ() {
   const faqs = [
     {
-      question: "How does Realty Content Agent work?",
-      answer: "Realty Content Agent uses AI to generate professional social media content tailored to your target audience. Simply choose your audience (buyers, sellers, luxury buyers, etc.), select a template, and our AI creates engaging posts with beautiful graphics featuring your branding."
+      question: "How does Authority Content work?",
+      answer: "Authority Content uses AI to generate professional social media content tailored to your target audience. Simply choose your audience (buyers, sellers, luxury buyers, etc.), select a template, and our AI creates engaging posts with beautiful graphics featuring your branding."
     },
     {
       question: "Can I customize the generated content?",
@@ -56,7 +56,7 @@ export default function FAQ() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Frequently Asked Questions</h1>
           <p className="text-muted-foreground">
-            Find answers to common questions about Realty Content Agent
+            Find answers to common questions about Authority Content
           </p>
         </div>
 
