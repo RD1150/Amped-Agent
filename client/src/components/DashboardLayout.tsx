@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useAutoProvisionGHL } from "@/hooks/useAutoProvisionGHL";
+import { trpc } from "@/lib/trpc";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -110,6 +111,10 @@ export default function DashboardLayout({
     return !localStorage.getItem("rca_onboarding_complete");
   });
   const { loading, user } = useAuth();
+  const [, setLocation] = useLocation();
+  const { data: persona, isLoading: personaLoading } = trpc.persona.get.useQuery(undefined, {
+    enabled: !!user,
+  });
   
   // Automatically create GHL sub-account on first login
   useAutoProvisionGHL();
@@ -118,9 +123,16 @@ export default function DashboardLayout({
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
 
-  if (loading) {
+  if (loading || personaLoading) {
     return <DashboardLayoutSkeleton />
   }
+
+  // Redirect to onboarding if persona is not completed
+  useEffect(() => {
+    if (user && persona && !persona.isCompleted) {
+      setLocation("/onboarding");
+    }
+  }, [user, persona, setLocation]);
 
   if (!user) {
     return (
@@ -322,20 +334,43 @@ function DashboardLayoutContent({
       </div>
 
       <SidebarInset>
-        {isMobile && (
-          <div className="flex border-b border-border h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="tracking-tight text-foreground">
-                    {activeMenuItem?.label ?? "Menu"}
-                  </span>
-                </div>
-              </div>
-            </div>
+        {/* Top Navigation Bar */}
+        <div className="flex border-b border-border h-14 items-center justify-between bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
+          <div className="flex items-center gap-2">
+            {isMobile && <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />}
+            {isMobile && (
+              <span className="tracking-tight text-foreground">
+                {activeMenuItem?.label ?? "Menu"}
+              </span>
+            )}
           </div>
-        )}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setLocation("/persona")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Account
+            </button>
+            <button
+              onClick={() => setLocation("/faq")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              FAQ
+            </button>
+            <button
+              onClick={() => setLocation("/contact")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Contact
+            </button>
+            <button
+              onClick={() => setLocation("/help")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Help
+            </button>
+          </div>
+        </div>
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </SidebarInset>
     </>

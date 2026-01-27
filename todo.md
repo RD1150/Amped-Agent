@@ -1157,3 +1157,19 @@
 - [x] Add message customization textarea to post generation UI
 - [x] Pass custom message to template renderer
 - [x] Update template renderer to use custom message if provided, otherwise use generated content
+
+## Onboarding Redirect & Navigation Menu (COMPLETED - Jan 27, 2026)
+- [x] Add automatic redirect to /onboarding for new users (check if persona.isCompleted is false)
+- [x] Add onboarding check to DashboardLayout
+- [x] Create top navigation menu with: Account, FAQ, Contact, Help links
+- [x] Account link points to /persona (Persona & Brand settings)
+- [x] Create FAQ page with common questions
+- [x] Create Contact page with support form
+- [x] Update DashboardLayout to include top navigation bar
+- [ ] Test that new users are redirected to onboarding on first sign-in
+
+## Legal Pages (COMPLETED - Jan 27, 2026)
+- [x] Updated Terms of Service page
+- [x] Updated Privacy Policy page
+- [x] Terms and Privacy accessible via direct URLs (/terms, /privacy)
+- [ ] Add Terms and Privacy links to footer of dashboard pages

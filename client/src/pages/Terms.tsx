@@ -1,15 +1,9 @@
+import { Card } from "@/components/ui/card";
+
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-4">
-          <a href="/landing" className="flex items-center gap-2">
-            <img src="/rca-logo.png" alt="Realty Content Agent" className="h-8 object-contain" />
-          </a>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
+    <div className="container max-w-4xl py-8">
+      <div className="space-y-6">
         <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
         <p className="text-sm text-muted-foreground mb-8">Last Updated: January 14, 2026</p>
 
@@ -50,11 +44,6 @@ export default function Terms() {
           </section>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border">
-          <a href="/landing" className="text-primary hover:underline">
-            ← Back to Home
-          </a>
-        </div>
       </div>
     </div>
   );

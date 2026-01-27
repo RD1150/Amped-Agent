@@ -24,6 +24,8 @@ import FacebookCallback from "./pages/FacebookCallback";
 import LinkedInCallback from "./pages/LinkedInCallback";
 import InstagramSetup from "./pages/InstagramSetup";
 import AgentOnboarding from "./components/AgentOnboarding";
+import FAQ from "./pages/FAQ";
+import Contact from "./pages/Contact";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -69,6 +71,8 @@ function Router() {
         <Route path="/schedules" component={Schedules} />
         <Route path="/settings" component={Settings} />
         <Route path="/help" component={Help} />
+        <Route path="/faq" component={FAQ} />
+        <Route path="/contact" component={Contact} />
               <Route path="/404" component={NotFound} />
               <Route component={NotFound} />
             </Switch>
