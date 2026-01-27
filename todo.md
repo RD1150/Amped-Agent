@@ -1115,3 +1115,22 @@
 - [x] Created unit tests for template background system (7 tests passing)
 - [ ] Test template rendering end-to-end with complete persona data
 - [ ] Verify all 110 templates render correctly across all platform sizes
+
+## Agent Onboarding Flow Improvements (URGENT - Jan 26, 2026)
+- [ ] Investigate current FirstPostOnboarding flow and persona data collection
+- [ ] Check if persona data (headshot, business name, contact info) is being saved to database
+- [ ] Fix persona data not displaying in template rendering
+- [ ] Ensure headshot upload works and stores to S3
+- [ ] Verify business name, phone, email, website fields are collected and saved
+- [ ] Test complete onboarding flow from signup to first post generation
+- [ ] Add visual feedback showing persona data was saved successfully
+- [ ] Ensure templates use persona data from database, not hardcoded values
+
+## Template Rendering Bugs (COMPLETED - Jan 27, 2026)
+- [x] Remove template style name from generated post text (e.g., "Elegant & Evocative (Long-Form, Emotional)" should not appear in final post)
+- [x] Add file upload component to PersonaBrand page for headshot (instead of URL input)
+- [x] Ensure headshot uploads to S3 and saves URL to persona.headshotUrl
+- [x] Add visual preview of headshot after upload
+- [x] Created uploadHeadshot tRPC procedure with S3 integration
+- [x] Added headshotUrl to persona upsert input schema
+- [ ] Test that uploaded headshot appears in generated templates (requires user to complete onboarding)

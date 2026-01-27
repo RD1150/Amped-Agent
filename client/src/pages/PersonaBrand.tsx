@@ -36,6 +36,7 @@ export default function PersonaBrand() {
     emailAddress: "",
     socialHandles: "",
   });
+  const [isUploadingHeadshot, setIsUploadingHeadshot] = useState(false);
 
   const { data: persona, isLoading } = trpc.persona.get.useQuery();
   const utils = trpc.useUtils();
@@ -47,6 +48,16 @@ export default function PersonaBrand() {
     },
     onError: () => {
       toast.error("Failed to save brand settings");
+    },
+  });
+
+  const uploadHeadshot = trpc.uploads.uploadHeadshot.useMutation({
+    onSuccess: (result) => {
+      setFormData({ ...formData, headshotUrl: result.url });
+      toast.success('Headshot uploaded successfully!');
+    },
+    onError: () => {
+      toast.error('Failed to upload headshot');
     },
   });
 
@@ -71,6 +82,45 @@ export default function PersonaBrand() {
       });
     }
   }, [persona]);
+
+  const handleHeadshotUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setIsUploadingHeadshot(true);
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        
+        // Upload to S3 via tRPC
+        uploadHeadshot.mutate({
+          fileName: file.name,
+          fileData: base64,
+          mimeType: file.type,
+        });
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload headshot');
+    } finally {
+      setIsUploadingHeadshot(false);
+    }
+  };
 
   const handleSave = () => {
     upsertPersona.mutate({
@@ -169,15 +219,26 @@ export default function PersonaBrand() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="headshotUrl">Headshot URL</Label>
-            <Input
-              id="headshotUrl"
-              placeholder="https://example.com/headshot.jpg"
-              value={formData.headshotUrl}
-              onChange={(e) => setFormData({ ...formData, headshotUrl: e.target.value })}
-              className="bg-secondary border-border"
-            />
-            <p className="text-xs text-muted-foreground">Upload your professional headshot to a service like Imgur and paste the URL here</p>
+            <Label htmlFor="headshot">Professional Headshot</Label>
+            <div className="flex items-center gap-4">
+              {formData.headshotUrl && (
+                <img 
+                  src={formData.headshotUrl} 
+                  alt="Headshot preview" 
+                  className="w-20 h-20 rounded-full object-cover border-2 border-primary"
+                />
+              )}
+              <div className="flex-1">
+                <Input
+                  id="headshot"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleHeadshotUpload}
+                  className="bg-secondary border-border"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Upload a professional headshot (JPG, PNG, or WebP)</p>
+              </div>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="bio">Bio / About</Label>

@@ -37,6 +37,7 @@ export const appRouter = router({
         brandVoice: z.enum(["professional", "friendly", "luxury", "casual", "authoritative"]).optional(),
         primaryColor: z.string().optional(),
         logoUrl: z.string().optional(),
+        headshotUrl: z.string().optional(),
         websiteUrl: z.string().optional(),
         phoneNumber: z.string().optional(),
         emailAddress: z.string().optional(),
@@ -195,11 +196,23 @@ CTA (28-30s):
 Use emojis, be specific about what to show on camera, and make the hook IRRESISTIBLE.`;
         } else {
           systemPrompt = `You are a real estate content creator. Create engaging social media content for real estate professionals.
-Use a ${tone} tone. Generate 3 different caption variations:
-1. Elegant & Evocative (long-form, emotional)
-2. Direct & Benefit-Oriented (medium, value-focused)
-3. Short & Punchy (quick, CTA-driven)
-Include relevant hashtags and emojis.`;
+Use a ${tone} tone. Generate 3 different caption variations without labeling them:
+- First variation: long-form and emotional
+- Second variation: medium length and value-focused
+- Third variation: short and CTA-driven
+
+Format each variation as:
+
+## 1.
+[caption text]
+
+## 2.
+[caption text]
+
+## 3.
+[caption text]
+
+Include relevant hashtags and emojis in each variation. Do NOT include style labels like "Elegant & Evocative" in the output.`;
         }
         
         if (input.contentType === "property_listing" && input.propertyData) {
@@ -514,6 +527,41 @@ Focus on creating compelling, shareable content that drives engagement.`;
     list: protectedProcedure.query(async ({ ctx }) => {
       return db.getUploadsByUserId(ctx.user.id);
     }),
+    
+    uploadHeadshot: protectedProcedure
+      .input(z.object({
+        fileName: z.string(),
+        fileData: z.string(), // base64 encoded
+        mimeType: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { storagePut } = await import("./storage");
+        
+        // Convert base64 to buffer
+        const base64Data = input.fileData.split(',')[1];
+        const buffer = Buffer.from(base64Data, 'base64');
+        
+        // Generate unique file key
+        const timestamp = Date.now();
+        const fileExt = input.fileName.split('.').pop();
+        const fileKey = `headshots/${ctx.user.id}-${timestamp}.${fileExt}`;
+        
+        // Upload to S3
+        const { url } = await storagePut(fileKey, buffer, input.mimeType);
+        
+        // Save to uploads table
+        await db.createUpload({
+          userId: ctx.user.id,
+          fileName: input.fileName,
+          fileKey,
+          fileUrl: url,
+          fileType: input.mimeType,
+          fileSize: buffer.length,
+          category: "image",
+        });
+        
+        return { url };
+      }),
     
     create: protectedProcedure
       .input(z.object({
