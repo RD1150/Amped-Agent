@@ -123,16 +123,16 @@ export default function DashboardLayout({
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
 
-  if (loading || personaLoading) {
-    return <DashboardLayoutSkeleton />
-  }
-
   // Redirect to onboarding if persona is not completed
   useEffect(() => {
     if (user && persona && !persona.isCompleted) {
       setLocation("/onboarding");
     }
   }, [user, persona, setLocation]);
+
+  if (loading || personaLoading) {
+    return <DashboardLayoutSkeleton />
+  }
 
   if (!user) {
     return (
