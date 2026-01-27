@@ -1196,3 +1196,23 @@
 - [x] Position compliance info on sidebar overlay (below contact info)
 - [x] Updated AIGenerate and FirstPostOnboarding to pass DRE fields
 - [ ] Test that DRE info appears on all generated templates
+
+## Homepage Redesign - Agent Trust Focus (Jan 27, 2026)
+Core Message: "This tool produces content you'd be proud to put your name on."
+
+- [x] Hero Section: "Content That Sounds Like You — On Your Best Day"
+- [x] Hero support line: "Your clients will think you wrote it yourself"
+- [x] Hero CTA: "Generate a Post I'd Actually Use"
+- [x] Proof of Quality (above features): Side-by-side Generic AI vs Realty Content Agent
+- [x] Add question: "Would you feel comfortable posting this under your name?"
+- [x] "Why Agents Trust This" section: Features framed as risk reduction
+  - Content written for real estate (not generic)
+  - DRE-aware language and professional tone
+  - Editable, customizable output
+  - Brand voice control
+- [x] Control & Customization section: "You're always in control"
+- [x] Show: Tone selection, edit-before-post, branding, local framing
+- [x] Reliability section: "Never Post Content That Makes You Cringe"
+- [x] Bullets: No robotic phrasing, no generic hooks, no spammy CTAs, no "clearly AI" tone
+- [x] Removed: AI buzzwords, template counts from hero, "AI-powered" messaging
+- [ ] Test homepage on mobile and desktop
