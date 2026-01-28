@@ -1329,3 +1329,6 @@ Tasks:
 
 ## Headshot Size Increase
 - [x] Increase headshot radius from 70px to 90px for better visibility
+
+## Headshot Crop Positioning Fix
+- [x] Adjust crop to focus on upper portion of portrait photos (face area)

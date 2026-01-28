@@ -291,11 +291,12 @@ async function renderHeadshot(
         sourceX = (img.width - sourceWidth) / 2; // Center horizontally
         sourceY = 0;
       } else {
-        // Image is taller than wide - crop height
+        // Image is taller than wide (portrait) - crop height, focus on upper portion
         sourceWidth = img.width;
         sourceHeight = img.width; // Make it square
         sourceX = 0;
-        sourceY = (img.height - sourceHeight) / 2; // Center vertically
+        // Position crop in upper third instead of center to capture face
+        sourceY = Math.min(img.height * 0.15, (img.height - sourceHeight) * 0.3);
       }
       
       // Draw circular headshot with proper aspect ratio
