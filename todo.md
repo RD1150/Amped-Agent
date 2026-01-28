@@ -1272,3 +1272,37 @@ Tasks:
 - [ ] Update Dashboard with new colors
 - [ ] Test color contrast for accessibility (WCAG AA compliance)
 - [ ] Verify colors work correctly in browser
+
+## Typography Update (Jan 27, 2026)
+Add editorial serif font for headlines to reinforce authority and human tone.
+
+Tasks:
+- [x] Add Google Fonts link for Source Serif 4 to index.html
+- [x] Update CSS to use serif font for H1 and H2 only
+- [x] Keep current sans-serif for body text and UI elements
+- [ ] Test headline typography on Landing page
+- [ ] Test headline typography on Dashboard
+- [ ] Verify font loads correctly and looks professional
+
+## Gold Accent Usage Guidelines (Jan 27, 2026)
+CRITICAL: Muted gold (#C8A24D) is ONLY an accent color, never a background.
+
+Allowed uses:
+- Accent borders and dividers
+- Hover states on interactive elements
+- Small decorative elements (dots, lines)
+- Icons or badges (sparingly)
+- Text highlights (very sparingly)
+
+NOT allowed:
+- Button backgrounds (use Deep Slate #0F172A instead)
+- Section backgrounds
+- Card backgrounds
+- Large color blocks
+- Primary CTA backgrounds
+
+Tasks:
+- [ ] Review Landing page - ensure gold is accent only
+- [ ] Review Dashboard - ensure gold is accent only
+- [ ] Update button styles to use Deep Slate for backgrounds
+- [ ] Ensure CTAs use charcoal/slate, not gold backgrounds

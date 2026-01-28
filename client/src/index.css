@@ -125,6 +125,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Authority Content Typography: Serif headlines for editorial authority */
+  h1, h2 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
