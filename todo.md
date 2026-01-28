@@ -1251,3 +1251,24 @@ Goal: Reduce decision friction and build trust by organizing formats by intent, 
 - [ ] Update package.json name
 - [ ] Update README.md
 - [ ] Test all pages for remaining "Realty Content Agent" references
+
+## Brand Color Scheme Update (Jan 27, 2026)
+Brand positioning: "Quiet authority. Human confidence. Premium restraint."
+
+New Color Palette:
+- Slate Charcoal (#1E293B) - Primary headlines
+- Soft Charcoal (#374151) - Body text  
+- Pure White (#FFFFFF) - Background
+- Muted Gold (#C8A24D) - Accent
+- Deep Slate (#0F172A) - CTA/Buttons
+
+Tasks:
+- [x] Update CSS theme variables in index.css with new brand colors
+- [x] Replace primary color from blue to muted gold (#C8A24D)
+- [x] Update text colors to charcoal shades (#1E293B, #374151)
+- [x] Update button/CTA colors to deep slate (#0F172A)
+- [x] Update both light and dark theme variables
+- [ ] Update Landing page with new color scheme
+- [ ] Update Dashboard with new colors
+- [ ] Test color contrast for accessibility (WCAG AA compliance)
+- [ ] Verify colors work correctly in browser
