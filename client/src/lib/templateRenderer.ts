@@ -278,14 +278,40 @@ async function renderHeadshot(
     img.crossOrigin = "anonymous";
     img.onload = () => {
       const radius = 70;
+      const diameter = radius * 2;
       
-      // Draw circular headshot
+      // Calculate aspect ratio and crop dimensions
+      const imgAspect = img.width / img.height;
+      let sourceWidth, sourceHeight, sourceX, sourceY;
+      
+      if (imgAspect > 1) {
+        // Image is wider than tall - crop width
+        sourceHeight = img.height;
+        sourceWidth = img.height; // Make it square
+        sourceX = (img.width - sourceWidth) / 2; // Center horizontally
+        sourceY = 0;
+      } else {
+        // Image is taller than wide - crop height
+        sourceWidth = img.width;
+        sourceHeight = img.width; // Make it square
+        sourceX = 0;
+        sourceY = (img.height - sourceHeight) / 2; // Center vertically
+      }
+      
+      // Draw circular headshot with proper aspect ratio
       ctx.save();
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.closePath();
       ctx.clip();
-      ctx.drawImage(img, x - radius, y - radius, radius * 2, radius * 2);
+      
+      // Draw the cropped, centered portion of the image
+      ctx.drawImage(
+        img,
+        sourceX, sourceY, sourceWidth, sourceHeight, // Source rectangle (cropped)
+        x - radius, y - radius, diameter, diameter    // Destination rectangle (circle bounds)
+      );
+      
       ctx.restore();
       
       // Add white border

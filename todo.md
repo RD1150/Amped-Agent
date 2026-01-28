@@ -1322,3 +1322,7 @@ Tasks:
 ## Onboarding Modal UI Improvements
 - [x] Improve photo spot visibility in onboarding modal
 - [x] Remove "Your Branded Post Graphic" sentence from onboarding modal
+
+## Template Renderer Headshot Fix
+- [x] Fix squashed headshot by adding proper aspect ratio handling
+- [x] Add size parameter to ensure circular headshot maintains proportions
