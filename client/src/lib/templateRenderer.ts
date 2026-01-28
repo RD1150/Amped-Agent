@@ -133,8 +133,8 @@ async function renderSidebarOverlay(
 
   // Agent headshot at top (if provided)
   if (headshotUrl) {
-    await renderHeadshot(ctx, headshotUrl, sidebarWidth / 2, currentY + 80);
-    currentY += 200;
+    await renderHeadshot(ctx, headshotUrl, sidebarWidth / 2, currentY + 100);
+    currentY += 240;
   }
 
   // Business name
@@ -277,7 +277,7 @@ async function renderHeadshot(
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
-      const radius = 70;
+      const radius = 90;
       const diameter = radius * 2;
       
       // Calculate aspect ratio and crop dimensions

@@ -1326,3 +1326,6 @@ Tasks:
 ## Template Renderer Headshot Fix
 - [x] Fix squashed headshot by adding proper aspect ratio handling
 - [x] Add size parameter to ensure circular headshot maintains proportions
+
+## Headshot Size Increase
+- [x] Increase headshot radius from 70px to 90px for better visibility
