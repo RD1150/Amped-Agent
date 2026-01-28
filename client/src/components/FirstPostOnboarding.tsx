@@ -280,11 +280,10 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
             <div className="space-y-4">
               {generatedImage && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Your Branded Post Graphic</Label>
                   <img 
                     src={generatedImage} 
                     alt="Generated Post" 
-                    className="w-full rounded-lg border-2 border-primary/20"
+                    className="w-full rounded-lg border-4 border-primary shadow-lg"
                   />
                 </div>
               )}

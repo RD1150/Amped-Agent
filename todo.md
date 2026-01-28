@@ -1318,3 +1318,7 @@ Tasks:
 - [x] Add comments noting system-level paths cannot be changed
 - [x] Verified only 2 references remain (both are system-level file paths with explanatory comments)
 - [x] No "luxestate" references in user-facing code
+
+## Onboarding Modal UI Improvements
+- [x] Improve photo spot visibility in onboarding modal
+- [x] Remove "Your Branded Post Graphic" sentence from onboarding modal
