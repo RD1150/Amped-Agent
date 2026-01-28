@@ -55,7 +55,8 @@ export const videoRouter = router({
           imagePaths.push(imagePath);
         }
 
-        // Get music file path (in production, this would be from storage)
+        // Get music file path (system-level directory path, cannot be renamed)
+        // TODO: Move music files to S3 storage for production
         const musicPath = `/home/ubuntu/luxestate/server/assets/music/${musicId}.mp3`;
         
         // Build FFmpeg command for video generation

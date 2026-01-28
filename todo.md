@@ -1306,3 +1306,15 @@ Tasks:
 - [ ] Review Dashboard - ensure gold is accent only
 - [ ] Update button styles to use Deep Slate for backgrounds
 - [ ] Ensure CTAs use charcoal/slate, not gold backgrounds
+
+## Remove "luxestate" References (Jan 27, 2026)
+Replace all "luxestate" references with "authoritycontent" or "authority-content" throughout the codebase.
+
+Note: Project directory name (/home/ubuntu/luxestate) cannot be changed, but all internal code references should use "authoritycontent".
+
+Tasks:
+- [x] Update package.json name field to "authority-content"
+- [x] Search and replace "luxestate" in all source files
+- [x] Add comments noting system-level paths cannot be changed
+- [x] Verified only 2 references remain (both are system-level file paths with explanatory comments)
+- [x] No "luxestate" references in user-facing code
