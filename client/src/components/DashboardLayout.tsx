@@ -255,7 +255,7 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <img src="/rca-logo.png" alt="Authority Content" className="h-12 object-contain" />
+                  <img src="/logo.png" alt="Authority Content" className="h-20 object-contain" />
                 </div>
               ) : (
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">

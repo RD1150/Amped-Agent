@@ -409,3 +409,19 @@ export const hooks = mysqlTable("hooks", {
 
 export type Hook = typeof hooks.$inferSelect;
 export type InsertHook = typeof hooks.$inferInsert;
+
+/**
+ * Beta Signups - Track beta tester applications
+ */
+export const betaSignups = mysqlTable("beta_signups", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  brokerage: varchar("brokerage", { length: 255 }),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BetaSignup = typeof betaSignups.$inferSelect;
+export type InsertBetaSignup = typeof betaSignups.$inferInsert;

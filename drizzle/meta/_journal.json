@@ -106,6 +106,13 @@
       "when": 1769491315479,
       "tag": "0014_unknown_pestilence",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1769678473432,
+      "tag": "0015_many_sentinels",
+      "breakpoints": true
     }
   ]
 }

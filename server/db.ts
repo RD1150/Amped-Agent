@@ -16,7 +16,8 @@ import {
   usageTracking, UsageTracking, InsertUsageTracking,
   usageAlerts, UsageAlert, InsertUsageAlert,
   whiteLabelSettings, WhiteLabelSettings, InsertWhiteLabelSettings,
-  hooks, Hook
+  hooks, Hook,
+  betaSignups, BetaSignup, InsertBetaSignup
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -623,4 +624,32 @@ export async function incrementHookUsage(id: number) {
   await db.update(hooks)
     .set({ usageCount: sql`${hooks.usageCount} + 1` })
     .where(eq(hooks.id, id));
+}
+
+// ============ BETA SIGNUP HELPERS ============
+
+export async function createBetaSignup(data: {
+  name: string;
+  brokerage?: string;
+  email: string;
+  phone?: string;
+}) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create beta signup: database not available");
+    return;
+  }
+
+  try {
+    await db.insert(betaSignups).values({
+      name: data.name,
+      brokerage: data.brokerage || null,
+      email: data.email,
+      phone: data.phone || null,
+      createdAt: new Date(),
+    });
+  } catch (error) {
+    console.error("[Database] Failed to create beta signup:", error);
+    throw error;
+  }
 }

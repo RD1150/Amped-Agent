@@ -1356,3 +1356,33 @@ Tasks:
 ## Navigation and Layout Fixes
 - [x] Remove duplicate "Account, FAQ, Contact, Help" navigation in header
 - [x] Reduce excessive vertical gap between sidebar and main content
+
+## Make Logo Much Larger
+- [x] Increase logo size significantly for better brand presence
+
+## Beta Signup Form
+- [ ] Create beta tester signup form on landing page
+- [ ] Collect agent info: name, brokerage, email, phone
+- [ ] Limit to 10 beta slots
+
+## Sample Post Gallery
+- [ ] Build "See Examples" section on landing page
+- [ ] Show 6-8 generated posts with different templates
+- [ ] Demonstrate output quality and variety
+
+## Logo Size Increase (January 29, 2026)
+- [x] Increase logo size from h-12 to h-20 for better brand visibility
+
+## Beta Signup Form & Landing Page (January 29, 2026)
+- [x] Create public landing page with hero section
+- [x] Add beta signup form (name, brokerage, email, phone)
+- [x] Create beta_signups database table
+- [x] Implement backend tRPC procedure for form submission
+- [x] Add features section with icons
+- [x] Redirect authenticated users to dashboard
+
+## Sample Post Gallery (January 29, 2026)
+- [x] Add "See What You Can Create" section to landing page
+- [x] Create 8 sample post cards showing different content types
+- [x] Add hover effects and post type labels
+- [x] Include CTA button linking back to beta signup

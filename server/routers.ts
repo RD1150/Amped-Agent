@@ -1527,6 +1527,21 @@ Create a compelling social media post.`;
         return { success: true };
       }),
   }),
+
+  betaSignup: router({
+    submit: publicProcedure
+      .input(z.object({
+        name: z.string(),
+        brokerage: z.string().optional(),
+        email: z.string().email(),
+        phone: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // Store beta signup in database
+        await db.createBetaSignup(input);
+        return { success: true };
+      }),
+  }),
 });
 
 function calculateNextRunTime(
