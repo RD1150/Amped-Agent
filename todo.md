@@ -1332,3 +1332,6 @@ Tasks:
 
 ## Headshot Crop Positioning Fix
 - [x] Adjust crop to focus on upper portion of portrait photos (face area)
+
+## Headshot Crop From Bottom
+- [x] Change crop to start from top (sourceY = 0) and cut from bottom to preserve full head
