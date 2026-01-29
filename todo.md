@@ -1342,3 +1342,6 @@ Tasks:
 - [x] Show navigation sidebar with access to Account, Persona & Brand, Settings
 - [x] Display recent posts or activity summary
 - [x] Update routing to show home page instead of forcing into post creation
+
+## Sidebar Navigation Text Color
+- [x] Change sidebar navigation text to white for visibility against dark background

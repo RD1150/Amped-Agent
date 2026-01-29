@@ -278,9 +278,9 @@ function DashboardLayoutContent({
                       className={`h-10 transition-all font-normal ${isActive ? 'bg-sidebar-accent' : ''}`}
                     >
                       <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                        className={`h-4 w-4 ${isActive ? "text-primary" : "text-sidebar-foreground/70"}`}
                       />
-                      <span className={isActive ? "text-foreground" : "text-muted-foreground"}>{item.label}</span>
+                      <span className={isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/70"}>{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -298,10 +298,10 @@ function DashboardLayoutContent({
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-medium truncate leading-none text-foreground">
+                    <p className="text-sm font-medium truncate leading-none text-sidebar-foreground">
                       {user?.name || "-"}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate mt-1.5">
+                    <p className="text-xs text-sidebar-foreground/70 truncate mt-1.5">
                       {user?.email || "-"}
                     </p>
                   </div>
