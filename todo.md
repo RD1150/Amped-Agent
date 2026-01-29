@@ -1345,3 +1345,7 @@ Tasks:
 
 ## Sidebar Navigation Text Color
 - [x] Change sidebar navigation text to white for visibility against dark background
+
+## Content Generator Layout Improvement
+- [x] Center the Generate Content section
+- [x] Increase size/scale of the content type cards for better visibility
