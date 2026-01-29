@@ -1349,3 +1349,6 @@ Tasks:
 ## Content Generator Layout Improvement
 - [x] Center the Generate Content section
 - [x] Increase size/scale of the content type cards for better visibility
+
+## Sidebar Logo Size Increase
+- [x] Increase logo size in sidebar header for better brand visibility
