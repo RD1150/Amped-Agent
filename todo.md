@@ -1386,3 +1386,16 @@ Tasks:
 - [x] Create 8 sample post cards showing different content types
 - [x] Add hover effects and post type labels
 - [x] Include CTA button linking back to beta signup
+
+## Authority Content Logo Rebrand (January 2026)
+- [x] Generate new professional logo for Authority Content brand
+- [x] Update logo in sidebar (DashboardLayout) - increased to 160px (2x size)
+- [ ] Update logo on landing page
+- [ ] Update favicon and app metadata
+- [ ] Update VITE_APP_TITLE to "Authority Content"
+
+## Authority Content Rebrand - Logo Update
+- [x] Generated new professional Authority Content logo with gold shield icon and accent line
+- [x] Replaced old logo.png with new professional design
+- [x] Logo displays at 80px height in sidebar with proper branding
+- [x] Logo matches brand color scheme (charcoal text with gold #D4AF37 accents)
