@@ -249,8 +249,7 @@ export default function AIGenerate() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">AI Content Generator</h1>
           <p className="text-muted-foreground mt-2">
@@ -258,7 +257,7 @@ export default function AIGenerate() {
           </p>
         </div>
 
-        <Tabs defaultValue="content" className="space-y-6">
+        <Tabs defaultValue="content" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="content">Text Content</TabsTrigger>
             <TabsTrigger value="images">AI Images</TabsTrigger>
@@ -789,6 +788,5 @@ export default function AIGenerate() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
   );
 }

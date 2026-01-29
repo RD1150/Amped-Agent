@@ -368,7 +368,7 @@ function DashboardLayoutContent({
             </button>
           </div>
         </div>
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+        <main className="flex-1 p-3 md:p-4">{children}</main>
       </SidebarInset>
     </>
   );

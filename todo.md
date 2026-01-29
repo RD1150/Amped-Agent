@@ -1352,3 +1352,7 @@ Tasks:
 
 ## Sidebar Logo Size Increase
 - [x] Increase logo size in sidebar header for better brand visibility
+
+## Navigation and Layout Fixes
+- [x] Remove duplicate "Account, FAQ, Contact, Help" navigation in header
+- [x] Reduce excessive vertical gap between sidebar and main content
