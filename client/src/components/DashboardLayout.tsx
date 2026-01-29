@@ -111,9 +111,7 @@ export default function DashboardLayout({
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    return !localStorage.getItem("rca_onboarding_complete");
-  });
+  // Onboarding is controlled by persona.isCompleted, not localStorage
   const { loading, user } = useAuth();
   const [, setLocation] = useLocation();
   const { data: persona, isLoading: personaLoading } = trpc.persona.get.useQuery(undefined, {
@@ -167,12 +165,7 @@ export default function DashboardLayout({
     );
   }
 
-  // Show onboarding for first-time users
-  if (showOnboarding) {
-    return (
-      <FirstPostOnboarding onComplete={() => setShowOnboarding(false)} />
-    );
-  }
+  // Onboarding is handled by redirect in useEffect above
 
   return (
     <SidebarProvider

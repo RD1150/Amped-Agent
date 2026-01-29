@@ -1335,3 +1335,10 @@ Tasks:
 
 ## Headshot Crop From Bottom
 - [x] Change crop to start from top (sourceY = 0) and cut from bottom to preserve full head
+
+## Dashboard Home Page
+- [x] Create proper dashboard home page with welcome message
+- [x] Add "Create New Post" primary action button
+- [x] Show navigation sidebar with access to Account, Persona & Brand, Settings
+- [x] Display recent posts or activity summary
+- [x] Update routing to show home page instead of forcing into post creation

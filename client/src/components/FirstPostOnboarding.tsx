@@ -25,6 +25,7 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
   const [isGenerating, setIsGenerating] = useState(false);
 
   const generatePost = trpc.content.generate.useMutation();
+  const updatePersona = trpc.persona.upsert.useMutation();
 
   const { data: persona } = trpc.persona.get.useQuery();
 
@@ -75,10 +76,16 @@ export default function FirstPostOnboarding({ onComplete }: FirstPostOnboardingP
     }
   };
 
-  const handleComplete = () => {
-    // Mark onboarding as complete
-    localStorage.setItem("rca_onboarding_complete", "true");
-    onComplete();
+  const handleComplete = async () => {
+    try {
+      // Mark onboarding as complete in database
+      await updatePersona.mutateAsync({ isCompleted: true });
+      localStorage.setItem("rca_onboarding_complete", "true");
+      onComplete();
+    } catch (error) {
+      console.error("Failed to complete onboarding:", error);
+      toast.error("Failed to save progress. Please try again.");
+    }
   };
 
   return (
