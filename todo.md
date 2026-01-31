@@ -1399,3 +1399,66 @@ Tasks:
 - [x] Replaced old logo.png with new professional design
 - [x] Logo displays at 80px height in sidebar with proper branding
 - [x] Logo matches brand color scheme (charcoal text with gold #D4AF37 accents)
+
+## Beta Launch Final Preparation (January 2026)
+- [ ] Update landing page logo to match new sidebar branding
+- [ ] Generate 8 actual sample post images for gallery section
+- [ ] Test complete onboarding flow (signup → info entry → headshot upload → first post generation → dashboard)
+- [ ] Verify all generated posts display correctly with proper branding
+- [ ] Ensure headshot cropping works correctly (crops from bottom for portraits)
+
+## CRITICAL: Social Media Posting & Scheduling (January 2026)
+- [ ] Audit existing OAuth integrations (Facebook, LinkedIn, GHL)
+- [ ] Design database schema for social media connections
+- [ ] Design database schema for scheduled posts queue
+- [ ] Implement Facebook posting API integration
+- [ ] Implement LinkedIn posting API integration
+- [ ] Implement Instagram posting (via Facebook Graph API)
+- [ ] Build "Connect Social Accounts" UI in Integrations page
+- [ ] Build "Post Now" functionality on generated posts
+- [ ] Build "Schedule Post" functionality with date/time picker
+- [ ] Integrate scheduling with Content Calendar
+- [ ] Add post status tracking (draft, scheduled, posted, failed)
+- [ ] Test end-to-end posting flow for each platform
+
+## Authority Content Rebrand
+- [x] Generate new professional logo for Authority Content brand
+- [x] Update logo in sidebar (DashboardLayout) - increased to 160px (2x size)
+
+## Beta Launch Final Preparation
+- [ ] Update landing page with new logo
+- [ ] Generate 8 sample post gallery images
+- [ ] Test complete onboarding flow end-to-end
+
+## CRITICAL: Social Media Posting & Scheduling (COMPLETED)
+- [x] OAuth connection flow for Facebook, LinkedIn, Instagram (already exists)
+- [x] Backend posting API procedures (postNow, schedulePost)
+- [x] PostingDialog component with platform selection
+- [x] "Post Now" button on AI Generate page
+- [x] "Schedule Post" functionality with date picker
+- [x] Platform selection checkboxes (Facebook, Instagram, LinkedIn)
+- [x] Integration status checking
+- [x] Post status tracking in database
+- [ ] Write unit tests for social posting procedures
+- [ ] Test end-to-end posting flow with real accounts
+
+## Landing Page Redesign (Current Priority)
+- [x] Research RealEstateContent.ai landing page structure
+- [x] Document competitor's key sections and features
+- [x] Redesign Authority Content landing page to match/exceed competitor
+- [x] Add hero section with clear value proposition
+- [x] Add features showcase section
+- [x] Add testimonials section
+- [x] Add clear CTAs throughout
+- [x] Ensure mobile responsive design
+- [x] Add 4-benefit grid with icons
+- [x] Add 5 numbered features (01-05) with detailed benefits
+- [x] Add simplicity message section
+- [x] Add footer with links
+
+## Instagram Creator Account Support
+- [x] Update Instagram integration to detect and support Creator accounts
+- [x] Modify Facebook OAuth scope to include Creator account permissions
+- [x] Update Integrations page UI to show Creator account support
+- [ ] Test Creator account connection flow
+- [ ] Test posting to Creator accounts

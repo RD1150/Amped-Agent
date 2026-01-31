@@ -197,7 +197,7 @@ export default function Integrations() {
               <div>
                 <CardTitle>Instagram</CardTitle>
                 <CardDescription>
-                  Post directly to your Instagram Business Account
+                  Post directly to your Instagram Business or Creator Account
                 </CardDescription>
               </div>
             </div>
@@ -237,11 +237,12 @@ export default function Integrations() {
           ) : (
             <div className="space-y-3">
               <div className="p-4 bg-muted/50 rounded-lg space-y-2">
-                <p className="text-sm font-medium">Connect Instagram Business Account</p>
+                <p className="text-sm font-medium">Connect Instagram Account</p>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                   <li>Requires Facebook Page connection first</li>
-                  <li>Must have Instagram Business Account</li>
+                  <li>Supports Business & Creator accounts</li>
                   <li>Post images and captions directly</li>
+                  <li>Schedule posts and manage content</li>
                 </ul>
               </div>
               {!facebookConnection?.isConnected ? (

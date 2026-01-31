@@ -31,6 +31,7 @@ import { Streamdown } from "streamdown";
 import DashboardLayout from "@/components/DashboardLayout";
 import { getFirstPost } from "@/lib/postFormatter";
 import ComprehensiveTemplateSelector from "@/components/ComprehensiveTemplateSelector";
+import { PostingDialog } from "@/components/PostingDialog";
 import type { Template } from "../../../shared/templates";
 
 type ContentType = "property_listing" | "market_report" | "trending_news" | "tips" | "neighborhood" | "custom";
@@ -53,6 +54,7 @@ export default function AIGenerate() {
   const [selectedTemplate, setSelectedTemplate] = useState<SelectedTemplate>(null);
   const [includeHeadshot, setIncludeHeadshot] = useState(true);
   const [customMessage, setCustomMessage] = useState("");
+  const [showPostingDialog, setShowPostingDialog] = useState(false);
 
   // Image generation states
   const [imagePrompt, setImagePrompt] = useState("");
@@ -249,6 +251,7 @@ export default function AIGenerate() {
   };
 
   return (
+    <>
       <div className="space-y-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">AI Content Generator</h1>
@@ -514,6 +517,10 @@ export default function AIGenerate() {
                         Save to Drafts
                       </Button>
                     </div>
+                    <Button onClick={() => setShowPostingDialog(true)} className="w-full mt-2">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Post to Social Media
+                    </Button>
                   </div>
                 )}
                 </CardContent>
@@ -788,5 +795,16 @@ export default function AIGenerate() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <PostingDialog
+        open={showPostingDialog}
+        onOpenChange={setShowPostingDialog}
+        content={generatedContent}
+        imageUrl={generatedImage}
+        onSuccess={() => {
+          toast.success("Content posted successfully!");
+        }}
+      />
+    </>
   );
 }

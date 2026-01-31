@@ -56,16 +56,21 @@ export const facebookRouter = router({
       const encodedState = Buffer.from(stateData).toString("base64url");
 
       // Facebook OAuth scopes - includes Instagram permissions
-      // Using only approved basic permissions for now
-      // Pages and Instagram permissions will be added after App Review
+      // Supports both Instagram Business and Creator accounts
       const scopes = [
-        "public_profile", // Basic profile info (always available)
-        "email", // User's email address (approved)
+        "public_profile", // Basic profile info
+        "email", // User's email address
+        "pages_show_list", // Access to user's Facebook Pages
+        "pages_read_engagement", // Read Page content
+        "pages_manage_posts", // Create and manage Page posts
+        "instagram_basic", // Access Instagram account info
+        "instagram_content_publish", // Publish content to Instagram (Business & Creator)
+        "instagram_manage_comments", // Manage Instagram comments
+        "instagram_manage_insights", // Access Instagram insights
       ];
       
-      // TODO: Add these after Facebook App Review approval:
-      // "pages_show_list", "pages_read_engagement", "pages_manage_posts"
-      // "instagram_basic", "instagram_content_publish"
+      // Note: These permissions work for both Instagram Business and Creator accounts
+      // Creator accounts must be connected to a Facebook Page (same as Business)
 
       const authUrl = new URL("https://www.facebook.com/v18.0/dialog/oauth");
       authUrl.searchParams.set("client_id", ENV.facebookAppId);

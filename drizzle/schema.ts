@@ -75,7 +75,8 @@ export const contentPosts = mysqlTable("content_posts", {
   status: mysqlEnum("status", ["draft", "scheduled", "published", "expired"]).default("draft"),
   scheduledAt: timestamp("scheduledAt"),
   publishedAt: timestamp("publishedAt"),
-  platforms: text("platforms"), // JSON array stored as text
+  platforms: text("platforms"), // JSON array stored as text - target platforms
+  postedPlatforms: text("postedPlatforms"), // JSON array - platforms where post was successfully published
   imageUrl: text("imageUrl"),
   propertyAddress: varchar("propertyAddress", { length: 500 }),
   propertyPrice: int("propertyPrice"),

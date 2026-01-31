@@ -11,6 +11,7 @@ import { stripeRouter } from "./routers/stripe";
 import { videoRouter } from "./routers/video";
 import { facebookRouter } from "./routers/facebook";
 import { linkedinRouter } from "./routers/linkedin";
+import { socialPostingRouter } from "./routers/socialPosting";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1542,6 +1543,8 @@ Create a compelling social media post.`;
         return { success: true };
       }),
   }),
+
+  socialPosting: socialPostingRouter,
 });
 
 function calculateNextRunTime(

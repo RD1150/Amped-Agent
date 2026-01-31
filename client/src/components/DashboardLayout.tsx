@@ -244,7 +244,7 @@ function DashboardLayoutContent({
           className="border-r border-sidebar-border"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center border-b border-sidebar-border">
+          <SidebarHeader className="h-48 justify-center border-b border-sidebar-border">
             <div className="flex items-center gap-3 px-2 transition-all w-full">
               <button
                 onClick={toggleSidebar}
