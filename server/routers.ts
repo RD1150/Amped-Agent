@@ -12,6 +12,7 @@ import { videoRouter } from "./routers/video";
 import { facebookRouter } from "./routers/facebook";
 import { linkedinRouter } from "./routers/linkedin";
 import { socialPostingRouter } from "./routers/socialPosting";
+import { autoreelsRouter } from "./routers/autoreels";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1491,6 +1492,9 @@ Create a compelling social media post.`;
 
   // LinkedIn OAuth
   linkedin: linkedinRouter,
+
+  // AutoReels Module
+  autoreels: autoreelsRouter,
 
   // Hook Engine
   hooks: router({

@@ -69,6 +69,13 @@ export const linkedinRouter = router({
       authUrl.searchParams.set("state", encodedState);
       authUrl.searchParams.set("scope", scopes.join(" "));
 
+      // Debug logging
+      console.log("[LinkedIn OAuth] Generating auth URL:");
+      console.log("  Client ID:", ENV.linkedinClientId);
+      console.log("  Redirect URI:", redirectUri);
+      console.log("  Scopes:", scopes.join(" "));
+      console.log("  Full URL:", authUrl.toString());
+
       return {
         authUrl: authUrl.toString(),
         state: encodedState,

@@ -17,4 +17,5 @@ export const ENV = {
   rapidApiKey: process.env.RAPIDAPI_KEY ?? "",
   linkedinClientId: process.env.LINKEDIN_CLIENT_ID ?? "",
   linkedinClientSecret: process.env.LINKEDIN_CLIENT_SECRET ?? "",
+  SHOTSTACK_API_KEY: process.env.SHOTSTACK_API_KEY ?? "",
 };

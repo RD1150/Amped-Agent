@@ -1462,3 +1462,72 @@ Tasks:
 - [x] Update Integrations page UI to show Creator account support
 - [ ] Test Creator account connection flow
 - [ ] Test posting to Creator accounts
+
+## Instagram Connection Issues (URGENT)
+- [ ] Verify UI text updates were applied (still showing "Business Account" only)
+- [ ] Check why Instagram connection not detecting Creator accounts
+- [ ] Add better error messages when no Instagram accounts found
+- [ ] Add debugging logs to Instagram connection flow
+- [ ] Test with actual Creator account to verify connection works
+- [ ] Update UI to show helpful troubleshooting steps
+
+## Social Media Integration Fixes (CRITICAL)
+
+### LinkedIn OAuth Fix (BLOCKING)
+- [ ] Check LinkedIn Client ID in environment variables
+- [ ] Verify LinkedIn redirect URI matches: https://authoritycontent.co/integrations/linkedin/callback
+- [ ] Confirm LinkedIn app scopes: r_liteprofile, w_member_social
+- [ ] Test LinkedIn OAuth flow from clean browser session
+- [ ] Add better error handling for OAuth failures
+
+### Instagram Strategy Pivot (By Design)
+- [ ] Remove "direct posting" claims for Instagram
+- [ ] Update UI to show Instagram as "Generate & Copy" only
+- [ ] Add "Copy to Clipboard" button for Instagram content
+- [ ] Update landing page messaging (no "post to Instagram" claims)
+- [ ] Update Integrations page to set proper expectations
+- [ ] Keep Instagram connection for profile data only
+
+### X (Twitter) Integration (NEW - Priority)
+- [ ] Add X OAuth configuration (API keys needed)
+- [ ] Create X OAuth callback route
+- [ ] Implement X posting API integration
+- [ ] Add X connection UI in Integrations page
+- [ ] Test X posting with images and text
+- [ ] Add X to platform selector in PostingDialog
+
+### TikTok Integration (NEW - Priority)
+- [ ] Add TikTok OAuth configuration (API keys needed)
+- [ ] Create TikTok OAuth callback route
+- [ ] Implement TikTok posting API integration
+- [ ] Add TikTok connection UI in Integrations page
+- [ ] Test TikTok posting with videos
+- [ ] Add TikTok to platform selector in PostingDialog
+
+### Messaging Updates
+- [ ] Update landing page: clarify which platforms support direct posting
+- [ ] Update features section: "Generate for Instagram, Post to X/TikTok/LinkedIn/Facebook"
+- [ ] Update PostingDialog: show Instagram as disabled with tooltip explanation
+- [ ] Add help text explaining Meta's Instagram publishing limitations
+
+## AutoReels Module (V1 MVP - Current Priority)
+- [x] Create AutoReels page component with navigation
+- [x] Build input form (bullets/caption/blog/listing text area)
+- [x] Add video settings controls (length: 7s/15s/30s, tone: calm/bold/authoritative/warm, niche: real estate)
+- [x] Implement hook generator (3 options per generation)
+- [x] Implement script generator (7-30 second conversational script)
+- [x] Implement caption + CTA generator (Instagram-ready, no hashtags)
+- [x] Build faceless video rendering engine (9:16 vertical, stock/AI visuals, smooth transitions)
+- [x] Add subtitle overlay system to video
+- [x] Integrate background music (low volume)
+- [x] Create video preview player component
+- [x] Add MP4 export functionality (no watermark for paid users)
+- [x] Implement auto-generated filename for exports
+- [x] Add loading state with progress indicator
+- [x] Add regeneration capability (limited by plan)
+- [ ] Write unit tests for hook/script/caption generators
+- [ ] Write unit tests for video rendering pipeline
+- [ ] Test complete user flow (input → generate → preview → export)
+- [x] Add error handling with graceful failures and clear messages
+- [x] Optimize for speed (target: under 60 seconds total generation time)
+- [ ] Add Stripe gating by tier (usage limits)

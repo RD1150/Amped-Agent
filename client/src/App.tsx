@@ -27,6 +27,7 @@ import AgentOnboarding from "./components/AgentOnboarding";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
+import AutoReels from "./pages/AutoReels";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -64,6 +65,7 @@ function Router() {
         <Route path="/import" component={ImportData} />
         <Route path="/integrations" component={Integrations} />
         <Route path="/generate" component={AIGenerate} />
+        <Route path="/autoreels" component={AutoReels} />
         <Route path="/market-stats" component={MarketStats} />
         <Route path="/hooks" component={Hooks} />
 

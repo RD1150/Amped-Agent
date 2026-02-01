@@ -15,7 +15,7 @@ export default function InstagramSetup() {
 
   const handleConnectInstagram = async (page: any) => {
     if (!page.instagram_business_account) {
-      toast.error("This page doesn't have an Instagram Business Account connected");
+      toast.error("This page doesn't have an Instagram account connected");
       return;
     }
 
@@ -75,9 +75,9 @@ export default function InstagramSetup() {
               <Instagram className="h-6 w-6 text-white" />
             </div>
             <div>
-              <CardTitle>Connect Instagram Business Account</CardTitle>
+              <CardTitle>Connect Instagram Account</CardTitle>
               <CardDescription>
-                Select a Facebook Page that has an Instagram Business Account connected
+                Select a Facebook Page that has an Instagram Business or Creator Account connected
               </CardDescription>
             </div>
           </div>
@@ -89,18 +89,19 @@ export default function InstagramSetup() {
                 <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
                 <div className="space-y-2 flex-1">
                   <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-                    No Instagram Business Accounts Found
+                    No Instagram Accounts Found
                   </p>
                   <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                    None of your Facebook Pages have an Instagram Business Account connected.
+                    None of your Facebook Pages have an Instagram Business or Creator Account connected.
                   </p>
                 </div>
               </div>
               <div className="space-y-2 pl-7">
                 <p className="text-sm font-medium">To connect Instagram:</p>
                 <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                  <li>Convert your Instagram account to a Business Account</li>
-                  <li>Connect it to your Facebook Page in Instagram settings</li>
+                  <li>Convert your Instagram to a Business or Creator Account</li>
+                  <li>Connect it to a Facebook Page in Instagram settings</li>
+                  <li>Make sure you granted all permissions during Facebook login</li>
                   <li>Come back here and refresh</li>
                 </ol>
               </div>
@@ -135,7 +136,7 @@ export default function InstagramSetup() {
                     <div className="space-y-1">
                       <p className="text-sm font-medium">{page.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        Facebook Page with Instagram Business Account
+                        Facebook Page with Instagram Account
                       </p>
                     </div>
                     <Button
