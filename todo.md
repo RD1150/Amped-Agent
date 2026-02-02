@@ -1802,3 +1802,7 @@ Tasks:
 - [x] Wire up frontend to call generateContent procedure
 - [x] Add loading states and error handling
 - [x] Integrate with Authority Profile (customer avatar, brand values, market context)
+
+## AutoReels Quick Prompt Enhancement
+- [x] Add 'Local Business Spotlight' quick prompt template
+- [x] Test Local Business Spotlight content generation

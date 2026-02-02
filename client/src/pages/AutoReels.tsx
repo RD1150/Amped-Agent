@@ -426,7 +426,8 @@ export default function AutoReels() {
                   { label: "Listing Promo", prompt: "Create a promotional post for a new luxury listing" },
                   { label: "Buyer Tips", prompt: "Share 3 essential tips for first-time home buyers" },
                   { label: "Seller Advice", prompt: "Explain how to prepare a home for sale to maximize value" },
-                  { label: "Neighborhood Spotlight", prompt: "Highlight the best features of a desirable neighborhood" }
+                  { label: "Neighborhood Spotlight", prompt: "Highlight the best features of a desirable neighborhood" },
+                  { label: "Local Business Spotlight", prompt: "Spotlight a local business (shop, restaurant, or service) that makes our community special" }
                 ].map((template) => (
                   <Button
                     key={template.label}
