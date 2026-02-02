@@ -116,6 +116,22 @@ export async function updateUser(userId: number, data: Partial<InsertUser>) {
   return { success: true };
 }
 
+export async function updateUserAvatar(
+  userId: number,
+  avatarImageUrl: string | null,
+  avatarVideoUrl: string | null
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const updateData: any = { updatedAt: new Date() };
+  if (avatarImageUrl !== null) updateData.avatarImageUrl = avatarImageUrl;
+  if (avatarVideoUrl !== null) updateData.avatarVideoUrl = avatarVideoUrl;
+  
+  await db.update(users).set(updateData).where(eq(users.id, userId));
+  return { success: true };
+}
+
 // ============ PERSONA HELPERS ============
 
 export async function getPersonaByUserId(userId: number) {

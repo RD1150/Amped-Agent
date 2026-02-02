@@ -24,6 +24,16 @@ export const appRouter = router({
       ctx.res.clearCookie("session", { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
+    updateAvatarImage: protectedProcedure
+      .input(z.object({ avatarImageUrl: z.string().url() }))
+      .mutation(async ({ ctx, input }) => {
+        return db.updateUserAvatar(ctx.user.id, input.avatarImageUrl, null);
+      }),
+    updateAvatarVideo: protectedProcedure
+      .input(z.object({ avatarVideoUrl: z.string().url() }))
+      .mutation(async ({ ctx, input }) => {
+        return db.updateUserAvatar(ctx.user.id, null, input.avatarVideoUrl);
+      }),
   }),
 
   persona: router({

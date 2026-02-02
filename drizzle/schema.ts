@@ -24,6 +24,9 @@ export const users = mysqlTable("users", {
   ghlSubAccountId: varchar("ghlSubAccountId", { length: 255 }),
   ghlLocationId: varchar("ghlLocationId", { length: 255 }),
   ghlSubAccountCreatedAt: timestamp("ghlSubAccountCreatedAt"),
+  // D-ID avatar fields
+  avatarImageUrl: text("avatarImageUrl"), // User's headshot for D-ID avatar generation
+  avatarVideoUrl: text("avatarVideoUrl"), // Generated D-ID avatar intro video URL
 });
 
 export type User = typeof users.$inferSelect;

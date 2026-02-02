@@ -1641,3 +1641,23 @@ Tasks:
 - [x] Add testimonials section to landing page
 - [x] Design testimonial cards with avatar, name, role, quote
 - [x] Add clear instructions for user to replace with real testimonials
+
+## D-ID AutoReels Integration (Current Priority)
+- [ ] Add avatar image upload to user profile/settings
+- [ ] Store avatar image URL in user table
+- [ ] Create procedure to generate D-ID avatar intro video
+- [ ] Update videoRenderer to stitch avatar intro with faceless reel
+- [ ] Add avatar intro toggle to AutoReels page
+- [ ] Test complete flow: upload avatar → generate reel with intro
+- [ ] Add D-ID credit usage tracking per tier
+
+## FAQ Section (Current Priority)
+- [x] Create FAQ component with accordion UI
+- [x] Add FAQ section to landing page
+- [x] Write FAQs about pricing, features, and competitive advantages
+- [x] Add FAQ about D-ID avatar videos
+
+## Demo Video Section (Current Priority)
+- [x] Add demo video placeholder section to landing page
+- [x] Create video embed component
+- [x] Add instructions for user to replace with actual demo video

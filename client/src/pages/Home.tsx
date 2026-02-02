@@ -31,7 +31,7 @@ export default function HomePage() {
               <a href="#pricing">Pricing</a>
             </Button>
             <Button asChild variant="ghost" className="text-slate-300 hover:text-white">
-              <a href="#testimonials">Testimonials</a>
+              <a href="#faq">FAQ</a>
             </Button>
             <Button asChild variant="outline" className="border-amber-500/30 text-amber-500 hover:bg-amber-500/10">
               <a href={getLoginUrl()}>Sign In</a>
@@ -490,6 +490,89 @@ export default function HomePage() {
               <Button asChild className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
                 <a href={getLoginUrl()}>Create Your First Reel</a>
               </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="container mx-auto px-4 py-20">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-slate-400">Everything you need to know about Authority Content</p>
+          </div>
+
+          <div className="space-y-6">
+            {/* FAQ 1 */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-3">How does Authority Content compare to other tools?</h3>
+                <p className="text-slate-300 leading-relaxed">
+                  Authority Content is the only all-in-one platform that combines social media content generation, AI video creation with avatars, faceless vertical videos, and content scheduling. Instead of paying $164-313/month for 3+ separate tools, you get everything in one platform for $79-249/month.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* FAQ 2 */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-3">What are AI avatar videos?</h3>
+                <p className="text-slate-300 leading-relaxed">
+                  AI avatar videos use your headshot to create a realistic digital version of yourself that can introduce your vertical videos (Reels, TikTok, Shorts). Upload your photo once, and your AI avatar can deliver personalized intros for all your content—no camera or video editing required.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* FAQ 3 */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-3">Can I cancel my subscription anytime?</h3>
+                <p className="text-slate-300 leading-relaxed">
+                  Yes! You can cancel your subscription at any time from your account settings. If you're on an annual plan, you'll continue to have access until the end of your billing period. No hidden fees or cancellation charges.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* FAQ 4 */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-3">Do I still need my CRM?</h3>
+                <p className="text-slate-300 leading-relaxed">
+                  Yes. Authority Content focuses on content creation and distribution, while your CRM handles lead management and client relationships. We integrate seamlessly with your existing workflow—you don't need to replace your CRM.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* FAQ 5 */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-3">What's the difference between the pricing tiers?</h3>
+                <p className="text-slate-300 leading-relaxed">
+                  All tiers include the core features (content generation, templates, scheduling). Higher tiers offer more monthly posts, videos, and AI avatar minutes. Starter is perfect for solo agents, Pro for active agents, and Premium for teams or high-volume content creators.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Demo Video Section */}
+      <section className="container mx-auto px-4 py-20 bg-slate-900/30">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">See Authority Content in Action</h2>
+          <p className="text-xl text-slate-300 mb-12">
+            Watch how easy it is to create professional content in under 60 seconds
+          </p>
+          
+          {/* Demo Video Placeholder */}
+          <div className="relative aspect-video bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg border border-slate-700 flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <Video className="h-24 w-24 text-amber-500/30 mx-auto" />
+              <p className="text-slate-400 text-lg">Demo video coming soon</p>
+              <p className="text-slate-500 text-sm max-w-md mx-auto">
+                We're creating a comprehensive walkthrough video. In the meantime, sign up for a free trial to explore all features!
+              </p>
             </div>
           </div>
         </div>
