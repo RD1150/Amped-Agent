@@ -262,7 +262,7 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <img src="/logo.png" alt="Authority Content" className="h-40 object-contain" />
+                  <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/fsjGKfiVhGcAEGxr.png" alt="Authority Content" className="h-40 object-contain" />
                 </div>
               ) : (
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">

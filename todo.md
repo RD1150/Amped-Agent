@@ -1819,3 +1819,10 @@ Tasks:
 - [x] Integrate custom templates into AutoReels quick prompts section
 - [x] Add visual distinction between default and custom templates (custom templates have border)
 - [x] Write vitest tests for custom template procedures - All 5 tests passing
+
+## Publishing Issue
+- [x] Identify local media files causing deployment timeout (59 files, 337MB)
+- [x] Upload media files to S3 CDN (all 59 files uploaded)
+- [x] Update code references to use CDN URLs (templateBackgrounds.ts + logo references)
+- [x] Move local media to /home/ubuntu/webdev-static-assets/
+- [ ] Test publishing process

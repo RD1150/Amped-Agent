@@ -4,7 +4,7 @@ export default function AIDisclaimer() {
       <header className="border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <a href="/landing" className="flex items-center gap-2">
-            <img src="/rca-logo.png" alt="Authority Content" className="h-8 object-contain" />
+            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/OIiAbFpfnRfWzAsg.png" alt="Authority Content" className="h-8 object-contain" />
           </a>
         </div>
       </header>
