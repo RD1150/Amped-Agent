@@ -1661,3 +1661,33 @@ Tasks:
 - [x] Add demo video placeholder section to landing page
 - [x] Create video embed component
 - [x] Add instructions for user to replace with actual demo video
+
+## D-ID Avatar Upload UI (Current Priority)
+- [x] Add avatar image upload section to AutoReels page
+- [x] Add image preview after upload
+- [x] Integrate with S3 storage for avatar images
+- [x] Add "Generate Avatar Video" button
+- [x] Show avatar video preview after generation
+- [ ] Add avatar intro toggle to video generation form
+- [ ] Test complete flow: upload → generate avatar → create reel with intro
+
+## Demo Video Section (Current Priority)
+- [x] Update demo video placeholder to support video embed
+- [x] Add instructions for embedding YouTube/Vimeo videos
+- [x] Add example embed code with clear TODO comments
+
+## Social Proof Section (Current Priority)
+- [x] Create testimonials data structure for real testimonials
+- [x] Update testimonials section with clear placeholder indicators
+- [x] Add instructions for replacing with real customer testimonials
+- [x] Add guidance on collecting testimonials from beta users
+
+## Comprehensive Feature Testing (Final Phase)
+- [ ] Test Generate Post feature end-to-end
+- [ ] Test AutoReels video generation
+- [ ] Test Content Calendar scheduling
+- [ ] Test Persona & Brand settings
+- [ ] Test pricing page and Stripe checkout
+- [ ] Test all landing page sections (FAQ, demo, testimonials)
+- [ ] Test mobile responsiveness
+- [ ] Document any bugs or issues found

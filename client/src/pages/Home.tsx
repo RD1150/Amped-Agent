@@ -322,9 +322,22 @@ export default function HomePage() {
         </div>
 
         {/* Add Testimonial CTA */}
-        <div className="mt-12 text-center">
+        <div className="mt-12 text-center space-y-4">
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-6 max-w-3xl mx-auto">
+            <p className="text-amber-500 font-semibold mb-2">📝 TODO: Replace with Real Testimonials</p>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              The testimonials above are examples. Replace them with real customer testimonials once you have beta users or early customers. 
+              Collect testimonials by:
+            </p>
+            <ul className="text-slate-300 text-sm text-left mt-3 space-y-1 max-w-xl mx-auto">
+              <li>• Asking satisfied customers for feedback after 30 days</li>
+              <li>• Using tools like Testimonial.to or Google Forms</li>
+              <li>• Offering a discount or free month for video testimonials</li>
+              <li>• Highlighting specific results (e.g., "5x my output", "saved 10 hours/week")</li>
+            </ul>
+          </div>
           <p className="text-slate-400 text-sm italic">
-            Note: Testimonials are from real users. Want to add your own success story? <a href="mailto:hello@authoritycontent.co" className="text-amber-500 hover:underline">Contact us</a>
+            Want to add your success story? <a href="mailto:hello@authoritycontent.co" className="text-amber-500 hover:underline">Contact us</a>
           </p>
         </div>
       </section>
@@ -565,15 +578,41 @@ export default function HomePage() {
             Watch how easy it is to create professional content in under 60 seconds
           </p>
           
-          {/* Demo Video Placeholder */}
-          <div className="relative aspect-video bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg border border-slate-700 flex items-center justify-center">
-            <div className="text-center space-y-4">
-              <Video className="h-24 w-24 text-amber-500/30 mx-auto" />
-              <p className="text-slate-400 text-lg">Demo video coming soon</p>
-              <p className="text-slate-500 text-sm max-w-md mx-auto">
-                We're creating a comprehensive walkthrough video. In the meantime, sign up for a free trial to explore all features!
-              </p>
+          {/* Demo Video Embed */}
+          {/* TODO: Replace with your demo video URL */}
+          {/* For YouTube: Use https://www.youtube.com/embed/VIDEO_ID */}
+          {/* For Vimeo: Use https://player.vimeo.com/video/VIDEO_ID */}
+          {/* For Loom: Use https://www.loom.com/embed/VIDEO_ID */}
+          <div className="relative aspect-video bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg border border-slate-700 overflow-hidden">
+            {/* Placeholder - Replace the entire div below with iframe when you have a video */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center space-y-4">
+                <Video className="h-24 w-24 text-amber-500/30 mx-auto" />
+                <p className="text-slate-400 text-lg">Demo video coming soon</p>
+                <p className="text-slate-500 text-sm max-w-md mx-auto">
+                  Record a 60-second walkthrough and embed it here using an iframe.
+                </p>
+                <div className="bg-slate-800/50 rounded p-4 text-left text-xs font-mono text-slate-400 max-w-lg mx-auto mt-4">
+                  <p className="mb-2">Example embed code:</p>
+                  <code className="text-amber-500">
+                    {`<iframe`}<br/>
+                    {`  src="https://www.youtube.com/embed/YOUR_VIDEO_ID"`}<br/>
+                    {`  className="w-full h-full"`}<br/>
+                    {`  allow="autoplay; fullscreen"`}<br/>
+                    {`  allowFullScreen`}<br/>
+                    {`/>`}
+                  </code>
+                </div>
+              </div>
             </div>
+            {/* Uncomment and update when you have a video URL:
+            <iframe
+              src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+            */}
           </div>
         </div>
       </section>

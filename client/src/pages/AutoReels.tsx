@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Loader2, Video, Sparkles, Download, Copy, RefreshCw } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 
@@ -28,6 +29,14 @@ export default function AutoReels() {
   const [script, setScript] = useState("");
   const [caption, setCaption] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
+  
+  // Avatar state
+  const [useAvatarIntro, setUseAvatarIntro] = useState(false);
+  const [avatarImage, setAvatarImage] = useState<File | null>(null);
+  const [avatarImagePreview, setAvatarImagePreview] = useState<string>("");
+  const [avatarVideoUrl, setAvatarVideoUrl] = useState("");
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
 
   const inputMethodLabels = {
     bullets: "Bullet Points",
@@ -45,7 +54,81 @@ export default function AutoReels() {
 
   const generateMutation = trpc.autoreels.generate.useMutation();
   const renderVideoMutation = trpc.autoreels.renderVideo.useMutation();
+  const generateAvatarIntroMutation = trpc.autoreels.generateAvatarIntro.useMutation();
   const utils = trpc.useUtils();
+
+  const handleAvatarImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+    
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image must be less than 10MB");
+      return;
+    }
+    
+    setAvatarImage(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    
+    toast.success("Avatar image selected");
+  };
+
+  const handleGenerateAvatarVideo = async () => {
+    if (!avatarImage) {
+      toast.error("Please upload an avatar image first");
+      return;
+    }
+    
+    if (!selectedHook) {
+      toast.error("Please generate a reel first to create an avatar intro");
+      return;
+    }
+    
+    setIsGeneratingAvatar(true);
+    
+    try {
+      // Upload image to S3
+      const formData = new FormData();
+      formData.append('file', avatarImage);
+      
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload avatar image');
+      }
+      
+      const { url: imageUrl } = await uploadResponse.json();
+      
+      // Generate avatar video with D-ID
+      const result = await generateAvatarIntroMutation.mutateAsync({
+        avatarImageUrl: imageUrl,
+        introScript: selectedHook
+      });
+      
+      setAvatarVideoUrl(result.videoUrl);
+      toast.success("Avatar intro video generated!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to generate avatar video");
+      console.error(error);
+    } finally {
+      setIsGeneratingAvatar(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!inputText.trim()) {
@@ -178,170 +261,276 @@ export default function AutoReels() {
 
       {!showResults ? (
         /* Input Form */
-        <Card className="p-8">
-          {/* Input Method Selection */}
-          <div className="mb-6">
-            <Label className="text-base font-semibold mb-3 block">Choose Your Input Method</Label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {(Object.keys(inputMethodLabels) as InputMethod[]).map((method) => (
-                <Button
-                  key={method}
-                  variant={inputMethod === method ? "default" : "outline"}
-                  className="h-auto py-4"
-                  onClick={() => setInputMethod(method)}
-                >
-                  {inputMethodLabels[method]}
-                </Button>
-              ))}
+        <div className="space-y-6">
+          {/* Avatar Upload Section */}
+          <Card className="p-6 bg-gradient-to-br from-amber-500/5 to-amber-500/10 border-amber-500/20">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                  <User className="h-6 w-6 text-amber-500" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-2">AI Avatar Intro (Optional)</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Upload your headshot to create a personalized AI avatar that introduces your reels. Your avatar will speak the hook at the beginning of your video.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {/* Avatar Image Upload */}
+                  <div className="flex-1">
+                    <Label htmlFor="avatar-upload" className="cursor-pointer">
+                      <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-4 hover:border-primary/50 transition-colors">
+                        {avatarImagePreview ? (
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={avatarImagePreview} 
+                              alt="Avatar preview" 
+                              className="h-16 w-16 rounded-full object-cover"
+                            />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">Avatar image uploaded</p>
+                              <p className="text-xs text-muted-foreground">Click to change</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-2 text-center">
+                            <Upload className="h-8 w-8 text-muted-foreground" />
+                            <p className="text-sm font-medium">Upload Avatar Image</p>
+                            <p className="text-xs text-muted-foreground">PNG, JPG up to 10MB</p>
+                          </div>
+                        )}
+                      </div>
+                      <input
+                        id="avatar-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarImageChange}
+                      />
+                    </Label>
+                  </div>
+                  
+                  {/* Generate Avatar Video Button */}
+                  {avatarImagePreview && selectedHook && (
+                    <div className="flex-1 flex flex-col justify-center">
+                      <Button
+                        onClick={handleGenerateAvatarVideo}
+                        disabled={isGeneratingAvatar}
+                        className="w-full"
+                      >
+                        {isGeneratingAvatar ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Generating Avatar Video...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Generate Avatar Intro
+                          </>
+                        )}
+                      </Button>
+                      {avatarVideoUrl && (
+                        <p className="text-xs text-green-600 mt-2 text-center">✓ Avatar intro ready!</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {avatarVideoUrl && (
+                  <div className="mt-4">
+                    <Label className="text-sm font-medium mb-2 block">Avatar Intro Preview</Label>
+                    <video 
+                      src={avatarVideoUrl} 
+                      controls 
+                      className="w-full max-w-xs rounded-lg border"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          </Card>
 
-          {/* Text Input */}
-          <div className="mb-6">
-            <Label htmlFor="input-text" className="text-base font-semibold mb-2 block">
-              Your Content
-            </Label>
-            <Textarea
-              id="input-text"
-              placeholder={inputMethodPlaceholders[inputMethod]}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              className="min-h-[200px] text-base"
-            />
-          </div>
-
-          {/* Video Settings */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* Video Length */}
-            <div>
-              <Label className="text-base font-semibold mb-3 block">Video Length</Label>
-              <RadioGroup value={videoLength} onValueChange={(v) => setVideoLength(v as VideoLength)}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="7" id="length-7" />
-                  <Label htmlFor="length-7" className="font-normal cursor-pointer">7 seconds</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="15" id="length-15" />
-                  <Label htmlFor="length-15" className="font-normal cursor-pointer">15 seconds</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="30" id="length-30" />
-                  <Label htmlFor="length-30" className="font-normal cursor-pointer">30 seconds</Label>
-                </div>
-              </RadioGroup>
+          {/* Main Input Form */}
+          <Card className="p-8">
+            {/* Input Method Selection */}
+            <div className="mb-6">
+              <Label className="text-base font-semibold mb-3 block">Choose Your Input Method</Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {(Object.keys(inputMethodLabels) as InputMethod[]).map((method) => (
+                  <Button
+                    key={method}
+                    variant={inputMethod === method ? "default" : "outline"}
+                    className="h-auto py-4"
+                    onClick={() => setInputMethod(method)}
+                  >
+                    {inputMethodLabels[method]}
+                  </Button>
+                ))}
+              </div>
             </div>
 
-            {/* Tone */}
-            <div>
-              <Label className="text-base font-semibold mb-3 block">Tone</Label>
-              <RadioGroup value={tone} onValueChange={(v) => setTone(v as Tone)}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="calm" id="tone-calm" />
-                  <Label htmlFor="tone-calm" className="font-normal cursor-pointer">Calm</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="bold" id="tone-bold" />
-                  <Label htmlFor="tone-bold" className="font-normal cursor-pointer">Bold</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="authoritative" id="tone-authoritative" />
-                  <Label htmlFor="tone-authoritative" className="font-normal cursor-pointer">Authoritative</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="warm" id="tone-warm" />
-                  <Label htmlFor="tone-warm" className="font-normal cursor-pointer">Warm</Label>
-                </div>
-              </RadioGroup>
+            {/* Text Input */}
+            <div className="mb-6">
+              <Label htmlFor="input-text" className="text-base font-semibold mb-2 block">
+                Your Content
+              </Label>
+              <Textarea
+                id="input-text"
+                placeholder={inputMethodPlaceholders[inputMethod]}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                className="min-h-[200px] text-base"
+              />
             </div>
-          </div>
 
-          {/* Generate Button */}
-          <Button
-            size="lg"
-            className="w-full text-lg h-14"
-            onClick={handleGenerate}
-            disabled={isGenerating || !inputText.trim()}
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                {generationStep}
-              </>
-            ) : (
-              <>
-                <Sparkles className="mr-2 h-5 w-5" />
-                Generate Reel
-              </>
-            )}
-          </Button>
-        </Card>
+            {/* Video Settings */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {/* Video Length */}
+              <div>
+                <Label className="text-base font-semibold mb-3 block">Video Length</Label>
+                <RadioGroup value={videoLength} onValueChange={(v) => setVideoLength(v as VideoLength)}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="7" id="length-7" />
+                    <Label htmlFor="length-7" className="font-normal cursor-pointer">7 seconds</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="15" id="length-15" />
+                    <Label htmlFor="length-15" className="font-normal cursor-pointer">15 seconds</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="30" id="length-30" />
+                    <Label htmlFor="length-30" className="font-normal cursor-pointer">30 seconds</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Tone */}
+              <div>
+                <Label className="text-base font-semibold mb-3 block">Tone</Label>
+                <RadioGroup value={tone} onValueChange={(v) => setTone(v as Tone)}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="calm" id="tone-calm" />
+                    <Label htmlFor="tone-calm" className="font-normal cursor-pointer">Calm</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="bold" id="tone-bold" />
+                    <Label htmlFor="tone-bold" className="font-normal cursor-pointer">Bold</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="authoritative" id="tone-authoritative" />
+                    <Label htmlFor="tone-authoritative" className="font-normal cursor-pointer">Authoritative</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="warm" id="tone-warm" />
+                    <Label htmlFor="tone-warm" className="font-normal cursor-pointer">Warm</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+
+            {/* Generate Button */}
+            <Button 
+              onClick={handleGenerate} 
+              disabled={isGenerating || !inputText.trim()}
+              size="lg"
+              className="w-full"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  {generationStep || "Generating..."}
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Generate My Reel
+                </>
+              )}
+            </Button>
+          </Card>
+        </div>
       ) : (
         /* Results View */
         <div className="space-y-6">
-          {/* Hooks */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Choose Your Hook</h2>
-            <div className="space-y-3">
-              {hooks.map((hook, index) => (
-                <button
-                  key={index}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition-colors ${
-                    selectedHook === hook
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  onClick={() => setSelectedHook(hook)}
-                >
-                  {hook}
-                </button>
-              ))}
-            </div>
-          </Card>
-
-          {/* Script */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Your Script</h2>
-            <p className="text-base leading-relaxed">{script}</p>
-          </Card>
-
           {/* Video Preview */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Your Video</h2>
-            <div className="aspect-[9/16] max-w-[360px] mx-auto bg-muted rounded-lg flex items-center justify-center">
-              {videoUrl ? (
-                <video src={videoUrl} controls className="w-full h-full rounded-lg" />
-              ) : (
-                <div className="text-center text-muted-foreground">
-                  <Video className="h-16 w-16 mx-auto mb-2 opacity-50" />
-                  <p>Video preview will appear here</p>
-                </div>
-              )}
-            </div>
-          </Card>
+          {videoUrl && (
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Your Reel</h2>
+              <div className="aspect-[9/16] max-w-sm mx-auto bg-black rounded-lg overflow-hidden">
+                <video src={videoUrl} controls className="w-full h-full" />
+              </div>
+              
+              <div className="flex gap-3 mt-6 justify-center">
+                <Button onClick={handleDownload} variant="outline">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+                <Button onClick={handleRegenerate} variant="outline">
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Regenerate
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {/* Generated Content */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Hook */}
+            <Card className="p-6">
+              <h3 className="font-semibold mb-3">Selected Hook</h3>
+              <p className="text-sm">{selectedHook}</p>
+            </Card>
+
+            {/* Script */}
+            <Card className="p-6">
+              <h3 className="font-semibold mb-3">Video Script</h3>
+              <p className="text-sm whitespace-pre-wrap">{script}</p>
+            </Card>
+          </div>
 
           {/* Caption */}
           <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Your Caption</h2>
-              <Button variant="outline" size="sm" onClick={handleCopyCaption}>
-                <Copy className="h-4 w-4 mr-2" />
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">Caption</h3>
+              <Button onClick={handleCopyCaption} variant="ghost" size="sm">
+                <Copy className="mr-2 h-4 w-4" />
                 Copy
               </Button>
             </div>
-            <p className="text-base leading-relaxed whitespace-pre-wrap">{caption}</p>
+            <p className="text-sm whitespace-pre-wrap">{caption}</p>
           </Card>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4">
-            <Button size="lg" className="flex-1" onClick={handleDownload}>
-              <Download className="mr-2 h-5 w-5" />
-              Download Video
-            </Button>
-            <Button size="lg" variant="outline" onClick={handleRegenerate}>
-              <RefreshCw className="mr-2 h-5 w-5" />
-              Regenerate
-            </Button>
-          </div>
+          {/* Alternative Hooks */}
+          {hooks.length > 1 && (
+            <Card className="p-6">
+              <h3 className="font-semibold mb-3">Alternative Hooks</h3>
+              <div className="space-y-2">
+                {hooks.filter(h => h !== selectedHook).map((hook, idx) => (
+                  <div key={idx} className="p-3 bg-muted rounded-lg text-sm">
+                    {hook}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Start Over Button */}
+          <Button 
+            onClick={() => {
+              setHooks([]);
+              setSelectedHook("");
+              setScript("");
+              setCaption("");
+              setVideoUrl("");
+              setInputText("");
+            }}
+            variant="outline"
+            className="w-full"
+          >
+            Start Over
+          </Button>
         </div>
       )}
     </div>
