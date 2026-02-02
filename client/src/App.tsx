@@ -28,6 +28,8 @@ import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import AutoReels from "./pages/AutoReels";
+import ThumbnailGenerator from "./pages/ThumbnailGenerator";
+import PerformanceCoach from "./pages/PerformanceCoach";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -66,6 +68,8 @@ function Router() {
         <Route path="/integrations" component={Integrations} />
         <Route path="/generate" component={AIGenerate} />
         <Route path="/autoreels" component={AutoReels} />
+        <Route path="/thumbnails" component={ThumbnailGenerator} />
+        <Route path="/coach" component={PerformanceCoach} />
         <Route path="/market-stats" component={MarketStats} />
         <Route path="/hooks" component={Hooks} />
 

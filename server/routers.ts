@@ -1559,6 +1559,143 @@ Create a compelling social media post.`;
   }),
 
   socialPosting: socialPostingRouter,
+
+  coach: router({
+    analyze: protectedProcedure
+      .input(z.object({
+        content: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const response = await invokeLLM({
+          messages: [
+            {
+              role: "system",
+              content: `You are a social media performance coach for real estate professionals. Analyze posts and provide actionable feedback. Return JSON with:
+- overallScore (0-100)
+- scores object with engagement, clarity, cta, authority (each 0-100)
+- strengths array (2-3 specific things done well)
+- improvements array (2-3 specific actionable suggestions)
+- rewriteSuggestion (optimized version of the post)
+
+Score criteria:
+- Engagement: Hook strength, emotional appeal, relatability
+- Clarity: Readability, structure, message clarity
+- CTA: Clear call-to-action, next steps
+- Authority: Expertise shown, credibility, local knowledge`,
+            },
+            {
+              role: "user",
+              content: `Analyze this real estate post:\n\n${input.content}`,
+            },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "post_analysis",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  overallScore: { type: "number" },
+                  scores: {
+                    type: "object",
+                    properties: {
+                      engagement: { type: "number" },
+                      clarity: { type: "number" },
+                      cta: { type: "number" },
+                      authority: { type: "number" },
+                    },
+                    required: ["engagement", "clarity", "cta", "authority"],
+                    additionalProperties: false,
+                  },
+                  strengths: {
+                    type: "array",
+                    items: { type: "string" },
+                  },
+                  improvements: {
+                    type: "array",
+                    items: { type: "string" },
+                  },
+                  rewriteSuggestion: { type: "string" },
+                },
+                required: ["overallScore", "scores", "strengths", "improvements", "rewriteSuggestion"],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+
+        const content = response.choices[0].message.content;
+        const analysis = JSON.parse(typeof content === 'string' ? content : '');
+
+        return analysis;
+      }),
+  }),
+
+  thumbnail: router({
+    generate: protectedProcedure
+      .input(z.object({
+        mainText: z.string().optional(),
+        subText: z.string().optional(),
+        topic: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // If topic provided, use AI to generate thumbnail text
+        let finalMainText = input.mainText || "";
+        let finalSubText = input.subText || "";
+
+        if (input.topic && !input.mainText) {
+          const response = await invokeLLM({
+            messages: [
+              {
+                role: "system",
+                content: "You are a YouTube thumbnail text expert. Generate catchy, short thumbnail text (3-5 words max for main text, 2-4 words for subtitle). Return JSON with mainText and subText fields.",
+              },
+              {
+                role: "user",
+                content: `Generate thumbnail text for: ${input.topic}`,
+              },
+            ],
+            response_format: {
+              type: "json_schema",
+              json_schema: {
+                name: "thumbnail_text",
+                strict: true,
+                schema: {
+                  type: "object",
+                  properties: {
+                    mainText: { type: "string" },
+                    subText: { type: "string" },
+                  },
+                  required: ["mainText", "subText"],
+                  additionalProperties: false,
+                },
+              },
+            },
+          });
+
+          const content = response.choices[0].message.content;
+          const generated = JSON.parse(typeof content === 'string' ? content : '');
+          finalMainText = generated.mainText;
+          finalSubText = generated.subText;
+        }
+
+        // Generate thumbnail image with text overlay
+        const prompt = `Professional YouTube thumbnail design, high contrast, bold typography. Main text: "${finalMainText}". Subtitle: "${finalSubText}". Real estate themed, luxury aesthetic, eye-catching colors, optimized for mobile viewing. 16:9 aspect ratio, 1280x720px.`;
+
+        const result = await generateImage({ prompt });
+
+        if (!result.url) {
+          throw new Error("Failed to generate thumbnail image");
+        }
+
+        return {
+          imageUrl: result.url,
+          mainText: finalMainText,
+          subText: finalSubText,
+        };
+      }),
+  }),
 });
 
 function calculateNextRunTime(

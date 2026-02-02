@@ -43,7 +43,9 @@ import {
   Newspaper,
   Lightbulb,
   Home,
-  Video
+  Video,
+  Youtube,
+  Award
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -60,6 +62,8 @@ const menuItems = [
   // CONTENT section
   { icon: Sparkles, label: "Generate Post", path: "/generate" },
   { icon: Video, label: "AutoReels", path: "/autoreels" },
+  { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails" },
+  { icon: Award, label: "Performance Coach", path: "/coach" },
   { icon: Calendar, label: "Content Calendar", path: "/calendar" },
   { icon: Upload, label: "Upload Content", path: "/uploads" },
   

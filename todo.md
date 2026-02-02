@@ -1744,3 +1744,27 @@ Tasks:
 - [x] Create new video with improved voiceover
 - [x] Upload to CDN
 - [x] Update product tour with new video URL
+
+## Voice Improvement - More Inflection (Current Priority)
+- [ ] Test different AI voices for warmth + authority
+- [ ] Generate new voiceover with expressive voice
+- [ ] Create video with improved voiceover
+- [ ] Update product tour
+
+## YouTube Thumbnail Generator (Current Priority)
+- [ ] Design thumbnail generator UI page
+- [ ] Add thumbnail templates/layouts
+- [ ] Implement text overlay customization
+- [ ] Add image generation for thumbnails
+- [ ] Add navigation link in sidebar
+
+## Performance Coach (Current Priority)
+- [ ] Design performance coach UI
+- [ ] Implement AI post evaluation logic
+- [ ] Add scoring system (engagement, clarity, CTA, etc.)
+- [ ] Add actionable improvement suggestions
+- [ ] Integrate with Generate Post workflow
+
+## New Features Completed
+- [x] YouTube Thumbnail Generator - AI-powered thumbnail creation with text overlay
+- [x] Performance Coach - AI post analysis with scoring and optimization suggestions
