@@ -1774,3 +1774,16 @@ Tasks:
 - [x] Regenerate voiceover with proper settings (48kHz, stereo, 192kbps)
 - [x] Create new video with fixed audio
 - [x] Update product tour with working video
+
+## Deployment Timeout Fix (Current Priority)
+- [ ] Upload large PNG files to S3
+- [ ] Update code references to use CDN URLs
+- [ ] Move local files to archive directory
+- [ ] Test deployment completes successfully
+
+## Enhanced Performance Coach (Current Priority)
+- [x] Update database schema for customer avatar, brand values, market info
+- [x] Create Authority Profile page to collect avatar/brand/market data
+- [x] Update coach backend to analyze against personalized context
+- [x] Update coach UI to show avatar/brand/market alignment scores
+- [x] Test personalized analysis - All 3 tests passing

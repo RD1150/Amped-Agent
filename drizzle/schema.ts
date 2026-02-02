@@ -57,6 +57,10 @@ export const personas = mysqlTable("personas", {
   websiteUrl: varchar("websiteUrl", { length: 500 }),
   emailAddress: varchar("emailAddress", { length: 320 }),
   socialHandles: text("socialHandles"), // JSON stored as text
+  // Performance Coach personalization fields
+  customerAvatar: text("customerAvatar"), // JSON: { type: "first-time-buyers" | "luxury-sellers" | "investors" | "relocators" | "downsizers", description: string }
+  brandValues: text("brandValues"), // JSON: string[] - e.g. ["trust", "local expertise", "family-focused"]
+  marketContext: text("marketContext"), // JSON: { city: string, state: string, marketType: "hot" | "balanced" | "buyers", keyTrends: string[] }
   isCompleted: boolean("isCompleted").default(false),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

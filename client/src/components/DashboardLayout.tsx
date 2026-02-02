@@ -64,6 +64,7 @@ const menuItems = [
   { icon: Video, label: "AutoReels", path: "/autoreels" },
   { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails" },
   { icon: Award, label: "Performance Coach", path: "/coach" },
+  { icon: User, label: "Authority Profile", path: "/authority-profile" },
   { icon: Calendar, label: "Content Calendar", path: "/calendar" },
   { icon: Upload, label: "Upload Content", path: "/uploads" },
   

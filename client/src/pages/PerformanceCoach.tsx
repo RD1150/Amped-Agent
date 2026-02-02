@@ -15,6 +15,9 @@ interface CoachFeedback {
     clarity: number;
     cta: number;
     authority: number;
+    avatarAlignment?: number;
+    brandAlignment?: number;
+    marketRelevance?: number;
   };
   strengths: string[];
   improvements: string[];
@@ -66,7 +69,7 @@ export default function PerformanceCoach() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Performance Coach</h1>
         <p className="text-muted-foreground">
-          Get AI-powered feedback to improve your post's engagement potential
+          Get personalized AI feedback based on your customer avatar, brand values, and market context
         </p>
       </div>
 
@@ -169,6 +172,52 @@ export default function PerformanceCoach() {
                   </div>
                   <Progress value={feedback.scores.authority} className="h-2" />
                 </div>
+
+                {/* Personalized Scores */}
+                {feedback.scores.avatarAlignment !== undefined && (
+                  <div className="pt-2 border-t">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="flex items-center">
+                        <Target className="h-3.5 w-3.5 mr-1.5 text-primary" />
+                        Customer Avatar Alignment
+                      </span>
+                      <span className={getScoreColor(feedback.scores.avatarAlignment)}>
+                        {feedback.scores.avatarAlignment}/100
+                      </span>
+                    </div>
+                    <Progress value={feedback.scores.avatarAlignment} className="h-2" />
+                  </div>
+                )}
+
+                {feedback.scores.brandAlignment !== undefined && (
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="flex items-center">
+                        <Sparkles className="h-3.5 w-3.5 mr-1.5 text-primary" />
+                        Brand Values Alignment
+                      </span>
+                      <span className={getScoreColor(feedback.scores.brandAlignment)}>
+                        {feedback.scores.brandAlignment}/100
+                      </span>
+                    </div>
+                    <Progress value={feedback.scores.brandAlignment} className="h-2" />
+                  </div>
+                )}
+
+                {feedback.scores.marketRelevance !== undefined && (
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="flex items-center">
+                        <TrendingUp className="h-3.5 w-3.5 mr-1.5 text-primary" />
+                        Market Relevance
+                      </span>
+                      <span className={getScoreColor(feedback.scores.marketRelevance)}>
+                        {feedback.scores.marketRelevance}/100
+                      </span>
+                    </div>
+                    <Progress value={feedback.scores.marketRelevance} className="h-2" />
+                  </div>
+                )}
               </div>
 
               {/* Strengths */}

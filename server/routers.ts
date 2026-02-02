@@ -63,6 +63,16 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);
       }),
+    
+    updateAuthorityProfile: protectedProcedure
+      .input(z.object({
+        customerAvatar: z.string().optional(),
+        brandValues: z.string().optional(),
+        marketContext: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return db.upsertPersona(ctx.user.id, input);
+      }),
   }),
 
   content: router({
@@ -1565,14 +1575,49 @@ Create a compelling social media post.`;
       .input(z.object({
         content: z.string(),
       }))
-      .mutation(async ({ input }) => {
-        const response = await invokeLLM({
-          messages: [
-            {
-              role: "system",
-              content: `You are a social media performance coach for real estate professionals. Analyze posts and provide actionable feedback. Return JSON with:
+      .mutation(async ({ ctx, input }) => {
+        // Get persona data for personalized analysis
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+        
+        let customerAvatar = null;
+        let brandValues: string[] = [];
+        let marketContext = null;
+        
+        if (persona) {
+          try {
+            if (persona.customerAvatar) customerAvatar = JSON.parse(persona.customerAvatar);
+            if (persona.brandValues) brandValues = JSON.parse(persona.brandValues);
+            if (persona.marketContext) marketContext = JSON.parse(persona.marketContext);
+          } catch (e) {
+            console.error("Failed to parse persona data", e);
+          }
+        }
+        
+        // Build personalized system prompt
+        let systemPrompt = `You are a social media performance coach for real estate professionals. Analyze posts and provide actionable feedback.`;
+        
+        if (customerAvatar || brandValues.length > 0 || marketContext) {
+          systemPrompt += `\n\nPERSONALIZED CONTEXT:`;
+          
+          if (customerAvatar) {
+            systemPrompt += `\n- Target Audience: ${customerAvatar.type} - ${customerAvatar.description || ''}`;
+          }
+          
+          if (brandValues.length > 0) {
+            systemPrompt += `\n- Brand Values: ${brandValues.join(', ')}`;
+          }
+          
+          if (marketContext) {
+            systemPrompt += `\n- Market: ${marketContext.city}, ${marketContext.state} (${marketContext.marketType} market)`;
+            if (marketContext.keyTrends && marketContext.keyTrends.length > 0) {
+              systemPrompt += `\n- Key Trends: ${marketContext.keyTrends.join(', ')}`;
+            }
+          }
+        }
+        
+        systemPrompt += `\n\nReturn JSON with:
 - overallScore (0-100)
-- scores object with engagement, clarity, cta, authority (each 0-100)
+- scores object with engagement, clarity, cta, authority, avatarAlignment, brandAlignment, marketRelevance (each 0-100)
 - strengths array (2-3 specific things done well)
 - improvements array (2-3 specific actionable suggestions)
 - rewriteSuggestion (optimized version of the post)
@@ -1581,7 +1626,24 @@ Score criteria:
 - Engagement: Hook strength, emotional appeal, relatability
 - Clarity: Readability, structure, message clarity
 - CTA: Clear call-to-action, next steps
-- Authority: Expertise shown, credibility, local knowledge`,
+- Authority: Expertise shown, credibility, local knowledge`;
+        
+        if (customerAvatar) {
+          systemPrompt += `\n- Avatar Alignment: How well does this resonate with ${customerAvatar.type}?`;
+        }
+        
+        if (brandValues.length > 0) {
+          systemPrompt += `\n- Brand Alignment: Does this reflect the values: ${brandValues.join(', ')}?`;
+        }
+        
+        if (marketContext) {
+          systemPrompt += `\n- Market Relevance: Is this relevant to ${marketContext.city}, ${marketContext.state} market conditions?`;
+        }
+        const response = await invokeLLM({
+          messages: [
+            {
+              role: "system",
+              content: systemPrompt,
             },
             {
               role: "user",
@@ -1604,6 +1666,9 @@ Score criteria:
                       clarity: { type: "number" },
                       cta: { type: "number" },
                       authority: { type: "number" },
+                      avatarAlignment: { type: "number" },
+                      brandAlignment: { type: "number" },
+                      marketRelevance: { type: "number" },
                     },
                     required: ["engagement", "clarity", "cta", "authority"],
                     additionalProperties: false,
