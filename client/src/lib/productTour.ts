@@ -24,13 +24,22 @@ export const startDashboardTour = () => {
         element: 'body',
         popover: {
           title: 'Welcome to Authority Content! 👋',
-          description: 'Let\'s take a quick tour of the platform. This will only take 60 seconds.'
+          description: 'Let\'s take a quick tour of the platform. This will only take 60 seconds. We\'ll start by setting up your brand!'
+        }
+      },
+      {
+        element: '[href="/persona-brand"]',
+        popover: {
+          title: 'Step 1: Set Up Your Brand',
+          description: 'Start here! Add your headshot, brand colors, target audience, and unique selling points. This helps AI generate content that sounds like YOU.',
+          side: 'right',
+          align: 'start'
         }
       },
       {
         element: '[href="/generate-post"]',
         popover: {
-          title: 'Generate Post',
+          title: 'Step 2: Generate Posts',
           description: 'Create AI-powered social media content in seconds. Choose from templates, customize your message, and generate professional posts.',
           side: 'right',
           align: 'start'
@@ -39,7 +48,7 @@ export const startDashboardTour = () => {
       {
         element: '[href="/autoreels"]',
         popover: {
-          title: 'AutoReels - AI Video Generation',
+          title: 'Step 3: Create Video Reels',
           description: 'Create scroll-stopping vertical videos with AI avatars and faceless reels. Perfect for Instagram Reels, TikTok, and YouTube Shorts.',
           side: 'right',
           align: 'start'
@@ -48,17 +57,8 @@ export const startDashboardTour = () => {
       {
         element: '[href="/content-calendar"]',
         popover: {
-          title: 'Content Calendar',
+          title: 'Step 4: Schedule Content',
           description: 'View and manage all your scheduled posts in one place. Schedule up to 60 days of content in advance.',
-          side: 'right',
-          align: 'start'
-        }
-      },
-      {
-        element: '[href="/persona-brand"]',
-        popover: {
-          title: 'Persona & Brand',
-          description: 'Set up your brand voice, target audience, and unique selling points. This helps AI generate content that sounds like you.',
           side: 'right',
           align: 'start'
         }
@@ -67,7 +67,7 @@ export const startDashboardTour = () => {
         element: 'body',
         popover: {
           title: 'Ready to Get Started! 🚀',
-          description: 'You\'re all set! Click "Generate Post" to create your first piece of content. You can replay this tour anytime from the Help menu.'
+          description: 'You\'re all set! Start with "Persona & Brand" to set up your profile, then create your first post. You can replay this tour anytime by clicking "Start Tour".'
         }
       }
     ]

@@ -1705,3 +1705,8 @@ Tasks:
 ## Driver.js Popup Transparency Fix (Current Priority)
 - [x] Update CSS to make popup background fully opaque
 - [x] Test popup visibility and readability
+
+## Tour Step Reordering (Current Priority)
+- [x] Reorder tour steps: 1) Persona & Brand, 2) Generate Post, 3) AutoReels, 4) Content Calendar
+- [x] Update tour descriptions to match new order
+- [x] Test complete tour flow with new order
