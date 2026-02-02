@@ -3,13 +3,17 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 type Tier = "starter" | "pro" | "premium";
+type BillingPeriod = "monthly" | "annual";
 
 interface PricingTier {
   name: string;
   tier: Tier;
-  price: number;
+  priceMonthly: number;
+  priceAnnual: number;
+  savings: number;
   description: string;
   icon: any;
   popular?: boolean;
@@ -20,7 +24,9 @@ const pricingTiers: PricingTier[] = [
   {
     name: "Starter",
     tier: "starter",
-    price: 79,
+    priceMonthly: 79,
+    priceAnnual: 790,
+    savings: 158,
     description: "Get started with AI content generation",
     icon: Sparkles,
     features: [
@@ -40,7 +46,9 @@ const pricingTiers: PricingTier[] = [
   {
     name: "Pro",
     tier: "pro",
-    price: 149,
+    priceMonthly: 149,
+    priceAnnual: 1490,
+    savings: 298,
     description: "The complete AI video marketing solution",
     icon: Zap,
     popular: true,
@@ -60,7 +68,9 @@ const pricingTiers: PricingTier[] = [
   {
     name: "Premium",
     tier: "premium",
-    price: 249,
+    priceMonthly: 249,
+    priceAnnual: 2490,
+    savings: 498,
     description: "Unlimited video creation for top producers",
     icon: Crown,
     features: [
@@ -81,6 +91,7 @@ const pricingTiers: PricingTier[] = [
 
 export default function Upgrade() {
   const [loadingTier, setLoadingTier] = useState<Tier | null>(null);
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
 
   const createCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation({
     onSuccess: (data) => {
@@ -98,6 +109,7 @@ export default function Upgrade() {
     setLoadingTier(tier);
     await createCheckoutMutation.mutateAsync({
       tier,
+      billingPeriod,
       successUrl: `${window.location.origin}/?upgrade=success`,
       cancelUrl: `${window.location.origin}/upgrade?canceled=true`,
     });
@@ -107,15 +119,44 @@ export default function Upgrade() {
     <div className="container mx-auto py-12 px-4">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
           Start with a 14-day free trial. Cancel anytime.
         </p>
+
+        {/* Billing Period Toggle */}
+        <div className="inline-flex items-center gap-3 bg-muted p-1 rounded-lg">
+          <button
+            onClick={() => setBillingPeriod("monthly")}
+            className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+              billingPeriod === "monthly"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setBillingPeriod("annual")}
+            className={`px-6 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
+              billingPeriod === "annual"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Annual
+            <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/10">
+              Save up to $498
+            </Badge>
+          </button>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
         {pricingTiers.map((tier) => {
           const Icon = tier.icon;
           const isLoading = loadingTier === tier.tier;
+          const displayPrice = billingPeriod === "monthly" ? tier.priceMonthly : tier.priceAnnual;
+          const effectiveMonthly = billingPeriod === "annual" ? (tier.priceAnnual / 12).toFixed(2) : tier.priceMonthly;
 
           return (
             <Card
@@ -142,12 +183,26 @@ export default function Upgrade() {
                 <CardDescription>{tier.description}</CardDescription>
                 <div className="mt-4">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">${tier.price}</span>
-                    <span className="text-muted-foreground">/month</span>
+                    <span className="text-4xl font-bold">${displayPrice}</span>
+                    <span className="text-muted-foreground">
+                      {billingPeriod === "monthly" ? "/month" : "/year"}
+                    </span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    14-day free trial included
-                  </p>
+                  {billingPeriod === "annual" && (
+                    <div className="mt-2 space-y-1">
+                      <Badge variant="secondary" className="bg-green-500/10 text-green-600 hover:bg-green-500/10">
+                        Save ${tier.savings}
+                      </Badge>
+                      <p className="text-sm text-muted-foreground">
+                        ${effectiveMonthly}/month (billed annually)
+                      </p>
+                    </div>
+                  )}
+                  {billingPeriod === "monthly" && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      14-day free trial included
+                    </p>
+                  )}
                 </div>
               </CardHeader>
 

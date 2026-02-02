@@ -1614,3 +1614,10 @@ Tasks:
 - [ ] Update subscription flow to support annual billing
 - [ ] Test annual subscription checkout flow
 - [ ] Update pricing display to show "Save 2 months" badge
+
+## Pricing Page Updates (Current Priority)
+- [x] Add monthly/annual billing toggle to Upgrade page
+- [x] Add savings badges showing $158/$298/$498 for annual plans
+- [x] Update pricing display to show annual prices when toggle is on
+- [x] Update checkout flow to use annual price IDs when selected
+- [x] Test pricing toggle functionality

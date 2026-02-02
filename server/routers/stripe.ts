@@ -16,6 +16,7 @@ export const stripeRouter = router({
     .input(
       z.object({
         tier: z.enum(['starter', 'pro', 'premium']),
+        billingPeriod: z.enum(['monthly', 'annual']).default('monthly'),
         successUrl: z.string(),
         cancelUrl: z.string(),
       })
@@ -23,12 +24,18 @@ export const stripeRouter = router({
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
       const userEmail = ctx.user.email;
-      const { tier } = input;
+      const { tier, billingPeriod } = input;
 
       // Get product configuration
       const product = getProductByTier(tier);
-      if (!product || !product.priceIdMonthly) {
+      if (!product) {
         throw new Error(`Product not found for tier: ${tier}`);
+      }
+
+      // Select price ID based on billing period
+      const priceId = billingPeriod === 'annual' ? product.priceIdYearly : product.priceIdMonthly;
+      if (!priceId) {
+        throw new Error(`Price ID not found for tier: ${tier}, period: ${billingPeriod}`);
       }
 
       try {
@@ -40,7 +47,7 @@ export const stripeRouter = router({
           client_reference_id: userId.toString(),
           line_items: [
             {
-              price: product.priceIdMonthly,
+              price: priceId,
               quantity: 1,
             },
           ],
@@ -49,6 +56,7 @@ export const stripeRouter = router({
             metadata: {
               userId: userId.toString(),
               tier: tier,
+              billingPeriod: billingPeriod,
             },
           },
           success_url: input.successUrl,
