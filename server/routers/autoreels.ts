@@ -2,6 +2,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { invokeLLM } from "../_core/llm";
 import { renderAutoReel, getRenderStatus } from "../_core/videoRenderer";
+import { generateAvatarIntro, getRemainingCredits } from "../lib/did-service";
 
 const inputMethodEnum = z.enum(["bullets", "caption", "blog", "listing"]);
 const videoLengthEnum = z.enum(["7", "15", "30"]);
@@ -304,7 +305,7 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
         hook,
         script,
         videoLength: parseInt(videoLength),
-        tone
+        tone,
       });
       
       return result;
@@ -321,5 +322,46 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
       const { renderId } = input;
       const result = await getRenderStatus(renderId);
       return result;
+    }),
+
+  /**
+   * Generate AI avatar intro video
+   */
+  generateAvatarIntro: protectedProcedure
+    .input(z.object({
+      avatarImageUrl: z.string().url("Valid avatar image URL required"),
+      introScript: z.string().min(1, "Intro script is required"),
+      voiceId: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { avatarImageUrl, introScript, voiceId } = input;
+      
+      try {
+        const videoUrl = await generateAvatarIntro(
+          avatarImageUrl,
+          introScript,
+          voiceId
+        );
+        
+        return {
+          success: true,
+          videoUrl,
+        };
+      } catch (error: any) {
+        throw new Error(`Failed to generate avatar intro: ${error.message}`);
+      }
+    }),
+
+  /**
+   * Get D-ID remaining credits
+   */
+  getDidCredits: protectedProcedure
+    .query(async () => {
+      try {
+        const credits = await getRemainingCredits();
+        return { credits };
+      } catch (error: any) {
+        throw new Error(`Failed to fetch D-ID credits: ${error.message}`);
+      }
     }),
 });

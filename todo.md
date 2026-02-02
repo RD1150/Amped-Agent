@@ -1621,3 +1621,23 @@ Tasks:
 - [x] Update pricing display to show annual prices when toggle is on
 - [x] Update checkout flow to use annual price IDs when selected
 - [x] Test pricing toggle functionality
+
+## D-ID AutoReels Integration (Current Priority)
+- [ ] Add avatar upload feature to AutoReels page
+- [ ] Integrate D-ID service with AutoReels video generation flow
+- [ ] Add avatar intro option to video generation settings
+- [ ] Test complete AutoReels flow with AI avatar intros
+- [ ] Add usage tracking for D-ID credits per tier
+
+## Landing Page Updates (Current Priority)
+- [x] Update hero section with "all-in-one platform" value proposition
+- [x] Add comparison section showing value vs. buying separate tools
+- [x] Emphasize replacing 3+ tools ($164-$313/month value)
+- [x] Update feature highlights to showcase competitive advantages
+
+## Testimonials Section (Current Priority)
+- [x] Create testimonials component with placeholder structure
+- [x] Add testimonials section to pricing page
+- [x] Add testimonials section to landing page
+- [x] Design testimonial cards with avatar, name, role, quote
+- [x] Add clear instructions for user to replace with real testimonials

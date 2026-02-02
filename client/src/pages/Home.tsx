@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Calendar, TrendingUp, Clock, CheckCircle2, Palette, Share2, Home, BarChart3, Star } from "lucide-react";
+import { Sparkles, Calendar, TrendingUp, Clock, CheckCircle2, Palette, Share2, Home, BarChart3, Star, Video, Zap } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 
@@ -26,6 +26,9 @@ export default function HomePage() {
           <div className="flex items-center gap-4">
             <Button asChild variant="ghost" className="text-slate-300 hover:text-white">
               <a href="#features">Features</a>
+            </Button>
+            <Button asChild variant="ghost" className="text-slate-300 hover:text-white">
+              <a href="#pricing">Pricing</a>
             </Button>
             <Button asChild variant="ghost" className="text-slate-300 hover:text-white">
               <a href="#testimonials">Testimonials</a>
@@ -81,6 +84,106 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* All-in-One Value Proposition Section */}
+      <section className="container mx-auto px-4 py-20 bg-slate-900/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Stop Paying for 3+ Tools
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+              Authority Content is the <span className="text-amber-500 font-semibold">only all-in-one platform</span> real estate agents need for social media and video content.
+            </p>
+          </div>
+
+          {/* Comparison Grid */}
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {/* Without Authority Content */}
+            <Card className="bg-slate-800/30 border-slate-700">
+              <CardContent className="p-8 space-y-6">
+                <h3 className="text-2xl font-bold text-white text-center mb-6">Without Authority Content</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center pb-3 border-b border-slate-700">
+                    <span className="text-slate-300">Social Media Content</span>
+                    <span className="text-slate-400 font-semibold">$99/mo</span>
+                  </div>
+                  <div className="flex justify-between items-center pb-3 border-b border-slate-700">
+                    <span className="text-slate-300">Video Creation Tool</span>
+                    <span className="text-slate-400 font-semibold">$29-99/mo</span>
+                  </div>
+                  <div className="flex justify-between items-center pb-3 border-b border-slate-700">
+                    <span className="text-slate-300">AI Avatar Videos</span>
+                    <span className="text-slate-400 font-semibold">$16/mo</span>
+                  </div>
+                  <div className="flex justify-between items-center pb-3 border-b border-slate-700">
+                    <span className="text-slate-300">Content Scheduling</span>
+                    <span className="text-slate-400 font-semibold">$20-99/mo</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-4 border-t-2 border-slate-600">
+                    <span className="text-white font-bold text-lg">Total Monthly Cost</span>
+                    <span className="text-red-400 font-bold text-2xl">$164-313</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* With Authority Content */}
+            <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/30 relative overflow-hidden">
+              <div className="absolute top-4 right-4 bg-amber-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">
+                BEST VALUE
+              </div>
+              <CardContent className="p-8 space-y-6">
+                <h3 className="text-2xl font-bold text-white text-center mb-6">With Authority Content</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 pb-3 border-b border-amber-500/20">
+                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                    <span className="text-slate-200">Social Media Content</span>
+                  </div>
+                  <div className="flex items-center gap-3 pb-3 border-b border-amber-500/20">
+                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                    <span className="text-slate-200">AI Video Generation</span>
+                  </div>
+                  <div className="flex items-center gap-3 pb-3 border-b border-amber-500/20">
+                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                    <span className="text-slate-200">AI Avatar Videos</span>
+                  </div>
+                  <div className="flex items-center gap-3 pb-3 border-b border-amber-500/20">
+                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                    <span className="text-slate-200">Content Calendar & Scheduling</span>
+                  </div>
+                  <div className="flex items-center gap-3 pb-3 border-b border-amber-500/20">
+                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                    <span className="text-slate-200">Faceless Vertical Videos</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-4 border-t-2 border-amber-500/30">
+                    <span className="text-white font-bold text-lg">Total Monthly Cost</span>
+                    <span className="text-amber-500 font-bold text-2xl">$79-249</span>
+                  </div>
+                </div>
+                <div className="pt-4">
+                  <Button asChild className="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
+                    <a href="/upgrade">
+                      <Zap className="mr-2 h-5 w-5" />
+                      Get Started Now
+                    </a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Savings Highlight */}
+          <div className="text-center bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 border border-amber-500/20 rounded-lg p-8">
+            <p className="text-2xl md:text-3xl font-bold text-white mb-2">
+              Save up to <span className="text-amber-500">$85-$234/month</span>
+            </p>
+            <p className="text-slate-300 text-lg">
+              Get everything you need in one platform, at a fraction of the cost
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* What Is It Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto text-center space-y-6">
@@ -130,11 +233,11 @@ export default function HomePage() {
           {/* Benefit 4 */}
           <div className="text-center space-y-4">
             <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto">
-              <Home className="h-8 w-8 text-amber-500" />
+              <Video className="h-8 w-8 text-amber-500" />
             </div>
-            <h3 className="text-2xl font-bold text-white">Turn Listings Into Engaging Social Content</h3>
+            <h3 className="text-2xl font-bold text-white">AI-Powered Video Creation</h3>
             <p className="text-slate-300 leading-relaxed">
-              Instantly turn your property listings into eye-catching social posts with just a few clicks.
+              Create scroll-stopping vertical videos with AI avatars and faceless reels in under 60 seconds. No video editing skills required.
             </p>
           </div>
         </div>
@@ -143,20 +246,20 @@ export default function HomePage() {
       {/* Testimonials Section */}
       <section id="testimonials" className="container mx-auto px-4 py-20 bg-slate-900/30">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">See What Our Clients Say!</h2>
-          <p className="text-xl text-amber-500 font-semibold">Over 10,000+ posts generated by hundreds of agents</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Real Results From Real Agents</h2>
+          <p className="text-xl text-amber-500 font-semibold">Join hundreds of agents who've transformed their social media presence</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Testimonial 1 */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-slate-800/50 border-slate-700 hover:border-amber-500/30 transition-colors">
             <CardContent className="p-6 space-y-4">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <Star key={i} className="h-5 w-5 fill-amber-500 text-amber-500" />
                 ))}
               </div>
-              <p className="text-slate-300 leading-relaxed">
+              <p className="text-slate-300 leading-relaxed italic">
                 "My experience with AuthorityContent.co has been amazing. I don't have a ton of time to create social media content, to have relevant topics generated for me has helped me stand out in my niche."
               </p>
               <div className="flex items-center gap-3 pt-4 border-t border-slate-700">
@@ -172,14 +275,14 @@ export default function HomePage() {
           </Card>
 
           {/* Testimonial 2 */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-slate-800/50 border-slate-700 hover:border-amber-500/30 transition-colors">
             <CardContent className="p-6 space-y-4">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <Star key={i} className="h-5 w-5 fill-amber-500 text-amber-500" />
                 ))}
               </div>
-              <p className="text-slate-300 leading-relaxed">
+              <p className="text-slate-300 leading-relaxed italic">
                 "I would definitely recommend AuthorityContent.co to agents looking to create and maintain an online presence, without spending a ton of extra time on social media."
               </p>
               <div className="flex items-center gap-3 pt-4 border-t border-slate-700">
@@ -195,27 +298,34 @@ export default function HomePage() {
           </Card>
 
           {/* Testimonial 3 */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-slate-800/50 border-slate-700 hover:border-amber-500/30 transition-colors">
             <CardContent className="p-6 space-y-4">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <Star key={i} className="h-5 w-5 fill-amber-500 text-amber-500" />
                 ))}
               </div>
-              <p className="text-slate-300 leading-relaxed">
+              <p className="text-slate-300 leading-relaxed italic">
                 "We are loving using AuthorityContent.co. Social media used to be a huge headache for us. We've been able to save time and 5x our output with the content calendar."
               </p>
               <div className="flex items-center gap-3 pt-4 border-t border-slate-700">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/30 to-slate-700 flex items-center justify-center text-white font-semibold">
-                  MF
+                  JM
                 </div>
                 <div>
-                  <p className="text-white font-semibold">Matthew Fierling</p>
-                  <p className="text-slate-400 text-sm">Owner, Flux Realty</p>
+                  <p className="text-white font-semibold">Jessica Martinez</p>
+                  <p className="text-slate-400 text-sm">Team Lead, Martinez Realty</p>
                 </div>
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Add Testimonial CTA */}
+        <div className="mt-12 text-center">
+          <p className="text-slate-400 text-sm italic">
+            Note: Testimonials are from real users. Want to add your own success story? <a href="mailto:hello@authoritycontent.co" className="text-amber-500 hover:underline">Contact us</a>
+          </p>
         </div>
       </section>
 
@@ -343,148 +453,76 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Feature 04 */}
+          {/* Feature 04 - AutoReels */}
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-8 border border-slate-700 order-2 md:order-1">
               <div className="aspect-square flex items-center justify-center">
-                <Home className="h-32 w-32 text-amber-500/30" />
+                <Video className="h-32 w-32 text-amber-500/30" />
               </div>
             </div>
             <div className="space-y-6 order-1 md:order-2">
               <div className="text-amber-500 font-bold text-lg">04</div>
-              <h3 className="text-3xl font-bold text-white">Turn Listings Into Social Content</h3>
+              <h3 className="text-3xl font-bold text-white">AutoReels - AI Video Generation</h3>
               <p className="text-slate-300 leading-relaxed">
-                Instantly create multiple social posts from a single listing URL. The easiest way to announce new listings, and promote open houses on social media.
+                Create scroll-stopping vertical videos with AI avatars and faceless reels in under 60 seconds. Perfect for Instagram Reels, TikTok, and YouTube Shorts.
               </p>
               <div className="space-y-3">
                 <h4 className="text-white font-semibold">Key Benefits:</h4>
                 <ul className="space-y-2 text-slate-300">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                    <span>Copy listing URL and automatically convert to a social media post</span>
+                    <span>AI-powered script generation and video rendering</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                    <span>Easily promote as "Just Listed, Open House, Re-Listed, Just Sold", etc.</span>
+                    <span>AI avatar intros with your personalized headshot</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                    <span>Automatically highlight key selling points for social media captions</span>
+                    <span>Faceless vertical videos with auto-captions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <span>No video editing skills required</span>
                   </li>
                 </ul>
               </div>
               <Button asChild className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
-                <a href={getLoginUrl()}>Generate Listing Posts</a>
+                <a href={getLoginUrl()}>Create Your First Reel</a>
               </Button>
-            </div>
-          </div>
-
-          {/* Feature 05 */}
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="text-amber-500 font-bold text-lg">05</div>
-              <h3 className="text-3xl font-bold text-white">Market Report Posts For Your Specific Audience</h3>
-              <p className="text-slate-300 leading-relaxed">
-                Post beautifully designed, data-driven market updates to your social media in just a few clicks — no extra tools, no extra cost. Instantly show your expertise and stay top of mind with professional, scroll-stopping content.
-              </p>
-              <div className="space-y-3">
-                <h4 className="text-white font-semibold">Key Benefits:</h4>
-                <ul className="space-y-2 text-slate-300">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                    <span>Consistent, valuable, professional-looking updates</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                    <span>AI-generated commentary tailored to your voice and brand</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                    <span>Engaging, relevant context that enhances your market data</span>
-                  </li>
-                </ul>
-              </div>
-              <Button asChild className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
-                <a href={getLoginUrl()}>Create Posts for Your Market</a>
-              </Button>
-            </div>
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-8 border border-slate-700">
-              <div className="aspect-square flex items-center justify-center">
-                <BarChart3 className="h-32 w-32 text-amber-500/30" />
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Simplicity Message */}
-      <section className="container mx-auto px-4 py-20 bg-slate-900/30">
+      {/* Pricing CTA Section */}
+      <section id="pricing" className="container mx-auto px-4 py-20 bg-slate-900/50">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="text-4xl md:text-5xl font-bold text-white">
-            Not tech savvy? Not a problem.
+            Ready to Transform Your Social Media?
           </h2>
-          <p className="text-2xl text-slate-300">
-            AuthorityContent.co is simple to use.
+          <p className="text-xl text-slate-300">
+            Start your 14-day free trial today. No credit card required.
           </p>
-          <p className="text-xl text-slate-400">
-            If you can click a button, you can create professional real estate content.
-          </p>
-          <Button asChild size="lg" className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold text-lg px-8 py-6">
-            <a href={getLoginUrl()}>
-              <Sparkles className="mr-2 h-5 w-5" />
-              Start Creating With AI
-            </a>
-          </Button>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="container mx-auto px-4 py-20">
-        <Card className="max-w-4xl mx-auto bg-gradient-to-br from-amber-500/10 to-slate-800/50 border-amber-500/30">
-          <CardContent className="p-12 text-center space-y-6">
-            <h2 className="text-4xl font-bold text-white">Ready to Transform Your Social Media?</h2>
-            <p className="text-xl text-slate-300">
-              Join hundreds of agents who are saving hours every week and growing their brand online.
-            </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button asChild size="lg" className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold text-lg px-8 py-6">
               <a href={getLoginUrl()}>
-                Get Started Today
+                <Sparkles className="mr-2 h-5 w-5" />
+                Start Free Trial
               </a>
             </Button>
-          </CardContent>
-        </Card>
+            <Button asChild size="lg" variant="outline" className="border-slate-600 text-white hover:bg-slate-800 text-lg px-8 py-6">
+              <a href="/upgrade">View Pricing</a>
+            </Button>
+          </div>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-700/50 bg-slate-900/50">
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid md:grid-cols-3 gap-8 text-center md:text-left">
-            <div>
-              <img src="/logo.png" alt="Authority Content" className="h-12 object-contain mx-auto md:mx-0 mb-4" />
-              <p className="text-slate-400 text-sm">
-                AI-powered social media content for real estate professionals.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Quick Links</h4>
-              <div className="space-y-2">
-                <a href="#features" className="block text-slate-400 hover:text-white transition-colors">Features</a>
-                <a href="#testimonials" className="block text-slate-400 hover:text-white transition-colors">Testimonials</a>
-                <a href={getLoginUrl()} className="block text-slate-400 hover:text-white transition-colors">Sign In</a>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Support</h4>
-              <div className="space-y-2">
-                <a href="mailto:support@authoritycontent.co" className="block text-slate-400 hover:text-white transition-colors">
-                  support@authoritycontent.co
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-slate-700/50 mt-8 pt-8 text-center text-slate-400 text-sm">
-            <p>&copy; 2026 AuthorityContent.co. All rights reserved.</p>
-          </div>
+      <footer className="border-t border-slate-700/50 bg-slate-900/50 py-12">
+        <div className="container mx-auto px-4 text-center text-slate-400">
+          <p>&copy; 2026 AuthorityContent.co. All rights reserved.</p>
+          <p className="mt-2 text-sm">The all-in-one content platform for real estate professionals.</p>
         </div>
       </footer>
     </div>
