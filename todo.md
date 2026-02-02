@@ -1531,3 +1531,56 @@ Tasks:
 - [x] Add error handling with graceful failures and clear messages
 - [x] Optimize for speed (target: under 60 seconds total generation time)
 - [ ] Add Stripe gating by tier (usage limits)
+
+## AutoReels V2 - AI Avatar Intros + Listing Photos (New Priority)
+- [ ] Research and compare AI video generation APIs (HeyGen vs D-ID)
+- [ ] Sign up for D-ID API access and get API key
+- [ ] Create Avatar Setup page for one-time photo upload
+- [ ] Build photo upload UI with S3 storage integration
+- [ ] Store user avatar photo URL in database (add avatar_photo_url to users table)
+- [ ] Integrate D-ID API for AI avatar intro generation
+- [ ] Create intro script generator (2-3 second opening lines)
+- [ ] Generate AI avatar intro clip via D-ID API
+- [ ] Add listing photo upload to AutoReels page (multi-image)
+- [ ] Update video renderer to support image assets (not just video)
+- [ ] Implement image transition effects (crossfade, slide, ken burns)
+- [ ] Composite AI intro + listing photos + subtitles in Shotstack
+- [ ] Add "Use AI Avatar Intro" toggle to AutoReels settings
+- [ ] Add "Use Stock Footage" vs "Use My Listing Photos" option
+- [ ] Calculate timing: divide video length by number of images
+- [ ] Test complete flow: avatar photo → intro generation → listing photos → final video
+- [ ] Add error handling for D-ID API failures
+- [ ] Optimize for speed (maintain <60s total generation time)
+- [ ] Write unit tests for D-ID integration
+- [ ] Write unit tests for image-based video rendering
+- [ ] Add usage tracking for AI avatar generations
+- [ ] Add Stripe gating by tier (avatar generations per month)
+
+## Stripe Pricing Tiers Implementation (Current Priority)
+- [ ] Create Stripe products programmatically (Starter $49, Pro $129, Premium $249)
+- [ ] Add subscription fields to users table (stripe_subscription_id, stripe_customer_id, tier, video_count)
+- [ ] Build subscription management router (create, update, cancel)
+- [ ] Implement Stripe webhook handler for subscription events
+- [ ] Add tier-based feature gating middleware
+- [ ] Create video usage tracking system (count videos per month)
+- [ ] Build pricing page component with tier comparison
+- [ ] Implement checkout flow (redirect to Stripe Checkout)
+- [ ] Add subscription status display in dashboard
+- [ ] Build upgrade/downgrade flow
+- [ ] Create billing management page (update payment method, view invoices)
+- [ ] Add "Extra videos" purchase flow for Pro tier ($5/video)
+- [ ] Implement usage limits enforcement (block generation when limit reached)
+- [ ] Add upgrade prompts when limits reached
+- [ ] Create admin panel for subscription management
+- [ ] Write unit tests for subscription logic
+- [ ] Write unit tests for usage tracking
+- [ ] Test complete subscription flow (signup → payment → access → upgrade)
+- [ ] Add analytics tracking for pricing page conversions
+
+## Pricing Structure Update (Current Priority)
+- [x] Update Stripe Starter product price: $49 → $79
+- [x] Update Starter tier to include 5 AI videos (was 0)
+- [x] Update feature gating with new video limits
+- [x] Update Upgrade.tsx pricing display
+- [x] Update pricing documentation file
+- [ ] Test subscription checkout flow with new pricing

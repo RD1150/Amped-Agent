@@ -15,7 +15,7 @@ export const stripeRouter = router({
   createCheckoutSession: protectedProcedure
     .input(
       z.object({
-        tier: z.enum(['starter', 'professional', 'agency']),
+        tier: z.enum(['starter', 'pro', 'premium']),
         successUrl: z.string(),
         cancelUrl: z.string(),
       })
@@ -27,7 +27,7 @@ export const stripeRouter = router({
 
       // Get product configuration
       const product = getProductByTier(tier);
-      if (!product || !product.priceId) {
+      if (!product || !product.priceIdMonthly) {
         throw new Error(`Product not found for tier: ${tier}`);
       }
 
@@ -40,7 +40,7 @@ export const stripeRouter = router({
           client_reference_id: userId.toString(),
           line_items: [
             {
-              price: product.priceId,
+              price: product.priceIdMonthly,
               quantity: 1,
             },
           ],
@@ -164,7 +164,7 @@ export const stripeRouter = router({
         case 'checkout.session.completed': {
           const session = event.data.object as Stripe.Checkout.Session;
           const userId = parseInt(session.metadata?.userId || '0');
-          const tier = session.metadata?.tier as 'starter' | 'professional' | 'agency' | undefined;
+          const tier = session.metadata?.tier as 'starter' | 'pro' | 'premium' | undefined;
           const customerId = session.customer as string;
           const subscriptionId = session.subscription as string;
 
@@ -186,7 +186,7 @@ export const stripeRouter = router({
         case 'customer.subscription.updated': {
           const subscription = event.data.object as Stripe.Subscription;
           const customerId = subscription.customer as string;
-          const tier = subscription.metadata?.tier as 'starter' | 'professional' | 'agency' | undefined;
+          const tier = subscription.metadata?.tier as 'starter' | 'pro' | 'premium' | undefined;
 
           // Find user by customer ID
           const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, customerId)).limit(1);

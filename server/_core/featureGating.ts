@@ -6,33 +6,30 @@ import { TRPCError } from "@trpc/server";
  * Controls access to features based on subscription tier
  */
 
-export type SubscriptionTier = "starter" | "professional" | "agency";
+export type SubscriptionTier = "starter" | "pro" | "premium";
 
 export interface TierFeatures {
   // Content features
   contentGeneration: boolean;
-  contentCalendar: boolean;
-  trendingNews: boolean;
-  marketStats: boolean;
-  videoConversion: boolean;
-
-  // Posting features
-  directPosting: boolean; // FB/IG/LinkedIn
-  ghlIntegration: boolean;
-  autoFunnels: boolean;
-
-  // Analytics features
-  contentAnalytics: boolean;
-  abTesting: boolean;
-
-  // Agency features
-  subAccounts: boolean;
+  templates: number;
+  scheduling: boolean;
+  
+  // Social media
+  facebookIntegration: boolean;
+  instagramIntegration: boolean;
+  
+  // AI Video features
+  aiVideos: number; // -1 = unlimited
+  listingPhotoVideos: boolean;
+  voiceCloning: boolean;
+  
+  // Team features
+  teamSeats: number;
   whiteLabel: boolean;
-  customDomain: boolean;
-
-  // Limits
-  maxPostsPerMonth: number;
-  maxImagesPerMonth: number;
+  apiAccess: boolean;
+  
+  // Support
+  support: string;
 }
 
 /**
@@ -41,54 +38,45 @@ export interface TierFeatures {
 export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
   starter: {
     contentGeneration: true,
-    contentCalendar: true,
-    trendingNews: true,
-    marketStats: true,
-    videoConversion: true,
-    directPosting: true,
-    ghlIntegration: false,
-    autoFunnels: false,
-    contentAnalytics: false,
-    abTesting: false,
-    subAccounts: false,
+    templates: 50,
+    scheduling: true,
+    facebookIntegration: true,
+    instagramIntegration: true,
+    aiVideos: 5,
+    listingPhotoVideos: true,
+    voiceCloning: false,
+    teamSeats: 1,
     whiteLabel: false,
-    customDomain: false,
-    maxPostsPerMonth: 100,
-    maxImagesPerMonth: 50,
+    apiAccess: false,
+    support: "email-48hr",
   },
-  professional: {
+  pro: {
     contentGeneration: true,
-    contentCalendar: true,
-    trendingNews: true,
-    marketStats: true,
-    videoConversion: true,
-    directPosting: true,
-    ghlIntegration: true,
-    autoFunnels: true,
-    contentAnalytics: true,
-    abTesting: true,
-    subAccounts: false,
+    templates: 50,
+    scheduling: true,
+    facebookIntegration: true,
+    instagramIntegration: true,
+    aiVideos: 20,
+    listingPhotoVideos: true,
+    voiceCloning: false,
+    teamSeats: 1,
     whiteLabel: false,
-    customDomain: false,
-    maxPostsPerMonth: 500,
-    maxImagesPerMonth: 250,
+    apiAccess: false,
+    support: "email-24hr",
   },
-  agency: {
+  premium: {
     contentGeneration: true,
-    contentCalendar: true,
-    trendingNews: true,
-    marketStats: true,
-    videoConversion: true,
-    directPosting: true,
-    ghlIntegration: true,
-    autoFunnels: true,
-    contentAnalytics: true,
-    abTesting: true,
-    subAccounts: true,
+    templates: 100,
+    scheduling: true,
+    facebookIntegration: true,
+    instagramIntegration: true,
+    aiVideos: -1, // unlimited
+    listingPhotoVideos: true,
+    voiceCloning: true,
+    teamSeats: 3,
     whiteLabel: true,
-    customDomain: true,
-    maxPostsPerMonth: -1, // unlimited
-    maxImagesPerMonth: -1, // unlimited
+    apiAccess: true,
+    support: "phone-4hr",
   },
 };
 
@@ -126,11 +114,11 @@ export function requireFeatureAccess(
  * Get required tier for a feature
  */
 function getRequiredTier(feature: keyof TierFeatures): string {
-  if (TIER_FEATURES.professional[feature] && !TIER_FEATURES.starter[feature]) {
-    return "Professional";
+  if (TIER_FEATURES.pro[feature] && !TIER_FEATURES.starter[feature]) {
+    return "Pro";
   }
-  if (TIER_FEATURES.agency[feature] && !TIER_FEATURES.professional[feature]) {
-    return "Agency";
+  if (TIER_FEATURES.premium[feature] && !TIER_FEATURES.pro[feature]) {
+    return "Premium";
   }
   return "Starter";
 }
