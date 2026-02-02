@@ -1701,3 +1701,7 @@ Tasks:
 - [x] Add auto-start for first-time users
 - [x] Add "Start Tour" button in dashboard
 - [x] Test tour flow and interactions
+
+## Driver.js Popup Transparency Fix (Current Priority)
+- [x] Update CSS to make popup background fully opaque
+- [x] Test popup visibility and readability
