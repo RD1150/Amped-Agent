@@ -52,6 +52,25 @@ export const startDashboardTour = () => {
                 style="border-radius: 8px; margin-bottom: 12px;"
               ></iframe>
               <p>After watching, click <strong>Next</strong> to start the interactive tour!</p>
+              <div style="margin-top: 16px; text-align: center;">
+                <button 
+                  id="skip-video-btn" 
+                  style="
+                    padding: 8px 16px;
+                    background: transparent;
+                    border: 1px solid #d1d5db;
+                    border-radius: 6px;
+                    color: #6b7280;
+                    cursor: pointer;
+                    font-size: 14px;
+                    transition: all 0.2s;
+                  "
+                  onmouseover="this.style.borderColor='#9ca3af'; this.style.color='#374151'"
+                  onmouseout="this.style.borderColor='#d1d5db'; this.style.color='#6b7280'"
+                >
+                  Skip Video →
+                </button>
+              </div>
             </div>
           `
         }
@@ -104,6 +123,16 @@ export const startDashboardTour = () => {
 
   currentDriver = driverObj;
   driverObj.drive();
+  
+  // Add click handler for Skip Video button after tour starts
+  setTimeout(() => {
+    const skipBtn = document.getElementById('skip-video-btn');
+    if (skipBtn) {
+      skipBtn.addEventListener('click', () => {
+        driverObj.moveNext();
+      });
+    }
+  }, 100);
 };
 
 // Generate Post Feature Tour

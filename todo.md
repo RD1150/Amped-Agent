@@ -1720,3 +1720,9 @@ Tasks:
 - [x] Add placeholder video URL with TODO comment
 - [x] Style video player to fit in popup
 - [x] Test video embed in tour
+
+## Skip Video Button (Current Priority)
+- [x] Add Skip Video button to first tour step
+- [x] Style button with subtle gray border
+- [x] Add click handler to advance to next step
+- [x] Test button functionality
