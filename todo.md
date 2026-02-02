@@ -1606,3 +1606,11 @@ Tasks:
 - [ ] Integrate D-ID API with AutoReels video generation flow
 - [ ] Test complete AutoReels flow with AI avatar intros
 - [ ] Implement error handling and usage tracking for D-ID
+
+## Pricing Updates (Current Priority)
+- [x] Update products.ts with 2 months free annual pricing (10 months paid)
+- [x] Update Stripe products and prices with annual options
+- [ ] Update pricing page to show monthly/annual toggle
+- [ ] Update subscription flow to support annual billing
+- [ ] Test annual subscription checkout flow
+- [ ] Update pricing display to show "Save 2 months" badge

@@ -40,7 +40,7 @@ const pricingTiers: PricingTier[] = [
   {
     name: "Pro",
     tier: "pro",
-    price: 129,
+    price: 149,
     description: "The complete AI video marketing solution",
     icon: Zap,
     popular: true,

@@ -37,10 +37,10 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     description: "Get started with AI content generation",
     tier: "starter",
     priceMonthly: 7900, // $79/month
-    priceYearly: 75840, // $63.20/month ($758.40/year - 20% discount)
-    priceIdMonthly: "price_1SwC2yIg7t2mT914iB80LQlI",
-    priceIdYearly: "price_1SwC2zIg7t2mT914eIrD3l44",
-    productId: "prod_TtznMGK13Zoyme",
+    priceYearly: 79000, // $65.83/month ($790/year - 2 months free)
+    priceIdMonthly: "price_1SwEkxIg7t2mT914l2lYhLh7",
+    priceIdYearly: "price_1SwEkxIg7t2mT914U85UGQZQ",
+    productId: "prod_Tu2qUnne3JxuKt",
     trialDays: 14,
     features: {
       contentGeneration: true,
@@ -74,11 +74,11 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     name: "Authority Content Pro",
     description: "The complete AI video marketing solution",
     tier: "pro",
-    priceMonthly: 12900, // $129/month
-    priceYearly: 123600, // $103/month ($1,236/year - 20% discount)
-    priceIdMonthly: "price_1SwBnvIg7t2mT914zxuO0i95",
-    priceIdYearly: "price_1SwBnvIg7t2mT914v9Qcoq7q",
-    productId: "prod_TtznGoscDqVLgz",
+    priceMonthly: 14900, // $149/month
+    priceYearly: 149000, // $124.17/month ($1,490/year - 2 months free)
+    priceIdMonthly: "price_1SwEkzIg7t2mT914CiNdZgkd",
+    priceIdYearly: "price_1SwEkzIg7t2mT914ZibEMRwS",
+    productId: "prod_Tu2qEpQy3NGNdY",
     trialDays: 14,
     recommended: true,
     features: {
@@ -113,10 +113,10 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     description: "Unlimited video creation for top producers",
     tier: "premium",
     priceMonthly: 24900, // $249/month
-    priceYearly: 238800, // $199/month ($2,388/year - 20% discount)
-    priceIdMonthly: "price_1SwBnxIg7t2mT914OPewQ6Zc",
-    priceIdYearly: "price_1SwBnyIg7t2mT91430HPTw99",
-    productId: "prod_Ttzn0tnRDWBdzS",
+    priceYearly: 249000, // $207.50/month ($2,490/year - 2 months free)
+    priceIdMonthly: "price_1SwEl1Ig7t2mT914iDGqGZ40",
+    priceIdYearly: "price_1SwEl2Ig7t2mT914uAb8Wm9i",
+    productId: "prod_Tu2qRnlGJmcZu8",
     trialDays: 14,
     features: {
       contentGeneration: true,
@@ -195,7 +195,8 @@ export function getVideoLimit(tier: "starter" | "pro" | "premium"): number {
  * Run this script once: npx tsx server/stripe-products.ts
  */
 export async function createStripeProducts() {
-  const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+  const Stripe = (await import("stripe")).default;
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
   for (const product of STRIPE_PRODUCTS) {
     console.log(`Creating product: ${product.name}`);
