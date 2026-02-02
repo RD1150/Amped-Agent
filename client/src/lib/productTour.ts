@@ -1,5 +1,8 @@
-import { driver } from "driver.js";
+import { driver, type DriveStep } from "driver.js";
 import "driver.js/dist/driver.css";
+
+// Store current driver instance globally for close button
+let currentDriver: ReturnType<typeof driver> | null = null;
 
 // Custom styling for the tour
 const tourConfig = {
@@ -9,11 +12,19 @@ const tourConfig = {
   prevBtnText: '← Back',
   doneBtnText: 'Done ✓',
   popoverClass: 'driverjs-theme-custom',
+  onCloseClick: () => {
+    // Mark tour as completed when user closes
+    localStorage.setItem('productTourCompleted', 'true');
+    if (currentDriver) {
+      currentDriver.destroy();
+      currentDriver = null;
+    }
+  },
   onDestroyStarted: () => {
-    // Mark tour as completed
+    // Mark tour as completed when user completes tour
     localStorage.setItem('productTourCompleted', 'true');
   },
-} as const;
+};
 
 // Dashboard Overview Tour
 export const startDashboardTour = () => {
@@ -73,6 +84,7 @@ export const startDashboardTour = () => {
     ]
   });
 
+  currentDriver = driverObj;
   driverObj.drive();
 };
 
@@ -120,6 +132,7 @@ export const startGeneratePostTour = () => {
     ]
   });
 
+  currentDriver = driverObj;
   driverObj.drive();
 };
 
@@ -167,6 +180,7 @@ export const startAutoReelsTour = () => {
     ]
   });
 
+  currentDriver = driverObj;
   driverObj.drive();
 };
 
@@ -205,6 +219,7 @@ export const startContentCalendarTour = () => {
     ]
   });
 
+  currentDriver = driverObj;
   driverObj.drive();
 };
 

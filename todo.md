@@ -1710,3 +1710,7 @@ Tasks:
 - [x] Reorder tour steps: 1) Persona & Brand, 2) Generate Post, 3) AutoReels, 4) Content Calendar
 - [x] Update tour descriptions to match new order
 - [x] Test complete tour flow with new order
+
+## Driver.js Close Button Fix (Current Priority)
+- [x] Fix X button to properly close tour popup
+- [x] Test close button functionality
