@@ -1,1 +1,0 @@
-ALTER TABLE `content_posts` ADD `postedPlatforms` text;

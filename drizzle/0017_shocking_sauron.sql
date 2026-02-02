@@ -1,1 +1,0 @@
-ALTER TABLE `users` MODIFY COLUMN `subscriptionTier` enum('starter','pro','premium') DEFAULT 'starter';

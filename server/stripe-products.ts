@@ -258,7 +258,7 @@ export async function createStripeProducts() {
   console.log(JSON.stringify(STRIPE_PRODUCTS, null, 2));
 }
 
-// Run if executed directly
-if (require.main === module) {
+// Run if executed directly (ES module check)
+if (import.meta.url === `file://${process.argv[1]}`) {
   createStripeProducts().catch(console.error);
 }

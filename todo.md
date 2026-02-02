@@ -1584,3 +1584,25 @@ Tasks:
 - [x] Update Upgrade.tsx pricing display
 - [x] Update pricing documentation file
 - [ ] Test subscription checkout flow with new pricing
+
+## D-ID Avatar Video Generation (Current Priority)
+- [ ] Request D-ID API key from user
+- [ ] Add D-ID API key to environment variables
+- [ ] Create D-ID API integration helper (server/_core/didAvatar.ts)
+- [ ] Build avatar setup page (upload 1 photo, create digital twin)
+- [ ] Implement listing photo upload component (3-10 photos)
+- [ ] Update video renderer to composite: avatar intro → listing photos → subtitles
+- [ ] Add photo transition effects (crossfade, slide, ken burns)
+- [ ] Test complete video generation flow
+- [ ] Write vitest tests for D-ID integration
+- [ ] Update AutoReels UI with photo upload fields
+
+## D-ID AI Avatar Integration (Current Priority)
+- [x] Obtain D-ID API key (Lite plan)
+- [x] Add D-ID API key to environment variables
+- [x] Write vitest test to validate D-ID API key
+- [x] Create D-ID service module for avatar video generation
+- [x] Test D-ID service module with vitest (all tests passing)
+- [ ] Integrate D-ID API with AutoReels video generation flow
+- [ ] Test complete AutoReels flow with AI avatar intros
+- [ ] Implement error handling and usage tracking for D-ID
