@@ -39,7 +39,7 @@ export const startDashboardTour = () => {
             <div style="margin-bottom: 16px;">
               <p style="margin-bottom: 12px;">Watch this quick 60-second intro to see what you can accomplish with Authority Content:</p>
               <video 
-                src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/mJKNuGTKYZoVWZXa.mp4" 
+                src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/TdPsCdKazBtIqarA.mp4" 
                 controls 
                 width="100%" 
                 height="315" 
