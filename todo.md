@@ -1806,3 +1806,16 @@ Tasks:
 ## AutoReels Quick Prompt Enhancement
 - [x] Add 'Local Business Spotlight' quick prompt template
 - [x] Test Local Business Spotlight content generation
+
+## AutoReels Community-Focused Prompts
+- [x] Add 'Local Events' quick prompt template
+- [x] Add 'Community Charity' quick prompt template
+- [x] Add 'Hidden Gems' quick prompt template
+- [x] Test all new community-focused prompts
+## Custom Prompt Templates Feature
+- [x] Design database schema for custom prompt templates (user_id, label, prompt, created_at)
+- [x] Create backend CRUD procedures (create, list, update, delete)
+- [x] Build UI for managing custom templates (add/delete dialog)
+- [x] Integrate custom templates into AutoReels quick prompts section
+- [x] Add visual distinction between default and custom templates (custom templates have border)
+- [x] Write vitest tests for custom template procedures - All 5 tests passing

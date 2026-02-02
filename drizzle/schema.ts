@@ -433,3 +433,19 @@ export const betaSignups = mysqlTable("beta_signups", {
 
 export type BetaSignup = typeof betaSignups.$inferSelect;
 export type InsertBetaSignup = typeof betaSignups.$inferInsert;
+
+/**
+ * Custom prompt templates for AutoReels
+ * Allows users to save their own reusable prompt templates
+ */
+export const customPromptTemplates = mysqlTable("custom_prompt_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  label: varchar("label", { length: 100 }).notNull(), // Display name (e.g., "Open House Promo")
+  prompt: text("prompt").notNull(), // The actual prompt text
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CustomPromptTemplate = typeof customPromptTemplates.$inferSelect;
+export type InsertCustomPromptTemplate = typeof customPromptTemplates.$inferInsert;

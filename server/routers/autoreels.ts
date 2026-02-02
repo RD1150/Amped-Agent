@@ -407,7 +407,7 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
     }),
 
   /**
-   * Get D-ID remaining credits
+   * Get remaining D-ID credits
    */
   getDidCredits: protectedProcedure
     .query(async () => {
@@ -417,5 +417,54 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
       } catch (error: any) {
         throw new Error(`Failed to fetch D-ID credits: ${error.message}`);
       }
+    }),
+
+  /**
+   * Get user's custom prompt templates
+   */
+  getCustomTemplates: protectedProcedure
+    .query(async ({ ctx }) => {
+      return db.getCustomPromptTemplatesByUserId(ctx.user.id);
+    }),
+
+  /**
+   * Create a new custom prompt template
+   */
+  createCustomTemplate: protectedProcedure
+    .input(z.object({
+      label: z.string().min(1, "Label is required").max(100),
+      prompt: z.string().min(1, "Prompt is required"),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      return db.createCustomPromptTemplate({
+        userId: ctx.user.id,
+        label: input.label,
+        prompt: input.prompt,
+      });
+    }),
+
+  /**
+   * Update a custom prompt template
+   */
+  updateCustomTemplate: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      label: z.string().min(1).max(100).optional(),
+      prompt: z.string().min(1).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      return db.updateCustomPromptTemplate(id, data);
+    }),
+
+  /**
+   * Delete a custom prompt template
+   */
+  deleteCustomTemplate: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+    }))
+    .mutation(async ({ input }) => {
+      return db.deleteCustomPromptTemplate(input.id);
     }),
 });

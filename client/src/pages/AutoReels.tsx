@@ -5,9 +5,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User } from "lucide-react";
+import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 type InputMethod = "bullets" | "caption" | "blog" | "listing";
 type VideoLength = "7" | "15" | "30";
@@ -56,9 +58,15 @@ export default function AutoReels() {
   const renderVideoMutation = trpc.autoreels.renderVideo.useMutation();
   const generateAvatarIntroMutation = trpc.autoreels.generateAvatarIntro.useMutation();
   const generateContentMutation = trpc.autoreels.generateContent.useMutation();
+  const { data: customTemplates = [] } = trpc.autoreels.getCustomTemplates.useQuery();
+  const createTemplateMutation = trpc.autoreels.createCustomTemplate.useMutation();
+  const deleteTemplateMutation = trpc.autoreels.deleteCustomTemplate.useMutation();
   const utils = trpc.useUtils();
   
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [newTemplateLabel, setNewTemplateLabel] = useState("");
+  const [newTemplatePrompt, setNewTemplatePrompt] = useState("");
 
   const handleAvatarImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -420,25 +428,137 @@ export default function AutoReels() {
               </div>
               
               {/* Quick Prompts */}
-              <div className="flex flex-wrap gap-2 mb-3">
-                {[
-                  { label: "Market Update", prompt: "Create a market update post about current real estate trends in my area" },
-                  { label: "Listing Promo", prompt: "Create a promotional post for a new luxury listing" },
-                  { label: "Buyer Tips", prompt: "Share 3 essential tips for first-time home buyers" },
-                  { label: "Seller Advice", prompt: "Explain how to prepare a home for sale to maximize value" },
-                  { label: "Neighborhood Spotlight", prompt: "Highlight the best features of a desirable neighborhood" },
-                  { label: "Local Business Spotlight", prompt: "Spotlight a local business (shop, restaurant, or service) that makes our community special" }
-                ].map((template) => (
-                  <Button
-                    key={template.label}
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setInputText(template.prompt)}
-                    className="text-xs"
-                  >
-                    {template.label}
-                  </Button>
-                ))}
+              <div className="space-y-3 mb-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">Quick Prompts</p>
+                  <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
+                        <Plus className="h-3 w-3" />
+                        Add Custom
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Create Custom Template</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div>
+                          <Label htmlFor="template-label">Template Name</Label>
+                          <Input
+                            id="template-label"
+                            placeholder="e.g., Open House Promo"
+                            value={newTemplateLabel}
+                            onChange={(e) => setNewTemplateLabel(e.target.value)}
+                            maxLength={100}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="template-prompt">Prompt</Label>
+                          <Textarea
+                            id="template-prompt"
+                            placeholder="e.g., Create an engaging post about an upcoming open house event"
+                            value={newTemplatePrompt}
+                            onChange={(e) => setNewTemplatePrompt(e.target.value)}
+                            className="min-h-[100px]"
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setShowTemplateDialog(false);
+                            setNewTemplateLabel("");
+                            setNewTemplatePrompt("");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={async () => {
+                            if (!newTemplateLabel.trim() || !newTemplatePrompt.trim()) {
+                              toast.error("Please fill in both fields");
+                              return;
+                            }
+                            try {
+                              await createTemplateMutation.mutateAsync({
+                                label: newTemplateLabel,
+                                prompt: newTemplatePrompt,
+                              });
+                              await utils.autoreels.getCustomTemplates.invalidate();
+                              toast.success("Template created!");
+                              setShowTemplateDialog(false);
+                              setNewTemplateLabel("");
+                              setNewTemplatePrompt("");
+                            } catch (error) {
+                              toast.error("Failed to create template");
+                            }
+                          }}
+                          disabled={createTemplateMutation.isPending}
+                        >
+                          {createTemplateMutation.isPending ? "Creating..." : "Create"}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  {/* Default templates */}
+                  {[
+                    { label: "Market Update", prompt: "Create a market update post about current real estate trends in my area" },
+                    { label: "Listing Promo", prompt: "Create a promotional post for a new luxury listing" },
+                    { label: "Buyer Tips", prompt: "Share 3 essential tips for first-time home buyers" },
+                    { label: "Seller Advice", prompt: "Explain how to prepare a home for sale to maximize value" },
+                    { label: "Neighborhood Spotlight", prompt: "Highlight the best features of a desirable neighborhood" },
+                    { label: "Local Business Spotlight", prompt: "Spotlight a local business (shop, restaurant, or service) that makes our community special" },
+                    { label: "Local Events", prompt: "Highlight upcoming local events, festivals, or community gatherings in my area" },
+                    { label: "Community Charity", prompt: "Spotlight a local charity, nonprofit, or community cause that's making a difference" },
+                    { label: "Hidden Gems", prompt: "Share hidden gems and lesser-known spots in my market that locals love" }
+                  ].map((template) => (
+                    <Button
+                      key={template.label}
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setInputText(template.prompt)}
+                      className="text-xs"
+                    >
+                      {template.label}
+                    </Button>
+                  ))}
+                  
+                  {/* Custom templates */}
+                  {customTemplates.map((template) => (
+                    <div key={template.id} className="relative group">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setInputText(template.prompt)}
+                        className="text-xs pr-8 border-2 border-primary/20"
+                      >
+                        {template.label}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            await deleteTemplateMutation.mutateAsync({ id: template.id });
+                            await utils.autoreels.getCustomTemplates.invalidate();
+                            toast.success("Template deleted");
+                          } catch (error) {
+                            toast.error("Failed to delete template");
+                          }
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
               
               <Textarea

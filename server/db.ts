@@ -17,7 +17,8 @@ import {
   usageAlerts, UsageAlert, InsertUsageAlert,
   whiteLabelSettings, WhiteLabelSettings, InsertWhiteLabelSettings,
   hooks, Hook,
-  betaSignups, BetaSignup, InsertBetaSignup
+  betaSignups, BetaSignup, InsertBetaSignup,
+  customPromptTemplates, CustomPromptTemplate, InsertCustomPromptTemplate
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -670,3 +671,32 @@ export async function createBetaSignup(data: {
   }
 }
 
+
+// ============================================================
+// Custom Prompt Templates
+// ============================================================
+
+export async function getCustomPromptTemplatesByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(customPromptTemplates).where(eq(customPromptTemplates.userId, userId)).orderBy(desc(customPromptTemplates.createdAt));
+}
+
+export async function createCustomPromptTemplate(data: InsertCustomPromptTemplate) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(customPromptTemplates).values(data);
+  return result;
+}
+
+export async function updateCustomPromptTemplate(id: number, data: Partial<InsertCustomPromptTemplate>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(customPromptTemplates).set(data).where(eq(customPromptTemplates.id, id));
+}
+
+export async function deleteCustomPromptTemplate(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(customPromptTemplates).where(eq(customPromptTemplates.id, id));
+}
