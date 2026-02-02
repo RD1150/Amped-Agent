@@ -1787,3 +1787,18 @@ Tasks:
 - [x] Update coach backend to analyze against personalized context
 - [x] Update coach UI to show avatar/brand/market alignment scores
 - [x] Test personalized analysis - All 3 tests passing
+
+## AutoReels AI Content Generation (Current Priority)
+- [x] Add "Generate with AI" button to AutoReels page
+- [x] Create backend procedure to generate reel content based on topic
+- [x] Add quick prompt templates (Market Update, Listing Promo, Tip/Advice, Seller Advice, Neighborhood Spotlight)
+- [ ] Test AI generation with Authority Profile integration
+
+## AutoReels AI Content Generation (COMPLETED)
+- [x] Add "Generate with AI" button to AutoReels page
+- [x] Create backend procedure to generate reel content based on topic
+- [x] Add quick prompt templates (Market Update, Listing Promo, Tip/Advice, Seller Advice, Neighborhood Spotlight)
+- [x] Test AI generation with Authority Profile integration - All 4 tests passing
+- [x] Wire up frontend to call generateContent procedure
+- [x] Add loading states and error handling
+- [x] Integrate with Authority Profile (customer avatar, brand values, market context)

@@ -55,7 +55,10 @@ export default function AutoReels() {
   const generateMutation = trpc.autoreels.generate.useMutation();
   const renderVideoMutation = trpc.autoreels.renderVideo.useMutation();
   const generateAvatarIntroMutation = trpc.autoreels.generateAvatarIntro.useMutation();
+  const generateContentMutation = trpc.autoreels.generateContent.useMutation();
   const utils = trpc.useUtils();
+  
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
 
   const handleAvatarImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -373,9 +376,70 @@ export default function AutoReels() {
 
             {/* Text Input */}
             <div className="mb-6">
-              <Label htmlFor="input-text" className="text-base font-semibold mb-2 block">
-                Your Content
-              </Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="input-text" className="text-base font-semibold">
+                  Your Content
+                </Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    const topic = prompt("What topic would you like to create content about?");
+                    if (!topic) return;
+                    
+                    setIsGeneratingContent(true);
+                    try {
+                      const result = await generateContentMutation.mutateAsync({
+                        topic,
+                        inputMethod
+                      });
+                      setInputText(result.content);
+                      toast.success("Content generated! Edit as needed.");
+                    } catch (error) {
+                      toast.error("Failed to generate content");
+                      console.error(error);
+                    } finally {
+                      setIsGeneratingContent(false);
+                    }
+                  }}
+                  disabled={isGeneratingContent}
+                  className="gap-2"
+                >
+                  {isGeneratingContent ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      Generate with AI
+                    </>
+                  )}
+                </Button>
+              </div>
+              
+              {/* Quick Prompts */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {[
+                  { label: "Market Update", prompt: "Create a market update post about current real estate trends in my area" },
+                  { label: "Listing Promo", prompt: "Create a promotional post for a new luxury listing" },
+                  { label: "Buyer Tips", prompt: "Share 3 essential tips for first-time home buyers" },
+                  { label: "Seller Advice", prompt: "Explain how to prepare a home for sale to maximize value" },
+                  { label: "Neighborhood Spotlight", prompt: "Highlight the best features of a desirable neighborhood" }
+                ].map((template) => (
+                  <Button
+                    key={template.label}
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setInputText(template.prompt)}
+                    className="text-xs"
+                  >
+                    {template.label}
+                  </Button>
+                ))}
+              </div>
+              
               <Textarea
                 id="input-text"
                 placeholder={inputMethodPlaceholders[inputMethod]}

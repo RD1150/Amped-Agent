@@ -1,14 +1,68 @@
-import { router, protectedProcedure } from "../_core/trpc";
+import { protectedProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import { invokeLLM } from "../_core/llm";
 import { renderAutoReel, getRenderStatus } from "../_core/videoRenderer";
 import { generateAvatarIntro, getRemainingCredits } from "../lib/did-service";
+import * as db from "../db";
 
 const inputMethodEnum = z.enum(["bullets", "caption", "blog", "listing"]);
 const videoLengthEnum = z.enum(["7", "15", "30"]);
 const toneEnum = z.enum(["calm", "bold", "authoritative", "warm"]);
 
 export const autoreelsRouter = router({
+  /**
+   * Generate content based on a topic/prompt using Authority Profile
+   */
+  generateContent: protectedProcedure
+    .input(z.object({
+      topic: z.string().min(1, "Topic is required"),
+      inputMethod: inputMethodEnum,
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { topic, inputMethod } = input;
+      
+      // Get user's persona/authority profile
+      const persona = await db.getPersonaByUserId(ctx.user.id);
+      
+      // Build context from Authority Profile
+      let contextPrompt = "";
+      if (persona) {
+        if (persona.customerAvatar) {
+          contextPrompt += `\nTarget Audience: ${persona.customerAvatar}`;
+        }
+        if (persona.brandValues) {
+          contextPrompt += `\nBrand Values: ${persona.brandValues}`;
+        }
+        if (persona.marketContext) {
+          contextPrompt += `\nMarket Context: ${persona.marketContext}`;
+        }
+      }
+      
+      // Generate content based on input method
+      const contentTypeInstructions = {
+        bullets: "Create 3-5 bullet points that can be used for a reel script. Each bullet should be a key point or tip.",
+        caption: "Write a long-form caption (150-250 words) suitable for a social media post that will be turned into a reel.",
+        blog: "Write a short blog-style paragraph (200-300 words) that explains the topic in depth.",
+        listing: "Write a property listing-style description that highlights key features and benefits."
+      };
+      
+      const response = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are a real estate content strategist helping agents create authentic, authority-building content.${contextPrompt}\n\nCreate content that aligns with their target audience, brand values, and market context.`
+          },
+          {
+            role: "user",
+            content: `Topic: ${topic}\n\n${contentTypeInstructions[inputMethod]}\n\nMake it specific, valuable, and aligned with the agent's authority profile.`
+          }
+        ]
+      });
+      
+      const content = response.choices[0].message.content;
+      return { content: typeof content === 'string' ? content : "" };
+    }),
+
   /**
    * Generate hooks, script, and caption for a reel
    */
