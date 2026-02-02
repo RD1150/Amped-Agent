@@ -12,7 +12,7 @@ import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
-import PasswordGate from "@/components/PasswordGate";
+
 
 export default function Landing() {
   const { user, loading } = useAuth();
@@ -51,7 +51,6 @@ export default function Landing() {
   ];
 
   return (
-    <PasswordGate>
       <div className="min-h-screen bg-white">
         {/* Hero Section */}
         <div className="container mx-auto px-4 py-20">
@@ -268,6 +267,5 @@ export default function Landing() {
           </div>
         </div>
       </div>
-    </PasswordGate>
   );
 }

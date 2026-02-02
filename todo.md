@@ -1726,3 +1726,7 @@ Tasks:
 - [x] Style button with subtle gray border
 - [x] Add click handler to advance to next step
 - [x] Test button functionality
+
+## Remove Beta Password Gate (Current Priority)
+- [x] Remove PasswordGate component from Landing page
+- [x] Test public access without password
