@@ -3,19 +3,32 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
 import { 
   Sparkles, 
   Calendar, 
   Upload, 
   TrendingUp,
   FileText,
-  Clock
+  Clock,
+  HelpCircle
 } from "lucide-react";
+import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { data: persona } = trpc.persona.get.useQuery();
+
+  // Auto-start tour for first-time users
+  useEffect(() => {
+    if (shouldShowTour()) {
+      // Delay to ensure DOM is ready
+      setTimeout(() => {
+        startDashboardTour();
+      }, 1000);
+    }
+  }, []);
 
   // Get current hour for time-based greeting
   const hour = new Date().getHours();
@@ -70,12 +83,25 @@ export default function Dashboard() {
     <div className="space-y-8">
       {/* Welcome Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">
-          {greeting}, {persona?.agentName || user?.name || "Agent"}! 👋
-        </h1>
-        <p className="text-muted-foreground">
-          Ready to create engaging content for your real estate business?
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {greeting}, {persona?.agentName || user?.name || "Agent"}! 👋
+            </h1>
+            <p className="text-muted-foreground">
+              Ready to create engaging content for your real estate business?
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => startDashboardTour()}
+            className="gap-2"
+          >
+            <HelpCircle className="h-4 w-4" />
+            Start Tour
+          </Button>
+        </div>
       </div>
 
       {/* Quick Actions */}

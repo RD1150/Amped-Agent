@@ -1691,3 +1691,13 @@ Tasks:
 - [ ] Test all landing page sections (FAQ, demo, testimonials)
 - [ ] Test mobile responsiveness
 - [ ] Document any bugs or issues found
+
+## Interactive Product Tour (Current Priority)
+- [x] Install Driver.js package
+- [x] Create tour configuration file
+- [x] Build Generate Post feature tour
+- [x] Build AutoReels feature tour
+- [x] Build Content Calendar feature tour
+- [x] Add auto-start for first-time users
+- [x] Add "Start Tour" button in dashboard
+- [x] Test tour flow and interactions
