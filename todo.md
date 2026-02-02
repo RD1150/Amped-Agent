@@ -1738,3 +1738,9 @@ Tasks:
 - [x] Create video with Shotstack API
 - [x] Upload video to CDN
 - [x] Replace Rick Astley placeholder in product tour
+
+## Improved Demo Video (Current Priority)
+- [x] Generate improved AI voiceover (Microsoft Edge Jenny, +15% faster)
+- [x] Create new video with improved voiceover
+- [x] Upload to CDN
+- [x] Update product tour with new video URL
