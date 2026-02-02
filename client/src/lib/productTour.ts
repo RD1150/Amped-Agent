@@ -35,7 +35,25 @@ export const startDashboardTour = () => {
         element: 'body',
         popover: {
           title: 'Welcome to Authority Content! 👋',
-          description: 'Let\'s take a quick tour of the platform. This will only take 60 seconds. We\'ll start by setting up your brand!'
+          description: `
+            <div style="margin-bottom: 16px;">
+              <p style="margin-bottom: 12px;">Watch this quick 60-second intro to see what you can accomplish with Authority Content:</p>
+              <!-- TODO: Replace with your actual demo video URL -->
+              <!-- For YouTube: https://www.youtube.com/embed/YOUR_VIDEO_ID -->
+              <!-- For Vimeo: https://player.vimeo.com/video/YOUR_VIDEO_ID -->
+              <!-- For Loom: https://www.loom.com/embed/YOUR_VIDEO_ID -->
+              <iframe 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                width="100%" 
+                height="315" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                style="border-radius: 8px; margin-bottom: 12px;"
+              ></iframe>
+              <p>After watching, click <strong>Next</strong> to start the interactive tour!</p>
+            </div>
+          `
         }
       },
       {

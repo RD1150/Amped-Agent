@@ -1714,3 +1714,9 @@ Tasks:
 ## Driver.js Close Button Fix (Current Priority)
 - [x] Fix X button to properly close tour popup
 - [x] Test close button functionality
+
+## Video Embed in Tour (Current Priority)
+- [x] Add video iframe to first tour step
+- [x] Add placeholder video URL with TODO comment
+- [x] Style video player to fit in popup
+- [x] Test video embed in tour
