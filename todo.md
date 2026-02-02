@@ -1730,3 +1730,11 @@ Tasks:
 ## Remove Beta Password Gate (Current Priority)
 - [x] Remove PasswordGate component from Landing page
 - [x] Test public access without password
+
+## Demo Video Creation (Current Priority)
+- [x] Write video script (60 seconds)
+- [x] Capture screenshots of key features
+- [x] Generate AI voiceover narration
+- [x] Create video with Shotstack API
+- [x] Upload video to CDN
+- [x] Replace Rick Astley placeholder in product tour

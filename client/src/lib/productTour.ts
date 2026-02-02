@@ -38,19 +38,13 @@ export const startDashboardTour = () => {
           description: `
             <div style="margin-bottom: 16px;">
               <p style="margin-bottom: 12px;">Watch this quick 60-second intro to see what you can accomplish with Authority Content:</p>
-              <!-- TODO: Replace with your actual demo video URL -->
-              <!-- For YouTube: https://www.youtube.com/embed/YOUR_VIDEO_ID -->
-              <!-- For Vimeo: https://player.vimeo.com/video/YOUR_VIDEO_ID -->
-              <!-- For Loom: https://www.loom.com/embed/YOUR_VIDEO_ID -->
-              <iframe 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+              <video 
+                src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/yoXxZekLfDIVEBgI.mp4" 
+                controls 
                 width="100%" 
                 height="315" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
                 style="border-radius: 8px; margin-bottom: 12px;"
-              ></iframe>
+              ></video>
               <p>After watching, click <strong>Next</strong> to start the interactive tour!</p>
               <div style="margin-top: 16px; text-align: center;">
                 <button 
