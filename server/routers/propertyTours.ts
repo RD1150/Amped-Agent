@@ -1,0 +1,193 @@
+import { z } from "zod";
+import { router, protectedProcedure } from "../_core/trpc";
+import * as db from "../db";
+import { generatePropertyTourVideo } from "../videoGenerator";
+import { storagePut } from "../storage";
+
+export const propertyToursRouter = router({
+  /**
+   * Create a new property tour (without video generation yet)
+   */
+  create: protectedProcedure
+    .input(
+      z.object({
+        address: z.string().min(1, "Address is required"),
+        price: z.string().optional(),
+        beds: z.number().int().positive().optional(),
+        baths: z.number().positive().optional(),
+        sqft: z.number().int().positive().optional(),
+        propertyType: z.string().optional(),
+        description: z.string().optional(),
+        features: z.array(z.string()).optional(),
+        imageUrls: z.array(z.string().url()).min(1, "At least one image is required"),
+        template: z.enum(["modern", "luxury", "cozy"]).default("modern"),
+        duration: z.number().int().min(15).max(120).default(30),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const tour = await db.createPropertyTour({
+        userId: ctx.user.id,
+        address: input.address,
+        price: input.price,
+        beds: input.beds,
+        baths: input.baths ? input.baths.toString() : undefined,
+        sqft: input.sqft,
+        propertyType: input.propertyType,
+        description: input.description,
+        features: input.features ? JSON.stringify(input.features) : undefined,
+        imageUrls: JSON.stringify(input.imageUrls),
+        template: input.template,
+        duration: input.duration,
+        status: "pending",
+      });
+
+      return tour;
+    }),
+
+  /**
+   * Generate video for a property tour
+   */
+  generateVideo: protectedProcedure
+    .input(z.object({ tourId: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      // Get the tour
+      const tour = await db.getPropertyTourById(input.tourId);
+      if (!tour) {
+        throw new Error("Property tour not found");
+      }
+
+      // Verify ownership
+      if (tour.userId !== ctx.user.id) {
+        throw new Error("Unauthorized");
+      }
+
+      // Check if already processing or completed
+      if (tour.status === "processing") {
+        throw new Error("Video is already being generated");
+      }
+      if (tour.status === "completed" && tour.videoUrl) {
+        return { videoUrl: tour.videoUrl, thumbnailUrl: tour.thumbnailUrl };
+      }
+
+      // Update status to processing
+      await db.updatePropertyTour(input.tourId, { status: "processing" });
+
+      try {
+        // Parse image URLs
+        const imageUrls = JSON.parse(tour.imageUrls) as string[];
+
+        // Generate video
+        const { videoUrl, thumbnailUrl } = await generatePropertyTourVideo({
+          imageUrls,
+          propertyDetails: {
+            address: tour.address,
+            price: tour.price || undefined,
+            beds: tour.beds || undefined,
+            baths: tour.baths ? parseFloat(tour.baths) : undefined,
+            sqft: tour.sqft || undefined,
+            propertyType: tour.propertyType || undefined,
+            description: tour.description || undefined,
+          },
+          template: (tour.template as "modern" | "luxury" | "cozy") || "modern",
+          duration: tour.duration || 30,
+        });
+
+        // Update tour with video URL
+        await db.updatePropertyTour(input.tourId, {
+          videoUrl,
+          thumbnailUrl,
+          status: "completed",
+        });
+
+        return { videoUrl, thumbnailUrl };
+      } catch (error) {
+        // Update status to failed
+        await db.updatePropertyTour(input.tourId, {
+          status: "failed",
+          errorMessage: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
+    }),
+
+  /**
+   * Get all property tours for the current user
+   */
+  list: protectedProcedure.query(async ({ ctx }) => {
+    const tours = await db.getPropertyToursByUserId(ctx.user.id);
+    return tours;
+  }),
+
+  /**
+   * Get a single property tour by ID
+   */
+  getById: protectedProcedure
+    .input(z.object({ tourId: z.number().int().positive() }))
+    .query(async ({ ctx, input }) => {
+      const tour = await db.getPropertyTourById(input.tourId);
+      if (!tour) {
+        throw new Error("Property tour not found");
+      }
+
+      // Verify ownership
+      if (tour.userId !== ctx.user.id) {
+        throw new Error("Unauthorized");
+      }
+
+      return tour;
+    }),
+
+  /**
+   * Delete a property tour
+   */
+  delete: protectedProcedure
+    .input(z.object({ tourId: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const tour = await db.getPropertyTourById(input.tourId);
+      if (!tour) {
+        throw new Error("Property tour not found");
+      }
+
+      // Verify ownership
+      if (tour.userId !== ctx.user.id) {
+        throw new Error("Unauthorized");
+      }
+
+      await db.deletePropertyTour(input.tourId);
+      return { success: true };
+    }),
+
+  /**
+   * Upload property images to S3
+   */
+  uploadImages: protectedProcedure
+    .input(
+      z.object({
+        images: z.array(
+          z.object({
+            filename: z.string(),
+            data: z.string(), // base64 encoded image data
+            mimeType: z.string(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const uploadedUrls: string[] = [];
+
+      for (const image of input.images) {
+        // Decode base64
+        const buffer = Buffer.from(image.data, "base64");
+
+        // Generate unique key
+        const ext = image.filename.split(".").pop() || "jpg";
+        const key = `property-tours/${ctx.user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+
+        // Upload to S3
+        const { url } = await storagePut(key, buffer, image.mimeType);
+        uploadedUrls.push(url);
+      }
+
+      return { urls: uploadedUrls };
+    }),
+});

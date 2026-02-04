@@ -148,6 +148,13 @@
       "when": 1770063383185,
       "tag": "0020_handy_christian_walker",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1770183007672,
+      "tag": "0021_spicy_champions",
+      "breakpoints": true
     }
   ]
 }

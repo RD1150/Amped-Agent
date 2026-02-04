@@ -1826,3 +1826,15 @@ Tasks:
 - [x] Update code references to use CDN URLs (templateBackgrounds.ts + logo references)
 - [x] Move local media to /home/ubuntu/webdev-static-assets/
 - [ ] Test publishing process
+
+## Property Tours Feature (Cinematic Video Generator)
+- [x] Design database schema for property tours (property_tours table)
+- [x] Install FFmpeg in sandbox for video generation (already installed)
+- [x] Create backend procedure to generate videos with Ken Burns effects
+- [x] Add S3 upload for property images and generated videos
+- [x] Build Property Tours UI page with photo upload
+- [x] Add property details form (address, price, beds, baths, sqft, features)
+- [x] Implement video template/style selector
+- [x] Add video preview and download functionality
+- [x] Create navigation item for Property Tours
+- [x] Write vitest tests for video generation (10 tests passing)

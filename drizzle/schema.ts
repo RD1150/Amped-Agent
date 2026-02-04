@@ -449,3 +449,37 @@ export const customPromptTemplates = mysqlTable("custom_prompt_templates", {
 
 export type CustomPromptTemplate = typeof customPromptTemplates.$inferSelect;
 export type InsertCustomPromptTemplate = typeof customPromptTemplates.$inferInsert;
+
+/**
+ * Property Tours - Cinematic property tour videos
+ * Allows agents to upload property photos and generate videos with Ken Burns effects
+ */
+export const propertyTours = mysqlTable("property_tours", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  // Property details
+  address: varchar("address", { length: 500 }).notNull(),
+  price: varchar("price", { length: 50 }), // Store as string to handle formatting ($1,500,000)
+  beds: int("beds"),
+  baths: decimal("baths", { precision: 3, scale: 1 }), // Support 2.5 baths
+  sqft: int("sqft"),
+  propertyType: varchar("propertyType", { length: 100 }), // Single Family, Condo, etc.
+  description: text("description"),
+  features: text("features"), // JSON array of key features
+  // Media
+  imageUrls: text("imageUrls").notNull(), // JSON array of S3 URLs for property photos
+  videoUrl: text("videoUrl"), // S3 URL for generated video
+  thumbnailUrl: text("thumbnailUrl"), // Video thumbnail
+  // Video settings
+  template: varchar("template", { length: 50 }).default("modern"), // modern, luxury, cozy
+  musicTrack: varchar("musicTrack", { length: 100 }), // Background music selection
+  duration: int("duration").default(30), // Video duration in seconds
+  // Status
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PropertyTour = typeof propertyTours.$inferSelect;
+export type InsertPropertyTour = typeof propertyTours.$inferInsert;

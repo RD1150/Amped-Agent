@@ -18,7 +18,8 @@ import {
   whiteLabelSettings, WhiteLabelSettings, InsertWhiteLabelSettings,
   hooks, Hook,
   betaSignups, BetaSignup, InsertBetaSignup,
-  customPromptTemplates, CustomPromptTemplate, InsertCustomPromptTemplate
+  customPromptTemplates, CustomPromptTemplate, InsertCustomPromptTemplate,
+  propertyTours, PropertyTour, InsertPropertyTour
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -699,4 +700,41 @@ export async function deleteCustomPromptTemplate(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(customPromptTemplates).where(eq(customPromptTemplates.id, id));
+}
+
+
+// ============================================================
+// Property Tours
+// ============================================================
+
+export async function createPropertyTour(data: InsertPropertyTour) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(propertyTours).values(data);
+  return { id: Number(result[0].insertId), ...data };
+}
+
+export async function getPropertyTourById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(propertyTours).where(eq(propertyTours.id, id)).limit(1);
+  return result[0] || null;
+}
+
+export async function getPropertyToursByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(propertyTours).where(eq(propertyTours.userId, userId)).orderBy(desc(propertyTours.createdAt));
+}
+
+export async function updatePropertyTour(id: number, data: Partial<InsertPropertyTour>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(propertyTours).set(data).where(eq(propertyTours.id, id));
+}
+
+export async function deletePropertyTour(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(propertyTours).where(eq(propertyTours.id, id));
 }

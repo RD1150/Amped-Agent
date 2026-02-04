@@ -29,6 +29,7 @@ import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import AutoReels from "./pages/AutoReels";
 import ThumbnailGenerator from "./pages/ThumbnailGenerator";
+import PropertyTours from "./pages/PropertyTours";
 import PerformanceCoach from "./pages/PerformanceCoach";
 import AuthorityProfile from "./pages/AuthorityProfile";
 
@@ -70,6 +71,7 @@ function Router() {
         <Route path="/generate" component={AIGenerate} />
         <Route path="/autoreels" component={AutoReels} />
         <Route path="/thumbnails" component={ThumbnailGenerator} />
+        <Route path="/property-tours" component={PropertyTours} />
         <Route path="/coach" component={PerformanceCoach} />
         <Route path="/authority-profile" component={AuthorityProfile} />
         <Route path="/market-stats" component={MarketStats} />

@@ -45,7 +45,8 @@ import {
   Home,
   Video,
   Youtube,
-  Award
+  Award,
+  Building2
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -62,6 +63,7 @@ const menuItems = [
   // CONTENT section
   { icon: Sparkles, label: "Generate Post", path: "/generate" },
   { icon: Video, label: "AutoReels", path: "/autoreels" },
+  { icon: Building2, label: "Property Tours", path: "/property-tours" },
   { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails" },
   { icon: Award, label: "Performance Coach", path: "/coach" },
   { icon: User, label: "Authority Profile", path: "/authority-profile" },

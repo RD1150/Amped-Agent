@@ -13,6 +13,7 @@ import { facebookRouter } from "./routers/facebook";
 import { linkedinRouter } from "./routers/linkedin";
 import { socialPostingRouter } from "./routers/socialPosting";
 import { autoreelsRouter } from "./routers/autoreels";
+import { propertyToursRouter } from "./routers/propertyTours";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1515,6 +1516,9 @@ Create a compelling social media post.`;
 
   // AutoReels Module
   autoreels: autoreelsRouter,
+
+  // Property Tours
+  propertyTours: propertyToursRouter,
 
   // Hook Engine
   hooks: router({
