@@ -1863,3 +1863,6 @@ Tasks:
 - [x] Fix beds field validation (changed from positive() to min(0))
 - [x] Fix baths and sqft validation (also changed to min(0))
 - [x] Test tours list displays without errors - Dashboard loads successfully
+
+## Property Tours Timing Message
+- [x] Add "Video generation may take up to 2 minutes" message to progress indicator

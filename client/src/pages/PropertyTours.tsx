@@ -431,6 +431,9 @@ export default function PropertyTours() {
                   <span className="font-medium">{generationProgress}%</span>
                 </div>
                 <Progress value={generationProgress} className="h-2" />
+                <p className="text-xs text-muted-foreground text-center">
+                  Video generation may take up to 2 minutes
+                </p>
               </div>
             )}
           </div>
