@@ -1889,3 +1889,8 @@ Tasks:
 ## Property Tours Ken Burns Variety
 - [x] Update videoGenerator to alternate zoom/pan directions (4 effects: zoomIn, zoomOut, slideRight, slideLeft)
 - [ ] Test video with varied motion effects
+
+## Property Tours Text Overlay Fix
+- [x] Fix overlapping/glitchy text in address overlay
+- [x] Changed text style from "blockbuster"/"subtitle" to "minimal" to remove animation
+- [ ] Test video with fixed text overlay

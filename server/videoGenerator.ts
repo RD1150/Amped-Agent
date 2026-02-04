@@ -116,10 +116,10 @@ export async function generatePropertyTourVideo(
     asset: {
       type: "title",
       text: propertyDetails.address,
-      style: "blockbuster",
+      style: "minimal",  // Changed from "blockbuster" to "minimal" to avoid animation glitches
       color: "#ffffff",
       size: "medium",
-      background: "rgba(0,0,0,0.6)",
+      background: "rgba(0,0,0,0.7)",
       position: "bottom",
       offset: {
         y: 0.15,
@@ -134,10 +134,10 @@ export async function generatePropertyTourVideo(
         asset: {
           type: "title",
           text: detailsText,
-          style: "subtitle",
+          style: "minimal",  // Changed from "subtitle" to "minimal" for consistency
           color: "#ffffff",
           size: "small",
-          background: "rgba(0,0,0,0.6)",
+          background: "rgba(0,0,0,0.7)",
           position: "bottom",
           offset: {
             y: 0.05,
