@@ -37,6 +37,8 @@ export default function PropertyTours() {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [generationStatus, setGenerationStatus] = useState("");
   const [includeBranding, setIncludeBranding] = useState(true);
+  const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "1:1">("16:9");
+  const [musicTrack, setMusicTrack] = useState<string | undefined>(undefined);
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -122,6 +124,8 @@ export default function PropertyTours() {
         template,
         duration,
         includeBranding,
+        aspectRatio,
+        musicTrack,
       });
 
       // Set generating state
@@ -421,6 +425,37 @@ export default function PropertyTours() {
               </div>
             </div>
 
+            {/* Aspect Ratio & Music */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="aspectRatio">Aspect Ratio</Label>
+                <Select value={aspectRatio} onValueChange={(v: any) => setAspectRatio(v)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="16:9">16:9 (YouTube)</SelectItem>
+                    <SelectItem value="9:16">9:16 (Reels/TikTok)</SelectItem>
+                    <SelectItem value="1:1">1:1 (Instagram)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="musicTrack">Background Music</Label>
+                <Select value={musicTrack || "none"} onValueChange={(v) => setMusicTrack(v === "none" ? undefined : v)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="No music" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No music</SelectItem>
+                    <SelectItem value="upbeat">Upbeat & Modern</SelectItem>
+                    <SelectItem value="elegant">Elegant & Sophisticated</SelectItem>
+                    <SelectItem value="calm">Calm & Peaceful</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <Button
               onClick={handleCreateTour}
               disabled={createTour.isPending || generateVideo.isPending || generatingTourId !== null}
@@ -469,13 +504,17 @@ export default function PropertyTours() {
               {tours.map((tour) => (
                 <Card key={tour.id} className="p-4">
                   <div className="flex items-start gap-4">
-                    {tour.thumbnailUrl && (
-                      <img
-                        src={tour.thumbnailUrl}
-                        alt={tour.address}
-                        className="w-32 h-24 object-cover rounded"
-                      />
-                    )}
+                    <div className="w-32 h-24 bg-muted rounded flex items-center justify-center overflow-hidden">
+                      {tour.thumbnailUrl ? (
+                        <img
+                          src={tour.thumbnailUrl}
+                          alt={tour.address}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Video className="h-8 w-8 text-muted-foreground" />
+                      )}
+                    </div>
                     <div className="flex-1">
                       <h3 className="font-semibold">{tour.address}</h3>
                       {tour.price && (

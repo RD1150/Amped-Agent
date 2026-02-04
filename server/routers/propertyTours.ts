@@ -23,6 +23,8 @@ export const propertyToursRouter = router({
         template: z.enum(["modern", "luxury", "cozy"]).default("modern"),
         duration: z.number().int().min(15).max(120).default(30),
         includeBranding: z.boolean().default(true),
+        aspectRatio: z.enum(["16:9", "9:16", "1:1"]).default("16:9"),
+        musicTrack: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -40,6 +42,8 @@ export const propertyToursRouter = router({
         template: input.template,
         duration: input.duration,
         includeBranding: input.includeBranding,
+        aspectRatio: input.aspectRatio,
+        musicTrack: input.musicTrack,
         status: "pending",
       });
 
@@ -94,6 +98,8 @@ export const propertyToursRouter = router({
           duration: tour.duration || 30,
           includeBranding: tour.includeBranding ?? true,
           userId: ctx.user.id,
+          aspectRatio: (tour.aspectRatio as "16:9" | "9:16" | "1:1") || "16:9",
+          musicTrack: tour.musicTrack || undefined,
         });
 
         // Store render ID for polling
@@ -145,15 +151,17 @@ export const propertyToursRouter = router({
         const renderStatus = await checkRenderStatus(renderId);
 
         if (renderStatus.status === "done" && renderStatus.url) {
-          // Update tour with final video URL
+          // Update tour with final video URL and thumbnail
           await db.updatePropertyTour(input.tourId, {
             videoUrl: renderStatus.url,
+            thumbnailUrl: renderStatus.thumbnail,
             status: "completed",
           });
 
           return {
             status: "completed" as const,
             videoUrl: renderStatus.url,
+            thumbnailUrl: renderStatus.thumbnail,
           };
         } else if (renderStatus.status === "failed") {
           await db.updatePropertyTour(input.tourId, {

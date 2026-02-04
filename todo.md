@@ -1911,3 +1911,14 @@ Tasks:
 - [x] Passed includeBranding parameter through tRPC procedures
 - [x] Implemented conditional branding overlay in video generation
 - [x] All 12 vitest tests passing including new branding tests
+
+## Property Tours Enhancements (Current Sprint)
+- [x] Add video thumbnail generation (extract first frame or use first image)
+- [x] Display thumbnails in tours library grid
+- [x] Add background music track selection (3-5 royalty-free tracks)
+- [x] Integrate music tracks into video generation
+- [x] Add aspect ratio selector (9:16 Reels/TikTok, 1:1 Instagram, 16:9 YouTube)
+- [x] Update video generator to support different aspect ratios
+- [x] Update database schema with musicTrack and aspectRatio fields
+- [x] Test thumbnail display, music playback, and aspect ratio rendering
+- [x] All 15 vitest tests passing (8 create tests, 3 new for enhancements)

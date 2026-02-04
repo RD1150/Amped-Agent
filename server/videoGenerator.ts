@@ -18,9 +18,25 @@ export interface VideoGenerationOptions {
   musicTrack?: string;
   includeBranding?: boolean; // Include agent branding overlay
   userId?: number; // User ID for fetching agent profile
+  aspectRatio?: "16:9" | "9:16" | "1:1"; // Video aspect ratio
 }
 
 const SHOTSTACK_API_URL = "https://api.shotstack.io/v1";
+
+/**
+ * Get royalty-free music track URL from Shotstack library
+ * Using Shotstack's built-in music library
+ */
+function getMusicTrackUrl(trackType: string): string {
+  // Shotstack provides royalty-free music tracks
+  // These are example URLs - in production, use actual Shotstack music library URLs
+  const tracks: Record<string, string> = {
+    upbeat: "https://s3-ap-southeast-2.amazonaws.com/shotstack-assets/music/unminus/ambisax.mp3",
+    elegant: "https://s3-ap-southeast-2.amazonaws.com/shotstack-assets/music/unminus/palmtrees.mp3",
+    calm: "https://s3-ap-southeast-2.amazonaws.com/shotstack-assets/music/unminus/blueskies.mp3",
+  };
+  return tracks[trackType] || tracks.upbeat;
+}
 
 /**
  * Generate a cinematic property tour video using Shotstack API
@@ -43,6 +59,8 @@ export async function generatePropertyTourVideo(
     duration = 30,
     includeBranding = true,
     userId,
+    aspectRatio = "16:9",
+    musicTrack,
   } = options;
 
   if (imageUrls.length === 0) {
@@ -220,9 +238,32 @@ export async function generatePropertyTourVideo(
     ...brandingClips,
   ];
 
+  // Map aspect ratio to resolution
+  let resolution: string;
+  switch (aspectRatio) {
+    case "9:16":
+      resolution = "vertical-hd"; // 1080x1920 for Reels/TikTok
+      break;
+    case "1:1":
+      resolution = "square-hd"; // 1080x1080 for Instagram
+      break;
+    case "16:9":
+    default:
+      resolution = "hd"; // 1920x1080 for YouTube
+      break;
+  }
+
+  // Add music soundtrack if selected
+  const soundtrack: any = musicTrack ? {
+    src: getMusicTrackUrl(musicTrack),
+    effect: "fadeInFadeOut",
+    volume: 0.3,
+  } : undefined;
+
   // Create edit payload
-  const payload = {
+  const payload: any = {
     timeline: {
+      soundtrack,
       tracks: [
         {
           clips: allClips,
@@ -231,11 +272,16 @@ export async function generatePropertyTourVideo(
     },
     output: {
       format: "mp4",
-      resolution: "hd",
+      resolution,
       fps: 30,
       quality: "high",
     },
   };
+
+  // Remove undefined soundtrack
+  if (!soundtrack) {
+    delete payload.timeline.soundtrack;
+  }
 
   try {
     console.log("[VideoGenerator] Submitting render to Shotstack...");
@@ -290,6 +336,7 @@ export async function generatePropertyTourVideo(
 export async function checkRenderStatus(renderId: string): Promise<{
   status: "queued" | "fetching" | "rendering" | "saving" | "done" | "failed";
   url?: string;
+  thumbnail?: string;
   error?: string;
 }> {
   const apiKey = process.env.SHOTSTACK_API_KEY;
@@ -330,6 +377,7 @@ export async function checkRenderStatus(renderId: string): Promise<{
     return {
       status: render.status as any,
       url: render.url || undefined,
+      thumbnail: render.thumbnail || undefined,
       error: render.error || undefined,
     };
   } catch (error) {

@@ -1,0 +1,1 @@
+ALTER TABLE `property_tours` ADD `aspectRatio` varchar(20) DEFAULT '16:9';

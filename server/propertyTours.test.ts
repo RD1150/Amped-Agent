@@ -93,6 +93,55 @@ describe("Property Tours", () => {
       expect(result.includeBranding).toBe(true);
     });
 
+    it("should create a property tour with custom aspect ratio", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "Vertical Video Test",
+        imageUrls: ["https://example.com/image1.jpg"],
+        template: "modern",
+        duration: 30,
+        aspectRatio: "9:16",
+      });
+
+      expect(result).toBeDefined();
+      expect(result.aspectRatio).toBe("9:16");
+    });
+
+    it("should create a property tour with background music", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "Music Test Property",
+        imageUrls: ["https://example.com/image1.jpg"],
+        template: "luxury",
+        duration: 45,
+        musicTrack: "elegant",
+      });
+
+      expect(result).toBeDefined();
+      expect(result.musicTrack).toBe("elegant");
+    });
+
+    it("should create a property tour with all custom options", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "Full Options Test",
+        imageUrls: ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+        template: "cozy",
+        duration: 60,
+        includeBranding: false,
+        aspectRatio: "1:1",
+        musicTrack: "calm",
+      });
+
+      expect(result).toBeDefined();
+      expect(result.aspectRatio).toBe("1:1");
+      expect(result.musicTrack).toBe("calm");
+      expect(result.includeBranding).toBe(false);
+    });
+
     it("should require address", async () => {
       const caller = appRouter.createCaller(createMockContext());
 

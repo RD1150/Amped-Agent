@@ -475,6 +475,7 @@ export const propertyTours = mysqlTable("property_tours", {
   musicTrack: varchar("musicTrack", { length: 100 }), // Background music selection
   duration: int("duration").default(30), // Video duration in seconds
   includeBranding: boolean("includeBranding").default(true), // Include agent branding overlay
+  aspectRatio: varchar("aspectRatio", { length: 20 }).default("16:9"), // Video aspect ratio: 16:9, 9:16, 1:1
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),
