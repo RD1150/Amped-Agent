@@ -1852,3 +1852,9 @@ Tasks:
 - [x] Update frontend to poll for video completion (5s interval, 5min timeout)
 - [ ] Test video generation end-to-end
 - [ ] Update vitest tests for Shotstack integration
+
+## Property Tours Progress Indicator
+- [x] Add state for tracking video generation progress
+- [x] Add Progress component with status message
+- [x] Update polling logic to show progress updates (fetching, rendering, saving)
+- [x] Display progress bar with percentage and status text

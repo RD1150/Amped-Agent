@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Upload, Video, Loader2, Download, Trash2, Play } from "lucide-react";
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
 
 export default function PropertyTours() {
   const utils = trpc.useUtils();
@@ -31,6 +32,9 @@ export default function PropertyTours() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [generatingTourId, setGeneratingTourId] = useState<number | null>(null);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [generationStatus, setGenerationStatus] = useState("");
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -117,33 +121,77 @@ export default function PropertyTours() {
         duration,
       });
 
-      toast.success("Property tour created. Generating video...");
+      // Set generating state
+      setGeneratingTourId(tour.id);
+      setGenerationProgress(10);
+      setGenerationStatus("Submitting video to Shotstack...");
 
       // Generate video (returns renderId)
       await generateVideo.mutateAsync({ tourId: tour.id });
 
+      setGenerationProgress(20);
+      setGenerationStatus("Video queued for processing...");
+
+      let pollCount = 0;
+      const maxPolls = 60; // 5 minutes at 5s intervals
+
       // Poll for completion
       const pollInterval = setInterval(async () => {
         try {
+          pollCount++;
           const status = await utils.propertyTours.checkRenderStatus.fetch({ tourId: tour.id });
+          
+          // Update progress based on status
+          if (status.status === "fetching") {
+            setGenerationProgress(30);
+            setGenerationStatus("Fetching property images...");
+          } else if (status.status === "rendering") {
+            const renderProgress = Math.min(30 + (pollCount * 2), 80);
+            setGenerationProgress(renderProgress);
+            setGenerationStatus("Rendering video with Ken Burns effects...");
+          } else if (status.status === "saving") {
+            setGenerationProgress(90);
+            setGenerationStatus("Finalizing video...");
+          }
           
           if (status.status === "done" || status.status === "completed") {
             clearInterval(pollInterval);
+            setGenerationProgress(100);
+            setGenerationStatus("Video ready!");
+            
+            setTimeout(() => {
+              setGeneratingTourId(null);
+              setGenerationProgress(0);
+              setGenerationStatus("");
+            }, 2000);
+            
             toast.success("Your property tour video is ready!");
             utils.propertyTours.list.invalidate();
           } else if (status.status === "failed") {
             clearInterval(pollInterval);
+            setGeneratingTourId(null);
+            setGenerationProgress(0);
+            setGenerationStatus("");
             toast.error(status.error || "Video generation failed");
             utils.propertyTours.list.invalidate();
           }
+          
+          // Timeout after max polls
+          if (pollCount >= maxPolls) {
+            clearInterval(pollInterval);
+            setGeneratingTourId(null);
+            setGenerationProgress(0);
+            setGenerationStatus("");
+            toast.error("Video generation timed out. Please try again.");
+          }
         } catch (error) {
           clearInterval(pollInterval);
+          setGeneratingTourId(null);
+          setGenerationProgress(0);
+          setGenerationStatus("");
           console.error("Polling error:", error);
         }
       }, 5000); // Poll every 5 seconds
-
-      // Stop polling after 5 minutes
-      setTimeout(() => clearInterval(pollInterval), 300000);
 
       // Reset form
       setAddress("");
@@ -358,11 +406,11 @@ export default function PropertyTours() {
 
             <Button
               onClick={handleCreateTour}
-              disabled={createTour.isPending || generateVideo.isPending}
+              disabled={createTour.isPending || generateVideo.isPending || generatingTourId !== null}
               className="w-full"
               size="lg"
             >
-              {createTour.isPending || generateVideo.isPending ? (
+              {createTour.isPending || generateVideo.isPending || generatingTourId !== null ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Generating Video...
@@ -374,6 +422,17 @@ export default function PropertyTours() {
                 </>
               )}
             </Button>
+
+            {/* Progress Indicator */}
+            {generatingTourId !== null && (
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{generationStatus}</span>
+                  <span className="font-medium">{generationProgress}%</span>
+                </div>
+                <Progress value={generationProgress} className="h-2" />
+              </div>
+            )}
           </div>
         </Card>
 
