@@ -48,10 +48,39 @@ export async function generatePropertyTourVideo(
   // Calculate duration per image
   const durationPerImage = duration / imageUrls.length;
 
-  // Create clips for each image with Ken Burns effect
+  // Create clips for each image with varied Ken Burns effects
   const clips: any[] = imageUrls.map((url, index) => {
-    // Alternate zoom directions for variety
-    const zoomIn = index % 2 === 0;
+    // Cycle through 4 different motion effects for variety
+    const motionType = index % 4;
+    
+    let effect, scale, position;
+    
+    switch (motionType) {
+      case 0: // Zoom in from center
+        effect = "zoomIn";
+        scale = 1.0;
+        position = "center";
+        break;
+      case 1: // Zoom out from center
+        effect = "zoomOut";
+        scale = 1.2;
+        position = "center";
+        break;
+      case 2: // Pan from left to right
+        effect = "slideRight";
+        scale = 1.1;
+        position = "left";
+        break;
+      case 3: // Pan from right to left
+        effect = "slideLeft";
+        scale = 1.1;
+        position = "right";
+        break;
+      default:
+        effect = "zoomIn";
+        scale = 1.0;
+        position = "center";
+    }
     
     return {
       asset: {
@@ -61,13 +90,13 @@ export async function generatePropertyTourVideo(
       start: index * durationPerImage,
       length: durationPerImage,
       fit: "cover",
-      scale: zoomIn ? 1.0 : 1.2, // Start scale
-      position: "center",
+      scale: scale,
+      position: position,
       transition: {
         in: index === 0 ? "fade" : "fade",
         out: "fade",
       },
-      effect: "zoomIn", // Ken Burns zoom effect
+      effect: effect,
     };
   });
 

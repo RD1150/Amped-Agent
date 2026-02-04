@@ -1879,3 +1879,13 @@ Tasks:
 - [x] Identify root cause - SDK has oneOf schema ambiguity when parsing Asset types
 - [x] Replace Shotstack SDK with direct HTTP API calls
 - [ ] Test video generation end-to-end
+
+## Dashboard Failed to Fetch Error
+- [ ] Identify which tRPC query is failing on dashboard
+- [ ] Check server logs for errors
+- [ ] Fix the failing query
+- [ ] Test dashboard loads without errors
+
+## Property Tours Ken Burns Variety
+- [x] Update videoGenerator to alternate zoom/pan directions (4 effects: zoomIn, zoomOut, slideRight, slideLeft)
+- [ ] Test video with varied motion effects
