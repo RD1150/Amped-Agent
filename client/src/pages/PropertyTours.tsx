@@ -119,10 +119,31 @@ export default function PropertyTours() {
 
       toast.success("Property tour created. Generating video...");
 
-      // Generate video
+      // Generate video (returns renderId)
       await generateVideo.mutateAsync({ tourId: tour.id });
 
-      toast.success("Your property tour video is ready!");
+      // Poll for completion
+      const pollInterval = setInterval(async () => {
+        try {
+          const status = await utils.propertyTours.checkRenderStatus.fetch({ tourId: tour.id });
+          
+          if (status.status === "done" || status.status === "completed") {
+            clearInterval(pollInterval);
+            toast.success("Your property tour video is ready!");
+            utils.propertyTours.list.invalidate();
+          } else if (status.status === "failed") {
+            clearInterval(pollInterval);
+            toast.error(status.error || "Video generation failed");
+            utils.propertyTours.list.invalidate();
+          }
+        } catch (error) {
+          clearInterval(pollInterval);
+          console.error("Polling error:", error);
+        }
+      }, 5000); // Poll every 5 seconds
+
+      // Stop polling after 5 minutes
+      setTimeout(() => clearInterval(pollInterval), 300000);
 
       // Reset form
       setAddress("");

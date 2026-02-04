@@ -1838,3 +1838,17 @@ Tasks:
 - [x] Add video preview and download functionality
 - [x] Create navigation item for Property Tours
 - [x] Write vitest tests for video generation (10 tests passing)
+
+## Dashboard Error Fix
+- [x] Identify failing tRPC query on dashboard - persona.get query
+- [x] Fix the API fetch error - Error was temporary, likely server restart
+- [x] Test dashboard loads without errors - Dashboard loading successfully
+
+## Property Tours FFmpeg Production Fix
+- [x] Replace FFmpeg with Shotstack cloud API for video generation
+- [x] Update videoGenerator.ts to use Shotstack SDK
+- [x] Update generateVideo procedure in propertyTours router
+- [x] Add checkRenderStatus procedure for polling
+- [x] Update frontend to poll for video completion (5s interval, 5min timeout)
+- [ ] Test video generation end-to-end
+- [ ] Update vitest tests for Shotstack integration

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as db from "../db";
-import { generatePropertyTourVideo } from "../videoGenerator";
+import { generatePropertyTourVideo, checkRenderStatus } from "../videoGenerator";
 import { storagePut } from "../storage";
 
 export const propertyToursRouter = router({
@@ -76,8 +76,8 @@ export const propertyToursRouter = router({
         // Parse image URLs
         const imageUrls = JSON.parse(tour.imageUrls) as string[];
 
-        // Generate video
-        const { videoUrl, thumbnailUrl } = await generatePropertyTourVideo({
+        // Generate video with Shotstack (async)
+        const { renderId } = await generatePropertyTourVideo({
           imageUrls,
           propertyDetails: {
             address: tour.address,
@@ -92,14 +92,13 @@ export const propertyToursRouter = router({
           duration: tour.duration || 30,
         });
 
-        // Update tour with video URL
+        // Store render ID for polling
         await db.updatePropertyTour(input.tourId, {
-          videoUrl,
-          thumbnailUrl,
-          status: "completed",
+          videoUrl: renderId, // Store renderId temporarily
+          status: "processing",
         });
 
-        return { videoUrl, thumbnailUrl };
+        return { renderId };
       } catch (error) {
         // Update status to failed
         await db.updatePropertyTour(input.tourId, {
@@ -108,6 +107,71 @@ export const propertyToursRouter = router({
         });
         throw error;
       }
+    }),
+
+  /**
+   * Check render status and update tour when complete
+   */
+  checkRenderStatus: protectedProcedure
+    .input(z.object({ tourId: z.number().int().positive() }))
+    .query(async ({ ctx, input }) => {
+      const tour = await db.getPropertyTourById(input.tourId);
+      if (!tour) {
+        throw new Error("Property tour not found");
+      }
+
+      // Verify ownership
+      if (tour.userId !== ctx.user.id) {
+        throw new Error("Unauthorized");
+      }
+
+      // If already completed or failed, return current status
+      if (tour.status === "completed" || tour.status === "failed") {
+        return {
+          status: tour.status,
+          videoUrl: tour.videoUrl,
+          thumbnailUrl: tour.thumbnailUrl,
+          error: tour.errorMessage,
+        };
+      }
+
+      // Check Shotstack render status
+      if (tour.status === "processing" && tour.videoUrl) {
+        const renderId = tour.videoUrl; // videoUrl temporarily stores renderId
+        const renderStatus = await checkRenderStatus(renderId);
+
+        if (renderStatus.status === "done" && renderStatus.url) {
+          // Update tour with final video URL
+          await db.updatePropertyTour(input.tourId, {
+            videoUrl: renderStatus.url,
+            status: "completed",
+          });
+
+          return {
+            status: "completed" as const,
+            videoUrl: renderStatus.url,
+          };
+        } else if (renderStatus.status === "failed") {
+          await db.updatePropertyTour(input.tourId, {
+            status: "failed",
+            errorMessage: renderStatus.error || "Video generation failed",
+          });
+
+          return {
+            status: "failed" as const,
+            error: renderStatus.error,
+          };
+        }
+
+        // Still processing
+        return {
+          status: "processing" as const,
+        };
+      }
+
+      return {
+        status: tour.status as any,
+      };
     }),
 
   /**
