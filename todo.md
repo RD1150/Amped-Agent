@@ -1894,3 +1894,20 @@ Tasks:
 - [x] Fix overlapping/glitchy text in address overlay
 - [x] Changed text style from "blockbuster"/"subtitle" to "minimal" to remove animation
 - [ ] Test video with fixed text overlay
+
+## Property Tours Optional Agent Branding
+- [ ] Add "Include my branding" checkbox to PropertyTours form
+- [ ] Update videoGenerator to add agent profile picture overlay
+- [ ] Add agent contact info (name, phone, email) to video corner
+- [ ] Pull agent data from Authority Profile (persona table)
+- [ ] Test video with and without branding enabled
+
+## Property Tours Optional Agent Branding
+- [x] Add "Include my branding" checkbox to PropertyTours form
+- [x] Update videoGenerator to add agent profile picture overlay
+- [x] Add agent contact info (name, phone, email) to video corner
+- [x] Pull agent data from Authority Profile (persona table)
+- [x] Added includeBranding field to database schema
+- [x] Passed includeBranding parameter through tRPC procedures
+- [x] Implemented conditional branding overlay in video generation
+- [x] All 12 vitest tests passing including new branding tests

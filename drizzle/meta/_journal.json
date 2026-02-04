@@ -155,6 +155,13 @@
       "when": 1770183007672,
       "tag": "0021_spicy_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1770197640515,
+      "tag": "0022_classy_joshua_kane",
+      "breakpoints": true
     }
   ]
 }

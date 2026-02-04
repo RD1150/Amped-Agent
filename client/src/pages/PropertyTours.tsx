@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Upload, Video, Loader2, Download, Trash2, Play } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 
@@ -35,6 +36,7 @@ export default function PropertyTours() {
   const [generatingTourId, setGeneratingTourId] = useState<number | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [generationStatus, setGenerationStatus] = useState("");
+  const [includeBranding, setIncludeBranding] = useState(true);
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -119,6 +121,7 @@ export default function PropertyTours() {
         imageUrls: uploadedImageUrls,
         template,
         duration,
+        includeBranding,
       });
 
       // Set generating state
@@ -376,6 +379,18 @@ export default function PropertyTours() {
                 placeholder="Beautiful property with..."
                 rows={3}
               />
+            </div>
+
+            {/* Agent Branding */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="includeBranding"
+                checked={includeBranding}
+                onCheckedChange={(checked) => setIncludeBranding(checked as boolean)}
+              />
+              <Label htmlFor="includeBranding" className="text-sm font-normal cursor-pointer">
+                Include my branding (profile picture and contact info)
+              </Label>
             </div>
 
             {/* Video Settings */}

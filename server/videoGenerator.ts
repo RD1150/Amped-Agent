@@ -16,6 +16,8 @@ export interface VideoGenerationOptions {
   template?: "modern" | "luxury" | "cozy";
   duration?: number; // Total video duration in seconds
   musicTrack?: string;
+  includeBranding?: boolean; // Include agent branding overlay
+  userId?: number; // User ID for fetching agent profile
 }
 
 const SHOTSTACK_API_URL = "https://api.shotstack.io/v1";
@@ -39,6 +41,8 @@ export async function generatePropertyTourVideo(
     propertyDetails,
     template = "modern",
     duration = 30,
+    includeBranding = true,
+    userId,
   } = options;
 
   if (imageUrls.length === 0) {
@@ -148,8 +152,73 @@ export async function generatePropertyTourVideo(
       }
     : null;
 
+  // Add agent branding overlay if enabled
+  let brandingClips: any[] = [];
+  if (includeBranding && userId) {
+    try {
+      // Import db functions
+      const db = await import("./db");
+      
+      // Fetch agent profile
+      const persona = await db.getPersonaByUserId(userId);
+      
+      if (persona && persona.headshotUrl) {
+        // Add profile picture in bottom-right corner
+        brandingClips.push({
+          asset: {
+            type: "image",
+            src: persona.headshotUrl,
+          },
+          start: 0,
+          length: duration,
+          fit: "cover",
+          scale: 1.0,
+          position: "bottomRight",
+          offset: {
+            x: -0.05,
+            y: -0.25,
+          },
+          opacity: 0.9,
+        });
+        
+        // Add agent name and contact info
+        const contactInfo = [];
+        if (persona.agentName) contactInfo.push(persona.agentName);
+        if (persona.phoneNumber) contactInfo.push(persona.phoneNumber);
+        
+        if (contactInfo.length > 0) {
+          brandingClips.push({
+            asset: {
+              type: "title",
+              text: contactInfo.join(" · "),
+              style: "minimal",
+              color: "#ffffff",
+              size: "x-small",
+              background: "rgba(0,0,0,0.7)",
+              position: "bottomRight",
+              offset: {
+                x: -0.05,
+                y: -0.15,
+              },
+            },
+            start: 0,
+            length: duration,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("[VideoGenerator] Failed to fetch agent profile:", error);
+      // Continue without branding if fetch fails
+    }
+  }
+
   // Combine all clips
-  const allClips = detailsClip ? [...clips, titleClip, detailsClip] : [...clips, titleClip];
+  const allClips = [
+    ...clips,
+    titleClip,
+    ...(detailsClip ? [detailsClip] : []),
+    ...brandingClips,
+  ];
 
   // Create edit payload
   const payload = {

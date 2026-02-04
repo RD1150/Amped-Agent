@@ -22,6 +22,7 @@ export const propertyToursRouter = router({
         imageUrls: z.array(z.string().url()).min(1, "At least one image is required"),
         template: z.enum(["modern", "luxury", "cozy"]).default("modern"),
         duration: z.number().int().min(15).max(120).default(30),
+        includeBranding: z.boolean().default(true),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -38,6 +39,7 @@ export const propertyToursRouter = router({
         imageUrls: JSON.stringify(input.imageUrls),
         template: input.template,
         duration: input.duration,
+        includeBranding: input.includeBranding,
         status: "pending",
       });
 
@@ -90,6 +92,8 @@ export const propertyToursRouter = router({
           },
           template: (tour.template as "modern" | "luxury" | "cozy") || "modern",
           duration: tour.duration || 30,
+          includeBranding: tour.includeBranding ?? true,
+          userId: ctx.user.id,
         });
 
         // Store render ID for polling

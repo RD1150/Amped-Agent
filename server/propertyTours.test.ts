@@ -60,6 +60,37 @@ describe("Property Tours", () => {
       expect(result.price).toBe("$1,500,000");
       expect(result.beds).toBe(4);
       expect(result.status).toBe("pending");
+      expect(result.includeBranding).toBe(true); // Default value
+    });
+
+    it("should create a property tour with branding disabled", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "456 Test St, Los Angeles, CA 90001",
+        imageUrls: ["https://example.com/image1.jpg"],
+        template: "modern",
+        duration: 30,
+        includeBranding: false,
+      });
+
+      expect(result).toBeDefined();
+      expect(result.includeBranding).toBe(false);
+    });
+
+    it("should create a property tour with branding enabled explicitly", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "789 Test Ave, Los Angeles, CA 90001",
+        imageUrls: ["https://example.com/image1.jpg"],
+        template: "modern",
+        duration: 30,
+        includeBranding: true,
+      });
+
+      expect(result).toBeDefined();
+      expect(result.includeBranding).toBe(true);
     });
 
     it("should require address", async () => {

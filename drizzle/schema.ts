@@ -474,6 +474,7 @@ export const propertyTours = mysqlTable("property_tours", {
   template: varchar("template", { length: 50 }).default("modern"), // modern, luxury, cozy
   musicTrack: varchar("musicTrack", { length: 100 }), // Background music selection
   duration: int("duration").default(30), // Video duration in seconds
+  includeBranding: boolean("includeBranding").default(true), // Include agent branding overlay
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),
