@@ -1,18 +1,4 @@
-import Shotstack from "shotstack-sdk";
-
-// Initialize Shotstack client lazily
-function getApiClient() {
-  const defaultClient = Shotstack.ApiClient.instance;
-  const DeveloperKey = defaultClient.authentications["DeveloperKey"];
-  DeveloperKey.apiKey = process.env.SHOTSTACK_API_KEY || "";
-
-  if (!DeveloperKey.apiKey) {
-    console.error("[VideoGenerator] SHOTSTACK_API_KEY not configured");
-    throw new Error("SHOTSTACK_API_KEY is not configured. Please contact support.");
-  }
-
-  return new Shotstack.EditApi();
-}
+// Direct HTTP API implementation to avoid Shotstack SDK parsing issues
 
 export interface PropertyDetails {
   address: string;
@@ -32,6 +18,8 @@ export interface VideoGenerationOptions {
   musicTrack?: string;
 }
 
+const SHOTSTACK_API_URL = "https://api.shotstack.io/v1";
+
 /**
  * Generate a cinematic property tour video using Shotstack API
  * Creates Ken Burns effect with smooth transitions
@@ -39,6 +27,13 @@ export interface VideoGenerationOptions {
 export async function generatePropertyTourVideo(
   options: VideoGenerationOptions
 ): Promise<{ renderId: string }> {
+  const apiKey = process.env.SHOTSTACK_API_KEY;
+  
+  if (!apiKey) {
+    console.error("[VideoGenerator] SHOTSTACK_API_KEY not configured");
+    throw new Error("SHOTSTACK_API_KEY is not configured. Please contact support.");
+  }
+
   const {
     imageUrls,
     propertyDetails,
@@ -127,46 +122,58 @@ export async function generatePropertyTourVideo(
   // Combine all clips
   const allClips = detailsClip ? [...clips, titleClip, detailsClip] : [...clips, titleClip];
 
-  // Create timeline
-  const timeline = new Shotstack.Timeline();
-  const track = new Shotstack.Track();
-  track.clips = allClips;
-  timeline.tracks = [track];
-
-  // Set output format
-  const output = new Shotstack.Output();
-  output.format = "mp4";
-  output.resolution = "hd";
-  output.fps = 30;
-  output.quality = "high";
-
-  // Create edit
-  const edit = new Shotstack.Edit();
-  edit.timeline = timeline;
-  edit.output = output;
+  // Create edit payload
+  const payload = {
+    timeline: {
+      tracks: [
+        {
+          clips: allClips,
+        },
+      ],
+    },
+    output: {
+      format: "mp4",
+      resolution: "hd",
+      fps: 30,
+      quality: "high",
+    },
+  };
 
   try {
     console.log("[VideoGenerator] Submitting render to Shotstack...");
     console.log("[VideoGenerator] Image count:", imageUrls.length);
     console.log("[VideoGenerator] Duration:", duration);
     
-    const api = getApiClient();
+    // Submit render job via HTTP
+    const response = await fetch(`${SHOTSTACK_API_URL}/render`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[VideoGenerator] Shotstack API error:", errorText);
+      throw new Error(`Shotstack API error: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
     
-    // Submit render job
-    const response = await api.postRender(edit);
-    
-    if (!response || !response.response || !response.response.id) {
+    if (!result || !result.response || !result.response.id) {
       throw new Error("Invalid response from Shotstack API");
     }
 
-    console.log("[VideoGenerator] Shotstack render started:", response.response.id);
+    console.log("[VideoGenerator] Shotstack render started:", result.response.id);
 
     return {
-      renderId: response.response.id,
+      renderId: result.response.id,
     };
   } catch (error: any) {
     console.error("[VideoGenerator] Shotstack render failed:", error);
-    console.error("[VideoGenerator] Error details:", JSON.stringify(error, null, 2));
+    console.error("[VideoGenerator] Error details:", error.message);
     
     // Check for specific error types
     if (error.status === 401 || error.status === 403) {
@@ -187,15 +194,40 @@ export async function checkRenderStatus(renderId: string): Promise<{
   url?: string;
   error?: string;
 }> {
+  const apiKey = process.env.SHOTSTACK_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("SHOTSTACK_API_KEY is not configured");
+  }
+
   try {
-    const api = getApiClient();
-    const response = await api.getRender(renderId);
+    console.log("[VideoGenerator] Checking render status for:", renderId);
     
-    if (!response || !response.response) {
+    const response = await fetch(`${SHOTSTACK_API_URL}/render/${renderId}`, {
+      method: "GET",
+      headers: {
+        "x-api-key": apiKey,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[VideoGenerator] Status check error:", errorText);
+      throw new Error(`Shotstack API error: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    
+    if (!result || !result.response) {
       throw new Error("Invalid response from Shotstack API");
     }
 
-    const render = response.response;
+    const render = result.response;
+    
+    console.log("[VideoGenerator] Render status:", render.status);
+    if (render.url) {
+      console.log("[VideoGenerator] Video URL:", render.url);
+    }
 
     return {
       status: render.status as any,

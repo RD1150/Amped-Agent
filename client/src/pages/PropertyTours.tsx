@@ -139,7 +139,9 @@ export default function PropertyTours() {
       const pollInterval = setInterval(async () => {
         try {
           pollCount++;
+          console.log(`[PropertyTours] Poll #${pollCount} for tour ${tour.id}`);
           const status = await utils.propertyTours.checkRenderStatus.fetch({ tourId: tour.id });
+          console.log("[PropertyTours] Status response:", status);
           
           // Update progress based on status
           if (status.status === "fetching") {

@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, address, status, videoUrl, errorMessage, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, address, status, videoUrl, errorMessage, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "60001",
+      "address": "5163 Lakeview Canyon Road, Westlake Village, CA, 91362-5212",
+      "status": "processing",
+      "videoUrl": "86b34879-5b59-4b50-a3e5-0e0056c4d405",
+      "errorMessage": "NULL",
+      "createdAt": "2026-02-04 08:22:32"
+    },
+    {
+      "id": "11",
+      "address": "Private Property",
+      "status": "pending",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-02-04 05:38:26"
+    },
+    {
+      "id": "8",
+      "address": "456 Oak Ave, Beverly Hills, CA 90210",
+      "status": "pending",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-02-04 05:38:26"
+    },
+    {
+      "id": "9",
+      "address": "789 Beach Blvd, Malibu, CA 90265",
+      "status": "pending",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-02-04 05:38:26"
+    },
+    {
+      "id": "7",
+      "address": "123 Main St, Los Angeles, CA 90001",
+      "status": "pending",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-02-04 05:38:26"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tstatus\tvideoUrl\terrorMessage\tcreatedAt\n60001\t5163 Lakeview Canyon Road, Westlake Village, CA, 91362-5212\tprocessing\t86b34879-5b59-4b50-a3e5-0e0056c4d405\tNULL\t2026-02-04 08:22:32\n11\tPrivate Property\tpending\tNULL\tNULL\t2026-02-04 05:38:26\n8\t456 Oak Ave, Beverly Hills, CA 90210\tpending\tNULL\tNULL\t2026-02-04 05:38:26\n9\t789 Beach Blvd, Malibu, CA 90265\tpending\tNULL\tNULL\t2026-02-04 05:38:26\n7\t123 Main St, Los Angeles, CA 90001\tpending\tNULL\tNULL\t2026-02-04 05:38:26\n",
+  "stderr": "",
+  "execution_time_ms": 120
+}

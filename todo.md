@@ -1873,3 +1873,9 @@ Tasks:
 - [x] Fix Shotstack initialization to happen at runtime not module load
 - [x] Add better error logging and handling
 - [ ] Test end-to-end video generation with real property
+
+## Property Tours Still Spinning Issue
+- [x] Check browser console for frontend errors - Found Shotstack SDK parsing error
+- [x] Identify root cause - SDK has oneOf schema ambiguity when parsing Asset types
+- [x] Replace Shotstack SDK with direct HTTP API calls
+- [ ] Test video generation end-to-end
