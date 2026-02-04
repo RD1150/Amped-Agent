@@ -13,9 +13,9 @@ export const propertyToursRouter = router({
       z.object({
         address: z.string().min(1, "Address is required"),
         price: z.string().optional(),
-        beds: z.number().int().positive().optional(),
-        baths: z.number().positive().optional(),
-        sqft: z.number().int().positive().optional(),
+        beds: z.number().int().min(0).optional(),
+        baths: z.number().min(0).optional(),
+        sqft: z.number().int().min(0).optional(),
         propertyType: z.string().optional(),
         description: z.string().optional(),
         features: z.array(z.string()).optional(),

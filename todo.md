@@ -1858,3 +1858,8 @@ Tasks:
 - [x] Add Progress component with status message
 - [x] Update polling logic to show progress updates (fetching, rendering, saving)
 - [x] Display progress bar with percentage and status text
+
+## Property Tours Validation Error Fix
+- [x] Fix beds field validation (changed from positive() to min(0))
+- [x] Fix baths and sqft validation (also changed to min(0))
+- [x] Test tours list displays without errors - Dashboard loads successfully
