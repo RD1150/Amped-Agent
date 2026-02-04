@@ -1866,3 +1866,10 @@ Tasks:
 
 ## Property Tours Timing Message
 - [x] Add "Video generation may take up to 2 minutes" message to progress indicator
+
+## Property Tours Video Generation Bug
+- [x] Check server logs for Shotstack API errors
+- [x] Verify SHOTSTACK_API_KEY is configured correctly - User confirmed it's set
+- [x] Fix Shotstack initialization to happen at runtime not module load
+- [x] Add better error logging and handling
+- [ ] Test end-to-end video generation with real property

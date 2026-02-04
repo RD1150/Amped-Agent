@@ -1,15 +1,18 @@
 import Shotstack from "shotstack-sdk";
 
-// Initialize Shotstack client
-const defaultClient = Shotstack.ApiClient.instance;
-const DeveloperKey = defaultClient.authentications["DeveloperKey"];
-DeveloperKey.apiKey = process.env.SHOTSTACK_API_KEY || "";
+// Initialize Shotstack client lazily
+function getApiClient() {
+  const defaultClient = Shotstack.ApiClient.instance;
+  const DeveloperKey = defaultClient.authentications["DeveloperKey"];
+  DeveloperKey.apiKey = process.env.SHOTSTACK_API_KEY || "";
 
-if (!DeveloperKey.apiKey) {
-  console.warn("[VideoGenerator] SHOTSTACK_API_KEY not configured");
+  if (!DeveloperKey.apiKey) {
+    console.error("[VideoGenerator] SHOTSTACK_API_KEY not configured");
+    throw new Error("SHOTSTACK_API_KEY is not configured. Please contact support.");
+  }
+
+  return new Shotstack.EditApi();
 }
-
-const api = new Shotstack.EditApi();
 
 export interface PropertyDetails {
   address: string;
@@ -143,6 +146,12 @@ export async function generatePropertyTourVideo(
   edit.output = output;
 
   try {
+    console.log("[VideoGenerator] Submitting render to Shotstack...");
+    console.log("[VideoGenerator] Image count:", imageUrls.length);
+    console.log("[VideoGenerator] Duration:", duration);
+    
+    const api = getApiClient();
+    
     // Submit render job
     const response = await api.postRender(edit);
     
@@ -155,8 +164,15 @@ export async function generatePropertyTourVideo(
     return {
       renderId: response.response.id,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("[VideoGenerator] Shotstack render failed:", error);
+    console.error("[VideoGenerator] Error details:", JSON.stringify(error, null, 2));
+    
+    // Check for specific error types
+    if (error.status === 401 || error.status === 403) {
+      throw new Error("Invalid Shotstack API key. Please check your configuration.");
+    }
+    
     throw new Error(
       `Failed to generate video: ${error instanceof Error ? error.message : "Unknown error"}`
     );
@@ -172,6 +188,7 @@ export async function checkRenderStatus(renderId: string): Promise<{
   error?: string;
 }> {
   try {
+    const api = getApiClient();
     const response = await api.getRender(renderId);
     
     if (!response || !response.response) {
