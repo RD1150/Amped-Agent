@@ -1993,3 +1993,75 @@ Tasks:
 - [x] Video autoplays with controls
 - [x] "Continue to Setup" button advances to profile setup
 - [x] Test two-video onboarding flow (welcome video → existing demo in later steps)
+
+
+### Subscription Management Portal ✅ COMPLETE
+- [x] Create Subscription page component
+- [x] Display current subscription tier and status
+- [x] Show billing information and next billing date
+- [x] Display all available pricing tiers
+- [x] Add upgrade buttons for monthly and annual billing
+- [x] Show trial status and expiration
+- [x] Integrate with Stripe checkout
+- [x] Add route to App.tsx (/subscription)
+- [ ] TODO: Implement usage tracking (posts, videos, images per month)
+- [ ] TODO: Add "Update Payment Method" functionality
+- [ ] TODO: Add "Cancel Subscription" functionality
+
+### Final Pre-Launch Features (Current Sprint)
+
+### Enhanced Video Quality ✅ COMPLETE
+- [x] Add crossfade transitions between photos (smoother than hard cuts)
+- [x] Increase Ken Burns effect speed/intensity (1.3-1.4x scale)
+- [x] Support video clip uploads mixed with photos
+- [x] Auto-detect video files and handle differently (no Ken Burns on videos)
+- [x] Lower video clip volume (0.3) so background music is prominent
+- [x] Update frontend to accept image/*,video/* file types
+- [x] Show file count breakdown (X images, Y videos)
+
+### RapidAPI Property Data Auto-Fillll
+- [ ] Research RapidAPI real estate data endpoints
+- [ ] Add "Fetch Property Data" button to Property Tours form
+- [ ] Integrate RapidAPI property lookup by address
+- [ ] Auto-populate price, beds, baths, sqft from API
+- [ ] Auto-download property photos from API
+- [ ] Add listing agent attribution field
+- [ ] Show "Listed by [Agent]" overlay for non-user listings
+- [ ] Add disclaimer about proper usage
+- [ ] Test with real property addresses
+
+### 8. Enhanced Video Quality
+- [ ] Add crossfade transitions between photos (Shotstack)
+- [ ] Increase Ken Burns effect speed/intensity
+- [ ] Add multiple transition style options (fade, slide, zoom)
+- [ ] Improve music synchronization with transitions
+- [ ] Add animated lower-thirds with property details
+- [ ] Support video clip uploads mixed with photos
+- [ ] Add speed ramping effects option
+- [ ] Create template variations (fast-paced, luxury slow, modern)
+- [ ] Test video quality improvements
+
+### 9. Subscription Management Portal
+- [ ] Create Subscription page component
+- [ ] Display current plan and billing info
+- [ ] Show usage metrics (posts, videos, API calls)
+- [ ] Add upgrade/downgrade buttons
+- [ ] Integrate Stripe Customer Portal for payment methods
+- [ ] Show billing history
+- [ ] Add cancel subscription option
+- [ ] Test subscription management flow
+
+
+## RapidAPI Property Data Auto-Fill ✅ COMPLETE
+- [x] Research and compare RapidAPI real estate endpoints
+- [x] Select US Real Estate Listings API (apimaker) - $9.70/mo for 6,000 requests
+- [x] Create backend helper function (server/rapidapi.ts)
+- [x] Add tRPC procedure (propertyTours.fetchPropertyData)
+- [x] Add "Fetch Data" button to Property Tours form
+- [x] Auto-populate address, price, beds/baths, sqft, property type, description
+- [x] Auto-populate property photos from API
+- [x] Add loading state and error handling
+- [ ] Add listing agent attribution field to form
+- [ ] Show "Listed by [Agent]" overlay in video when not user's listing
+- [ ] Add disclaimer about using for represented properties
+- [ ] Subscribe to US Real Estate Listings API on RapidAPI

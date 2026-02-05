@@ -48,6 +48,7 @@ export default function PropertyTours() {
   const createTour = trpc.propertyTours.create.useMutation();
   const generateVideo = trpc.propertyTours.generateVideo.useMutation();
   const deleteTour = trpc.propertyTours.delete.useMutation();
+  const fetchPropertyData = trpc.propertyTours.fetchPropertyData.useMutation();
 
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -246,16 +247,16 @@ export default function PropertyTours() {
 
           {/* Image Upload */}
           <div className="mb-6">
-            <Label htmlFor="images">Property Images *</Label>
+            <Label htmlFor="images">Property Images & Videos *</Label>
             <div className="mt-2 border-2 border-dashed border-border rounded-lg p-8 text-center">
               <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-sm text-muted-foreground mb-4">
-                Drag & drop images or click to browse
+                Drag & drop images or videos (mix photos with short clips for dynamic tours)
               </p>
               <Input
                 id="images"
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 multiple
                 onChange={handleFileSelect}
                 className="hidden"
@@ -264,14 +265,14 @@ export default function PropertyTours() {
                 variant="outline"
                 onClick={() => document.getElementById("images")?.click()}
               >
-                Select Images
+                Select Images/Videos
               </Button>
             </div>
 
             {selectedFiles.length > 0 && (
               <div className="mt-4">
                 <p className="text-sm font-medium mb-2">
-                  {selectedFiles.length} images selected
+                  {selectedFiles.length} files selected ({selectedFiles.filter(f => f.type.startsWith('image')).length} images, {selectedFiles.filter(f => f.type.startsWith('video')).length} videos)
                 </p>
                 <Button
                   onClick={handleUploadImages}
@@ -311,12 +312,61 @@ export default function PropertyTours() {
           <div className="space-y-4">
             <div>
               <Label htmlFor="address">Address *</Label>
-              <Input
-                id="address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="123 Main St, City, State 12345"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="123 Main St, City, State 12345"
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={async () => {
+                    if (!address.trim()) {
+                      toast.error("Please enter an address first");
+                      return;
+                    }
+                    try {
+                      toast.info("Fetching property data...");
+                      const data = await fetchPropertyData.mutateAsync({ address });
+                      
+                      // Auto-populate form fields
+                      setAddress(data.address);
+                      setPrice(data.price ? `$${data.price.toLocaleString()}` : "");
+                      setBeds(data.beds.toString());
+                      setBaths(data.baths.toString());
+                      setSqft(data.sqft.toString());
+                      setPropertyType(data.propertyType);
+                      setDescription(data.description);
+                      
+                      // Auto-populate photos
+                      if (data.photos && data.photos.length > 0) {
+                        setUploadedImageUrls(data.photos);
+                      }
+                      
+                      toast.success("Property data loaded successfully!");
+                    } catch (error) {
+                      toast.error(
+                        error instanceof Error
+                          ? error.message
+                          : "Failed to fetch property data"
+                      );
+                    }
+                  }}
+                  disabled={fetchPropertyData.isPending}
+                >
+                  {fetchPropertyData.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Fetch Data"
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Enter address and click "Fetch Data" to auto-populate property details
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

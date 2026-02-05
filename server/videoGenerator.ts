@@ -70,32 +70,54 @@ export async function generatePropertyTourVideo(
   // Calculate duration per image
   const durationPerImage = duration / imageUrls.length;
 
-  // Create clips for each image with varied Ken Burns effects
+  // Create clips for each image/video with varied Ken Burns effects
   const clips: any[] = imageUrls.map((url, index) => {
+    // Detect if this is a video file (check URL extension)
+    const isVideo = /\.(mp4|mov|avi|webm|mkv)$/i.test(url);
+    
+    if (isVideo) {
+      // For video clips, no Ken Burns effect - just play the video
+      return {
+        asset: {
+          type: "video",
+          src: url,
+          volume: 0.3, // Lower volume so music is more prominent
+        },
+        start: index * durationPerImage,
+        length: durationPerImage,
+        fit: "cover",
+        transition: {
+          in: index === 0 ? "fade" : "crossfade",
+          out: "crossfade",
+        },
+      };
+    }
+    
+    // For images, apply Ken Burns effects
     // Cycle through 4 different motion effects for variety
     const motionType = index % 4;
     
     let effect, scale, position;
     
     switch (motionType) {
-      case 0: // Zoom in from center
+      case 0: // Zoom in from center (faster, more dramatic)
         effect = "zoomIn";
-        scale = 1.0;
+        scale = 1.3; // Increased from 1.0 for more motion
         position = "center";
         break;
-      case 1: // Zoom out from center
+      case 1: // Zoom out from center (faster, more dramatic)
         effect = "zoomOut";
-        scale = 1.2;
+        scale = 1.4; // Increased from 1.2 for more motion
         position = "center";
         break;
-      case 2: // Pan from left to right
+      case 2: // Pan from left to right (faster)
         effect = "slideRight";
-        scale = 1.1;
+        scale = 1.25; // Increased from 1.1 for more motion
         position = "left";
         break;
-      case 3: // Pan from right to left
+      case 3: // Pan from right to left (faster)
         effect = "slideLeft";
-        scale = 1.1;
+        scale = 1.25; // Increased from 1.1 for more motion
         position = "right";
         break;
       default:
@@ -115,8 +137,8 @@ export async function generatePropertyTourVideo(
       scale: scale,
       position: position,
       transition: {
-        in: index === 0 ? "fade" : "fade",
-        out: "fade",
+        in: index === 0 ? "fade" : "crossfade",
+        out: "crossfade",
       },
       effect: effect,
     };

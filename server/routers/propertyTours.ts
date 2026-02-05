@@ -3,6 +3,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import * as db from "../db";
 import { generatePropertyTourVideo, checkRenderStatus } from "../videoGenerator";
 import { storagePut } from "../storage";
+import { fetchPropertyData } from "../rapidapi";
 
 export const propertyToursRouter = router({
   /**
@@ -265,5 +266,27 @@ export const propertyToursRouter = router({
       }
 
       return { urls: uploadedUrls };
+    }),
+
+  /**
+   * Fetch property data from RapidAPI by address
+   */
+  fetchPropertyData: protectedProcedure
+    .input(
+      z.object({
+        address: z.string().min(1, "Address is required"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const propertyData = await fetchPropertyData(input.address);
+        return propertyData;
+      } catch (error) {
+        throw new Error(
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch property data. Please check the address and try again."
+        );
+      }
     }),
 });
