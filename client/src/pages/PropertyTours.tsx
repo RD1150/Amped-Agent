@@ -32,6 +32,8 @@ export default function PropertyTours() {
   const [duration, setDuration] = useState(30);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
+  const [fetchedMlsPhotos, setFetchedMlsPhotos] = useState<string[]>([]);
+  const [selectedPhotoIndices, setSelectedPhotoIndices] = useState<Set<number>>(new Set());
   const [isUploading, setIsUploading] = useState(false);
   const [generatingTourId, setGeneratingTourId] = useState<number | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -114,8 +116,27 @@ export default function PropertyTours() {
       return;
     }
 
-    if (uploadedImageUrls.length === 0) {
-      toast.error("Please upload at least one property image");
+    // Determine which images to use: selected MLS photos or manually uploaded
+    let finalImageUrls: string[] = [];
+    
+    if (fetchedMlsPhotos.length > 0) {
+      // Use selected MLS photos
+      if (selectedPhotoIndices.size === 0) {
+        toast.error("Please select at least one photo from the MLS gallery");
+        return;
+      }
+      if (selectedPhotoIndices.size > 10) {
+        toast.error("Maximum 10 photos allowed. Please deselect some photos.");
+        return;
+      }
+      // Get selected photos in order
+      const selectedIndicesArray = Array.from(selectedPhotoIndices).sort((a, b) => a - b);
+      finalImageUrls = selectedIndicesArray.map(index => fetchedMlsPhotos[index]);
+    } else if (uploadedImageUrls.length > 0) {
+      // Use manually uploaded photos
+      finalImageUrls = uploadedImageUrls;
+    } else {
+      toast.error("Please upload at least one property image or fetch MLS data");
       return;
     }
 
@@ -129,7 +150,7 @@ export default function PropertyTours() {
         sqft: sqft ? parseInt(sqft) : undefined,
         propertyType: propertyType || undefined,
         description: description || undefined,
-        imageUrls: uploadedImageUrls,
+        imageUrls: finalImageUrls,
         template,
         duration,
         includeBranding,
@@ -351,12 +372,18 @@ export default function PropertyTours() {
                       setPropertyType(data.propertyType);
                       setDescription(data.description);
                       
-                      // Auto-populate photos (limit to 10)
+                      // Store fetched photos for user selection
                       if (data.photos && data.photos.length > 0) {
-                        setUploadedImageUrls(data.photos.slice(0, 10));
+                        setFetchedMlsPhotos(data.photos);
+                        // Auto-select first 10 photos by default
+                        const defaultSelection = new Set<number>(data.photos.slice(0, Math.min(10, data.photos.length)).map((_: string, i: number) => i));
+                        setSelectedPhotoIndices(defaultSelection);
+                      } else {
+                        setFetchedMlsPhotos([]);
+                        setSelectedPhotoIndices(new Set());
                       }
                       
-                      toast.success("Property data loaded from MLS!");
+                      toast.success(`Property data loaded! ${data.photos?.length || 0} photos available for selection.`);
                     } catch (error) {
                       toast.error(
                         error instanceof Error
@@ -378,6 +405,79 @@ export default function PropertyTours() {
                 Enter MLS ID and click "Fetch Data" to auto-populate all property details and photos
               </p>
             </div>
+
+            {/* Photo Selection Gallery */}
+            {fetchedMlsPhotos.length > 0 && (
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base">Select Photos for Video ({selectedPhotoIndices.size} selected)</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const allIndices = new Set<number>(fetchedMlsPhotos.map((_, i) => i).slice(0, 10));
+                        setSelectedPhotoIndices(allIndices);
+                        toast.success("Selected first 10 photos");
+                      }}
+                    >
+                      Select First 10
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedPhotoIndices(new Set());
+                        toast.info("Deselected all photos");
+                      }}
+                    >
+                      Deselect All
+                    </Button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Select 1-10 photos to include in your property tour video. Click on photos to select/deselect.
+                </p>
+                <div className="grid grid-cols-4 gap-3 max-h-96 overflow-y-auto">
+                  {fetchedMlsPhotos.map((photoUrl, index) => (
+                    <div
+                      key={index}
+                      className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedPhotoIndices.has(index)
+                          ? "border-primary ring-2 ring-primary/20"
+                          : "border-transparent hover:border-muted-foreground/30"
+                      }`}
+                      onClick={() => {
+                        const newSelection = new Set(selectedPhotoIndices);
+                        if (newSelection.has(index)) {
+                          newSelection.delete(index);
+                        } else {
+                          if (newSelection.size >= 10) {
+                            toast.error("Maximum 10 photos allowed");
+                            return;
+                          }
+                          newSelection.add(index);
+                        }
+                        setSelectedPhotoIndices(newSelection);
+                      }}
+                    >
+                      <img
+                        src={photoUrl}
+                        alt={`Property photo ${index + 1}`}
+                        className="w-full h-32 object-cover"
+                      />
+                      {selectedPhotoIndices.has(index) && (
+                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+                          {Array.from(selectedPhotoIndices).sort((a, b) => a - b).indexOf(index) + 1}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <Label htmlFor="address">Address *</Label>

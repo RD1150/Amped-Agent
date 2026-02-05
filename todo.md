@@ -2093,3 +2093,11 @@ Tasks:
 - [x] Update backend rapidapi.ts to use /v2/property-by-mls endpoint
 - [x] Update frontend to add MLS ID input field
 - [x] Test MLS ID auto-populate with RapidAPI
+
+## Property Tours Photo Selector
+- [x] Add state to track fetched MLS photos and selected photos
+- [x] Create photo gallery UI with thumbnails after MLS fetch
+- [x] Add click selection for each photo (visual feedback with borders and numbered badges)
+- [x] Add "Select First 10" / "Deselect All" buttons
+- [x] Validate 1-10 photos selected before creating tour
+- [x] Support both MLS photos and manual upload (hybrid approach)
