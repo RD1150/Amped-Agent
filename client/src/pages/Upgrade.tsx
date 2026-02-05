@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-type Tier = "starter" | "pro" | "premium";
+type Tier = "essential" | "professional" | "enterprise";
 type BillingPeriod = "monthly" | "annual";
 
 interface PricingTier {
@@ -22,10 +22,10 @@ interface PricingTier {
 
 const pricingTiers: PricingTier[] = [
   {
-    name: "Starter",
-    tier: "starter",
-    priceMonthly: 79,
-    priceAnnual: 790,
+    name: "Essential",
+    tier: "essential",
+    priceMonthly: 39,
+    priceAnnual: 390,
     savings: 158,
     description: "Get started with AI content generation",
     icon: Sparkles,
@@ -44,11 +44,11 @@ const pricingTiers: PricingTier[] = [
     ],
   },
   {
-    name: "Pro",
-    tier: "pro",
-    priceMonthly: 149,
-    priceAnnual: 1490,
-    savings: 298,
+    name: "Professional",
+    tier: "professional",
+    priceMonthly: 79,
+    priceAnnual: 790,
+    savings: 158,
     description: "The complete AI video marketing solution",
     icon: Zap,
     popular: true,
@@ -66,11 +66,11 @@ const pricingTiers: PricingTier[] = [
     ],
   },
   {
-    name: "Premium",
-    tier: "premium",
-    priceMonthly: 249,
-    priceAnnual: 2490,
-    savings: 498,
+    name: "Enterprise",
+    tier: "enterprise",
+    priceMonthly: 149,
+    priceAnnual: 1490,
+    savings: 298,
     description: "Unlimited video creation for top producers",
     icon: Crown,
     features: [

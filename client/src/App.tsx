@@ -32,6 +32,7 @@ import ThumbnailGenerator from "./pages/ThumbnailGenerator";
 import PropertyTours from "./pages/PropertyTours";
 import PerformanceCoach from "./pages/PerformanceCoach";
 import AuthorityProfile from "./pages/AuthorityProfile";
+import Pricing from "./pages/Pricing";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -56,6 +57,7 @@ function Router() {
       <Route path="/integrations/linkedin/callback" component={LinkedInCallback} />
       <Route path="/integrations/instagram/setup" component={InstagramSetup} />
       <Route path="/onboarding" component={AgentOnboarding} />
+      <Route path="/pricing" component={Pricing} />
       
       {/* Dashboard routes */}
       <Route>

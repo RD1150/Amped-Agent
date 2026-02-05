@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE users SET subscriptionTier = 'essential' WHERE subscriptionTier = 'starter';\nUPDATE users SET subscriptionTier = 'professional' WHERE subscriptionTier = 'pro';\nUPDATE users SET subscriptionTier = 'enterprise' WHERE subscriptionTier = 'premium';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute UPDATE users SET subscriptionTier = 'essential' WHERE subscriptionTier = 'starter';\nUPDATE users SET subscriptionTier = 'professional' WHERE subscriptionTier = 'pro';\nUPDATE users SET subscriptionTier = 'enterprise' WHERE subscriptionTier = 'premium';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 191
+}

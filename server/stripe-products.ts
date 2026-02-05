@@ -6,7 +6,7 @@
 export interface StripeProduct {
   name: string;
   description: string;
-  tier: "starter" | "pro" | "premium";
+  tier: "essential" | "professional" | "enterprise";
   priceMonthly: number; // in cents
   priceYearly: number; // in cents (with 20% discount)
   priceIdMonthly?: string; // Will be set after creating in Stripe
@@ -33,11 +33,11 @@ export interface StripeProduct {
 
 export const STRIPE_PRODUCTS: StripeProduct[] = [
   {
-    name: "Authority Content Starter",
-    description: "Get started with AI content generation",
-    tier: "starter",
-    priceMonthly: 7900, // $79/month
-    priceYearly: 79000, // $65.83/month ($790/year - 2 months free)
+    name: "Authority Content Essential",
+    description: "Perfect for agents getting started with content marketing",
+    tier: "essential",
+    priceMonthly: 3900, // $39/month
+    priceYearly: 39000, // $32.50/month ($390/year - 2 months free)
     priceIdMonthly: "price_1SwEkxIg7t2mT914l2lYhLh7",
     priceIdYearly: "price_1SwEkxIg7t2mT914U85UGQZQ",
     productId: "prod_Tu2qUnne3JxuKt",
@@ -71,11 +71,11 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     ],
   },
   {
-    name: "Authority Content Pro",
-    description: "The complete AI video marketing solution",
-    tier: "pro",
-    priceMonthly: 14900, // $149/month
-    priceYearly: 149000, // $124.17/month ($1,490/year - 2 months free)
+    name: "Authority Content Professional",
+    description: "For active agents who post consistently",
+    tier: "professional",
+    priceMonthly: 7900, // $79/month
+    priceYearly: 79000, // $65.83/month ($790/year - 2 months free)
     priceIdMonthly: "price_1SwEkzIg7t2mT914CiNdZgkd",
     priceIdYearly: "price_1SwEkzIg7t2mT914ZibEMRwS",
     productId: "prod_Tu2qEpQy3NGNdY",
@@ -109,11 +109,11 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     ],
   },
   {
-    name: "Authority Content Premium",
-    description: "Unlimited video creation for top producers",
-    tier: "premium",
-    priceMonthly: 24900, // $249/month
-    priceYearly: 249000, // $207.50/month ($2,490/year - 2 months free)
+    name: "Authority Content Enterprise",
+    description: "For top producers and teams",
+    tier: "enterprise",
+    priceMonthly: 14900, // $149/month
+    priceYearly: 149000, // $124.17/month ($1,490/year - 2 months free)
     priceIdMonthly: "price_1SwEl1Ig7t2mT914iDGqGZ40",
     priceIdYearly: "price_1SwEl2Ig7t2mT914uAb8Wm9i",
     productId: "prod_Tu2qRnlGJmcZu8",
@@ -155,14 +155,14 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
 /**
  * Get product by tier
  */
-export function getProductByTier(tier: "starter" | "pro" | "premium"): StripeProduct | undefined {
+export function getProductByTier(tier: "essential" | "professional" | "enterprise"): StripeProduct | undefined {
   return STRIPE_PRODUCTS.find((p) => p.tier === tier);
 }
 
 /**
  * Get tier by price ID
  */
-export function getTierByPriceId(priceId: string): "starter" | "pro" | "premium" | undefined {
+export function getTierByPriceId(priceId: string): "essential" | "professional" | "enterprise" | undefined {
   const product = STRIPE_PRODUCTS.find(
     (p) => p.priceIdMonthly === priceId || p.priceIdYearly === priceId
   );
@@ -173,7 +173,7 @@ export function getTierByPriceId(priceId: string): "starter" | "pro" | "premium"
  * Check if user has access to a feature based on their tier
  */
 export function hasFeatureAccess(
-  userTier: "starter" | "pro" | "premium",
+  userTier: "essential" | "professional" | "enterprise",
   feature: keyof StripeProduct["features"]
 ): boolean {
   const product = getProductByTier(userTier);
@@ -184,7 +184,7 @@ export function hasFeatureAccess(
 /**
  * Get video limit for a tier
  */
-export function getVideoLimit(tier: "starter" | "pro" | "premium"): number {
+export function getVideoLimit(tier: "essential" | "professional" | "enterprise"): number {
   const product = getProductByTier(tier);
   if (!product) return 0;
   return product.features.aiVideos;

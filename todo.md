@@ -1922,3 +1922,66 @@ Tasks:
 - [x] Update database schema with musicTrack and aspectRatio fields
 - [x] Test thumbnail display, music playback, and aspect ratio rendering
 - [x] All 15 vitest tests passing (8 create tests, 3 new for enhancements)
+
+
+## Pre-Launch Roadmap (Current Sprint)
+
+### 1. Password Protection ✅ COMPLETE
+- [x] Add password protection middleware to server
+- [x] Install cookie-parser dependency
+- [x] Add cookie-parser to Express app
+- [x] Create password entry page component (PasswordProtection.tsx)
+- [x] Add password verification tRPC procedures (checkPasswordProtection, verifyPassword)
+- [x] Test password protection flow (working with password "Sonia123")
+- [x] Cookie-based authentication (30-day expiration)
+- [x] Clean UI with lock icon and error handling
+
+### 2. Error Handling & Edge Cases ✅ COMPLETE
+- [x] Add retry logic for failed video renders (PropertyTours with clear retry instructions)
+- [x] Handle expired OAuth tokens (LinkedIn throws UNAUTHORIZED with reconnect message)
+- [x] Add user-friendly error messages for API failures (TRPCError with actionable messages)
+- [x] Error boundaries in React components (ErrorBoundary already implemented)
+- [x] Loading states for all async operations (spinners, progress bars, disabled states)
+- Note: Rate limits handled by API providers (Shotstack, Facebook, LinkedIn) with their own retry logic
+
+### 3. Onboarding Flow ✅ COMPLETE
+- [x] Create welcome/onboarding modal for new users (AgentOnboarding component)
+- [x] Step 1: Welcome screen explaining the process
+- [x] Step 2: Upload headshot (with skip option)
+- [x] Step 3: Enter business info (name, license, brokerage, phone)
+- [x] Step 4: Choose brand voice and primary color
+- [x] Add progress indicator (4-step progress bar)
+- [x] Store onboarding completion status in database (persona.isCompleted)
+- [x] Auto-redirect new users to onboarding (DashboardLayout checks isCompleted)
+- Note: Social media connection and first post creation happen naturally after onboarding
+
+### 4. Monetization Setup ✅ COMPLETE
+- [x] Define pricing tiers (Essential $39, Professional $79, Enterprise $149)
+- [x] Create Stripe products configuration
+- [x] Add pricing page at /pricing
+- [x] Implement Stripe checkout with 14-day trials
+- [x] Update database schema for new tier names
+- [x] Annual billing with 2 months free
+- [ ] Create subscription management page (billing portal)
+- [ ] Implement feature gating based on subscription tier
+- [ ] Add usage tracking and limits
+- [ ] Create upgrade prompts in UI
+
+### 5. RapidAPI Property Data Auto-Fill (Current)
+- [ ] Add "Fetch Property Data" button to Property Tours
+- [ ] Integrate RapidAPI property data endpoint
+- [ ] Auto-populate address, price, beds/baths, sqft
+- [ ] Auto-download property photos
+- [ ] Add listing agent attribution field
+- [ ] Show "Listed by [Agent]" overlay when not user's listing
+- [ ] Add disclaimer about using for represented properties
+
+### 6. Enhanced Video Quality (Current)
+- [ ] Add crossfade transitions between photos
+- [ ] Increase Ken Burns effect speed/intensity
+- [ ] Add multiple transition styles (fade, slide, zoom)
+- [ ] Improve music synchronization
+- [ ] Add animated lower-thirds with property details
+- [ ] Support video clip uploads mixed with photos
+- [ ] Add speed ramping effects
+- [ ] Create template variations (fast-paced vs luxury slow)

@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE users MODIFY COLUMN subscriptionTier ENUM('essential', 'professional', 'enterprise') DEFAULT 'essential';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute ALTER TABLE users MODIFY COLUMN subscriptionTier ENUM('essential', 'professional', 'enterprise') DEFAULT 'essential';",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1265 (01000) at line 1: Data truncated for column 'subscriptionTier', value is 'starter'"
+  ]
+}

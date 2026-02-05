@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, email, subscriptionTier, subscriptionStatus FROM users LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, email, subscriptionTier, subscriptionStatus FROM users LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "rdshop70@gmail.com",
+      "subscriptionTier": "starter",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "2",
+      "email": "NULL",
+      "subscriptionTier": "starter",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "3",
+      "email": "NULL",
+      "subscriptionTier": "starter",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "4",
+      "email": "NULL",
+      "subscriptionTier": "starter",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "5",
+      "email": "NULL",
+      "subscriptionTier": "starter",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "6",
+      "email": "NULL",
+      "subscriptionTier": "starter",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "7",
+      "email": "NULL",
+      "subscriptionTier": "starter",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "8",
+      "email": "NULL",
+      "subscriptionTier": "starter",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "9",
+      "email": "NULL",
+      "subscriptionTier": "starter",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "10",
+      "email": "NULL",
+      "subscriptionTier": "starter",
+      "subscriptionStatus": "inactive"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tsubscriptionTier\tsubscriptionStatus\n1\trdshop70@gmail.com\tstarter\tinactive\n2\tNULL\tstarter\tinactive\n3\tNULL\tstarter\tinactive\n4\tNULL\tstarter\tinactive\n5\tNULL\tstarter\tinactive\n6\tNULL\tstarter\tinactive\n7\tNULL\tstarter\tinactive\n8\tNULL\tstarter\tinactive\n9\tNULL\tstarter\tinactive\n10\tNULL\tstarter\tinactive\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}
