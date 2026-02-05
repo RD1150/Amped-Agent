@@ -1985,3 +1985,11 @@ Tasks:
 - [ ] Support video clip uploads mixed with photos
 - [ ] Add speed ramping effects
 - [ ] Create template variations (fast-paced vs luxury slow)
+
+
+## AI Welcome Video Integration ✅ COMPLETE
+- [x] Upload welcome video to S3 (CDN URL: https://files.manuscdn.com/...hogixyRaxrNwlUeM.mp4)
+- [x] Update AgentOnboarding component to show welcome video first (step 0)
+- [x] Video autoplays with controls
+- [x] "Continue to Setup" button advances to profile setup
+- [x] Test two-video onboarding flow (welcome video → existing demo in later steps)

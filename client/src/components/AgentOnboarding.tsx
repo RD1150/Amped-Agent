@@ -13,7 +13,7 @@ import { useLocation } from "wouter";
 type BrandVoice = "professional" | "friendly" | "luxury" | "casual" | "authoritative";
 
 export default function AgentOnboarding() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [headshotFile, setHeadshotFile] = useState<File | null>(null);
   const [headshotPreview, setHeadshotPreview] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
@@ -114,7 +114,7 @@ export default function AgentOnboarding() {
     });
   };
 
-  const progress = (step / 4) * 100;
+  const progress = step === 0 ? 0 : (step / 4) * 100;
 
   const brandVoiceOptions = [
     { value: "professional", label: "Professional", description: "Formal and trustworthy" },
@@ -133,12 +133,29 @@ export default function AgentOnboarding() {
               <Sparkles className="h-6 w-6 text-primary" />
               <CardTitle className="text-2xl">Welcome to Authority Content</CardTitle>
             </div>
-            <span className="text-sm text-muted-foreground">Step {step} of 4</span>
+            <span className="text-sm text-muted-foreground">Step {step > 0 ? step : 1} of 4</span>
           </div>
           <Progress value={progress} className="h-2" />
         </CardHeader>
 
         <CardContent className="space-y-6">
+          {step === 0 && (
+            <div className="space-y-4 text-center py-8">
+              <h2 className="text-2xl font-bold mb-6">Welcome to AuthorityContent!</h2>
+              <div className="aspect-video w-full max-w-2xl mx-auto rounded-lg overflow-hidden bg-black">
+                <video 
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/hogixyRaxrNwlUeM.mp4"
+                  controls
+                  autoPlay
+                  className="w-full h-full"
+                />
+              </div>
+              <Button onClick={() => setStep(1)} size="lg" className="mt-6">
+                Continue to Setup
+              </Button>
+            </div>
+          )}
+
           {step === 1 && (
             <div className="space-y-4 text-center py-8">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
