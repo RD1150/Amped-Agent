@@ -269,23 +269,23 @@ export const propertyToursRouter = router({
     }),
 
   /**
-   * Fetch property data from RapidAPI by address
+   * Fetch property data from RapidAPI by MLS ID
    */
   fetchPropertyData: protectedProcedure
     .input(
       z.object({
-        address: z.string().min(1, "Address is required"),
+        mlsId: z.string().min(1, "MLS ID is required"),
       })
     )
     .mutation(async ({ input }) => {
       try {
-        const propertyData = await fetchPropertyData(input.address);
+        const propertyData = await fetchPropertyData(input.mlsId);
         return propertyData;
       } catch (error) {
         throw new Error(
           error instanceof Error
             ? error.message
-            : "Failed to fetch property data. Please check the address and try again."
+            : "Failed to fetch property data. Please check the MLS ID and try again."
         );
       }
     }),

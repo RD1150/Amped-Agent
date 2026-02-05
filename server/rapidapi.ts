@@ -2,10 +2,10 @@ import { ENV } from "./_core/env";
 
 /**
  * Fetch property data from US Real Estate Listings API (RapidAPI)
- * @param address - Full property address (e.g., "123 Main St, Los Angeles, CA 90001")
+ * @param mlsId - MLS ID of the property (e.g., "168E2809889933")
  * @returns Property details including price, beds, baths, sqft, photos, listing agent
  */
-export async function fetchPropertyData(address: string) {
+export async function fetchPropertyData(mlsId: string) {
   const rapidApiKey = ENV.rapidApiKey;
   
   if (!rapidApiKey) {
@@ -13,9 +13,9 @@ export async function fetchPropertyData(address: string) {
   }
 
   try {
-    // Step 1: Search for property by address
-    const searchResponse = await fetch(
-      `https://us-real-estate-listings.p.rapidapi.com/search?location=${encodeURIComponent(address)}&limit=1`,
+    // Fetch property by MLS ID
+    const response = await fetch(
+      `https://us-real-estate-listings.p.rapidapi.com/v2/property-by-mls?mlsId=${encodeURIComponent(mlsId)}`,
       {
         method: "GET",
         headers: {
@@ -25,21 +25,21 @@ export async function fetchPropertyData(address: string) {
       }
     );
 
-    if (!searchResponse.ok) {
-      throw new Error(`RapidAPI search failed: ${searchResponse.statusText}`);
+    if (!response.ok) {
+      throw new Error(`RapidAPI request failed: ${response.statusText}`);
     }
 
-    const searchData = await searchResponse.json();
+    const data = await response.json();
     
-    if (!searchData.data || searchData.data.length === 0) {
-      throw new Error("Property not found at this address");
+    if (!data || !data.data) {
+      throw new Error("Property not found with this MLS ID");
     }
 
-    const property = searchData.data[0];
+    const property = data.data;
 
     // Extract and normalize property data
     return {
-      address: property.location?.address?.line || address,
+      address: property.location?.address?.line || "",
       city: property.location?.address?.city || "",
       state: property.location?.address?.state_code || "",
       zipCode: property.location?.address?.postal_code || "",

@@ -322,29 +322,28 @@ export default function PropertyTours() {
           {/* Property Details */}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="address">Address *</Label>
+              <Label htmlFor="mlsId">MLS ID (Optional)</Label>
               <div className="flex gap-2">
                 <Input
-                  id="address"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="123 Main St, City, State 12345"
+                  id="mlsId"
+                  placeholder="Enter MLS ID to auto-fill property details"
                   className="flex-1"
                 />
                 <Button
                   type="button"
                   variant="outline"
                   onClick={async () => {
-                    if (!address.trim()) {
-                      toast.error("Please enter an address first");
+                    const mlsIdInput = (document.getElementById("mlsId") as HTMLInputElement)?.value;
+                    if (!mlsIdInput?.trim()) {
+                      toast.error("Please enter an MLS ID first");
                       return;
                     }
                     try {
-                      toast.info("Fetching property data...");
-                      const data = await fetchPropertyData.mutateAsync({ address });
+                      toast.info("Fetching property data from MLS...");
+                      const data = await fetchPropertyData.mutateAsync({ mlsId: mlsIdInput });
                       
                       // Auto-populate form fields
-                      setAddress(data.address);
+                      setAddress(data.address || "");
                       setPrice(data.price ? `$${data.price.toLocaleString()}` : "");
                       setBeds(data.beds.toString());
                       setBaths(data.baths.toString());
@@ -352,17 +351,17 @@ export default function PropertyTours() {
                       setPropertyType(data.propertyType);
                       setDescription(data.description);
                       
-                      // Auto-populate photos
+                      // Auto-populate photos (limit to 10)
                       if (data.photos && data.photos.length > 0) {
-                        setUploadedImageUrls(data.photos);
+                        setUploadedImageUrls(data.photos.slice(0, 10));
                       }
                       
-                      toast.success("Property data loaded successfully!");
+                      toast.success("Property data loaded from MLS!");
                     } catch (error) {
                       toast.error(
                         error instanceof Error
                           ? error.message
-                          : "Failed to fetch property data"
+                          : "Failed to fetch property data from MLS"
                       );
                     }
                   }}
@@ -376,8 +375,18 @@ export default function PropertyTours() {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Enter address and click "Fetch Data" to auto-populate property details
+                Enter MLS ID and click "Fetch Data" to auto-populate all property details and photos
               </p>
+            </div>
+
+            <div>
+              <Label htmlFor="address">Address *</Label>
+              <Input
+                id="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="123 Main St, City, State 12345"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">

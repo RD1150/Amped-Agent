@@ -2085,3 +2085,11 @@ Tasks:
 - [ ] Identify what's causing the render to fail after starting
 - [ ] Fix remaining issues in videoGenerator.ts
 - [ ] Test video generation end-to-end
+
+## Bug Fixes
+- [x] Property Tours: Fetch Data button not auto-populating property details from RapidAPI (Fixed: Changed to use MLS ID instead)
+
+## Property Tours MLS ID Feature
+- [x] Update backend rapidapi.ts to use /v2/property-by-mls endpoint
+- [x] Update frontend to add MLS ID input field
+- [x] Test MLS ID auto-populate with RapidAPI
