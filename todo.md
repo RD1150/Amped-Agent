@@ -2108,3 +2108,7 @@ Tasks:
 - [x] Remove fetchedMlsPhotos and selectedPhotoIndices state
 - [x] Update MLS fetch button to not mention photos
 - [x] Update validation to only check for manually uploaded photos
+
+## Update Onboarding Video
+- [x] Upload new onboarding video to S3
+- [x] Update welcome dialog to use new video URL

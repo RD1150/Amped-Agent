@@ -144,7 +144,7 @@ export default function AgentOnboarding() {
               <h2 className="text-2xl font-bold mb-6">Welcome to AuthorityContent!</h2>
               <div className="aspect-video w-full max-w-2xl mx-auto rounded-lg overflow-hidden bg-black">
                 <video 
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/hogixyRaxrNwlUeM.mp4"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/aBgrJXfThsxtnLZz.mp4"
                   controls
                   autoPlay
                   className="w-full h-full"
