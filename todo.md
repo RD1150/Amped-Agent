@@ -2112,3 +2112,8 @@ Tasks:
 ## Update Onboarding Video
 - [x] Upload new onboarding video to S3
 - [x] Update welcome dialog to use new video URL
+
+## Configure Live Stripe Keys
+- [x] Update STRIPE_SECRET_KEY with live key
+- [x] Update VITE_STRIPE_PUBLISHABLE_KEY with live key
+- [x] Server restarted to apply new keys
