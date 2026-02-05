@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, address, status, videoUrl, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, address, status, videoUrl, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "90001",
+      "address": "5163 Lakeview Canyon Rd",
+      "status": "failed",
+      "videoUrl": "NULL",
+      "createdAt": "2026-02-05 09:06:02"
+    },
+    {
+      "id": "60015",
+      "address": "Vertical Video Test",
+      "status": "pending",
+      "videoUrl": "NULL",
+      "createdAt": "2026-02-04 09:53:38"
+    },
+    {
+      "id": "60013",
+      "address": "456 Test St, Los Angeles, CA 90001",
+      "status": "pending",
+      "videoUrl": "NULL",
+      "createdAt": "2026-02-04 09:53:38"
+    },
+    {
+      "id": "60014",
+      "address": "789 Test Ave, Los Angeles, CA 90001",
+      "status": "pending",
+      "videoUrl": "NULL",
+      "createdAt": "2026-02-04 09:53:38"
+    },
+    {
+      "id": "60012",
+      "address": "123 Main St, Los Angeles, CA 90001",
+      "status": "pending",
+      "videoUrl": "NULL",
+      "createdAt": "2026-02-04 09:53:38"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tstatus\tvideoUrl\tcreatedAt\n90001\t5163 Lakeview Canyon Rd\tfailed\tNULL\t2026-02-05 09:06:02\n60015\tVertical Video Test\tpending\tNULL\t2026-02-04 09:53:38\n60013\t456 Test St, Los Angeles, CA 90001\tpending\tNULL\t2026-02-04 09:53:38\n60014\t789 Test Ave, Los Angeles, CA 90001\tpending\tNULL\t2026-02-04 09:53:38\n60012\t123 Main St, Los Angeles, CA 90001\tpending\tNULL\t2026-02-04 09:53:38\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

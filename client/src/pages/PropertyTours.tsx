@@ -53,6 +53,14 @@ export default function PropertyTours() {
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    const newTotal = selectedFiles.length + files.length;
+    
+    // Enforce 10-photo maximum
+    if (newTotal > 10) {
+      toast.error("Maximum 10 photos allowed. For best results, select 5-10 of your best photos showing key features.");
+      return;
+    }
+    
     setSelectedFiles((prev) => [...prev, ...files]);
   };
 
@@ -248,6 +256,9 @@ export default function PropertyTours() {
           {/* Image Upload */}
           <div className="mb-6">
             <Label htmlFor="images">Property Images & Videos *</Label>
+            <p className="text-xs text-muted-foreground mt-1 mb-2">
+              Maximum 10 photos. For best results, select 5-10 of your best photos showing key features.
+            </p>
             <div className="mt-2 border-2 border-dashed border-border rounded-lg p-8 text-center">
               <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-sm text-muted-foreground mb-4">

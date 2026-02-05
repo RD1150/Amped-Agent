@@ -2077,3 +2077,11 @@ Tasks:
 - [x] Fixed branding overlay scale
 - [x] Server restarted with fixes applied
 - [ ] Test video generation with real property to confirm fix works
+
+
+## Video Generation Still Failing (Current Bug)
+- [ ] Check Shotstack render status for latest failed video
+- [ ] Review error details from Shotstack API response
+- [ ] Identify what's causing the render to fail after starting
+- [ ] Fix remaining issues in videoGenerator.ts
+- [ ] Test video generation end-to-end

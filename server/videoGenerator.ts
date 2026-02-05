@@ -70,6 +70,25 @@ export async function generatePropertyTourVideo(
   // Calculate duration per image
   const durationPerImage = duration / imageUrls.length;
 
+  // Map aspect ratio to dimensions for HTML overlays
+  let htmlWidth: number;
+  let htmlHeight: number;
+  switch (aspectRatio) {
+    case "9:16":
+      htmlWidth = 1080;
+      htmlHeight = 1920;
+      break;
+    case "1:1":
+      htmlWidth = 1080;
+      htmlHeight = 1080;
+      break;
+    case "16:9":
+    default:
+      htmlWidth = 1920;
+      htmlHeight = 1080;
+      break;
+  }
+
   // Create clips for each image/video with varied Ken Burns effects
   const clips: any[] = imageUrls.map((url, index) => {
     // Detect if this is a video file (check URL extension)
@@ -87,8 +106,8 @@ export async function generatePropertyTourVideo(
         length: durationPerImage,
         fit: "cover",
         transition: {
-          in: index === 0 ? "fade" : "crossfade",
-          out: "crossfade",
+          in: index === 0 ? "fade" : "fade",
+          out: "fade",
         },
       };
     }
@@ -108,10 +127,9 @@ export async function generatePropertyTourVideo(
       start: index * durationPerImage,
       length: durationPerImage,
       fit: "cover",
-      scale: zoomIn ? 1.0 : 1.3, // Start scale
       transition: {
-        in: index === 0 ? "fade" : "crossFade", // Fixed: crossFade not crossfade
-        out: "crossFade",
+        in: index === 0 ? "fade" : "fade",
+        out: "fade",
       },
       transform: {
         scale: {
@@ -133,38 +151,34 @@ export async function generatePropertyTourVideo(
   }
   const detailsText = detailsParts.join(" · ");
 
-  // Add text overlays
-  const titleClip = {
+  // Add text overlays using HTML assets (simpler approach)
+  const textOverlays: any[] = [];
+  
+  // Address overlay
+  textOverlays.push({
     asset: {
       type: "html",
-      html: `<p style="color: white; font-size: 48px; font-weight: bold; text-align: center; background: rgba(0,0,0,0.7); padding: 20px; border-radius: 10px;">${propertyDetails.address}</p>`,
-      width: 1200,
-      height: 150,
-      position: "bottom",
+      html: `<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 120px;"><div style="background: rgba(0,0,0,0.8); padding: 15px 30px; border-radius: 8px;"><p style="color: white; font-size: 36px; font-weight: bold; margin: 0; text-align: center;">${propertyDetails.address}</p></div></div>`,
+      width: htmlWidth,
+      height: htmlHeight,
     },
     start: 0,
     length: duration,
-    offset: {
-      y: 0.15,
-    },
-  };
-
-  const detailsClip = detailsText
-    ? {
-        asset: {
-          type: "html",
-          html: `<p style="color: white; font-size: 32px; text-align: center; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px;">${detailsText}</p>`,
-          width: 1200,
-          height: 100,
-          position: "bottom",
-        },
-        start: 0,
-        length: duration,
-        offset: {
-          y: 0.05,
-        },
-      }
-    : null;
+  });
+  
+  // Details overlay
+  if (detailsText) {
+    textOverlays.push({
+      asset: {
+        type: "html",
+        html: `<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 60px;"><div style="background: rgba(0,0,0,0.8); padding: 10px 25px; border-radius: 6px;"><p style="color: white; font-size: 24px; margin: 0; text-align: center;">${detailsText}</p></div></div>`,
+        width: htmlWidth,
+        height: htmlHeight,
+      },
+      start: 0,
+      length: duration,
+    });
+  }
 
   // Add agent branding overlay if enabled
   let brandingClips: any[] = [];
@@ -177,44 +191,22 @@ export async function generatePropertyTourVideo(
       const persona = await db.getPersonaByUserId(userId);
       
       if (persona && persona.headshotUrl) {
-        // Add profile picture in bottom-right corner
-        brandingClips.push({
-          asset: {
-            type: "image",
-            src: persona.headshotUrl,
-          },
-          start: 0,
-          length: duration,
-          fit: "cover",
-          scale: 0.15, // Small overlay
-          position: "bottomRight",
-          offset: {
-            x: -0.05,
-            y: -0.25,
-          },
-          opacity: 0.9,
-        });
-        
-        // Add agent name and contact info
+        // Add agent branding as HTML overlay in bottom-right
         const contactInfo = [];
         if (persona.agentName) contactInfo.push(persona.agentName);
         if (persona.phoneNumber) contactInfo.push(persona.phoneNumber);
         
-        if (contactInfo.length > 0) {
+        if (contactInfo.length > 0 && persona.headshotUrl) {
+          // Combined branding with headshot and info
           brandingClips.push({
             asset: {
               type: "html",
-              html: `<p style="color: white; font-size: 20px; text-align: right; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px;">${contactInfo.join(" · ")}</p>`,
-              width: 400,
-              height: 60,
-              position: "bottomRight",
+              html: `<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: flex-end; padding: 20px;"><div style="background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px;"><img src="${persona.headshotUrl}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;" /><p style="color: white; font-size: 16px; margin: 0;">${contactInfo.join(" · ")}</p></div></div>`,
+              width: htmlWidth,
+              height: htmlHeight,
             },
             start: 0,
             length: duration,
-            offset: {
-              x: -0.05,
-              y: -0.15,
-            },
           });
         }
       }
@@ -227,23 +219,29 @@ export async function generatePropertyTourVideo(
   // Combine all clips
   const allClips = [
     ...clips,
-    titleClip,
-    ...(detailsClip ? [detailsClip] : []),
+    ...textOverlays,
     ...brandingClips,
   ];
 
-  // Map aspect ratio to resolution
+  // Map aspect ratio to resolution and size
   let resolution: string;
+  let size: { width: number; height: number } | undefined;
+  
   switch (aspectRatio) {
     case "9:16":
-      resolution = "vertical-hd"; // 1080x1920 for Reels/TikTok
+      // For vertical videos, use custom size
+      resolution = "1080"; // Base resolution
+      size = { width: 1080, height: 1920 };
       break;
     case "1:1":
-      resolution = "square-hd"; // 1080x1080 for Instagram
+      // For square videos, use custom size
+      resolution = "1080";
+      size = { width: 1080, height: 1080 };
       break;
     case "16:9":
     default:
       resolution = "hd"; // 1920x1080 for YouTube
+      size = undefined; // hd preset handles this
       break;
   }
 
@@ -267,6 +265,7 @@ export async function generatePropertyTourVideo(
     output: {
       format: "mp4",
       resolution,
+      ...(size && { size }), // Add size for custom dimensions
       fps: 30,
       quality: "high",
     },
