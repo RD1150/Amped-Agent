@@ -3,7 +3,7 @@ import { ENV } from "./_core/env";
 /**
  * Fetch property data from US Real Estate Listings API (RapidAPI)
  * @param mlsId - MLS ID of the property (e.g., "168E2809889933")
- * @returns Property details including price, beds, baths, sqft, photos, listing agent
+ * @returns Property details including price, beds, baths, sqft, listing agent (NO photos for copyright compliance)
  */
 export async function fetchPropertyData(mlsId: string) {
   const rapidApiKey = ENV.rapidApiKey;
@@ -49,7 +49,7 @@ export async function fetchPropertyData(mlsId: string) {
       sqft: property.description?.sqft || 0,
       propertyType: property.description?.type || "Single Family",
       description: property.description?.text || "",
-      photos: (property.photos || []).map((photo: any) => photo.href).filter(Boolean),
+      // Photos removed for copyright compliance - users must upload their own
       listingAgent: {
         name: property.advertisers?.[0]?.name || "",
         office: property.advertisers?.[0]?.office?.name || "",

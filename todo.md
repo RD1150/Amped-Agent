@@ -2101,3 +2101,10 @@ Tasks:
 - [x] Add "Select First 10" / "Deselect All" buttons
 - [x] Validate 1-10 photos selected before creating tour
 - [x] Support both MLS photos and manual upload (hybrid approach)
+
+## Remove Photo Auto-Fetch from MLS Feature
+- [x] Remove photo fetching from rapidapi.ts (only fetch property details)
+- [x] Remove photo selection gallery UI from PropertyTours.tsx
+- [x] Remove fetchedMlsPhotos and selectedPhotoIndices state
+- [x] Update MLS fetch button to not mention photos
+- [x] Update validation to only check for manually uploaded photos
