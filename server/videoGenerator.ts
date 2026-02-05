@@ -93,38 +93,12 @@ export async function generatePropertyTourVideo(
       };
     }
     
-    // For images, apply Ken Burns effects
-    // Cycle through 4 different motion effects for variety
-    const motionType = index % 4;
+    // For images, apply Ken Burns effects with zoom
+    // Cycle through different zoom directions for variety
+    const motionType = index % 2;
     
-    let effect, scale, position;
-    
-    switch (motionType) {
-      case 0: // Zoom in from center (faster, more dramatic)
-        effect = "zoomIn";
-        scale = 1.3; // Increased from 1.0 for more motion
-        position = "center";
-        break;
-      case 1: // Zoom out from center (faster, more dramatic)
-        effect = "zoomOut";
-        scale = 1.4; // Increased from 1.2 for more motion
-        position = "center";
-        break;
-      case 2: // Pan from left to right (faster)
-        effect = "slideRight";
-        scale = 1.25; // Increased from 1.1 for more motion
-        position = "left";
-        break;
-      case 3: // Pan from right to left (faster)
-        effect = "slideLeft";
-        scale = 1.25; // Increased from 1.1 for more motion
-        position = "right";
-        break;
-      default:
-        effect = "zoomIn";
-        scale = 1.0;
-        position = "center";
-    }
+    // Use zoom transform instead of invalid effect property
+    const zoomIn = motionType === 0;
     
     return {
       asset: {
@@ -134,13 +108,17 @@ export async function generatePropertyTourVideo(
       start: index * durationPerImage,
       length: durationPerImage,
       fit: "cover",
-      scale: scale,
-      position: position,
+      scale: zoomIn ? 1.0 : 1.3, // Start scale
       transition: {
-        in: index === 0 ? "fade" : "crossfade",
-        out: "crossfade",
+        in: index === 0 ? "fade" : "crossFade", // Fixed: crossFade not crossfade
+        out: "crossFade",
       },
-      effect: effect,
+      transform: {
+        scale: {
+          start: zoomIn ? 1.0 : 1.3,
+          end: zoomIn ? 1.3 : 1.0,
+        },
+      },
     };
   });
 
@@ -158,37 +136,33 @@ export async function generatePropertyTourVideo(
   // Add text overlays
   const titleClip = {
     asset: {
-      type: "title",
-      text: propertyDetails.address,
-      style: "minimal",  // Changed from "blockbuster" to "minimal" to avoid animation glitches
-      color: "#ffffff",
-      size: "medium",
-      background: "rgba(0,0,0,0.7)",
+      type: "html",
+      html: `<p style="color: white; font-size: 48px; font-weight: bold; text-align: center; background: rgba(0,0,0,0.7); padding: 20px; border-radius: 10px;">${propertyDetails.address}</p>`,
+      width: 1200,
+      height: 150,
       position: "bottom",
-      offset: {
-        y: 0.15,
-      },
     },
     start: 0,
     length: duration,
+    offset: {
+      y: 0.15,
+    },
   };
 
   const detailsClip = detailsText
     ? {
         asset: {
-          type: "title",
-          text: detailsText,
-          style: "minimal",  // Changed from "subtitle" to "minimal" for consistency
-          color: "#ffffff",
-          size: "small",
-          background: "rgba(0,0,0,0.7)",
+          type: "html",
+          html: `<p style="color: white; font-size: 32px; text-align: center; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px;">${detailsText}</p>`,
+          width: 1200,
+          height: 100,
           position: "bottom",
-          offset: {
-            y: 0.05,
-          },
         },
         start: 0,
         length: duration,
+        offset: {
+          y: 0.05,
+        },
       }
     : null;
 
@@ -212,7 +186,7 @@ export async function generatePropertyTourVideo(
           start: 0,
           length: duration,
           fit: "cover",
-          scale: 1.0,
+          scale: 0.15, // Small overlay
           position: "bottomRight",
           offset: {
             x: -0.05,
@@ -229,20 +203,18 @@ export async function generatePropertyTourVideo(
         if (contactInfo.length > 0) {
           brandingClips.push({
             asset: {
-              type: "title",
-              text: contactInfo.join(" · "),
-              style: "minimal",
-              color: "#ffffff",
-              size: "x-small",
-              background: "rgba(0,0,0,0.7)",
+              type: "html",
+              html: `<p style="color: white; font-size: 20px; text-align: right; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px;">${contactInfo.join(" · ")}</p>`,
+              width: 400,
+              height: 60,
               position: "bottomRight",
-              offset: {
-                x: -0.05,
-                y: -0.15,
-              },
             },
             start: 0,
             length: duration,
+            offset: {
+              x: -0.05,
+              y: -0.15,
+            },
           });
         }
       }

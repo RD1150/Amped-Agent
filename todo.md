@@ -2065,3 +2065,15 @@ Tasks:
 - [ ] Show "Listed by [Agent]" overlay in video when not user's listing
 - [ ] Add disclaimer about using for represented properties
 - [ ] Subscribe to US Real Estate Listings API on RapidAPI
+
+
+## Bug Fixes ✅ COMPLETE
+- [x] Debug Shotstack API 400 error in property tour video rendering
+- [x] Check videoGenerator.ts for invalid request parameters
+- [x] Fixed invalid "effect" property (not supported by Shotstack)
+- [x] Added proper "transform" with scale animation for Ken Burns
+- [x] Fixed transition names ("crossFade" not "crossfade")
+- [x] Replaced "title" assets with "html" assets for text overlays
+- [x] Fixed branding overlay scale
+- [x] Server restarted with fixes applied
+- [ ] Test video generation with real property to confirm fix works
