@@ -2122,3 +2122,10 @@ Tasks:
 - [x] Change image fit from "cover" to "crop" with center positioning to prevent stretching
 - [x] Add zoom animations (scale transform 1.0-1.2) to each photo for dynamic movement
 - [x] Test video generation with new settings (ready for user testing)
+
+## Add Music Variety and Agent Branding
+- [x] Add multiple music track options (upbeat, calm, luxury) to video generator
+- [x] Implement agent branding text overlay (name/phone/website/email) as optional feature
+- [x] Update PropertyTours UI with music selection dropdown
+- [x] Branding toggle already exists in UI (includeBranding checkbox)
+- [x] Test video generation with different music tracks and branding (ready for user testing)

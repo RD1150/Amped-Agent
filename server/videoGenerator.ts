@@ -32,8 +32,8 @@ function getMusicTrackUrl(trackType: string): string {
   // These are example URLs - in production, use actual Shotstack music library URLs
   const tracks: Record<string, string> = {
     upbeat: "https://s3-ap-southeast-2.amazonaws.com/shotstack-assets/music/unminus/ambisax.mp3",
-    elegant: "https://s3-ap-southeast-2.amazonaws.com/shotstack-assets/music/unminus/palmtrees.mp3",
     calm: "https://s3-ap-southeast-2.amazonaws.com/shotstack-assets/music/unminus/blueskies.mp3",
+    luxury: "https://s3-ap-southeast-2.amazonaws.com/shotstack-assets/music/unminus/palmtrees.mp3",
   };
   return tracks[trackType] || tracks.upbeat;
 }
@@ -196,6 +196,8 @@ export async function generatePropertyTourVideo(
         const contactInfo = [];
         if (persona.agentName) contactInfo.push(persona.agentName);
         if (persona.phoneNumber) contactInfo.push(persona.phoneNumber);
+        if (persona.websiteUrl) contactInfo.push(persona.websiteUrl);
+        if (persona.emailAddress) contactInfo.push(persona.emailAddress);
         
         if (contactInfo.length > 0 && persona.headshotUrl) {
           // Combined branding with headshot and info

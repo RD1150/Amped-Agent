@@ -515,8 +515,8 @@ export default function PropertyTours() {
                   <SelectContent>
                     <SelectItem value="none">No music</SelectItem>
                     <SelectItem value="upbeat">Upbeat & Modern</SelectItem>
-                    <SelectItem value="elegant">Elegant & Sophisticated</SelectItem>
                     <SelectItem value="calm">Calm & Peaceful</SelectItem>
+                    <SelectItem value="luxury">Luxury & Sophisticated</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
