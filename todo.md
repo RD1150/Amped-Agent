@@ -2169,4 +2169,27 @@ Tasks:
 ## Dashboard - API Error Fix
 - [x] Diagnose "Failed to fetch" tRPC error on /dashboard page - Added retry logic and error logging
 - [x] Fix the failing API call - Improved error handling with retry mechanism
-- [x] Test dashboard loads correctly - Dashboard working without errors
+- [ ] ERROR PERSISTS - Need to identify exact failing endpoint
+- [ ] Check server logs and network requests
+- [ ] Fix root cause of API failure
+
+## CSV Bulk Content Automation
+- [ ] Design database schema for content templates (hooks, reel ideas, scripts)
+- [ ] Create CSV upload endpoint with file validation
+- [ ] Build CSV parser to extract hooks, reel ideas, and prompts
+- [ ] Create UI page for CSV upload and preview
+- [ ] Implement batch content generation from CSV rows
+- [ ] Add queue system for processing multiple items
+- [ ] Create management UI to view/edit uploaded templates
+- [ ] Add scheduling options for auto-generated content
+- [ ] Write unit tests for CSV parsing and validation
+- [ ] Test end-to-end workflow
+
+## Property Tours - UI & Video Improvements
+- [x] Make property tour button larger for better visibility
+- [x] Upload user's intro video to S3
+- [x] Add option to prepend intro video to property tour videos
+- [x] Implement video combination using Shotstack merge feature
+
+## Content Templates - Bug Fixes
+- [x] Fix TypeScript errors in contentTemplates router (null string handling)

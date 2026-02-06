@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `content_templates` (\n  `id` int AUTO_INCREMENT PRIMARY KEY,\n  `userId` int NOT NULL,\n  `hook` text NOT NULL,\n  `reelIdea` text,\n  `script` text,\n  `category` varchar(100),\n  `platform` varchar(50),\n  `contentType` enum('reel', 'post', 'carousel', 'story', 'video') DEFAULT 'post',\n  `scheduledDate` timestamp NULL,\n  `isScheduled` boolean DEFAULT false,\n  `status` enum('pending', 'generated', 'scheduled', 'published', 'failed') DEFAULT 'pending',\n  `generatedPostId` int,\n  `errorMessage` text,\n  `importBatchId` varchar(100),\n  `rowNumber` int,\n  `createdAt` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  `updatedAt` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute CREATE TABLE IF NOT EXISTS `content_templates` (\n  `id` int AUTO_INCREMENT PRIMARY KEY,\n  `userId` int NOT NULL,\n  `hook` text NOT NULL,\n  `reelIdea` text,\n  `script` text,\n  `category` varchar(100),\n  `platform` varchar(50),\n  `contentType` enum('reel', 'post', 'carousel', 'story', 'video') DEFAULT 'post',\n  `scheduledDate` timestamp NULL,\n  `isScheduled` boolean DEFAULT false,\n  `status` enum('pending', 'generated', 'scheduled', 'published', 'failed') DEFAULT 'pending',\n  `generatedPostId` int,\n  `errorMessage` text,\n  `importBatchId` varchar(100),\n  `rowNumber` int,\n  `createdAt` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  `updatedAt` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 514
+}

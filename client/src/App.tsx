@@ -30,6 +30,7 @@ import Dashboard from "./pages/Dashboard";
 import AutoReels from "./pages/AutoReels";
 import ThumbnailGenerator from "./pages/ThumbnailGenerator";
 import PropertyTours from "./pages/PropertyTours";
+import ContentTemplates from "./pages/ContentTemplates";
 import PerformanceCoach from "./pages/PerformanceCoach";
 import AuthorityProfile from "./pages/AuthorityProfile";
 import Pricing from "./pages/Pricing";
@@ -76,6 +77,7 @@ function Router() {
         <Route path="/autoreels" component={AutoReels} />
         <Route path="/thumbnails" component={ThumbnailGenerator} />
         <Route path="/property-tours" component={PropertyTours} />
+        <Route path="/content-templates" component={ContentTemplates} />
         <Route path="/coach" component={PerformanceCoach} />
         <Route path="/authority-profile" component={AuthorityProfile} />
         <Route path="/market-stats" component={MarketStats} />

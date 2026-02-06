@@ -34,6 +34,7 @@ import {
   User,
   FileSpreadsheet,
   Sparkles,
+  FileText,
   Zap,
   BarChart3,
   Clock,
@@ -69,6 +70,7 @@ const menuItems = [
   { icon: User, label: "Authority Profile", path: "/authority-profile" },
   { icon: Calendar, label: "Content Calendar", path: "/calendar" },
   { icon: Upload, label: "Upload Content", path: "/uploads" },
+  { icon: FileText, label: "Content Templates", path: "/content-templates" },
   
   // SCHEDULE section
   { icon: Clock, label: "Schedule Posts", path: "/schedules" },

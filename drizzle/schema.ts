@@ -477,6 +477,7 @@ export const propertyTours = mysqlTable("property_tours", {
   includeBranding: boolean("includeBranding").default(true), // Include agent branding overlay
   aspectRatio: varchar("aspectRatio", { length: 20 }).default("16:9"), // Video aspect ratio: 16:9, 9:16, 1:1
   cardTemplate: varchar("cardTemplate", { length: 50 }).default("modern"), // Intro/outro card style: modern, luxury, bold, classic, contemporary
+  includeIntroVideo: boolean("includeIntroVideo").default(false), // Prepend user's intro video to tour
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),
@@ -486,3 +487,36 @@ export const propertyTours = mysqlTable("property_tours", {
 
 export type PropertyTour = typeof propertyTours.$inferSelect;
 export type InsertPropertyTour = typeof propertyTours.$inferInsert;
+
+/**
+ * Content Templates - Bulk imported templates from CSV
+ * Stores hooks, reel ideas, scripts, and prompts for automated content generation
+ */
+export const contentTemplates = mysqlTable("content_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  // Core content fields
+  hook: text("hook").notNull(), // Attention-grabbing opening line
+  reelIdea: text("reelIdea"), // Short description of the reel concept
+  script: text("script"), // Full script or prompt for content generation
+  // Metadata
+  category: varchar("category", { length: 100 }), // buyer, seller, market_update, tips, etc.
+  platform: varchar("platform", { length: 50 }), // Instagram, TikTok, LinkedIn, Facebook, YouTube
+  contentType: mysqlEnum("contentType", ["reel", "post", "carousel", "story", "video"]).default("post"),
+  // Scheduling
+  scheduledDate: timestamp("scheduledDate"), // When to auto-generate/post
+  isScheduled: boolean("isScheduled").default(false),
+  // Status tracking
+  status: mysqlEnum("status", ["pending", "generated", "scheduled", "published", "failed"]).default("pending"),
+  generatedPostId: int("generatedPostId"), // Link to contentPosts table if generated
+  errorMessage: text("errorMessage"),
+  // CSV import tracking
+  importBatchId: varchar("importBatchId", { length: 100 }), // Group templates from same CSV upload
+  rowNumber: int("rowNumber"), // Original row number in CSV
+  // Timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContentTemplate = typeof contentTemplates.$inferSelect;
+export type InsertContentTemplate = typeof contentTemplates.$inferInsert;

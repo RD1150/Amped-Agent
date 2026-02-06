@@ -19,7 +19,8 @@ import {
   hooks, Hook,
   betaSignups, BetaSignup, InsertBetaSignup,
   customPromptTemplates, CustomPromptTemplate, InsertCustomPromptTemplate,
-  propertyTours, PropertyTour, InsertPropertyTour
+  propertyTours, PropertyTour, InsertPropertyTour,
+  contentTemplates, ContentTemplate, InsertContentTemplate
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -737,4 +738,69 @@ export async function deletePropertyTour(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(propertyTours).where(eq(propertyTours.id, id));
+}
+
+// ============ CONTENT TEMPLATES HELPERS ============
+// For CSV bulk uploads of hooks, reel ideas, and scripts
+
+export async function createContentTemplate(data: InsertContentTemplate) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(contentTemplates).values(data);
+  return { id: Number(result[0].insertId), ...data };
+}
+
+export async function createContentTemplatesBatch(templates: InsertContentTemplate[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(contentTemplates).values(templates);
+  return result;
+}
+
+export async function getContentTemplateById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(contentTemplates).where(eq(contentTemplates.id, id)).limit(1);
+  return result[0] || null;
+}
+
+export async function getContentTemplatesByUserId(userId: number, limit = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(contentTemplates).where(eq(contentTemplates.userId, userId)).orderBy(desc(contentTemplates.createdAt)).limit(limit);
+}
+
+export async function getContentTemplatesByBatchId(batchId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(contentTemplates).where(eq(contentTemplates.importBatchId, batchId)).orderBy(contentTemplates.rowNumber);
+}
+
+export async function getPendingContentTemplates(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(contentTemplates)
+    .where(and(
+      eq(contentTemplates.userId, userId),
+      eq(contentTemplates.status, 'pending')
+    ))
+    .orderBy(contentTemplates.createdAt);
+}
+
+export async function updateContentTemplate(id: number, data: Partial<InsertContentTemplate>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(contentTemplates).set(data).where(eq(contentTemplates.id, id));
+}
+
+export async function deleteContentTemplate(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(contentTemplates).where(eq(contentTemplates.id, id));
+}
+
+export async function deleteContentTemplatesByBatchId(batchId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(contentTemplates).where(eq(contentTemplates.importBatchId, batchId));
 }

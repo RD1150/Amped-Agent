@@ -14,6 +14,7 @@ import { linkedinRouter } from "./routers/linkedin";
 import { socialPostingRouter } from "./routers/socialPosting";
 import { autoreelsRouter } from "./routers/autoreels";
 import { propertyToursRouter } from "./routers/propertyTours";
+import { contentTemplatesRouter } from "./routers/contentTemplates";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1519,6 +1520,9 @@ Create a compelling social media post.`;
 
   // Property Tours
   propertyTours: propertyToursRouter,
+
+  // Content Templates (CSV Bulk Upload)
+  contentTemplates: contentTemplatesRouter,
 
   // Hook Engine
   hooks: router({

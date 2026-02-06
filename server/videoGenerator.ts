@@ -20,6 +20,7 @@ export interface VideoGenerationOptions {
   userId?: number; // User ID for fetching agent profile
   aspectRatio?: "16:9" | "9:16" | "1:1"; // Video aspect ratio
   cardTemplate?: "modern" | "luxury" | "bold" | "classic" | "contemporary"; // Intro/outro card style
+  includeIntroVideo?: boolean; // Prepend user's intro video
 }
 
 export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contemporary";
@@ -65,6 +66,7 @@ export async function generatePropertyTourVideo(
     aspectRatio = "16:9",
     musicTrack,
     cardTemplate = "modern",
+    includeIntroVideo = false,
   } = options;
 
   if (imageUrls.length === 0) {
@@ -359,8 +361,35 @@ export async function generatePropertyTourVideo(
     }
   }
   
-  // Adjust timing of main clips to start after intro
-  const introLength = introCard.length > 0 ? 2 : 0;
+  // Add user's intro video if enabled
+  const USER_INTRO_VIDEO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/eskOJdrujAZgEfsC.mp4";
+  const userIntroClip: any[] = [];
+  let userIntroLength = 0;
+  
+  if (includeIntroVideo) {
+    userIntroLength = 5; // Assume 5 second intro video
+    userIntroClip.push({
+      asset: {
+        type: "video",
+        src: USER_INTRO_VIDEO_URL,
+        volume: 1.0, // Full volume for intro video
+      },
+      start: 0,
+      length: userIntroLength,
+      fit: "crop",
+      position: "center",
+    });
+  }
+  
+  // Adjust timing of main clips to start after user intro and intro card
+  const introCardLength = introCard.length > 0 ? 2 : 0;
+  const introLength = userIntroLength + introCardLength;
+  
+  // Adjust intro card to start after user intro video
+  const adjustedIntroCard = introCard.map(clip => ({
+    ...clip,
+    start: clip.start + userIntroLength,
+  }));
   const adjustedClips = clips.map(clip => {
     const adjusted = { ...clip };
     adjusted.start = clip.start + introLength;
@@ -386,7 +415,8 @@ export async function generatePropertyTourVideo(
 
   // Combine all clips
   const allClips = [
-    ...introCard,
+    ...userIntroClip,
+    ...adjustedIntroCard,
     ...adjustedClips,
     ...adjustedTextOverlays,
     ...adjustedBrandingClips,

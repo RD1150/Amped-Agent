@@ -40,6 +40,7 @@ export default function PropertyTours() {
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "1:1">("16:9");
   const [musicTrack, setMusicTrack] = useState<string | undefined>(undefined);
   const [cardTemplate, setCardTemplate] = useState<"modern" | "luxury" | "bold" | "classic" | "contemporary">("modern");
+  const [includeIntroVideo, setIncludeIntroVideo] = useState(false);
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -138,6 +139,7 @@ export default function PropertyTours() {
         aspectRatio,
         musicTrack,
         cardTemplate,
+        includeIntroVideo,
       });
 
       // Set generating state
@@ -465,6 +467,18 @@ export default function PropertyTours() {
               </Label>
             </div>
 
+            {/* Intro Video */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="includeIntroVideo"
+                checked={includeIntroVideo}
+                onCheckedChange={(checked) => setIncludeIntroVideo(checked as boolean)}
+              />
+              <Label htmlFor="includeIntroVideo" className="text-sm font-normal cursor-pointer">
+                Prepend my intro video (adds personal intro before property tour)
+              </Label>
+            </div>
+
             {/* Video Settings */}
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -576,7 +590,7 @@ export default function PropertyTours() {
             <Button
               onClick={handleCreateTour}
               disabled={createTour.isPending || generateVideo.isPending || generatingTourId !== null}
-              className="w-full"
+              className="w-full h-14 text-lg"
               size="lg"
             >
               {createTour.isPending || generateVideo.isPending || generatingTourId !== null ? (
