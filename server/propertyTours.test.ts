@@ -142,6 +142,48 @@ describe("Property Tours", () => {
       expect(result.includeBranding).toBe(false);
     });
 
+    it("should create a property tour with 15 second duration", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "Short Video Test",
+        imageUrls: ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+        template: "modern",
+        duration: 15,
+      });
+
+      expect(result).toBeDefined();
+      expect(result.duration).toBe(15);
+    });
+
+    it("should create a property tour with 30 second duration", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "Medium Video Test",
+        imageUrls: ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+        template: "modern",
+        duration: 30,
+      });
+
+      expect(result).toBeDefined();
+      expect(result.duration).toBe(30);
+    });
+
+    it("should create a property tour with 60 second duration", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "Long Video Test",
+        imageUrls: ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+        template: "modern",
+        duration: 60,
+      });
+
+      expect(result).toBeDefined();
+      expect(result.duration).toBe(60);
+    });
+
     it("should require address", async () => {
       const caller = appRouter.createCaller(createMockContext());
 

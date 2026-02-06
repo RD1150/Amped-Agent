@@ -2136,3 +2136,17 @@ Tasks:
 - [x] Combine pan + zoom for cinematic effects
 - [x] Add 8 different movement variations that cycle through photos
 - [x] Test video with new camera movements (ready for user testing)
+
+## Add Video Duration Control and Intro/Outro Cards
+- [ ] Add duration selector to PropertyTours UI (15s, 30s, 60s)
+- [ ] Update video generator to support custom durations
+- [ ] Implement branded intro card with property address and agent info
+- [ ] Implement outro call-to-action card with agent contact details
+- [ ] Test videos with different durations and cards
+
+## Property Tours - Final Features (Pre-Launch)
+- [x] Video duration control (15s/30s/60s options)
+- [x] Intro card with property address, price, and agent name
+- [x] Outro card with call-to-action and agent contact details
+- [x] Unit tests for duration control feature
+- [x] All tests passing (18 tests)

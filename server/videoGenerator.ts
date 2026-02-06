@@ -230,11 +230,96 @@ export async function generatePropertyTourVideo(
     }
   }
 
+  // Add intro card (2 seconds)
+  const introCard: any[] = [];
+  if (includeBranding && userId) {
+    try {
+      const db = await import("./db");
+      const persona = await db.getPersonaByUserId(userId);
+      
+      if (persona) {
+        const introText = `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);"><h1 style="color: #C9A962; font-size: 48px; font-weight: bold; margin: 0; text-align: center;">${propertyDetails.address}</h1>${propertyDetails.price ? `<p style="color: white; font-size: 36px; margin: 20px 0 0 0;">${propertyDetails.price}</p>` : ""}<p style="color: #C9A962; font-size: 24px; margin: 30px 0 0 0;">${persona.agentName || ""}</p></div>`;
+        
+        introCard.push({
+          asset: {
+            type: "html",
+            html: introText,
+            width: htmlWidth,
+            height: htmlHeight,
+          },
+          start: 0,
+          length: 2,
+          transition: {
+            out: "fade",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("[VideoGenerator] Failed to create intro card:", error);
+    }
+  }
+  
+  // Add outro card (3 seconds)
+  const outroCard: any[] = [];
+  if (includeBranding && userId) {
+    try {
+      const db = await import("./db");
+      const persona = await db.getPersonaByUserId(userId);
+      
+      if (persona) {
+        const contactLines = [];
+        if (persona.phoneNumber) contactLines.push(persona.phoneNumber);
+        if (persona.emailAddress) contactLines.push(persona.emailAddress);
+        if (persona.websiteUrl) contactLines.push(persona.websiteUrl);
+        
+        const outroText = `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);"><h2 style="color: #C9A962; font-size: 42px; font-weight: bold; margin: 0; text-align: center;">Ready to Schedule a Showing?</h2><p style="color: white; font-size: 32px; margin: 30px 0 0 0; font-weight: 600;">${persona.agentName || ""}</p>${contactLines.map(line => `<p style="color: white; font-size: 24px; margin: 10px 0;">${line}</p>`).join("")}</div>`;
+        
+        outroCard.push({
+          asset: {
+            type: "html",
+            html: outroText,
+            width: htmlWidth,
+            height: htmlHeight,
+          },
+          start: duration + 2, // After intro + main content
+          length: 3,
+          transition: {
+            in: "fade",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("[VideoGenerator] Failed to create outro card:", error);
+    }
+  }
+  
+  // Adjust timing of main clips to start after intro
+  const introLength = introCard.length > 0 ? 2 : 0;
+  const adjustedClips = clips.map(clip => ({
+    ...clip,
+    start: clip.start + introLength,
+  }));
+  
+  const adjustedTextOverlays = textOverlays.map(overlay => ({
+    ...overlay,
+    start: overlay.start + introLength,
+  }));
+  
+  const adjustedBrandingClips = brandingClips.map(clip => ({
+    ...clip,
+    start: clip.start + introLength,
+  }));
+  
+  // Update total duration to include intro and outro
+  const totalDuration = duration + introLength + (outroCard.length > 0 ? 3 : 0);
+
   // Combine all clips
   const allClips = [
-    ...clips,
-    ...textOverlays,
-    ...brandingClips,
+    ...introCard,
+    ...adjustedClips,
+    ...adjustedTextOverlays,
+    ...adjustedBrandingClips,
+    ...outroCard,
   ];
 
   // Map aspect ratio to resolution and size
@@ -259,7 +344,7 @@ export async function generatePropertyTourVideo(
       break;
   }
 
-  // Add music soundtrack if selected
+  // Add music soundtrack if selected (extend to cover intro/outro)
   const soundtrack: any = musicTrack ? {
     src: getMusicTrackUrl(musicTrack),
     effect: "fadeInFadeOut",

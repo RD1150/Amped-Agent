@@ -479,15 +479,17 @@ export default function PropertyTours() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="duration">Duration (seconds)</Label>
-                <Input
-                  id="duration"
-                  type="number"
-                  value={duration}
-                  onChange={(e) => setDuration(parseInt(e.target.value))}
-                  min="15"
-                  max="120"
-                />
+                <Label htmlFor="duration">Video Duration</Label>
+                <Select value={duration.toString()} onValueChange={(v) => setDuration(parseInt(v))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="15">15 seconds (Quick Reel)</SelectItem>
+                    <SelectItem value="30">30 seconds (Standard)</SelectItem>
+                    <SelectItem value="60">60 seconds (Detailed)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
