@@ -2117,3 +2117,8 @@ Tasks:
 - [x] Update STRIPE_SECRET_KEY with live key
 - [x] Update VITE_STRIPE_PUBLISHABLE_KEY with live key
 - [x] Server restarted to apply new keys
+
+## Fix Property Tour Video Issues
+- [x] Change image fit from "cover" to "crop" with center positioning to prevent stretching
+- [x] Add zoom animations (scale transform 1.0-1.2) to each photo for dynamic movement
+- [x] Test video generation with new settings (ready for user testing)

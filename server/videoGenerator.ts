@@ -126,15 +126,16 @@ export async function generatePropertyTourVideo(
       },
       start: index * durationPerImage,
       length: durationPerImage,
-      fit: "cover",
+      fit: "crop",
+      position: "center",
       transition: {
         in: index === 0 ? "fade" : "fade",
         out: "fade",
       },
       transform: {
         scale: {
-          start: zoomIn ? 1.0 : 1.3,
-          end: zoomIn ? 1.3 : 1.0,
+          start: zoomIn ? 1.0 : 1.2,
+          end: zoomIn ? 1.2 : 1.0,
         },
       },
     };
