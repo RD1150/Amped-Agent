@@ -2165,3 +2165,8 @@ Tasks:
 - [x] Fix address text overlay positioning (text is cut off/overlapped) - Increased padding-bottom to 180px
 - [ ] Verify all camera movement patterns work correctly
 - [ ] Test text overlay positioning across all aspect ratios
+
+## Dashboard - API Error Fix
+- [x] Diagnose "Failed to fetch" tRPC error on /dashboard page - Added retry logic and error logging
+- [x] Fix the failing API call - Improved error handling with retry mechanism
+- [x] Test dashboard loads correctly - Dashboard working without errors

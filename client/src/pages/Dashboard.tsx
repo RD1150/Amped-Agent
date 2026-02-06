@@ -18,7 +18,20 @@ import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 export default function Dashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const { data: persona } = trpc.persona.get.useQuery();
+  const { data: persona, error: personaError, isLoading: personaLoading } = trpc.persona.get.useQuery(
+    undefined,
+    {
+      retry: 2,
+      retryDelay: 1000,
+    }
+  );
+
+  // Log persona fetch errors for debugging
+  useEffect(() => {
+    if (personaError) {
+      console.error("[Dashboard] Failed to load persona:", personaError);
+    }
+  }, [personaError]);
 
   // Auto-start tour for first-time users
   useEffect(() => {
