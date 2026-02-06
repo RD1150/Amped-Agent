@@ -2159,3 +2159,9 @@ Tasks:
 - [x] Update database schema to store selected template
 - [x] Write unit tests for template system
 - [x] Test all templates with different aspect ratios
+
+## Property Tours - Video Generation Fixes (Urgent)
+- [x] Fix Ken Burns camera movements not working (photos are static) - Fixed transform property preservation
+- [x] Fix address text overlay positioning (text is cut off/overlapped) - Increased padding-bottom to 180px
+- [ ] Verify all camera movement patterns work correctly
+- [ ] Test text overlay positioning across all aspect ratios

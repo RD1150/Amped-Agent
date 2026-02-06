@@ -170,11 +170,11 @@ export async function generatePropertyTourVideo(
   // Add text overlays using HTML assets (simpler approach)
   const textOverlays: any[] = [];
   
-  // Address overlay
+  // Address overlay - positioned higher to avoid cutoff
   textOverlays.push({
     asset: {
       type: "html",
-      html: `<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 120px;"><div style="background: rgba(0,0,0,0.8); padding: 15px 30px; border-radius: 8px;"><p style="color: white; font-size: 36px; font-weight: bold; margin: 0; text-align: center;">${propertyDetails.address}</p></div></div>`,
+      html: `<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding: 0 20px 180px 20px; box-sizing: border-box;"><div style="background: rgba(0,0,0,0.85); padding: 18px 35px; border-radius: 8px; max-width: 90%;"><p style="color: white; font-size: 32px; font-weight: bold; margin: 0; text-align: center; line-height: 1.3;">${propertyDetails.address}</p></div></div>`,
       width: htmlWidth,
       height: htmlHeight,
     },
@@ -182,12 +182,12 @@ export async function generatePropertyTourVideo(
     length: duration,
   });
   
-  // Details overlay
+  // Details overlay - positioned above address
   if (detailsText) {
     textOverlays.push({
       asset: {
         type: "html",
-        html: `<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 60px;"><div style="background: rgba(0,0,0,0.8); padding: 10px 25px; border-radius: 6px;"><p style="color: white; font-size: 24px; margin: 0; text-align: center;">${detailsText}</p></div></div>`,
+        html: `<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding: 0 20px 100px 20px; box-sizing: border-box;"><div style="background: rgba(0,0,0,0.85); padding: 12px 28px; border-radius: 6px;"><p style="color: white; font-size: 24px; margin: 0; text-align: center; line-height: 1.3;">${detailsText}</p></div></div>`,
         width: htmlWidth,
         height: htmlHeight,
       },
@@ -361,10 +361,15 @@ export async function generatePropertyTourVideo(
   
   // Adjust timing of main clips to start after intro
   const introLength = introCard.length > 0 ? 2 : 0;
-  const adjustedClips = clips.map(clip => ({
-    ...clip,
-    start: clip.start + introLength,
-  }));
+  const adjustedClips = clips.map(clip => {
+    const adjusted = { ...clip };
+    adjusted.start = clip.start + introLength;
+    // Preserve transform property for camera movements
+    if (clip.transform) {
+      adjusted.transform = clip.transform;
+    }
+    return adjusted;
+  });
   
   const adjustedTextOverlays = textOverlays.map(overlay => ({
     ...overlay,
