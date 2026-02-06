@@ -2193,3 +2193,17 @@ Tasks:
 
 ## Content Templates - Bug Fixes
 - [x] Fix TypeScript errors in contentTemplates router (null string handling)
+
+## Luma AI Hybrid Video Generation (CURRENT PRIORITY)
+- [x] Add LUMA_API_KEY to project secrets
+- [x] Create Luma AI integration module (server/_core/lumaAi.ts)
+- [x] Implement smart hero photo selection algorithm (3-5 best photos)
+- [ ] Build hybrid video generation (Luma AI for heroes, Ken Burns for rest)
+- [ ] Add video generation usage tracking to database
+- [ ] Implement monthly video generation limits per subscription tier
+- [ ] Create tiered video options UI (Standard, AI-Enhanced, Full AI Cinematic)
+- [ ] Add usage counter display in UI
+- [ ] Add upgrade prompts when limits reached
+- [ ] Test Luma AI image-to-video generation
+- [ ] Test complete hybrid video workflow
+- [ ] Update documentation with new video features

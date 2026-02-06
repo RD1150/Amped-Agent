@@ -18,4 +18,5 @@ export const ENV = {
   linkedinClientId: process.env.LINKEDIN_CLIENT_ID ?? "",
   linkedinClientSecret: process.env.LINKEDIN_CLIENT_SECRET ?? "",
   SHOTSTACK_API_KEY: process.env.SHOTSTACK_API_KEY ?? "",
+  LUMA_API_KEY: process.env.LUMA_API_KEY ?? "",
 };
