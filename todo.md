@@ -2129,3 +2129,10 @@ Tasks:
 - [x] Update PropertyTours UI with music selection dropdown
 - [x] Branding toggle already exists in UI (includeBranding checkbox)
 - [x] Test video generation with different music tracks and branding (ready for user testing)
+
+## Add Dynamic Camera Movements
+- [x] Implement pan movements (horizontal and vertical)
+- [x] Add more dramatic zoom variations (1.0-1.4 scale)
+- [x] Combine pan + zoom for cinematic effects
+- [x] Add 8 different movement variations that cycle through photos
+- [x] Test video with new camera movements (ready for user testing)

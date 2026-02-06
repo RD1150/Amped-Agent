@@ -112,12 +112,28 @@ export async function generatePropertyTourVideo(
       };
     }
     
-    // For images, apply Ken Burns effects with zoom
-    // Cycle through different zoom directions for variety
-    const motionType = index % 2;
+    // For images, apply dynamic camera movements like a videographer
+    // Cycle through different movement types for variety
+    const movements = [
+      // Zoom in with slight pan right
+      { scale: { start: 1.0, end: 1.3 }, x: { start: 0, end: -50 } },
+      // Zoom out with slight pan left
+      { scale: { start: 1.3, end: 1.0 }, x: { start: -50, end: 0 } },
+      // Pan right to left with zoom
+      { scale: { start: 1.1, end: 1.25 }, x: { start: -80, end: 80 } },
+      // Pan left to right with zoom
+      { scale: { start: 1.1, end: 1.25 }, x: { start: 80, end: -80 } },
+      // Vertical pan down with zoom in
+      { scale: { start: 1.0, end: 1.3 }, y: { start: -50, end: 50 } },
+      // Vertical pan up with zoom out
+      { scale: { start: 1.3, end: 1.0 }, y: { start: 50, end: -50 } },
+      // Dramatic zoom in
+      { scale: { start: 1.0, end: 1.4 } },
+      // Slow zoom out
+      { scale: { start: 1.35, end: 1.05 } },
+    ];
     
-    // Use zoom transform instead of invalid effect property
-    const zoomIn = motionType === 0;
+    const movement = movements[index % movements.length];
     
     return {
       asset: {
@@ -132,12 +148,7 @@ export async function generatePropertyTourVideo(
         in: index === 0 ? "fade" : "fade",
         out: "fade",
       },
-      transform: {
-        scale: {
-          start: zoomIn ? 1.0 : 1.2,
-          end: zoomIn ? 1.2 : 1.0,
-        },
-      },
+      transform: movement,
     };
   });
 
