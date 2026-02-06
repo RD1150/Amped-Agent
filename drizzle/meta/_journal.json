@@ -169,6 +169,13 @@
       "when": 1770198929928,
       "tag": "0023_handy_shockwave",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1770340065750,
+      "tag": "0024_dry_rick_jones",
+      "breakpoints": true
     }
   ]
 }

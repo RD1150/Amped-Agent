@@ -184,6 +184,51 @@ describe("Property Tours", () => {
       expect(result.duration).toBe(60);
     });
 
+    it("should create a property tour with luxury card template", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "Luxury Template Test",
+        imageUrls: ["https://example.com/image1.jpg"],
+        template: "modern",
+        duration: 30,
+        cardTemplate: "luxury",
+      });
+
+      expect(result).toBeDefined();
+      expect(result.cardTemplate).toBe("luxury");
+    });
+
+    it("should create a property tour with bold card template", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "Bold Template Test",
+        imageUrls: ["https://example.com/image1.jpg"],
+        template: "modern",
+        duration: 30,
+        cardTemplate: "bold",
+      });
+
+      expect(result).toBeDefined();
+      expect(result.cardTemplate).toBe("bold");
+    });
+
+    it("should create a property tour with contemporary card template", async () => {
+      const caller = appRouter.createCaller(createMockContext());
+
+      const result = await caller.propertyTours.create({
+        address: "Contemporary Template Test",
+        imageUrls: ["https://example.com/image1.jpg"],
+        template: "modern",
+        duration: 30,
+        cardTemplate: "contemporary",
+      });
+
+      expect(result).toBeDefined();
+      expect(result.cardTemplate).toBe("contemporary");
+    });
+
     it("should require address", async () => {
       const caller = appRouter.createCaller(createMockContext());
 

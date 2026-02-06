@@ -2150,3 +2150,12 @@ Tasks:
 - [x] Outro card with call-to-action and agent contact details
 - [x] Unit tests for duration control feature
 - [x] All tests passing (18 tests)
+
+## Property Tours - Intro/Outro Template Library
+- [x] Design 5 intro/outro card template styles (Modern, Luxury, Bold, Classic, Contemporary)
+- [x] Implement template generation functions in videoGenerator.ts
+- [x] Add template selection UI to Property Tours page
+- [ ] Add template preview functionality (future enhancement)
+- [x] Update database schema to store selected template
+- [x] Write unit tests for template system
+- [x] Test all templates with different aspect ratios

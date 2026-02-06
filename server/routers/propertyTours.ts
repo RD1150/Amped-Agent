@@ -26,6 +26,7 @@ export const propertyToursRouter = router({
         includeBranding: z.boolean().default(true),
         aspectRatio: z.enum(["16:9", "9:16", "1:1"]).default("16:9"),
         musicTrack: z.string().optional(),
+        cardTemplate: z.enum(["modern", "luxury", "bold", "classic", "contemporary"]).default("modern"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -45,6 +46,7 @@ export const propertyToursRouter = router({
         includeBranding: input.includeBranding,
         aspectRatio: input.aspectRatio,
         musicTrack: input.musicTrack,
+        cardTemplate: input.cardTemplate,
         status: "pending",
       });
 
@@ -101,6 +103,7 @@ export const propertyToursRouter = router({
           userId: ctx.user.id,
           aspectRatio: (tour.aspectRatio as "16:9" | "9:16" | "1:1") || "16:9",
           musicTrack: tour.musicTrack || undefined,
+          cardTemplate: (tour.cardTemplate as "modern" | "luxury" | "bold" | "classic" | "contemporary") || "modern",
         });
 
         // Store render ID for polling

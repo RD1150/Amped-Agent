@@ -19,7 +19,10 @@ export interface VideoGenerationOptions {
   includeBranding?: boolean; // Include agent branding overlay
   userId?: number; // User ID for fetching agent profile
   aspectRatio?: "16:9" | "9:16" | "1:1"; // Video aspect ratio
+  cardTemplate?: "modern" | "luxury" | "bold" | "classic" | "contemporary"; // Intro/outro card style
 }
+
+export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contemporary";
 
 const SHOTSTACK_API_URL = "https://api.shotstack.io/v1";
 
@@ -61,6 +64,7 @@ export async function generatePropertyTourVideo(
     userId,
     aspectRatio = "16:9",
     musicTrack,
+    cardTemplate = "modern",
   } = options;
 
   if (imageUrls.length === 0) {
@@ -230,7 +234,60 @@ export async function generatePropertyTourVideo(
     }
   }
 
+  /**
+   * Generate intro card HTML based on selected template
+   */
+  function generateIntroCard(template: CardTemplate, address: string, price: string | undefined, agentName: string): string {
+    switch (template) {
+      case "modern":
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);"><h1 style="color: #C9A962; font-size: 48px; font-weight: bold; margin: 0; text-align: center; font-family: 'Inter', sans-serif;">${address}</h1>${price ? `<p style="color: white; font-size: 36px; margin: 20px 0 0 0; font-family: 'Inter', sans-serif;">${price}</p>` : ""}<p style="color: #C9A962; font-size: 24px; margin: 30px 0 0 0; font-family: 'Inter', sans-serif;">${agentName}</p></div>`;
+      
+      case "luxury":
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a0a0a 0%, #1a1515 50%, #0a0a0a 100%);"><div style="border: 2px solid #D4AF37; padding: 40px; background: rgba(0,0,0,0.5);"><h1 style="color: #D4AF37; font-size: 52px; font-weight: 300; margin: 0; text-align: center; font-family: 'Playfair Display', serif; letter-spacing: 2px;">${address}</h1>${price ? `<p style="color: #F5F5F5; font-size: 38px; margin: 25px 0 0 0; text-align: center; font-family: 'Playfair Display', serif;">${price}</p>` : ""}<div style="width: 80px; height: 1px; background: #D4AF37; margin: 25px auto;"></div><p style="color: #D4AF37; font-size: 22px; margin: 0; text-align: center; font-family: 'Playfair Display', serif; letter-spacing: 1px;">${agentName}</p></div></div>`;
+      
+      case "bold":
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; background: linear-gradient(90deg, #FF6B35 0%, #F7931E 100%); padding: 60px;"><h1 style="color: white; font-size: 56px; font-weight: 900; margin: 0; text-align: left; font-family: 'Montserrat', sans-serif; text-transform: uppercase; line-height: 1.1; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">${address}</h1>${price ? `<p style="color: #1a1a1a; font-size: 42px; margin: 20px 0 0 0; font-weight: 800; font-family: 'Montserrat', sans-serif;">${price}</p>` : ""}<p style="color: white; font-size: 26px; margin: 30px 0 0 0; font-family: 'Montserrat', sans-serif; font-weight: 600;">${agentName}</p></div>`;
+      
+      case "classic":
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF;"><div style="text-align: center; padding: 40px;"><h1 style="color: #2C3E50; font-size: 46px; font-weight: 600; margin: 0; font-family: 'Georgia', serif;">${address}</h1>${price ? `<p style="color: #34495E; font-size: 34px; margin: 20px 0 0 0; font-family: 'Georgia', serif;">${price}</p>` : ""}<div style="width: 100px; height: 2px; background: #C9A962; margin: 25px auto;"></div><p style="color: #7F8C8D; font-size: 22px; margin: 0; font-family: 'Georgia', serif; font-style: italic;">${agentName}</p></div></div>`;
+      
+      case "contemporary":
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);"><div style="background: rgba(255,255,255,0.95); padding: 50px 60px; border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);"><h1 style="color: #2D3748; font-size: 50px; font-weight: 700; margin: 0; text-align: center; font-family: 'Poppins', sans-serif;">${address}</h1>${price ? `<p style="color: #4A5568; font-size: 36px; margin: 20px 0 0 0; text-align: center; font-family: 'Poppins', sans-serif;">${price}</p>` : ""}<p style="color: #667eea; font-size: 24px; margin: 25px 0 0 0; text-align: center; font-family: 'Poppins', sans-serif; font-weight: 500;">${agentName}</p></div></div>`;
+      
+      default:
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);"><h1 style="color: #C9A962; font-size: 48px; font-weight: bold; margin: 0; text-align: center;">${address}</h1>${price ? `<p style="color: white; font-size: 36px; margin: 20px 0 0 0;">${price}</p>` : ""}<p style="color: #C9A962; font-size: 24px; margin: 30px 0 0 0;">${agentName}</p></div>`;
+    }
+  }
+
+  /**
+   * Generate outro card HTML based on selected template
+   */
+  function generateOutroCard(template: CardTemplate, agentName: string, contactLines: string[]): string {
+    const contactHtml = contactLines.map(line => `<p style="margin: 10px 0;">${line}</p>`).join("");
+    
+    switch (template) {
+      case "modern":
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);"><h2 style="color: #C9A962; font-size: 42px; font-weight: bold; margin: 0; text-align: center; font-family: 'Inter', sans-serif;">Ready to Schedule a Showing?</h2><p style="color: white; font-size: 32px; margin: 30px 0 0 0; font-weight: 600; font-family: 'Inter', sans-serif;">${agentName}</p><div style="color: white; font-size: 24px; margin-top: 20px; font-family: 'Inter', sans-serif;">${contactHtml}</div></div>`;
+      
+      case "luxury":
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a0a0a 0%, #1a1515 50%, #0a0a0a 100%);"><div style="border: 2px solid #D4AF37; padding: 40px; background: rgba(0,0,0,0.5); text-align: center;"><h2 style="color: #D4AF37; font-size: 44px; font-weight: 300; margin: 0; font-family: 'Playfair Display', serif; letter-spacing: 2px;">Schedule Your Private Tour</h2><div style="width: 80px; height: 1px; background: #D4AF37; margin: 25px auto;"></div><p style="color: #F5F5F5; font-size: 30px; margin: 0; font-family: 'Playfair Display', serif;">${agentName}</p><div style="color: #F5F5F5; font-size: 22px; margin-top: 20px; font-family: 'Playfair Display', serif;">${contactHtml}</div></div></div>`;
+      
+      case "bold":
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; background: linear-gradient(90deg, #FF6B35 0%, #F7931E 100%); padding: 60px;"><h2 style="color: white; font-size: 48px; font-weight: 900; margin: 0; text-align: left; font-family: 'Montserrat', sans-serif; text-transform: uppercase; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">LET'S TALK!</h2><p style="color: #1a1a1a; font-size: 36px; margin: 20px 0 0 0; font-weight: 800; font-family: 'Montserrat', sans-serif;">${agentName}</p><div style="color: white; font-size: 26px; margin-top: 20px; font-family: 'Montserrat', sans-serif; font-weight: 600;">${contactHtml}</div></div>`;
+      
+      case "classic":
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF;"><div style="text-align: center; padding: 40px;"><h2 style="color: #2C3E50; font-size: 40px; font-weight: 600; margin: 0; font-family: 'Georgia', serif;">Contact Me Today</h2><div style="width: 100px; height: 2px; background: #C9A962; margin: 25px auto;"></div><p style="color: #34495E; font-size: 28px; margin: 0; font-family: 'Georgia', serif; font-style: italic;">${agentName}</p><div style="color: #7F8C8D; font-size: 22px; margin-top: 20px; font-family: 'Georgia', serif;">${contactHtml}</div></div></div>`;
+      
+      case "contemporary":
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);"><div style="background: rgba(255,255,255,0.95); padding: 50px 60px; border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center;"><h2 style="color: #2D3748; font-size: 46px; font-weight: 700; margin: 0; font-family: 'Poppins', sans-serif;">Let's Connect</h2><p style="color: #667eea; font-size: 32px; margin: 20px 0 0 0; font-family: 'Poppins', sans-serif; font-weight: 600;">${agentName}</p><div style="color: #4A5568; font-size: 24px; margin-top: 20px; font-family: 'Poppins', sans-serif;">${contactHtml}</div></div></div>`;
+      
+      default:
+        return `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);"><h2 style="color: #C9A962; font-size: 42px; font-weight: bold; margin: 0; text-align: center;">Ready to Schedule a Showing?</h2><p style="color: white; font-size: 32px; margin: 30px 0 0 0; font-weight: 600;">${agentName}</p><div style="color: white; font-size: 24px; margin-top: 20px;">${contactHtml}</div></div>`;
+    }
+  }
+
   // Add intro card (2 seconds)
+  const selectedTemplate: CardTemplate = cardTemplate || "modern";
   const introCard: any[] = [];
   if (includeBranding && userId) {
     try {
@@ -238,7 +295,12 @@ export async function generatePropertyTourVideo(
       const persona = await db.getPersonaByUserId(userId);
       
       if (persona) {
-        const introText = `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);"><h1 style="color: #C9A962; font-size: 48px; font-weight: bold; margin: 0; text-align: center;">${propertyDetails.address}</h1>${propertyDetails.price ? `<p style="color: white; font-size: 36px; margin: 20px 0 0 0;">${propertyDetails.price}</p>` : ""}<p style="color: #C9A962; font-size: 24px; margin: 30px 0 0 0;">${persona.agentName || ""}</p></div>`;
+        const introText = generateIntroCard(
+          selectedTemplate,
+          propertyDetails.address,
+          propertyDetails.price,
+          persona.agentName || ""
+        );
         
         introCard.push({
           asset: {
@@ -272,7 +334,11 @@ export async function generatePropertyTourVideo(
         if (persona.emailAddress) contactLines.push(persona.emailAddress);
         if (persona.websiteUrl) contactLines.push(persona.websiteUrl);
         
-        const outroText = `<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);"><h2 style="color: #C9A962; font-size: 42px; font-weight: bold; margin: 0; text-align: center;">Ready to Schedule a Showing?</h2><p style="color: white; font-size: 32px; margin: 30px 0 0 0; font-weight: 600;">${persona.agentName || ""}</p>${contactLines.map(line => `<p style="color: white; font-size: 24px; margin: 10px 0;">${line}</p>`).join("")}</div>`;
+        const outroText = generateOutroCard(
+          selectedTemplate,
+          persona.agentName || "",
+          contactLines
+        );
         
         outroCard.push({
           asset: {

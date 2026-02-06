@@ -39,6 +39,7 @@ export default function PropertyTours() {
   const [includeBranding, setIncludeBranding] = useState(true);
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "1:1">("16:9");
   const [musicTrack, setMusicTrack] = useState<string | undefined>(undefined);
+  const [cardTemplate, setCardTemplate] = useState<"modern" | "luxury" | "bold" | "classic" | "contemporary">("modern");
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -136,6 +137,7 @@ export default function PropertyTours() {
         includeBranding,
         aspectRatio,
         musicTrack,
+        cardTemplate,
       });
 
       // Set generating state
@@ -523,6 +525,53 @@ export default function PropertyTours() {
                 </Select>
               </div>
             </div>
+
+            {/* Card Template Selector */}
+            {includeBranding && (
+              <div className="space-y-3">
+                <Label htmlFor="cardTemplate">Intro/Outro Card Style</Label>
+                <Select value={cardTemplate} onValueChange={(v: any) => setCardTemplate(v)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="modern">
+                      <div className="flex flex-col">
+                        <span className="font-semibold">Modern Minimalist</span>
+                        <span className="text-xs text-muted-foreground">Clean lines, simple typography</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="luxury">
+                      <div className="flex flex-col">
+                        <span className="font-semibold">Luxury Elegant</span>
+                        <span className="text-xs text-muted-foreground">Sophisticated gradients, serif fonts</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="bold">
+                      <div className="flex flex-col">
+                        <span className="font-semibold">Bold & Dynamic</span>
+                        <span className="text-xs text-muted-foreground">Vibrant colors, strong typography</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="classic">
+                      <div className="flex flex-col">
+                        <span className="font-semibold">Classic Professional</span>
+                        <span className="text-xs text-muted-foreground">Traditional layout, conservative design</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="contemporary">
+                      <div className="flex flex-col">
+                        <span className="font-semibold">Contemporary Chic</span>
+                        <span className="text-xs text-muted-foreground">Trendy design, modern aesthetics</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Choose a style for your intro and outro cards. Each template has matching designs for a cohesive look.
+                </p>
+              </div>
+            )}
 
             <Button
               onClick={handleCreateTour}

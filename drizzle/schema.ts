@@ -476,6 +476,7 @@ export const propertyTours = mysqlTable("property_tours", {
   duration: int("duration").default(30), // Video duration in seconds
   includeBranding: boolean("includeBranding").default(true), // Include agent branding overlay
   aspectRatio: varchar("aspectRatio", { length: 20 }).default("16:9"), // Video aspect ratio: 16:9, 9:16, 1:1
+  cardTemplate: varchar("cardTemplate", { length: 50 }).default("modern"), // Intro/outro card style: modern, luxury, bold, classic, contemporary
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),
