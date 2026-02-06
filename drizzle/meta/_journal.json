@@ -183,6 +183,13 @@
       "when": 1770343341426,
       "tag": "0025_short_starhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1770410668822,
+      "tag": "0026_chemical_loki",
+      "breakpoints": true
     }
   ]
 }

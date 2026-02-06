@@ -21,6 +21,7 @@ export interface VideoGenerationOptions {
   aspectRatio?: "16:9" | "9:16" | "1:1"; // Video aspect ratio
   cardTemplate?: "modern" | "luxury" | "bold" | "classic" | "contemporary"; // Intro/outro card style
   includeIntroVideo?: boolean; // Prepend user's intro video
+  videoMode?: "standard" | "ai-enhanced" | "full-ai"; // Video generation mode
 }
 
 export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contemporary";
@@ -67,6 +68,7 @@ export async function generatePropertyTourVideo(
     musicTrack,
     cardTemplate = "modern",
     includeIntroVideo = false,
+    videoMode = "standard",
   } = options;
 
   if (imageUrls.length === 0) {
@@ -75,6 +77,19 @@ export async function generatePropertyTourVideo(
 
   // Calculate duration per image
   const durationPerImage = duration / imageUrls.length;
+
+  // Generate AI videos for hero photos if using AI-enhanced or full-ai mode
+  let aiVideoMap = new Map<string, string>();
+  if (videoMode === "ai-enhanced" || videoMode === "full-ai") {
+    const { generateHeroVideoClips, getHeroCountForMode } = await import("./hybridVideoGenerator");
+    const heroCount = getHeroCountForMode(videoMode, imageUrls.length);
+    
+    if (heroCount > 0) {
+      console.log(`[VideoGenerator] Generating ${heroCount} AI-enhanced clips with Luma AI...`);
+      aiVideoMap = await generateHeroVideoClips(imageUrls, heroCount, aspectRatio);
+      console.log(`[VideoGenerator] AI generation complete. ${aiVideoMap.size} clips ready.`);
+    }
+  }
 
   // Map aspect ratio to dimensions for HTML overlays
   let htmlWidth: number;
@@ -97,6 +112,28 @@ export async function generatePropertyTourVideo(
 
   // Create clips for each image/video with varied Ken Burns effects
   const clips: any[] = imageUrls.map((url, index) => {
+    // Check if this image has an AI-generated video
+    const aiVideoUrl = aiVideoMap.get(url);
+    
+    // If AI video is available, use it instead of static image
+    if (aiVideoUrl) {
+      console.log(`[VideoGenerator] Using AI video for: ${url}`);
+      return {
+        asset: {
+          type: "video",
+          src: aiVideoUrl,
+          volume: 0, // Mute AI video, use music track instead
+        },
+        start: index * durationPerImage,
+        length: durationPerImage,
+        fit: "cover",
+        transition: {
+          in: index === 0 ? "fade" : "fade",
+          out: "fade",
+        },
+      };
+    }
+    
     // Detect if this is a video file (check URL extension)
     const isVideo = /\.(mp4|mov|avi|webm|mkv)$/i.test(url);
     

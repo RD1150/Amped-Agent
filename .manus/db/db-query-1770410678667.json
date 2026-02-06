@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE users \nADD COLUMN standardVideosThisMonth INT NOT NULL DEFAULT 0,\nADD COLUMN aiEnhancedVideosThisMonth INT NOT NULL DEFAULT 0,\nADD COLUMN fullAiVideosThisMonth INT NOT NULL DEFAULT 0,\nADD COLUMN lastVideoCountReset TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute ALTER TABLE users \nADD COLUMN standardVideosThisMonth INT NOT NULL DEFAULT 0,\nADD COLUMN aiEnhancedVideosThisMonth INT NOT NULL DEFAULT 0,\nADD COLUMN fullAiVideosThisMonth INT NOT NULL DEFAULT 0,\nADD COLUMN lastVideoCountReset TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1802
+}

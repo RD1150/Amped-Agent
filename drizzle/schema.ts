@@ -27,6 +27,11 @@ export const users = mysqlTable("users", {
   // D-ID avatar fields
   avatarImageUrl: text("avatarImageUrl"), // User's headshot for D-ID avatar generation
   avatarVideoUrl: text("avatarVideoUrl"), // Generated D-ID avatar intro video URL
+  // Video generation usage tracking
+  standardVideosThisMonth: int("standardVideosThisMonth").default(0).notNull(),
+  aiEnhancedVideosThisMonth: int("aiEnhancedVideosThisMonth").default(0).notNull(),
+  fullAiVideosThisMonth: int("fullAiVideosThisMonth").default(0).notNull(),
+  lastVideoCountReset: timestamp("lastVideoCountReset").defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;
