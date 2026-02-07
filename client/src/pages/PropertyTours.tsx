@@ -404,15 +404,51 @@ Generate ONLY the script text, no additional commentary.`;
             )}
 
             {uploadedImageUrls.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {uploadedImageUrls.map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt={`Property ${i + 1}`}
-                    className="w-full h-24 object-cover rounded"
-                  />
-                ))}
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-muted-foreground">
+                    {uploadedImageUrls.length} photo{uploadedImageUrls.length !== 1 ? 's' : ''} uploaded
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setUploadedImageUrls([]);
+                      setSelectedFiles([]);
+                      toast.success("All photos removed");
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Remove All
+                  </Button>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {uploadedImageUrls.map((url, i) => (
+                    <div key={i} className="relative group">
+                      <img
+                        src={url}
+                        alt={`Property ${i + 1}`}
+                        className="w-full h-24 object-cover rounded"
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="destructive"
+                        className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => {
+                          const newUrls = uploadedImageUrls.filter((_, index) => index !== i);
+                          const newFiles = selectedFiles.filter((_, index) => index !== i);
+                          setUploadedImageUrls(newUrls);
+                          setSelectedFiles(newFiles);
+                          toast.success("Photo removed");
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -769,24 +805,63 @@ Generate ONLY the script text, no additional commentary.`;
               </div>
             )}
 
-            <Button
-              onClick={handleCreateTour}
-              disabled={createTour.isPending || generateVideo.isPending || generatingTourId !== null || (balance && creditCost && balance.balance < creditCost.totalCredits)}
-              className="w-full h-14 text-lg"
-              size="lg"
-            >
-              {createTour.isPending || generateVideo.isPending || generatingTourId !== null ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating Video...
-                </>
-              ) : (
-                <>
-                  <Video className="mr-2 h-4 w-4" />
-                  Create Property Tour
-                </>
+            <div className="space-y-2">
+              <Button
+                onClick={handleCreateTour}
+                disabled={createTour.isPending || generateVideo.isPending || generatingTourId !== null || (balance && creditCost && balance.balance < creditCost.totalCredits)}
+                className="w-full h-14 text-lg"
+                size="lg"
+              >
+                {createTour.isPending || generateVideo.isPending || generatingTourId !== null ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating Video...
+                  </>
+                ) : (
+                  <>
+                    <Video className="mr-2 h-4 w-4" />
+                    Create Property Tour
+                  </>
+                )}
+              </Button>
+              
+              {uploadedImageUrls.length > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    // Reset all form fields
+                    setAddress("");
+                    setPrice("");
+                    setBeds("");
+                    setBaths("");
+                    setSqft("");
+                    setPropertyType("");
+                    setDescription("");
+                    setUploadedImageUrls([]);
+                    setSelectedFiles([]);
+                    setTemplate("modern");
+                    setDuration(30);
+                    setIncludeBranding(true);
+                    setAspectRatio("16:9");
+                    setMusicTrack(undefined);
+                    setCardTemplate("modern");
+                    setIncludeIntroVideo(false);
+                    setVideoMode("standard");
+                    setEnableVoiceover(false);
+                    setShowScriptEditor(false);
+                    setGeneratedScript("");
+                    setCustomScript("");
+                    toast.success("Form cleared");
+                  }}
+                  disabled={createTour.isPending || generateVideo.isPending || generatingTourId !== null}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Cancel & Clear Form
+                </Button>
               )}
-            </Button>
+            </div>
 
             {/* Progress Indicator */}
             {generatingTourId !== null && (

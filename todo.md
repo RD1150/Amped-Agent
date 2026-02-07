@@ -2359,3 +2359,11 @@ Tasks:
 - [x] Update Property Tours UI to display video thumbnails in history table
 - [x] Add fallback placeholder image if thumbnail extraction fails
 - [x] Test thumbnail extraction - All 21 unit tests passing
+
+## Property Tours Photo Management (New Feature - Feb 7, 2026)
+- [x] Add photo preview gallery showing all uploaded photos
+- [x] Add delete button for individual photos in preview gallery
+- [x] Update imageUrls array when photos are deleted
+- [x] Add cancel/delete tour button before video generation starts
+- [x] Clear form resets all fields and photos to defaults
+- [x] Test photo deletion and form cancellation - All 21 tests passing
