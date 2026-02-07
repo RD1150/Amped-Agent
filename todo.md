@@ -2305,3 +2305,9 @@ Tasks:
 - [x] Send email when credits drop below 10
 - [x] Add unsubscribe link and email preferences
 - [x] Test email delivery and formatting
+
+## Welcome Video Sound Indicator (Current Sprint)
+- [x] Add "Click for sound" indicator to welcome video
+- [x] Set video to autoplay muted (browser-compliant)
+- [x] Show sound hint for 3 seconds on video play
+- [x] Add Volume2 icon to sound indicator

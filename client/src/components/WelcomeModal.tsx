@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Sparkles, Video, CreditCard, Clock } from "lucide-react";
+import { Sparkles, Video, CreditCard, Clock, Volume2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 export function WelcomeModal() {
   const [open, setOpen] = useState(false);
   const [videoEnded, setVideoEnded] = useState(false);
+  const [showSoundHint, setShowSoundHint] = useState(true);
   
   const { data: user } = trpc.auth.me.useQuery();
   const completeOnboarding = trpc.auth.completeOnboarding.useMutation();
@@ -40,16 +41,27 @@ export function WelcomeModal() {
           {/* Welcome Video */}
           <Card className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
             <h3 className="text-xl font-semibold mb-4 text-center">A Message From Our Team</h3>
-            <div className="aspect-video bg-black rounded-lg overflow-hidden">
+            <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
               <video
                 controls
                 autoPlay
+                muted
                 className="w-full h-full"
                 onEnded={() => setVideoEnded(true)}
-                src={user.avatarVideoUrl || ""}
+                onPlay={() => {
+                  setShowSoundHint(true);
+                  setTimeout(() => setShowSoundHint(false), 3000);
+                }}
+                src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/yDPbyHOCmkINXsjt.mp4"
               >
                 Your browser does not support the video tag.
               </video>
+              {showSoundHint && (
+                <div className="absolute top-4 right-4 bg-black/80 text-white px-4 py-2 rounded-full flex items-center gap-2 animate-in fade-in duration-300">
+                  <Volume2 className="w-4 h-4" />
+                  <span className="text-sm font-medium">Click for sound</span>
+                </div>
+              )}
             </div>
           </Card>
 
