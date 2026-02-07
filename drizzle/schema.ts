@@ -34,6 +34,9 @@ export const users = mysqlTable("users", {
   lastVideoCountReset: timestamp("lastVideoCountReset").defaultNow().notNull(),
   // Credit system
   creditBalance: int("creditBalance").default(50).notNull(), // Start with 50 free trial credits
+  // Rate limiting
+  dailyVideoCount: int("dailyVideoCount").default(0).notNull(),
+  lastDailyReset: timestamp("lastDailyReset").defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;

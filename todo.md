@@ -2224,3 +2224,11 @@ Tasks:
 - [x] Prevent video generation when insufficient credits
 - [x] Test complete credit flow end-to-end
 - [x] Write unit tests for credit system
+
+## Rate Limiting (Current Sprint)
+- [x] Add daily video count tracking to database schema
+- [x] Implement 10 videos/day rate limit check before video generation
+- [x] Add rate limit error messaging in UI
+- [x] Display remaining daily videos in Property Tours page
+- [x] Reset daily count at midnight (user timezone or UTC)
+- [x] Write tests for rate limiting logic

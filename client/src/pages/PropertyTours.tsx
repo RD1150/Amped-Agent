@@ -49,6 +49,7 @@ export default function PropertyTours() {
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
   const { data: creditCost } = trpc.credits.calculateCost.useQuery({ videoMode, enableVoiceover });
   const { data: balance } = trpc.credits.getBalance.useQuery();
+  const { data: dailyUsage } = trpc.rateLimit.getDailyUsage.useQuery();
 
   // Mutations
   const uploadImages = trpc.propertyTours.uploadImages.useMutation();
@@ -255,10 +256,35 @@ export default function PropertyTours() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Property Tours</h1>
-        <p className="text-muted-foreground">
-          Create cinematic property tour videos with Ken Burns effects
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Property Tours</h1>
+            <p className="text-muted-foreground">
+              Create cinematic property tour videos with Ken Burns effects
+            </p>
+          </div>
+          {dailyUsage && (
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
+              <div className="p-4 text-center">
+                <p className="text-xs text-muted-foreground mb-1">Daily Videos</p>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {dailyUsage.remaining}/{dailyUsage.limit}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">remaining today</p>
+                {dailyUsage.remaining <= 2 && dailyUsage.remaining > 0 && (
+                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 font-medium">
+                    Low limit!
+                  </p>
+                )}
+                {dailyUsage.remaining === 0 && (
+                  <p className="text-xs text-destructive mt-2 font-medium">
+                    Limit reached
+                  </p>
+                )}
+              </div>
+            </Card>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

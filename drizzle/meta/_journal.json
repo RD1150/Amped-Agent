@@ -204,6 +204,13 @@
       "when": 1770424391629,
       "tag": "0028_melted_magus",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1770430050969,
+      "tag": "0029_mighty_quentin_quire",
+      "breakpoints": true
     }
   ]
 }

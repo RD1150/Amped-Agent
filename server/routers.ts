@@ -16,10 +16,12 @@ import { autoreelsRouter } from "./routers/autoreels";
 import { propertyToursRouter } from "./routers/propertyTours";
 import { contentTemplatesRouter } from "./routers/contentTemplates";
 import { creditsRouter } from "./routers/credits";
+import { rateLimitRouter } from "./routers/rateLimit";
 
 export const appRouter = router({
   system: systemRouter,
   credits: creditsRouter,
+  rateLimit: rateLimitRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

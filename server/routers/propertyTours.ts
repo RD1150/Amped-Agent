@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as db from "../db";
 import * as credits from "../credits";
+import * as rateLimit from "../rateLimit";
 import { generatePropertyTourVideo, checkRenderStatus } from "../videoGenerator";
 import { storagePut } from "../storage";
 import { fetchPropertyData } from "../rapidapi";
@@ -87,6 +88,19 @@ export const propertyToursRouter = router({
         return { videoUrl: tour.videoUrl, thumbnailUrl: tour.thumbnailUrl };
       }
 
+      // Check daily rate limit
+      const rateLimitStatus = await rateLimit.checkDailyVideoLimit(ctx.user.id);
+      if (!rateLimitStatus.allowed) {
+        const resetTime = rateLimitStatus.resetTime.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          timeZone: 'UTC'
+        });
+        throw new Error(
+          `Daily video limit reached (${rateLimitStatus.current}/${10}). You can generate more videos after ${resetTime} UTC. Upgrade for unlimited videos.`
+        );
+      }
+
       // Calculate credit cost
       const costBreakdown = credits.calculateVideoCost({
         videoMode: tour.videoMode as "standard" | "ai-enhanced" | "full-ai",
@@ -149,6 +163,9 @@ export const propertyToursRouter = router({
           videoUrl: renderId, // Store renderId temporarily
           status: "processing",
         });
+
+        // Increment daily video count after successful submission
+        await rateLimit.incrementDailyVideoCount(ctx.user.id);
 
         return { renderId };
       } catch (error) {
