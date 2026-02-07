@@ -2317,3 +2317,36 @@ Tasks:
 - [x] Bypass credit checks for rdshop70@gmail.com
 - [x] Show "∞ Unlimited" in credit balance for owner
 - [x] Test owner can generate videos without credit deduction
+
+## Rebranding: LuxEstate → Authority Content (Current Sprint)
+- [ ] Replace "luxestate" in dashboard header and navigation
+- [ ] Update page titles (<title> tags) to use "Authority Content"
+- [ ] Replace "LuxEstate" in all user-facing UI text
+- [ ] Update meta tags and SEO descriptions
+- [ ] Update email notification templates
+- [ ] Update welcome modal branding
+- [ ] Update admin settings page branding
+- [ ] Search codebase for remaining "luxestate" or "LuxEstate" references
+
+## Property Tours - Critical Video Generation Fixes (IN PROGRESS)
+- [ ] Fix property photos not rendering (black screen instead of images)
+- [ ] Fix garbled text overlay (use Shotstack title assets instead of HTML)
+- [ ] Implement Ken Burns zoom/pan effects (transform not working)
+- [ ] Add 1.5x zoom for vertical videos to prevent side cropping
+- [ ] Test Shotstack API timeline structure
+- [ ] Verify image URL accessibility from Shotstack servers
+- [ ] Test complete video with all fixes applied
+
+## Property Tours - Unique Features (Differentiation from AutoReels)
+- [ ] Add AI-generated property description from photos
+- [ ] Add MLS-ready formatting (address, price, beds/baths overlays)
+- [ ] Implement property-specific music selection (luxury vs starter home)
+- [ ] Add branded intro/outro with agent logo
+- [ ] Support multiple export formats (vertical, horizontal, square)
+
+## Property Tours Video Generation Bug Fixes (CRITICAL - Feb 7, 2026)
+- [x] Fix photos not rendering - Replaced invalid `transform` parameter with correct `effect` parameter
+- [x] Fix Ken Burns movement - Implemented 6 Shotstack effects (zoomIn, zoomOut, slideLeft, slideRight, slideUp, slideDown)
+- [x] Fix garbled text overlay - Replaced broken HTML overlays with native Shotstack text assets
+- [x] Fix vertical video cropping - Added smart fit mode (contain for 9:16, crop for 16:9/1:1)
+- [x] All 21 unit tests passing after fixes

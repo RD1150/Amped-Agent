@@ -200,28 +200,22 @@ export async function generatePropertyTourVideo(
       };
     }
     
-    // For images, apply dynamic camera movements like a videographer
-    // Cycle through different movement types for variety
-    const movements = [
-      // Zoom in with slight pan right
-      { scale: { start: 1.0, end: 1.3 }, x: { start: 0, end: -50 } },
-      // Zoom out with slight pan left
-      { scale: { start: 1.3, end: 1.0 }, x: { start: -50, end: 0 } },
-      // Pan right to left with zoom
-      { scale: { start: 1.1, end: 1.25 }, x: { start: -80, end: 80 } },
-      // Pan left to right with zoom
-      { scale: { start: 1.1, end: 1.25 }, x: { start: 80, end: -80 } },
-      // Vertical pan down with zoom in
-      { scale: { start: 1.0, end: 1.3 }, y: { start: -50, end: 50 } },
-      // Vertical pan up with zoom out
-      { scale: { start: 1.3, end: 1.0 }, y: { start: 50, end: -50 } },
-      // Dramatic zoom in
-      { scale: { start: 1.0, end: 1.4 } },
-      // Slow zoom out
-      { scale: { start: 1.35, end: 1.05 } },
+    // For images, apply dynamic camera movements using Shotstack effects
+    // Cycle through different Ken Burns effects for variety
+    const effects = [
+      "zoomIn",      // Zoom into image
+      "zoomOut",     // Zoom out of image
+      "slideLeft",   // Pan from right to left
+      "slideRight",  // Pan from left to right
+      "slideUp",     // Pan from bottom to top
+      "slideDown",   // Pan from top to bottom
     ];
     
-    const movement = movements[index % movements.length];
+    const effect = effects[index % effects.length];
+    
+    // Smart zoom for vertical videos (9:16) to reduce aggressive cropping
+    // Use "contain" fit to show full image without cropping important parts
+    const fitMode = aspectRatio === "9:16" ? "contain" : "crop";
     
     return {
       asset: {
@@ -230,13 +224,12 @@ export async function generatePropertyTourVideo(
       },
       start: index * durationPerImage,
       length: durationPerImage,
-      fit: "crop",
-      position: "center",
+      fit: fitMode,  // Smart fit based on aspect ratio
+      effect: effect,  // Ken Burns effect
       transition: {
         in: index === 0 ? "fade" : "fade",
         out: "fade",
       },
-      transform: movement,
     };
   });
 
@@ -251,32 +244,72 @@ export async function generatePropertyTourVideo(
   }
   const detailsText = detailsParts.join(" · ");
 
-  // Add text overlays using HTML assets (simpler approach)
+  // Add text overlays using Shotstack text assets (cleaner rendering)
   const textOverlays: any[] = [];
   
-  // Address overlay - positioned higher to avoid cutoff
+  // Address overlay - positioned at bottom with proper padding
   textOverlays.push({
     asset: {
-      type: "html",
-      html: `<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding: 0 20px 180px 20px; box-sizing: border-box;"><div style="background: rgba(0,0,0,0.85); padding: 18px 35px; border-radius: 8px; max-width: 90%;"><p style="color: white; font-size: 32px; font-weight: bold; margin: 0; text-align: center; line-height: 1.3;">${propertyDetails.address}</p></div></div>`,
-      width: htmlWidth,
-      height: htmlHeight,
+      type: "text",
+      text: propertyDetails.address,
+      font: {
+        family: "Montserrat SemiBold",
+        size: aspectRatio === "9:16" ? 38 : 42,
+        color: "#FFFFFF",
+        weight: 700,
+      },
+      background: {
+        color: "#000000",
+        opacity: 0.85,
+        borderRadius: 8,
+        padding: 15,
+      },
+      alignment: {
+        horizontal: "center",
+        vertical: "bottom",
+      },
+      width: aspectRatio === "9:16" ? 1000 : 1600,
+      height: aspectRatio === "9:16" ? 200 : 150,
     },
     start: 0,
     length: duration,
+    position: "bottom",
+    offset: {
+      y: aspectRatio === "9:16" ? -0.15 : -0.12,
+    },
   });
   
   // Details overlay - positioned above address
   if (detailsText) {
     textOverlays.push({
       asset: {
-        type: "html",
-        html: `<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; padding: 0 20px 100px 20px; box-sizing: border-box;"><div style="background: rgba(0,0,0,0.85); padding: 12px 28px; border-radius: 6px;"><p style="color: white; font-size: 24px; margin: 0; text-align: center; line-height: 1.3;">${detailsText}</p></div></div>`,
-        width: htmlWidth,
-        height: htmlHeight,
+        type: "text",
+        text: detailsText,
+        font: {
+          family: "Montserrat SemiBold",
+          size: aspectRatio === "9:16" ? 28 : 32,
+          color: "#FFFFFF",
+          weight: 600,
+        },
+        background: {
+          color: "#000000",
+          opacity: 0.85,
+          borderRadius: 6,
+          padding: 12,
+        },
+        alignment: {
+          horizontal: "center",
+          vertical: "bottom",
+        },
+        width: aspectRatio === "9:16" ? 900 : 1400,
+        height: aspectRatio === "9:16" ? 120 : 100,
       },
       start: 0,
       length: duration,
+      position: "bottom",
+      offset: {
+        y: aspectRatio === "9:16" ? -0.05 : -0.03,
+      },
     });
   }
 
