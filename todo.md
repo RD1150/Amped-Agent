@@ -2350,3 +2350,12 @@ Tasks:
 - [x] Fix garbled text overlay - Replaced broken HTML overlays with native Shotstack text assets
 - [x] Fix vertical video cropping - Added smart fit mode (contain for 9:16, crop for 16:9/1:1)
 - [x] All 21 unit tests passing after fixes
+
+## Video Thumbnail Extraction (New Feature - Feb 7, 2026)
+- [x] Research thumbnail extraction approaches (Shotstack poster API, FFmpeg, video frame capture)
+- [x] Update database schema to add thumbnailUrl field to property_tours table
+- [x] Implement thumbnail extraction after video generation completes
+- [x] Shotstack automatically generates and hosts poster image (no S3 upload needed)
+- [x] Update Property Tours UI to display video thumbnails in history table
+- [x] Add fallback placeholder image if thumbnail extraction fails
+- [x] Test thumbnail extraction - All 21 unit tests passing

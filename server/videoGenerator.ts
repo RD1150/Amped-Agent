@@ -598,6 +598,11 @@ export async function generatePropertyTourVideo(
       ...(size && { size }), // Add size for custom dimensions
       fps: 30,
       quality: "high",
+      // Generate poster image from the most visually appealing frame
+      // Capture at 25% through the video (after intro, during property photos)
+      poster: {
+        capture: Math.max(introLength + (duration * 0.25), 1), // Capture at 25% of main content
+      },
     },
   };
 
@@ -660,6 +665,7 @@ export async function checkRenderStatus(renderId: string): Promise<{
   status: "queued" | "fetching" | "rendering" | "saving" | "done" | "failed";
   url?: string;
   thumbnail?: string;
+  poster?: string;
   error?: string;
 }> {
   const apiKey = process.env.SHOTSTACK_API_KEY;
@@ -696,11 +702,15 @@ export async function checkRenderStatus(renderId: string): Promise<{
     if (render.url) {
       console.log("[VideoGenerator] Video URL:", render.url);
     }
+    if (render.poster) {
+      console.log("[VideoGenerator] Poster URL:", render.poster);
+    }
 
     return {
       status: render.status as any,
       url: render.url || undefined,
       thumbnail: render.thumbnail || undefined,
+      poster: render.poster || undefined,
       error: render.error || undefined,
     };
   } catch (error) {

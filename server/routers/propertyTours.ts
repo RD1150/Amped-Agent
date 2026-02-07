@@ -213,17 +213,19 @@ export const propertyToursRouter = router({
         const renderStatus = await checkRenderStatus(renderId);
 
         if (renderStatus.status === "done" && renderStatus.url) {
-          // Update tour with final video URL and thumbnail
+          // Update tour with final video URL and thumbnail (use poster as primary thumbnail)
+          const thumbnailUrl = renderStatus.poster || renderStatus.thumbnail;
+          
           await db.updatePropertyTour(input.tourId, {
             videoUrl: renderStatus.url,
-            thumbnailUrl: renderStatus.thumbnail,
+            thumbnailUrl,
             status: "completed",
           });
 
           return {
             status: "completed" as const,
             videoUrl: renderStatus.url,
-            thumbnailUrl: renderStatus.thumbnail,
+            thumbnailUrl,
           };
         } else if (renderStatus.status === "failed") {
           await db.updatePropertyTour(input.tourId, {
