@@ -1,6 +1,7 @@
 import { getDb } from "./db";
 import { users, creditTransactions } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
+import { sendLowCreditsNotification } from "./emailNotifications";
 
 /**
  * Credit costs for different video types
@@ -84,6 +85,21 @@ export async function deductCredits(params: {
 
   // Update user's balance
   await db.update(users).set({ creditBalance: newBalance }).where(eq(users.id, userId));
+
+  // Send low credits notification if balance falls below 10
+  if (newBalance < 10 && currentBalance >= 10) {
+    // Get user email and name
+    const [userInfo] = await db
+      .select({ email: users.email, name: users.name })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (userInfo?.email && userInfo?.name) {
+      // Send notification asynchronously (don't wait)
+      sendLowCreditsNotification(userInfo.email, userInfo.name, newBalance).catch(console.error);
+    }
+  }
 
   // Record transaction
   await db.insert(creditTransactions).values({

@@ -2259,3 +2259,49 @@ Tasks:
 - [x] Add user growth chart (signups over time)
 - [x] Protect route with admin role check
 - [x] Add date range filter for all metrics
+
+## Usage Counter Display (Current Sprint)
+- [x] Add usage counter widget showing videos used/remaining per tier
+- [x] Display "X/20 AI-Enhanced videos used this month" in dashboard
+- [x] Show progress bar for visual representation of usage
+- [x] Add tooltip explaining tier limits and upgrade options
+- [x] Reset counter monthly (track in database)
+
+## Video Preview Gallery (Current Sprint)
+- [x] Create sample property tour videos for each mode (Standard, AI-Enhanced, Full AI)
+- [x] Build gallery component with video thumbnails and play buttons
+- [x] Add comparison view showing side-by-side Standard vs Full AI
+- [x] Include voiceover samples with different voices
+- [x] Add "Try This Style" CTA buttons linking to Property Tours page
+
+## Custom Script Editor (Current Sprint)
+- [x] Add "Review Script" step before video generation
+- [x] Generate initial script using LLM based on property details
+- [x] Show editable textarea with generated script
+- [x] Add character count and duration estimate
+- [x] Allow users to edit script before voiceover generation
+- [x] Save custom scripts to database for future reference
+
+## Welcome Video Upload (Current Sprint)
+- [x] Add welcome video URL field to admin settings
+- [x] Create admin page for uploading/managing welcome video
+- [x] Update WelcomeModal to fetch video URL from database
+- [x] Add fallback content if no video is uploaded
+- [x] Test video playback in modal
+
+## Stripe Credit Purchase Testing (Current Sprint)
+- [x] Test checkout flow with test card 4242 4242 4242 4242
+- [x] Verify webhook receives checkout.session.completed event
+- [x] Confirm credits are added to user balance after payment
+- [ ] Test all 3 credit packages ($49/100, $149/350, $399/1000)
+- [ ] Verify transaction history shows purchase records
+- [ ] Document any issues or edge cases
+
+## Email Notifications (Current Sprint)
+- [x] Set up email service integration (SendGrid or similar)
+- [x] Create email template for rate limit hit notification
+- [x] Create email template for low credits warning (< 10 remaining)
+- [x] Send email when user hits 10/day limit
+- [x] Send email when credits drop below 10
+- [x] Add unsubscribe link and email preferences
+- [x] Test email delivery and formatting

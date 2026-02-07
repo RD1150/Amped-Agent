@@ -44,6 +44,9 @@ export default function PropertyTours() {
   const [videoMode, setVideoMode] = useState<"standard" | "ai-enhanced" | "full-ai">("standard");
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel - professional female
+  const [showScriptEditor, setShowScriptEditor] = useState(false);
+  const [generatedScript, setGeneratedScript] = useState("");
+  const [customScript, setCustomScript] = useState("");
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -115,6 +118,38 @@ export default function PropertyTours() {
     }
   };
 
+  // Generate voiceover script using LLM
+  const generateScript = async (): Promise<string> => {
+    const propertyDetails = `
+Address: ${address}
+Price: ${price || 'Not specified'}
+Beds: ${beds || 'Not specified'}
+Baths: ${baths || 'Not specified'}
+Square Feet: ${sqft || 'Not specified'}
+Property Type: ${propertyType || 'Not specified'}
+Description: ${description || 'Not specified'}
+`;
+
+    const prompt = `Generate a professional, engaging ${duration}-second voiceover script for a real estate property tour video. The script should highlight the key features and create excitement about the property. Keep it natural and conversational.
+
+Property Details:${propertyDetails}
+
+Generate ONLY the script text, no additional commentary.`;
+
+    try {
+      const response = await fetch('/api/trpc/ai.generateScript', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+      const data = await response.json();
+      return data.result?.script || "Welcome to this beautiful property. Let me show you around this amazing home.";
+    } catch (error) {
+      console.error('Failed to generate script:', error);
+      return "Welcome to this beautiful property. Let me show you around this amazing home.";
+    }
+  };
+
   // Handle tour creation and video generation
   const handleCreateTour = async () => {
     if (!address) {
@@ -125,6 +160,16 @@ export default function PropertyTours() {
     // Validate manually uploaded photos
     if (uploadedImageUrls.length === 0) {
       toast.error("Please upload at least one property image");
+      return;
+    }
+
+    // If voiceover is enabled and script not reviewed yet, show script editor
+    if (enableVoiceover && !showScriptEditor && !customScript) {
+      // Generate script first
+      const script = await generateScript();
+      setGeneratedScript(script);
+      setCustomScript(script);
+      setShowScriptEditor(true);
       return;
     }
 
@@ -852,6 +897,49 @@ export default function PropertyTours() {
           )}
         </div>
       </div>
+      {/* Script Editor Dialog */}
+      {showScriptEditor && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-2xl w-full p-6">
+            <h3 className="text-2xl font-bold mb-4">Review Voiceover Script</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Edit the script below to personalize your property tour narration. Estimated duration: {duration} seconds.
+            </p>
+            <Textarea
+              value={customScript}
+              onChange={(e) => setCustomScript(e.target.value)}
+              className="min-h-[200px] mb-4"
+              placeholder="Voiceover script..."
+            />
+            <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+              <span>{customScript.length} characters</span>
+              <span>~{Math.ceil(customScript.split(' ').length / 150 * 60)} seconds</span>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowScriptEditor(false);
+                  setCustomScript("");
+                  setGeneratedScript("");
+                }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowScriptEditor(false);
+                  handleCreateTour();
+                }}
+                className="flex-1"
+              >
+                Continue with This Script
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

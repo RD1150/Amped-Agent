@@ -1,5 +1,6 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 import { getDb } from "../db";
 import { users, propertyTours, creditTransactions } from "../../drizzle/schema";
 import { sql, eq, and, gte } from "drizzle-orm";
@@ -167,4 +168,22 @@ export const adminRouter = router({
       premiumUsers,
     };
   }),
+
+  /**
+   * Update welcome video URL for onboarding modal
+   */
+  updateWelcomeVideo: adminProcedure
+    .input(z.object({ videoUrl: z.string().url() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Update admin user's avatarVideoUrl
+      await db
+        .update(users)
+        .set({ avatarVideoUrl: input.videoUrl })
+        .where(eq(users.id, ctx.user.id));
+
+      return { success: true };
+    }),
 });

@@ -6,6 +6,9 @@ import * as rateLimit from "../rateLimit";
 import { generatePropertyTourVideo, checkRenderStatus } from "../videoGenerator";
 import { storagePut } from "../storage";
 import { fetchPropertyData } from "../rapidapi";
+import { getDb } from "../db";
+import { users, propertyTours } from "../../drizzle/schema";
+import { eq, and, gte, sql } from "drizzle-orm";
 
 export const propertyToursRouter = router({
   /**
@@ -347,4 +350,84 @@ export const propertyToursRouter = router({
         );
       }
     }),
+
+  /**
+   * Get monthly video generation usage by tier
+   */
+  getMonthlyUsage: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // Get user's subscription tier
+    const [user] = await db
+      .select({ tier: users.subscriptionTier })
+      .from(users)
+      .where(eq(users.id, ctx.user.id));
+
+    const tier = user?.tier || "starter";
+
+    // Count videos by mode this month
+    const [standardResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(propertyTours)
+      .where(
+        and(
+          eq(propertyTours.userId, ctx.user.id),
+          eq(propertyTours.videoMode, "standard"),
+          gte(propertyTours.createdAt, monthStart)
+        )
+      );
+
+    const [aiEnhancedResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(propertyTours)
+      .where(
+        and(
+          eq(propertyTours.userId, ctx.user.id),
+          eq(propertyTours.videoMode, "ai-enhanced"),
+          gte(propertyTours.createdAt, monthStart)
+        )
+      );
+
+    const [fullAiResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(propertyTours)
+      .where(
+        and(
+          eq(propertyTours.userId, ctx.user.id),
+          eq(propertyTours.videoMode, "full-ai"),
+          gte(propertyTours.createdAt, monthStart)
+        )
+      );
+
+    const standardUsed = standardResult?.count || 0;
+    const aiEnhancedUsed = aiEnhancedResult?.count || 0;
+    const fullAiUsed = fullAiResult?.count || 0;
+
+    // Determine limits based on tier
+    let standardLimit = -1; // -1 means unlimited
+    let aiEnhancedLimit = -1;
+    let fullAiLimit = -1;
+
+    if (tier === "starter") {
+      // Free tier: limited by credits only, but show reasonable limits
+      standardLimit = 20;
+      aiEnhancedLimit = 10;
+      fullAiLimit = 5;
+    }
+    // Professional and Agency tiers have unlimited
+
+    return {
+      tier: tier === "starter" ? "Starter" : tier === "pro" ? "Professional" : "Agency",
+      standardUsed,
+      aiEnhancedUsed,
+      fullAiUsed,
+      standardLimit,
+      aiEnhancedLimit,
+      fullAiLimit,
+    };
+  }),
 });

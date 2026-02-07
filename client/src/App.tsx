@@ -37,6 +37,7 @@ import Pricing from "./pages/Pricing";
 import Subscription from "./pages/Subscription";
 import Credits from "./pages/Credits";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import AdminSettings from "./pages/AdminSettings";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -52,6 +53,7 @@ function Router() {
       <Route path="/" component={Landing} />
       <Route path="/credits" component={Credits} />
       <Route path="/admin/analytics" component={AdminAnalytics} />
+      <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/landing" component={Landing} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />

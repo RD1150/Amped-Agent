@@ -1,6 +1,7 @@
 import { getDb } from "./db";
 import { users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { sendRateLimitNotification } from "./emailNotifications";
 
 const DAILY_VIDEO_LIMIT = 10;
 
@@ -78,6 +79,21 @@ export async function checkDailyVideoLimit(userId: number): Promise<{
   // Free trial users have 10/day limit
   const allowed = currentCount < DAILY_VIDEO_LIMIT;
   const remaining = Math.max(0, DAILY_VIDEO_LIMIT - currentCount);
+
+  // Send email notification if user just hit the limit
+  if (!allowed && currentCount === DAILY_VIDEO_LIMIT) {
+    // Get user email and name
+    const [userInfo] = await db
+      .select({ email: users.email, name: users.name })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (userInfo?.email && userInfo?.name) {
+      // Send notification asynchronously (don't wait)
+      sendRateLimitNotification(userInfo.email, userInfo.name).catch(console.error);
+    }
+  }
 
   return {
     allowed,

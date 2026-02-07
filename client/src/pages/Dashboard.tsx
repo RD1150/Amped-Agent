@@ -14,6 +14,8 @@ import {
   HelpCircle
 } from "lucide-react";
 import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
+import UsageCounter from "@/components/UsageCounter";
+import VideoPreviewGallery from "@/components/VideoPreviewGallery";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -116,6 +118,9 @@ export default function Dashboard() {
           </Button>
         </div>
       </div>
+
+      {/* Usage Counter */}
+      <UsageCounter />
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -234,6 +239,9 @@ export default function Dashboard() {
           </p>
         </div>
       </Card>
+
+      {/* Video Preview Gallery */}
+      <VideoPreviewGallery />
     </div>
   );
 }
