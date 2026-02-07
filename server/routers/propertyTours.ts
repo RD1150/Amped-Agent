@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as db from "../db";
+import * as credits from "../credits";
 import { generatePropertyTourVideo, checkRenderStatus } from "../videoGenerator";
 import { storagePut } from "../storage";
 import { fetchPropertyData } from "../rapidapi";
@@ -85,6 +86,31 @@ export const propertyToursRouter = router({
       if (tour.status === "completed" && tour.videoUrl) {
         return { videoUrl: tour.videoUrl, thumbnailUrl: tour.thumbnailUrl };
       }
+
+      // Calculate credit cost
+      const costBreakdown = credits.calculateVideoCost({
+        videoMode: tour.videoMode as "standard" | "ai-enhanced" | "full-ai",
+        enableVoiceover: tour.enableVoiceover || false,
+      });
+
+      // Check if user has sufficient credits
+      const hasEnoughCredits = await credits.hasCredits(ctx.user.id, costBreakdown.totalCredits);
+      if (!hasEnoughCredits) {
+        const currentBalance = await credits.getCreditBalance(ctx.user.id);
+        throw new Error(
+          `Insufficient credits. You need ${costBreakdown.totalCredits} credits but only have ${currentBalance}. Please purchase more credits to continue.`
+        );
+      }
+
+      // Deduct credits BEFORE starting generation
+      await credits.deductCredits({
+        userId: ctx.user.id,
+        amount: costBreakdown.totalCredits,
+        usageType: `${tour.videoMode}_video${tour.enableVoiceover ? '_with_voiceover' : ''}`,
+        description: `Generated ${tour.videoMode} video for "${tour.address}"`,
+        relatedResourceId: input.tourId,
+        relatedResourceType: "property_tour",
+      });
 
       // Update status to processing
       await db.updatePropertyTour(input.tourId, { status: "processing" });

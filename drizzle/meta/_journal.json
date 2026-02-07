@@ -197,6 +197,13 @@
       "when": 1770422896563,
       "tag": "0027_milky_gorgon",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1770424391629,
+      "tag": "0028_melted_magus",
+      "breakpoints": true
     }
   ]
 }

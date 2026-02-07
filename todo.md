@@ -2207,3 +2207,20 @@ Tasks:
 - [ ] Test Luma AI image-to-video generation
 - [ ] Test complete hybrid video workflow
 - [ ] Update documentation with new video features
+
+## Credit System & Monetization (HIGHEST PRIORITY - Current Sprint)
+- [x] Design credit system architecture (credit costs per video type)
+- [x] Create database schema for user credits and credit transactions
+- [x] Implement credit management backend (deduct, add, check balance, get history)
+- [x] Set up Stripe products for credit packages ($49/100, $149/350, $399/1000)
+- [x] Create Stripe checkout flow for credit purchases
+- [x] Integrate credit checks into video generation workflow (deduct before generation)
+- [x] Add 50 free trial credits on user signup
+- [x] Build credit dashboard UI showing balance and usage history
+- [x] Create credit purchase page with package selection
+- [x] Add credit balance display in header/navigation
+- [x] Implement low credit warnings and purchase prompts
+- [x] Add transaction history page
+- [x] Prevent video generation when insufficient credits
+- [x] Test complete credit flow end-to-end
+- [x] Write unit tests for credit system

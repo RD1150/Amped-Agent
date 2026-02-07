@@ -1,0 +1,207 @@
+import { getDb } from "./db";
+import { users, creditTransactions } from "../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
+
+/**
+ * Credit costs for different video types
+ */
+export const CREDIT_COSTS = {
+  standard_video: 5, // Standard Ken Burns video
+  ai_enhanced_video: 15, // AI-Enhanced (3-5 hero shots with Luma AI)
+  full_ai_video: 40, // Full AI Cinematic (all photos with Luma AI)
+  voiceover: 5, // AI voiceover narration add-on
+} as const;
+
+/**
+ * Credit packages available for purchase
+ */
+export const CREDIT_PACKAGES = {
+  starter: {
+    name: "Starter",
+    credits: 100,
+    price: 4900, // $49.00 in cents
+    priceDisplay: "$49",
+  },
+  professional: {
+    name: "Professional",
+    credits: 350,
+    price: 14900, // $149.00 in cents
+    priceDisplay: "$149",
+    bonus: 50, // Bonus credits
+  },
+  agency: {
+    name: "Agency",
+    credits: 1000,
+    price: 39900, // $399.00 in cents
+    priceDisplay: "$399",
+    bonus: 200, // Bonus credits
+  },
+} as const;
+
+/**
+ * Get user's current credit balance
+ */
+export async function getCreditBalance(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const [user] = await db.select({ creditBalance: users.creditBalance }).from(users).where(eq(users.id, userId));
+  return user?.creditBalance ?? 0;
+}
+
+/**
+ * Check if user has sufficient credits
+ */
+export async function hasCredits(userId: number, requiredCredits: number): Promise<boolean> {
+  const balance = await getCreditBalance(userId);
+  return balance >= requiredCredits;
+}
+
+/**
+ * Deduct credits from user's balance
+ * Returns new balance or throws error if insufficient credits
+ */
+export async function deductCredits(params: {
+  userId: number;
+  amount: number;
+  usageType: string;
+  description: string;
+  relatedResourceId?: number;
+  relatedResourceType?: string;
+}): Promise<number> {
+  const { userId, amount, usageType, description, relatedResourceId, relatedResourceType } = params;
+
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get current balance
+  const currentBalance = await getCreditBalance(userId);
+
+  if (currentBalance < amount) {
+    throw new Error(`Insufficient credits. You have ${currentBalance} credits but need ${amount} credits.`);
+  }
+
+  const newBalance = currentBalance - amount;
+
+  // Update user's balance
+  await db.update(users).set({ creditBalance: newBalance }).where(eq(users.id, userId));
+
+  // Record transaction
+  await db.insert(creditTransactions).values({
+    userId,
+    type: "usage",
+    amount: -amount, // Negative for deduction
+    balanceAfter: newBalance,
+    usageType,
+    description,
+    relatedResourceId,
+    relatedResourceType,
+  });
+
+  return newBalance;
+}
+
+/**
+ * Add credits to user's balance
+ */
+export async function addCredits(params: {
+  userId: number;
+  amount: number;
+  type: "purchase" | "bonus" | "refund" | "trial";
+  description: string;
+  stripePaymentIntentId?: string;
+  packageName?: string;
+  amountPaid?: number;
+}): Promise<number> {
+  const { userId, amount, type, description, stripePaymentIntentId, packageName, amountPaid } = params;
+
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get current balance
+  const currentBalance = await getCreditBalance(userId);
+  const newBalance = currentBalance + amount;
+
+  // Update user's balance
+  await db.update(users).set({ creditBalance: newBalance }).where(eq(users.id, userId));
+
+  // Record transaction
+  await db.insert(creditTransactions).values({
+    userId,
+    type,
+    amount, // Positive for addition
+    balanceAfter: newBalance,
+    description,
+    stripePaymentIntentId,
+    packageName,
+    amountPaid,
+  });
+
+  return newBalance;
+}
+
+/**
+ * Get user's credit transaction history
+ */
+export async function getCreditHistory(userId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .select()
+    .from(creditTransactions)
+    .where(eq(creditTransactions.userId, userId))
+    .orderBy(desc(creditTransactions.createdAt))
+    .limit(limit);
+}
+
+/**
+ * Calculate credit cost for a property tour video
+ */
+export function calculateVideoCost(params: {
+  videoMode: "standard" | "ai-enhanced" | "full-ai";
+  enableVoiceover: boolean;
+}): { totalCredits: number; breakdown: { item: string; credits: number }[] } {
+  const { videoMode, enableVoiceover } = params;
+
+  const breakdown: { item: string; credits: number }[] = [];
+
+  // Base video cost
+  let videoCredits = 0;
+  switch (videoMode) {
+    case "standard":
+      videoCredits = CREDIT_COSTS.standard_video;
+      breakdown.push({ item: "Standard Video (Ken Burns)", credits: videoCredits });
+      break;
+    case "ai-enhanced":
+      videoCredits = CREDIT_COSTS.ai_enhanced_video;
+      breakdown.push({ item: "AI-Enhanced Video (3-5 hero shots)", credits: videoCredits });
+      break;
+    case "full-ai":
+      videoCredits = CREDIT_COSTS.full_ai_video;
+      breakdown.push({ item: "Full AI Cinematic (all photos)", credits: videoCredits });
+      break;
+  }
+
+  let totalCredits = videoCredits;
+
+  // Add voiceover cost if enabled
+  if (enableVoiceover) {
+    totalCredits += CREDIT_COSTS.voiceover;
+    breakdown.push({ item: "AI Voiceover Narration", credits: CREDIT_COSTS.voiceover });
+  }
+
+  return { totalCredits, breakdown };
+}
+
+/**
+ * Grant trial credits to new user
+ */
+export async function grantTrialCredits(userId: number): Promise<number> {
+  const TRIAL_CREDITS = 50;
+
+  return await addCredits({
+    userId,
+    amount: TRIAL_CREDITS,
+    type: "trial",
+    description: "Welcome! 50 free trial credits",
+  });
+}

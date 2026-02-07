@@ -32,6 +32,8 @@ export const users = mysqlTable("users", {
   aiEnhancedVideosThisMonth: int("aiEnhancedVideosThisMonth").default(0).notNull(),
   fullAiVideosThisMonth: int("fullAiVideosThisMonth").default(0).notNull(),
   lastVideoCountReset: timestamp("lastVideoCountReset").defaultNow().notNull(),
+  // Credit system
+  creditBalance: int("creditBalance").default(50).notNull(), // Start with 50 free trial credits
 });
 
 export type User = typeof users.$inferSelect;
@@ -528,3 +530,30 @@ export const contentTemplates = mysqlTable("content_templates", {
 
 export type ContentTemplate = typeof contentTemplates.$inferSelect;
 export type InsertContentTemplate = typeof contentTemplates.$inferInsert;
+
+/**
+ * Credit Transactions - Track all credit purchases and usage
+ */
+export const creditTransactions = mysqlTable("credit_transactions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  // Transaction details
+  type: mysqlEnum("type", ["purchase", "usage", "refund", "bonus", "trial"]).notNull(),
+  amount: int("amount").notNull(), // Positive for additions, negative for deductions
+  balanceAfter: int("balanceAfter").notNull(), // Credit balance after this transaction
+  // Purchase details (if type = 'purchase')
+  stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }),
+  packageName: varchar("packageName", { length: 100 }), // e.g., "Starter", "Professional", "Agency"
+  amountPaid: int("amountPaid"), // Amount paid in cents
+  // Usage details (if type = 'usage')
+  usageType: varchar("usageType", { length: 100 }), // e.g., "standard_video", "ai_enhanced_video", "full_ai_video", "voiceover"
+  relatedResourceId: int("relatedResourceId"), // e.g., property_tours.id
+  relatedResourceType: varchar("relatedResourceType", { length: 50 }), // e.g., "property_tour"
+  // Metadata
+  description: text("description"), // Human-readable description
+  metadata: text("metadata"), // JSON for additional data
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CreditTransaction = typeof creditTransactions.$inferSelect;
+export type InsertCreditTransaction = typeof creditTransactions.$inferInsert;

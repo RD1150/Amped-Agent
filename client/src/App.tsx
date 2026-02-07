@@ -35,6 +35,7 @@ import PerformanceCoach from "./pages/PerformanceCoach";
 import AuthorityProfile from "./pages/AuthorityProfile";
 import Pricing from "./pages/Pricing";
 import Subscription from "./pages/Subscription";
+import Credits from "./pages/Credits";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -48,6 +49,7 @@ function Router() {
     <Switch>
       {/* Public routes without dashboard layout */}
       <Route path="/" component={Landing} />
+      <Route path="/credits" component={Credits} />
       <Route path="/landing" component={Landing} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />

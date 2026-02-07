@@ -47,11 +47,37 @@ import {
   Video,
   Youtube,
   Award,
-  Building2
+  Building2,
+  CreditCard
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
+import { Badge } from "@/components/ui/badge";
+
+// Credit Balance Display Component
+function CreditBalanceDisplay() {
+  const [, setLocation] = useLocation();
+  const { data: balance } = trpc.credits.getBalance.useQuery();
+
+  if (!balance) return null;
+
+  const credits = balance.balance;
+  const isLow = credits < 20;
+
+  return (
+    <button
+      onClick={() => setLocation("/credits")}
+      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
+    >
+      <CreditCard className="h-4 w-4 text-primary" />
+      <span className="text-sm font-medium text-primary">{credits}</span>
+      {isLow && (
+        <Badge variant="destructive" className="text-xs px-1.5 py-0">Low</Badge>
+      )}
+    </button>
+  );
+}
 import { Button } from "./ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
 import FirstPostOnboarding from "./FirstPostOnboarding";
@@ -67,6 +93,7 @@ const menuItems = [
   { icon: Building2, label: "Property Tours", path: "/property-tours" },
   { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails" },
   { icon: Award, label: "Performance Coach", path: "/coach" },
+  { icon: CreditCard, label: "Credits", path: "/credits" },
   { icon: User, label: "Authority Profile", path: "/authority-profile" },
   { icon: Calendar, label: "Content Calendar", path: "/calendar" },
   { icon: Upload, label: "Upload Content", path: "/uploads" },
@@ -353,6 +380,7 @@ function DashboardLayoutContent({
             )}
           </div>
           <div className="flex items-center gap-4">
+            <CreditBalanceDisplay />
             <button
               onClick={() => setLocation("/persona")}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"

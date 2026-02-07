@@ -5,12 +5,76 @@ import { users } from '../../drizzle/schema';
 import { eq } from 'drizzle-orm';
 import Stripe from 'stripe';
 import { STRIPE_PRODUCTS, getProductByTier, getTierByPriceId } from '../stripe-products';
+import { getCreditProduct } from '../products';
+import * as credits from '../credits';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-12-15.clover',
 });
 
 export const stripeRouter = router({
+  // Create checkout session for credit purchase
+  createCreditCheckout: protectedProcedure
+    .input(
+      z.object({
+        packageKey: z.enum(['starter', 'professional', 'agency']),
+        successUrl: z.string(),
+        cancelUrl: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user.id;
+      const userEmail = ctx.user.email;
+      const { packageKey } = input;
+
+      // Get credit product configuration
+      const product = getCreditProduct(packageKey);
+      if (!product) {
+        throw new Error(`Credit product not found: ${packageKey}`);
+      }
+
+      const totalCredits = 'totalCredits' in product ? product.totalCredits : product.credits;
+
+      try {
+        // Create Stripe checkout session for one-time payment
+        const session = await stripe.checkout.sessions.create({
+          mode: 'payment',
+          payment_method_types: ['card'],
+          customer_email: userEmail || undefined,
+          client_reference_id: userId.toString(),
+          line_items: [
+            {
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: product.name,
+                  description: `${totalCredits} credits for Authority Content`,
+                },
+                unit_amount: product.price,
+              },
+              quantity: 1,
+            },
+          ],
+          success_url: input.successUrl,
+          cancel_url: input.cancelUrl,
+          metadata: {
+            userId: userId.toString(),
+            packageKey,
+            credits: totalCredits.toString(),
+            type: 'credit_purchase',
+          },
+        });
+
+        return {
+          sessionId: session.id,
+          url: session.url,
+        };
+      } catch (error: any) {
+        console.error('[Stripe] Failed to create credit checkout session:', error);
+        throw new Error(`Failed to create checkout session: ${error.message}`);
+      }
+    }),
+
   // Create checkout session for subscription
   createCheckoutSession: protectedProcedure
     .input(
@@ -172,6 +236,31 @@ export const stripeRouter = router({
         case 'checkout.session.completed': {
           const session = event.data.object as Stripe.Checkout.Session;
           const userId = parseInt(session.metadata?.userId || '0');
+          const type = session.metadata?.type;
+
+          // Handle credit purchase
+          if (type === 'credit_purchase') {
+            const packageKey = session.metadata?.packageKey;
+            const creditsAmount = parseInt(session.metadata?.credits || '0');
+            const paymentIntentId = session.payment_intent as string;
+
+            if (userId && creditsAmount && packageKey) {
+              const product = getCreditProduct(packageKey as any);
+              await credits.addCredits({
+                userId,
+                amount: creditsAmount,
+                type: 'purchase',
+                description: `Purchased ${product.name}`,
+                stripePaymentIntentId: paymentIntentId,
+                packageName: product.name,
+                amountPaid: product.price,
+              });
+              console.log(`[Stripe] Added ${creditsAmount} credits to user ${userId}`);
+            }
+            break;
+          }
+
+          // Handle subscription purchase
           const tier = session.metadata?.tier as 'essential' | 'professional' | 'enterprise' | undefined;
           const customerId = session.customer as string;
           const subscriptionId = session.subscription as string;

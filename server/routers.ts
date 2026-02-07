@@ -15,9 +15,11 @@ import { socialPostingRouter } from "./routers/socialPosting";
 import { autoreelsRouter } from "./routers/autoreels";
 import { propertyToursRouter } from "./routers/propertyTours";
 import { contentTemplatesRouter } from "./routers/contentTemplates";
+import { creditsRouter } from "./routers/credits";
 
 export const appRouter = router({
   system: systemRouter,
+  credits: creditsRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

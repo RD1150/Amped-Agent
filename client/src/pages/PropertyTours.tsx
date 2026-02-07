@@ -47,6 +47,8 @@ export default function PropertyTours() {
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
+  const { data: creditCost } = trpc.credits.calculateCost.useQuery({ videoMode, enableVoiceover });
+  const { data: balance } = trpc.credits.getBalance.useQuery();
 
   // Mutations
   const uploadImages = trpc.propertyTours.uploadImages.useMutation();
@@ -653,9 +655,38 @@ export default function PropertyTours() {
               </div>
             )}
 
+            {/* Credit Cost Display */}
+            {creditCost && balance && (
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Cost for this video:</span>
+                  <span className="text-lg font-bold text-primary">{creditCost.totalCredits} credits</span>
+                </div>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  {creditCost.breakdown.map((item, i) => (
+                    <div key={i} className="flex justify-between">
+                      <span>{item.item}</span>
+                      <span>{item.credits} credits</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 pt-3 border-t border-primary/20 flex items-center justify-between">
+                  <span className="text-sm">Your balance:</span>
+                  <span className={`font-semibold ${balance.balance < creditCost.totalCredits ? 'text-destructive' : 'text-primary'}`}>
+                    {balance.balance} credits
+                  </span>
+                </div>
+                {balance.balance < creditCost.totalCredits && (
+                  <div className="mt-2 text-xs text-destructive">
+                    Insufficient credits. <a href="/credits" className="underline font-medium">Purchase more credits</a>
+                  </div>
+                )}
+              </div>
+            )}
+
             <Button
               onClick={handleCreateTour}
-              disabled={createTour.isPending || generateVideo.isPending || generatingTourId !== null}
+              disabled={createTour.isPending || generateVideo.isPending || generatingTourId !== null || (balance && creditCost && balance.balance < creditCost.totalCredits)}
               className="w-full h-14 text-lg"
               size="lg"
             >
