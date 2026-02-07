@@ -41,6 +41,9 @@ export default function PropertyTours() {
   const [musicTrack, setMusicTrack] = useState<string | undefined>(undefined);
   const [cardTemplate, setCardTemplate] = useState<"modern" | "luxury" | "bold" | "classic" | "contemporary">("modern");
   const [includeIntroVideo, setIncludeIntroVideo] = useState(false);
+  const [videoMode, setVideoMode] = useState<"standard" | "ai-enhanced" | "full-ai">("standard");
+  const [enableVoiceover, setEnableVoiceover] = useState(false);
+  const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel - professional female
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -140,6 +143,9 @@ export default function PropertyTours() {
         musicTrack,
         cardTemplate,
         includeIntroVideo,
+        videoMode,
+        enableVoiceover,
+        voiceId: enableVoiceover ? voiceId : undefined,
       });
 
       // Set generating state
@@ -477,6 +483,66 @@ export default function PropertyTours() {
               <Label htmlFor="includeIntroVideo" className="text-sm font-normal cursor-pointer">
                 Prepend my intro video (adds personal intro before property tour)
               </Label>
+            </div>
+
+            {/* Video Generation Mode */}
+            <div>
+              <Label htmlFor="videoMode">Video Generation Mode</Label>
+              <Select value={videoMode} onValueChange={(v: any) => setVideoMode(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="standard">
+                    <div className="flex flex-col">
+                      <span className="font-semibold">Standard (Free)</span>
+                      <span className="text-xs text-muted-foreground">Ken Burns effects only</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="ai-enhanced">
+                    <div className="flex flex-col">
+                      <span className="font-semibold">AI-Enhanced ($9.99)</span>
+                      <span className="text-xs text-muted-foreground">Cinematic AI on 3-5 hero shots</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="full-ai">
+                    <div className="flex flex-col">
+                      <span className="font-semibold">Full AI Cinematic ($29.99)</span>
+                      <span className="text-xs text-muted-foreground">AI effects on all photos</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Voiceover Options */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="enableVoiceover"
+                  checked={enableVoiceover}
+                  onCheckedChange={(checked) => setEnableVoiceover(checked as boolean)}
+                />
+                <Label htmlFor="enableVoiceover" className="text-sm font-normal cursor-pointer">
+                  Enable AI Voiceover Narration
+                </Label>
+              </div>
+              {enableVoiceover && (
+                <div>
+                  <Label htmlFor="voiceId">Voice Selection</Label>
+                  <Select value={voiceId} onValueChange={setVoiceId}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="21m00Tcm4TlvDq8ikWAM">Rachel - Professional Female</SelectItem>
+                      <SelectItem value="pNInz6obpgDQGcFmaJgB">Adam - Professional Male</SelectItem>
+                      <SelectItem value="EXAVITQu4vr4xnSDxMaL">Bella - Warm Female</SelectItem>
+                      <SelectItem value="TxGEqnHWrfWFTfGW9XjX">Josh - Authoritative Male</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
             {/* Video Settings */}

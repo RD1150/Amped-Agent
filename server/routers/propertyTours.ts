@@ -28,6 +28,9 @@ export const propertyToursRouter = router({
         musicTrack: z.string().optional(),
         cardTemplate: z.enum(["modern", "luxury", "bold", "classic", "contemporary"]).default("modern"),
         includeIntroVideo: z.boolean().default(false),
+        videoMode: z.enum(["standard", "ai-enhanced", "full-ai"]).default("standard"),
+        enableVoiceover: z.boolean().default(false),
+        voiceId: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -49,6 +52,9 @@ export const propertyToursRouter = router({
         musicTrack: input.musicTrack,
         cardTemplate: input.cardTemplate,
         includeIntroVideo: input.includeIntroVideo,
+        videoMode: input.videoMode,
+        enableVoiceover: input.enableVoiceover,
+        voiceId: input.voiceId,
         status: "pending",
       });
 
@@ -107,6 +113,9 @@ export const propertyToursRouter = router({
           musicTrack: tour.musicTrack || undefined,
           cardTemplate: (tour.cardTemplate as "modern" | "luxury" | "bold" | "classic" | "contemporary") || "modern",
           includeIntroVideo: tour.includeIntroVideo ?? false,
+          videoMode: (tour.videoMode as "standard" | "ai-enhanced" | "full-ai") || "standard",
+          enableVoiceover: tour.enableVoiceover ?? false,
+          voiceId: tour.voiceId || undefined,
         });
 
         // Store render ID for polling

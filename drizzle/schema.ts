@@ -483,6 +483,9 @@ export const propertyTours = mysqlTable("property_tours", {
   aspectRatio: varchar("aspectRatio", { length: 20 }).default("16:9"), // Video aspect ratio: 16:9, 9:16, 1:1
   cardTemplate: varchar("cardTemplate", { length: 50 }).default("modern"), // Intro/outro card style: modern, luxury, bold, classic, contemporary
   includeIntroVideo: boolean("includeIntroVideo").default(false), // Prepend user's intro video to tour
+  videoMode: mysqlEnum("videoMode", ["standard", "ai-enhanced", "full-ai"]).default("standard"), // Video generation mode
+  enableVoiceover: boolean("enableVoiceover").default(false), // Enable AI voiceover narration
+  voiceId: varchar("voiceId", { length: 100 }), // ElevenLabs voice ID for voiceover
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),

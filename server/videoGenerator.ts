@@ -22,6 +22,9 @@ export interface VideoGenerationOptions {
   cardTemplate?: "modern" | "luxury" | "bold" | "classic" | "contemporary"; // Intro/outro card style
   includeIntroVideo?: boolean; // Prepend user's intro video
   videoMode?: "standard" | "ai-enhanced" | "full-ai"; // Video generation mode
+  enableVoiceover?: boolean; // Enable AI voiceover narration
+  voiceId?: string; // ElevenLabs voice ID
+  voiceoverScript?: string; // Custom script (if not provided, will auto-generate)
 }
 
 export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contemporary";
@@ -69,6 +72,9 @@ export async function generatePropertyTourVideo(
     cardTemplate = "modern",
     includeIntroVideo = false,
     videoMode = "standard",
+    enableVoiceover = false,
+    voiceId,
+    voiceoverScript,
   } = options;
 
   if (imageUrls.length === 0) {
@@ -77,6 +83,45 @@ export async function generatePropertyTourVideo(
 
   // Calculate duration per image
   const durationPerImage = duration / imageUrls.length;
+
+  // Generate voiceover if enabled
+  let voiceoverUrl: string | undefined;
+  if (enableVoiceover) {
+    console.log("[VideoGenerator] Generating voiceover narration...");
+    const { generatePropertyTourScript } = await import("./scriptGenerator");
+    const { textToSpeech } = await import("./_core/elevenLabs");
+    const { storagePut } = await import("./storage");
+    
+    // Generate or use provided script
+    const script = voiceoverScript || await generatePropertyTourScript({
+      propertyDetails: {
+        address: propertyDetails.address,
+        price: propertyDetails.price ? parseFloat(propertyDetails.price.replace(/[^0-9.]/g, "")) : undefined,
+        bedrooms: propertyDetails.beds,
+        bathrooms: propertyDetails.baths,
+        squareFeet: propertyDetails.sqft,
+        description: propertyDetails.description,
+      },
+      duration,
+      style: "professional",
+    });
+    
+    console.log("[VideoGenerator] Script generated:", script.substring(0, 100) + "...");
+    
+    // Generate audio with ElevenLabs
+    const audioBuffer = await textToSpeech({
+      text: script,
+      voice_id: voiceId,
+    });
+    
+    // Upload to S3
+    const timestamp = Date.now();
+    const audioKey = `property-tours/voiceovers/${timestamp}-voiceover.mp3`;
+    const { url } = await storagePut(audioKey, audioBuffer, "audio/mpeg");
+    voiceoverUrl = url;
+    
+    console.log("[VideoGenerator] Voiceover generated and uploaded:", voiceoverUrl);
+  }
 
   // Generate AI videos for hero photos if using AI-enhanced or full-ai mode
   let aiVideoMap = new Map<string, string>();
@@ -486,8 +531,22 @@ export async function generatePropertyTourVideo(
   const soundtrack: any = musicTrack ? {
     src: getMusicTrackUrl(musicTrack),
     effect: "fadeInFadeOut",
-    volume: 0.3,
+    volume: enableVoiceover ? 0.15 : 0.3, // Lower music volume if voiceover is present
   } : undefined;
+
+  // Add voiceover audio track if enabled
+  const voiceoverTrack: any[] = [];
+  if (voiceoverUrl) {
+    voiceoverTrack.push({
+      asset: {
+        type: "audio",
+        src: voiceoverUrl,
+        volume: 1.0,
+      },
+      start: introLength, // Start after intro
+      length: duration, // Match main video duration
+    });
+  }
 
   // Create edit payload
   const payload: any = {
@@ -497,6 +556,7 @@ export async function generatePropertyTourVideo(
         {
           clips: allClips,
         },
+        ...(voiceoverTrack.length > 0 ? [{ clips: voiceoverTrack }] : []),
       ],
     },
     output: {
