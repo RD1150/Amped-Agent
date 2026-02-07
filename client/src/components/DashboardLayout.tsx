@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useAutoProvisionGHL } from "@/hooks/useAutoProvisionGHL";
+import { WelcomeModal } from "@/components/WelcomeModal";
 import { trpc } from "@/lib/trpc";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -110,6 +111,9 @@ const menuItems = [
   { icon: User, label: "Persona & Brand", path: "/persona" },
   { icon: Link2, label: "Integrations", path: "/integrations" },
   { icon: Settings, label: "Settings", path: "/settings" },
+  
+  // ADMIN section (only shown to admins)
+  { icon: BarChart3, label: "Admin Analytics", path: "/admin/analytics", adminOnly: true },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -206,17 +210,20 @@ export default function DashboardLayout({
   // Onboarding is handled by redirect in useEffect above
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": `${sidebarWidth}px`,
-        } as CSSProperties
-      }
-    >
-      <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
-        {children}
-      </DashboardLayoutContent>
-    </SidebarProvider>
+    <>
+      <WelcomeModal />
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": `${sidebarWidth}px`,
+          } as CSSProperties
+        }
+      >
+        <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
+          {children}
+        </DashboardLayoutContent>
+      </SidebarProvider>
+    </>
   );
 }
 
@@ -305,7 +312,7 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0 py-2">
             <SidebarMenu className="px-2 py-1">
-              {menuItems.map(item => {
+              {menuItems.filter(item => !item.adminOnly || user?.role === 'admin').map(item => {
                 const isActive = location === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>

@@ -267,19 +267,33 @@ export default function PropertyTours() {
             <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
               <div className="p-4 text-center">
                 <p className="text-xs text-muted-foreground mb-1">Daily Videos</p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {dailyUsage.remaining}/{dailyUsage.limit}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">remaining today</p>
-                {dailyUsage.remaining <= 2 && dailyUsage.remaining > 0 && (
-                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 font-medium">
-                    Low limit!
-                  </p>
-                )}
-                {dailyUsage.remaining === 0 && (
-                  <p className="text-xs text-destructive mt-2 font-medium">
-                    Limit reached
-                  </p>
+                {dailyUsage.isUnlimited ? (
+                  <>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      ∞
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Unlimited</p>
+                    <p className="text-xs text-green-600 dark:text-green-400 mt-2 font-medium">
+                      Pro Plan
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {dailyUsage.remaining}/{dailyUsage.limit}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">remaining today</p>
+                    {dailyUsage.remaining <= 2 && dailyUsage.remaining > 0 && (
+                      <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 font-medium">
+                        Low limit!
+                      </p>
+                    )}
+                    {dailyUsage.remaining === 0 && (
+                      <p className="text-xs text-destructive mt-2 font-medium">
+                        Limit reached
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </Card>

@@ -37,6 +37,8 @@ export const users = mysqlTable("users", {
   // Rate limiting
   dailyVideoCount: int("dailyVideoCount").default(0).notNull(),
   lastDailyReset: timestamp("lastDailyReset").defaultNow().notNull(),
+  // Onboarding
+  hasCompletedOnboarding: boolean("hasCompletedOnboarding").default(false).notNull(),
 });
 
 export type User = typeof users.$inferSelect;

@@ -17,11 +17,13 @@ import { propertyToursRouter } from "./routers/propertyTours";
 import { contentTemplatesRouter } from "./routers/contentTemplates";
 import { creditsRouter } from "./routers/credits";
 import { rateLimitRouter } from "./routers/rateLimit";
+import { adminRouter } from "./routers/admin";
 
 export const appRouter = router({
   system: systemRouter,
   credits: creditsRouter,
   rateLimit: rateLimitRouter,
+  admin: adminRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -39,6 +41,10 @@ export const appRouter = router({
       .input(z.object({ avatarVideoUrl: z.string().url() }))
       .mutation(async ({ ctx, input }) => {
         return db.updateUserAvatar(ctx.user.id, null, input.avatarVideoUrl);
+      }),
+    completeOnboarding: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        return db.markOnboardingComplete(ctx.user.id);
       }),
   }),
 

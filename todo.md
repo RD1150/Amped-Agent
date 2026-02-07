@@ -2232,3 +2232,30 @@ Tasks:
 - [x] Display remaining daily videos in Property Tours page
 - [x] Reset daily count at midnight (user timezone or UTC)
 - [x] Write tests for rate limiting logic
+
+## Tier-Based Rate Limits (Current Sprint)
+- [x] Update rate limit logic to check user subscription tier
+- [x] Remove 10/day limit for Professional ($149) tier users
+- [x] Remove 10/day limit for Agency ($399) tier users
+- [x] Keep 10/day limit for free trial users only
+- [x] Update UI to show "Unlimited" for paid tier users
+- [x] Test rate limit enforcement across all tiers
+
+## Welcome Onboarding Modal (Current Sprint)
+- [x] Create WelcomeModal component with video player
+- [x] Add user's welcome video as first content (plays automatically)
+- [x] Add tutorial content explaining 50 free credits and 10/day limit
+- [x] Show quick demo of property tour generation workflow
+- [x] Add "Get Started" CTA button to close modal
+- [x] Track modal shown status in user preferences
+- [x] Only show modal once per user on first login
+
+## Admin Analytics Dashboard (Current Sprint)
+- [x] Create admin-only Analytics page (/admin/analytics)
+- [x] Add daily active users (DAU) chart
+- [x] Add credit purchase metrics (revenue, conversion rate)
+- [x] Add rate limit hit tracking (how many users hit 10/day)
+- [x] Add video generation metrics (total, by tier, success rate)
+- [x] Add user growth chart (signups over time)
+- [x] Protect route with admin role check
+- [x] Add date range filter for all metrics

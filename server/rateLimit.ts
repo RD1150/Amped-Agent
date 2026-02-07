@@ -23,6 +23,8 @@ export async function checkDailyVideoLimit(userId: number): Promise<{
     .select({
       dailyVideoCount: users.dailyVideoCount,
       lastDailyReset: users.lastDailyReset,
+      subscriptionTier: users.subscriptionTier,
+      subscriptionStatus: users.subscriptionStatus,
     })
     .from(users)
     .where(eq(users.id, userId))
@@ -58,6 +60,22 @@ export async function checkDailyVideoLimit(userId: number): Promise<{
   const resetTime = new Date(now);
   resetTime.setUTCHours(24, 0, 0, 0);
 
+  // Check if user has paid subscription (unlimited videos)
+  const isPaidUser = 
+    user.subscriptionStatus === 'active' && 
+    (user.subscriptionTier === 'pro' || user.subscriptionTier === 'premium');
+
+  if (isPaidUser) {
+    // Paid users have unlimited videos
+    return {
+      allowed: true,
+      remaining: -1, // -1 indicates unlimited
+      resetTime,
+      current: currentCount,
+    };
+  }
+
+  // Free trial users have 10/day limit
   const allowed = currentCount < DAILY_VIDEO_LIMIT;
   const remaining = Math.max(0, DAILY_VIDEO_LIMIT - currentCount);
 
@@ -110,13 +128,15 @@ export async function getDailyVideoUsage(userId: number): Promise<{
   limit: number;
   remaining: number;
   resetTime: Date;
+  isUnlimited: boolean;
 }> {
   const status = await checkDailyVideoLimit(userId);
 
   return {
     used: status.current,
-    limit: DAILY_VIDEO_LIMIT,
+    limit: status.remaining === -1 ? -1 : DAILY_VIDEO_LIMIT,
     remaining: status.remaining,
     resetTime: status.resetTime,
+    isUnlimited: status.remaining === -1,
   };
 }

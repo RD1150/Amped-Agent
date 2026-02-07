@@ -211,6 +211,13 @@
       "when": 1770430050969,
       "tag": "0029_mighty_quentin_quire",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "5",
+      "when": 1770431554649,
+      "tag": "0030_smart_mongoose",
+      "breakpoints": true
     }
   ]
 }

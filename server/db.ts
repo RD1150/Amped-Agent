@@ -135,6 +135,17 @@ export async function updateUserAvatar(
   return { success: true };
 }
 
+export async function markOnboardingComplete(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(users)
+    .set({ hasCompletedOnboarding: true, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+  
+  return { success: true };
+}
+
 // ============ PERSONA HELPERS ============
 
 export async function getPersonaByUserId(userId: number) {
