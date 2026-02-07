@@ -64,7 +64,8 @@ function CreditBalanceDisplay() {
   if (!balance) return null;
 
   const credits = balance.balance;
-  const isLow = credits < 20;
+  const isOwner = credits >= 999999;
+  const isLow = credits < 20 && !isOwner;
 
   return (
     <button
@@ -72,7 +73,9 @@ function CreditBalanceDisplay() {
       className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
     >
       <CreditCard className="h-4 w-4 text-primary" />
-      <span className="text-sm font-medium text-primary">{credits}</span>
+      <span className="text-sm font-medium text-primary">
+        {isOwner ? '∞ Unlimited' : credits}
+      </span>
       {isLow && (
         <Badge variant="destructive" className="text-xs px-1.5 py-0">Low</Badge>
       )}

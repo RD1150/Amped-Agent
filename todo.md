@@ -2311,3 +2311,9 @@ Tasks:
 - [x] Set video to autoplay muted (browser-compliant)
 - [x] Show sound hint for 3 seconds on video play
 - [x] Add Volume2 icon to sound indicator
+
+## Owner Unlimited Credits (Current Sprint)
+- [x] Update credit deduction logic to check if user is owner
+- [x] Bypass credit checks for rdshop70@gmail.com
+- [x] Show "∞ Unlimited" in credit balance for owner
+- [x] Test owner can generate videos without credit deduction

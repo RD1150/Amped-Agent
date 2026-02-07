@@ -45,7 +45,13 @@ export const CREDIT_PACKAGES = {
 export async function getCreditBalance(userId: number): Promise<number> {
   const db = await getDb();
   if (!db) return 0;
-  const [user] = await db.select({ creditBalance: users.creditBalance }).from(users).where(eq(users.id, userId));
+  const [user] = await db.select({ creditBalance: users.creditBalance, email: users.email }).from(users).where(eq(users.id, userId));
+  
+  // Owner gets unlimited credits
+  if (user?.email === 'rdshop70@gmail.com') {
+    return 999999;
+  }
+  
   return user?.creditBalance ?? 0;
 }
 
@@ -73,6 +79,23 @@ export async function deductCredits(params: {
 
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+
+  // Check if user is owner - owners get unlimited credits
+  const [user] = await db.select({ email: users.email }).from(users).where(eq(users.id, userId)).limit(1);
+  if (user?.email === 'rdshop70@gmail.com') {
+    // Owner gets unlimited credits - just record the transaction without deducting
+    await db.insert(creditTransactions).values({
+      userId,
+      type: "usage",
+      amount: -amount,
+      balanceAfter: 999999, // Show large number for owner
+      usageType,
+      description: `${description} (Owner - Unlimited)`,
+      relatedResourceId,
+      relatedResourceType,
+    });
+    return 999999; // Return large number to indicate unlimited
+  }
 
   // Get current balance
   const currentBalance = await getCreditBalance(userId);
