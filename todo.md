@@ -2367,3 +2367,11 @@ Tasks:
 - [x] Add cancel/delete tour button before video generation starts
 - [x] Clear form resets all fields and photos to defaults
 - [x] Test photo deletion and form cancellation - All 21 tests passing
+
+## MLS Lookup Debugging (Bug Report - Feb 7, 2026)
+- [x] Investigate why MLS ID 226000400 returns "Property not found" error - Found API response structure mismatch
+- [x] Test RapidAPI endpoint directly with sample MLS IDs - API returns data.search.results array
+- [x] Fix code to parse correct API response structure (data.search.results instead of data.data)
+- [x] Add comprehensive debug logging to track API responses
+- [x] Verify RapidAPI key is properly configured - Key is set and working
+- [ ] Test MLS lookup after server reload to confirm fix works

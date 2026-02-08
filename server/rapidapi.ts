@@ -13,6 +13,8 @@ export async function fetchPropertyData(mlsId: string) {
   }
 
   try {
+    console.log("[RapidAPI] Fetching MLS ID:", mlsId);
+    
     // Fetch property by MLS ID
     const response = await fetch(
       `https://us-real-estate-listings.p.rapidapi.com/v2/property-by-mls?mlsId=${encodeURIComponent(mlsId)}`,
@@ -25,17 +27,28 @@ export async function fetchPropertyData(mlsId: string) {
       }
     );
 
+    console.log("[RapidAPI] Response status:", response.status);
+    
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[RapidAPI] Error response:", errorText);
       throw new Error(`RapidAPI request failed: ${response.statusText}`);
     }
 
     const data = await response.json();
     
-    if (!data || !data.data) {
-      throw new Error("Property not found with this MLS ID");
+    console.log("[RapidAPI] Response data structure:", JSON.stringify(data).substring(0, 500));
+    console.log("[RapidAPI] Has search?", !!data?.search);
+    console.log("[RapidAPI] Has results?", !!data?.search?.results);
+    console.log("[RapidAPI] Results length:", data?.search?.results?.length || 0);
+    
+    // API returns search results in data.search.results array
+    if (!data || !data.search || !data.search.results || data.search.results.length === 0) {
+      throw new Error("Property not found with this MLS ID. Please verify the MLS ID is correct and the property is currently listed.");
     }
 
-    const property = data.data;
+    // Take the first result (most relevant match)
+    const property = data.search.results[0];
 
     // Extract and normalize property data
     return {
@@ -61,6 +74,7 @@ export async function fetchPropertyData(mlsId: string) {
     };
   } catch (error) {
     console.error("[RapidAPI] Error fetching property data:", error);
+    console.error("[RapidAPI] Error details:", error instanceof Error ? error.message : String(error));
     throw error;
   }
 }
