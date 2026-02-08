@@ -562,9 +562,10 @@ export async function generatePropertyTourVideo(
 
   // Add music soundtrack if selected (extend to cover intro/outro)
   const soundtrack: any = musicTrack ? {
+    type: "audio", // Required: specify asset type
     src: getMusicTrackUrl(musicTrack),
     effect: "fadeInFadeOut",
-    volume: enableVoiceover ? 0.15 : 0.3, // Lower music volume if voiceover is present
+    volume: enableVoiceover ? 0.3 : 0.6, // Increased volume for audibility
   } : undefined;
 
   // Add voiceover audio track if enabled

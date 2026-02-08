@@ -2375,3 +2375,10 @@ Tasks:
 - [x] Add comprehensive debug logging to track API responses
 - [x] Verify RapidAPI key is properly configured - Key is set and working
 - [ ] Test MLS lookup after server reload to confirm fix works
+
+## Property Tours Audio Volume Bug (Feb 7, 2026)
+- [x] Investigate why background music volume is -91dB (essentially silent) - Missing type: "audio" in soundtrack object
+- [x] Check Shotstack audio asset volume configuration in videoGenerator.ts
+- [x] Fix audio volume to proper level (0.6 for background music, 0.3 with voiceover)
+- [x] Added type: "audio" property to soundtrack configuration
+- [ ] Test audio playback in newly generated videos
