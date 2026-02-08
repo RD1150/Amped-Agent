@@ -11,7 +11,13 @@ export function WelcomeModal() {
   const [showSoundHint, setShowSoundHint] = useState(true);
   
   const { data: user } = trpc.auth.me.useQuery();
-  const completeOnboarding = trpc.auth.completeOnboarding.useMutation();
+  const utils = trpc.useUtils();
+  const completeOnboarding = trpc.auth.completeOnboarding.useMutation({
+    onSuccess: () => {
+      // Refetch user data to update hasCompletedOnboarding flag
+      utils.auth.me.invalidate();
+    },
+  });
 
   useEffect(() => {
     // Show modal if user hasn't completed onboarding
@@ -21,9 +27,16 @@ export function WelcomeModal() {
   }, [user]);
 
   const handleClose = async () => {
-    setOpen(false);
-    // Mark onboarding as completed
-    await completeOnboarding.mutateAsync();
+    try {
+      // Mark onboarding as completed
+      await completeOnboarding.mutateAsync();
+      // Close modal after successful completion
+      setOpen(false);
+    } catch (error) {
+      console.error("Failed to complete onboarding:", error);
+      // Close anyway to prevent blocking user
+      setOpen(false);
+    }
   };
 
   if (!user) return null;

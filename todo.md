@@ -2382,3 +2382,18 @@ Tasks:
 - [x] Fix audio volume to proper level (0.6 for background music, 0.3 with voiceover)
 - [x] Added type: "audio" property to soundtrack configuration
 - [ ] Test audio playback in newly generated videos
+
+## Full AI Cinematic Mode Not Working (Bug - Feb 7, 2026)
+- [ ] User selected "Full AI Cinematic" but received Standard tier Ken Burns effects
+- [ ] Investigate why Luma AI video generation is not being triggered
+- [ ] Check Luma AI API key configuration and error handling
+- [ ] Verify videoMode parameter is being passed correctly to video generator
+- [ ] Check if Luma AI generation is failing silently and falling back to Ken Burns
+- [ ] Add proper error logging for Luma AI API failures
+- [ ] Test Full AI Cinematic mode with actual Luma AI video generation
+
+## Welcome Video Appearing Every Visit (Bug - Feb 7, 2026)
+- [x] Welcome video dialog appears every time user navigates to Generate Post page
+- [x] Fixed by properly awaiting completeOnboarding mutation before closing modal
+- [x] Added utils.auth.me.invalidate() to refetch user data after onboarding completion
+- [x] Modal now correctly checks hasCompletedOnboarding flag and only shows once
