@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,7 +75,66 @@ export default function PropertyTours() {
     setSelectedFiles((prev) => [...prev, ...files]);
   };
 
-  // Handle file upload to S3
+  // Handle file upload to S3 using direct endpoint
+  // Compress image on client side to bypass gateway limits
+  const compressImage = async (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
+      };
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Resize to max 1920px on longest side
+        const maxDimension = 1920;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = (height / width) * maxDimension;
+            width = maxDimension;
+          } else {
+            width = (width / height) * maxDimension;
+            height = maxDimension;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Compress to JPEG with 0.7 quality (aggressive compression)
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Failed to compress image'));
+            }
+          },
+          'image/jpeg',
+          0.7
+        );
+      };
+      
+      img.onerror = () => reject(new Error('Failed to load image'));
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleUploadImages = async () => {
     if (selectedFiles.length === 0) {
       toast.error("Please select at least one property image");
@@ -83,35 +142,47 @@ export default function PropertyTours() {
     }
 
     setIsUploading(true);
+    
     try {
-      // Convert files to base64
-      const imagePromises = selectedFiles.map(async (file) => {
-        const reader = new FileReader();
-        return new Promise<{ filename: string; data: string; mimeType: string }>(
-          (resolve, reject) => {
-            reader.onload = () => {
-              const base64 = (reader.result as string).split(",")[1];
-              resolve({
-                filename: file.name,
-                data: base64,
-                mimeType: file.type,
-              });
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          }
-        );
-      });
+      const uploadedUrls: string[] = [];
+      
+      // Upload files ONE AT A TIME with client-side compression
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        toast.info(`Compressing ${i + 1}/${selectedFiles.length}: ${file.name}`);
+        
+        // Compress image on client side
+        const compressedBlob = await compressImage(file);
+        const compressedFile = new File([compressedBlob], file.name, { type: 'image/jpeg' });
+        
+        toast.info(`Uploading ${i + 1}/${selectedFiles.length}: ${file.name}`);
+        
+        // Create FormData with compressed file
+        const formData = new FormData();
+        formData.append("images", compressedFile);
 
-      const images = await Promise.all(imagePromises);
+        // Upload via direct endpoint
+        const response = await fetch("/api/upload-images", {
+          method: "POST",
+          body: formData,
+        });
 
-      // Upload to S3
-      const result = await uploadImages.mutateAsync({ images });
-      setUploadedImageUrls(result.urls);
+        if (!response.ok) {
+          throw new Error(`Upload failed: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        uploadedUrls.push(...data.urls);
+        
+        toast.success(`✅ Uploaded ${i + 1}/${selectedFiles.length}`);
+      }
+      
+      setUploadedImageUrls(uploadedUrls);
       setSelectedFiles([]);
 
-      toast.success(`${result.urls.length} images uploaded successfully`);
+      toast.success(`✅ All ${uploadedUrls.length} images uploaded successfully!`);
     } catch (error) {
+      console.error("Upload error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to upload images");
     } finally {
       setIsUploading(false);

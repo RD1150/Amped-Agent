@@ -1,5 +1,11 @@
 # Realty Content Agent - Project TODO
 
+## URGENT Bug Fixes - Photo Upload Complete Rewrite
+- [ ] Create new /api/upload-images endpoint with multipart form data (bypass tRPC)
+- [ ] Add server-side image compression using Sharp library
+- [ ] Rewrite frontend to use fetch() with FormData instead of tRPC mutation
+- [ ] Test upload with AI-generated demo images
+
 ## Branding Update
 - [x] Update index.html page title to "Realty Content Agent"
 - [x] Update package.json name to "realty-content-agent"
