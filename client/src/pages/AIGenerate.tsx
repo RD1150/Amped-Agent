@@ -54,6 +54,7 @@ export default function AIGenerate() {
   const [selectedTemplate, setSelectedTemplate] = useState<SelectedTemplate>(null);
   const [includeHeadshot, setIncludeHeadshot] = useState(true);
   const [customMessage, setCustomMessage] = useState("");
+  const [customHook, setCustomHook] = useState("");
   const [showPostingDialog, setShowPostingDialog] = useState(false);
 
   // Image generation states
@@ -188,6 +189,7 @@ export default function AIGenerate() {
       const imageUrl = await renderTemplate({
         template: selectedTemplate,
         postText: customMessage.trim() || generatedContent,
+        customHook: customHook.trim() || undefined,
         businessName: persona?.businessName || undefined,
         tagline: persona?.tagline || undefined,
         headshotUrl: (includeHeadshot && persona?.headshotUrl) ? persona.headshotUrl : undefined,
@@ -647,6 +649,23 @@ export default function AIGenerate() {
                         )}
                       </div>
                     )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="customHook" className="text-sm font-medium">
+                        Headline/Hook Text ✨
+                      </Label>
+                      <Input
+                        id="customHook"
+                        placeholder="e.g., JUST LISTED, MARKET UPDATE, YOUR DREAM HOME AWAITS..."
+                        value={customHook}
+                        onChange={(e) => setCustomHook(e.target.value)}
+                        className="bg-secondary border-border text-lg font-semibold"
+                        maxLength={80}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        This text will appear prominently on your graphic. Leave blank for auto-generated headline.
+                      </p>
+                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="customMessage" className="text-sm font-medium">

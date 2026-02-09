@@ -5,6 +5,7 @@ import { getTemplateBackground } from "./templateBackgrounds";
 interface RenderTemplateParams {
   template: Template;
   postText: string;
+  customHook?: string;
   businessName?: string;
   tagline?: string;
   headshotUrl?: string;
@@ -30,7 +31,7 @@ const colorSchemeColors: Record<string, { primary: string; secondary: string; te
 };
 
 export async function renderTemplate(params: RenderTemplateParams): Promise<string> {
-  const { template, postText, businessName, tagline, headshotUrl, primaryColor, platform = "multi", phone, email, website, agentName, licenseNumber, brokerageName, brokerageDRE } = params;
+  const { template, postText, customHook, businessName, tagline, headshotUrl, primaryColor, platform = "multi", phone, email, website, agentName, licenseNumber, brokerageName, brokerageDRE } = params;
   
   // Get platform-specific dimensions
   const platformSize = getPlatformSize(platform);
@@ -49,14 +50,17 @@ export async function renderTemplate(params: RenderTemplateParams): Promise<stri
     throw new Error("Could not get canvas context");
   }
 
-  // Load and render background image
+  // Load and render background image (full width, no sidebar)
   await renderBackgroundImage(ctx, template, platformSize.width, platformSize.height);
 
-  // Add dark sidebar overlay
-  await renderSidebarOverlay(ctx, template, brandColor, businessName, tagline, headshotUrl, phone, email, website, agentName, licenseNumber, brokerageName, brokerageDRE, platformSize.width, platformSize.height);
+  // Add optional vertical sidebar text (e.g., "NEW TRENDS")
+  renderVerticalSidebarText(ctx, template, platformSize.width, platformSize.height);
 
-  // Add main content text
-  await renderMainContent(ctx, template, postText, platformSize.width, platformSize.height);
+  // Add main content text (centered headline with overlay)
+  await renderMainContent(ctx, template, postText, customHook, platformSize.width, platformSize.height);
+
+  // Add bottom-left branding card (headshot, name, DRE, company, phone)
+  await renderBrandingCard(ctx, brandColor, businessName, tagline, headshotUrl, phone, email, website, agentName, licenseNumber, brokerageName, brokerageDRE, platformSize.width, platformSize.height);
 
   // Convert to blob and return URL
   return new Promise((resolve, reject) => {
@@ -82,7 +86,7 @@ async function renderBackgroundImage(
     img.crossOrigin = "anonymous";
     
     img.onload = () => {
-      // Draw background image to fill canvas
+      // Draw background image to fill entire canvas (no sidebar)
       ctx.drawImage(img, 0, 0, width, height);
       resolve();
     };
@@ -99,9 +103,94 @@ async function renderBackgroundImage(
   });
 }
 
-async function renderSidebarOverlay(
+function renderVerticalSidebarText(
   ctx: CanvasRenderingContext2D,
   template: Template,
+  width: number,
+  height: number
+) {
+  // Optional: Add vertical text on left edge for some templates
+  // Examples: "NEW TRENDS", "CATCH THE LATEST", etc.
+  
+  // Only show for certain categories
+  const showVerticalText = Math.random() > 0.5; // 50% chance for variety
+  if (!showVerticalText) return;
+
+  const verticalTexts = [
+    "NEW TRENDS",
+    "CATCH THE LATEST",
+    "MARKET INSIGHTS",
+    "EXPERT ADVICE",
+    "LOCAL KNOWLEDGE"
+  ];
+  
+  const text = verticalTexts[Math.floor(Math.random() * verticalTexts.length)];
+  
+  ctx.save();
+  ctx.translate(40, height / 2);
+  ctx.rotate(-Math.PI / 2);
+  
+  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.font = "bold 24px Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.letterSpacing = "8px";
+  
+  // Add text shadow for readability
+  ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+  
+  ctx.fillText(text, 0, 0);
+  
+  ctx.restore();
+}
+
+async function renderMainContent(
+  ctx: CanvasRenderingContext2D,
+  template: Template,
+  postText: string,
+  customHook: string | undefined,
+  width: number = 1080,
+  height: number = 1080
+) {
+  // Use custom hook if provided, otherwise extract title from post text
+  const title = customHook || extractTitle(postText, template);
+
+  // Calculate text metrics first to determine overlay size
+  ctx.font = "bold 56px Arial, sans-serif";
+  const titleLines = wrapText(ctx, title, width * 0.7);
+  const lineHeight = 70;
+  const totalTextHeight = titleLines.length * lineHeight + 40;
+
+  // Draw semi-transparent overlay for text readability (centered, adaptive height)
+  const overlayY = (height - totalTextHeight) / 2;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+  ctx.fillRect(0, overlayY, width, totalTextHeight);
+
+  // Main title (centered, white text)
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 56px Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+
+  const titleY = overlayY + 60;
+  titleLines.forEach((line, index) => {
+    ctx.fillText(line, width / 2, titleY + (index * lineHeight));
+  });
+
+  // Reset shadow
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+}
+
+async function renderBrandingCard(
+  ctx: CanvasRenderingContext2D,
   brandColor: string,
   businessName?: string,
   tagline?: string,
@@ -116,168 +205,82 @@ async function renderSidebarOverlay(
   width: number = 1080,
   height: number = 1080
 ) {
-  // Calculate sidebar width (30% of canvas width)
-  const sidebarWidth = width * 0.3;
-  
-  // Draw dark overlay sidebar on the left
-  ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
-  ctx.fillRect(0, 0, sidebarWidth, height);
+  // Bottom-left branding card dimensions
+  const cardWidth = 380;
+  const cardHeight = 200;
+  const cardX = 20;
+  const cardY = height - cardHeight - 20;
+  const headshotSize = 140;
+  const headshotX = cardX + 20;
+  const headshotY = cardY + (cardHeight - headshotSize) / 2;
 
-  // Add brand color accent stripe
-  ctx.fillStyle = brandColor;
-  ctx.fillRect(0, 0, 8, height);
+  // Draw semi-transparent dark background for branding card
+  ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+  ctx.fillRect(cardX, cardY, cardWidth, cardHeight);
 
-  // Vertical text positioning
-  let currentY = 80;
-  const padding = 40;
-
-  // Agent headshot at top (if provided)
+  // Agent headshot (left side of card)
   if (headshotUrl) {
-    await renderHeadshot(ctx, headshotUrl, sidebarWidth / 2, currentY + 100);
-    currentY += 240;
+    await renderHeadshot(ctx, headshotUrl, headshotX + headshotSize / 2, headshotY + headshotSize / 2, headshotSize / 2);
   }
 
-  // Business name
-  if (businessName) {
+  // Text content (right side of card)
+  const textX = headshotX + headshotSize + 20;
+  let textY = cardY + 30;
+
+  // Agent name
+  if (agentName) {
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 24px Arial, sans-serif";
-    ctx.textAlign = "center";
-    const nameLines = wrapText(ctx, businessName.toUpperCase(), sidebarWidth - padding * 2);
-    nameLines.forEach((line) => {
-      ctx.fillText(line, sidebarWidth / 2, currentY);
-      currentY += 32;
-    });
-    currentY += 20;
+    ctx.font = "bold 20px Arial, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText(agentName + " Realtor", textX, textY);
+    textY += 28;
   }
 
-  // Tagline
-  if (tagline) {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+  // DRE License
+  if (licenseNumber) {
+    ctx.fillStyle = "#ffffff";
     ctx.font = "18px Arial, sans-serif";
-    ctx.textAlign = "center";
-    const taglineLines = wrapText(ctx, tagline, sidebarWidth - padding * 2);
-    taglineLines.forEach((line) => {
-      ctx.fillText(line, sidebarWidth / 2, currentY);
-      currentY += 26;
-    });
-    currentY += 40;
+    ctx.textAlign = "left";
+    ctx.fillText("DRE " + licenseNumber, textX, textY);
+    textY += 26;
   }
 
-  // Divider line
-  ctx.strokeStyle = brandColor;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(padding, currentY);
-  ctx.lineTo(sidebarWidth - padding, currentY);
-  ctx.stroke();
-  currentY += 40;
+  // Brokerage name
+  if (brokerageName) {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.font = "16px Arial, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText(brokerageName, textX, textY);
+    textY += 24;
+  }
 
-  // Contact information
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "16px Arial, sans-serif";
-  ctx.textAlign = "left";
-
+  // Phone number
   if (phone) {
-    ctx.fillText("📞", padding, currentY);
-    ctx.fillText(phone, padding + 30, currentY);
-    currentY += 30;
-  }
-
-  if (email) {
-    ctx.fillText("✉️", padding, currentY);
-    const emailLines = wrapText(ctx, email, sidebarWidth - padding * 2 - 30);
-    emailLines.forEach((line, index) => {
-      ctx.fillText(line, padding + 30, currentY + (index * 24));
-    });
-    currentY += emailLines.length * 24 + 10;
-  }
-
-  if (website) {
-    ctx.fillText("🌐", padding, currentY);
-    const websiteLines = wrapText(ctx, website, sidebarWidth - padding * 2 - 30);
-    websiteLines.forEach((line, index) => {
-      ctx.fillText(line, padding + 30, currentY + (index * 24));
-    });
-    currentY += websiteLines.length * 24 + 20;
-  }
-
-  // DRE Compliance Information
-  if (agentName && licenseNumber) {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.font = "14px Arial, sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "16px Arial, sans-serif";
     ctx.textAlign = "left";
-    const dreText = `${agentName} | DRE #${licenseNumber}`;
-    const dreLines = wrapText(ctx, dreText, sidebarWidth - padding * 2);
-    dreLines.forEach((line, index) => {
-      ctx.fillText(line, padding, currentY + (index * 20));
-    });
-    currentY += dreLines.length * 20 + 10;
+    ctx.fillText("Text/Call: " + phone, textX, textY);
+    textY += 24;
   }
 
-  if (brokerageName && brokerageDRE) {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.font = "14px Arial, sans-serif";
-    ctx.textAlign = "left";
-    const brokerageDREText = `${brokerageName} | DRE #${brokerageDRE}`;
-    const brokerageLines = wrapText(ctx, brokerageDREText, sidebarWidth - padding * 2);
-    brokerageLines.forEach((line, index) => {
-      ctx.fillText(line, padding, currentY + (index * 20));
-    });
-    currentY += brokerageLines.length * 20;
-  }
-}
-
-async function renderMainContent(
-  ctx: CanvasRenderingContext2D,
-  template: Template,
-  postText: string,
-  width: number = 1080,
-  height: number = 1080
-) {
-  const sidebarWidth = width * 0.3;
-  const contentX = sidebarWidth + 60;
-  const contentWidth = width - sidebarWidth - 120;
-
-  // Extract title from post text
-  const title = extractTitle(postText, template);
-
-  // Draw semi-transparent overlay for text readability
-  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-  ctx.fillRect(sidebarWidth, height * 0.35, width - sidebarWidth, height * 0.3);
-
-  // Main title
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 48px Arial, sans-serif";
-  ctx.textAlign = "left";
-  ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-  ctx.shadowBlur = 10;
-  ctx.shadowOffsetX = 2;
-  ctx.shadowOffsetY = 2;
-
-  const titleLines = wrapText(ctx, title, contentWidth);
-  const titleY = height * 0.45;
-  titleLines.forEach((line, index) => {
-    ctx.fillText(line, contentX, titleY + (index * 60));
-  });
-
-  // Reset shadow
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
+  // Add "Swipe →" indicator in bottom-right corner
+  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.font = "bold 24px Arial, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText("Swipe →", width - 30, height - 30);
 }
 
 async function renderHeadshot(
   ctx: CanvasRenderingContext2D,
   headshotUrl: string,
   x: number,
-  y: number
+  y: number,
+  radius: number = 70
 ) {
   return new Promise<void>((resolve) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
-      const radius = 90;
       const diameter = radius * 2;
       
       // Calculate aspect ratio and crop dimensions
@@ -317,7 +320,7 @@ async function renderHeadshot(
       
       // Add white border
       ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.stroke();

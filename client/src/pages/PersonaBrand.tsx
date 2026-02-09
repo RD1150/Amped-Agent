@@ -28,8 +28,11 @@ export default function PersonaBrand() {
     logoUrl: "",
     headshotUrl: "",
     bio: "",
-    brokerage: "",
+    agentName: "",
     licenseNumber: "",
+    brokerageName: "",
+    brokerageDRE: "",
+    brokerage: "",
     serviceAreas: "",
     websiteUrl: "",
     phoneNumber: "",
@@ -72,8 +75,11 @@ export default function PersonaBrand() {
         logoUrl: persona.logoUrl || "",
         headshotUrl: persona.headshotUrl || "",
         bio: persona.bio || "",
-        brokerage: persona.brokerage || "",
+        agentName: persona.agentName || "",
         licenseNumber: persona.licenseNumber || "",
+        brokerageName: persona.brokerageName || "",
+        brokerageDRE: persona.brokerageDRE || "",
+        brokerage: persona.brokerage || "",
         serviceAreas: persona.serviceAreas || "",
         websiteUrl: persona.websiteUrl || "",
         phoneNumber: persona.phoneNumber || "",
@@ -198,22 +204,44 @@ export default function PersonaBrand() {
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="brokerage">Brokerage</Label>
+              <Label htmlFor="agentName">Agent Full Name</Label>
               <Input
-                id="brokerage"
-                placeholder="e.g., Your Brokerage Name"
-                value={formData.brokerage}
-                onChange={(e) => setFormData({ ...formData, brokerage: e.target.value })}
+                id="agentName"
+                placeholder="e.g., Reena Dutta"
+                value={formData.agentName}
+                onChange={(e) => setFormData({ ...formData, agentName: e.target.value })}
                 className="bg-secondary border-border"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="licenseNumber">License Number</Label>
+              <Label htmlFor="licenseNumber">Agent DRE License</Label>
               <Input
                 id="licenseNumber"
-                placeholder="e.g., DRE #01234567"
+                placeholder="e.g., 02194500"
                 value={formData.licenseNumber}
                 onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+                className="bg-secondary border-border"
+              />
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="brokerageName">Brokerage Name</Label>
+              <Input
+                id="brokerageName"
+                placeholder="e.g., Y Realty"
+                value={formData.brokerageName}
+                onChange={(e) => setFormData({ ...formData, brokerageName: e.target.value })}
+                className="bg-secondary border-border"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="brokerageDRE">Brokerage DRE License</Label>
+              <Input
+                id="brokerageDRE"
+                placeholder="e.g., 02202700"
+                value={formData.brokerageDRE}
+                onChange={(e) => setFormData({ ...formData, brokerageDRE: e.target.value })}
                 className="bg-secondary border-border"
               />
             </div>

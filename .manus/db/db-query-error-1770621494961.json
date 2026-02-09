@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, userId, agentName, licenseNumber, brokerageName, brokerageDRE, phoneNumber, headshotUrl FROM personas WHERE userId = (SELECT id FROM users WHERE email = 'rdshop70@gmail.com') LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, userId, agentName, licenseNumber, brokerageName, brokerageDRE, phoneNumber, headshotUrl FROM personas WHERE userId = (SELECT id FROM users WHERE email = 'rdshop70@gmail.com') LIMIT 1;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1242 (21000) at line 1: Subquery returns more than 1 row"
+  ]
+}

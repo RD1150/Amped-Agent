@@ -38,12 +38,11 @@ export const templateBackgrounds: Record<string, string[]> = {
     "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/ntQHrLHVMqWKVxLJ.png",
   ],
   "sellers": [
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/gXfjZTyxYlGYBZau.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/vlgPyMPnsrboYIro.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/YfgvcfxlcxzLnoIn.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/yKjkKWtiuDsySRXp.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/UVzOraLNgUvCLSvo.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/sarKFLtsKDdHRnWc.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/AxbwYavTXsvBNXzM.jpg", // Luxury exterior
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/UHVHptFEUfPHbUwO.jpg", // Open house
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/gJzOIUvbjefvVcTC.jpg", // Sold celebration
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/GRKuKQfMKTkCGEEu.jpg", // Staging interior
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/KcABQUZvkFiZmyzW.jpg", // Curb appeal
   ],
   "first-time-sellers": [
     "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/PWYUlyFzOZiGknKr.png",

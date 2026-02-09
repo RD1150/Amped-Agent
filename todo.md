@@ -2425,3 +2425,32 @@ Tasks:
 - [x] Fixed by properly awaiting completeOnboarding mutation before closing modal
 - [x] Added utils.auth.me.invalidate() to refetch user data after onboarding completion
 - [x] Modal now correctly checks hasCompletedOnboarding flag and only shows once
+
+## Generate Post - Template Improvements (URGENT)
+- [ ] Add custom hook/headline input field to Generate Post UI
+- [ ] Render user's custom hook text onto template's text overlay area
+- [ ] Auto-generate suggested hooks based on content if user doesn't provide one
+- [ ] Test template generation with custom hooks to verify proper rendering
+- [ ] Add more visual variety to template layouts
+
+## Generate Post - Branding & Visibility Issues (CRITICAL)
+- [ ] Fix wrong branding (showing "ASPEN REALTY" instead of user's business name)
+- [ ] Improve text contrast and readability on templates
+- [ ] Remove or replace background images with baked-in placeholder text
+- [ ] Generate clean background images without any text overlays
+- [ ] Ensure user's business name/logo appears correctly on all templates
+
+## Social Media Template Redesign (CURRENT PRIORITY)
+- [x] Analyze reference designs from RealEstateContent.AI (3 examples provided)
+- [x] Update templateRenderer.ts to match refined design style
+- [x] Add agent headshot in bottom-left corner with professional branding card
+- [x] Display: Agent name, DRE license, company name, contact info on branding card
+- [x] Improve main headline text positioning (centered, white text with dark semi-transparent overlay)
+- [x] Add optional vertical sidebar text ("NEW TRENDS", "CATCH THE LATEST", etc.)
+- [ ] Generate clean background images for ALL template categories (buyers, sellers, investors, renters, etc.)
+- [ ] Remove all placeholder text from backgrounds (no "ASPEN REALTY" or other baked-in text)
+- [x] Update PersonaBrand form with agentName, brokerageName, brokerageDRE fields
+- [x] Upload user's headshot to CDN
+- [x] Set user's actual branding (Reena Dutta Realtor DRE 02194500, Y Realty, (805) 340-2583)
+- [ ] Test templates with new design and user branding
+- [ ] Save checkpoint with redesigned templates
