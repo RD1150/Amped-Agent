@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, imageUrls, videoUrl, status FROM property_tours ORDER BY createdAt DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, imageUrls, videoUrl, status FROM property_tours ORDER BY createdAt DESC LIMIT 1;",
+  "rows": [
+    {
+      "id": "480002",
+      "imageUrls": "[\"https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/property-tours/property-1770617597416-4e24e2b95fe877a0.jpg\",\"https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/property-tours/property-1770617597891-464835015deb4a7f.jpg\"]",
+      "videoUrl": "NULL",
+      "status": "failed"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\timageUrls\tvideoUrl\tstatus\n480002\t[\"https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/property-tours/property-1770617597416-4e24e2b95fe877a0.jpg\",\"https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/property-tours/property-1770617597891-464835015deb4a7f.jpg\"]\tNULL\tfailed\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

@@ -699,10 +699,10 @@ Generate ONLY the script text, no additional commentary.`;
                       <span className="text-xs text-muted-foreground">Cinematic AI on 3-5 hero shots</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="full-ai">
+                  <SelectItem value="full-ai" disabled>
                     <div className="flex flex-col">
-                      <span className="font-semibold">Full AI Cinematic ($29.99)</span>
-                      <span className="text-xs text-muted-foreground">AI effects on all photos</span>
+                      <span className="font-semibold">Full AI Cinematic ($29.99) - Coming Soon</span>
+                      <span className="text-xs text-muted-foreground">Resolving technical issues with AI provider</span>
                     </div>
                   </SelectItem>
                 </SelectContent>

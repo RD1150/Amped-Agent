@@ -616,6 +616,7 @@ export async function generatePropertyTourVideo(
     console.log("[VideoGenerator] Submitting render to Shotstack...");
     console.log("[VideoGenerator] Image count:", imageUrls.length);
     console.log("[VideoGenerator] Duration:", duration);
+    console.log("[VideoGenerator] Payload:", JSON.stringify(payload, null, 2));
     
     // Submit render job via HTTP
     const response = await fetch(`${SHOTSTACK_API_URL}/render`, {
@@ -629,7 +630,9 @@ export async function generatePropertyTourVideo(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[VideoGenerator] Shotstack API error:", errorText);
+      console.error("[VideoGenerator] Shotstack API error:", response.status, response.statusText);
+      console.error("[VideoGenerator] Error response body:", errorText);
+      console.error("[VideoGenerator] Request URL:", `${SHOTSTACK_API_URL}/render`);
       throw new Error(`Shotstack API error: ${response.status} ${response.statusText}`);
     }
 

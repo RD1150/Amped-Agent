@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, address, status, videoMode, errorMessage, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, address, status, videoMode, errorMessage, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 1;",
+  "rows": [
+    {
+      "id": "420001",
+      "address": "simi Home",
+      "status": "failed",
+      "videoMode": "full-ai",
+      "errorMessage": "Failed to generate video: Shotstack API error: 403 Forbidden",
+      "createdAt": "2026-02-09 05:04:51"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tstatus\tvideoMode\terrorMessage\tcreatedAt\n420001\tsimi Home\tfailed\tfull-ai\tFailed to generate video: Shotstack API error: 403 Forbidden\t2026-02-09 05:04:51\n",
+  "stderr": "",
+  "execution_time_ms": 789
+}

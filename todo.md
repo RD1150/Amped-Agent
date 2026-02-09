@@ -1,10 +1,32 @@
 # Realty Content Agent - Project TODO
 
 ## URGENT Bug Fixes - Photo Upload Complete Rewrite
-- [ ] Create new /api/upload-images endpoint with multipart form data (bypass tRPC)
-- [ ] Add server-side image compression using Sharp library
-- [ ] Rewrite frontend to use fetch() with FormData instead of tRPC mutation
-- [ ] Test upload with AI-generated demo images
+- [x] Create new /api/upload-images endpoint with multipart form data (bypass tRPC)
+- [x] Add server-side image compression using Sharp library
+- [x] Rewrite frontend to use fetch() with FormData instead of tRPC mutation
+- [x] Test upload with AI-generated demo images
+
+## Property Tours - Video Generation Issues (CRITICAL)
+- [ ] Debug Shotstack 403 Forbidden error (affects ALL video modes)
+- [ ] Verify Shotstack API key is valid and has correct permissions
+- [ ] Test with minimal payload to isolate the issue
+- [ ] Check if account has rendering credits/quota
+- [ ] Review Shotstack account settings and tier limits
+- [ ] Consider alternative video generation services if Shotstack is blocked
+
+## Property Tours - Full AI Cinematic Mode
+- [ ] Fix Luma AI content moderation issues (currently blocking all images)
+- [ ] Implement graceful fallback when Luma AI fails (use Ken Burns instead of breaking)
+- [ ] Re-enable Full AI Cinematic mode once Luma AI is working reliably
+- [ ] Test with real property photos (not AI-generated)
+
+## Property Tours - Photo Library Feature
+- [ ] Create photo library database schema (user_id, file_url, tags, metadata)
+- [ ] Build "My Photos" page with upload and organization UI
+- [ ] Add photo tagging system (property, room type, custom labels)
+- [ ] Implement photo selection from library when creating tours
+- [ ] Add photo reuse across multiple videos
+- [ ] Display photo metadata (upload date, dimensions, file size)
 
 ## Branding Update
 - [x] Update index.html page title to "Realty Content Agent"
