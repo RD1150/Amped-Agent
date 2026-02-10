@@ -29,7 +29,9 @@ export interface VideoGenerationOptions {
 
 export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contemporary";
 
-const SHOTSTACK_API_URL = "https://api.shotstack.io/v1";
+import { ENV } from "./_core/env";
+
+const SHOTSTACK_API_URL = ENV.SHOTSTACK_HOST;
 
 /**
  * Get royalty-free music track URL from Shotstack library

@@ -2454,3 +2454,16 @@ Tasks:
 - [x] Set user's actual branding (Reena Dutta Realtor DRE 02194500, Y Realty, (805) 340-2583)
 - [ ] Test templates with new design and user branding
 - [ ] Save checkpoint with redesigned templates
+
+## Shotstack Video Generation 403 Error (URGENT)
+- [x] Investigate Shotstack API key configuration
+- [x] Check API endpoint and authentication method
+- [x] Verify if API key is valid or expired (credits issue - user added $10)
+- [x] Test Shotstack API with current credentials
+- [x] Fix authentication issue causing 403 Forbidden error
+- [x] Update video generation code to use ENV.SHOTSTACK_HOST
+- [x] Add SHOTSTACK_HOST environment variable (defaults to sandbox)
+- [x] Update videoGenerator.ts to use configurable endpoint
+- [x] Update videoRenderer.ts to use configurable endpoint
+- [x] Write and run vitest test to validate API works
+- [ ] Test Property Tours video generation end-to-end via UI

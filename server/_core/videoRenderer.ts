@@ -18,7 +18,7 @@ import { ENV } from './env';
 const defaultClient = ApiClient.instance;
 const DeveloperKey = defaultClient.authentications['DeveloperKey'];
 DeveloperKey.apiKey = ENV.SHOTSTACK_API_KEY;
-defaultClient.basePath = 'https://api.shotstack.io/stage'; // Use sandbox for development
+defaultClient.basePath = ENV.SHOTSTACK_HOST; // Configurable via SHOTSTACK_HOST env variable
 
 const api = new EditApi();
 

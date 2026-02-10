@@ -14,8 +14,8 @@ describe('Shotstack API', () => {
     const DeveloperKey = defaultClient.authentications['DeveloperKey'];
     DeveloperKey.apiKey = apiKey;
     
-    // Use sandbox environment for testing
-    defaultClient.basePath = 'https://api.shotstack.io/stage';
+    // Use configured environment endpoint
+    defaultClient.basePath = ENV.SHOTSTACK_HOST;
     
     // Create API instance
     const api = new EditApi();
