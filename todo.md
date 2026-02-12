@@ -2492,3 +2492,17 @@ Tasks:
 - [ ] Add optional CTA text input with checkbox to AIGenerate page
 - [ ] Update templateRenderer to handle optional CTA text overlay
 - [ ] Save checkpoint with template-based generation
+
+## CTA Text Input & Template Styles (CURRENT)
+- [x] Add checkbox to AIGenerate page: "Add custom CTA text"
+- [x] Add text input field that appears when checkbox is checked
+- [x] Update server-side templateRenderer to accept optional ctaText parameter
+- [x] Render CTA text overlay when provided (bottom center, white text with dark background)
+- [x] When checkbox unchecked, no CTA text appears on post
+- [x] Add ctaText to content.generate tRPC input schema
+- [x] Pass ctaText from frontend to backend
+- [x] Create renderCTAText function for canvas rendering
+- [x] Generate 5 sample posts showcasing different template styles
+- [x] All tests passing - 5 different styles with user branding and CTA
+- [ ] Test CTA checkbox functionality end-to-end via UI
+- [ ] Save checkpoint with CTA feature

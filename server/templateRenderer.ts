@@ -19,6 +19,7 @@ interface RenderTemplateParams {
   licenseNumber?: string;
   brokerageName?: string;
   brokerageDRE?: string;
+  ctaText?: string;
   width?: number;
   height?: number;
 }
@@ -60,6 +61,7 @@ export async function renderTemplate(params: RenderTemplateParams): Promise<stri
     licenseNumber,
     brokerageName,
     brokerageDRE,
+    ctaText,
     width = 1080,
     height = 1080,
   } = params;
@@ -94,6 +96,11 @@ export async function renderTemplate(params: RenderTemplateParams): Promise<stri
     width,
     height
   );
+
+  // Add CTA text if provided
+  if (ctaText) {
+    renderCTAText(ctx, ctaText, width, height);
+  }
 
   // Convert to buffer and upload to S3
   const buffer = canvas.toBuffer("image/png");
@@ -352,4 +359,39 @@ function extractTitle(postText: string, template: Template): string {
   }
   
   return postText.substring(0, 50).trim().toUpperCase() + "...";
+}
+
+/**
+ * Render CTA text at the bottom center of the image
+ */
+function renderCTAText(
+  ctx: any,
+  ctaText: string,
+  width: number,
+  height: number
+) {
+  // Position CTA text at bottom center, above the branding card
+  const ctaY = height - 200; // Position above branding card
+  const ctaX = width / 2;
+  
+  // Add semi-transparent background for readability
+  const textMetrics = ctx.measureText(ctaText);
+  const padding = 20;
+  const bgWidth = textMetrics.width + padding * 2;
+  const bgHeight = 60;
+  const bgX = ctaX - bgWidth / 2;
+  const bgY = ctaY - bgHeight / 2 - 10;
+  
+  // Draw rounded rectangle background
+  ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+  ctx.beginPath();
+  ctx.roundRect(bgX, bgY, bgWidth, bgHeight, 10);
+  ctx.fill();
+  
+  // Draw CTA text
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 32px Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(ctaText, ctaX, ctaY);
 }

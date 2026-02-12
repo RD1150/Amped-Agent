@@ -158,6 +158,7 @@ export const appRouter = router({
           description: z.string().optional(),
         }).optional(),
         tone: z.enum(["professional", "friendly", "luxury", "casual", "authoritative"]).optional(),
+        ctaText: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const persona = await db.getPersonaByUserId(ctx.user.id);
@@ -364,6 +365,7 @@ ${formatInstructions}`;
               licenseNumber: persona?.licenseNumber || undefined,
               brokerageName: persona?.brokerageName || undefined,
               brokerageDRE: persona?.brokerageDRE || undefined,
+              ctaText: input.ctaText,
             });
           } catch (error) {
             console.error('Template rendering failed:', error);

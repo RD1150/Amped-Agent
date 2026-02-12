@@ -55,6 +55,8 @@ export default function AIGenerate() {
   const [includeHeadshot, setIncludeHeadshot] = useState(true);
   const [customMessage, setCustomMessage] = useState("");
   const [customHook, setCustomHook] = useState("");
+  const [includeCTA, setIncludeCTA] = useState(false);
+  const [ctaText, setCtaText] = useState("");
   const [showPostingDialog, setShowPostingDialog] = useState(false);
 
   // Image generation states
@@ -158,6 +160,7 @@ export default function AIGenerate() {
         sqft: propertyData.sqft ? parseInt(propertyData.sqft.replace(/[^0-9]/g, "")) : undefined,
         description: propertyData.description,
       } : undefined,
+      ctaText: includeCTA ? ctaText : undefined,
     });
   };
 
@@ -456,6 +459,38 @@ export default function AIGenerate() {
                     />
                   </div>
                 )}
+
+                {/* CTA Text Option */}
+                <div className="space-y-3 border-t pt-4">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="includeCTA"
+                      checked={includeCTA}
+                      onChange={(e) => setIncludeCTA(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <Label htmlFor="includeCTA" className="font-medium cursor-pointer">
+                      Add custom call-to-action text
+                    </Label>
+                  </div>
+                  
+                  {includeCTA && (
+                    <div className="space-y-2 pl-6">
+                      <Label htmlFor="ctaText">CTA Text</Label>
+                      <Input
+                        id="ctaText"
+                        value={ctaText}
+                        onChange={(e) => setCtaText(e.target.value)}
+                        placeholder="e.g., Call Today! or Schedule a Tour"
+                        maxLength={50}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        This text will appear at the bottom of your post
+                      </p>
+                    </div>
+                  )}
+                </div>
 
                 <Button 
                   onClick={handleGenerate} 
