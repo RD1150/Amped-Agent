@@ -325,18 +325,48 @@ ${formatInstructions}`;
         const messageContent = response.choices[0]?.message?.content;
         const generatedContent = typeof messageContent === 'string' ? messageContent : '';
         
-        // Generate image for static posts
+        // Generate image for static posts using templates
         let imageUrl: string | undefined;
         if (input.format === "static_post") {
           try {
-            // Extract first caption variation for image generation
-            const firstCaption = generatedContent.split('\n').slice(0, 5).join(' ').substring(0, 200);
-            const imagePrompt = `Professional real estate social media post image about: ${input.topic}. Style: modern, clean, eye-catching. Include text overlay space. ${tone} aesthetic.`;
+            // Map contentType to template category
+            const categoryMap: Record<string, string> = {
+              property_listing: "sellers",
+              market_report: "buyers",
+              trending_news: "buyers",
+              tips: "buyers",
+              neighborhood: "buyers",
+              custom: "buyers",
+            };
             
-            const imageResult = await generateImage({ prompt: imagePrompt });
-            imageUrl = imageResult.url;
+            const templateCategory = categoryMap[input.contentType] || "buyers";
+            
+            // Import templates and pick one from the category
+            const { TEMPLATE_LIBRARY } = await import("../shared/templates");
+            const categoryTemplates = TEMPLATE_LIBRARY.filter(t => t.category === templateCategory);
+            const template = categoryTemplates[Math.floor(Math.random() * categoryTemplates.length)];
+            
+            // Import server-side template renderer
+            const { renderTemplate } = await import("./templateRenderer");
+            
+            // Extract title from generated content (first line or first 50 chars)
+            const firstLine = generatedContent.split('\n').find(line => line.trim().length > 0) || input.topic;
+            const title = firstLine.replace(/^#+\s*/, '').substring(0, 100);
+            
+            // Render template with user branding
+            imageUrl = await renderTemplate({
+              template,
+              postText: title,
+              headshotUrl: persona?.headshotUrl || undefined,
+              primaryColor: persona?.primaryColor || undefined,
+              phone: persona?.phoneNumber || undefined,
+              agentName: persona?.agentName || undefined,
+              licenseNumber: persona?.licenseNumber || undefined,
+              brokerageName: persona?.brokerageName || undefined,
+              brokerageDRE: persona?.brokerageDRE || undefined,
+            });
           } catch (error) {
-            console.error('Image generation failed:', error);
+            console.error('Template rendering failed:', error);
             // Continue without image if generation fails
           }
         }

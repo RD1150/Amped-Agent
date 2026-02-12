@@ -2467,3 +2467,28 @@ Tasks:
 - [x] Update videoRenderer.ts to use configurable endpoint
 - [x] Write and run vitest test to validate API works
 - [ ] Test Property Tours video generation end-to-end via UI
+
+## Branding Display Issues (URGENT)
+- [ ] Fix PersonaBrand form clearing bio/areas/details when saving agent info
+- [ ] Investigate why branding card (headshot, name, DRE) is not showing on generated posts
+- [ ] Check if persona data is being passed to template renderer
+- [ ] Verify template rendering path for social media posts
+- [ ] Add optional CTA text input with checkbox (unchecked = no "YOUR TEXT HERE")
+- [ ] Test branding display on all post types
+- [ ] Save checkpoint with fixes
+
+## Template-Based Content Generation (CURRENT PRIORITY)
+- [x] Install @napi-rs/canvas for server-side rendering
+- [x] Create server/templateRenderer.ts with full branding card logic
+- [x] Update content.generate mutation to use renderTemplate instead of AI image generation
+- [x] Map contentType to template category (property_listing → sellers, tips → buyers, etc.)
+- [x] Pass user persona data (agentName, DRE, headshot, etc.) to renderTemplate
+- [x] Remove AI image generation from content.generate flow
+- [x] Upload rendered images to S3 and return CDN URLs
+- [x] Write and run vitest tests for server-side template rendering
+- [ ] Test content generation end-to-end via UI
+- [ ] Verify spelling errors are fixed (no more "Less Upkep?")
+- [ ] Verify user branding appears (Reena Dutta, Y Realty, DRE, headshot)
+- [ ] Add optional CTA text input with checkbox to AIGenerate page
+- [ ] Update templateRenderer to handle optional CTA text overlay
+- [ ] Save checkpoint with template-based generation

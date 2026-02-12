@@ -129,8 +129,13 @@ export default function PersonaBrand() {
   };
 
   const handleSave = () => {
+    // Only send fields that have values (filter out empty strings)
+    const dataToSave = Object.fromEntries(
+      Object.entries(formData).filter(([_, value]) => value !== "" && value !== null && value !== undefined)
+    );
+    
     upsertPersona.mutate({
-      ...formData,
+      ...dataToSave,
       isCompleted: true,
     });
   };
