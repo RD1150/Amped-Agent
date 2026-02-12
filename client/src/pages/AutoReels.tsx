@@ -263,7 +263,7 @@ export default function AutoReels() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <Video className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">AutoReels</h1>
+          <h1 className="text-3xl font-bold">Authority Reels Engine</h1>
         </div>
         <p className="text-muted-foreground">
           Generate scroll-stopping vertical videos in under 60 seconds

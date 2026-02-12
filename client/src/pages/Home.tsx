@@ -47,12 +47,16 @@ export default function HomePage() {
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-5xl mx-auto space-y-8">
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
-            We Make Social Media Easy For
-            <span className="block text-amber-500 mt-2">Real Estate Agents</span>
+            Build Authority.
+            <span className="block text-amber-500 mt-2">Generate Demand. Win Listings.</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Put your social media on autopilot and grow your brand online with content that builds trust and saves you hours every week.
+            The AI-powered authority operating system that helps real estate agents dominate their local market through strategic content.
+          </p>
+          
+          <p className="text-lg text-amber-500/80 font-medium mt-4">
+            This is your Authority Operating System.
           </p>
 
           {/* Agent Headshots Row */}
@@ -66,7 +70,7 @@ export default function HomePage() {
             </div>
           </div>
           <p className="text-slate-400 font-medium">
-            The <span className="text-amber-500 font-bold">fastest</span> growing AI marketing tool for real estate professionals
+            Turn content into closings. Not just another AI post generator.
           </p>
 
           {/* CTA Buttons */}
@@ -74,7 +78,7 @@ export default function HomePage() {
             <Button asChild size="lg" className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold text-lg px-8 py-6">
               <a href={getLoginUrl()}>
                 <Sparkles className="mr-2 h-5 w-5" />
-                Start Creating with AI
+                Dominate Your Market
               </a>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-slate-600 text-white hover:bg-slate-800 text-lg px-8 py-6">
@@ -189,7 +193,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold text-white">What is AuthorityContent.co?</h2>
           <p className="text-xl text-slate-300 leading-relaxed">
-            AuthorityContent.co is a powerful tool that helps you create, design, and schedule social media content with minimal effort, so you can focus on selling homes.
+            AuthorityContent.co is the AI-powered authority operating system that engineers local market dominance. We don't just generate posts—we build positioning power that converts content into closings.
           </p>
         </div>
       </section>

@@ -259,9 +259,9 @@ export default function AIGenerate() {
     <>
       <div className="space-y-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">AI Content Generator</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Authority Post Builder</h1>
           <p className="text-muted-foreground mt-2">
-            Generate engaging real estate content and visuals with AI
+            Build positioning power that converts content into closings
           </p>
         </div>
 

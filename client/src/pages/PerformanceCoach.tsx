@@ -67,9 +67,9 @@ export default function PerformanceCoach() {
   return (
     <div className="container max-w-6xl py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Performance Coach</h1>
+        <h1 className="text-3xl font-bold mb-2">Market Dominance Coach</h1>
         <p className="text-muted-foreground">
-          Get personalized AI feedback based on your customer avatar, brand values, and market context
+          Get strategic positioning feedback to dominate your local market
         </p>
       </div>
 

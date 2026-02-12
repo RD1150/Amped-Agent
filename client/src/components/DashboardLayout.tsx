@@ -92,11 +92,11 @@ const menuItems = [
   { icon: Home, label: "Home", path: "/dashboard" },
   
   // CONTENT section
-  { icon: Sparkles, label: "Generate Post", path: "/generate" },
-  { icon: Video, label: "AutoReels", path: "/autoreels" },
+  { icon: Sparkles, label: "Authority Post Builder", path: "/generate" },
+  { icon: Video, label: "Authority Reels Engine", path: "/autoreels" },
   { icon: Building2, label: "Property Tours", path: "/property-tours" },
   { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails" },
-  { icon: Award, label: "Performance Coach", path: "/coach" },
+  { icon: Award, label: "Market Dominance Coach", path: "/coach" },
   { icon: CreditCard, label: "Credits", path: "/credits" },
   { icon: User, label: "Authority Profile", path: "/authority-profile" },
   { icon: Calendar, label: "Content Calendar", path: "/calendar" },

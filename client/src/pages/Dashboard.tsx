@@ -16,6 +16,7 @@ import {
 import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 import UsageCounter from "@/components/UsageCounter";
 import VideoPreviewGallery from "@/components/VideoPreviewGallery";
+import AuthorityScore from "@/components/AuthorityScore";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -51,8 +52,8 @@ export default function Dashboard() {
 
   const quickActions = [
     {
-      title: "Generate Post",
-      description: "Create AI-powered content for your audience",
+      title: "Authority Post Builder",
+      description: "Build positioning power that converts",
       icon: Sparkles,
       href: "/generate",
       color: "bg-primary/10 text-primary"
@@ -104,7 +105,10 @@ export default function Dashboard() {
               {greeting}, {persona?.agentName || user?.name || "Agent"}! 👋
             </h1>
             <p className="text-muted-foreground">
-              Ready to create engaging content for your real estate business?
+              Ready to dominate your local market?
+            </p>
+            <p className="text-sm text-amber-500/80 font-medium mt-1">
+              This is your Authority Operating System.
             </p>
           </div>
           <Button
@@ -121,6 +125,36 @@ export default function Dashboard() {
 
       {/* Usage Counter */}
       <UsageCounter />
+
+      {/* Authority Score */}
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="md:col-span-2">
+          <AuthorityScore />
+        </div>
+        <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Market Dominance Tips</h3>
+            <ul className="space-y-3 text-sm text-slate-300">
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 font-bold">→</span>
+                <span>Post 3x per week to stay top-of-mind</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 font-bold">→</span>
+                <span>Focus on local market insights</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 font-bold">→</span>
+                <span>Use video to build trust faster</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 font-bold">→</span>
+                <span>Share case studies and wins</span>
+              </li>
+            </ul>
+          </div>
+        </Card>
+      </div>
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-3">

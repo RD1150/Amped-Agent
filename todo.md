@@ -2506,3 +2506,53 @@ Tasks:
 - [x] All tests passing - 5 different styles with user branding and CTA
 - [ ] Test CTA checkbox functionality end-to-end via UI
 - [ ] Save checkpoint with CTA feature
+
+## AuthorityContent 2.0 - Strategic Positioning Upgrade (CURRENT PRIORITY)
+
+### 1️⃣ Dashboard Messaging Upgrade
+- [x] Replace generic greeting with result-focused positioning
+- [x] Add subheading: "This is your Authority Operating System"
+- [x] Update Home page hero messaging
+
+### 2️⃣ Authority Score System (Core Differentiator)
+- [ ] Create Authority Score database schema (0-100 score)
+- [x] Add Authority Score module to dashboard
+- [x] Display metrics: Weekly Content Consistency, Market Niche Clarity, Video Presence, Local Market Mentions
+- [ ] Implement score calculation logic (currently placeholder data)
+- [x] Add gamification elements and progress tracking
+
+### 3️⃣ Guided Onboarding Flow (4-Step Authority Setup)
+- [ ] Step 1: Define Local Market (City/Farm Area, Target Client)
+- [ ] Step 2: Define Authority Angle (Market Analyst, Negotiation Expert, Luxury Specialist, etc.)
+- [ ] Step 3: Build Signature Content Pillars (Market Updates, Myth Busting, Case Studies, etc.)
+- [ ] Step 4: Generate Weekly Authority Plan (3 Posts, 2 Reels, 1 Market Authority Post, 1 Engagement Trigger)
+- [ ] Create onboarding flow UI with progress indicators
+- [ ] Redirect new users to onboarding instead of dashboard
+
+### 4️⃣ Rename/Reframe Core Features
+- [x] "Generate Post" → "Authority Post Builder"
+- [x] "AutoReels" → "Authority Reels Engine"
+- [x] "Performance Coach" → "Market Dominance Coach"
+- [x] Update all navigation labels
+- [x] Update page titles and headings
+
+### 5️⃣ Add "Own Your Zip Code" Market Positioning Module
+- [ ] Create new page: "Own Your Zip Code"
+- [ ] Feature: Local Market Hook Generator
+- [ ] Feature: Neighborhood Talking Points
+- [ ] Feature: Local Objection Scripts
+- [ ] Feature: Listing Authority Messaging
+- [ ] Add to main navigation
+
+### 6️⃣ Visual Design Enhancements
+- [ ] Add Authority Score badge to dashboard
+- [ ] Add progress tracking bars for content consistency
+- [ ] Add subtle authority visual indicators (gold accents, premium feel)
+- [ ] Ensure gold/dark color scheme is consistent
+- [ ] Add visual hierarchy emphasizing strategic positioning
+
+### 7️⃣ Positioning Statement Update
+- [ ] Update all marketing copy to reflect: "AI-powered authority operating system"
+- [ ] Emphasize: "Dominate local market through strategic content"
+- [ ] Remove generic "content generation tool" language
+- [ ] Update welcome messages, tooltips, and help text
