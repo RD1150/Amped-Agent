@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, address, status, errorMessage, createdAt FROM property_tours WHERE status = 'failed' ORDER BY createdAt DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, address, status, errorMessage, createdAt FROM property_tours WHERE status = 'failed' ORDER BY createdAt DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "510001",
+      "address": "Thousand Oaks Home",
+      "status": "failed",
+      "errorMessage": "Failed to generate video: Shotstack API error: 403 Forbidden",
+      "createdAt": "2026-02-10 22:55:26"
+    },
+    {
+      "id": "480003",
+      "address": "Test Home",
+      "status": "failed",
+      "errorMessage": "Failed to generate video: Shotstack API error: 403 Forbidden",
+      "createdAt": "2026-02-09 06:28:52"
+    },
+    {
+      "id": "480002",
+      "address": "test House",
+      "status": "failed",
+      "errorMessage": "Failed to generate video: Shotstack API error: 403 Forbidden",
+      "createdAt": "2026-02-09 06:13:35"
+    },
+    {
+      "id": "480001",
+      "address": "Thousand Oaks",
+      "status": "failed",
+      "errorMessage": "Failed to generate video: Shotstack API error: 403 Forbidden",
+      "createdAt": "2026-02-09 06:06:19"
+    },
+    {
+      "id": "450001",
+      "address": "Thousand Oaks Home",
+      "status": "failed",
+      "errorMessage": "Failed to generate video: Shotstack API error: 403 Forbidden",
+      "createdAt": "2026-02-09 05:26:45"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tstatus\terrorMessage\tcreatedAt\n510001\tThousand Oaks Home\tfailed\tFailed to generate video: Shotstack API error: 403 Forbidden\t2026-02-10 22:55:26\n480003\tTest Home\tfailed\tFailed to generate video: Shotstack API error: 403 Forbidden\t2026-02-09 06:28:52\n480002\ttest House\tfailed\tFailed to generate video: Shotstack API error: 403 Forbidden\t2026-02-09 06:13:35\n480001\tThousand Oaks\tfailed\tFailed to generate video: Shotstack API error: 403 Forbidden\t2026-02-09 06:06:19\n450001\tThousand Oaks Home\tfailed\tFailed to generate video: Shotstack API error: 403 Forbidden\t2026-02-09 05:26:45\n",
+  "stderr": "",
+  "execution_time_ms": 1503
+}
