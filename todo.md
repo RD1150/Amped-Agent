@@ -2627,3 +2627,9 @@ Tasks:
 - [x] Save checkpoint with cancellation feature
 
 Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submission, not completion)
+
+## Property Tours - Shotstack Watermark Removal
+- [x] Check current SHOTSTACK_HOST environment variable (currently set to sandbox)
+- [x] Switch to production Shotstack endpoint (https://api.shotstack.io/v1)
+- [x] Verify production API key has sufficient credits
+- [ ] Test video generation without watermark
