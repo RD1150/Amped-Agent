@@ -25,6 +25,7 @@ export interface VideoGenerationOptions {
   enableVoiceover?: boolean; // Enable AI voiceover narration
   voiceId?: string; // ElevenLabs voice ID
   voiceoverScript?: string; // Custom script (if not provided, will auto-generate)
+  customCameraPrompt?: string; // Custom Runway ML camera movement prompt
 }
 
 export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contemporary";
@@ -132,8 +133,8 @@ export async function generatePropertyTourVideo(
     const heroCount = getHeroCountForMode(videoMode, imageUrls.length);
     
     if (heroCount > 0) {
-      console.log(`[VideoGenerator] Generating ${heroCount} AI-enhanced clips with Luma AI...`);
-      aiVideoMap = await generateHeroVideoClips(imageUrls, heroCount, aspectRatio);
+      console.log(`[VideoGenerator] Generating ${heroCount} AI-enhanced clips with Runway ML...`);
+      aiVideoMap = await generateHeroVideoClips(imageUrls, heroCount, aspectRatio, options.customCameraPrompt);
       console.log(`[VideoGenerator] AI generation complete. ${aiVideoMap.size} clips ready.`);
     }
   }

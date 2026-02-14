@@ -47,6 +47,7 @@ export default function PropertyTours() {
   const [showScriptEditor, setShowScriptEditor] = useState(false);
   const [generatedScript, setGeneratedScript] = useState("");
   const [customScript, setCustomScript] = useState("");
+  const [customCameraPrompt, setCustomCameraPrompt] = useState("");
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -265,6 +266,7 @@ Generate ONLY the script text, no additional commentary.`;
         videoMode,
         enableVoiceover,
         voiceId: enableVoiceover ? voiceId : undefined,
+        customCameraPrompt: customCameraPrompt || undefined,
       });
 
       // Set generating state
@@ -742,6 +744,24 @@ Generate ONLY the script text, no additional commentary.`;
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Custom Camera Movement Prompt (for AI modes) */}
+            {(videoMode === "ai-enhanced" || videoMode === "full-ai") && (
+              <div>
+                <Label htmlFor="cameraPrompt">Custom Camera Movement Prompt (Optional)</Label>
+                <Textarea
+                  id="cameraPrompt"
+                  placeholder="e.g., 'Drone shot flying over the property' or 'Slow dolly push through the front door' - Leave blank for auto-generated prompts"
+                  value={customCameraPrompt}
+                  onChange={(e) => setCustomCameraPrompt(e.target.value)}
+                  rows={3}
+                  className="resize-none"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Describe the camera movement you want. Examples: "aerial drone shot", "slow zoom into details", "tracking shot through rooms", "crane shot revealing the space"
+                </p>
+              </div>
+            )}
 
             {/* Voiceover Options */}
             <div className="space-y-3">

@@ -9,7 +9,8 @@ import type { VideoGenerationOptions } from "./videoGenerator";
 export async function generateHeroVideoClips(
   imageUrls: string[],
   heroCount: number,
-  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"
+  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
+  customCameraPrompt?: string
 ): Promise<Map<string, string>> {
   // Select hero photos
   const heroPhotos = selectHeroPhotos(imageUrls, heroCount);
@@ -24,8 +25,12 @@ export async function generateHeroVideoClips(
     try {
       console.log(`[HybridVideoGen] Generating AI video for: ${hero.url}`);
       
-      // Create cinematic prompt based on photo type
-      const prompt = generateCinematicPrompt(hero.reason);
+      // Use custom prompt if provided, otherwise generate based on photo type
+      const prompt = customCameraPrompt || generateCinematicPrompt(hero.reason);
+      
+      if (customCameraPrompt) {
+        console.log(`[HybridVideoGen] Using custom camera prompt: "${customCameraPrompt}"`);
+      }
       
       // Generate video with Runway ML
       const videoUrl = await imageToVideo(hero.url, prompt, {

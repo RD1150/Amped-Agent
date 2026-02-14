@@ -26,6 +26,13 @@
 - [x] Implement multiple movement patterns that rotate through photos
 - [ ] Test improved movements with real property photos
 
+## Property Tours - Runway ML Prompt Customization
+- [x] Add custom prompt input field to Property Tours UI (text area for camera movement descriptions)
+- [x] Wire prompt input to backend video generation
+- [x] Update Runway ML service to use custom prompts instead of generic "cinematic" prompt
+- [x] Add prompt examples/suggestions (drone shot, dolly push, crane up, etc.)
+- [ ] Test with user-provided prompts
+
 ## Property Tours - Photo Library Feature
 - [ ] Create photo library database schema (user_id, file_url, tags, metadata)
 - [ ] Build "My Photos" page with upload and organization UI
