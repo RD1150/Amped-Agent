@@ -970,15 +970,33 @@ Generate ONLY the script text, no additional commentary.`;
 
             {/* Progress Indicator */}
             {generatingTourId !== null && (
-              <div className="mt-4 space-y-2">
+              <div className="mt-4 space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{generationStatus}</span>
                   <span className="font-medium">{generationProgress}%</span>
                 </div>
                 <Progress value={generationProgress} className="h-2" />
-                <p className="text-xs text-muted-foreground text-center">
-                  Video generation may take up to 2 minutes
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">
+                    Video generation may take up to 2 minutes
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      if (confirm("Cancel video generation? Credits will not be refunded.")) {
+                        setGeneratingTourId(null);
+                        setGenerationProgress(0);
+                        setGenerationStatus("");
+                        toast.info("Video generation cancelled");
+                        utils.propertyTours.list.invalidate();
+                      }
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </div>
             )}
           </div>

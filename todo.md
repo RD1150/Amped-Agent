@@ -2602,5 +2602,16 @@ Tasks:
 - [x] Show file count and types (images vs videos)
 - [x] Show filename under each thumbnail
 - [x] Video files show icon placeholder
-- [ ] Test file selection management workflow
-- [ ] Save checkpoint with pre-upload file management
+- [x] Test file selection management workflow
+- [x] Save checkpoint with pre-upload file management
+
+## Video Generation Cancellation (NEW FEATURE)
+- [x] Add Cancel button in progress indicator UI
+- [x] Add confirmation dialog with credit warning
+- [x] Clear generation state on cancel
+- [x] Refresh tours list after cancellation
+- [x] Show toast notification on cancel
+- [ ] Test cancellation during different generation stages
+- [ ] Save checkpoint with cancellation feature
+
+Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submission, not completion)
