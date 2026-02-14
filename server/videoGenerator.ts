@@ -203,24 +203,31 @@ export async function generatePropertyTourVideo(
       };
     }
     
-    // For images, apply dynamic CINEMATIC camera movements
-    // Use compound animations that combine zoom + pan for professional feel
-    const cinematicEffects = [
-      "zoomInSlow",       // Slow forward push (hero shot)
-      "zoomOutSlow",      // Slow pullback reveal
-      "slideRight",       // Classic left-to-right pan
-      "slideLeft",        // Right-to-left pan
-      "zoomIn",           // Medium zoom in
-      "slideUp",          // Bottom-to-top tilt
-      "zoomInSlow",       // Repeat hero push
-      "slideDown",        // Top-to-bottom tilt
+    // AutoReels-style custom Ken Burns effects with dramatic movements
+    // Create custom scale + offset animations for professional cinematic feel
+    const cinematicAnimations = [
+      // Zoom in with slight pan right
+      { scale: { from: 1.0, to: 1.3 }, offset: { x: { from: 0, to: 0.05 }, y: { from: 0, to: 0 } } },
+      // Zoom out with pan left
+      { scale: { from: 1.3, to: 1.0 }, offset: { x: { from: 0.05, to: 0 }, y: { from: 0, to: 0 } } },
+      // Pan right with slight zoom
+      { scale: { from: 1.1, to: 1.25 }, offset: { x: { from: -0.1, to: 0.1 }, y: { from: 0, to: 0 } } },
+      // Pan left with zoom in
+      { scale: { from: 1.0, to: 1.3 }, offset: { x: { from: 0.1, to: -0.05 }, y: { from: 0, to: 0 } } },
+      // Dramatic zoom in (hero shot)
+      { scale: { from: 1.0, to: 1.4 }, offset: { x: { from: 0, to: 0 }, y: { from: 0, to: 0 } } },
+      // Pan up with zoom
+      { scale: { from: 1.1, to: 1.3 }, offset: { x: { from: 0, to: 0 }, y: { from: 0.05, to: -0.05 } } },
+      // Pan down with zoom out
+      { scale: { from: 1.3, to: 1.1 }, offset: { x: { from: 0, to: 0 }, y: { from: -0.05, to: 0.05 } } },
+      // Diagonal pan with zoom
+      { scale: { from: 1.0, to: 1.35 }, offset: { x: { from: -0.05, to: 0.05 }, y: { from: -0.05, to: 0.05 } } },
     ];
     
-    const effect = cinematicEffects[index % cinematicEffects.length];
+    const animation = cinematicAnimations[index % cinematicAnimations.length];
     
-    // Smart zoom for vertical videos (9:16) to reduce aggressive cropping
-    // Use "contain" fit to show full image without cropping important parts
-    const fitMode = aspectRatio === "9:16" ? "contain" : "crop";
+    // Smart fit for vertical videos (9:16) to reduce aggressive cropping
+    const fitMode = aspectRatio === "9:16" ? "contain" : "cover";
     
     return {
       asset: {
@@ -229,12 +236,44 @@ export async function generatePropertyTourVideo(
       },
       start: index * durationPerImage,
       length: durationPerImage,
-      fit: fitMode,  // Smart fit based on aspect ratio
-      effect: effect,  // Ken Burns effect
-      transition: {
-        in: index === 0 ? "fade" : "fade",
-        out: "fade",
+      fit: fitMode,
+      // Custom transform animations for AutoReels-quality movement
+      transform: {
+        scale: [
+          {
+            from: animation.scale.from,
+            to: animation.scale.to,
+            start: 0,
+            length: durationPerImage,
+            interpolation: "bezier",
+            easing: "easeInOutQuad",
+          },
+        ],
       },
+      offset: {
+        x: [
+          {
+            from: animation.offset.x.from,
+            to: animation.offset.x.to,
+            start: 0,
+            length: durationPerImage,
+            interpolation: "bezier",
+            easing: "easeInOutQuad",
+          },
+        ],
+        y: [
+          {
+            from: animation.offset.y.from,
+            to: animation.offset.y.to,
+            start: 0,
+            length: durationPerImage,
+            interpolation: "bezier",
+            easing: "easeInOutQuad",
+          },
+        ],
+      },
+      // Use cut transitions for continuous cinematic flow (AutoReels style)
+      transition: index === 0 ? { in: "fade" } : undefined,
     };
   });
 

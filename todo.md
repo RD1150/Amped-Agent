@@ -2646,3 +2646,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Allow users to edit auto-generated script before video generation
 - [x] Wire custom script to backend voiceover generation
 - [ ] Test custom script with ElevenLabs voice synthesis
+
+## Property Tours - AutoReels-Quality Cinematic Improvements
+- [x] Remove fade transitions, use cut/dissolve for continuous flow
+- [x] Increase Ken Burns movement intensity (larger zoom range 1.0-1.4x)
+- [x] Implement custom scale + offset animations with bezier easing
+- [x] Add 8 different cinematic animation patterns (zoom+pan combinations)
+- [ ] Test with user's property photos to match AutoReels quality
