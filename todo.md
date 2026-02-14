@@ -2587,4 +2587,20 @@ Tasks:
 - [x] Update hybridVideoGenerator to use Runway instead of Luma
 - [x] Test Runway image-to-video generation (SUCCESS!)
 - [x] Verify Full AI mode works without moderation issues
-- [ ] Save checkpoint with working Runway integration
+- [x] Save checkpoint with working Runway integration
+
+## Property Tours Upload Management (CRITICAL UX)
+- [x] Add individual delete button (X) on each uploaded photo thumbnail (ALREADY IMPLEMENTED)
+- [x] Implement photo removal from state (ALREADY IMPLEMENTED)
+- [x] Add Clear All button to reset entire form (ALREADY IMPLEMENTED - "Cancel & Clear Form")
+- [x] All upload management controls are working
+
+## File Selection Preview & Delete (CRITICAL UX FIX)
+- [x] Show preview thumbnails of selected files BEFORE upload
+- [x] Add delete button on each selected file preview
+- [x] Allow removing files from selection without uploading
+- [x] Show file count and types (images vs videos)
+- [x] Show filename under each thumbnail
+- [x] Video files show icon placeholder
+- [ ] Test file selection management workflow
+- [ ] Save checkpoint with pre-upload file management

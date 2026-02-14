@@ -450,10 +450,44 @@ Generate ONLY the script text, no additional commentary.`;
             </div>
 
             {selectedFiles.length > 0 && (
-              <div className="mt-4">
-                <p className="text-sm font-medium mb-2">
+              <div className="mt-4 space-y-3">
+                <p className="text-sm font-medium">
                   {selectedFiles.length} files selected ({selectedFiles.filter(f => f.type.startsWith('image')).length} images, {selectedFiles.filter(f => f.type.startsWith('video')).length} videos)
                 </p>
+                
+                {/* Preview thumbnails of selected files */}
+                <div className="grid grid-cols-3 gap-2">
+                  {selectedFiles.map((file, i) => (
+                    <div key={i} className="relative group">
+                      {file.type.startsWith('image') ? (
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="w-full h-24 object-cover rounded border-2 border-dashed border-muted"
+                        />
+                      ) : (
+                        <div className="w-full h-24 flex items-center justify-center bg-muted rounded border-2 border-dashed border-muted">
+                          <Video className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="destructive"
+                        className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => {
+                          const newFiles = selectedFiles.filter((_, index) => index !== i);
+                          setSelectedFiles(newFiles);
+                          toast.success("File removed from selection");
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-1 truncate">{file.name}</p>
+                    </div>
+                  ))}
+                </div>
+                
                 <Button
                   onClick={handleUploadImages}
                   disabled={isUploading}
@@ -467,7 +501,7 @@ Generate ONLY the script text, no additional commentary.`;
                   ) : (
                     <>
                       <Upload className="mr-2 h-4 w-4" />
-                      Upload Images
+                      Upload {selectedFiles.length} File{selectedFiles.length !== 1 ? 's' : ''}
                     </>
                   )}
                 </Button>
