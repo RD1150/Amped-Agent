@@ -2639,3 +2639,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Switch to production Shotstack endpoint (https://api.shotstack.io/v1)
 - [x] Verify production API key has sufficient credits
 - [ ] Test video generation without watermark
+
+## Property Tours - Voiceover Script Editor
+- [x] Add custom script textarea for voiceover (appears when voiceover is enabled)
+- [ ] Add "Auto-Generate Script" button to create script from property details
+- [x] Allow users to edit auto-generated script before video generation
+- [x] Wire custom script to backend voiceover generation
+- [ ] Test custom script with ElevenLabs voice synthesis

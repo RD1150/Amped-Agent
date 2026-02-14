@@ -267,6 +267,7 @@ Generate ONLY the script text, no additional commentary.`;
         enableVoiceover,
         voiceId: enableVoiceover ? voiceId : undefined,
         customCameraPrompt: customCameraPrompt || undefined,
+        voiceoverScript: customScript || undefined,
       });
 
       // Set generating state
@@ -800,19 +801,36 @@ Generate ONLY the script text, no additional commentary.`;
                 </Label>
               </div>
               {enableVoiceover && (
-                <div>
-                  <Label htmlFor="voiceId">Voice Selection</Label>
-                  <Select value={voiceId} onValueChange={setVoiceId}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="21m00Tcm4TlvDq8ikWAM">Rachel - Professional Female</SelectItem>
-                      <SelectItem value="pNInz6obpgDQGcFmaJgB">Adam - Professional Male</SelectItem>
-                      <SelectItem value="EXAVITQu4vr4xnSDxMaL">Bella - Warm Female</SelectItem>
-                      <SelectItem value="TxGEqnHWrfWFTfGW9XjX">Josh - Authoritative Male</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="voiceId">Voice Selection</Label>
+                    <Select value={voiceId} onValueChange={setVoiceId}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="21m00Tcm4TlvDq8ikWAM">Rachel - Professional Female</SelectItem>
+                        <SelectItem value="pNInz6obpgDQGcFmaJgB">Adam - Professional Male</SelectItem>
+                        <SelectItem value="EXAVITQu4vr4xnSDxMaL">Bella - Warm Female</SelectItem>
+                        <SelectItem value="TxGEqnHWrfWFTfGW9XjX">Josh - Authoritative Male</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="voiceoverScript">Voiceover Script (Optional)</Label>
+                    <Textarea
+                      id="voiceoverScript"
+                      placeholder="Leave blank to auto-generate script from property details, or paste/write your custom narration script here..."
+                      value={customScript}
+                      onChange={(e) => setCustomScript(e.target.value)}
+                      rows={5}
+                      className="resize-none font-mono text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Custom script will be narrated exactly as written. Leave blank for AI-generated script based on property details.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>

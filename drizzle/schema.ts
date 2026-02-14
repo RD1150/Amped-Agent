@@ -493,6 +493,7 @@ export const propertyTours = mysqlTable("property_tours", {
   videoMode: mysqlEnum("videoMode", ["standard", "ai-enhanced", "full-ai"]).default("standard"), // Video generation mode
   enableVoiceover: boolean("enableVoiceover").default(false), // Enable AI voiceover narration
   voiceId: varchar("voiceId", { length: 100 }), // ElevenLabs voice ID for voiceover
+  voiceoverScript: text("voiceoverScript"), // Custom voiceover script (if not provided, will auto-generate from property details)
   customCameraPrompt: text("customCameraPrompt"), // Custom Runway ML camera movement prompt (e.g., "drone shot flying over property")
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),

@@ -37,6 +37,7 @@ export const propertyToursRouter = router({
         enableVoiceover: z.boolean().default(false),
         voiceId: z.string().optional(),
         customCameraPrompt: z.string().optional(),
+        voiceoverScript: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -62,6 +63,7 @@ export const propertyToursRouter = router({
         enableVoiceover: input.enableVoiceover,
         voiceId: input.voiceId,
         customCameraPrompt: input.customCameraPrompt,
+        voiceoverScript: input.voiceoverScript,
         status: "pending",
       });
 
@@ -162,6 +164,7 @@ export const propertyToursRouter = router({
           enableVoiceover: tour.enableVoiceover ?? false,
           voiceId: tour.voiceId || undefined,
           customCameraPrompt: tour.customCameraPrompt || undefined,
+          voiceoverScript: tour.voiceoverScript || undefined,
         });
 
         // Store render ID for polling
