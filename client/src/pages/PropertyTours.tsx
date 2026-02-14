@@ -747,19 +747,43 @@ Generate ONLY the script text, no additional commentary.`;
 
             {/* Custom Camera Movement Prompt (for AI modes) */}
             {(videoMode === "ai-enhanced" || videoMode === "full-ai") && (
-              <div>
-                <Label htmlFor="cameraPrompt">Custom Camera Movement Prompt (Optional)</Label>
-                <Textarea
-                  id="cameraPrompt"
-                  placeholder="e.g., 'Drone shot flying over the property' or 'Slow dolly push through the front door' - Leave blank for auto-generated prompts"
-                  value={customCameraPrompt}
-                  onChange={(e) => setCustomCameraPrompt(e.target.value)}
-                  rows={3}
-                  className="resize-none"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Describe the camera movement you want. Examples: "aerial drone shot", "slow zoom into details", "tracking shot through rooms", "crane shot revealing the space"
-                </p>
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="promptTemplate">Camera Movement Preset</Label>
+                  <Select
+                    value={customCameraPrompt}
+                    onValueChange={(value) => setCustomCameraPrompt(value === "custom" ? "" : value)}
+                  >
+                    <SelectTrigger id="promptTemplate">
+                      <SelectValue placeholder="Choose a preset or write custom..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="custom">Custom (write your own)</SelectItem>
+                      <SelectItem value="Aerial drone shot slowly revealing the entire property from above">🚁 Drone Shot - Aerial reveal</SelectItem>
+                      <SelectItem value="Smooth dolly push moving forward through the space">🎬 Dolly Push - Forward movement</SelectItem>
+                      <SelectItem value="Elegant crane shot descending to reveal the space from above">🏗️ Crane Shot - Descending reveal</SelectItem>
+                      <SelectItem value="Tracking shot smoothly gliding through each area">📹 Tracking Shot - Smooth glide</SelectItem>
+                      <SelectItem value="Slow pan across the space revealing details">↔️ Pan Across - Horizontal sweep</SelectItem>
+                      <SelectItem value="Cinematic zoom slowly pushing into key details">🔍 Zoom In - Detail focus</SelectItem>
+                      <SelectItem value="Wide pullback zoom revealing the full space">🔎 Zoom Out - Full reveal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="cameraPrompt">Or Write Custom Prompt</Label>
+                  <Textarea
+                    id="cameraPrompt"
+                    placeholder="e.g., 'Drone shot flying over the property' or 'Slow dolly push through the front door' - Leave blank for auto-generated prompts"
+                    value={customCameraPrompt}
+                    onChange={(e) => setCustomCameraPrompt(e.target.value)}
+                    rows={3}
+                    className="resize-none"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Select a preset above or write your own camera movement description
+                  </p>
+                </div>
               </div>
             )}
 

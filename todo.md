@@ -33,6 +33,12 @@
 - [x] Add prompt examples/suggestions (drone shot, dolly push, crane up, etc.)
 - [ ] Test with user-provided prompts
 
+## Property Tours - Camera Movement Prompt Templates
+- [x] Add dropdown/select with preset camera movement templates
+- [x] Include common presets: Drone Shot, Dolly Push, Crane Reveal, Tracking Shot, Pan Across, Zoom In/Out
+- [x] Allow users to select preset or write custom prompt
+- [ ] Test preset selection and custom prompt override
+
 ## Property Tours - Photo Library Feature
 - [ ] Create photo library database schema (user_id, file_url, tags, metadata)
 - [ ] Build "My Photos" page with upload and organization UI
