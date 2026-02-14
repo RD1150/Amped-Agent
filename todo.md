@@ -21,6 +21,11 @@
 - [ ] Re-enable Full AI Cinematic mode once Luma AI is working reliably
 - [ ] Test with real property photos (not AI-generated)
 
+## Property Tours - Camera Movement Improvements
+- [x] Improve camera movements - add varied cinematic animations (forward pushes, tilts, diagonal pans, zooms) instead of basic left-to-right Ken Burns pans
+- [x] Implement multiple movement patterns that rotate through photos
+- [ ] Test improved movements with real property photos
+
 ## Property Tours - Photo Library Feature
 - [ ] Create photo library database schema (user_id, file_url, tags, metadata)
 - [ ] Build "My Photos" page with upload and organization UI
@@ -2611,7 +2616,7 @@ Tasks:
 - [x] Clear generation state on cancel
 - [x] Refresh tours list after cancellation
 - [x] Show toast notification on cancel
-- [ ] Test cancellation during different generation stages
-- [ ] Save checkpoint with cancellation feature
+- [x] Test cancellation during different generation stages
+- [x] Save checkpoint with cancellation feature
 
 Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submission, not completion)

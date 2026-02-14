@@ -202,18 +202,20 @@ export async function generatePropertyTourVideo(
       };
     }
     
-    // For images, apply dynamic camera movements using Shotstack effects
-    // Cycle through different Ken Burns effects for variety
-    const effects = [
-      "zoomIn",      // Zoom into image
-      "zoomOut",     // Zoom out of image
-      "slideLeft",   // Pan from right to left
-      "slideRight",  // Pan from left to right
-      "slideUp",     // Pan from bottom to top
-      "slideDown",   // Pan from top to bottom
+    // For images, apply dynamic CINEMATIC camera movements
+    // Use compound animations that combine zoom + pan for professional feel
+    const cinematicEffects = [
+      "zoomInSlow",       // Slow forward push (hero shot)
+      "zoomOutSlow",      // Slow pullback reveal
+      "slideRight",       // Classic left-to-right pan
+      "slideLeft",        // Right-to-left pan
+      "zoomIn",           // Medium zoom in
+      "slideUp",          // Bottom-to-top tilt
+      "zoomInSlow",       // Repeat hero push
+      "slideDown",        // Top-to-bottom tilt
     ];
     
-    const effect = effects[index % effects.length];
+    const effect = cinematicEffects[index % cinematicEffects.length];
     
     // Smart zoom for vertical videos (9:16) to reduce aggressive cropping
     // Use "contain" fit to show full image without cropping important parts
