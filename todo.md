@@ -2573,3 +2573,18 @@ Tasks:
 - [x] Verify Luma AI integration is functional in backend
 - [ ] Test Full AI Cinematic render with sample property
 - [ ] Save checkpoint with restored functionality
+
+## Bug: Full AI Mode Using Ken Burns Instead of Luma AI (CRITICAL)
+- [ ] Investigate video generation logic for full-ai mode
+- [ ] Verify Luma AI is being called for full-ai mode
+- [ ] Fix video generator to use Luma AI for all photos in full-ai mode
+- [ ] Test Full AI mode and verify actual camera movement (not just zoom)
+- [ ] Save checkpoint with working Luma AI integration
+
+## Replace Luma with Runway ML (CRITICAL)
+- [x] Add RUNWAY_API_KEY to environment secrets
+- [x] Create Runway ML integration module (server/_core/runwayAi.ts)
+- [x] Update hybridVideoGenerator to use Runway instead of Luma
+- [x] Test Runway image-to-video generation (SUCCESS!)
+- [x] Verify Full AI mode works without moderation issues
+- [ ] Save checkpoint with working Runway integration

@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, address, videoMode, status, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, address, videoMode, status, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "540002",
+      "address": "test Home",
+      "videoMode": "full-ai",
+      "status": "completed",
+      "createdAt": "2026-02-14 08:29:45"
+    },
+    {
+      "id": "540001",
+      "address": "Westlake Village Home",
+      "videoMode": "full-ai",
+      "status": "completed",
+      "createdAt": "2026-02-14 08:17:47"
+    },
+    {
+      "id": "510001",
+      "address": "Thousand Oaks Home",
+      "videoMode": "ai-enhanced",
+      "status": "failed",
+      "createdAt": "2026-02-10 22:55:26"
+    },
+    {
+      "id": "480003",
+      "address": "Test Home",
+      "videoMode": "standard",
+      "status": "failed",
+      "createdAt": "2026-02-09 06:28:52"
+    },
+    {
+      "id": "480002",
+      "address": "test House",
+      "videoMode": "standard",
+      "status": "failed",
+      "createdAt": "2026-02-09 06:13:35"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tvideoMode\tstatus\tcreatedAt\n540002\ttest Home\tfull-ai\tcompleted\t2026-02-14 08:29:45\n540001\tWestlake Village Home\tfull-ai\tcompleted\t2026-02-14 08:17:47\n510001\tThousand Oaks Home\tai-enhanced\tfailed\t2026-02-10 22:55:26\n480003\tTest Home\tstandard\tfailed\t2026-02-09 06:28:52\n480002\ttest House\tstandard\tfailed\t2026-02-09 06:13:35\n",
+  "stderr": "",
+  "execution_time_ms": 833
+}

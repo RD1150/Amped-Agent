@@ -1,4 +1,4 @@
-import { imageToVideo } from "./_core/lumaAi";
+import { imageToVideo } from "./_core/runwayAi";
 import { selectHeroPhotos, getRecommendedHeroCount } from "./heroPhotoSelector";
 import type { VideoGenerationOptions } from "./videoGenerator";
 
@@ -27,11 +27,10 @@ export async function generateHeroVideoClips(
       // Create cinematic prompt based on photo type
       const prompt = generateCinematicPrompt(hero.reason);
       
-      // Generate video with Luma AI
+      // Generate video with Runway ML
       const videoUrl = await imageToVideo(hero.url, prompt, {
         aspectRatio,
-        resolution: "720p", // Use 720p for cost efficiency
-        model: "ray-flash-2", // Use faster model
+        duration: 5, // 5 seconds for cost efficiency
       });
       
       console.log(`[HybridVideoGen] ✓ Generated AI video: ${videoUrl}`);

@@ -20,5 +20,6 @@ export const ENV = {
   SHOTSTACK_API_KEY: process.env.SHOTSTACK_API_KEY ?? "",
   SHOTSTACK_HOST: process.env.SHOTSTACK_HOST ?? "https://api.shotstack.io/stage",
   LUMA_API_KEY: process.env.LUMA_API_KEY ?? "",
+  RUNWAY_API_KEY: process.env.RUNWAY_API_KEY ?? "",
   ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY ?? "",
 };
