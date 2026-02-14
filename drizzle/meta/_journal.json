@@ -218,6 +218,20 @@
       "when": 1770431554649,
       "tag": "0030_smart_mongoose",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1771052715319,
+      "tag": "0031_vengeful_la_nuit",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1771056257982,
+      "tag": "0032_lovely_nekra",
+      "breakpoints": true
     }
   ]
 }

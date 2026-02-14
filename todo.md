@@ -2567,3 +2567,9 @@ Tasks:
 - [ ] 6️⃣ Verify account restrictions (IP, domain, usage limits)
 - [ ] 7️⃣ Check production environment variables
 - [ ] Deliver technical report with root cause and working proof
+
+## Restore Full AI Cinematic Render (URGENT)
+- [x] Remove "Coming Soon" label from Full AI Cinematic option
+- [x] Verify Luma AI integration is functional in backend
+- [ ] Test Full AI Cinematic render with sample property
+- [ ] Save checkpoint with restored functionality
