@@ -1,1 +1,0 @@
-ALTER TABLE `users` ADD `hasCompletedOnboarding` boolean DEFAULT false NOT NULL;

@@ -1,1 +1,0 @@
-ALTER TABLE `property_tours` ADD `cardTemplate` varchar(50) DEFAULT 'modern';

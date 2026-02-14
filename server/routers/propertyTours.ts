@@ -9,6 +9,7 @@ import { fetchPropertyData } from "../rapidapi";
 import { getDb } from "../db";
 import { users, propertyTours } from "../../drizzle/schema";
 import { eq, and, gte, sql } from "drizzle-orm";
+import { logComplianceAudit, verifyComplianceBeforeRender } from "../complianceAudit";
 
 export const propertyToursRouter = router({
   /**
@@ -36,7 +37,49 @@ export const propertyToursRouter = router({
         videoMode: z.enum(["standard", "ai-enhanced", "full-ai"]).default("standard"),
         enableVoiceover: z.boolean().default(false),
         voiceId: z.string().optional(),
+        // Compliance fields
+        tourType: z.enum(["listing-agent", "buyer-tour", "market-highlight"]),
+        isUserListingAgent: z.boolean().default(false),
+        listingAgentName: z.string().optional(),
+        listingAgentBrokerage: z.string().optional(),
+        legalRightsConfirmed: z.boolean(),
       })
+        .refine(
+          (data) => data.legalRightsConfirmed === true,
+          { message: "You must confirm you have legal rights to use these images before generating.", path: ["legalRightsConfirmed"] }
+        )
+        .refine(
+          (data) => {
+            // Listing Agent Mode: if full address + not user listing agent → require attribution
+            if (data.tourType === "listing-agent" && data.address && !data.isUserListingAgent) {
+              return data.listingAgentName && data.listingAgentBrokerage;
+            }
+            return true;
+          },
+          { message: "Listing Agent credit is required when using a full address and you are not the listing agent.", path: ["listingAgentName"] }
+        )
+        .refine(
+          (data) => {
+            // Buyer Tour Mode: cannot include full address
+            if (data.tourType === "buyer-tour" && data.address) {
+              // Check if address looks like a full address (contains numbers)
+              return !/\d/.test(data.address);
+            }
+            return true;
+          },
+          { message: "Buyer Tour Mode cannot include a full property address.", path: ["address"] }
+        )
+        .refine(
+          (data) => {
+            // Market Highlight Mode: cannot include full address
+            if (data.tourType === "market-highlight" && data.address) {
+              // Check if address looks like a full address (contains numbers)
+              return !/\d/.test(data.address);
+            }
+            return true;
+          },
+          { message: "Market Highlight Mode cannot include a full property address.", path: ["address"] }
+        )
     )
     .mutation(async ({ ctx, input }) => {
       const tour = await db.createPropertyTour({
@@ -60,7 +103,23 @@ export const propertyToursRouter = router({
         videoMode: input.videoMode,
         enableVoiceover: input.enableVoiceover,
         voiceId: input.voiceId,
+        // Compliance fields
+        tourType: input.tourType,
+        isUserListingAgent: input.isUserListingAgent,
+        listingAgentName: input.listingAgentName,
+        listingAgentBrokerage: input.listingAgentBrokerage,
+        legalRightsConfirmed: input.legalRightsConfirmed,
         status: "pending",
+      });
+
+      // Log compliance audit
+      await logComplianceAudit(tour.id, ctx.user.id, {
+        tourType: input.tourType,
+        address: input.address,
+        isUserListingAgent: input.isUserListingAgent,
+        listingAgentName: input.listingAgentName,
+        listingAgentBrokerage: input.listingAgentBrokerage,
+        legalRightsConfirmed: input.legalRightsConfirmed,
       });
 
       return tour;
@@ -81,6 +140,12 @@ export const propertyToursRouter = router({
       // Verify ownership
       if (tour.userId !== ctx.user.id) {
         throw new Error("Unauthorized");
+      }
+
+      // Verify compliance before rendering
+      const complianceCheck = await verifyComplianceBeforeRender(input.tourId);
+      if (!complianceCheck.allowed) {
+        throw new Error(`Compliance check failed: ${complianceCheck.reason}`);
       }
 
       // Check if already processing or completed

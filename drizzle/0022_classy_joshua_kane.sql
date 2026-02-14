@@ -1,1 +1,0 @@
-ALTER TABLE `property_tours` ADD `includeBranding` boolean DEFAULT true;

@@ -601,6 +601,10 @@ export async function generatePropertyTourVideo(
       ...(size && { size }), // Add size for custom dimensions
       fps: 30,
       quality: "high",
+      // High bitrate for social media quality (Instagram Reels standard)
+      bitrate: "high", // Shotstack high bitrate preset
+      // H.264 High Profile for better compression efficiency
+      codec: "h264",
       // Generate poster image from the most visually appealing frame
       // Capture at 25% through the video (after intro, during property photos)
       poster: {

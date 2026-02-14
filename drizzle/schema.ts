@@ -493,6 +493,12 @@ export const propertyTours = mysqlTable("property_tours", {
   videoMode: mysqlEnum("videoMode", ["standard", "ai-enhanced", "full-ai"]).default("standard"), // Video generation mode
   enableVoiceover: boolean("enableVoiceover").default(false), // Enable AI voiceover narration
   voiceId: varchar("voiceId", { length: 100 }), // ElevenLabs voice ID for voiceover
+  // Compliance & Attribution
+  tourType: mysqlEnum("tourType", ["listing-agent", "buyer-tour", "market-highlight"]).default("listing-agent"),
+  isUserListingAgent: boolean("isUserListingAgent").default(false),
+  listingAgentName: varchar("listingAgentName", { length: 255 }),
+  listingAgentBrokerage: varchar("listingAgentBrokerage", { length: 255 }),
+  legalRightsConfirmed: boolean("legalRightsConfirmed").default(false),
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),
