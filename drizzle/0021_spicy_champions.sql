@@ -1,0 +1,23 @@
+CREATE TABLE `property_tours` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`address` varchar(500) NOT NULL,
+	`price` varchar(50),
+	`beds` int,
+	`baths` decimal(3,1),
+	`sqft` int,
+	`propertyType` varchar(100),
+	`description` text,
+	`features` text,
+	`imageUrls` text NOT NULL,
+	`videoUrl` text,
+	`thumbnailUrl` text,
+	`template` varchar(50) DEFAULT 'modern',
+	`musicTrack` varchar(100),
+	`duration` int DEFAULT 30,
+	`status` enum('pending','processing','completed','failed') DEFAULT 'pending',
+	`errorMessage` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `property_tours_id` PRIMARY KEY(`id`)
+);

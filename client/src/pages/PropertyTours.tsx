@@ -47,13 +47,6 @@ export default function PropertyTours() {
   const [showScriptEditor, setShowScriptEditor] = useState(false);
   const [generatedScript, setGeneratedScript] = useState("");
   const [customScript, setCustomScript] = useState("");
-  
-  // Compliance state
-  const [tourType, setTourType] = useState<"listing-agent" | "buyer-tour" | "market-highlight">("listing-agent");
-  const [isUserListingAgent, setIsUserListingAgent] = useState(false);
-  const [listingAgentName, setListingAgentName] = useState("");
-  const [listingAgentBrokerage, setListingAgentBrokerage] = useState("");
-  const [legalRightsConfirmed, setLegalRightsConfirmed] = useState(false);
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -121,7 +114,7 @@ export default function PropertyTours() {
         
         ctx.drawImage(img, 0, 0, width, height);
         
-        // Compress to JPEG with 0.92 quality (high quality for sharp videos)
+        // Compress to JPEG with 0.7 quality (aggressive compression)
         canvas.toBlob(
           (blob) => {
             if (blob) {
@@ -131,7 +124,7 @@ export default function PropertyTours() {
             }
           },
           'image/jpeg',
-          0.92
+          0.7
         );
       };
       
@@ -272,12 +265,6 @@ Generate ONLY the script text, no additional commentary.`;
         videoMode,
         enableVoiceover,
         voiceId: enableVoiceover ? voiceId : undefined,
-        // Compliance fields
-        tourType,
-        isUserListingAgent,
-        listingAgentName: listingAgentName || undefined,
-        listingAgentBrokerage: listingAgentBrokerage || undefined,
-        legalRightsConfirmed,
       });
 
       // Set generating state
