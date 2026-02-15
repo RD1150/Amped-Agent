@@ -598,3 +598,25 @@ export const reelUsage = mysqlTable("reel_usage", {
 
 export type ReelUsage = typeof reelUsage.$inferSelect;
 export type InsertReelUsage = typeof reelUsage.$inferInsert;
+
+/**
+ * AI Reels - Store generated talking avatar videos with 90-day retention
+ */
+export const aiReels = mysqlTable("ai_reels", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }), // Optional user-provided title
+  script: text("script").notNull(), // The script used for generation
+  didVideoUrl: text("didVideoUrl").notNull(), // Original D-ID video URL
+  s3Key: varchar("s3Key", { length: 500 }), // S3 object key
+  s3Url: text("s3Url"), // S3 public URL (our copy)
+  avatarUrl: text("avatarUrl").notNull(), // Avatar image used
+  voiceId: varchar("voiceId", { length: 100 }).notNull(), // Voice ID used
+  duration: int("duration"), // Video duration in seconds
+  status: mysqlEnum("status", ["processing", "completed", "failed", "expired"]).default("processing").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(), // 90 days from creation
+});
+
+export type AiReel = typeof aiReels.$inferSelect;
+export type InsertAiReel = typeof aiReels.$inferInsert;

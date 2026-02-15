@@ -274,6 +274,13 @@
       "when": 1771147815521,
       "tag": "0038_rare_stingray",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "5",
+      "when": 1771149266185,
+      "tag": "0039_material_serpent_society",
+      "breakpoints": true
     }
   ]
 }

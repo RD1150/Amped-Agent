@@ -2775,3 +2775,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add reel history/library page to view past generations
 - [ ] Implement regenerate button for reels
 - [ ] Add download and share functionality for generated reels
+
+## Script-to-Reel 90-Day Video Retention
+- [x] Create aiReels database table (id, userId, title, script, videoUrl, s3Key, s3Url, avatarUrl, voiceId, createdAt, expiresAt)
+- [x] Update reels.generate mutation to save reel metadata to database
+- [x] Implement S3 upload after D-ID generation completes
+- [x] Add S3 lifecycle tags for 90-day auto-deletion
+- [x] Create "My Reels" library page to view past reels
+- [x] Add download and share buttons for each reel
+- [x] Show expiration date on each reel ("Expires in X days")
+- [ ] Test S3 upload and lifecycle policy with real generation
+- [x] Update todo.md to mark completed items

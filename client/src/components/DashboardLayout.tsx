@@ -97,6 +97,7 @@ const menuItems = [
   { icon: Video, label: "Authority Reels Engine", path: "/autoreels" },
   { icon: Building2, label: "Property Tours", path: "/property-tours" },
   { icon: MessageSquare, label: "Script-to-Reel", path: "/script-to-reel" },
+  { icon: Video, label: "My Reels", path: "/my-reels" },
   { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails" },
   { icon: Award, label: "Market Dominance Coach", path: "/coach" },
   { icon: CreditCard, label: "Credits", path: "/credits" },

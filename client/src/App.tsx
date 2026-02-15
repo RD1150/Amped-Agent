@@ -40,6 +40,7 @@ import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
 import Drafts from "./pages/Drafts";
 import ScriptToReel from "./pages/ScriptToReel";
+import MyReels from "./pages/MyReels";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -87,6 +88,7 @@ function Router() {
         <Route path="/property-tours" component={PropertyTours} />
         <Route path="/content-templates" component={ContentTemplates} />
         <Route path="/script-to-reel" component={ScriptToReel} />
+        <Route path="/my-reels" component={MyReels} />
         <Route path="/drafts" component={Drafts} />
         <Route path="/coach" component={PerformanceCoach} />
         <Route path="/authority-profile" component={AuthorityProfile} />

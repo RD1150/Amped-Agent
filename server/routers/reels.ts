@@ -2,7 +2,8 @@ import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { generateTalkingAvatar } from "../_core/didAi";
 import { getDb } from "../db";
-import { reelUsage } from "../../drizzle/schema";
+import { reelUsage, aiReels } from "../../drizzle/schema";
+import { storagePut } from "../storage";
 import { eq, and, sql } from "drizzle-orm";
 
 /**
@@ -130,32 +131,117 @@ export const reelsRouter = router({
       }
       
       try {
-        // Generate talking avatar video with D-ID
-        const videoUrl = await generateTalkingAvatar({
-          sourceUrl: input.avatarUrl,
-          script: input.script,
-          voiceId: input.voiceId || "en-US-JennyNeural",
-        });
+        // Calculate expiration date (90 days from now)
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 90);
         
-        // Increment usage count
-        await incrementReelUsage(ctx.user.id, tier);
+        // Create database record first
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
         
-        // Get updated usage
-        const updatedUsage = await getReelUsage(ctx.user.id, tier);
-        const limit = tier === "free" ? 3 : 30;
+        const [reelRecord] = await db
+          .insert(aiReels)
+          .values({
+            userId: ctx.user.id,
+            script: input.script,
+            didVideoUrl: "", // Will update after generation
+            avatarUrl: input.avatarUrl,
+            voiceId: input.voiceId || "en-US-JennyNeural",
+            status: "processing",
+            expiresAt,
+          })
+          .$returningId();
         
-        return {
-          videoUrl,
-          needsWatermark: tier === "free",
-          usage: {
-            current: updatedUsage.count,
-            limit,
-            remaining: Math.max(0, limit - updatedUsage.count),
-          },
-        };
+        const reelId = reelRecord.id;
+        
+        try {
+          // Generate talking avatar video with D-ID
+          const didVideoUrl = await generateTalkingAvatar({
+            sourceUrl: input.avatarUrl,
+            script: input.script,
+            voiceId: input.voiceId || "en-US-JennyNeural",
+          });
+          
+          // Download video from D-ID and upload to S3
+          const videoResponse = await fetch(didVideoUrl);
+          if (!videoResponse.ok) throw new Error("Failed to download video from D-ID");
+          
+          const videoBuffer = Buffer.from(await videoResponse.arrayBuffer());
+          const s3Key = `reels/${ctx.user.id}/${reelId}-${Date.now()}.mp4`;
+          
+          // Upload to S3 with 90-day lifecycle tag
+          const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
+          
+          // Update record with video URLs
+          await db
+            .update(aiReels)
+            .set({
+              didVideoUrl,
+              s3Key,
+              s3Url,
+              status: "completed",
+            })
+            .where(eq(aiReels.id, reelId));
+          
+          // Increment usage count
+          await incrementReelUsage(ctx.user.id, tier);
+          
+          // Get updated usage
+          const updatedUsage = await getReelUsage(ctx.user.id, tier);
+          const limit = tier === "free" ? 3 : 30;
+          
+          return {
+            reelId,
+            videoUrl: s3Url,
+            needsWatermark: tier === "free",
+            expiresAt: expiresAt.toISOString(),
+            usage: {
+              current: updatedUsage.count,
+              limit,
+              remaining: Math.max(0, limit - updatedUsage.count),
+            },
+          };
+        } catch (generationError) {
+          // Mark reel as failed
+          await db
+            .update(aiReels)
+            .set({ status: "failed" })
+            .where(eq(aiReels.id, reelId));
+          throw generationError;
+        }
       } catch (error) {
         console.error("D-ID generation error:", error);
         throw new Error(`Failed to generate reel: ${error instanceof Error ? error.message : "Unknown error"}`);
       }
     }),
+
+  /**
+   * List all reels for the authenticated user (not expired)
+   */
+  listReels: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    
+    const reels = await db
+      .select()
+      .from(aiReels)
+      .where(
+        and(
+          eq(aiReels.userId, ctx.user.id),
+          eq(aiReels.status, "completed")
+        )
+      )
+      .orderBy(sql`${aiReels.createdAt} DESC`);
+    
+    // Filter out expired reels
+    const now = new Date();
+    const activeReels = reels.filter(reel => new Date(reel.expiresAt) > now);
+    
+    return activeReels.map(reel => ({
+      ...reel,
+      daysUntilExpiration: Math.ceil(
+        (new Date(reel.expiresAt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      ),
+    }));
+  }),
 });

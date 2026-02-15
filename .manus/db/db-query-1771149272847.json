@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS ai_reels (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  userId INT NOT NULL,\n  title VARCHAR(255),\n  script TEXT NOT NULL,\n  didVideoUrl TEXT NOT NULL,\n  s3Key VARCHAR(500),\n  s3Url TEXT,\n  avatarUrl TEXT NOT NULL,\n  voiceId VARCHAR(100) NOT NULL,\n  duration INT,\n  status ENUM('processing', 'completed', 'failed', 'expired') NOT NULL DEFAULT 'processing',\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  expiresAt TIMESTAMP NOT NULL\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute CREATE TABLE IF NOT EXISTS ai_reels (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  userId INT NOT NULL,\n  title VARCHAR(255),\n  script TEXT NOT NULL,\n  didVideoUrl TEXT NOT NULL,\n  s3Key VARCHAR(500),\n  s3Url TEXT,\n  avatarUrl TEXT NOT NULL,\n  voiceId VARCHAR(100) NOT NULL,\n  duration INT,\n  status ENUM('processing', 'completed', 'failed', 'expired') NOT NULL DEFAULT 'processing',\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  expiresAt TIMESTAMP NOT NULL\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 200
+}
