@@ -50,8 +50,11 @@ export default function PropertyTours() {
   const [customScript, setCustomScript] = useState("");
   const [customCameraPrompt, setCustomCameraPrompt] = useState("");
   const [perPhotoMovements, setPerPhotoMovements] = useState<string[]>([]);
+  const [movementSpeed, setMovementSpeed] = useState<"slow" | "fast">("slow");
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropImageIndex, setCropImageIndex] = useState<number | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -273,6 +276,7 @@ Generate ONLY the script text, no additional commentary.`;
         customCameraPrompt: customCameraPrompt || undefined,
         voiceoverScript: customScript || undefined,
         perPhotoMovements: perPhotoMovements.length > 0 ? perPhotoMovements : undefined,
+        movementSpeed,
       });
 
       // Set generating state
@@ -831,6 +835,25 @@ Generate ONLY the script text, no additional commentary.`;
                 </div>
               </div>
             )}
+
+            {/* Movement Speed Preset */}
+            <div className="space-y-2">
+              <Label htmlFor="movementSpeed">Camera Movement Speed</Label>
+              <Select value={movementSpeed} onValueChange={(value: "slow" | "fast") => setMovementSpeed(value)}>
+                <SelectTrigger id="movementSpeed">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="slow">🎬 Slow & Dramatic (6-8s per photo)</SelectItem>
+                  <SelectItem value="fast">⚡ Fast & Energetic (3-4s per photo)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {movementSpeed === "slow" 
+                  ? "Cinematic, gentle movements perfect for luxury properties" 
+                  : "Quick, dynamic pacing ideal for modern, energetic listings"}
+              </p>
+            </div>
 
             {/* Voiceover Options */}
             <div className="space-y-3">

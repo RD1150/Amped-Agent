@@ -496,6 +496,7 @@ export const propertyTours = mysqlTable("property_tours", {
   voiceoverScript: text("voiceoverScript"), // Custom voiceover script (if not provided, will auto-generate from property details)
   customCameraPrompt: text("customCameraPrompt"), // Custom Runway ML camera movement prompt (e.g., "drone shot flying over property")
   perPhotoMovements: text("perPhotoMovements"), // JSON array of camera movement presets for each photo (e.g., ["zoom-in-pan-right", "dramatic-zoom", ...])
+  movementSpeed: mysqlEnum("movementSpeed", ["slow", "fast"]).default("slow"), // Camera movement speed: slow (6-8s per photo, cinematic) or fast (3-4s per photo, energetic)
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),

@@ -39,6 +39,7 @@ export const propertyToursRouter = router({
         customCameraPrompt: z.string().optional(),
         voiceoverScript: z.string().optional(),
         perPhotoMovements: z.array(z.string()).optional(),
+        movementSpeed: z.enum(["slow", "fast"]).default("slow"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -66,6 +67,7 @@ export const propertyToursRouter = router({
         customCameraPrompt: input.customCameraPrompt,
         voiceoverScript: input.voiceoverScript,
         perPhotoMovements: input.perPhotoMovements ? JSON.stringify(input.perPhotoMovements) : undefined,
+        movementSpeed: input.movementSpeed,
         status: "pending",
       });
 
@@ -168,6 +170,7 @@ export const propertyToursRouter = router({
           customCameraPrompt: tour.customCameraPrompt || undefined,
           voiceoverScript: tour.voiceoverScript || undefined,
           perPhotoMovements: tour.perPhotoMovements ? JSON.parse(tour.perPhotoMovements) : undefined,
+          movementSpeed: (tour.movementSpeed as "slow" | "fast") || "slow",
         });
 
         // Store render ID for polling

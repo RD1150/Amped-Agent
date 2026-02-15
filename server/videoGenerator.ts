@@ -27,6 +27,7 @@ export interface VideoGenerationOptions {
   voiceoverScript?: string; // Custom script (if not provided, will auto-generate)
   customCameraPrompt?: string; // Custom Runway ML camera movement prompt
   perPhotoMovements?: string[]; // Camera movement preset for each photo
+  movementSpeed?: "slow" | "fast"; // Camera movement speed: slow (6-8s per photo) or fast (3-4s per photo)
 }
 
 export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contemporary";
@@ -85,8 +86,12 @@ export async function generatePropertyTourVideo(
     throw new Error("At least one image is required");
   }
 
-  // Calculate duration per image
-  const durationPerImage = duration / imageUrls.length;
+  // Calculate duration per image based on movement speed
+  // Slow: 6-8s per photo (cinematic), Fast: 3-4s per photo (energetic)
+  const baseDurationPerImage = duration / imageUrls.length;
+  const speedMultiplier = options.movementSpeed === "fast" ? 0.6 : 1.0; // Fast = 60% of normal duration
+  const durationPerImage = baseDurationPerImage * speedMultiplier;
+  const easingCurve = options.movementSpeed === "fast" ? "easeInOutCubic" : "easeInOutQuad"; // Snappier for fast
 
   // Generate voiceover if enabled
   let voiceoverUrl: string | undefined;
@@ -257,7 +262,7 @@ export async function generatePropertyTourVideo(
             start: 0,
             length: durationPerImage,
             interpolation: "bezier",
-            easing: "easeInOutQuad",
+            easing: easingCurve,
           },
         ],
       },
@@ -269,7 +274,7 @@ export async function generatePropertyTourVideo(
             start: 0,
             length: durationPerImage,
             interpolation: "bezier",
-            easing: "easeInOutQuad",
+            easing: easingCurve,
           },
         ],
         y: [
@@ -279,7 +284,7 @@ export async function generatePropertyTourVideo(
             start: 0,
             length: durationPerImage,
             interpolation: "bezier",
-            easing: "easeInOutQuad",
+            easing: easingCurve,
           },
         ],
       },

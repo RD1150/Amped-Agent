@@ -253,6 +253,13 @@
       "when": 1771113707690,
       "tag": "0035_early_warpath",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "5",
+      "when": 1771133858599,
+      "tag": "0036_mighty_impossible_man",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE `property_tours` ADD `movementSpeed` enum('slow','fast') DEFAULT 'slow';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute ALTER TABLE `property_tours` ADD `movementSpeed` enum('slow','fast') DEFAULT 'slow';",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1060 (42S21) at line 1: Duplicate column name 'movementSpeed'"
+  ]
+}

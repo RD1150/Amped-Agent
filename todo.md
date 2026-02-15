@@ -2677,3 +2677,31 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add zoom/pan controls for fine-tuning crop area
 - [x] Replace original photo URL with cropped version in preview
 - [ ] Test cropping with various image sizes and aspect ratios
+
+## Property Tours - Final Three Features Before Publishing
+
+### 1. Movement Speed Presets
+- [x] Add speed preset dropdown ("Slow & Dramatic" vs "Fast & Energetic")
+- [x] Adjust animation duration based on speed preset (slow: 6-8s, fast: 3-4s per photo)
+- [x] Adjust easing curves (slow: easeInOutQuad, fast: easeInOutCubic)
+- [x] Wire speed preset to backend video generator
+- [x] Add movementSpeed column to database schema
+- [ ] Test both speed presets with sample videos
+
+### 2. Batch Crop Templates
+- [ ] Create cropTemplates database table
+- [ ] Add "Save Crop Template" button in crop modal with name input
+- [ ] Create tRPC router for crop templates (list, create, delete)
+- [ ] Display saved templates dropdown in crop modal
+- [ ] Add "Apply Template to All Photos" button
+- [ ] Add "Apply Template to Selected Photos" with multi-select UI
+- [ ] Test template save/load/apply workflow
+
+### 3. Preview Before Render
+- [ ] Add "Generate Preview" button next to "Generate Video"
+- [ ] Create preview generation function (first 2-3 photos, 5-second duration)
+- [ ] Use lower resolution (720p) for faster preview rendering
+- [ ] Show preview player with download option
+- [ ] Add "Looks good? Generate Full Video" prompt after preview
+- [ ] Make preview free (no credit cost)
+- [ ] Test preview generation speed and quality
