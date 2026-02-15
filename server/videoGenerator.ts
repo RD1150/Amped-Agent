@@ -176,10 +176,7 @@ export async function generatePropertyTourVideo(
         start: index * durationPerImage,
         length: durationPerImage,
         fit: "cover",
-        transition: {
-          in: index === 0 ? "fade" : "fade",
-          out: "fade",
-        },
+        // No transitions for seamless flow
       };
     }
     
@@ -197,10 +194,7 @@ export async function generatePropertyTourVideo(
         start: index * durationPerImage,
         length: durationPerImage,
         fit: "cover",
-        transition: {
-          in: index === 0 ? "fade" : "fade",
-          out: "fade",
-        },
+        // No transitions for seamless flow
       };
     }
     
@@ -247,8 +241,12 @@ export async function generatePropertyTourVideo(
         type: "image",
         src: url,
       },
-      start: index * durationPerImage,
-      length: durationPerImage,
+      start: index * durationPerImage - (index > 0 ? 0.3 : 0), // Overlap by 0.3s for seamless flow
+      length: durationPerImage + (index < options.imageUrls.length - 1 ? 0.3 : 0), // Extend to overlap with next clip
+      transition: index > 0 ? {
+        in: "fade",
+        out: index < options.imageUrls.length - 1 ? "fade" : undefined,
+      } : undefined,
       fit: fitMode,
       // Custom transform animations for AutoReels-quality movement
       transform: {
@@ -285,8 +283,6 @@ export async function generatePropertyTourVideo(
           },
         ],
       },
-      // Use cut transitions for continuous cinematic flow (AutoReels style)
-      transition: index === 0 ? { in: "fade" } : undefined,
     };
   });
 
@@ -621,7 +617,7 @@ export async function generatePropertyTourVideo(
   const soundtrack: any = musicTrack ? {
     type: "audio", // Required: specify asset type
     src: getMusicTrackUrl(musicTrack),
-    effect: "fadeInFadeOut",
+    // No fade effects for constant audio throughout (ultra-smooth)
     volume: enableVoiceover ? 0.3 : 0.6, // Increased volume for audibility
   } : undefined;
 
@@ -654,8 +650,9 @@ export async function generatePropertyTourVideo(
       format: "mp4",
       resolution,
       ...(size && { size }), // Add size for custom dimensions
-      fps: 30,
+      fps: 60, // Ultra-smooth 60fps for AutoReels-quality motion
       quality: "high",
+      motionBlur: true, // Add cinematic motion blur
       // Generate poster image from the most visually appealing frame
       // Capture at 25% through the video (after intro, during property photos)
       poster: {

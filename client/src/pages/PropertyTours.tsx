@@ -12,10 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Video, Loader2, Download, Trash2, Play } from "lucide-react";
+import { Upload, Video, Loader2, Download, Trash2, Play, Edit } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
+import { ImageCropModal } from "@/components/ImageCropModal";
 
 export default function PropertyTours() {
   const utils = trpc.useUtils();
@@ -49,6 +50,8 @@ export default function PropertyTours() {
   const [customScript, setCustomScript] = useState("");
   const [customCameraPrompt, setCustomCameraPrompt] = useState("");
   const [perPhotoMovements, setPerPhotoMovements] = useState<string[]>([]);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [cropImageIndex, setCropImageIndex] = useState<number | null>(null);
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -542,6 +545,18 @@ Generate ONLY the script text, no additional commentary.`;
                           alt={`Property ${i + 1}`}
                           className="w-full h-32 object-cover rounded"
                         />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="secondary"
+                          className="absolute top-1 left-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => {
+                            setCropImageIndex(i);
+                            setCropModalOpen(true);
+                          }}
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
                         <Button
                           type="button"
                           size="icon"
@@ -1228,6 +1243,24 @@ Generate ONLY the script text, no additional commentary.`;
             </div>
           </Card>
         </div>
+      )}
+      
+      {/* Image Crop Modal */}
+      {cropModalOpen && cropImageIndex !== null && (
+        <ImageCropModal
+          open={cropModalOpen}
+          onClose={() => {
+            setCropModalOpen(false);
+            setCropImageIndex(null);
+          }}
+          imageUrl={uploadedImageUrls[cropImageIndex]}
+          onCropComplete={(croppedImageUrl) => {
+            const newUrls = [...uploadedImageUrls];
+            newUrls[cropImageIndex] = croppedImageUrl;
+            setUploadedImageUrls(newUrls);
+            toast.success("Photo cropped successfully");
+          }}
+        />
       )}
     </div>
   );

@@ -2660,3 +2660,20 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update video generator to use per-photo presets instead of cycling pattern
 - [ ] Add "Apply to All" button to set same movement for all photos
 - [ ] Test per-photo camera movements with different combinations
+
+## Property Tours - Ultra-Smooth Video Refinements (All Improvements)
+- [x] Remove ALL fade transitions (set duration to 0 for instant cuts)
+- [x] Add cross-dissolve blending between clips (no black frames)
+- [x] Overlap clips by 0.2-0.3 seconds for seamless flow
+- [x] Remove music fade-in/fade-out (constant audio throughout)
+- [x] Increase frame rate from 30fps to 60fps for ultra-smooth motion
+- [x] Add motion blur effect to simulate cinematic camera movement
+- [ ] Test all improvements together for AutoReels-level smoothness
+
+## Property Tours - Photo Cropping/Editing Feature
+- [x] Add "Edit" button to each uploaded photo thumbnail
+- [x] Implement crop tool UI with draggable crop area (react-easy-crop)
+- [x] Add rotation controls (90° left/right)
+- [x] Add zoom/pan controls for fine-tuning crop area
+- [x] Replace original photo URL with cropped version in preview
+- [ ] Test cropping with various image sizes and aspect ratios
