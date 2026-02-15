@@ -38,6 +38,7 @@ export const propertyToursRouter = router({
         voiceId: z.string().optional(),
         customCameraPrompt: z.string().optional(),
         voiceoverScript: z.string().optional(),
+        perPhotoMovements: z.array(z.string()).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -64,6 +65,7 @@ export const propertyToursRouter = router({
         voiceId: input.voiceId,
         customCameraPrompt: input.customCameraPrompt,
         voiceoverScript: input.voiceoverScript,
+        perPhotoMovements: input.perPhotoMovements ? JSON.stringify(input.perPhotoMovements) : undefined,
         status: "pending",
       });
 
@@ -165,6 +167,7 @@ export const propertyToursRouter = router({
           voiceId: tour.voiceId || undefined,
           customCameraPrompt: tour.customCameraPrompt || undefined,
           voiceoverScript: tour.voiceoverScript || undefined,
+          perPhotoMovements: tour.perPhotoMovements ? JSON.parse(tour.perPhotoMovements) : undefined,
         });
 
         // Store render ID for polling

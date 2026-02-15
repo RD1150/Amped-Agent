@@ -48,6 +48,7 @@ export default function PropertyTours() {
   const [generatedScript, setGeneratedScript] = useState("");
   const [customScript, setCustomScript] = useState("");
   const [customCameraPrompt, setCustomCameraPrompt] = useState("");
+  const [perPhotoMovements, setPerPhotoMovements] = useState<string[]>([]);
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
@@ -268,6 +269,7 @@ Generate ONLY the script text, no additional commentary.`;
         voiceId: enableVoiceover ? voiceId : undefined,
         customCameraPrompt: customCameraPrompt || undefined,
         voiceoverScript: customScript || undefined,
+        perPhotoMovements: perPhotoMovements.length > 0 ? perPhotoMovements : undefined,
       });
 
       // Set generating state
@@ -531,29 +533,56 @@ Generate ONLY the script text, no additional commentary.`;
                     Remove All
                   </Button>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-4">
                   {uploadedImageUrls.map((url, i) => (
-                    <div key={i} className="relative group">
-                      <img
-                        src={url}
-                        alt={`Property ${i + 1}`}
-                        className="w-full h-24 object-cover rounded"
-                      />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="destructive"
-                        className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => {
-                          const newUrls = uploadedImageUrls.filter((_, index) => index !== i);
-                          const newFiles = selectedFiles.filter((_, index) => index !== i);
-                          setUploadedImageUrls(newUrls);
-                          setSelectedFiles(newFiles);
-                          toast.success("Photo removed");
+                    <div key={i} className="space-y-2">
+                      <div className="relative group">
+                        <img
+                          src={url}
+                          alt={`Property ${i + 1}`}
+                          className="w-full h-32 object-cover rounded"
+                        />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="destructive"
+                          className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => {
+                            const newUrls = uploadedImageUrls.filter((_, index) => index !== i);
+                            const newFiles = selectedFiles.filter((_, index) => index !== i);
+                            const newMovements = perPhotoMovements.filter((_, index) => index !== i);
+                            setUploadedImageUrls(newUrls);
+                            setSelectedFiles(newFiles);
+                            setPerPhotoMovements(newMovements);
+                            toast.success("Photo removed");
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      <Select
+                        value={perPhotoMovements[i] || "auto"}
+                        onValueChange={(value) => {
+                          const newMovements = [...perPhotoMovements];
+                          newMovements[i] = value;
+                          setPerPhotoMovements(newMovements);
                         }}
                       >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                        <SelectTrigger className="text-xs h-8">
+                          <SelectValue placeholder="Camera Movement" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="auto">🎬 Auto (Cycle)</SelectItem>
+                          <SelectItem value="zoom-in-pan-right">🔍 Zoom In + Pan Right</SelectItem>
+                          <SelectItem value="zoom-out-pan-left">🔎 Zoom Out + Pan Left</SelectItem>
+                          <SelectItem value="pan-right-zoom">➡️ Pan Right + Zoom</SelectItem>
+                          <SelectItem value="pan-left-zoom">⬅️ Pan Left + Zoom</SelectItem>
+                          <SelectItem value="dramatic-zoom">⭐ Dramatic Zoom (Hero)</SelectItem>
+                          <SelectItem value="pan-up-zoom">⬆️ Pan Up + Zoom</SelectItem>
+                          <SelectItem value="pan-down-zoom">⬇️ Pan Down + Zoom</SelectItem>
+                          <SelectItem value="diagonal-pan-zoom">↗️ Diagonal Pan + Zoom</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   ))}
                 </div>

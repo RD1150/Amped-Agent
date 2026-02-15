@@ -26,6 +26,7 @@ export interface VideoGenerationOptions {
   voiceId?: string; // ElevenLabs voice ID
   voiceoverScript?: string; // Custom script (if not provided, will auto-generate)
   customCameraPrompt?: string; // Custom Runway ML camera movement prompt
+  perPhotoMovements?: string[]; // Camera movement preset for each photo
 }
 
 export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contemporary";
@@ -205,26 +206,38 @@ export async function generatePropertyTourVideo(
     
     // AutoReels-style custom Ken Burns effects with dramatic movements
     // Create custom scale + offset animations for professional cinematic feel
-    const cinematicAnimations = [
-      // Zoom in with slight pan right
-      { scale: { from: 1.0, to: 1.3 }, offset: { x: { from: 0, to: 0.05 }, y: { from: 0, to: 0 } } },
-      // Zoom out with pan left
-      { scale: { from: 1.3, to: 1.0 }, offset: { x: { from: 0.05, to: 0 }, y: { from: 0, to: 0 } } },
-      // Pan right with slight zoom
-      { scale: { from: 1.1, to: 1.25 }, offset: { x: { from: -0.1, to: 0.1 }, y: { from: 0, to: 0 } } },
-      // Pan left with zoom in
-      { scale: { from: 1.0, to: 1.3 }, offset: { x: { from: 0.1, to: -0.05 }, y: { from: 0, to: 0 } } },
-      // Dramatic zoom in (hero shot)
-      { scale: { from: 1.0, to: 1.4 }, offset: { x: { from: 0, to: 0 }, y: { from: 0, to: 0 } } },
-      // Pan up with zoom
-      { scale: { from: 1.1, to: 1.3 }, offset: { x: { from: 0, to: 0 }, y: { from: 0.05, to: -0.05 } } },
-      // Pan down with zoom out
-      { scale: { from: 1.3, to: 1.1 }, offset: { x: { from: 0, to: 0 }, y: { from: -0.05, to: 0.05 } } },
-      // Diagonal pan with zoom
-      { scale: { from: 1.0, to: 1.35 }, offset: { x: { from: -0.05, to: 0.05 }, y: { from: -0.05, to: 0.05 } } },
+    const cinematicAnimations: Record<string, { scale: { from: number; to: number }; offset: { x: { from: number; to: number }; y: { from: number; to: number } } }> = {
+      "zoom-in-pan-right": { scale: { from: 1.0, to: 1.3 }, offset: { x: { from: 0, to: 0.05 }, y: { from: 0, to: 0 } } },
+      "zoom-out-pan-left": { scale: { from: 1.3, to: 1.0 }, offset: { x: { from: 0.05, to: 0 }, y: { from: 0, to: 0 } } },
+      "pan-right-zoom": { scale: { from: 1.1, to: 1.25 }, offset: { x: { from: -0.1, to: 0.1 }, y: { from: 0, to: 0 } } },
+      "pan-left-zoom": { scale: { from: 1.0, to: 1.3 }, offset: { x: { from: 0.1, to: -0.05 }, y: { from: 0, to: 0 } } },
+      "dramatic-zoom": { scale: { from: 1.0, to: 1.4 }, offset: { x: { from: 0, to: 0 }, y: { from: 0, to: 0 } } },
+      "pan-up-zoom": { scale: { from: 1.1, to: 1.3 }, offset: { x: { from: 0, to: 0 }, y: { from: 0.05, to: -0.05 } } },
+      "pan-down-zoom": { scale: { from: 1.3, to: 1.1 }, offset: { x: { from: 0, to: 0 }, y: { from: -0.05, to: 0.05 } } },
+      "diagonal-pan-zoom": { scale: { from: 1.0, to: 1.35 }, offset: { x: { from: -0.05, to: 0.05 }, y: { from: -0.05, to: 0.05 } } },
+    };
+    
+    // Default cycling pattern for auto mode
+    const defaultPattern = [
+      "zoom-in-pan-right",
+      "zoom-out-pan-left",
+      "pan-right-zoom",
+      "pan-left-zoom",
+      "dramatic-zoom",
+      "pan-up-zoom",
+      "pan-down-zoom",
+      "diagonal-pan-zoom",
     ];
     
-    const animation = cinematicAnimations[index % cinematicAnimations.length];
+    // Use per-photo movement if provided, otherwise cycle through default pattern
+    let movementKey: string;
+    if (options.perPhotoMovements && options.perPhotoMovements[index] && options.perPhotoMovements[index] !== "auto") {
+      movementKey = options.perPhotoMovements[index];
+    } else {
+      movementKey = defaultPattern[index % defaultPattern.length];
+    }
+    
+    const animation = cinematicAnimations[movementKey] || cinematicAnimations["dramatic-zoom"];
     
     // Smart fit for vertical videos (9:16) to reduce aggressive cropping
     const fitMode = aspectRatio === "9:16" ? "contain" : "cover";

@@ -2653,3 +2653,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Implement custom scale + offset animations with bezier easing
 - [x] Add 8 different cinematic animation patterns (zoom+pan combinations)
 - [ ] Test with user's property photos to match AutoReels quality
+
+## Property Tours - Per-Photo Camera Movement Selection
+- [x] Add camera movement dropdown to each uploaded photo preview
+- [x] Store camera movement preset for each photo (array of presets)
+- [x] Update video generator to use per-photo presets instead of cycling pattern
+- [ ] Add "Apply to All" button to set same movement for all photos
+- [ ] Test per-photo camera movements with different combinations
