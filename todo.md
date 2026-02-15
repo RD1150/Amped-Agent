@@ -2722,3 +2722,25 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add "Delete" button alongside existing actions
 - [x] Implement delete functionality to clear generated content from UI
 - [ ] Test delete workflow with sample generated posts
+
+## Property Tours - Add Delete Button
+- [x] Find where Property Tours video results are displayed
+- [x] Add Delete button to discard generated videos
+- [x] Clear video URL and generation state when deleted
+- [x] Show confirmation dialog on delete
+
+## Content Generation - Add Regenerate Button
+- [x] Add Regenerate button to Authority Post Builder results
+- [ ] Add Regenerate button to Property Tours results
+- [x] Preserve all form settings when regenerating
+- [x] Clear previous results and trigger new generation
+- [x] Add loading state during regeneration
+
+## Draft Management Page
+- [x] Create new Drafts page route and navigation link
+- [x] Display all saved drafts in a grid/list view
+- [ ] Add edit functionality to modify draft content
+- [x] Add individual delete button for each draft
+- [x] Add bulk select and bulk delete functionality
+- [x] Add search/filter by content type or date
+- [ ] Test draft CRUD operations

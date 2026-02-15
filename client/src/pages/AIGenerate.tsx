@@ -25,7 +25,8 @@ import {
   Calendar,
   Image as ImageIcon,
   Loader2,
-  Trash2
+  Trash2,
+  RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -567,10 +568,25 @@ export default function AIGenerate() {
                         Delete
                       </Button>
                     </div>
-                    <Button onClick={() => setShowPostingDialog(true)} className="w-full mt-2">
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Post to Social Media
-                    </Button>
+                    <div className="flex gap-2 mt-2">
+                      <Button 
+                        onClick={() => {
+                          setGeneratedContent("");
+                          setGeneratedImage(null);
+                          handleGenerate();
+                        }} 
+                        variant="outline" 
+                        className="flex-1"
+                        disabled={generateContent.isPending}
+                      >
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Regenerate
+                      </Button>
+                      <Button onClick={() => setShowPostingDialog(true)} className="flex-1">
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Post to Social Media
+                      </Button>
+                    </div>
                   </div>
                 )}
                 </CardContent>

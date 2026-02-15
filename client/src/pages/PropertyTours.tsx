@@ -1189,6 +1189,19 @@ Generate ONLY the script text, no additional commentary.`;
                                 Download
                               </a>
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-destructive hover:text-destructive"
+                              onClick={() => {
+                                if (confirm("Are you sure you want to delete this video?")) {
+                                  deleteTour.mutate({ tourId: tour.id });
+                                }
+                              }}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </Button>
                           </>
                         ) : tour.status === "processing" ? (
                           <span className="text-sm text-muted-foreground flex items-center">

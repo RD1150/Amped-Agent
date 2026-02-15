@@ -38,6 +38,7 @@ import Subscription from "./pages/Subscription";
 import Credits from "./pages/Credits";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
+import Drafts from "./pages/Drafts";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -84,6 +85,7 @@ function Router() {
         <Route path="/thumbnails" component={ThumbnailGenerator} />
         <Route path="/property-tours" component={PropertyTours} />
         <Route path="/content-templates" component={ContentTemplates} />
+        <Route path="/drafts" component={Drafts} />
         <Route path="/coach" component={PerformanceCoach} />
         <Route path="/authority-profile" component={AuthorityProfile} />
         <Route path="/market-stats" component={MarketStats} />

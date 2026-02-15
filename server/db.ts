@@ -1,4 +1,4 @@
-import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
+import { eq, desc, and, gte, lte, sql, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users, 
@@ -20,7 +20,8 @@ import {
   betaSignups, BetaSignup, InsertBetaSignup,
   customPromptTemplates, CustomPromptTemplate, InsertCustomPromptTemplate,
   propertyTours, PropertyTour, InsertPropertyTour,
-  contentTemplates, ContentTemplate, InsertContentTemplate
+  contentTemplates, ContentTemplate, InsertContentTemplate,
+  drafts, Draft, InsertDraft
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -814,4 +815,31 @@ export async function deleteContentTemplatesByBatchId(batchId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(contentTemplates).where(eq(contentTemplates.importBatchId, batchId));
+}
+
+// ============ DRAFT HELPERS ============
+
+export async function createDraft(data: InsertDraft) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(drafts).values(data);
+  return result[0];
+}
+
+export async function getDraftsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(drafts).where(eq(drafts.userId, userId)).orderBy(desc(drafts.createdAt));
+}
+
+export async function deleteDraft(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(drafts).where(eq(drafts.id, id));
+}
+
+export async function bulkDeleteDrafts(ids: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(drafts).where(inArray(drafts.id, ids));
 }

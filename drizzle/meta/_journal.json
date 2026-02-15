@@ -260,6 +260,13 @@
       "when": 1771133858599,
       "tag": "0036_mighty_impossible_man",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "5",
+      "when": 1771142170414,
+      "tag": "0037_cynical_starhawk",
+      "breakpoints": true
     }
   ]
 }

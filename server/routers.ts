@@ -18,12 +18,14 @@ import { contentTemplatesRouter } from "./routers/contentTemplates";
 import { creditsRouter } from "./routers/credits";
 import { rateLimitRouter } from "./routers/rateLimit";
 import { adminRouter } from "./routers/admin";
+import { draftsRouter } from "./routers/drafts";
 
 export const appRouter = router({
   system: systemRouter,
   credits: creditsRouter,
   rateLimit: rateLimitRouter,
   admin: adminRouter,
+  drafts: draftsRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
