@@ -2716,3 +2716,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Make text background auto-size to fit text only (not full-width band)
 - [x] Reduce background opacity from 0.85 to 0.45 for subtlety
 - [ ] Test with sample property photos to verify improved appearance
+
+## Authority Post Builder - Add Delete Button
+- [x] Find where generated post results are displayed (Copy/Save/Post buttons)
+- [x] Add "Delete" button alongside existing actions
+- [x] Implement delete functionality to clear generated content from UI
+- [ ] Test delete workflow with sample generated posts

@@ -24,7 +24,8 @@ import {
   Check,
   Calendar,
   Image as ImageIcon,
-  Loader2
+  Loader2,
+  Trash2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -552,6 +553,18 @@ export default function AIGenerate() {
                       <Button onClick={handleSaveDraft} variant="outline" className="flex-1">
                         <Calendar className="mr-2 h-4 w-4" />
                         Save to Drafts
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          setGeneratedContent("");
+                          setGeneratedImage(null);
+                          toast.success("Content discarded");
+                        }} 
+                        variant="outline" 
+                        className="flex-1 text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
                       </Button>
                     </div>
                     <Button onClick={() => setShowPostingDialog(true)} className="w-full mt-2">
