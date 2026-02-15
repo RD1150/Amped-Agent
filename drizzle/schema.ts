@@ -582,3 +582,19 @@ export const drafts = mysqlTable("drafts", {
 
 export type Draft = typeof drafts.$inferSelect;
 export type InsertDraft = typeof drafts.$inferInsert;
+
+/**
+ * Reel Usage - Track monthly reel generation limits per user
+ */
+export const reelUsage = mysqlTable("reel_usage", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  month: varchar("month", { length: 7 }).notNull(), // Format: "2026-02"
+  count: int("count").default(0).notNull(), // Number of reels generated this month
+  tier: mysqlEnum("tier", ["free", "pro"]).default("free").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ReelUsage = typeof reelUsage.$inferSelect;
+export type InsertReelUsage = typeof reelUsage.$inferInsert;

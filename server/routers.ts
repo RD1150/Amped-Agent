@@ -19,6 +19,7 @@ import { creditsRouter } from "./routers/credits";
 import { rateLimitRouter } from "./routers/rateLimit";
 import { adminRouter } from "./routers/admin";
 import { draftsRouter } from "./routers/drafts";
+import { reelsRouter } from "./routers/reels";
 
 export const appRouter = router({
   system: systemRouter,
@@ -26,6 +27,7 @@ export const appRouter = router({
   rateLimit: rateLimitRouter,
   admin: adminRouter,
   drafts: draftsRouter,
+  reels: reelsRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

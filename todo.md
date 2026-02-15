@@ -2744,3 +2744,34 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add bulk select and bulk delete functionality
 - [x] Add search/filter by content type or date
 - [ ] Test draft CRUD operations
+
+## Script-to-Reel Generator (D-ID Talking Avatars)
+- [ ] Set up D-ID API integration in server/_core/didAi.ts
+- [ ] Create talking avatar service with script-to-video generation
+- [ ] Create Authority Reels Engine page/component for Script-to-Reel UI
+- [ ] Add script input textarea (max 60 seconds of speech ~150-180 words)
+- [ ] Add avatar selection dropdown (preset avatars + custom upload)
+- [ ] Add voice selection dropdown (male/female, different accents)
+- [ ] Implement usage tracking system for reel generation limits
+- [ ] Add reelUsage table to database schema (userId, month, count, tier)
+- [ ] Create tRPC procedures for checking/updating reel usage
+- [ ] Add watermark overlay for free tier videos ("Created with AuthorityContent.co")
+- [ ] Implement tier limits: Free (3/month with watermark), Pro (30/month no watermark)
+- [ ] Add reel generation to existing Authority Reels Engine or create new page
+- [ ] Test Script-to-Reel with sample scripts and avatars
+- [ ] Add error handling for D-ID API failures
+- [ ] Add loading states and progress indicators during generation
+
+## Script-to-Reel Generator (D-ID Talking Avatars)
+- [x] Create D-ID API service integration (server/_core/didAi.ts)
+- [x] Create reelUsage database schema for tracking monthly limits
+- [x] Implement tRPC router for reel generation (server/routers/reels.ts)
+- [x] Build Script-to-Reel UI page with avatar selection and script input
+- [x] Add usage limit enforcement (3 reels/month free, 30 reels/month pro)
+- [x] Implement watermark logic for free tier ("Created with AuthorityContent.co")
+- [x] Add Script-to-Reel to navigation menu
+- [x] Write and pass vitest tests for reel generation
+- [ ] Test end-to-end reel generation with real D-ID API
+- [ ] Add reel history/library page to view past generations
+- [ ] Implement regenerate button for reels
+- [ ] Add download and share functionality for generated reels

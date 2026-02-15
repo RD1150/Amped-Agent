@@ -267,6 +267,13 @@
       "when": 1771142170414,
       "tag": "0037_cynical_starhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "5",
+      "when": 1771147815521,
+      "tag": "0038_rare_stingray",
+      "breakpoints": true
     }
   ]
 }

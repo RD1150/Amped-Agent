@@ -49,7 +49,8 @@ import {
   Youtube,
   Award,
   Building2,
-  CreditCard
+  CreditCard,
+  MessageSquare
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -95,6 +96,7 @@ const menuItems = [
   { icon: Sparkles, label: "Authority Post Builder", path: "/generate" },
   { icon: Video, label: "Authority Reels Engine", path: "/autoreels" },
   { icon: Building2, label: "Property Tours", path: "/property-tours" },
+  { icon: MessageSquare, label: "Script-to-Reel", path: "/script-to-reel" },
   { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails" },
   { icon: Award, label: "Market Dominance Coach", path: "/coach" },
   { icon: CreditCard, label: "Credits", path: "/credits" },

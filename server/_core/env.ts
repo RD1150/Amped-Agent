@@ -22,4 +22,5 @@ export const ENV = {
   LUMA_API_KEY: process.env.LUMA_API_KEY ?? "",
   RUNWAY_API_KEY: process.env.RUNWAY_API_KEY ?? "",
   ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY ?? "",
+  DID_API_KEY: process.env.DID_API_KEY ?? "",
 };
