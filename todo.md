@@ -2705,3 +2705,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add "Looks good? Generate Full Video" prompt after preview
 - [ ] Make preview free (no credit cost)
 - [ ] Test preview generation speed and quality
+
+## Content Posts - Template Placeholder Text Issue
+- [ ] Investigate where "text here" placeholder appears without input field
+- [ ] Add missing input fields for all template placeholders
+- [ ] Test all content templates to ensure placeholders are editable
+- [ ] Verify template preview shows actual content, not placeholders
+
+## Property Tours - Text Overlay Refinement
+- [x] Make text background auto-size to fit text only (not full-width band)
+- [x] Reduce background opacity from 0.85 to 0.45 for subtlety
+- [ ] Test with sample property photos to verify improved appearance
