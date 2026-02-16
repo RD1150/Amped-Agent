@@ -47,6 +47,26 @@ export default function FAQ() {
     {
       question: "Do you offer training or support?",
       answer: "Yes! We provide video tutorials, live onboarding calls, and email support. Contact us anytime at support@realtycontentagent.com."
+    },
+    {
+      question: "What is Newsletter Builder?",
+      answer: "Newsletter Builder is a Premium feature that gives you access to Newsletter Pro - a professional email newsletter creation tool. Design beautiful newsletters with a drag-and-drop editor, then download them to use with any email platform you already have (Mailchimp, Constant Contact, ActiveCampaign, etc.)."
+    },
+    {
+      question: "How do I use newsletters with my email system?",
+      answer: "It's simple! Create your newsletter in Newsletter Pro, download it as HTML or PDF, then upload it to your existing email marketing platform. This works with any CRM or email service - you're not locked into a specific system."
+    },
+    {
+      question: "What's included in the Premium tier?",
+      answer: "Premium ($149/month) includes everything in Professional, plus: 30 Script-to-Reel videos per month, full Newsletter Builder access, email list management tools, newsletter templates, email analytics, automated campaigns, voice cloning, multiple avatar styles, and priority support."
+    },
+    {
+      question: "Do I need Newsletter Builder if I already have an email system?",
+      answer: "Newsletter Builder is a creation tool, not a replacement for your email system. Use it to design professional newsletters quickly, then export them to your existing platform. It saves time on design while letting you keep your current subscriber lists and sending infrastructure."
+    },
+    {
+      question: "Can I try Newsletter Builder before upgrading?",
+      answer: "Premium tier includes a 14-day free trial. You can test Newsletter Builder and all Premium features risk-free before committing to the subscription."
     }
   ];
 

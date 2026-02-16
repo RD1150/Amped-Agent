@@ -2798,3 +2798,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Test SSO token generation and deep linking
 - [x] Write vitest tests for SSO token generation
 - [x] Update todo.md to mark completed items
+
+## Newsletter Pro FAQ Section
+- [x] Add Newsletter Pro FAQ section to FAQ.tsx with common questions
+- [x] Include questions about Premium tier, download workflow, and email system compatibility
+- [x] Test FAQ display in browser
+- [x] Save checkpoint
