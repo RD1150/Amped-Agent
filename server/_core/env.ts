@@ -23,4 +23,6 @@ export const ENV = {
   RUNWAY_API_KEY: process.env.RUNWAY_API_KEY ?? "",
   ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY ?? "",
   DID_API_KEY: process.env.DID_API_KEY ?? "",
+  NEWSLETTER_PRO_URL: process.env.NEWSLETTER_PRO_URL ?? "https://newsletterpro.app",
+  NEWSLETTER_SSO_SECRET: process.env.NEWSLETTER_SSO_SECRET ?? "",
 };

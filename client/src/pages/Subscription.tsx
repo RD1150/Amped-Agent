@@ -63,7 +63,7 @@ export default function Subscription() {
   const handleUpgrade = async (tier: string, billingPeriod: "monthly" | "annual") => {
     try {
       const { url } = await createCheckoutSession.mutateAsync({
-        tier: tier as "essential" | "professional" | "enterprise",
+        tier: tier as "essential" | "professional" | "premium",
         billingPeriod,
         successUrl: window.location.origin + "/subscription?success=true",
         cancelUrl: window.location.origin + "/subscription?canceled=true",

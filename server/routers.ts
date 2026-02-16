@@ -20,6 +20,7 @@ import { rateLimitRouter } from "./routers/rateLimit";
 import { adminRouter } from "./routers/admin";
 import { draftsRouter } from "./routers/drafts";
 import { reelsRouter } from "./routers/reels";
+import { newsletterRouter } from "./routers/newsletter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -28,6 +29,7 @@ export const appRouter = router({
   admin: adminRouter,
   drafts: draftsRouter,
   reels: reelsRouter,
+  newsletter: newsletterRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

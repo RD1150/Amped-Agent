@@ -7,7 +7,7 @@
  * - Enterprise: $149/month or $1,490/year (Unlimited)
  */
 
-export type SubscriptionTier = 'essential' | 'professional' | 'enterprise';
+export type SubscriptionTier = 'essential' | 'professional' | 'premium';
 
 export interface PricingTier {
   id: SubscriptionTier;
@@ -72,29 +72,29 @@ export const PRICING_TIERS: Record<SubscriptionTier, PricingTier> = {
       videoGenerations: 'unlimited',
     },
   },
-  enterprise: {
-    id: 'enterprise',
-    name: 'Enterprise',
-    description: 'For top producers and teams',
+  premium: {
+    id: 'premium',
+    name: 'Premium',
+    description: 'Complete marketing suite with Newsletter Builder',
     monthlyPrice: 149,
     yearlyPrice: 1490,
     features: [
-      'Unlimited AI-generated posts',
-      'Unlimited property tour videos',
-      'Unlimited AutoReels',
-      'YouTube thumbnail generator',
-      'Advanced content calendar',
-      'Unlimited social media connections',
-      'Advanced performance analytics',
-      'Priority phone & email support',
-      'White-label branding',
-      'Team collaboration (coming soon)',
-      'API access (coming soon)',
+      'Everything in Professional, plus:',
+      '30 Script-to-Reel videos per month',
+      '📧 Newsletter Builder (Full Access)',
+      'Email list management',
+      'Newsletter templates',
+      'Email analytics & tracking',
+      'Automated email campaigns',
+      'Voice cloning (1 custom voice)',
+      'Multiple avatar looks (3 styles)',
+      'Custom branding overlays',
+      'Priority support (4hr)',
     ],
     limits: {
       postsPerMonth: 'unlimited',
       socialConnections: 'unlimited',
-      videoGenerations: 'unlimited',
+      videoGenerations: 30,
     },
   },
 };

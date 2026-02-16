@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-type Tier = "essential" | "professional" | "enterprise";
+type Tier = "essential" | "professional" | "premium";
 type BillingPeriod = "monthly" | "annual";
 
 interface PricingTier {
@@ -66,25 +66,25 @@ const pricingTiers: PricingTier[] = [
     ],
   },
   {
-    name: "Enterprise",
-    tier: "enterprise",
+    name: "Premium",
+    tier: "premium",
     priceMonthly: 149,
     priceAnnual: 1490,
     savings: 298,
-    description: "Unlimited video creation for top producers",
+    description: "Complete marketing suite with Newsletter Builder",
     icon: Crown,
     features: [
-      "Everything in Pro, plus:",
-      "UNLIMITED AI avatar videos",
+      "Everything in Professional, plus:",
+      "30 Script-to-Reel videos per month",
+      "📧 Newsletter Builder (Full Access)",
+      "Email list management",
+      "Newsletter templates",
+      "Email analytics & tracking",
+      "Automated email campaigns",
       "Voice cloning (1 custom voice)",
       "Multiple avatar looks (3 styles)",
       "Custom branding overlays",
-      "3 team member seats",
-      "Shared content library",
-      "White-label branding",
-      "API access",
-      "Advanced analytics",
-      "Phone support (4hr)",
+      "Priority support (4hr)",
     ],
   },
 ];

@@ -2786,3 +2786,15 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Show expiration date on each reel ("Expires in X days")
 - [ ] Test S3 upload and lifecycle policy with real generation
 - [x] Update todo.md to mark completed items
+
+## Newsletter Pro Integration with Premium Tier
+- [x] Create SSO token generation service (server/_core/newsletterSso.ts)
+- [x] Add NEWSLETTER_PRO_URL and NEWSLETTER_SSO_SECRET to environment variables
+- [x] Create tRPC procedure to generate Newsletter Pro SSO link
+- [x] Add Newsletter Builder to navigation menu with Premium badge
+- [x] Implement Premium tier access control (redirect to upgrade if not Premium)
+- [x] Update subscription tiers: Essential ($39), Professional ($79), Premium ($149)
+- [x] Add Premium tier benefits display on Upgrade page
+- [x] Test SSO token generation and deep linking
+- [x] Write vitest tests for SSO token generation
+- [x] Update todo.md to mark completed items

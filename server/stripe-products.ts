@@ -6,7 +6,7 @@
 export interface StripeProduct {
   name: string;
   description: string;
-  tier: "essential" | "professional" | "enterprise";
+  tier: "essential" | "professional" | "premium";
   priceMonthly: number; // in cents
   priceYearly: number; // in cents (with 20% discount)
   priceIdMonthly?: string; // Will be set after creating in Stripe
@@ -111,7 +111,7 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
   {
     name: "Authority Content Enterprise",
     description: "For top producers and teams",
-    tier: "enterprise",
+    tier: "premium",
     priceMonthly: 14900, // $149/month
     priceYearly: 149000, // $124.17/month ($1,490/year - 2 months free)
     priceIdMonthly: "price_1SwEl1Ig7t2mT914iDGqGZ40",
@@ -155,14 +155,14 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
 /**
  * Get product by tier
  */
-export function getProductByTier(tier: "essential" | "professional" | "enterprise"): StripeProduct | undefined {
+export function getProductByTier(tier: "essential" | "professional" | "premium"): StripeProduct | undefined {
   return STRIPE_PRODUCTS.find((p) => p.tier === tier);
 }
 
 /**
  * Get tier by price ID
  */
-export function getTierByPriceId(priceId: string): "essential" | "professional" | "enterprise" | undefined {
+export function getTierByPriceId(priceId: string): "essential" | "professional" | "premium" | undefined {
   const product = STRIPE_PRODUCTS.find(
     (p) => p.priceIdMonthly === priceId || p.priceIdYearly === priceId
   );
@@ -173,7 +173,7 @@ export function getTierByPriceId(priceId: string): "essential" | "professional" 
  * Check if user has access to a feature based on their tier
  */
 export function hasFeatureAccess(
-  userTier: "essential" | "professional" | "enterprise",
+  userTier: "essential" | "professional" | "premium",
   feature: keyof StripeProduct["features"]
 ): boolean {
   const product = getProductByTier(userTier);
@@ -184,7 +184,7 @@ export function hasFeatureAccess(
 /**
  * Get video limit for a tier
  */
-export function getVideoLimit(tier: "essential" | "professional" | "enterprise"): number {
+export function getVideoLimit(tier: "essential" | "professional" | "premium"): number {
   const product = getProductByTier(tier);
   if (!product) return 0;
   return product.features.aiVideos;

@@ -79,7 +79,7 @@ export const stripeRouter = router({
   createCheckoutSession: protectedProcedure
     .input(
       z.object({
-        tier: z.enum(['essential', 'professional', 'enterprise']),
+        tier: z.enum(['essential', 'professional', 'premium']),
         billingPeriod: z.enum(['monthly', 'annual']).default('monthly'),
         successUrl: z.string(),
         cancelUrl: z.string(),
@@ -261,7 +261,7 @@ export const stripeRouter = router({
           }
 
           // Handle subscription purchase
-          const tier = session.metadata?.tier as 'essential' | 'professional' | 'enterprise' | undefined;
+          const tier = session.metadata?.tier as 'essential' | 'professional' | 'premium' | undefined;
           const customerId = session.customer as string;
           const subscriptionId = session.subscription as string;
 
@@ -283,7 +283,7 @@ export const stripeRouter = router({
         case 'customer.subscription.updated': {
           const subscription = event.data.object as Stripe.Subscription;
           const customerId = subscription.customer as string;
-          const tier = subscription.metadata?.tier as 'essential' | 'professional' | 'enterprise' | undefined;
+          const tier = subscription.metadata?.tier as 'essential' | 'professional' | 'premium' | undefined;
 
           // Find user by customer ID
           const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, customerId)).limit(1);
