@@ -57,6 +57,31 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return db.updateUserProfile(ctx.user.id, input);
       }),
+    uploadHeadshot: protectedProcedure
+      .input(z.object({
+        imageData: z.string(), // base64 encoded image
+        fileName: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { storagePut } = await import("./storage");
+        
+        // Decode base64 image
+        const base64Data = input.imageData.replace(/^data:image\/\w+;base64,/, "");
+        const buffer = Buffer.from(base64Data, 'base64');
+        
+        // Generate unique file key
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substring(7);
+        const fileKey = `headshots/${ctx.user.id}-${timestamp}-${randomSuffix}.jpg`;
+        
+        // Upload to S3
+        const { url } = await storagePut(fileKey, buffer, "image/jpeg");
+        
+        // Update user's avatarImageUrl
+        await db.updateUserAvatar(ctx.user.id, url, null);
+        
+        return { url };
+      }),
     saveOnboardingStep: protectedProcedure
       .input(z.object({ step: z.number().min(1).max(5) }))
       .mutation(async ({ ctx, input }) => {

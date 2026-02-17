@@ -2850,3 +2850,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add dismissible hover tooltip next to headshot upload button with dimension specs
 - [x] Implement auto-resizing for headshot uploads to 512x512px (accept any size, resize automatically)
 - [x] Add interactive cropping tool for headshot uploads (adjust crop, zoom, rotate before resize)
+- [x] Add "Skip Headshot" button to onboarding step 2
+- [x] Integrate cropped headshot upload with S3 storage and user profile
+- [x] Add "Skip Headshot" button to onboarding step 2
+- [x] Integrate cropped headshot upload with S3 storage and user profile

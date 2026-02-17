@@ -179,6 +179,8 @@ export default function Onboarding() {
     }
   };
 
+  const uploadHeadshotMutation = trpc.auth.uploadHeadshot.useMutation();
+
   const handleNext = async () => {
     // Validate current step
     if (currentStep === 1) {
@@ -197,6 +199,21 @@ export default function Onboarding() {
         toast.success("Profile saved!");
       } catch (error) {
         toast.error("Failed to save profile");
+        return;
+      }
+    }
+    
+    // Upload headshot if provided
+    if (currentStep === 2 && headshotFile && headshotPreview) {
+      try {
+        await uploadHeadshotMutation.mutateAsync({
+          imageData: headshotPreview,
+          fileName: headshotFile.name,
+        });
+        toast.success("Headshot uploaded!");
+      } catch (error) {
+        console.error('Error uploading headshot:', error);
+        toast.error("Failed to upload headshot");
         return;
       }
     }
@@ -418,9 +435,22 @@ export default function Onboarding() {
               />
             </Label>
 
-            <p className="text-xs text-center text-muted-foreground">
-              You can skip this step and add your headshot later in settings
-            </p>
+            <div className="flex items-center justify-center gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setHeadshotFile(null);
+                  setHeadshotPreview("");
+                  handleNext();
+                }}
+              >
+                Skip for Now
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                You can add your headshot later in settings
+              </p>
+            </div>
           </div>
         )}
 
