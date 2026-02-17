@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE ai_reels \nADD COLUMN caption TEXT AFTER hook,\nADD COLUMN shotstackRenderUrl TEXT AFTER caption,\nADD COLUMN shotstackRenderId VARCHAR(255) AFTER shotstackRenderUrl,\nADD COLUMN reelType ENUM('did_avatar', 'authority_reel') NOT NULL DEFAULT 'did_avatar' AFTER duration;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute ALTER TABLE ai_reels \nADD COLUMN caption TEXT AFTER hook,\nADD COLUMN shotstackRenderUrl TEXT AFTER caption,\nADD COLUMN shotstackRenderId VARCHAR(255) AFTER shotstackRenderUrl,\nADD COLUMN reelType ENUM('did_avatar', 'authority_reel') NOT NULL DEFAULT 'did_avatar' AFTER duration;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'caption' in 'ai_reels'"
+  ]
+}

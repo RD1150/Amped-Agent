@@ -608,12 +608,20 @@ export const aiReels = mysqlTable("ai_reels", {
   userId: int("userId").notNull(),
   title: varchar("title", { length: 255 }), // Optional user-provided title
   script: text("script").notNull(), // The script used for generation
-  didVideoUrl: text("didVideoUrl").notNull(), // Original D-ID video URL
+  // D-ID simple avatar fields
+  didVideoUrl: text("didVideoUrl"), // Original D-ID video URL (nullable for Shotstack reels)
+  avatarUrl: text("avatarUrl"), // Avatar image used (nullable for Shotstack reels)
+  voiceId: varchar("voiceId", { length: 100 }), // Voice ID used (nullable for Shotstack reels)
+  // Shotstack Authority Reels fields
+  hook: text("hook"), // Opening hook text for Authority Reels
+  caption: text("caption"), // Full caption/description for Authority Reels
+  shotstackRenderUrl: text("shotstackRenderUrl"), // Shotstack video URL
+  shotstackRenderId: varchar("shotstackRenderId", { length: 255 }), // Shotstack render ID for status tracking
+  // Common fields
   s3Key: varchar("s3Key", { length: 500 }), // S3 object key
   s3Url: text("s3Url"), // S3 public URL (our copy)
-  avatarUrl: text("avatarUrl").notNull(), // Avatar image used
-  voiceId: varchar("voiceId", { length: 100 }).notNull(), // Voice ID used
   duration: int("duration"), // Video duration in seconds
+  reelType: mysqlEnum("reelType", ["did_avatar", "authority_reel"]).default("did_avatar").notNull(), // Type of reel
   status: mysqlEnum("status", ["processing", "completed", "failed", "expired"]).default("processing").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt").notNull(), // 90 days from creation

@@ -288,6 +288,13 @@
       "when": 1771291529333,
       "tag": "0040_tricky_owl",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1771324835969,
+      "tag": "0041_bumpy_mephisto",
+      "breakpoints": true
     }
   ]
 }

@@ -21,7 +21,8 @@ import {
   customPromptTemplates, CustomPromptTemplate, InsertCustomPromptTemplate,
   propertyTours, PropertyTour, InsertPropertyTour,
   contentTemplates, ContentTemplate, InsertContentTemplate,
-  drafts, Draft, InsertDraft
+  drafts, Draft, InsertDraft,
+  aiReels, AiReel, InsertAiReel
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -903,4 +904,38 @@ export async function bulkDeleteDrafts(ids: number[]) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(drafts).where(inArray(drafts.id, ids));
+}
+
+// ============ AI REELS HELPERS ============
+
+export async function createAiReel(data: InsertAiReel) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(aiReels).values(data);
+  return result[0];
+}
+
+export async function getAiReelsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(aiReels).where(eq(aiReels.userId, userId)).orderBy(desc(aiReels.createdAt));
+}
+
+export async function getAiReelById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const results = await db.select().from(aiReels).where(eq(aiReels.id, id));
+  return results[0] || null;
+}
+
+export async function updateAiReel(id: number, data: Partial<InsertAiReel>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(aiReels).set(data).where(eq(aiReels.id, id));
+}
+
+export async function deleteAiReel(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(aiReels).where(eq(aiReels.id, id));
 }

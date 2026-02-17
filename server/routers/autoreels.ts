@@ -349,17 +349,33 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
     .input(z.object({
       hook: z.string().min(1),
       script: z.string().min(1),
+      caption: z.string().optional(),
       videoLength: videoLengthEnum,
       tone: toneEnum,
     }))
-    .mutation(async ({ input }) => {
-      const { hook, script, videoLength, tone } = input;
+    .mutation(async ({ ctx, input }) => {
+      const { hook, script, caption, videoLength, tone } = input;
       
       const result = await renderAutoReel({
         hook,
         script,
         videoLength: parseInt(videoLength),
         tone,
+      });
+      
+      // Save reel to database
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 90); // 90 days expiration
+      
+      await db.createAiReel({
+        userId: ctx.user.id,
+        script,
+        hook,
+        caption: caption || script,
+        shotstackRenderId: result.renderId,
+        reelType: 'authority_reel',
+        status: 'processing',
+        expiresAt,
       });
       
       return result;
@@ -466,5 +482,13 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
     }))
     .mutation(async ({ input }) => {
       return db.deleteCustomPromptTemplate(input.id);
+    }),
+
+  /**
+   * Get user's saved reels
+   */
+  getReels: protectedProcedure
+    .query(async ({ ctx }) => {
+      return db.getAiReelsByUserId(ctx.user.id);
     }),
 });

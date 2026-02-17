@@ -6,7 +6,7 @@ import { Loader2, Download, Calendar, Clock, Video, AlertCircle } from "lucide-r
 import { Badge } from "@/components/ui/badge";
 
 export default function MyReels() {
-  const { data: reels, isLoading } = trpc.reels.listReels.useQuery();
+  const { data: reels, isLoading } = trpc.autoreels.getReels.useQuery();
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -63,14 +63,16 @@ export default function MyReels() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reels.map((reel) => (
+          {reels.map((reel) => {
+            const daysUntilExpiration = Math.ceil((new Date(reel.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            return (
             <Card key={reel.id} className="overflow-hidden">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-base line-clamp-2">
                     {reel.title || `Reel #${reel.id}`}
                   </CardTitle>
-                  {getExpirationBadge(reel.daysUntilExpiration)}
+                  {getExpirationBadge(daysUntilExpiration)}
                 </div>
                 <CardDescription className="flex items-center gap-2 text-xs">
                   <Calendar className="h-3 w-3" />
@@ -81,7 +83,7 @@ export default function MyReels() {
                 {/* Video Preview */}
                 <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
                   <video
-                    src={reel.s3Url || reel.didVideoUrl}
+                    src={reel.shotstackRenderUrl || reel.s3Url || reel.didVideoUrl || undefined}
                     controls
                     className="w-full h-full object-cover"
                     preload="metadata"
@@ -104,7 +106,7 @@ export default function MyReels() {
                     asChild
                   >
                     <a
-                      href={reel.s3Url || reel.didVideoUrl}
+                      href={reel.shotstackRenderUrl || reel.s3Url || reel.didVideoUrl || undefined}
                       download={`reel-${reel.id}.mp4`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -118,14 +120,15 @@ export default function MyReels() {
                     size="sm"
                     className="flex-1"
                     onClick={() => {
-                      if (navigator.share) {
+                      const videoUrl = reel.shotstackRenderUrl || reel.s3Url || reel.didVideoUrl || '';
+                      if (navigator.share && videoUrl) {
                         navigator.share({
                           title: reel.title || `Reel #${reel.id}`,
                           text: reel.script.substring(0, 100),
-                          url: reel.s3Url || reel.didVideoUrl,
+                          url: videoUrl,
                         });
-                      } else {
-                        navigator.clipboard.writeText(reel.s3Url || reel.didVideoUrl);
+                      } else if (videoUrl) {
+                        navigator.clipboard.writeText(videoUrl);
                         alert("Link copied to clipboard!");
                       }
                     }}
@@ -135,17 +138,18 @@ export default function MyReels() {
                 </div>
 
                 {/* Expiration Warning */}
-                {reel.daysUntilExpiration <= 7 && (
+                {daysUntilExpiration <= 7 && (
                   <Alert variant="destructive" className="py-2">
                     <AlertCircle className="h-3 w-3" />
                     <AlertDescription className="text-xs">
-                      Download soon! This reel will be deleted in {reel.daysUntilExpiration} days.
+                      Download soon! This reel will be deleted in {daysUntilExpiration} days.
                     </AlertDescription>
                   </Alert>
                 )}
               </CardContent>
             </Card>
-          ))}
+          );
+          })}
         </div>
       )}
     </div>

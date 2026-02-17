@@ -170,6 +170,7 @@ export default function AutoReels() {
       const renderResult = await renderVideoMutation.mutateAsync({
         hook: result.selectedHook,
         script: result.script,
+        caption: result.caption,
         videoLength,
         tone
       });
