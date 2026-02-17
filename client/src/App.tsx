@@ -42,6 +42,7 @@ import Drafts from "./pages/Drafts";
 import ScriptToReel from "./pages/ScriptToReel";
 import MyReels from "./pages/MyReels";
 import NewsletterBuilder from "./pages/NewsletterBuilder";
+import Onboarding from "./pages/Onboarding";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -68,7 +69,8 @@ function Router() {
       <Route path="/integrations/facebook/callback" component={FacebookCallback} />
       <Route path="/integrations/linkedin/callback" component={LinkedInCallback} />
       <Route path="/integrations/instagram/setup" component={InstagramSetup} />
-      <Route path="/onboarding" component={AgentOnboarding} />
+      <Route path="/onboarding" component={Onboarding} />
+      <Route path="/agent-onboarding" component={AgentOnboarding} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/subscription" component={Subscription} />
       

@@ -48,6 +48,15 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return db.updateUserAvatar(ctx.user.id, null, input.avatarVideoUrl);
       }),
+    updateProfile: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        bio: z.string().optional(),
+        location: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return db.updateUserProfile(ctx.user.id, input);
+      }),
     completeOnboarding: protectedProcedure
       .mutation(async ({ ctx }) => {
         return db.markOnboardingComplete(ctx.user.id);

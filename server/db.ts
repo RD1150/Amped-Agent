@@ -136,6 +136,43 @@ export async function updateUserAvatar(
   return { success: true };
 }
 
+export async function updateUserProfile(
+  userId: number,
+  data: { name: string; bio?: string; location?: string }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const updateData: any = {
+    name: data.name,
+    updatedAt: new Date(),
+  };
+  
+  // Store bio and location in persona table
+  if (data.bio || data.location) {
+    const persona = await getPersonaByUserId(userId);
+    if (persona) {
+      await db.update(personas)
+        .set({
+          bio: data.bio || persona.bio,
+          serviceAreas: data.location || persona.serviceAreas,
+          updatedAt: new Date(),
+        })
+        .where(eq(personas.userId, userId));
+    } else {
+      // Create persona if doesn't exist
+      await db.insert(personas).values({
+        userId,
+        bio: data.bio,
+        serviceAreas: data.location,
+      });
+    }
+  }
+  
+  await db.update(users).set(updateData).where(eq(users.id, userId));
+  return { success: true };
+}
+
 export async function markOnboardingComplete(userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

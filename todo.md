@@ -2804,3 +2804,17 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Include questions about Premium tier, download workflow, and email system compatibility
 - [x] Test FAQ display in browser
 - [x] Save checkpoint
+
+## Guided Onboarding Flow
+- [x] Design multi-step onboarding wizard UI component
+- [x] Step 1: Welcome and profile setup (name, bio, location)
+- [x] Step 2: Headshot upload with dimension guidance
+- [x] Step 3: Choose first content type (post, reel, or tour)
+- [x] Step 4: Generate first content with guided prompts
+- [x] Step 5: Success celebration and dashboard tour
+- [x] Add onboardingCompleted field to user schema (hasCompletedOnboarding already exists)
+- [x] Create tRPC procedures: updateProfile, completeOnboarding
+- [x] Add onboarding route guard (redirect new users to onboarding)
+- [x] Add "Skip for now" option with warning
+- [x] Test complete onboarding flow end-to-end
+- [x] Save checkpoint

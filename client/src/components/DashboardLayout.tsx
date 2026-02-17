@@ -175,12 +175,12 @@ export default function DashboardLayout({
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
 
-  // Redirect to onboarding if persona is not completed
+  // Redirect to onboarding if user hasn't completed it
   useEffect(() => {
-    if (user && persona && !persona.isCompleted) {
+    if (user && !user.hasCompletedOnboarding) {
       setLocation("/onboarding");
     }
-  }, [user, persona, setLocation]);
+  }, [user, setLocation]);
 
   if (loading || personaLoading) {
     return <DashboardLayoutSkeleton />
