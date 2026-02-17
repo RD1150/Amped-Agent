@@ -18,7 +18,8 @@ import {
   FileText,
   Building2,
   Info,
-  X
+  X,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -632,9 +633,18 @@ export default function Onboarding() {
               Back
             </Button>
 
-            <Button onClick={handleNext}>
-              {currentStep === 4 && !generatedContent ? "Skip" : "Next"}
-              <ArrowRight className="ml-2 h-4 w-4" />
+            <Button onClick={handleNext} disabled={uploadHeadshotMutation.isPending}>
+              {uploadHeadshotMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  {currentStep === 4 && !generatedContent ? "Skip" : "Next"}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
             </Button>
           </div>
         )}

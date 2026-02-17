@@ -2854,3 +2854,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Integrate cropped headshot upload with S3 storage and user profile
 - [x] Add "Skip Headshot" button to onboarding step 2
 - [x] Integrate cropped headshot upload with S3 storage and user profile
+- [x] Add loading spinner to Next button during S3 headshot upload
