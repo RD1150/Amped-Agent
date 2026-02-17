@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import Cropper from "react-easy-crop";
+import type { Area } from "react-easy-crop";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
 // Auth context will be added
 
 type OnboardingStep = 1 | 2 | 3 | 4 | 5;
@@ -48,6 +52,12 @@ export default function Onboarding() {
   const [headshotFile, setHeadshotFile] = useState<File | null>(null);
   const [headshotPreview, setHeadshotPreview] = useState<string>("");
   const [showTooltip, setShowTooltip] = useState(false);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string>("");
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   
   // Step 3: Content type
   const [selectedContentType, setSelectedContentType] = useState<"post" | "reel" | "tour" | null>(null);
@@ -76,13 +86,97 @@ export default function Onboarding() {
       return;
     }
     
-    setHeadshotFile(file);
-    
     const reader = new FileReader();
     reader.onloadend = () => {
-      setHeadshotPreview(reader.result as string);
+      setImageToCrop(reader.result as string);
+      setShowCropModal(true);
     };
     reader.readAsDataURL(file);
+  };
+
+  const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const createImage = (url: string): Promise<HTMLImageElement> =>
+    new Promise((resolve, reject) => {
+      const image = new Image();
+      image.addEventListener('load', () => resolve(image));
+      image.addEventListener('error', (error) => reject(error));
+      image.setAttribute('crossOrigin', 'anonymous');
+      image.src = url;
+    });
+
+  const getCroppedImg = async (
+    imageSrc: string,
+    pixelCrop: Area,
+    rotation = 0
+  ): Promise<Blob> => {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      throw new Error('No 2d context');
+    }
+
+    // Set canvas size to 512x512
+    canvas.width = 512;
+    canvas.height = 512;
+
+    // Draw rotated and cropped image
+    ctx.save();
+    ctx.translate(256, 256);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.translate(-256, -256);
+
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      512,
+      512
+    );
+
+    ctx.restore();
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Canvas is empty'));
+        }
+      }, 'image/jpeg', 0.95);
+    });
+  };
+
+  const handleCropSave = async () => {
+    if (!croppedAreaPixels || !imageToCrop) return;
+
+    try {
+      const croppedBlob = await getCroppedImg(imageToCrop, croppedAreaPixels, rotation);
+      const croppedFile = new File([croppedBlob], 'headshot.jpg', { type: 'image/jpeg' });
+      
+      setHeadshotFile(croppedFile);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setHeadshotPreview(reader.result as string);
+      };
+      reader.readAsDataURL(croppedFile);
+      
+      setShowCropModal(false);
+      toast.success('Headshot cropped and resized to 512×512px');
+    } catch (error) {
+      console.error('Error cropping image:', error);
+      toast.error('Failed to crop image');
+    }
   };
 
   const handleNext = async () => {
@@ -274,10 +368,10 @@ export default function Onboarding() {
                           </button>
                         </div>
                         <ul className="space-y-1 text-xs">
-                          <li>• <strong>Size:</strong> 512×512px (square, 1:1 ratio)</li>
-                          <li>• <strong>Format:</strong> JPG or PNG, under 5MB</li>
+                          <li>• <strong>Format:</strong> JPG or PNG, under 10MB</li>
                           <li>• <strong>Framing:</strong> Head and shoulders, face centered</li>
                           <li>• <strong>Quality:</strong> Well-lit, professional headshot</li>
+                          <li>• <strong>Auto-resize:</strong> Will be cropped to 512×512px for AI</li>
                         </ul>
                       </div>
                     )}
@@ -514,6 +608,70 @@ export default function Onboarding() {
             </Button>
           </div>
         )}
+
+        {/* Crop Modal */}
+        <Dialog open={showCropModal} onOpenChange={setShowCropModal}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Adjust Your Headshot</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="relative h-96 bg-muted rounded-lg overflow-hidden">
+                <Cropper
+                  image={imageToCrop}
+                  crop={crop}
+                  zoom={zoom}
+                  rotation={rotation}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onRotationChange={setRotation}
+                  onCropComplete={onCropComplete}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Zoom</label>
+                  <Slider
+                    value={[zoom]}
+                    min={1}
+                    max={3}
+                    step={0.1}
+                    onValueChange={(value) => setZoom(value[0])}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Rotation</label>
+                  <Slider
+                    value={[rotation]}
+                    min={0}
+                    max={360}
+                    step={1}
+                    onValueChange={(value) => setRotation(value[0])}
+                  />
+                </div>
+              </div>
+
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                <p className="text-sm text-blue-600 dark:text-blue-400">
+                  ℹ️ Your image will be automatically resized to 512×512px for optimal AI video quality.
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowCropModal(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCropSave}>
+                Apply Crop
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Card>
     </div>
   );

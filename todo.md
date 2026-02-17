@@ -2848,3 +2848,5 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Update todo.md to mark completed items
 - [ ] Save checkpoint with all features complete
 - [x] Add dismissible hover tooltip next to headshot upload button with dimension specs
+- [x] Implement auto-resizing for headshot uploads to 512x512px (accept any size, resize automatically)
+- [x] Add interactive cropping tool for headshot uploads (adjust crop, zoom, rotate before resize)
