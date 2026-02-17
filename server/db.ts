@@ -173,13 +173,37 @@ export async function updateUserProfile(
   return { success: true };
 }
 
-export async function markOnboardingComplete(userId: number) {
+export async function saveOnboardingStep(userId: number, step: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
   await db.update(users)
+    .set({ onboardingStep: step, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+  
+  return { success: true };
+}
+
+export async function markOnboardingComplete(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get user data for welcome email
+  const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  const userData = user[0];
+  
+  await db.update(users)
     .set({ hasCompletedOnboarding: true, updatedAt: new Date() })
     .where(eq(users.id, userId));
+  
+  // Send welcome email notification
+  if (userData?.name && userData?.email) {
+    const { sendWelcomeEmail } = await import("./_core/welcomeEmail");
+    await sendWelcomeEmail({
+      userName: userData.name,
+      userEmail: userData.email,
+    });
+  }
   
   return { success: true };
 }

@@ -2818,3 +2818,32 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add "Skip for now" option with warning
 - [x] Test complete onboarding flow end-to-end
 - [x] Save checkpoint
+
+## Newsletter Pro SSO Testing & Configuration
+- [x] Check if app.newsletterpro.app domain is accessible
+- [x] Update NEWSLETTER_PRO_URL environment variable to use custom domain
+- [ ] Test SSO token generation and automatic login flow
+- [ ] Verify Newsletter Builder opens correctly from Authority Content
+- [ ] Handle SSL/DNS errors gracefully with user-friendly messages
+
+## Onboarding Progress Persistence
+- [x] Add onboardingStep field to user schema (current step number)
+- [x] Update database schema with onboardingStep column
+- [x] Create tRPC procedure to save current onboarding step
+- [x] Update Onboarding component to load saved step on mount
+- [x] Auto-save progress when user advances to next step
+- [ ] Test resume functionality after browser close/refresh
+
+## Automated Welcome Email
+- [ ] Create email template for welcome message
+- [ ] Add email sending functionality using notification API
+- [ ] Trigger welcome email when user completes onboarding
+- [ ] Include getting-started tips and feature links in email
+- [ ] Test email delivery and formatting
+- [ ] Add error handling for failed email sends
+
+## Testing & Deployment
+- [ ] Test all three features end-to-end
+- [ ] Write vitest tests for new functionality
+- [ ] Update todo.md to mark completed items
+- [ ] Save checkpoint with all features complete

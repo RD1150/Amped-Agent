@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,14 @@ export default function Onboarding() {
   const [, navigate] = useLocation();
   const { data: user } = trpc.auth.me.useQuery();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(1);
+  const saveStepMutation = trpc.auth.saveOnboardingStep.useMutation();
+  
+  // Load saved onboarding step on mount
+  useEffect(() => {
+    if (user?.onboardingStep && user.onboardingStep > 1 && user.onboardingStep <= 5) {
+      setCurrentStep(user.onboardingStep as OnboardingStep);
+    }
+  }, [user]);
   
   // Step 1: Profile
   const [name, setName] = useState(user?.name || "");
@@ -101,17 +109,25 @@ export default function Onboarding() {
       return;
     }
     
+    // Move to next step and save progress
     if (currentStep < 5) {
-      setCurrentStep((currentStep + 1) as OnboardingStep);
+      const nextStep = (currentStep + 1) as OnboardingStep;
+      setCurrentStep(nextStep);
+      // Save progress
+      try {
+        await saveStepMutation.mutateAsync({ step: nextStep });
+      } catch (error) {
+        console.error("Failed to save onboarding progress:", error);
+      }
     }
   };
-
+  
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep((currentStep - 1) as OnboardingStep);
+      setCurrentStep((prev) => (prev - 1) as OnboardingStep);
     }
   };
-
+  
   const handleSkip = () => {
     if (confirm("Are you sure you want to skip onboarding? You can always complete your profile later.")) {
       completeOnboarding();

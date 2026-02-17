@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `onboardingStep` int DEFAULT 1 NOT NULL;

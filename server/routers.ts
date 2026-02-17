@@ -57,6 +57,11 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return db.updateUserProfile(ctx.user.id, input);
       }),
+    saveOnboardingStep: protectedProcedure
+      .input(z.object({ step: z.number().min(1).max(5) }))
+      .mutation(async ({ ctx, input }) => {
+        return db.saveOnboardingStep(ctx.user.id, input.step);
+      }),
     completeOnboarding: protectedProcedure
       .mutation(async ({ ctx }) => {
         return db.markOnboardingComplete(ctx.user.id);
