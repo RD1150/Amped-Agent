@@ -729,11 +729,23 @@ export default function AutoReels() {
           {hooks.length > 1 && (
             <Card className="p-6">
               <h3 className="font-semibold mb-3">Alternative Hooks</h3>
+              <p className="text-xs text-muted-foreground mb-3">Click any hook below to use it in your video</p>
               <div className="space-y-2">
-                {hooks.filter(h => h !== selectedHook).map((hook, idx) => (
-                  <div key={idx} className="p-3 bg-muted rounded-lg text-sm">
+                {hooks.map((hook, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedHook(hook)}
+                    className={`w-full p-3 rounded-lg text-sm text-left transition-all ${
+                      hook === selectedHook
+                        ? 'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2'
+                        : 'bg-muted hover:bg-muted/80 cursor-pointer'
+                    }`}
+                  >
+                    {hook === selectedHook && (
+                      <span className="inline-block mr-2">✓</span>
+                    )}
                     {hook}
-                  </div>
+                  </button>
                 ))}
               </div>
             </Card>
