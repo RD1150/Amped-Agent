@@ -207,7 +207,16 @@ export default function AutoReels() {
       
       await pollStatus();
     } catch (error: any) {
-      toast.error(error.message || "Failed to generate reel. Please try again.");
+      console.error('[AutoReels] Generation error:', error);
+      console.error('[AutoReels] Error details:', {
+        message: error.message,
+        data: error.data,
+        cause: error.cause,
+        stack: error.stack
+      });
+      
+      const errorMessage = error.message || error.data?.message || "Failed to generate reel. Please try again.";
+      toast.error(errorMessage);
       console.error(error);
     } finally {
       setIsGenerating(false);

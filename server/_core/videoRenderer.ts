@@ -15,12 +15,13 @@ import {
 import { ENV } from './env';
 
 // Configure Shotstack API client
-const defaultClient = ApiClient.instance;
-const DeveloperKey = defaultClient.authentications['DeveloperKey'];
-DeveloperKey.apiKey = ENV.SHOTSTACK_API_KEY;
-defaultClient.basePath = ENV.SHOTSTACK_HOST; // Configurable via SHOTSTACK_HOST env variable
-
-const api = new EditApi();
+function getConfiguredApi() {
+  const defaultClient = ApiClient.instance;
+  const DeveloperKey = defaultClient.authentications['DeveloperKey'];
+  DeveloperKey.apiKey = ENV.SHOTSTACK_API_KEY;
+  defaultClient.basePath = ENV.SHOTSTACK_HOST; // Configurable via SHOTSTACK_HOST env variable
+  return new EditApi();
+}
 
 interface VideoRenderOptions {
   hook: string;
@@ -182,12 +183,8 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
     // Configure output - 9:16 vertical format
     const output = new Output();
     output.format = 'mp4';
-    output.resolution = 'sd'; // 1080x1920 for 9:16
+    output.resolution = 'hd'; // Use 'hd' for 1080x1920
     output.aspectRatio = '9:16';
-    output.size = {
-      width: 1080,
-      height: 1920
-    };
     output.fps = 30;
     output.quality = 'medium';
     
@@ -195,6 +192,11 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
     edit.output = output;
     
     // Submit render
+    console.log('[VideoRenderer] Submitting render to Shotstack...');
+    console.log('[VideoRenderer] API Key configured:', !!ENV.SHOTSTACK_API_KEY);
+    console.log('[VideoRenderer] Host:', ENV.SHOTSTACK_HOST);
+    
+    const api = getConfiguredApi();
     const response = await api.postRender(edit);
     
     if (!response.success || !response.response?.id) {
@@ -206,11 +208,29 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       status: 'queued'
     };
   } catch (error: any) {
-    console.error('Video render error:', error);
+    console.error('[VideoRenderer] Video render error:', error);
+    console.error('[VideoRenderer] Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      stack: error.stack
+    });
+    
+    // Provide more specific error messages
+    let errorMessage = 'Unknown error occurred';
+    
+    if (error.message?.includes('API key') || error.message?.includes('authentication')) {
+      errorMessage = 'Shotstack API key is missing or invalid. Please configure SHOTSTACK_API_KEY in Settings → Secrets.';
+    } else if (error.message?.includes('network') || error.message?.includes('ENOTFOUND')) {
+      errorMessage = 'Network error connecting to Shotstack API. Please check your internet connection.';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
     return {
       renderId: '',
       status: 'failed',
-      error: error.message || 'Unknown error occurred'
+      error: errorMessage
     };
   }
 }
@@ -220,6 +240,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
  */
 export async function getRenderStatus(renderId: string): Promise<RenderResult> {
   try {
+    const api = getConfiguredApi();
     const response = await api.getRender(renderId);
     
     if (!response.success || !response.response) {
@@ -236,10 +257,19 @@ export async function getRenderStatus(renderId: string): Promise<RenderResult> {
     };
   } catch (error: any) {
     console.error('Get render status error:', error);
+    
+    let errorMessage = 'Unknown error occurred';
+    
+    if (error.message?.includes('API key') || error.message?.includes('authentication')) {
+      errorMessage = 'Shotstack API key is missing or invalid.';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
     return {
       renderId,
       status: 'failed',
-      error: error.message || 'Unknown error occurred'
+      error: errorMessage
     };
   }
 }
