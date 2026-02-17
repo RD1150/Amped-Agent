@@ -2859,3 +2859,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Implement automatic saving of generated reels to My Reels page with metadata
 - [x] Add "Generate Video" button to Authority Reels Engine after script generation
 - [x] Make alternative hooks clickable to allow hook selection before video generation
+- [ ] Debug and fix "unknown error" when generating video

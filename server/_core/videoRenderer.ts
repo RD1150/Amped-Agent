@@ -1,3 +1,4 @@
+import { createRequire } from 'module';
 import {
   EditApi,
   ApiClient,
@@ -9,10 +10,13 @@ import {
   TitleAsset,
   AudioAsset,
   Output,
-  Font,
   Soundtrack
 } from 'shotstack-sdk';
 import { ENV } from './env';
+
+// @ts-ignore - TextAsset exists but not in TypeScript definitions
+const require = createRequire(import.meta.url);
+const { TextAsset } = require('shotstack-sdk');
 
 // Configure Shotstack API client
 function getConfiguredApi() {
@@ -117,16 +121,21 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
     // Track 2: Hook title (first 2 seconds)
     const hookTrack = new Track();
     const hookClip = new Clip();
-    const hookAsset = new TitleAsset();
+    const hookAsset = new (TextAsset as any)();
+    hookAsset.type = 'text';
     hookAsset.text = hook;
-    hookAsset.style = 'blockbuster'; // Bold, attention-grabbing style
-    hookAsset.size = 'medium';
-    hookAsset.position = 'center';
-    
-    const hookFont = new Font();
-    hookFont.family = 'Montserrat';
-    hookFont.color = '#ffffff';
-    hookAsset.font = hookFont;
+    hookAsset.width = 900;
+    hookAsset.height = 200;
+    hookAsset.font = {
+      family: 'Montserrat',
+      color: '#ffffff',
+      size: 48,
+      weight: 700
+    };
+    hookAsset.alignment = {
+      horizontal: 'center',
+      vertical: 'center'
+    };
     
     hookClip.asset = hookAsset;
     hookClip.start = 0;
@@ -140,17 +149,27 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
     
     const subtitleClips = subtitles.map(sub => {
       const clip = new Clip();
-      const asset = new TitleAsset();
+      const asset = new (TextAsset as any)();
+      asset.type = 'text';
       asset.text = sub.text;
-      asset.style = 'subtitle';
-      asset.size = 'small';
-      asset.position = 'bottom';
-      
-      const font = new Font();
-      font.family = 'Open Sans';
-      font.color = '#ffffff';
-      font.size = 24;
-      asset.font = font;
+      asset.width = 900;
+      asset.height = 100;
+      asset.font = {
+        family: 'Open Sans',
+        color: '#ffffff',
+        size: 32,
+        weight: 600
+      };
+      asset.alignment = {
+        horizontal: 'center',
+        vertical: 'bottom'
+      };
+      asset.background = {
+        color: '#000000',
+        opacity: 0.7,
+        padding: 10,
+        borderRadius: 5
+      };
       
       clip.asset = asset;
       clip.start = sub.start + 2; // Start after hook

@@ -356,29 +356,50 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
     .mutation(async ({ ctx, input }) => {
       const { hook, script, caption, videoLength, tone } = input;
       
-      const result = await renderAutoReel({
-        hook,
-        script,
-        videoLength: parseInt(videoLength),
-        tone,
-      });
-      
-      // Save reel to database
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 90); // 90 days expiration
-      
-      await db.createAiReel({
-        userId: ctx.user.id,
-        script,
-        hook,
-        caption: caption || script,
-        shotstackRenderId: result.renderId,
-        reelType: 'authority_reel',
-        status: 'processing',
-        expiresAt,
-      });
-      
-      return result;
+      try {
+        console.log('[renderVideo] Starting video render with params:', {
+          hook: hook.substring(0, 50),
+          scriptLength: script.length,
+          videoLength,
+          tone
+        });
+        
+        const result = await renderAutoReel({
+          hook,
+          script,
+          videoLength: parseInt(videoLength),
+          tone,
+        });
+        
+        console.log('[renderVideo] Render initiated successfully:', result);
+        
+        // Save reel to database
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 90); // 90 days expiration
+        
+        await db.createAiReel({
+          userId: ctx.user.id,
+          script,
+          hook,
+          caption: caption || script,
+          shotstackRenderId: result.renderId,
+          reelType: 'authority_reel',
+          status: 'processing',
+          expiresAt,
+        });
+        
+        return result;
+      } catch (error: any) {
+        console.error('[renderVideo] Error occurred:', {
+          message: error.message,
+          stack: error.stack,
+          response: error.response?.data,
+          statusCode: error.response?.status
+        });
+        
+        // Throw a more descriptive error
+        throw new Error(`Video render failed: ${error.message || 'Unknown error'}`);
+      }
     }),
 
   /**
