@@ -2857,3 +2857,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add loading spinner to Next button during S3 headshot upload
 - [x] Fix "unknown error" when generating videos in Authority Reels Engine
 - [ ] Implement automatic saving of generated reels to My Reels page with metadata
+- [x] Add "Generate Video" button to Authority Reels Engine after script generation

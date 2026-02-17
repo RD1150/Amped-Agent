@@ -148,10 +148,10 @@ export default function AutoReels() {
     }
 
     setIsGenerating(true);
-    setGenerationStep("Generating hooks...");
+    setGenerationStep("Generating hooks and script...");
     
     try {
-      // Step 1: Generate content
+      // Generate content only (no video rendering yet)
       const result = await generateMutation.mutateAsync({
         inputText,
         inputMethod,
@@ -165,12 +165,31 @@ export default function AutoReels() {
       setScript(result.script);
       setCaption(result.caption);
       
-      // Step 2: Render video
-      setGenerationStep("Rendering your video...");
+      toast.success("Script generated! Review and click 'Generate Video' when ready.");
+    } catch (error: any) {
+      console.error('[AutoReels] Generation error:', error);
+      const errorMessage = error.message || error.data?.message || "Failed to generate script. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setIsGenerating(false);
+      setGenerationStep("");
+    }
+  };
+
+  const handleRenderVideo = async () => {
+    if (!selectedHook || !script || !caption) {
+      toast.error("Please generate a script first");
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerationStep("Rendering your video...");
+    
+    try {
       const renderResult = await renderVideoMutation.mutateAsync({
-        hook: result.selectedHook,
-        script: result.script,
-        caption: result.caption,
+        hook: selectedHook,
+        script: script,
+        caption: caption,
         videoLength,
         tone
       });
@@ -720,21 +739,41 @@ export default function AutoReels() {
             </Card>
           )}
 
-          {/* Start Over Button */}
-          <Button 
-            onClick={() => {
-              setHooks([]);
-              setSelectedHook("");
-              setScript("");
-              setCaption("");
-              setVideoUrl("");
-              setInputText("");
-            }}
-            variant="outline"
-            className="w-full"
-          >
-            Start Over
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex gap-4">
+            <Button 
+              onClick={handleRenderVideo}
+              disabled={isGenerating}
+              className="flex-1"
+              size="lg"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  {generationStep || "Generating..."}
+                </>
+              ) : (
+                <>
+                  <Video className="mr-2 h-5 w-5" />
+                  Generate Video
+                </>
+              )}
+            </Button>
+            <Button 
+              onClick={() => {
+                setHooks([]);
+                setSelectedHook("");
+                setScript("");
+                setCaption("");
+                setVideoUrl("");
+                setInputText("");
+              }}
+              variant="outline"
+              disabled={isGenerating}
+            >
+              Start Over
+            </Button>
+          </div>
         </div>
       )}
     </div>
