@@ -2847,3 +2847,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Write vitest tests for new functionality
 - [ ] Update todo.md to mark completed items
 - [ ] Save checkpoint with all features complete
+- [x] Add dismissible hover tooltip next to headshot upload button with dimension specs

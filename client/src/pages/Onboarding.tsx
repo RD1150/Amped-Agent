@@ -16,7 +16,9 @@ import {
   Upload,
   Video,
   FileText,
-  Building2
+  Building2,
+  Info,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -45,6 +47,7 @@ export default function Onboarding() {
   // Step 2: Headshot
   const [headshotFile, setHeadshotFile] = useState<File | null>(null);
   const [headshotPreview, setHeadshotPreview] = useState<string>("");
+  const [showTooltip, setShowTooltip] = useState(false);
   
   // Step 3: Content type
   const [selectedContentType, setSelectedContentType] = useState<"post" | "reel" | "tour" | null>(null);
@@ -244,25 +247,49 @@ export default function Onboarding() {
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Camera className="h-6 w-6 text-primary" />
               </div>
-              <div>
-                <h2 className="text-2xl font-semibold">Upload your headshot</h2>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-2xl font-semibold">Upload your headshot</h2>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onMouseEnter={() => setShowTooltip(true)}
+                      onMouseLeave={() => setShowTooltip(false)}
+                      className="h-5 w-5 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+                      aria-label="Image requirements"
+                    >
+                      <Info className="h-3 w-3 text-muted-foreground" />
+                    </button>
+                    {showTooltip && (
+                      <div className="absolute left-0 top-7 z-50 w-72 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg p-3 text-sm">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <p className="font-medium text-xs">Image Requirements:</p>
+                          <button
+                            type="button"
+                            onClick={() => setShowTooltip(false)}
+                            className="h-4 w-4 rounded hover:bg-muted flex items-center justify-center"
+                            aria-label="Close"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                        <ul className="space-y-1 text-xs">
+                          <li>• <strong>Size:</strong> 512×512px (square, 1:1 ratio)</li>
+                          <li>• <strong>Format:</strong> JPG or PNG, under 5MB</li>
+                          <li>• <strong>Framing:</strong> Head and shoulders, face centered</li>
+                          <li>• <strong>Quality:</strong> Well-lit, professional headshot</li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <p className="text-sm text-muted-foreground">
                   Optional, but recommended for AI avatar videos
                 </p>
               </div>
             </div>
 
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-4">
-              <p className="text-sm font-medium text-amber-600 dark:text-amber-400 mb-2">
-                Recommended Specifications:
-              </p>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• <strong>Size:</strong> 512×512px (square, 1:1 ratio)</li>
-                <li>• <strong>Format:</strong> JPG or PNG, under 5MB</li>
-                <li>• <strong>Framing:</strong> Head and shoulders, face centered</li>
-                <li>• <strong>Quality:</strong> Well-lit, professional headshot</li>
-              </ul>
-            </div>
+
 
             <Label htmlFor="headshot-upload" className="cursor-pointer">
               <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-8 hover:border-primary/50 transition-colors text-center">
