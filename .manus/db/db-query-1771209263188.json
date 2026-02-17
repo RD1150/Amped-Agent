@@ -1,0 +1,94 @@
+{
+  "query": "SELECT email, name, subscriptionTier, subscriptionStatus FROM users WHERE email = 'rdshop70@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT email, name, subscriptionTier, subscriptionStatus FROM users WHERE email = 'rdshop70@gmail.com';",
+  "rows": [
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    },
+    {
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "premium",
+      "subscriptionStatus": "active"
+    }
+  ],
+  "messages": [],
+  "stdout": "email\tname\tsubscriptionTier\tsubscriptionStatus\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\nrdshop70@gmail.com\tReena Dutta\tpremium\tactive\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

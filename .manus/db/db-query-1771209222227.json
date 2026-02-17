@@ -1,0 +1,108 @@
+{
+  "query": "SELECT id, email, name, subscriptionTier, subscriptionStatus FROM users WHERE email = 'rdshop70@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, email, name, subscriptionTier, subscriptionStatus FROM users WHERE email = 'rdshop70@gmail.com';",
+  "rows": [
+    {
+      "id": "1",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "540003",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "540004",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "540022",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "1110001",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "1260010",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "1560001",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "1650052",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "2970001",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "3420002",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "3810002",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "5340002",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "5340003",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    },
+    {
+      "id": "6060022",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "subscriptionTier": "essential",
+      "subscriptionStatus": "inactive"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\tsubscriptionTier\tsubscriptionStatus\n1\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n540003\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n540004\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n540022\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n1110001\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n1260010\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n1560001\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n1650052\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n2970001\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n3420002\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n3810002\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n5340002\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n5340003\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n6060022\trdshop70@gmail.com\tReena Dutta\tessential\tinactive\n",
+  "stderr": "",
+  "execution_time_ms": 66
+}

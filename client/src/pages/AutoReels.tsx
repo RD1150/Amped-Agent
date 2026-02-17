@@ -283,9 +283,18 @@ export default function AutoReels() {
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold mb-2">AI Avatar Intro (Optional)</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-sm text-muted-foreground mb-2">
                   Upload your headshot to create a personalized AI avatar that introduces your reels. Your avatar will speak the hook at the beginning of your video.
                 </p>
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-4">
+                  <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-1">Recommended Headshot Specs:</p>
+                  <ul className="text-xs text-muted-foreground space-y-0.5">
+                    <li>• <strong>Size:</strong> 512×512px (square, 1:1 ratio)</li>
+                    <li>• <strong>Format:</strong> JPG or PNG, under 5MB</li>
+                    <li>• <strong>Framing:</strong> Head and shoulders, face centered, looking at camera</li>
+                    <li>• <strong>Quality:</strong> Well-lit, clear, professional headshot style</li>
+                  </ul>
+                </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
                   {/* Avatar Image Upload */}

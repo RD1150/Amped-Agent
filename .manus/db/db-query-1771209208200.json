@@ -1,0 +1,97 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "ab_tests"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "ai_reels"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "analytics"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "beta_signups"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "calendar_events"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "content_posts"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "content_templates"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "credit_transactions"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "crop_templates"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "custom_prompt_templates"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "drafts"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "ghl_oauth_integrations"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "ghl_settings"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "hooks"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "import_jobs"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "integrations"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "personas"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "post_analytics"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "posting_schedules"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "property_tours"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "reel_usage"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "subscription_tiers"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "uploads"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "usage_alerts"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "usage_tracking"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "user_subscriptions"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "users"
+    },
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT": "white_label_settings"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_K9BXxKfRk2PJ2AbRYdraAT\n__drizzle_migrations\nab_tests\nai_reels\nanalytics\nbeta_signups\ncalendar_events\ncontent_posts\ncontent_templates\ncredit_transactions\ncrop_templates\ncustom_prompt_templates\ndrafts\nghl_oauth_integrations\nghl_settings\nhooks\nimport_jobs\nintegrations\npersonas\npost_analytics\nposting_schedules\nproperty_tours\nreel_usage\nsubscription_tiers\nuploads\nusage_alerts\nusage_tracking\nuser_subscriptions\nusers\nwhite_label_settings\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}
