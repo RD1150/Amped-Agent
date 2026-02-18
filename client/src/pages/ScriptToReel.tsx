@@ -11,25 +11,25 @@ const AVATAR_PRESETS = [
   {
     id: "professional-woman",
     name: "Professional Woman",
-    url: "https://create-images-results.d-id.com/google-oauth2%7C111070296763681365279/upl_-8xJyKJqN2Rl9xGwTgPQn/image.jpeg",
+    url: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/SJgCRfCXuZqIiRyt.jpg",
     description: "Confident, professional female presenter"
   },
   {
     id: "professional-man",
     name: "Professional Man",
-    url: "https://create-images-results.d-id.com/google-oauth2%7C111070296763681365279/upl_Kq8Nqv0K2TFmQjpXjOPQn/image.jpeg",
+    url: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/izEwZroLlAqRhKta.jpg",
     description: "Confident, professional male presenter"
   },
   {
     id: "friendly-woman",
     name: "Friendly Woman",
-    url: "https://create-images-results.d-id.com/google-oauth2%7C111070296763681365279/upl_9xJyKJqN2Rl9xGwTgPQn/image.jpeg",
+    url: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/zzTQXtgCFFLHanHH.jpg",
     description: "Warm, approachable female presenter"
   },
   {
     id: "friendly-man",
     name: "Friendly Man",
-    url: "https://create-images-results.d-id.com/google-oauth2%7C111070296763681365279/upl_7xJyKJqN2Rl9xGwTgPQn/image.jpeg",
+    url: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/OcvoiQJAFWXbitbX.jpg",
     description: "Warm, approachable male presenter"
   },
 ];

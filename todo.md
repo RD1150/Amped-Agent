@@ -2867,3 +2867,20 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add client-side video compression for Property Tours to handle large uploads
 - [x] Add video preview player to Authority Reels Engine before posting to social
 - [x] Improve Authority Reels AI prompts for better scroll-stopping hooks
+
+## Newsletter Builder Bug Fix
+- [x] Fix Newsletter Builder page not opening
+
+## Instagram Carousel Library Integration
+- [ ] Import 92 Instagram carousel topics into database
+- [ ] Create carousel library database schema
+- [ ] Build Carousel Library browsing UI with category filters
+- [ ] Add carousel preview and selection
+- [ ] Implement hyperlocal customization engine (city-specific content)
+- [ ] Connect carousels with template generation
+- [ ] Test carousel library browsing and generation
+
+## Script-to-Reel Presenter Images Fix
+- [x] Generate 4 professional presenter headshot images (Professional Woman, Professional Man, Friendly Woman, Friendly Man)
+- [x] Upload presenter images to S3
+- [x] Update Script-to-Reel with new S3 image URLs
