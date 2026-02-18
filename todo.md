@@ -2864,3 +2864,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Fix Property Tours video upload failure - investigate and resolve upload errors
 - [ ] Add client-side video compression for Property Tours uploads over 50MB
 - [x] Add 'Generate Video from Script' button to Script-to-Reel page that navigates to Authority Reels Engine
+- [x] Add client-side video compression for Property Tours to handle large uploads
+- [x] Add video preview player to Authority Reels Engine before posting to social
+- [x] Improve Authority Reels AI prompts for better scroll-stopping hooks

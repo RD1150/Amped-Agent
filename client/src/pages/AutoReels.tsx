@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2 } from "lucide-react";
+import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -689,7 +689,7 @@ export default function AutoReels() {
                 <video src={videoUrl} controls className="w-full h-full" />
               </div>
               
-              <div className="flex gap-3 mt-6 justify-center">
+              <div className="flex gap-3 mt-6 justify-center flex-wrap">
                 <Button onClick={handleDownload} variant="outline">
                   <Download className="mr-2 h-4 w-4" />
                   Download
@@ -697,6 +697,16 @@ export default function AutoReels() {
                 <Button onClick={handleRegenerate} variant="outline">
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Regenerate
+                </Button>
+                <Button 
+                  onClick={() => {
+                    // TODO: Implement social posting
+                    toast.info("Social posting coming soon! For now, download and post manually.");
+                  }}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Post to Social
                 </Button>
               </div>
             </Card>

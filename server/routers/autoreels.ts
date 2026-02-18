@@ -99,12 +99,20 @@ export const autoreelsRouter = router({
             role: "system",
             content: `You are an expert social media copywriter specializing in ${niche} content. Your job is to create scroll-stopping hooks for short-form vertical videos (Reels, TikTok, Shorts).
 
-A great hook:
-- Stops the scroll in the first 2 seconds
-- Creates curiosity or urgency
-- Is short (under 10 words)
-- Speaks directly to the target audience
-- Uses power words and emotional triggers
+A great ${niche} hook:
+- Stops the scroll in the first 2 seconds with a bold statement, question, or pattern interrupt
+- Creates curiosity, urgency, or FOMO (fear of missing out)
+- Is short and punchy (under 10 words)
+- Speaks directly to the target audience's pain points or desires
+- Uses power words, numbers, or emotional triggers
+- Avoids generic phrases like "Did you know" or "Here's why"
+
+Real estate-specific hook formulas that work:
+- "[Number] [mistake/secret/tip] about [topic]"
+- "Stop [doing X] if you want [desired outcome]"
+- "This [property/market/strategy] will [bold claim]"
+- "Why [surprising fact] in [location]"
+- "[Controversial opinion] about [topic]"
 
 The tone should be: ${toneDescriptions[tone]}`
           },
@@ -239,12 +247,20 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
             role: "system",
             content: `You are an expert social media copywriter specializing in ${niche} content. Your job is to create scroll-stopping hooks for short-form vertical videos (Reels, TikTok, Shorts).
 
-A great hook:
-- Stops the scroll in the first 2 seconds
-- Creates curiosity or urgency
-- Is short (under 10 words)
-- Speaks directly to the target audience
-- Uses power words and emotional triggers
+A great ${niche} hook:
+- Stops the scroll in the first 2 seconds with a bold statement, question, or pattern interrupt
+- Creates curiosity, urgency, or FOMO (fear of missing out)
+- Is short and punchy (under 10 words)
+- Speaks directly to the target audience's pain points or desires
+- Uses power words, numbers, or emotional triggers
+- Avoids generic phrases like "Did you know" or "Here's why"
+
+Real estate-specific hook formulas that work:
+- "[Number] [mistake/secret/tip] about [topic]"
+- "Stop [doing X] if you want [desired outcome]"
+- "This [property/market/strategy] will [bold claim]"
+- "Why [surprising fact] in [location]"
+- "[Controversial opinion] about [topic]"
 
 The tone should be: ${toneDescriptions[tone]}`
           },

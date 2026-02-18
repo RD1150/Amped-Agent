@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { ImageCropModal } from "@/components/ImageCropModal";
+import { compressVideo } from "@/lib/videoCompression";
 
 export default function PropertyTours() {
   const utils = trpc.useUtils();
@@ -204,9 +205,25 @@ export default function PropertyTours() {
         
         // Check if file is a video
         if (file.type.startsWith('video/')) {
-          // Videos: Upload directly without compression
-          toast.info(`Uploading video ${i + 1}/${selectedFiles.length}: ${file.name}`);
-          fileToUpload = file;
+          // Videos: Compress if over 50MB
+          const fileSizeMB = file.size / (1024 * 1024);
+          if (fileSizeMB > 50) {
+            toast.info(`Compressing video ${i + 1}/${selectedFiles.length}: ${file.name} (${fileSizeMB.toFixed(1)}MB)`);
+            fileToUpload = await compressVideo(file, {
+              maxSizeMB: 50,
+              targetSizeMB: 35,
+              onProgress: (progress) => {
+                if (progress % 20 === 0) { // Update every 20%
+                  toast.info(`Compressing: ${Math.round(progress)}%`);
+                }
+              }
+            });
+            const compressedSizeMB = fileToUpload.size / (1024 * 1024);
+            toast.success(`Video compressed: ${fileSizeMB.toFixed(1)}MB → ${compressedSizeMB.toFixed(1)}MB`);
+          } else {
+            toast.info(`Uploading video ${i + 1}/${selectedFiles.length}: ${file.name}`);
+            fileToUpload = file;
+          }
         } else {
           // Images: Compress before upload
           toast.info(`Compressing ${i + 1}/${selectedFiles.length}: ${file.name}`);
