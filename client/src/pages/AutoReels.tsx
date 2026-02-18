@@ -16,8 +16,12 @@ type VideoLength = "7" | "15" | "30";
 type Tone = "calm" | "bold" | "authoritative" | "warm";
 
 export default function AutoReels() {
+  // Check URL for pre-filled script
+  const urlParams = new URLSearchParams(window.location.search);
+  const scriptParam = urlParams.get('script');
+  
   const [inputMethod, setInputMethod] = useState<InputMethod>("bullets");
-  const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState(scriptParam || "");
   const [videoLength, setVideoLength] = useState<VideoLength>("15");
   const [tone, setTone] = useState<Tone>("authoritative");
   const [niche] = useState("real estate");

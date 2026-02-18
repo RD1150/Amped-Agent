@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
+import { useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import { getFirstPost } from "@/lib/postFormatter";
 import ComprehensiveTemplateSelector from "@/components/ComprehensiveTemplateSelector";
@@ -45,6 +46,7 @@ type SelectedTemplate = Template | null;
 type StockCategory = "property" | "interior" | "exterior" | "neighborhood" | "people" | "abstract";
 
 export default function AIGenerate() {
+  const [, setLocation] = useLocation();
   const [topic, setTopic] = useState("");
   const [contentType, setContentType] = useState<ContentType>("custom");
   const [contentFormat, setContentFormat] = useState<ContentFormat>("static_post");
@@ -582,10 +584,23 @@ export default function AIGenerate() {
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Regenerate
                       </Button>
-                      <Button onClick={() => setShowPostingDialog(true)} className="flex-1">
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        Post to Social Media
-                      </Button>
+                      {contentFormat === "reel_script" ? (
+                        <Button 
+                          onClick={() => {
+                            // Navigate to Authority Reels Engine with script pre-filled
+                            setLocation("/autoreels?script=" + encodeURIComponent(generatedContent));
+                          }} 
+                          className="flex-1"
+                        >
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Create Video from Script
+                        </Button>
+                      ) : (
+                        <Button onClick={() => setShowPostingDialog(true)} className="flex-1">
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Post to Social Media
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}

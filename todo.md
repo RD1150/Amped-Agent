@@ -2861,3 +2861,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Make alternative hooks clickable to allow hook selection before video generation
 - [ ] Debug and fix "unknown error" when generating video
 - [ ] Fix empty/non-working example videos in Video Samples section on home page
+- [ ] Fix Property Tours video upload failure - investigate and resolve upload errors
+- [ ] Add client-side video compression for Property Tours uploads over 50MB
+- [x] Add 'Generate Video from Script' button to Script-to-Reel page that navigates to Authority Reels Engine
