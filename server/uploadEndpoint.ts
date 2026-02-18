@@ -10,7 +10,7 @@ const router = Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB max per file
+    fileSize: 100 * 1024 * 1024, // 100MB max per file (supports 2-minute videos)
   },
 });
 

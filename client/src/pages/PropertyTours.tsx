@@ -70,17 +70,60 @@ export default function PropertyTours() {
   const fetchPropertyData = trpc.propertyTours.fetchPropertyData.useMutation();
 
   // Handle file selection
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const newTotal = selectedFiles.length + files.length;
     
-    // Enforce 10-photo maximum
+    // Enforce 10-file maximum
     if (newTotal > 10) {
-      toast.error("Maximum 10 photos allowed. For best results, select 5-10 of your best photos showing key features.");
+      toast.error("Maximum 10 files allowed. For best results, select 5-10 of your best photos/videos showing key features.");
       return;
     }
     
+    // Validate video files
+    for (const file of files) {
+      if (file.type.startsWith('video/')) {
+        // Check file size (100MB limit)
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > 100) {
+          toast.error(`Video "${file.name}" is too large (${sizeMB.toFixed(1)}MB). Maximum size is 100MB.`);
+          return;
+        }
+        
+        // Check video duration (2 minutes = 120 seconds limit)
+        try {
+          const duration = await getVideoDuration(file);
+          if (duration > 120) {
+            toast.error(`Video "${file.name}" is too long (${Math.floor(duration)}s). Maximum duration is 2 minutes (120s).`);
+            return;
+          }
+        } catch (error) {
+          console.error('Error checking video duration:', error);
+          // Continue anyway if duration check fails
+        }
+      }
+    }
+    
     setSelectedFiles((prev) => [...prev, ...files]);
+  };
+  
+  // Helper function to get video duration
+  const getVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        resolve(video.duration);
+      };
+      
+      video.onerror = () => {
+        reject(new Error('Failed to load video metadata'));
+      };
+      
+      video.src = URL.createObjectURL(file);
+    });
   };
 
   // Handle file upload to S3 using direct endpoint

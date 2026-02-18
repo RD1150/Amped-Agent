@@ -574,6 +574,95 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Video Samples Section */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Video Samples
+            </h2>
+            <p className="text-xl text-slate-300">
+              See what you can create with Authority Reels Engine
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Sample 1: Modern Downtown Condo */}
+            <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
+              <div className="relative aspect-[9/16] bg-gradient-to-br from-slate-700 to-slate-900">
+                {/* Placeholder thumbnail - replace with actual video thumbnail */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center space-y-4">
+                    <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto group-hover:bg-amber-500/30 transition-colors">
+                      <Video className="h-10 w-10 text-amber-500" />
+                    </div>
+                    <p className="text-slate-400 text-sm px-4">Sample video placeholder</p>
+                  </div>
+                </div>
+                {/* TODO: Replace with actual video embed or thumbnail
+                <video className="w-full h-full object-cover" poster="/path/to/thumbnail.jpg">
+                  <source src="/path/to/video.mp4" type="video/mp4" />
+                </video>
+                */}
+              </div>
+              <CardContent className="p-4">
+                <h3 className="text-lg font-semibold text-white mb-2">Modern Downtown Condo</h3>
+                <p className="text-sm text-slate-400">Bold • 15 seconds</p>
+              </CardContent>
+            </Card>
+
+            {/* Sample 2: First-Time Buyer Tips */}
+            <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
+              <div className="relative aspect-[9/16] bg-gradient-to-br from-slate-700 to-slate-900">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center space-y-4">
+                    <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto group-hover:bg-amber-500/30 transition-colors">
+                      <Video className="h-10 w-10 text-amber-500" />
+                    </div>
+                    <p className="text-slate-400 text-sm px-4">Sample video placeholder</p>
+                  </div>
+                </div>
+              </div>
+              <CardContent className="p-4">
+                <h3 className="text-lg font-semibold text-white mb-2">First-Time Buyer Tips</h3>
+                <p className="text-sm text-slate-400">Warm • 15 seconds</p>
+              </CardContent>
+            </Card>
+
+            {/* Sample 3: Market Update 2026 */}
+            <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
+              <div className="relative aspect-[9/16] bg-gradient-to-br from-slate-700 to-slate-900">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center space-y-4">
+                    <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto group-hover:bg-amber-500/30 transition-colors">
+                      <Video className="h-10 w-10 text-amber-500" />
+                    </div>
+                    <p className="text-slate-400 text-sm px-4">Sample video placeholder</p>
+                  </div>
+                </div>
+              </div>
+              <CardContent className="p-4">
+                <h3 className="text-lg font-semibold text-white mb-2">Market Update 2026</h3>
+                <p className="text-sm text-slate-400">Authoritative • 15 seconds</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Instructions for updating */}
+          <div className="mt-12 max-w-3xl mx-auto">
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-6">
+              <p className="text-amber-500 font-semibold mb-2">📹 TODO: Replace with Real Sample Videos</p>
+              <p className="text-slate-300 text-sm leading-relaxed mb-3">
+                Generate real Authority Reels videos using the Authority Reels Engine, then replace the placeholders above with actual video embeds or thumbnails.
+              </p>
+              <p className="text-slate-400 text-xs">
+                To replace: Generate videos → Upload to YouTube/Vimeo → Update the video URLs in Home.tsx (search for "Sample video placeholder")
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Demo Video Section */}
       <section className="container mx-auto px-4 py-20 bg-slate-900/30">
         <div className="max-w-5xl mx-auto text-center">
