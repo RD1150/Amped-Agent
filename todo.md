@@ -2884,3 +2884,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Generate 4 professional presenter headshot images (Professional Woman, Professional Man, Friendly Woman, Friendly Man)
 - [x] Upload presenter images to S3
 - [x] Update Script-to-Reel with new S3 image URLs
+
+## Color Scheme Update: Navy + Charcoal + Gold
+- [x] Update global CSS variables to navy blue, charcoal, and gold accents
+- [x] Change sidebar background from black to navy blue
+- [x] Change sidebar text to white for better contrast
+- [x] Update primary buttons from gold to charcoal
+- [x] Add gold accents to icons, borders, and hover states
