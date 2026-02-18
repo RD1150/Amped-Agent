@@ -2891,3 +2891,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Change sidebar text to white for better contrast
 - [x] Update primary buttons from gold to charcoal
 - [x] Add gold accents to icons, borders, and hover states
+
+## Logo Background Removal
+- [x] Remove black background from Authority Content logo
+- [x] Create transparent PNG version
+- [x] Update logo in application
