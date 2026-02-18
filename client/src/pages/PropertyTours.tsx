@@ -197,20 +197,27 @@ export default function PropertyTours() {
     try {
       const uploadedUrls: string[] = [];
       
-      // Upload files ONE AT A TIME with client-side compression
+      // Upload files ONE AT A TIME (compress images, upload videos directly)
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        toast.info(`Compressing ${i + 1}/${selectedFiles.length}: ${file.name}`);
+        let fileToUpload: File;
         
-        // Compress image on client side
-        const compressedBlob = await compressImage(file);
-        const compressedFile = new File([compressedBlob], file.name, { type: 'image/jpeg' });
+        // Check if file is a video
+        if (file.type.startsWith('video/')) {
+          // Videos: Upload directly without compression
+          toast.info(`Uploading video ${i + 1}/${selectedFiles.length}: ${file.name}`);
+          fileToUpload = file;
+        } else {
+          // Images: Compress before upload
+          toast.info(`Compressing ${i + 1}/${selectedFiles.length}: ${file.name}`);
+          const compressedBlob = await compressImage(file);
+          fileToUpload = new File([compressedBlob], file.name, { type: 'image/jpeg' });
+          toast.info(`Uploading ${i + 1}/${selectedFiles.length}: ${file.name}`);
+        }
         
-        toast.info(`Uploading ${i + 1}/${selectedFiles.length}: ${file.name}`);
-        
-        // Create FormData with compressed file
+        // Create FormData with file (compressed image or raw video)
         const formData = new FormData();
-        formData.append("images", compressedFile);
+        formData.append("images", fileToUpload);
 
         // Upload via direct endpoint
         const response = await fetch("/api/upload-images", {

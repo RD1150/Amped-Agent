@@ -47,11 +47,24 @@ router.post("/upload-images", upload.array("images", 10), async (req, res) => {
           console.log(`✅ Compressed ${file.originalname}: ${originalSize}MB → ${compressedSize}MB`);
           
           mimeType = "image/jpeg"; // Always output as JPEG
+        } else if (file.mimetype.startsWith("video/")) {
+          // Log video upload info
+          const videoSize = (file.size / 1024 / 1024).toFixed(2);
+          console.log(`📹 Uploading video ${file.originalname}: ${videoSize}MB`);
         }
 
-        // Generate unique filename
+        // Generate unique filename with proper extension
         const randomSuffix = randomBytes(8).toString("hex");
-        const ext = mimeType === "image/jpeg" ? "jpg" : file.originalname.split(".").pop();
+        let ext = "jpg"; // default
+        
+        if (mimeType === "image/jpeg") {
+          ext = "jpg";
+        } else if (file.originalname && file.originalname.includes(".")) {
+          ext = file.originalname.split(".").pop() || "mp4";
+        } else if (mimeType.startsWith("video/")) {
+          ext = "mp4"; // default for videos
+        }
+        
         const filename = `property-${Date.now()}-${randomSuffix}.${ext}`;
 
         // Upload to S3
