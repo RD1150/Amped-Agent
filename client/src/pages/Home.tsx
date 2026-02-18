@@ -589,21 +589,16 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Sample 1: Modern Downtown Condo */}
             <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
-              <div className="relative aspect-[9/16] bg-gradient-to-br from-slate-700 to-slate-900">
-                {/* Placeholder thumbnail - replace with actual video thumbnail */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center space-y-4">
-                    <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto group-hover:bg-amber-500/30 transition-colors">
-                      <Video className="h-10 w-10 text-amber-500" />
-                    </div>
-                    <p className="text-slate-400 text-sm px-4">Sample video placeholder</p>
-                  </div>
-                </div>
-                {/* TODO: Replace with actual video embed or thumbnail
-                <video className="w-full h-full object-cover" poster="/path/to/thumbnail.jpg">
-                  <source src="/path/to/video.mp4" type="video/mp4" />
+              <div className="relative aspect-[9/16] bg-black">
+                <video 
+                  className="w-full h-full object-cover" 
+                  poster="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/52b70706-348c-4228-ab99-4e4df4c9e21b-poster.jpg"
+                  controls
+                  playsInline
+                >
+                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/52b70706-348c-4228-ab99-4e4df4c9e21b.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
                 </video>
-                */}
               </div>
               <CardContent className="p-4">
                 <h3 className="text-lg font-semibold text-white mb-2">Modern Downtown Condo</h3>
@@ -613,15 +608,16 @@ export default function HomePage() {
 
             {/* Sample 2: First-Time Buyer Tips */}
             <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
-              <div className="relative aspect-[9/16] bg-gradient-to-br from-slate-700 to-slate-900">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center space-y-4">
-                    <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto group-hover:bg-amber-500/30 transition-colors">
-                      <Video className="h-10 w-10 text-amber-500" />
-                    </div>
-                    <p className="text-slate-400 text-sm px-4">Sample video placeholder</p>
-                  </div>
-                </div>
+              <div className="relative aspect-[9/16] bg-black">
+                <video 
+                  className="w-full h-full object-cover" 
+                  poster="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/93adee84-d79f-4133-b6b6-acf539d27a1e-poster.jpg"
+                  controls
+                  playsInline
+                >
+                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/93adee84-d79f-4133-b6b6-acf539d27a1e.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               </div>
               <CardContent className="p-4">
                 <h3 className="text-lg font-semibold text-white mb-2">First-Time Buyer Tips</h3>
@@ -631,15 +627,16 @@ export default function HomePage() {
 
             {/* Sample 3: Market Update 2026 */}
             <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
-              <div className="relative aspect-[9/16] bg-gradient-to-br from-slate-700 to-slate-900">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center space-y-4">
-                    <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto group-hover:bg-amber-500/30 transition-colors">
-                      <Video className="h-10 w-10 text-amber-500" />
-                    </div>
-                    <p className="text-slate-400 text-sm px-4">Sample video placeholder</p>
-                  </div>
-                </div>
+              <div className="relative aspect-[9/16] bg-black">
+                <video 
+                  className="w-full h-full object-cover" 
+                  poster="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/649116d3-ca47-4811-878a-1b0adfabe8ed-poster.jpg"
+                  controls
+                  playsInline
+                >
+                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/649116d3-ca47-4811-878a-1b0adfabe8ed.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               </div>
               <CardContent className="p-4">
                 <h3 className="text-lg font-semibold text-white mb-2">Market Update 2026</h3>
