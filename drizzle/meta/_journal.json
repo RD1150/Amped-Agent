@@ -302,6 +302,20 @@
       "when": 1771477713075,
       "tag": "0042_regular_zombie",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "5",
+      "when": 1771481435445,
+      "tag": "0043_fancy_risque",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "5",
+      "when": 1771482301824,
+      "tag": "0044_ambiguous_the_leader",
+      "breakpoints": true
     }
   ]
 }

@@ -2945,3 +2945,26 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Explain third-party services (Stripe, D-ID, ElevenLabs, Shotstack)
 - [x] Detail user rights (access, deletion, export)
 - [x] Add Privacy Policy route and navigation links
+
+## Full Cinematic Property Tours Improvement (Feb 19, 2026)
+
+- [x] Create comprehensive cinematic directive document
+- [x] Define Ken Burns effect (zoom + pan movement)
+- [x] Specify fade transitions and proper pacing (5-7 sec per shot)
+- [x] Document color grading and letterbox standards
+- [x] Update database schema to track monthly Cinematic usage limits
+- [x] Update Property Tours pricing (Full Cinematic: 40cr → 75cr, limit 2/month)
+- [ ] Add Cinematic tier to Authority Reels (15cr, limit 10/month)
+- [ ] Implement Runway API integration for image-to-video with camera movement
+- [ ] Generate sample Full Cinematic video using Runway + Shotstack
+- [ ] Update homepage with new cinematic video link and pricing
+
+## City Showcase Video Generator (Admin-Only) (Feb 19, 2026)
+
+- [x] Create database schema for City Showcase videos
+- [ ] Build backend router with Runway + D-ID + Shotstack integration
+- [ ] Implement 4-segment video structure (intro avatar → B-roll → mid-video avatar #1 → B-roll → mid-video avatar #2 → B-roll → outro avatar)
+- [ ] Add RapidAPI integration for city demographics and real estate data
+- [ ] Create admin-only City Showcase UI page
+- [ ] Generate test City Showcase video for a sample city
+- [ ] Add to sidebar menu (admin-only visibility)

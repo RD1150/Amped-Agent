@@ -9,8 +9,9 @@ import { sendLowCreditsNotification } from "./emailNotifications";
 export const CREDIT_COSTS = {
   standard_video: 5, // Standard Ken Burns video
   ai_enhanced_video: 15, // AI-Enhanced (3-5 hero shots with Luma AI)
-  full_ai_video: 40, // Full AI Cinematic (all photos with Luma AI)
+  full_ai_video: 75, // Full AI Cinematic (all photos with Runway AI + voiceover)
   voiceover: 5, // AI voiceover narration add-on
+  cinematic_authority_reel: 15, // Cinematic Authority Reel with Runway B-roll
 } as const;
 
 /**

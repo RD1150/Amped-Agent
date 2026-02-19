@@ -856,8 +856,8 @@ Generate ONLY the script text, no additional commentary.`;
                   </SelectItem>
                   <SelectItem value="full-ai">
                     <div className="flex flex-col">
-                      <span className="font-semibold">Full AI Cinematic ($29.99)</span>
-                      <span className="text-xs text-muted-foreground">All photos converted to cinematic AI video clips</span>
+                      <span className="font-semibold">Full Cinematic (75 credits)</span>
+                      <span className="text-xs text-muted-foreground">Runway AI motion + voiceover (2/month max)</span>
                     </div>
                   </SelectItem>
                 </SelectContent>

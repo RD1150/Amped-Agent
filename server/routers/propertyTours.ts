@@ -112,6 +112,41 @@ export const propertyToursRouter = router({
         );
       }
 
+      // Check monthly Cinematic limit for full-ai mode
+      if (tour.videoMode === 'full-ai') {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const [user] = await db.select().from(users).where(eq(users.id, ctx.user.id)).limit(1);
+        
+        // Reset counter if it's a new month
+        const now = new Date();
+        const lastReset = user?.lastCinematicCountReset || new Date(0);
+        const isNewMonth = now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear();
+        
+        if (isNewMonth) {
+          await db.update(users)
+            .set({ 
+              cinematicPropertyToursThisMonth: 0,
+              lastCinematicCountReset: now 
+            })
+            .where(eq(users.id, ctx.user.id));
+        }
+        
+        const cinematicCount = isNewMonth ? 0 : (user?.cinematicPropertyToursThisMonth || 0);
+        const CINEMATIC_MONTHLY_LIMIT = 2;
+        
+        if (cinematicCount >= CINEMATIC_MONTHLY_LIMIT) {
+          throw new Error(
+            `Monthly Full Cinematic limit reached (${cinematicCount}/${CINEMATIC_MONTHLY_LIMIT}). You can generate more Full Cinematic Property Tours next month. Use Standard or AI-Enhanced tiers instead.`
+          );
+        }
+        
+        // Increment counter
+        await db.update(users)
+          .set({ cinematicPropertyToursThisMonth: cinematicCount + 1 })
+          .where(eq(users.id, ctx.user.id));
+      }
+
       // Calculate credit cost
       const costBreakdown = credits.calculateVideoCost({
         videoMode: tour.videoMode as "standard" | "ai-enhanced" | "full-ai",
