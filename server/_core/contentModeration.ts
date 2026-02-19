@@ -195,17 +195,41 @@ function getFlagReason(categories: ModerationResult['categories']): string {
 
 /**
  * Moderate content before generation (combined check)
+ * Only blocks: sexual content, violence, and self-harm
+ * Allows: strong opinions, competitive language, bold claims
  */
 export async function moderateContent(text: string, checkFairHousingViolations = true): Promise<{
   allowed: boolean;
   reason?: string;
 }> {
-  // Check OpenAI moderation
+  // Check OpenAI moderation - only block specific categories
   const moderation = await moderateText(text);
-  if (moderation.flagged) {
+  
+  // Only block sexual content, violence, and self-harm
+  const shouldBlock = 
+    moderation.categories.sexual ||
+    moderation.categories.sexual_minors ||
+    moderation.categories.violence ||
+    moderation.categories.violence_graphic ||
+    moderation.categories.self_harm ||
+    moderation.categories.self_harm_intent ||
+    moderation.categories.self_harm_instructions;
+  
+  if (shouldBlock) {
+    const blockedCategories = [];
+    if (moderation.categories.sexual || moderation.categories.sexual_minors) {
+      blockedCategories.push('sexual content');
+    }
+    if (moderation.categories.violence || moderation.categories.violence_graphic) {
+      blockedCategories.push('violence');
+    }
+    if (moderation.categories.self_harm || moderation.categories.self_harm_intent || moderation.categories.self_harm_instructions) {
+      blockedCategories.push('self-harm');
+    }
+    
     return {
       allowed: false,
-      reason: moderation.reason || "Content violates community guidelines",
+      reason: `Content blocked for: ${blockedCategories.join(', ')}. Please revise and try again.`,
     };
   }
 
