@@ -2902,3 +2902,20 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Center Newsletter Builder content vertically on page
 - [ ] Generate 3 tiered Property Tours video examples (Standard 5cr / AI-Enhanced 15cr / Full Cinematic 40cr)
 - [ ] Optimize Authority Reels hook prompts for lead generation and maximum clicks
+
+## Property Tours & Authority Reels Enhancements (Feb 19, 2026)
+
+- [ ] Test Authority Reels hook generation with new lead-gen prompts
+- [ ] Add music library organized by pace/mood for Property Tours
+- [ ] Add music library organized by pace/mood for Authority Reels
+- [ ] Design Instagram Carousel Library feature (browse 92 pre-written topics)
+- [ ] Implement carousel customization (local market data, branding, photos)
+- [ ] Add carousel graphic generation
+- [ ] Add carousel download (Instagram-ready images or PDFs)
+
+## Avatar Photo Cropper (Feb 19, 2026)
+
+- [x] Add image crop modal to Authority Reels avatar upload
+- [x] Implement drag to reposition and zoom controls
+- [x] Auto-resize cropped image to 512×512px for D-ID
+- [x] Save cropped avatar directly without external tools

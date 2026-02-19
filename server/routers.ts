@@ -21,6 +21,7 @@ import { adminRouter } from "./routers/admin";
 import { draftsRouter } from "./routers/drafts";
 import { reelsRouter } from "./routers/reels";
 import { newsletterRouter } from "./routers/newsletter";
+import { musicLibraryRouter } from "./routers/musicLibrary";
 
 export const appRouter = router({
   system: systemRouter,
@@ -30,6 +31,7 @@ export const appRouter = router({
   drafts: draftsRouter,
   reels: reelsRouter,
   newsletter: newsletterRouter,
+  musicLibrary: musicLibraryRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ImageCropModal } from "@/components/ImageCropModal";
 
 type InputMethod = "bullets" | "caption" | "blog" | "listing";
 type VideoLength = "7" | "15" | "30";
@@ -43,6 +44,8 @@ export default function AutoReels() {
   const [avatarVideoUrl, setAvatarVideoUrl] = useState("");
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
+  const [showAvatarCropModal, setShowAvatarCropModal] = useState(false);
+  const [avatarImageToCrop, setAvatarImageToCrop] = useState<string>("");
 
   const inputMethodLabels = {
     bullets: "Bullet Points",
@@ -88,16 +91,13 @@ export default function AutoReels() {
       return;
     }
     
-    setAvatarImage(file);
-    
-    // Create preview
+    // Create preview for cropping
     const reader = new FileReader();
     reader.onloadend = () => {
-      setAvatarImagePreview(reader.result as string);
+      setAvatarImageToCrop(reader.result as string);
+      setShowAvatarCropModal(true);
     };
     reader.readAsDataURL(file);
-    
-    toast.success("Avatar image selected");
   };
 
   const handleGenerateAvatarVideo = async () => {
@@ -802,6 +802,28 @@ export default function AutoReels() {
           </div>
         </div>
       )}
+
+      {/* Avatar Crop Modal */}
+      <ImageCropModal
+        open={showAvatarCropModal}
+        onClose={() => {
+          setShowAvatarCropModal(false);
+          setAvatarImageToCrop("");
+        }}
+        imageUrl={avatarImageToCrop}
+        onCropComplete={async (croppedImageUrl) => {
+          // Convert base64 to File
+          const response = await fetch(croppedImageUrl);
+          const blob = await response.blob();
+          const file = new File([blob], "avatar.png", { type: "image/png" });
+          
+          setAvatarImage(file);
+          setAvatarImagePreview(croppedImageUrl);
+          setShowAvatarCropModal(false);
+          setAvatarImageToCrop("");
+          toast.success("Avatar image cropped and ready!");
+        }}
+      />
     </div>
   );
 }

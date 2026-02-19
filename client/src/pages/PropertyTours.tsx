@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { ImageCropModal } from "@/components/ImageCropModal";
 import { compressVideo } from "@/lib/videoCompression";
+import { MusicLibrary } from "@/components/MusicLibrary";
 
 export default function PropertyTours() {
   const utils = trpc.useUtils();
@@ -41,6 +42,8 @@ export default function PropertyTours() {
   const [includeBranding, setIncludeBranding] = useState(true);
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "1:1">("16:9");
   const [musicTrack, setMusicTrack] = useState<string | undefined>(undefined);
+  const [musicTrackUrl, setMusicTrackUrl] = useState<string | undefined>(undefined);
+  const [musicVolume, setMusicVolume] = useState(50);
   const [cardTemplate, setCardTemplate] = useState<"modern" | "luxury" | "bold" | "classic" | "contemporary">("modern");
   const [includeIntroVideo, setIncludeIntroVideo] = useState(false);
   const [videoMode, setVideoMode] = useState<"standard" | "ai-enhanced" | "full-ai">("standard");
@@ -1014,19 +1017,19 @@ Generate ONLY the script text, no additional commentary.`;
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="musicTrack">Background Music</Label>
-                <Select value={musicTrack || "none"} onValueChange={(v) => setMusicTrack(v === "none" ? undefined : v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="No music" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No music</SelectItem>
-                    <SelectItem value="upbeat">Upbeat & Modern</SelectItem>
-                    <SelectItem value="calm">Calm & Peaceful</SelectItem>
-                    <SelectItem value="luxury">Luxury & Sophisticated</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Music Library */}
+              <div className="col-span-2">
+                <MusicLibrary
+                  onSelectTrack={(trackId, trackUrl) => {
+                    setMusicTrack(trackId);
+                    setMusicTrackUrl(trackUrl);
+                  }}
+                  selectedTrackId={musicTrack}
+                  propertyType={propertyType as 'luxury' | 'family' | 'modern' | 'commercial' | 'any' || 'any'}
+                  volume={musicVolume}
+                  onVolumeChange={setMusicVolume}
+                  showVolumeControl={true}
+                />
               </div>
             </div>
 
