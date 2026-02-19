@@ -616,7 +616,6 @@ export async function generatePropertyTourVideo(
 
   // Add music soundtrack if selected (extend to cover intro/outro)
   const soundtrack: any = musicTrack ? {
-    type: "audio", // Required: specify asset type
     src: getMusicTrackUrl(musicTrack),
     // No fade effects for constant audio throughout (ultra-smooth)
     volume: enableVoiceover ? 0.3 : 0.6, // Increased volume for audibility
@@ -653,7 +652,6 @@ export async function generatePropertyTourVideo(
       ...(size && { size }), // Add size for custom dimensions
       fps: 60, // Ultra-smooth 60fps for AutoReels-quality motion
       quality: "high",
-      motionBlur: true, // Add cinematic motion blur
       // Generate poster image from the most visually appealing frame
       // Capture at 25% through the video (after intro, during property photos)
       poster: {
