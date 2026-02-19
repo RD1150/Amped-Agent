@@ -2985,3 +2985,25 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update Full Cinematic description to mention optional voiceover - COMPLETE
 - [ ] Test improved settings with real property photos - Ready for user testing
 - [ ] Generate sample videos with different configurations - Ready for user testing
+
+## Property Tours - Video Tour Tier (Fourth Generation Mode)
+- [ ] Add "Video Tour" mode as fourth tier in Property Tours
+- [ ] Support uploading 5-10 short video clips (1-3 seconds each: room pans, backyard sweeps)
+- [ ] Implement automatic video stitching with transitions (cut, fade, slide, zoom)
+- [ ] Support clip reordering via drag-and-drop interface
+- [ ] Add music overlay for stitched clips (use existing Music Library)
+- [ ] Add property details text overlays (address, price, beds/baths)
+- [ ] Implement clip trimming (adjust start/end points for each clip)
+- [ ] Add preview functionality before final render
+- [ ] Set pricing: 20-25 credits (between AI-Enhanced and Full Cinematic)
+- [ ] Update Video Generation Mode dropdown to include "Video Tour" option
+- [ ] Add file validation (max 3 seconds per clip, 10 clips max, 100MB total)
+- [ ] Test with real property walkthrough clips
+- [ ] Update tier descriptions to clarify: Photos vs Video clips
+
+## Newsletter Builder - SSO Integration Fix
+- [x] Investigate why Newsletter SSO is not recognizing the SSO secret - COMPLETE
+- [x] Add NEWSLETTER_SSO_SECRET to environment variables - COMPLETE
+- [x] Update Newsletter integration to use correct SSO secret - COMPLETE
+- [x] Test Newsletter SSO login functionality - COMPLETE: All 5 tests passing
+- [x] Verify user can access Newsletter Builder via SSO - READY: SSO token generation working
