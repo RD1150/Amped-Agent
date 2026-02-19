@@ -3007,3 +3007,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update Newsletter integration to use correct SSO secret - COMPLETE
 - [x] Test Newsletter SSO login functionality - COMPLETE: All 5 tests passing
 - [x] Verify user can access Newsletter Builder via SSO - READY: SSO token generation working
+
+## Website Loading Issue After Publish Attempt
+- [x] Check dev server status and logs - COMPLETE: Server running healthy
+- [x] Diagnose why website is not loading - RESOLVED: Dev site loads fine, issue is with publish
+- [x] Make Newsletter SSO optional to unblock publishing - COMPLETE
+- [x] Add graceful fallback when NEWSLETTER_SSO_SECRET is missing - COMPLETE: Returns null with warning
+- [x] Test Newsletter SSO functionality - COMPLETE: All 5 tests passing
+- [ ] Test publish functionality after making SSO optional - Ready for user testing

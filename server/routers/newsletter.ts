@@ -13,6 +13,11 @@ export const newsletterRouter = router({
       name: ctx.user.name || "User",
     });
     
+    // Return error if SSO is not configured
+    if (!ssoUrl) {
+      throw new Error("Newsletter SSO is not configured. Please contact support to enable this feature.");
+    }
+    
     return {
       url: ssoUrl,
       expiresIn: 300, // Token valid for 5 minutes
