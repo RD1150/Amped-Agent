@@ -2896,3 +2896,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Remove black background from Authority Content logo
 - [x] Create transparent PNG version
 - [x] Update logo in application
+
+## UI/UX Improvements
+- [x] Change Authority Score progress bars from black to navy blue
+- [x] Center Newsletter Builder content vertically on page
+- [ ] Generate 3 tiered Property Tours video examples (Standard 5cr / AI-Enhanced 15cr / Full Cinematic 40cr)
+- [ ] Optimize Authority Reels hook prompts for lead generation and maximum clicks

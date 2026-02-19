@@ -102,7 +102,7 @@ export default function NewsletterBuilder() {
 
   // Premium user with access
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
+    <div className="container mx-auto py-8 max-w-4xl min-h-[calc(100vh-4rem)] flex flex-col justify-center">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Newsletter Builder</h1>
         <p className="text-muted-foreground">

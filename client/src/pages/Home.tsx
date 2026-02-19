@@ -579,68 +579,92 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Video Samples
+              Property Tours - Quality Tiers
             </h2>
-            <p className="text-xl text-slate-300">
-              See what you can create with Authority Reels Engine
+            <p className="text-xl text-slate-300 mb-4">
+              Compare video quality across our 3 pricing tiers
+            </p>
+            <p className="text-sm text-amber-500/80">
+              Same property, different production levels - you decide what's worth it
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Sample 1: Modern Downtown Condo */}
+            {/* Standard Tier (5 credits) */}
             <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
               <div className="relative aspect-[9/16] bg-black">
+                <div className="absolute top-2 left-2 z-10 bg-slate-900/90 px-3 py-1 rounded-full">
+                  <span className="text-xs font-semibold text-white">5 Credits</span>
+                </div>
                 <video 
                   className="w-full h-full object-cover" 
-                  poster="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/52b70706-348c-4228-ab99-4e4df4c9e21b-poster.jpg"
                   controls
                   playsInline
                 >
-                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/52b70706-348c-4228-ab99-4e4df4c9e21b.mp4" type="video/mp4" />
+                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/88e5764e-a748-42f9-95fb-05946c375f2e.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
               <CardContent className="p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Modern Downtown Condo</h3>
-                <p className="text-sm text-slate-400">Bold • 15 seconds</p>
+                <h3 className="text-lg font-semibold text-white mb-2">Standard</h3>
+                <p className="text-sm text-slate-400 mb-3">Basic Ken Burns effects • No voiceover</p>
+                <ul className="text-xs text-slate-500 space-y-1">
+                  <li>✓ Smooth transitions</li>
+                  <li>✓ Professional pacing</li>
+                  <li>✗ No voiceover</li>
+                </ul>
               </CardContent>
             </Card>
 
-            {/* Sample 2: First-Time Buyer Tips */}
-            <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
+            {/* AI-Enhanced Tier (15 credits) */}
+            <Card className="bg-slate-800/50 border-amber-500/50 overflow-hidden group hover:border-amber-500 transition-all ring-2 ring-amber-500/30">
               <div className="relative aspect-[9/16] bg-black">
+                <div className="absolute top-2 left-2 z-10 bg-amber-500 px-3 py-1 rounded-full">
+                  <span className="text-xs font-semibold text-slate-900">15 Credits • POPULAR</span>
+                </div>
                 <video 
                   className="w-full h-full object-cover" 
-                  poster="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/93adee84-d79f-4133-b6b6-acf539d27a1e-poster.jpg"
                   controls
                   playsInline
                 >
-                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/93adee84-d79f-4133-b6b6-acf539d27a1e.mp4" type="video/mp4" />
+                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/e48a263f-2e51-41f3-bdd3-152f7eba6118.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
               <CardContent className="p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">First-Time Buyer Tips</h3>
-                <p className="text-sm text-slate-400">Warm • 15 seconds</p>
+                <h3 className="text-lg font-semibold text-white mb-2">AI-Enhanced</h3>
+                <p className="text-sm text-slate-400 mb-3">AI motion on hero shots • Professional voiceover</p>
+                <ul className="text-xs text-slate-500 space-y-1">
+                  <li>✓ Dramatic zoom on key shots</li>
+                  <li>✓ Slide transitions</li>
+                  <li>✓ Female AI voiceover</li>
+                </ul>
               </CardContent>
             </Card>
 
-            {/* Sample 3: Market Update 2026 */}
+            {/* Full Cinematic Tier (40 credits) */}
             <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
               <div className="relative aspect-[9/16] bg-black">
+                <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 rounded-full">
+                  <span className="text-xs font-semibold text-slate-900">40 Credits • PREMIUM</span>
+                </div>
                 <video 
                   className="w-full h-full object-cover" 
-                  poster="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/649116d3-ca47-4811-878a-1b0adfabe8ed-poster.jpg"
                   controls
                   playsInline
                 >
-                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/649116d3-ca47-4811-878a-1b0adfabe8ed.mp4" type="video/mp4" />
+                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/d857b764-1030-4edd-8f90-c88bfa9c9d89.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
               <CardContent className="p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Market Update 2026</h3>
-                <p className="text-sm text-slate-400">Authoritative • 15 seconds</p>
+                <h3 className="text-lg font-semibold text-white mb-2">Full Cinematic</h3>
+                <p className="text-sm text-slate-400 mb-3">Maximum AI motion • Premium voiceover</p>
+                <ul className="text-xs text-slate-500 space-y-1">
+                  <li>✓ Cinematic motion on ALL shots</li>
+                  <li>✓ Advanced transitions</li>
+                  <li>✓ Deep male AI voiceover</li>
+                </ul>
               </CardContent>
             </Card>
           </div>
