@@ -2919,3 +2919,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Implement drag to reposition and zoom controls
 - [x] Auto-resize cropped image to 512×512px for D-ID
 - [x] Save cropped avatar directly without external tools
+
+## Menu Reorganization (Feb 19, 2026)
+
+- [x] Reorganize sidebar menu into clear categories (Content Creation, Content Management, Tools & Insights, Settings)
+- [x] Add tooltips/descriptions for each menu item
+- [x] Remove redundant/overlapping menu items
+- [x] Update DashboardLayout component with new menu structure

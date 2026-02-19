@@ -88,41 +88,55 @@ import { Button } from "./ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
 import FirstPostOnboarding from "./FirstPostOnboarding";
 
-// Organized menu structure
-const menuItems = [
-  // HOME
-  { icon: Home, label: "Home", path: "/dashboard" },
-  
-  // CONTENT section
-  { icon: Sparkles, label: "Authority Post Builder", path: "/generate" },
-  { icon: Video, label: "Authority Reels Engine", path: "/autoreels" },
-  { icon: Building2, label: "Property Tours", path: "/property-tours" },
-  { icon: MessageSquare, label: "Script-to-Reel", path: "/script-to-reel" },
-  { icon: Video, label: "My Reels", path: "/my-reels" },
-  { icon: Mail, label: "Newsletter Builder", path: "/newsletter", badge: "Premium" },
-  { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails" },
-  { icon: Award, label: "Market Dominance Coach", path: "/coach" },
-  { icon: CreditCard, label: "Credits", path: "/credits" },
-  { icon: User, label: "Authority Profile", path: "/authority-profile" },
-  { icon: Calendar, label: "Content Calendar", path: "/calendar" },
-  { icon: Upload, label: "Upload Content", path: "/uploads" },
-  { icon: FileText, label: "Content Templates", path: "/content-templates" },
-  
-  // SCHEDULE section
-  { icon: Clock, label: "Schedule Posts", path: "/schedules" },
-  
-  // AUTHORITY section
-  { icon: TrendingUp, label: "Market Insights", path: "/market-stats" },
-  { icon: Lightbulb, label: "Expert Hooks", path: "/hooks" },
-  
-  // SETTINGS section
-  { icon: User, label: "Persona & Brand", path: "/persona" },
-  { icon: Link2, label: "Integrations", path: "/integrations" },
-  { icon: Settings, label: "Settings", path: "/settings" },
-  
-  // ADMIN section (only shown to admins)
-  { icon: BarChart3, label: "Admin Analytics", path: "/admin/analytics", adminOnly: true },
+// Organized menu structure with categories
+const menuSections = [
+  {
+    title: "CONTENT CREATION",
+    items: [
+      { icon: Home, label: "Home", path: "/dashboard", description: "Dashboard overview" },
+      { icon: Sparkles, label: "Authority Post Builder", path: "/generate", description: "Generate social media posts (text + images)" },
+      { icon: Video, label: "Authority Reels Engine", path: "/autoreels", description: "Create talking avatar videos (15-60 sec)" },
+      { icon: Building2, label: "Property Tours", path: "/property-tours", description: "Generate property showcase videos with music" },
+      { icon: Mail, label: "Newsletter Builder", path: "/newsletter", description: "Design email newsletters", badge: "Premium" },
+    ]
+  },
+  {
+    title: "CONTENT MANAGEMENT",
+    items: [
+      { icon: Calendar, label: "Content Calendar", path: "/calendar", description: "Schedule and manage all posts" },
+      { icon: Video, label: "My Reels", path: "/my-reels", description: "View generated videos (90-day storage)" },
+      { icon: FileText, label: "Content Templates", path: "/content-templates", description: "Browse pre-made post templates" },
+    ]
+  },
+  {
+    title: "TOOLS & INSIGHTS",
+    items: [
+      { icon: TrendingUp, label: "Market Insights", path: "/market-stats", description: "Real estate market data and trends" },
+      { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails", description: "Generate click-worthy thumbnails" },
+      { icon: Lightbulb, label: "Expert Hooks", path: "/hooks", description: "Browse proven hook formulas" },
+      { icon: Award, label: "Market Dominance Coach", path: "/coach", description: "AI coaching for market leadership" },
+    ]
+  },
+  {
+    title: "SETTINGS",
+    items: [
+      { icon: User, label: "Authority Profile", path: "/authority-profile", description: "Your branding, bio, headshot" },
+      { icon: Link2, label: "Integrations", path: "/integrations", description: "Connect social media accounts" },
+      { icon: CreditCard, label: "Credits", path: "/credits", description: "View usage and upgrade" },
+      { icon: Settings, label: "Settings", path: "/settings", description: "App preferences" },
+    ]
+  },
+  {
+    title: "ADMIN",
+    adminOnly: true,
+    items: [
+      { icon: BarChart3, label: "Admin Analytics", path: "/admin/analytics", description: "Platform analytics" },
+    ]
+  }
 ];
+
+// Flatten for backward compatibility
+const menuItems = menuSections.flatMap(section => section.items);
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
@@ -319,26 +333,43 @@ function DashboardLayoutContent({
           </SidebarHeader>
 
           <SidebarContent className="gap-0 py-2">
-            <SidebarMenu className="px-2 py-1">
-              {menuItems.filter(item => !item.adminOnly || user?.role === 'admin').map(item => {
-                const isActive = location === item.path;
-                return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      onClick={() => setLocation(item.path)}
-                      tooltip={item.label}
-                      className={`h-10 transition-all font-normal ${isActive ? 'bg-sidebar-accent' : ''}`}
-                    >
-                      <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : "text-sidebar-foreground/70"}`}
-                      />
-                      <span className={isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/70"}>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
+            {menuSections.filter(section => !section.adminOnly || user?.role === 'admin').map((section) => (
+              <div key={section.title} className="mb-4">
+                {/* Section Header */}
+                <div className="px-4 py-2">
+                  <h3 className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">
+                    {section.title}
+                  </h3>
+                </div>
+                
+                {/* Section Items */}
+                <SidebarMenu className="px-2">
+                  {section.items.map(item => {
+                    const isActive = location === item.path;
+                    return (
+                      <SidebarMenuItem key={item.path}>
+                        <SidebarMenuButton
+                          isActive={isActive}
+                          onClick={() => setLocation(item.path)}
+                          tooltip={item.description || item.label}
+                          className={`h-10 transition-all font-normal ${isActive ? 'bg-sidebar-accent' : ''}`}
+                        >
+                          <item.icon
+                            className={`h-4 w-4 ${isActive ? "text-primary" : "text-sidebar-foreground/70"}`}
+                          />
+                          <span className={isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/70"}>{item.label}</span>
+                          {('badge' in item) && item.badge && (
+                            <Badge variant="secondary" className="ml-auto text-xs">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </div>
+            ))}
           </SidebarContent>
 
           <SidebarFooter className="p-3 border-t border-sidebar-border">
