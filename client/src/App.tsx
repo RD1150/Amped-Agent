@@ -50,6 +50,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import AIDisclaimer from "./pages/AIDisclaimer";
 import FairHousing from "./pages/FairHousing";
+import TermsOfService from "./pages/TermsOfService";
 
 function Router() {
   return (
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/landing" component={Landing} />
       <Route path="/terms" component={Terms} />
+      <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/ai-disclaimer" component={AIDisclaimer} />
       <Route path="/fair-housing" component={FairHousing} />

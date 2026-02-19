@@ -40,6 +40,9 @@ export const users = mysqlTable("users", {
   // Onboarding
   hasCompletedOnboarding: boolean("hasCompletedOnboarding").default(false).notNull(),
   onboardingStep: int("onboardingStep").default(1).notNull(), // Current step in onboarding (1-5)
+  // Terms of Service acceptance
+  hasAcceptedTerms: boolean("hasAcceptedTerms").default(false).notNull(),
+  termsAcceptedAt: timestamp("termsAcceptedAt"),
 });
 
 export type User = typeof users.$inferSelect;

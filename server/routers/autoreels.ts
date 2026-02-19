@@ -1,6 +1,7 @@
 import { protectedProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import { invokeLLM } from "../_core/llm";
+import { moderateContent } from "../_core/contentModeration";
 import { renderAutoReel, getRenderStatus } from "../_core/videoRenderer";
 import { generateAvatarIntro, getRemainingCredits } from "../lib/did-service";
 import * as db from "../db";
@@ -20,6 +21,12 @@ export const autoreelsRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       const { topic, inputMethod } = input;
+      
+      // Moderate input content
+      const moderation = await moderateContent(topic, true);
+      if (!moderation.allowed) {
+        throw new Error(`Content moderation: ${moderation.reason}`);
+      }
       
       // Get user's persona/authority profile
       const persona = await db.getPersonaByUserId(ctx.user.id);
@@ -76,6 +83,12 @@ export const autoreelsRouter = router({
     }))
     .mutation(async ({ input }) => {
       const { inputText, inputMethod, videoLength, tone, niche } = input;
+      
+      // Moderate input content
+      const moderation = await moderateContent(inputText, true);
+      if (!moderation.allowed) {
+        throw new Error(`Content moderation: ${moderation.reason}`);
+      }
 
       // Determine content type description
       const contentTypeDescriptions = {
@@ -238,6 +251,12 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
     .mutation(async ({ input }) => {
       // Regenerate uses the same logic as generate
       const { inputText, inputMethod, videoLength, tone, niche } = input;
+      
+      // Moderate input content
+      const moderation = await moderateContent(inputText, true);
+      if (!moderation.allowed) {
+        throw new Error(`Content moderation: ${moderation.reason}`);
+      }
 
       const contentTypeDescriptions = {
         bullets: "bullet points",

@@ -3,6 +3,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { invokeLLM } from "./_core/llm";
+import { moderateContent } from "./_core/contentModeration";
 import { generateImage } from "./_core/imageGeneration";
 import { ENV } from "./_core/env";
 import * as db from "./db";
@@ -92,6 +93,10 @@ export const appRouter = router({
     completeOnboarding: protectedProcedure
       .mutation(async ({ ctx }) => {
         return db.markOnboardingComplete(ctx.user.id);
+      }),
+    acceptTerms: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        return db.acceptTermsOfService(ctx.user.id);
       }),
   }),
 
@@ -208,6 +213,12 @@ export const appRouter = router({
         ctaText: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
+        // Moderate input content
+        const moderation = await moderateContent(input.topic, true);
+        if (!moderation.allowed) {
+          throw new Error(`Content moderation: ${moderation.reason}`);
+        }
+        
         const persona = await db.getPersonaByUserId(ctx.user.id);
         const tone = input.tone || persona?.brandVoice || "professional";
         
@@ -843,6 +854,12 @@ Create a compelling social media post.`;
         style: z.enum(["realistic", "modern", "luxury", "minimal", "vibrant"]).optional(),
       }))
       .mutation(async ({ input }) => {
+        // Moderate image prompt
+        const moderation = await moderateContent(input.prompt, false);
+        if (!moderation.allowed) {
+          throw new Error(`Content moderation: ${moderation.reason}`);
+        }
+        
         const stylePrompts: Record<string, string> = {
           realistic: "photorealistic, high quality photography",
           modern: "modern, clean, minimalist design",

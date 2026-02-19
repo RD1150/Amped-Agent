@@ -209,6 +209,21 @@ export async function markOnboardingComplete(userId: number) {
   return { success: true };
 }
 
+export async function acceptTermsOfService(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(users)
+    .set({ 
+      hasAcceptedTerms: true, 
+      termsAcceptedAt: new Date(),
+      updatedAt: new Date() 
+    })
+    .where(eq(users.id, userId));
+  
+  return { success: true };
+}
+
 // ============ PERSONA HELPERS ============
 
 export async function getPersonaByUserId(userId: number) {
