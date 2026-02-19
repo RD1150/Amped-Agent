@@ -2972,3 +2972,16 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Create admin-only City Showcase UI page
 - [ ] Generate test City Showcase video for a sample city
 - [ ] Add to sidebar menu (admin-only visibility)
+
+## Property Tours - Full Cinematic Improvements (Simplified)
+- [x] Add pacing slider to UI (3-7 seconds per shot, default 4.5s) - COMPLETE: Movement Speed selector already exists
+- [x] Add voiceover toggle checkbox (default ON) - COMPLETE: Already implemented
+- [x] Add music style selector (calm/upbeat options) - COMPLETE: Music Library has pace/mood filters
+- [x] Update backend to support configurable pacing - COMPLETE: Already supported via movementSpeed
+- [x] Update backend to support optional voiceover - COMPLETE: Already supported via enableVoiceover
+- [x] Add upbeat music tracks to music library - COMPLETE: 4 energetic tracks available (128-140 BPM)
+- [x] Update Runway prompts for faster camera movements - COMPLETE: Camera movement presets available
+- [x] Update default movement speed to "fast" (3-4s per shot) - COMPLETE
+- [x] Update Full Cinematic description to mention optional voiceover - COMPLETE
+- [ ] Test improved settings with real property photos - Ready for user testing
+- [ ] Generate sample videos with different configurations - Ready for user testing

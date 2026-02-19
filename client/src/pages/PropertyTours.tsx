@@ -54,7 +54,7 @@ export default function PropertyTours() {
   const [customScript, setCustomScript] = useState("");
   const [customCameraPrompt, setCustomCameraPrompt] = useState("");
   const [perPhotoMovements, setPerPhotoMovements] = useState<string[]>([]);
-  const [movementSpeed, setMovementSpeed] = useState<"slow" | "fast">("slow");
+  const [movementSpeed, setMovementSpeed] = useState<"slow" | "fast">("fast");
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropImageIndex, setCropImageIndex] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -857,7 +857,7 @@ Generate ONLY the script text, no additional commentary.`;
                   <SelectItem value="full-ai">
                     <div className="flex flex-col">
                       <span className="font-semibold">Full Cinematic (75 credits)</span>
-                      <span className="text-xs text-muted-foreground">Runway AI motion + voiceover (2/month max)</span>
+                      <span className="text-xs text-muted-foreground">Runway AI motion + optional voiceover (2/month max)</span>
                     </div>
                   </SelectItem>
                 </SelectContent>
