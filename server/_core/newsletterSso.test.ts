@@ -17,9 +17,9 @@ describe("Newsletter SSO", () => {
       expect(parts.length).toBe(5);
       
       // Verify each part
-      expect(parts[0]).toBe(testUser.id.toString());
+      expect(parts[0]).toBe(`authority-user-${testUser.id}`); // userId with prefix
       expect(parts[1]).toBe(testUser.email);
-      expect(parts[2]).toBe(testUser.name);
+      expect(parts[2]).toBe(encodeURIComponent(testUser.name)); // URL-encoded name
       expect(parseInt(parts[3])).toBeGreaterThan(0); // timestamp
       expect(parts[4].length).toBe(64); // HMAC-SHA256 produces 64-char hex string
     });

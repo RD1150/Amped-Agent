@@ -17,16 +17,23 @@ export function generateNewsletterSsoToken(user: {
     return null;
   }
   
-  const timestamp = Date.now();
-  const payload = `${user.id}:${user.email}:${user.name}:${timestamp}`;
+  // Format userId as string with prefix (Newsletter Pro expects string format)
+  const userId = `authority-user-${user.id}`;
   
-  // Generate HMAC-SHA256 signature
+  // URL-encode the name for signature generation (Newsletter Pro expects this)
+  const encodedName = encodeURIComponent(user.name);
+  
+  const timestamp = Date.now();
+  
+  // Generate signature with URL-encoded name
+  const message = `${userId}:${user.email}:${encodedName}:${timestamp}`;
   const signature = crypto
     .createHmac("sha256", ENV.NEWSLETTER_SSO_SECRET)
-    .update(payload)
+    .update(message)
     .digest("hex");
   
-  const token = `${payload}:${signature}`;
+  // Token format: userId:email:encodedName:timestamp:signature
+  const token = `${userId}:${user.email}:${encodedName}:${timestamp}:${signature}`;
   return token;
 }
 

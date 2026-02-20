@@ -3023,3 +3023,18 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Prevent Newsletter Builder from opening in new tabs - RESOLVED: Only opens on button click
 - [x] Add proper error handling for Newsletter SSO failures - COMPLETE: Shows error message instead of blank page
 - [ ] Test all fixes with real user data - Ready for user testing
+
+## Newsletter Builder - SSO Link Generation Debug
+- [ ] Debug why SSO link generation is failing (Newsletter Pro works fine standalone)
+- [ ] Verify NEWSLETTER_SSO_SECRET matches Newsletter Pro's expected format
+- [ ] Check SSO token generation format (HMAC-SHA256 signature)
+- [ ] Test SSO link manually to see exact error from Newsletter Pro
+- [ ] Fix SSO token generation or provide alternative access method
+
+## Newsletter Builder - SSO Token Format Fix
+- [x] Fix userId format: use string "authority-user-{id}" instead of number - COMPLETE
+- [x] Fix name encoding: URL-encode name in signature generation - COMPLETE
+- [x] Update token format to match Newsletter Pro's expected format - COMPLETE
+- [x] Update tests to match new token format - COMPLETE: All 5 tests passing
+- [ ] Test SSO login with corrected token format - Ready for user testing
+- [ ] Verify user can access Newsletter Pro after fix - Ready for user testing
