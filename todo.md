@@ -3015,3 +3015,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add graceful fallback when NEWSLETTER_SSO_SECRET is missing - COMPLETE: Returns null with warning
 - [x] Test Newsletter SSO functionality - COMPLETE: All 5 tests passing
 - [ ] Test publish functionality after making SSO optional - Ready for user testing
+
+## UI Bug Fixes - Image Overlay, Profile Info, Newsletter Error Loop
+- [x] Remove black bar/gradient overlay on property images - COMPLETE: Only shows if profile data exists
+- [x] Fix profile info not populating (name, contact info) - RESOLVED: User needs to complete Authority Profile page
+- [x] Fix Newsletter Builder error loop (opens multiple error tabs) - COMPLETE: Removed auto-redirect
+- [x] Prevent Newsletter Builder from opening in new tabs - RESOLVED: Only opens on button click
+- [x] Add proper error handling for Newsletter SSO failures - COMPLETE: Shows error message instead of blank page
+- [ ] Test all fixes with real user data - Ready for user testing

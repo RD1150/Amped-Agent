@@ -220,6 +220,12 @@ async function renderBrandingCard(
   width: number,
   height: number
 ) {
+  // Only render branding card if there's profile data to display
+  const hasProfileData = headshotUrl || agentName || phone || licenseNumber || brokerageName;
+  if (!hasProfileData) {
+    return; // Skip rendering if no profile data
+  }
+
   // Bottom-left branding card dimensions
   const cardWidth = 380;
   const cardHeight = 200;

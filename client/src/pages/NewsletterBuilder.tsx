@@ -8,18 +8,13 @@ import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function NewsletterBuilder() {
   const { user } = useAuth();
-  const { data: ssoLink, isLoading } = trpc.newsletter.getSsoLink.useQuery();
+  const { data: ssoLink, isLoading, error } = trpc.newsletter.getSsoLink.useQuery();
 
   // Check if user has Premium tier access
   const hasPremiumAccess = user?.subscriptionTier === "premium";
 
-  useEffect(() => {
-    // Auto-redirect to Newsletter Pro if user has Premium access and SSO link is ready
-    if (hasPremiumAccess && ssoLink?.url) {
-      // Open in new tab automatically
-      window.open(ssoLink.url, "_blank");
-    }
-  }, [hasPremiumAccess, ssoLink]);
+  // Removed auto-redirect to prevent error loop
+  // User must click button to open Newsletter Builder
 
   if (isLoading) {
     return (
@@ -128,18 +123,27 @@ export default function NewsletterBuilder() {
             </AlertDescription>
           </Alert>
 
-          <Button
-            size="lg"
-            className="w-full"
-            onClick={() => {
-              if (ssoLink?.url) {
-                window.open(ssoLink.url, "_blank");
-              }
-            }}
-          >
-            <ExternalLink className="mr-2 h-5 w-5" />
-            Open Newsletter Builder
-          </Button>
+          {error ? (
+            <Alert variant="destructive">
+              <AlertDescription>
+                {error.message || "Failed to generate Newsletter Builder access link. Please try again or contact support."}
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => {
+                if (ssoLink?.url) {
+                  window.open(ssoLink.url, "_blank");
+                }
+              }}
+              disabled={!ssoLink?.url}
+            >
+              <ExternalLink className="mr-2 h-5 w-5" />
+              Open Newsletter Builder
+            </Button>
+          )}
 
           <p className="text-xs text-center text-muted-foreground">
             Secure single sign-on • No additional login required • Opens in new tab
