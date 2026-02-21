@@ -3063,3 +3063,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add 12 more music tracks to library (4 upbeat, 4 luxury/calm, 4 acoustic guitar)
 - [x] Download additional tracks from Incompetech and upload to S3
 - [x] Expand music library to 24 total tracks
+
+## Homepage Video Placeholders Fix
+- [x] Replace placeholder text with real video players on homepage
+- [x] Generate or source sample property tour videos for showcase
+- [x] Upload sample videos to S3 and update homepage

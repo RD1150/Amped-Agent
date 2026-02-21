@@ -1,0 +1,298 @@
+{
+  "query": "DESCRIBE property_tours;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute DESCRIBE property_tours;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "userId",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "address",
+      "Type": "varchar(500)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "price",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "beds",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "baths",
+      "Type": "decimal(3,1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "sqft",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "propertyType",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "description",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "features",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "imageUrls",
+      "Type": "text",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "videoUrl",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "thumbnailUrl",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "template",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "modern",
+      "Extra": ""
+    },
+    {
+      "Field": "musicTrack",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "duration",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "30",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "enum('pending','processing','completed','failed')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "pending",
+      "Extra": ""
+    },
+    {
+      "Field": "errorMessage",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    },
+    {
+      "Field": "includeBranding",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "1",
+      "Extra": ""
+    },
+    {
+      "Field": "aspectRatio",
+      "Type": "varchar(20)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "16:9",
+      "Extra": ""
+    },
+    {
+      "Field": "cardTemplate",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "modern",
+      "Extra": ""
+    },
+    {
+      "Field": "includeIntroVideo",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "videoMode",
+      "Type": "enum('standard','ai-enhanced','full-ai')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "standard",
+      "Extra": ""
+    },
+    {
+      "Field": "enableVoiceover",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "voiceId",
+      "Type": "varchar(100)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "tourType",
+      "Type": "enum('listing-agent','buyer-tour','market-highlight')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "listing-agent",
+      "Extra": ""
+    },
+    {
+      "Field": "isUserListingAgent",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "listingAgentName",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "listingAgentBrokerage",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "legalRightsConfirmed",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "customCameraPrompt",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "voiceoverScript",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "perPhotoMovements",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "movementSpeed",
+      "Type": "enum('slow','fast')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "slow",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint(11)\tNO\tPRI\tNULL\tauto_increment\nuserId\tint(11)\tNO\t\tNULL\t\naddress\tvarchar(500)\tNO\t\tNULL\t\nprice\tvarchar(50)\tYES\t\tNULL\t\nbeds\tint(11)\tYES\t\tNULL\t\nbaths\tdecimal(3,1)\tYES\t\tNULL\t\nsqft\tint(11)\tYES\t\tNULL\t\npropertyType\tvarchar(100)\tYES\t\tNULL\t\ndescription\ttext\tYES\t\tNULL\t\nfeatures\ttext\tYES\t\tNULL\t\nimageUrls\ttext\tNO\t\tNULL\t\nvideoUrl\ttext\tYES\t\tNULL\t\nthumbnailUrl\ttext\tYES\t\tNULL\t\ntemplate\tvarchar(50)\tYES\t\tmodern\t\nmusicTrack\tvarchar(100)\tYES\t\tNULL\t\nduration\tint(11)\tYES\t\t30\t\nstatus\tenum('pending','processing','completed','failed')\tYES\t\tpending\t\nerrorMessage\ttext\tYES\t\tNULL\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nupdatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\nincludeBranding\ttinyint(1)\tYES\t\t1\t\naspectRatio\tvarchar(20)\tYES\t\t16:9\t\ncardTemplate\tvarchar(50)\tYES\t\tmodern\t\nincludeIntroVideo\ttinyint(1)\tYES\t\t0\t\nvideoMode\tenum('standard','ai-enhanced','full-ai')\tYES\t\tstandard\t\nenableVoiceover\ttinyint(1)\tYES\t\t0\t\nvoiceId\tvarchar(100)\tYES\t\tNULL\t\ntourType\tenum('listing-agent','buyer-tour','market-highlight')\tYES\t\tlisting-agent\t\nisUserListingAgent\ttinyint(1)\tYES\t\t0\t\nlistingAgentName\tvarchar(255)\tYES\t\tNULL\t\nlistingAgentBrokerage\tvarchar(255)\tYES\t\tNULL\t\nlegalRightsConfirmed\ttinyint(1)\tYES\t\t0\t\ncustomCameraPrompt\ttext\tYES\t\tNULL\t\nvoiceoverScript\ttext\tYES\t\tNULL\t\nperPhotoMovements\ttext\tYES\t\tNULL\t\nmovementSpeed\tenum('slow','fast')\tYES\t\tslow\t\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

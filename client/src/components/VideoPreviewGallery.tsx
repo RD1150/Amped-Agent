@@ -29,7 +29,7 @@ const sampleVideos: VideoSample[] = [
     title: "Modern Downtown Condo",
     mode: "standard",
     thumbnail: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=450&fit=crop",
-    videoUrl: "https://example.com/sample-standard.mp4",
+    videoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/BLeuXFrFCJNvYbPz.mp4",
     description: "Ken Burns effects with smooth transitions",
     credits: 5,
   },
@@ -38,7 +38,7 @@ const sampleVideos: VideoSample[] = [
     title: "Luxury Waterfront Estate",
     mode: "ai-enhanced",
     thumbnail: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=450&fit=crop",
-    videoUrl: "https://example.com/sample-ai-enhanced.mp4",
+    videoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/BLeuXFrFCJNvYbPz.mp4",
     voice: "Rachel - Professional",
     description: "AI motion on hero shots + voiceover",
     credits: 15,
@@ -48,7 +48,7 @@ const sampleVideos: VideoSample[] = [
     title: "Contemporary Mountain Home",
     mode: "full-ai",
     thumbnail: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=450&fit=crop",
-    videoUrl: "https://example.com/sample-full-ai.mp4",
+    videoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/BLeuXFrFCJNvYbPz.mp4",
     voice: "Adam - Confident",
     description: "Cinematic AI motion on all photos + voiceover",
     credits: 40,
@@ -192,11 +192,17 @@ export default function VideoPreviewGallery() {
             <DialogTitle>{selectedVideo?.title}</DialogTitle>
             <DialogDescription>{selectedVideo?.description}</DialogDescription>
           </DialogHeader>
-          <div className="aspect-video bg-black rounded-lg flex items-center justify-center">
-            <p className="text-white text-sm">
-              Video player would load here: {selectedVideo?.videoUrl}
-            </p>
-            {/* In production, replace with actual video player */}
+          <div className="aspect-video bg-black rounded-lg overflow-hidden">
+            {selectedVideo?.videoUrl && (
+              <video
+                className="w-full h-full"
+                controls
+                autoPlay
+                src={selectedVideo.videoUrl}
+              >
+                Your browser does not support the video tag.
+              </video>
+            )}
           </div>
         </DialogContent>
       </Dialog>
