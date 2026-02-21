@@ -37,18 +37,23 @@ import { ENV } from "./_core/env";
 const SHOTSTACK_API_URL = ENV.SHOTSTACK_HOST;
 
 /**
- * Get royalty-free music track URL from Shotstack library
- * Using Shotstack's built-in music library
+ * Get music track URL from music library
+ * Uses the actual music library with real track IDs
  */
-function getMusicTrackUrl(trackType: string): string {
-  // Shotstack provides royalty-free music tracks
-  // These are example URLs - in production, use actual Shotstack music library URLs
-  const tracks: Record<string, string> = {
-    upbeat: "https://s3-ap-southeast-2.amazonaws.com/shotstack-assets/music/unminus/ambisax.mp3",
-    calm: "https://s3-ap-southeast-2.amazonaws.com/shotstack-assets/music/unminus/blueskies.mp3",
-    luxury: "https://s3-ap-southeast-2.amazonaws.com/shotstack-assets/music/unminus/palmtrees.mp3",
-  };
-  return tracks[trackType] || tracks.upbeat;
+function getMusicTrackUrl(trackId: string): string {
+  // Import music library
+  const { getTrackById } = require("./musicLibrary");
+  
+  // Get track by ID from music library
+  const track = getTrackById(trackId);
+  
+  if (track && track.url) {
+    return track.url;
+  }
+  
+  // Fallback to first track if ID not found
+  const { MUSIC_LIBRARY } = require("./musicLibrary");
+  return MUSIC_LIBRARY[0]?.url || "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/vsuIkwkfirpwAsAL.mp3";
 }
 
 /**

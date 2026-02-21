@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, address, musicTrack, videoUrl, status, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, address, musicTrack, videoUrl, status, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 1;",
+  "rows": [
+    {
+      "id": "660002",
+      "address": "test",
+      "musicTrack": "uplifting-acoustic-1",
+      "videoUrl": "https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/3ffb9380-36fd-443d-82e5-6cd30ce7e75c.mp4",
+      "status": "completed",
+      "createdAt": "2026-02-21 09:21:25"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tmusicTrack\tvideoUrl\tstatus\tcreatedAt\n660002\ttest\tuplifting-acoustic-1\thttps://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/3ffb9380-36fd-443d-82e5-6cd30ce7e75c.mp4\tcompleted\t2026-02-21 09:21:25\n",
+  "stderr": "",
+  "execution_time_ms": 136
+}
