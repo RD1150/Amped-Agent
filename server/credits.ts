@@ -233,6 +233,26 @@ export function calculateVideoCost(params: {
 }
 
 /**
+ * Refund credits to user (e.g., for failed video generation)
+ */
+export async function refundCredits(params: {
+  userId: number;
+  amount: number;
+  reason: string;
+  relatedResourceId?: number;
+  relatedResourceType?: string;
+}): Promise<number> {
+  const { userId, amount, reason, relatedResourceId, relatedResourceType } = params;
+
+  return await addCredits({
+    userId,
+    amount,
+    type: "refund",
+    description: `Refund: ${reason}`,
+  });
+}
+
+/**
  * Grant trial credits to new user
  */
 export async function grantTrialCredits(userId: number): Promise<number> {

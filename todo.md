@@ -3068,3 +3068,15 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Replace placeholder text with real video players on homepage
 - [x] Generate or source sample property tour videos for showcase
 - [x] Upload sample videos to S3 and update homepage
+
+## Shotstack API Error Fix
+- [x] Fix Shotstack API 400 error when generating videos with Ken Burns effects (Standard mode)
+- [x] Investigate and debug the API request payload
+- [x] Test video generation after fix
+
+## Credit Refund System
+- [x] Implement automatic credit refund for failed video generations
+- [x] Refund credits when video generation fails (API errors, timeouts)
+- [x] Refund credits when user cancels stuck/failed videos
+- [x] Only charge credits when video is successfully generated
+- [x] Show clear messages explaining credit refunds

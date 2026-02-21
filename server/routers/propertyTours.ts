@@ -224,7 +224,17 @@ export const propertyToursRouter = router({
           status: "failed",
           errorMessage: error instanceof Error ? error.message : "Unknown error",
         });
-        throw error;
+        
+        // Refund credits since generation failed
+        await credits.refundCredits({
+          userId: ctx.user.id,
+          amount: costBreakdown.totalCredits,
+          reason: `Video generation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+          relatedResourceId: input.tourId,
+          relatedResourceType: "property_tour",
+        });
+        
+        throw new Error(`Failed to generate video: ${error instanceof Error ? error.message : "Unknown error"}. Your credits have been refunded.`);
       }
     }),
 
@@ -340,8 +350,24 @@ export const propertyToursRouter = router({
         throw new Error("Unauthorized");
       }
 
+      // Refund credits if video was processing or failed (user shouldn't lose credits)
+      if (tour.status === "processing" || tour.status === "failed") {
+        const costBreakdown = credits.calculateVideoCost({
+          videoMode: tour.videoMode as "standard" | "ai-enhanced" | "full-ai",
+          enableVoiceover: tour.enableVoiceover || false,
+        });
+        
+        await credits.refundCredits({
+          userId: ctx.user.id,
+          amount: costBreakdown.totalCredits,
+          reason: `Video cancelled/deleted while ${tour.status}`,
+          relatedResourceId: input.tourId,
+          relatedResourceType: "property_tour",
+        });
+      }
+
       await db.deletePropertyTour(input.tourId);
-      return { success: true };
+      return { success: true, creditsRefunded: tour.status === "processing" || tour.status === "failed" };
     }),
 
   /**

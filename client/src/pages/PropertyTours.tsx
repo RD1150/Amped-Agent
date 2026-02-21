@@ -443,9 +443,14 @@ Generate ONLY the script text, no additional commentary.`;
   // Handle tour deletion
   const handleDeleteTour = async (tourId: number) => {
     try {
-      await deleteTour.mutateAsync({ tourId });
-      toast.success("Property tour deleted");
+      const result = await deleteTour.mutateAsync({ tourId });
+      if (result.creditsRefunded) {
+        toast.success("Property tour deleted and credits refunded");
+      } else {
+        toast.success("Property tour deleted");
+      }
       utils.propertyTours.list.invalidate();
+      utils.credits.getBalance.invalidate(); // Refresh credit balance
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to delete tour");
     }
@@ -1263,9 +1268,13 @@ Generate ONLY the script text, no additional commentary.`;
                               size="sm"
                               variant="outline"
                               className="text-destructive hover:text-destructive"
-                              onClick={() => {
-                                if (confirm("Are you sure you want to delete this video?")) {
-                                  deleteTour.mutate({ tourId: tour.id });
+                              onClick={async () => {
+                                const isProcessingOrFailed = tour.status === "processing" || tour.status === "failed";
+                                const message = isProcessingOrFailed
+                                  ? "Are you sure you want to delete this video? Your credits will be refunded."
+                                  : "Are you sure you want to delete this video?";
+                                if (confirm(message)) {
+                                  await handleDeleteTour(tour.id);
                                 }
                               }}
                             >
