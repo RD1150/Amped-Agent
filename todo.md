@@ -3038,3 +3038,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update tests to match new token format - COMPLETE: All 5 tests passing
 - [ ] Test SSO login with corrected token format - Ready for user testing
 - [ ] Verify user can access Newsletter Pro after fix - Ready for user testing
+
+## Music Library - Preview Playback Bug
+- [ ] Investigate why music preview doesn't play when clicking on tracks
+- [ ] Fix audio playback functionality in Music Library component
+- [ ] Add visual feedback (play/pause button state, progress indicator)
+- [ ] Test music preview with all tracks in library
+- [ ] Ensure preview stops when selecting different track
