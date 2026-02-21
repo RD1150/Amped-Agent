@@ -1188,17 +1188,33 @@ Generate ONLY the script text, no additional commentary.`;
                     type="button"
                     size="sm"
                     variant="outline"
-                    onClick={() => {
-                      if (confirm("Cancel video generation? Credits will not be refunded.")) {
-                        setGeneratingTourId(null);
-                        setGenerationProgress(0);
-                        setGenerationStatus("");
-                        toast.info("Video generation cancelled");
-                        utils.propertyTours.list.invalidate();
+                    disabled={deleteTour.isPending}
+                    onClick={async () => {
+                      if (confirm("Cancel video generation? Your credits will be refunded.")) {
+                        if (generatingTourId) {
+                          try {
+                            await deleteTour.mutateAsync({ tourId: generatingTourId });
+                            setGeneratingTourId(null);
+                            setGenerationProgress(0);
+                            setGenerationStatus("");
+                            toast.success("Video generation cancelled and credits refunded");
+                            utils.propertyTours.list.invalidate();
+                            utils.credits.getBalance.invalidate();
+                          } catch (error) {
+                            toast.error("Failed to cancel video generation");
+                          }
+                        }
                       }
                     }}
                   >
-                    Cancel
+                    {deleteTour.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Cancelling...
+                      </>
+                    ) : (
+                      "Cancel"
+                    )}
                   </Button>
                 </div>
               </div>

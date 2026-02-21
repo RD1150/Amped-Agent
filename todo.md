@@ -3080,3 +3080,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Refund credits when user cancels stuck/failed videos
 - [x] Only charge credits when video is successfully generated
 - [x] Show clear messages explaining credit refunds
+
+## Cancel Button Bug Fix
+- [x] Fix cancel button that keeps spinning indefinitely during video generation
+- [x] Implement proper cancel/stop functionality for in-progress video generation
+- [x] Add loading states and error handling for cancel action
