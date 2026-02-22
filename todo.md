@@ -3085,3 +3085,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix cancel button that keeps spinning indefinitely during video generation
 - [x] Implement proper cancel/stop functionality for in-progress video generation
 - [x] Add loading states and error handling for cancel action
+
+## Navigation Issue
+- [ ] Add Property Tours link to navigation menu so users can access the feature
+- [ ] Ensure navigation is visible and accessible from all pages
+
+## Critical Bugs
+- [x] Fix Shotstack 400 error still occurring in Ken Burns mode (previous fix didn't work)
+- [x] Fix every other music track having no sound in the library
+- [x] Test all music track URLs to identify broken ones
+- [x] Replace broken music tracks with working alternatives

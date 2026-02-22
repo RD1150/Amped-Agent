@@ -260,35 +260,20 @@ export async function generatePropertyTourVideo(
       fit: fitMode,
       // Custom transform animations for AutoReels-quality movement
       transform: {
-        scale: [
-          {
-            from: animation.scale.from,
-            to: animation.scale.to,
-            start: 0,
-            length: durationPerImage,
-            easing: easingCurve,
-          },
-        ],
+        scale: {
+          from: animation.scale.from,
+          to: animation.scale.to,
+        },
       },
       offset: {
-        x: [
-          {
-            from: animation.offset.x.from,
-            to: animation.offset.x.to,
-            start: 0,
-            length: durationPerImage,
-            easing: easingCurve,
-          },
-        ],
-        y: [
-          {
-            from: animation.offset.y.from,
-            to: animation.offset.y.to,
-            start: 0,
-            length: durationPerImage,
-            easing: easingCurve,
-          },
-        ],
+        x: {
+          from: animation.offset.x.from,
+          to: animation.offset.x.to,
+        },
+        y: {
+          from: animation.offset.y.from,
+          to: animation.offset.y.to,
+        },
       },
     };
   });
