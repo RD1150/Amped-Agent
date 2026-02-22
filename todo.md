@@ -3095,3 +3095,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix every other music track having no sound in the library
 - [x] Test all music track URLs to identify broken ones
 - [x] Replace broken music tracks with working alternatives
+
+## Persistent Shotstack 400 Error
+- [x] Get detailed error information from user (mode, number of images, exact error message)
+- [x] Check server logs for detailed Shotstack API response
+- [x] Identify root cause of API rejection (missing zod import)
+- [x] Implement comprehensive fix for Shotstack API error
+- [ ] Test video generation end-to-end
