@@ -640,11 +640,6 @@ export async function generatePropertyTourVideo(
   }
 
   try {
-    // Write payload to file for debugging
-    const fs = require('fs');
-    const debugPath = '/tmp/shotstack-payload-debug.json';
-    fs.writeFileSync(debugPath, JSON.stringify(payload, null, 2));
-    console.log("[VideoGenerator] Payload written to:", debugPath);
     console.log("[VideoGenerator] Submitting render to Shotstack...");
     console.log("[VideoGenerator] Image count:", imageUrls.length);
     console.log("[VideoGenerator] Duration:", duration);

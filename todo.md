@@ -3132,3 +3132,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Discovered user was testing on production site instead of dev server
 - [x] All fixes applied: built-in effects + transition fix + enhanced error logging
 - [ ] User to test on production after publishing checkpoint
+
+## Dynamic require of 'fs' Error (Feb 22, 2026)
+- [x] Remove fs debugging code that writes payload to file
+- [x] Remove fs require from videoGenerator.ts
+- [ ] Test video generation after removing fs code
+- [ ] Save checkpoint with working fix
