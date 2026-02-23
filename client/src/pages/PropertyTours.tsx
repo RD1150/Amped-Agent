@@ -542,9 +542,9 @@ Generate ONLY the script text, no additional commentary.`;
               </video>
             </div>
             <div className="p-4">
-              <h3 className="font-semibold text-lg mb-1">AI-Enhanced Cinematic Example</h3>
+              <h3 className="font-semibold text-lg mb-1">AI-Enhanced Example</h3>
               <p className="text-sm text-muted-foreground mb-2">
-                Hollywood-style AI camera movements with dramatic lighting (crane shots, FPV drone, orbiting)
+                70-80% of clips use cinematic AI camera movements (crane shots, FPV drone, orbiting) with 50% longer duration for dramatic effect
               </p>
               <p className="text-xs text-muted-foreground italic">
                 Note: "Your branding here" - your profile picture and contact info will appear when branding is enabled

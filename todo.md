@@ -3168,6 +3168,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Extend AI clip duration from 5-6s to 8-10s (1.5x multiplier)
 - [x] Dramatic Runway prompts already implemented (crane, FPV drone, dolly zoom, orbiting)
 - [x] Implement crossfade transitions between AI clips (fade in/out)
-- [ ] Test enhanced AI-Enhanced mode
-- [ ] Update example videos section with branding notes
+- [x] Update example videos section with branding notes and AI-Enhanced example
+- [ ] User to test enhanced AI-Enhanced mode
 - [ ] Save checkpoint with improvements
