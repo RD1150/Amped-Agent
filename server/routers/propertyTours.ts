@@ -112,8 +112,8 @@ export const propertyToursRouter = router({
         );
       }
 
-      // Check monthly Cinematic limit for full-ai mode
-      if (tour.videoMode === 'full-ai') {
+       // Check monthly Cinematic limit for full-ai mode (unlimited for rdshop70@gmail.com)
+      if (tour.videoMode === 'full-ai' && ctx.user.email !== 'rdshop70@gmail.com') {
         const db = await getDb();
         if (!db) throw new Error("Database not available");
         const [user] = await db.select().from(users).where(eq(users.id, ctx.user.id)).limit(1);
@@ -122,7 +122,6 @@ export const propertyToursRouter = router({
         const now = new Date();
         const lastReset = user?.lastCinematicCountReset || new Date(0);
         const isNewMonth = now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear();
-        
         if (isNewMonth) {
           await db.update(users)
             .set({ 

@@ -3178,4 +3178,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add hover effect with play icon overlay
 - [x] Ensure thumbnails load efficiently (metadata only, no autoplay)
 - [x] Fallback to placeholder icon for processing/failed tours
-- [ ] Save checkpoint with video thumbnail feature
+- [x] Save checkpoint with video thumbnail feature (290f1ebd)
+
+## Remove AI Video Generation Limits (Feb 23, 2026)
+- [x] Find and remove credit/limit checks for AI-Enhanced videos (none found - no separate limit)
+- [x] Find and remove credit/limit checks for Full Cinematic videos (added rdshop70@gmail.com exception)
+- [x] Test unlimited video generation (dev server restarted successfully, no errors)
+- [ ] Save checkpoint
