@@ -1285,8 +1285,21 @@ Generate ONLY the script text, no additional commentary.`;
               {tours.map((tour) => (
                 <Card key={tour.id} className="p-4">
                   <div className="flex items-start gap-4">
-                    <div className="w-32 h-24 bg-muted rounded flex items-center justify-center overflow-hidden">
-                      {tour.thumbnailUrl ? (
+                    <div className="w-32 h-24 bg-muted rounded flex items-center justify-center overflow-hidden relative group">
+                      {tour.status === "completed" && tour.videoUrl ? (
+                        <>
+                          <video
+                            src={tour.videoUrl}
+                            className="w-full h-full object-cover"
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
+                          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                            <Play className="h-6 w-6 text-white" />
+                          </div>
+                        </>
+                      ) : tour.thumbnailUrl ? (
                         <img
                           src={tour.thumbnailUrl}
                           alt={tour.address}

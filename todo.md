@@ -3169,5 +3169,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Dramatic Runway prompts already implemented (crane, FPV drone, dolly zoom, orbiting)
 - [x] Implement crossfade transitions between AI clips (fade in/out)
 - [x] Update example videos section with branding notes and AI-Enhanced example
-- [ ] User to test enhanced AI-Enhanced mode
-- [ ] Save checkpoint with improvements
+- [x] Save checkpoint with improvements (9d8fe426)
+- [ ] User to test enhanced AI-Enhanced mode on production
+
+## Implement Video Preview Thumbnails (Feb 22, 2026)
+- [x] Update property tours list to show video thumbnails for completed tours
+- [x] Use HTML5 video element with preload="metadata" to show first frame
+- [x] Add hover effect with play icon overlay
+- [x] Ensure thumbnails load efficiently (metadata only, no autoplay)
+- [x] Fallback to placeholder icon for processing/failed tours
+- [ ] Save checkpoint with video thumbnail feature
