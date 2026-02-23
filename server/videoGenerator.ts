@@ -63,6 +63,11 @@ function getMusicTrackUrl(trackId: string): string {
 export async function generatePropertyTourVideo(
   options: VideoGenerationOptions
 ): Promise<{ renderId: string }> {
+  console.log("[VideoGenerator] ========== FUNCTION CALLED ==========");
+  console.log("[VideoGenerator] Video mode:", options.videoMode);
+  console.log("[VideoGenerator] Image count:", options.imageUrls.length);
+  console.log("[VideoGenerator] Aspect ratio:", options.aspectRatio);
+  
   const apiKey = process.env.SHOTSTACK_API_KEY;
   
   if (!apiKey) {
@@ -208,40 +213,36 @@ export async function generatePropertyTourVideo(
       };
     }
     
-    // AutoReels-style custom Ken Burns effects with dramatic movements
-    // Create custom scale + offset animations for professional cinematic feel
-    const cinematicAnimations: Record<string, { scale: { from: number; to: number }; offset: { x: { from: number; to: number }; y: { from: number; to: number } } }> = {
-      "zoom-in-pan-right": { scale: { from: 1.0, to: 1.3 }, offset: { x: { from: 0, to: 0.05 }, y: { from: 0, to: 0 } } },
-      "zoom-out-pan-left": { scale: { from: 1.3, to: 1.0 }, offset: { x: { from: 0.05, to: 0 }, y: { from: 0, to: 0 } } },
-      "pan-right-zoom": { scale: { from: 1.1, to: 1.25 }, offset: { x: { from: -0.1, to: 0.1 }, y: { from: 0, to: 0 } } },
-      "pan-left-zoom": { scale: { from: 1.0, to: 1.3 }, offset: { x: { from: 0.1, to: -0.05 }, y: { from: 0, to: 0 } } },
-      "dramatic-zoom": { scale: { from: 1.0, to: 1.4 }, offset: { x: { from: 0, to: 0 }, y: { from: 0, to: 0 } } },
-      "pan-up-zoom": { scale: { from: 1.1, to: 1.3 }, offset: { x: { from: 0, to: 0 }, y: { from: 0.05, to: -0.05 } } },
-      "pan-down-zoom": { scale: { from: 1.3, to: 1.1 }, offset: { x: { from: 0, to: 0 }, y: { from: -0.05, to: 0.05 } } },
-      "diagonal-pan-zoom": { scale: { from: 1.0, to: 1.35 }, offset: { x: { from: -0.05, to: 0.05 }, y: { from: -0.05, to: 0.05 } } },
-    };
-    
-    // Default cycling pattern for auto mode
-    const defaultPattern = [
-      "zoom-in-pan-right",
-      "zoom-out-pan-left",
-      "pan-right-zoom",
-      "pan-left-zoom",
-      "dramatic-zoom",
-      "pan-up-zoom",
-      "pan-down-zoom",
-      "diagonal-pan-zoom",
+    // Use Shotstack's built-in Ken Burns effects
+    // These are pre-built, tested, and guaranteed to work with the API
+    const builtInEffects = [
+      "zoomIn",
+      "zoomOut",
+      "slideLeft",
+      "slideRight",
+      "slideUp",
+      "slideDown",
     ];
     
-    // Use per-photo movement if provided, otherwise cycle through default pattern
-    let movementKey: string;
+    // Use per-photo movement if provided, otherwise cycle through effects
+    let effect: string;
     if (options.perPhotoMovements && options.perPhotoMovements[index] && options.perPhotoMovements[index] !== "auto") {
-      movementKey = options.perPhotoMovements[index];
+      // Map custom movement names to built-in effects
+      const movementToEffect: Record<string, string> = {
+        "zoom-in-pan-right": "zoomIn",
+        "zoom-out-pan-left": "zoomOut",
+        "pan-right-zoom": "slideRight",
+        "pan-left-zoom": "slideLeft",
+        "dramatic-zoom": "zoomIn",
+        "pan-up-zoom": "slideUp",
+        "pan-down-zoom": "slideDown",
+        "diagonal-pan-zoom": "zoomIn",
+      };
+      effect = movementToEffect[options.perPhotoMovements[index]] || "zoomIn";
     } else {
-      movementKey = defaultPattern[index % defaultPattern.length];
+      // Cycle through built-in effects
+      effect = builtInEffects[index % builtInEffects.length];
     }
-    
-    const animation = cinematicAnimations[movementKey] || cinematicAnimations["dramatic-zoom"];
     
     // Smart fit for vertical videos (9:16) to reduce aggressive cropping
     const fitMode = aspectRatio === "9:16" ? "contain" : "cover";
@@ -253,28 +254,14 @@ export async function generatePropertyTourVideo(
       },
       start: index * durationPerImage - (index > 0 ? 0.3 : 0), // Overlap by 0.3s for seamless flow
       length: durationPerImage + (index < options.imageUrls.length - 1 ? 0.3 : 0), // Extend to overlap with next clip
-      transition: index > 0 ? {
-        in: "fade",
-        out: index < options.imageUrls.length - 1 ? "fade" : undefined,
-      } : undefined,
+      ...(index > 0 && {
+        transition: {
+          in: "fade",
+          ...(index < options.imageUrls.length - 1 && { out: "fade" }),
+        },
+      }),
       fit: fitMode,
-      // Custom transform animations for AutoReels-quality movement
-      transform: {
-        scale: {
-          from: animation.scale.from,
-          to: animation.scale.to,
-        },
-      },
-      offset: {
-        x: {
-          from: animation.offset.x.from,
-          to: animation.offset.x.to,
-        },
-        y: {
-          from: animation.offset.y.from,
-          to: animation.offset.y.to,
-        },
-      },
+      effect, // Use Shotstack's built-in Ken Burns effects
     };
   });
 
@@ -653,6 +640,11 @@ export async function generatePropertyTourVideo(
   }
 
   try {
+    // Write payload to file for debugging
+    const fs = require('fs');
+    const debugPath = '/tmp/shotstack-payload-debug.json';
+    fs.writeFileSync(debugPath, JSON.stringify(payload, null, 2));
+    console.log("[VideoGenerator] Payload written to:", debugPath);
     console.log("[VideoGenerator] Submitting render to Shotstack...");
     console.log("[VideoGenerator] Image count:", imageUrls.length);
     console.log("[VideoGenerator] Duration:", duration);
@@ -673,7 +665,17 @@ export async function generatePropertyTourVideo(
       console.error("[VideoGenerator] Shotstack API error:", response.status, response.statusText);
       console.error("[VideoGenerator] Error response body:", errorText);
       console.error("[VideoGenerator] Request URL:", `${SHOTSTACK_API_URL}/render`);
-      throw new Error(`Shotstack API error: ${response.status} ${response.statusText}`);
+      
+      // Include first clip details in error for debugging
+      const firstClip = payload.timeline.tracks[0]?.clips[0];
+      const clipInfo = firstClip ? JSON.stringify({
+        hasTransition: !!firstClip.transition,
+        hasEffect: !!firstClip.effect,
+        effect: firstClip.effect,
+        transition: firstClip.transition
+      }) : 'no clips';
+      
+      throw new Error(`Shotstack API error: ${response.status} ${response.statusText}. First clip: ${clipInfo}. Shotstack response: ${errorText.substring(0, 200)}`);
     }
 
     const result = await response.json();

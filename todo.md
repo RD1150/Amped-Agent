@@ -3102,3 +3102,33 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Identify root cause of API rejection (missing zod import)
 - [x] Implement comprehensive fix for Shotstack API error
 - [ ] Test video generation end-to-end
+
+## Shotstack 400 Bad Request Error (Still Occurring)
+- [ ] Examine Shotstack API documentation for transform/offset structure requirements
+- [ ] Identify which fields in the payload are causing 400 error
+- [ ] Fix Ken Burns transform structure to match API requirements
+- [ ] Remove any unsupported fields from payload
+- [ ] Test video generation end-to-end
+
+## Shotstack Ken Burns Transform Fix (Feb 22, 2026)
+- [x] Identified root cause: Custom transform/offset animations are not supported - must use built-in effects
+- [x] Found official Shotstack Ken Burns example using built-in "effect" property
+- [x] Replaced all custom animations with Shotstack built-in effects: zoomIn, zoomOut, slideLeft, slideRight, slideUp, slideDown
+- [x] Server restarted to apply fix
+- [ ] User testing: Generate Standard (Ken Burns) video to verify fix works
+
+## Shotstack 400 Error Still Occurring (Feb 22, 2026 - URGENT)
+- [x] Check server logs for detailed Shotstack API error response
+- [x] Identify which field(s) are still causing 400 Bad Request - custom transform/offset animations were invalid
+- [x] Fix remaining invalid payload fields - switched to Shotstack built-in effects (zoomIn, zoomOut, slideLeft, slideRight, slideUp, slideDown)
+- [ ] Test video generation after fix
+
+## Shotstack 400 Error STILL Persisting (Feb 22, 2026 - CRITICAL)
+- [x] Verify built-in effects code changes were actually applied to running server
+- [x] Check server logs for actual payload being sent
+- [x] Add detailed error logging to see Shotstack's exact error message
+- [x] Identify what field is still causing 400 error - transition property had undefined values
+- [x] Fix transition property to avoid undefined values using spread operator
+- [x] Discovered user was testing on production site instead of dev server
+- [x] All fixes applied: built-in effects + transition fix + enhanced error logging
+- [ ] User to test on production after publishing checkpoint
