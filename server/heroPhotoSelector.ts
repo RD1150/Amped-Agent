@@ -114,7 +114,9 @@ export function isHeroPhoto(photoUrl: string, allPhotos: string[], heroPhotos: P
  * Get recommended count of hero photos based on total photo count
  */
 export function getRecommendedHeroCount(totalPhotos: number): number {
-  if (totalPhotos <= 5) return Math.min(3, totalPhotos);
-  if (totalPhotos <= 10) return 4;
-  return 5; // For 11+ photos, use 5 heroes
+  // AI-Enhanced mode: use 70-80% of photos for dramatic effect
+  if (totalPhotos <= 5) return totalPhotos; // Use all photos for small sets
+  if (totalPhotos <= 8) return 6; // 75% of 8 photos
+  if (totalPhotos <= 10) return 8; // 80% of 10 photos
+  return Math.ceil(totalPhotos * 0.75); // For 11+ photos, use 75% as AI heroes
 }

@@ -3145,4 +3145,29 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add Ken Burns example in first video slot
 - [x] Add appropriate label "Ken Burns Effect Example"
 - [x] Add placeholder for Full Cinematic example
-- [ ] Save checkpoint with updated example videos
+- [x] Save checkpoint with updated example videos (6ed4102f)
+
+## Update Example Videos with Branding Notes (Feb 22, 2026)
+- [x] Upload AI-Enhanced video to S3 - https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/LONrycATwxPCfYzp.mp4
+- [x] Add "Your branding here" note to example video descriptions
+- [x] Add AI-Enhanced example with proper labeling
+- [x] Update descriptions to clarify branding feature and highlight AI enhancements
+- [ ] Save checkpoint with updated examples
+
+## Enhance AI-Enhanced Video Mode (Feb 22, 2026)
+- [x] Add more dramatic Runway camera prompts (crane shots, FPV drone, dolly zoom, orbiting, aerial)
+- [x] Increase AI clip duration from 5s to 10s (maximum allowed)
+- [x] Increase number of AI shots from 3-5 to 5-8 (majority of clips - 60-70%)
+- [x] Update example videos section with branding notes
+- [x] Update AI-Enhanced example description to highlight new features
+- [ ] Test AI-Enhanced mode with new improvements
+- [ ] Save checkpoint with enhanced AI mode
+
+## Enhance AI-Enhanced Video Mode (Feb 22, 2026)
+- [x] Increase AI shot count from 3-5 to 6-8 shots (now 70-80% of video)
+- [x] Extend AI clip duration from 5-6s to 8-10s (1.5x multiplier)
+- [x] Dramatic Runway prompts already implemented (crane, FPV drone, dolly zoom, orbiting)
+- [x] Implement crossfade transitions between AI clips (fade in/out)
+- [ ] Test enhanced AI-Enhanced mode
+- [ ] Update example videos section with branding notes
+- [ ] Save checkpoint with improvements

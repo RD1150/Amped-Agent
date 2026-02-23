@@ -521,21 +521,33 @@ Generate ONLY the script text, no additional commentary.`;
             </div>
             <div className="p-4">
               <h3 className="font-semibold text-lg mb-1">Ken Burns Effect Example</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-2">
                 Standard mode with smooth zoom and pan effects
+              </p>
+              <p className="text-xs text-muted-foreground italic">
+                Note: "Your branding here" - your profile picture and contact info will appear when branding is enabled
               </p>
             </div>
           </Card>
 
-          {/* Full Cinematic Example - Placeholder for now */}
+          {/* AI-Enhanced Example */}
           <Card className="overflow-hidden">
-            <div className="aspect-video bg-black flex items-center justify-center">
-              <p className="text-muted-foreground">Full Cinematic Example Coming Soon</p>
+            <div className="aspect-video bg-black">
+              <video
+                controls
+                className="w-full h-full"
+                src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/LONrycATwxPCfYzp.mp4"
+              >
+                Your browser does not support the video tag.
+              </video>
             </div>
             <div className="p-4">
-              <h3 className="font-semibold text-lg mb-1">Full Cinematic AI Example</h3>
-              <p className="text-sm text-muted-foreground">
-                Advanced AI camera movements with Runway ML
+              <h3 className="font-semibold text-lg mb-1">AI-Enhanced Cinematic Example</h3>
+              <p className="text-sm text-muted-foreground mb-2">
+                Hollywood-style AI camera movements with dramatic lighting (crane shots, FPV drone, orbiting)
+              </p>
+              <p className="text-xs text-muted-foreground italic">
+                Note: "Your branding here" - your profile picture and contact info will appear when branding is enabled
               </p>
             </div>
           </Card>

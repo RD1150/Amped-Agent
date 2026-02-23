@@ -182,6 +182,8 @@ export async function generatePropertyTourVideo(
     // If AI video is available, use it instead of static image
     if (aiVideoUrl) {
       console.log(`[VideoGenerator] Using AI video for: ${url}`);
+      // AI clips get 50% more time (8-10s vs 5-6s) for dramatic cinematic movements
+      const aiClipDuration = durationPerImage * 1.5;
       return {
         asset: {
           type: "video",
@@ -189,9 +191,12 @@ export async function generatePropertyTourVideo(
           volume: 0, // Mute AI video, use music track instead
         },
         start: index * durationPerImage,
-        length: durationPerImage,
+        length: aiClipDuration,
         fit: "cover",
-        // No transitions for seamless flow
+        transition: {
+          in: "fade",
+          out: "fade",
+        },
       };
     }
     

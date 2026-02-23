@@ -35,7 +35,7 @@ export async function generateHeroVideoClips(
       // Generate video with Runway ML
       const videoUrl = await imageToVideo(hero.url, prompt, {
         aspectRatio,
-        duration: 5, // 5 seconds for cost efficiency
+        duration: 10, // 10 seconds (max) for more dramatic cinematic effect
       });
       
       console.log(`[HybridVideoGen] ✓ Generated AI video: ${videoUrl}`);
@@ -69,18 +69,18 @@ export async function generateHeroVideoClips(
  */
 function generateCinematicPrompt(photoReason: string): string {
   const prompts: Record<string, string> = {
-    "Exterior/facade shot": "Cinematic slow push-in camera movement revealing the architectural details, golden hour lighting, professional real estate cinematography",
-    "Main living area": "Smooth dolly shot moving through the living space, revealing the room's depth and natural lighting",
-    "Kitchen": "Elegant crane shot descending to reveal the kitchen's layout and modern appliances",
-    "Master/primary suite": "Gentle tracking shot showcasing the bedroom's spaciousness and luxury details",
-    "Water feature": "Serene camera movement with subtle water ripples and reflections, peaceful ambiance",
-    "Outdoor living space": "Sweeping pan across the outdoor area with natural elements gently swaying",
-    "Dining area": "Smooth arc shot around the dining space, highlighting the room's elegance",
-    "Bedroom": "Calm dolly shot revealing the bedroom's comfort and natural light",
-    "Bathroom": "Sophisticated camera movement showcasing the bathroom's modern fixtures and design",
+    "Exterior/facade shot": "Dramatic crane shot swooping down from above revealing the architectural masterpiece, golden hour cinematic lighting, Hollywood-style real estate cinematography",
+    "Main living area": "FPV drone racing smoothly through the living space with dynamic perspective, revealing luxurious depth and dramatic natural lighting",
+    "Kitchen": "Orbiting 360-degree camera movement circling around the kitchen island, showcasing modern appliances and elegant design from all angles",
+    "Master/primary suite": "Cinematic dolly zoom (vertigo effect) emphasizing the bedroom's grandeur and luxury, dramatic lighting transition",
+    "Water feature": "Sweeping aerial crane shot descending toward the water with cinematic reflections and serene ambiance, sunset lighting",
+    "Outdoor living space": "Dynamic FPV drone shot gliding through the outdoor space, revealing entertainment areas with cinematic flair",
+    "Dining area": "Elegant orbiting camera movement around the dining table, Hollywood-style lighting revealing sophisticated design",
+    "Bedroom": "Smooth tracking shot with subtle push-in revealing the bedroom's comfort, warm cinematic lighting",
+    "Bathroom": "Dramatic crane shot descending to showcase the spa-like bathroom, luxury fixtures with cinematic lighting",
   };
   
-  return prompts[photoReason] || "Cinematic camera movement revealing the space with professional real estate videography style";
+  return prompts[photoReason] || "Epic cinematic camera movement with dramatic lighting revealing the space, Hollywood-style real estate videography";
 }
 
 /**
