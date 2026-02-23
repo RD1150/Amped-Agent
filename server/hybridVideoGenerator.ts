@@ -21,16 +21,24 @@ export async function generateHeroVideoClips(
   });
   
   // Generate AI videos for each hero photo in parallel
-  const videoPromises = heroPhotos.map(async (hero) => {
+  const videoPromises = heroPhotos.map(async (hero, index) => {
     try {
-      console.log(`[HybridVideoGen] Generating AI video for: ${hero.url}`);
+      console.log(`[HybridVideoGen] ========== AI VIDEO ${index + 1}/${heroPhotos.length} ==========`);
+      console.log(`[HybridVideoGen] Image URL: ${hero.url}`);
+      console.log(`[HybridVideoGen] Reason: ${hero.reason}`);
+      console.log(`[HybridVideoGen] Score: ${hero.score}`);
       
       // Use custom prompt if provided, otherwise generate based on photo type
       const prompt = customCameraPrompt || generateCinematicPrompt(hero.reason);
       
       if (customCameraPrompt) {
         console.log(`[HybridVideoGen] Using custom camera prompt: "${customCameraPrompt}"`);
+      } else {
+        console.log(`[HybridVideoGen] Generated prompt: "${prompt}"`);
       }
+      
+      console.log(`[HybridVideoGen] Calling Runway ML API...`);
+      const startTime = Date.now();
       
       // Generate video with Runway ML
       const videoUrl = await imageToVideo(hero.url, prompt, {
@@ -38,13 +46,24 @@ export async function generateHeroVideoClips(
         duration: 10, // 10 seconds (max) for more dramatic cinematic effect
       });
       
-      console.log(`[HybridVideoGen] ✓ Generated AI video: ${videoUrl}`);
+      const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+      console.log(`[HybridVideoGen] ✓ SUCCESS! Generated AI video in ${duration}s`);
+      console.log(`[HybridVideoGen] Video URL: ${videoUrl}`);
+      console.log(`[HybridVideoGen] ==========================================`);
       
-      return { imageUrl: hero.url, videoUrl };
+      return { imageUrl: hero.url, videoUrl, prompt, success: true };
     } catch (error) {
-      console.error(`[HybridVideoGen] ✗ Failed to generate AI video for ${hero.url}:`, error);
+      console.error(`[HybridVideoGen] ========== AI VIDEO ${index + 1}/${heroPhotos.length} FAILED ==========`);
+      console.error(`[HybridVideoGen] ✗ FAILED to generate AI video for ${hero.url}`);
+      console.error(`[HybridVideoGen] Error type: ${error instanceof Error ? error.constructor.name : typeof error}`);
+      console.error(`[HybridVideoGen] Error message: ${error instanceof Error ? error.message : String(error)}`);
+      if (error instanceof Error && error.stack) {
+        console.error(`[HybridVideoGen] Stack trace: ${error.stack}`);
+      }
+      console.error(`[HybridVideoGen] FALLING BACK TO KEN BURNS for this photo`);
+      console.error(`[HybridVideoGen] ==========================================`);
       // Return null to fall back to Ken Burns for this photo
-      return { imageUrl: hero.url, videoUrl: null };
+      return { imageUrl: hero.url, videoUrl: null, prompt: '', success: false, error: error instanceof Error ? error.message : String(error) };
     }
   });
   
@@ -53,13 +72,30 @@ export async function generateHeroVideoClips(
   
   // Build map of image URL to video URL
   const videoMap = new Map<string, string>();
+  const successCount = results.filter(r => r.success).length;
+  const failureCount = results.filter(r => !r.success).length;
+  
   results.forEach(({ imageUrl, videoUrl }) => {
     if (videoUrl) {
       videoMap.set(imageUrl, videoUrl);
     }
   });
   
-  console.log(`[HybridVideoGen] Successfully generated ${videoMap.size}/${heroPhotos.length} AI videos`);
+  console.log(`[HybridVideoGen] ==========================================`);
+  console.log(`[HybridVideoGen] FINAL RESULTS:`);
+  console.log(`[HybridVideoGen] - Total hero photos: ${heroPhotos.length}`);
+  console.log(`[HybridVideoGen] - Successful AI generations: ${successCount}`);
+  console.log(`[HybridVideoGen] - Failed (Ken Burns fallback): ${failureCount}`);
+  console.log(`[HybridVideoGen] - AI videos in final render: ${videoMap.size}`);
+  
+  if (failureCount > 0) {
+    console.warn(`[HybridVideoGen] WARNING: ${failureCount} photos fell back to Ken Burns!`);
+    results.filter(r => !r.success).forEach((result, i) => {
+      console.warn(`[HybridVideoGen]   ${i + 1}. ${result.imageUrl} - Error: ${result.error}`);
+    });
+  }
+  
+  console.log(`[HybridVideoGen] ==========================================`);
   
   return videoMap;
 }

@@ -346,43 +346,10 @@ export async function generatePropertyTourVideo(
     });
   }
 
-  // Add agent branding overlay if enabled
+  // REMOVED: Mid-video branding overlay
+  // Branding now only appears on intro/outro cards to avoid blocking property views
+  // This keeps the focus on the property features during the tour
   let brandingClips: any[] = [];
-  if (includeBranding && userId) {
-    try {
-      // Import db functions
-      const db = await import("./db");
-      
-      // Fetch agent profile
-      const persona = await db.getPersonaByUserId(userId);
-      
-      if (persona && persona.headshotUrl) {
-        // Add agent branding as HTML overlay in bottom-right
-        const contactInfo = [];
-        if (persona.agentName) contactInfo.push(persona.agentName);
-        if (persona.phoneNumber) contactInfo.push(persona.phoneNumber);
-        if (persona.websiteUrl) contactInfo.push(persona.websiteUrl);
-        if (persona.emailAddress) contactInfo.push(persona.emailAddress);
-        
-        if (contactInfo.length > 0 && persona.headshotUrl) {
-          // Combined branding with headshot and info
-          brandingClips.push({
-            asset: {
-              type: "html",
-              html: `<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: flex-end; padding: 20px;"><div style="background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px;"><img src="${persona.headshotUrl}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;" /><p style="color: white; font-size: 16px; margin: 0;">${contactInfo.join(" · ")}</p></div></div>`,
-              width: htmlWidth,
-              height: htmlHeight,
-            },
-            start: 0,
-            length: duration,
-          });
-        }
-      }
-    } catch (error) {
-      console.error("[VideoGenerator] Failed to fetch agent profile:", error);
-      // Continue without branding if fetch fails
-    }
-  }
 
   /**
    * Generate intro card HTML based on selected template

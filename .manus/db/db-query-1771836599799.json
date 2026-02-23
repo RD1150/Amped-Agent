@@ -1,0 +1,31 @@
+{
+  "query": "\nSELECT \n  pt.id,\n  pt.address,\n  pt.videoMode,\n  pt.videoUrl,\n  pt.status\nFROM property_tours pt\nJOIN users u ON pt.userId = u.id\nWHERE u.email = 'rdshop70@gmail.com'\n  AND pt.status = 'completed'\n  AND pt.videoUrl IS NOT NULL\nORDER BY pt.createdAt DESC\nLIMIT 10;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute \nSELECT \n  pt.id,\n  pt.address,\n  pt.videoMode,\n  pt.videoUrl,\n  pt.status\nFROM property_tours pt\nJOIN users u ON pt.userId = u.id\nWHERE u.email = 'rdshop70@gmail.com'\n  AND pt.status = 'completed'\n  AND pt.videoUrl IS NOT NULL\nORDER BY pt.createdAt DESC\nLIMIT 10;\n",
+  "rows": [
+    {
+      "id": "990005",
+      "address": "Cinematic",
+      "videoMode": "full-ai",
+      "videoUrl": "https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/137a3eef-0d8c-45b8-87fc-4f744cb994e9.mp4",
+      "status": "completed"
+    },
+    {
+      "id": "990002",
+      "address": "TestKenBurns",
+      "videoMode": "standard",
+      "videoUrl": "https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/257aa5ce-ff09-47b6-b72d-cefc4bd162d4.mp4",
+      "status": "completed"
+    },
+    {
+      "id": "990001",
+      "address": "Test AI",
+      "videoMode": "ai-enhanced",
+      "videoUrl": "https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/231c422e-06f1-47c7-b2ae-0da33fe638e1.mp4",
+      "status": "completed"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tvideoMode\tvideoUrl\tstatus\n990005\tCinematic\tfull-ai\thttps://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/137a3eef-0d8c-45b8-87fc-4f744cb994e9.mp4\tcompleted\n990002\tTestKenBurns\tstandard\thttps://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/257aa5ce-ff09-47b6-b72d-cefc4bd162d4.mp4\tcompleted\n990001\tTest AI\tai-enhanced\thttps://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/231c422e-06f1-47c7-b2ae-0da33fe638e1.mp4\tcompleted\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

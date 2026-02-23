@@ -1,0 +1,37 @@
+{
+  "query": "\nSELECT \n  pt.id,\n  pt.address,\n  pt.videoMode,\n  pt.videoUrl,\n  pt.status,\n  pt.createdAt,\n  u.email\nFROM property_tours pt\nJOIN users u ON pt.userId = u.id\nWHERE u.email = 'rdshop70@gmail.com'\n  AND pt.videoMode = 'full-ai'\nORDER BY pt.createdAt DESC\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute \nSELECT \n  pt.id,\n  pt.address,\n  pt.videoMode,\n  pt.videoUrl,\n  pt.status,\n  pt.createdAt,\n  u.email\nFROM property_tours pt\nJOIN users u ON pt.userId = u.id\nWHERE u.email = 'rdshop70@gmail.com'\n  AND pt.videoMode = 'full-ai'\nORDER BY pt.createdAt DESC\nLIMIT 5;\n",
+  "rows": [
+    {
+      "id": "990005",
+      "address": "Cinematic",
+      "videoMode": "full-ai",
+      "videoUrl": "https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/137a3eef-0d8c-45b8-87fc-4f744cb994e9.mp4",
+      "status": "completed",
+      "createdAt": "2026-02-23 08:43:26",
+      "email": "rdshop70@gmail.com"
+    },
+    {
+      "id": "990004",
+      "address": "Cinematic Test",
+      "videoMode": "full-ai",
+      "videoUrl": "NULL",
+      "status": "pending",
+      "createdAt": "2026-02-23 08:40:48",
+      "email": "rdshop70@gmail.com"
+    },
+    {
+      "id": "990003",
+      "address": "Test Cinematic",
+      "videoMode": "full-ai",
+      "videoUrl": "NULL",
+      "status": "pending",
+      "createdAt": "2026-02-23 08:32:04",
+      "email": "rdshop70@gmail.com"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tvideoMode\tvideoUrl\tstatus\tcreatedAt\temail\n990005\tCinematic\tfull-ai\thttps://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/137a3eef-0d8c-45b8-87fc-4f744cb994e9.mp4\tcompleted\t2026-02-23 08:43:26\trdshop70@gmail.com\n990004\tCinematic Test\tfull-ai\tNULL\tpending\t2026-02-23 08:40:48\trdshop70@gmail.com\n990003\tTest Cinematic\tfull-ai\tNULL\tpending\t2026-02-23 08:32:04\trdshop70@gmail.com\n",
+  "stderr": "",
+  "execution_time_ms": 64
+}

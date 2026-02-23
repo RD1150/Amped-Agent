@@ -3184,4 +3184,19 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Find and remove credit/limit checks for AI-Enhanced videos (none found - no separate limit)
 - [x] Find and remove credit/limit checks for Full Cinematic videos (added rdshop70@gmail.com exception)
 - [x] Test unlimited video generation (dev server restarted successfully, no errors)
-- [ ] Save checkpoint
+- [x] Save checkpoint (a807ec51)
+
+## Debug Runway ML AI Video Generation (Feb 23, 2026)
+- [x] Add detailed logging to hybridVideoGenerator.ts to track Runway ML calls
+- [x] Log success/failure of each AI video generation
+- [ ] Save Runway ML video URLs to database for inspection (deferred - logs sufficient for now)
+- [ ] Add visual indicator when AI clips are used vs Ken Burns fallback (deferred - logs sufficient for now)
+- [ ] Test with new Full Cinematic video generation
+- [ ] Analyze logs to identify why videos look identical
+- [ ] Save checkpoint with debugging improvements
+
+## Move Branding to Intro/Outro Only (Feb 23, 2026)
+- [x] Remove mid-video branding overlays that block property views
+- [x] Keep branding only on intro and outro cards (intro/outro already have agent info)
+- [ ] Test video generation with new branding placement
+- [ ] Save checkpoint with branding improvements
