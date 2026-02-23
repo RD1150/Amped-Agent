@@ -3136,5 +3136,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Dynamic require of 'fs' Error (Feb 22, 2026)
 - [x] Remove fs debugging code that writes payload to file
 - [x] Remove fs require from videoGenerator.ts
-- [ ] Test video generation after removing fs code
-- [ ] Save checkpoint with working fix
+- [x] Save checkpoint with complete fix (dd9e3159)
+- [ ] User to publish and test on production
+
+## Add Ken Burns Example Video (Feb 22, 2026)
+- [x] Upload Ken Burns video to S3 - https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/ohpWbEfjCWjPNlIL.mp4
+- [x] Create example videos section on Property Tours page
+- [x] Add Ken Burns example in first video slot
+- [x] Add appropriate label "Ken Burns Effect Example"
+- [x] Add placeholder for Full Cinematic example
+- [ ] Save checkpoint with updated example videos

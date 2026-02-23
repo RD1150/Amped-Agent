@@ -504,6 +504,44 @@ Generate ONLY the script text, no additional commentary.`;
         </div>
       </div>
 
+      {/* Example Videos Section */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Example Videos</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Ken Burns Example */}
+          <Card className="overflow-hidden">
+            <div className="aspect-video bg-black">
+              <video
+                controls
+                className="w-full h-full"
+                src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/ohpWbEfjCWjPNlIL.mp4"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div className="p-4">
+              <h3 className="font-semibold text-lg mb-1">Ken Burns Effect Example</h3>
+              <p className="text-sm text-muted-foreground">
+                Standard mode with smooth zoom and pan effects
+              </p>
+            </div>
+          </Card>
+
+          {/* Full Cinematic Example - Placeholder for now */}
+          <Card className="overflow-hidden">
+            <div className="aspect-video bg-black flex items-center justify-center">
+              <p className="text-muted-foreground">Full Cinematic Example Coming Soon</p>
+            </div>
+            <div className="p-4">
+              <h3 className="font-semibold text-lg mb-1">Full Cinematic AI Example</h3>
+              <p className="text-sm text-muted-foreground">
+                Advanced AI camera movements with Runway ML
+              </p>
+            </div>
+          </Card>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Create New Tour Form */}
         <Card className="p-6">
