@@ -3200,3 +3200,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Keep branding only on intro and outro cards (intro/outro already have agent info)
 - [ ] Test video generation with new branding placement
 - [ ] Save checkpoint with branding improvements
+
+## Add Cinematic Visual Enhancements (Feb 25, 2026)
+- [x] Implement professional color grading (teal/orange, warm, moody, cool options)
+- [x] Add smooth cross-dissolve transitions between clips (fade in/out)
+- [x] Add vignetting effects for cinematic focus
+- [x] Integrate enhancements into video generation pipeline
+- [ ] Add film grain and texture overlays (deferred - need asset)
+- [ ] Add subtle lens flares and light leaks (deferred - need testing)
+- [ ] Implement speed ramping for hero moments (deferred - Shotstack limitation)
+- [ ] Test cinematic quality improvements (user will test)
+- [ ] Save checkpoint with enhancements

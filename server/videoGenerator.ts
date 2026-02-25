@@ -33,6 +33,7 @@ export interface VideoGenerationOptions {
 export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contemporary";
 
 import { ENV } from "./_core/env";
+import { applyCinematicEnhancements, getCinematicOverlays, type CinematicOptions } from "./cinematicEffects";
 
 const SHOTSTACK_API_URL = ENV.SHOTSTACK_HOST;
 
@@ -528,14 +529,30 @@ export async function generatePropertyTourVideo(
   // Update total duration to include intro and outro
   const totalDuration = duration + introLength + (outroCard.length > 0 ? 3 : 0);
 
+  // Apply cinematic enhancements to main clips
+  const cinematicOptions: CinematicOptions = {
+    aspectRatio,
+    colorGrade: videoMode === "full-ai" ? "teal-orange" : "warm", // More dramatic for full-ai
+    vignette: videoMode !== "standard", // Add vignette for AI modes
+    filmGrain: false, // Disabled until we have grain asset
+    lensFlare: false, // Disabled for now
+  };
+  
+  // Apply enhancements to property clips only (not intro/outro)
+  const enhancedClips = applyCinematicEnhancements(adjustedClips, cinematicOptions);
+  
+  // Get cinematic overlays (vignette, etc.)
+  const cinematicOverlays = getCinematicOverlays(cinematicOptions, totalDuration);
+
   // Combine all clips
   const allClips = [
     ...userIntroClip,
     ...adjustedIntroCard,
-    ...adjustedClips,
+    ...enhancedClips,
     ...adjustedTextOverlays,
     ...adjustedBrandingClips,
     ...outroCard,
+    ...cinematicOverlays, // Add overlays on top
   ];
 
   // Map aspect ratio to resolution and size
