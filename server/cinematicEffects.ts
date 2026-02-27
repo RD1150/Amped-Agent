@@ -152,6 +152,11 @@ export function applyCinematicEnhancements(
   clips: any[],
   options: CinematicOptions
 ): any[] {
+  // DISABLED: Cinematic enhancements cause Shotstack validation errors
+  // Return clips unmodified until we find Shotstack-compatible approach
+  return clips;
+  
+  /* ORIGINAL CODE - DISABLED
   const enhancedClips = [...clips];
   
   // Apply color grading to all image/video clips
@@ -170,6 +175,7 @@ export function applyCinematicEnhancements(
   });
   
   return enhancedClips;
+  */
 }
 
 /**

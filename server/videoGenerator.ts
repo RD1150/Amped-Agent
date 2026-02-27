@@ -196,7 +196,6 @@ export async function generatePropertyTourVideo(
         fit: "cover",
         transition: {
           in: "fade",
-          out: "fade",
         },
       };
     }
@@ -263,7 +262,6 @@ export async function generatePropertyTourVideo(
       ...(index > 0 && {
         transition: {
           in: "fade",
-          ...(index < options.imageUrls.length - 1 && { out: "fade" }),
         },
       }),
       fit: fitMode,
@@ -429,9 +427,7 @@ export async function generatePropertyTourVideo(
           },
           start: 0,
           length: 2,
-          transition: {
-            out: "fade",
-          },
+
         });
       }
     } catch (error) {
