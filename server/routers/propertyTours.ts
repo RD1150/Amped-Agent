@@ -27,7 +27,7 @@ export const propertyToursRouter = router({
         features: z.array(z.string()).optional(),
         imageUrls: z.array(z.string().url()).min(1, "At least one image is required"),
         template: z.enum(["modern", "luxury", "cozy"]).default("modern"),
-        duration: z.number().int().min(15).max(120).default(30),
+        duration: z.number().int().min(15).max(120).default(25),
         includeBranding: z.boolean().default(true),
         aspectRatio: z.enum(["16:9", "9:16", "1:1"]).default("16:9"),
         musicTrack: z.string().optional(),

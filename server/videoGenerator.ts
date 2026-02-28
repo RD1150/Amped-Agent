@@ -609,8 +609,8 @@ export async function generatePropertyTourVideo(
       format: "mp4",
       resolution,
       ...(size && { size }), // Add size for custom dimensions
-      fps: 60, // Ultra-smooth 60fps for AutoReels-quality motion
-      quality: "high",
+      fps: 25, // 25fps reduces Shotstack credit cost significantly
+      quality: "medium",
       // Generate poster image from the most visually appealing frame
       // Capture at 25% through the video (after intro, during property photos)
       poster: {

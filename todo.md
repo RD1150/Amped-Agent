@@ -3211,3 +3211,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Implement speed ramping for hero moments (deferred - Shotstack limitation)
 - [ ] Test cinematic quality improvements (user will test)
 - [ ] Save checkpoint with enhancements
+
+## Reduce Shotstack Video Cost (Feb 26, 2026)
+- [ ] Analyze current clip durations and credit calculation
+- [ ] Reduce clip durations to lower total cost below 16.64 credits
+- [ ] Test cost reduction works
+- [ ] Save checkpoint and publish to production
