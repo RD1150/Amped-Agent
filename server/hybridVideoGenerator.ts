@@ -1,4 +1,6 @@
-import { imageToVideo } from "./_core/runwayAi";
+import { imageToVideo as runwayImageToVideo } from "./_core/runwayAi";
+import { imageToVideo as lumaImageToVideo } from "./_core/lumaAi";
+import { ENV } from "./_core/env";
 import { selectHeroPhotos, getRecommendedHeroCount } from "./heroPhotoSelector";
 import type { VideoGenerationOptions } from "./videoGenerator";
 
@@ -37,18 +39,41 @@ export async function generateHeroVideoClips(
         console.log(`[HybridVideoGen] Generated prompt: "${prompt}"`);
       }
       
-      console.log(`[HybridVideoGen] Calling Runway ML API...`);
       const startTime = Date.now();
+      let videoUrl: string;
       
-      // Generate video with Runway ML
-      const videoUrl = await imageToVideo(hero.url, prompt, {
-        aspectRatio,
-        duration: 10, // 10 seconds (max) for more dramatic cinematic effect
-      });
+      // Try Luma AI first (cheaper: $0.24/clip vs Runway $0.45/clip)
+      // Fall back to Runway ML if Luma fails
+      if (ENV.LUMA_API_KEY) {
+        try {
+          console.log(`[HybridVideoGen] Trying Luma AI Ray Flash 2 (cheaper)...`);
+          videoUrl = await lumaImageToVideo(hero.url, prompt, {
+            aspectRatio,
+            resolution: "720p",
+            model: "ray-flash-2",
+          });
+          const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+          console.log(`[HybridVideoGen] ✓ Luma AI SUCCESS in ${elapsed}s: ${videoUrl}`);
+        } catch (lumaError) {
+          console.warn(`[HybridVideoGen] Luma AI failed: ${lumaError instanceof Error ? lumaError.message : String(lumaError)}`);
+          console.log(`[HybridVideoGen] Falling back to Runway ML...`);
+          videoUrl = await runwayImageToVideo(hero.url, prompt, {
+            aspectRatio,
+            duration: 5,
+          });
+          const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+          console.log(`[HybridVideoGen] ✓ Runway ML SUCCESS in ${elapsed}s: ${videoUrl}`);
+        }
+      } else {
+        console.log(`[HybridVideoGen] No Luma key, using Runway ML...`);
+        videoUrl = await runwayImageToVideo(hero.url, prompt, {
+          aspectRatio,
+          duration: 5,
+        });
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        console.log(`[HybridVideoGen] ✓ Runway ML SUCCESS in ${elapsed}s: ${videoUrl}`);
+      }
       
-      const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-      console.log(`[HybridVideoGen] ✓ SUCCESS! Generated AI video in ${duration}s`);
-      console.log(`[HybridVideoGen] Video URL: ${videoUrl}`);
       console.log(`[HybridVideoGen] ==========================================`);
       
       return { imageUrl: hero.url, videoUrl, prompt, success: true };

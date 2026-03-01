@@ -75,30 +75,20 @@ export function getFilmGrainOverlay(aspectRatio: string) {
  * Add vignette overlay
  * Dark edges for cinematic focus
  */
-export function getVignetteOverlay(aspectRatio: string) {
+export function getVignetteOverlay(aspectRatio: string, videoDuration: number) {
+  const width = aspectRatio === "9:16" ? 1080 : (aspectRatio === "1:1" ? 1080 : 1920);
+  const height = aspectRatio === "9:16" ? 1920 : (aspectRatio === "1:1" ? 1080 : 1080);
   return {
     asset: {
       type: "html",
-      html: `
-        <div style="
-          width: 100%;
-          height: 100%;
-          background: radial-gradient(
-            ellipse at center,
-            transparent 0%,
-            transparent 40%,
-            rgba(0,0,0,0.3) 70%,
-            rgba(0,0,0,0.6) 100%
-          );
-        "></div>
-      `,
-      css: "body { margin: 0; }",
-      width: aspectRatio === "9:16" ? 1080 : 1920,
-      height: aspectRatio === "9:16" ? 1920 : 1080,
+      html: `<div style="width:100%;height:100%;background:radial-gradient(ellipse at center,transparent 0%,transparent 40%,rgba(0,0,0,0.3) 70%,rgba(0,0,0,0.6) 100%)"></div>`,
+      css: "body{margin:0;padding:0;overflow:hidden}",
+      width,
+      height,
     },
-    length: 999,
+    length: videoDuration,
     start: 0,
-    opacity: 0.8,
+    opacity: 0.7,
   };
 }
 
@@ -189,8 +179,8 @@ export function getCinematicOverlays(
   const overlays: any[] = [];
   
   // Add vignette
-  if (options.vignette !== false) {
-    overlays.push(getVignetteOverlay(options.aspectRatio));
+  if (options.vignette === true) {
+    overlays.push(getVignetteOverlay(options.aspectRatio, videoDuration));
   }
   
   // Add film grain (if we have the asset)
