@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { PRICING_TIERS, TRIAL_DAYS, type SubscriptionTier } from "../../../server/products";
+import { PRICING_TIERS, TRIAL_DAYS, type SubscriptionTier } from "@shared/pricingConstants";
 
 export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
