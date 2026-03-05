@@ -123,6 +123,12 @@ export const appRouter = router({
         emailAddress: z.string().optional(),
         socialHandles: z.string().optional(),
         isCompleted: z.boolean().optional(),
+        klingAvatarHeadshotUrl: z.string().optional(),
+        klingAvatarVoiceUrl: z.string().optional(),
+        klingAvatarEnabled: z.boolean().optional(),
+        elevenlabsVoiceId: z.string().optional(),
+        elevenlabsVoiceName: z.string().optional(),
+        voiceSampleUrl: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);
@@ -137,6 +143,62 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);
       }),
+
+    /**
+     * Clone the agent's voice using ElevenLabs from a voice sample URL.
+     * Saves the voice_id to the persona for use in property tour voiceovers.
+     */
+    cloneVoice: protectedProcedure
+      .input(z.object({
+        voiceSampleUrl: z.string().url(),
+        voiceName: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { cloneVoice } = await import("./_core/elevenLabs");
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+        const agentName = persona?.agentName || `Agent ${ctx.user.id}`;
+        const voiceName = input.voiceName || `${agentName}'s Voice`;
+
+        // If there's an existing cloned voice, delete it first to avoid accumulation
+        if (persona?.elevenlabsVoiceId) {
+          try {
+            const { deleteVoice } = await import("./_core/elevenLabs");
+            await deleteVoice(persona.elevenlabsVoiceId);
+          } catch (e) {
+            console.warn("[VoiceClone] Could not delete old voice:", e);
+          }
+        }
+
+        const { voice_id } = await cloneVoice({
+          name: voiceName,
+          audioUrl: input.voiceSampleUrl,
+          description: `Voice clone for ${agentName} - Authority Content`,
+        });
+
+        await db.upsertPersona(ctx.user.id, {
+          elevenlabsVoiceId: voice_id,
+          elevenlabsVoiceName: voiceName,
+          voiceSampleUrl: input.voiceSampleUrl,
+        });
+
+        return { voice_id, voiceName };
+      }),
+
+    /**
+     * Delete the agent's cloned voice from ElevenLabs
+     */
+    deleteVoiceClone: protectedProcedure.mutation(async ({ ctx }) => {
+      const persona = await db.getPersonaByUserId(ctx.user.id);
+      if (persona?.elevenlabsVoiceId) {
+        const { deleteVoice } = await import("./_core/elevenLabs");
+        await deleteVoice(persona.elevenlabsVoiceId);
+        await db.upsertPersona(ctx.user.id, {
+          elevenlabsVoiceId: undefined,
+          elevenlabsVoiceName: undefined,
+        });
+      }
+      return { success: true };
+    }),
   }),
 
   content: router({

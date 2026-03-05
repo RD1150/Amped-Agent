@@ -97,3 +97,89 @@ export const REAL_ESTATE_VOICES = {
   bella: "EXAVITQu4vr4xnSDxMaL", // Warm female
   josh: "TxGEqnHWrfWFTfGW9XjX", // Authoritative male
 };
+
+/**
+ * Add a voice clone to ElevenLabs using an audio sample URL
+ * Returns the new voice_id for use in text-to-speech
+ */
+export async function cloneVoice(options: {
+  name: string;
+  audioUrl: string; // Public URL to audio file (MP3/WAV/M4A, 15s–5min recommended)
+  description?: string;
+}): Promise<{ voice_id: string; name: string }> {
+  const { name, audioUrl, description } = options;
+
+  // Download the audio file from the URL
+  const audioResponse = await fetch(audioUrl);
+  if (!audioResponse.ok) {
+    throw new Error(`Failed to download audio sample: ${audioResponse.status}`);
+  }
+  const audioBuffer = await audioResponse.arrayBuffer();
+
+  // Determine file extension from URL
+  const ext = audioUrl.split("?")[0].split(".").pop()?.toLowerCase() || "mp3";
+  const mimeType = ext === "wav" ? "audio/wav" : ext === "m4a" ? "audio/mp4" : "audio/mpeg";
+
+  // Build multipart form data
+  const formData = new FormData();
+  formData.append("name", name);
+  if (description) formData.append("description", description);
+  formData.append(
+    "files",
+    new Blob([audioBuffer], { type: mimeType }),
+    `voice-sample.${ext}`
+  );
+
+  const response = await fetch(`${ELEVENLABS_API_URL}/voices/add`, {
+    method: "POST",
+    headers: {
+      "xi-api-key": ENV.ELEVENLABS_API_KEY,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`ElevenLabs voice clone error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  return { voice_id: data.voice_id, name };
+}
+
+/**
+ * Delete a cloned voice from ElevenLabs (cleanup)
+ */
+export async function deleteVoice(voice_id: string): Promise<void> {
+  const response = await fetch(`${ELEVENLABS_API_URL}/voices/${voice_id}`, {
+    method: "DELETE",
+    headers: {
+      "xi-api-key": ENV.ELEVENLABS_API_KEY,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.warn(`ElevenLabs delete voice warning: ${response.status} - ${error}`);
+  }
+}
+
+/**
+ * Get details of a specific voice
+ */
+export async function getVoice(voice_id: string): Promise<VoiceOption | null> {
+  const response = await fetch(`${ELEVENLABS_API_URL}/voices/${voice_id}`, {
+    headers: {
+      "xi-api-key": ENV.ELEVENLABS_API_KEY,
+    },
+  });
+
+  if (!response.ok) return null;
+
+  const v = await response.json();
+  return {
+    voice_id: v.voice_id,
+    name: v.name,
+    description: v.description || "",
+  };
+}

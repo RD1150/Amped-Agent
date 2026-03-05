@@ -40,6 +40,8 @@ export const propertyToursRouter = router({
         voiceoverScript: z.string().optional(),
         perPhotoMovements: z.array(z.string()).optional(),
         movementSpeed: z.enum(["slow", "fast"]).default("slow"),
+        enableAvatarOverlay: z.boolean().default(false),
+        avatarOverlayPosition: z.enum(["bottom-left", "bottom-right"]).default("bottom-left"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -68,6 +70,8 @@ export const propertyToursRouter = router({
         voiceoverScript: input.voiceoverScript,
         perPhotoMovements: input.perPhotoMovements ? JSON.stringify(input.perPhotoMovements) : undefined,
         movementSpeed: input.movementSpeed,
+        enableAvatarOverlay: input.enableAvatarOverlay,
+        avatarOverlayPosition: input.avatarOverlayPosition,
         status: "pending",
       });
 
@@ -200,11 +204,23 @@ export const propertyToursRouter = router({
           includeIntroVideo: tour.includeIntroVideo ?? false,
           videoMode: (tour.videoMode as "standard" | "ai-enhanced" | "full-ai") || "standard",
           enableVoiceover: tour.enableVoiceover ?? false,
-          voiceId: tour.voiceId || undefined,
           customCameraPrompt: tour.customCameraPrompt || undefined,
           voiceoverScript: tour.voiceoverScript || undefined,
           perPhotoMovements: tour.perPhotoMovements ? JSON.parse(tour.perPhotoMovements) : undefined,
           movementSpeed: (tour.movementSpeed as "slow" | "fast") || "slow",
+          enableAvatarOverlay: tour.enableAvatarOverlay ?? false,
+          avatarOverlayPosition: (tour.avatarOverlayPosition as "bottom-left" | "bottom-right") || "bottom-left",
+          // Fetch agent headshot, voice, and ElevenLabs voice ID from their persona profile
+          ...await (async () => {
+            const { getPersonaByUserId } = await import("../db");
+            const persona = await getPersonaByUserId(ctx.user.id);
+            return {
+              agentHeadshotUrl: persona?.klingAvatarHeadshotUrl || undefined,
+              agentVoiceUrl: persona?.klingAvatarVoiceUrl || undefined,
+              // Use cloned voice ID if available, otherwise fall back to tour.voiceId or default
+              voiceId: persona?.elevenlabsVoiceId || tour.voiceId || undefined,
+            };
+          })(),
         });
 
         // Store render ID for polling

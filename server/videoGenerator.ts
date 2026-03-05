@@ -28,6 +28,11 @@ export interface VideoGenerationOptions {
   customCameraPrompt?: string; // Custom Runway ML camera movement prompt
   perPhotoMovements?: string[]; // Camera movement preset for each photo
   movementSpeed?: "slow" | "fast"; // Camera movement speed: slow (6-8s per photo) or fast (3-4s per photo)
+  enableAvatarOverlay?: boolean; // Enable Kling Avatar 2.0 agent twin corner overlay
+  avatarOverlayPosition?: "bottom-left" | "bottom-right"; // Corner position for avatar
+  agentHeadshotUrl?: string; // Agent headshot for Kling Avatar generation
+  agentVoiceUrl?: string;    // Agent voice recording for Kling Avatar generation
+  klingAvatarVideoUrl?: string; // Pre-generated Kling Avatar video URL (cached)
 }
 
 export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contemporary";
@@ -92,6 +97,8 @@ export async function generatePropertyTourVideo(
     voiceId,
     voiceoverScript,
   } = options;
+  const enableAvatarOverlay = options.enableAvatarOverlay ?? false;
+  const avatarOverlayPosition = options.avatarOverlayPosition ?? "bottom-left";
 
   if (imageUrls.length === 0) {
     throw new Error("At least one image is required");
@@ -580,6 +587,29 @@ export async function generatePropertyTourVideo(
     volume: enableVoiceover ? 0.3 : 0.6, // Increased volume for audibility
   } : undefined;
 
+  // Generate or use cached Kling Avatar video for agent overlay
+  let avatarVideoUrl: string | undefined;
+  if (enableAvatarOverlay && options.agentHeadshotUrl && options.agentVoiceUrl) {
+    try {
+      if (options.klingAvatarVideoUrl) {
+        avatarVideoUrl = options.klingAvatarVideoUrl;
+        console.log("[VideoGenerator] Using cached Kling Avatar video:", avatarVideoUrl);
+      } else {
+        console.log("[VideoGenerator] Generating Kling Avatar 2.0 narration...");
+        const { generateAgentAvatarVideo } = await import("./_core/klingAi");
+        avatarVideoUrl = await generateAgentAvatarVideo(
+          options.agentHeadshotUrl,
+          options.agentVoiceUrl,
+          propertyDetails.address,
+          "std"
+        );
+        console.log("[VideoGenerator] \u2713 Kling Avatar video ready:", avatarVideoUrl);
+      }
+    } catch (err: any) {
+      console.warn("[VideoGenerator] Kling Avatar generation failed, skipping overlay:", err.message);
+    }
+  }
+
   // Add voiceover audio track if enabled
   const voiceoverTrack: any[] = [];
   if (voiceoverUrl) {
@@ -603,6 +633,23 @@ export async function generatePropertyTourVideo(
           clips: allClips,
         },
         ...(voiceoverTrack.length > 0 ? [{ clips: voiceoverTrack }] : []),
+        // Kling Avatar 2.0 overlay — agent appears in corner throughout the video
+        ...(avatarVideoUrl ? [{
+          clips: [{
+            asset: {
+              type: "video",
+              src: avatarVideoUrl,
+              volume: 0,
+            },
+            start: introLength,
+            length: duration,
+            fit: "none",
+            scale: 0.22,
+            position: avatarOverlayPosition === "bottom-right" ? "bottomRight" : "bottomLeft",
+            offset: { x: avatarOverlayPosition === "bottom-right" ? 0.02 : -0.02, y: 0.03 },
+            transition: { in: "fade", out: "fade" },
+          }]
+        }] : []),
       ],
     },
     output: {

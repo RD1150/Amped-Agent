@@ -339,3 +339,126 @@ function getRoomPrompt(roomType: string): string {
 
   return "Smooth cinematic camera movement revealing the beautiful interior space";
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Kling Avatar 2.0 — AI twin narration from headshot + voice recording
+// API: POST /v1/videos/avatar/image2video
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface KlingAvatarRequest {
+  image: string;        // Headshot URL (jpg/png, ≥300px, ≤10MB)
+  sound_file: string;   // Voice recording URL (mp3/wav/m4a/aac, 2-300s, ≤5MB)
+  prompt?: string;      // Avatar actions/emotions/camera guidance
+  mode?: "std" | "pro"; // std = cost-effective, pro = higher quality
+  external_task_id?: string;
+}
+
+export interface KlingAvatarTask {
+  task_id: string;
+  task_status: "submitted" | "processing" | "succeed" | "failed";
+  task_status_msg?: string;
+  task_result?: {
+    videos?: Array<{
+      id: string;
+      url: string;
+      watermark_url?: string;
+      duration: string;
+    }>;
+  };
+  created_at: number;
+  updated_at: number;
+}
+
+/**
+ * Submit an Avatar 2.0 generation task
+ * Takes a headshot image + voice recording and generates a talking-head video
+ */
+export async function createAvatarTask(
+  request: KlingAvatarRequest
+): Promise<KlingAvatarTask> {
+  const response = await klingRequest<KlingAvatarTask>(
+    "POST",
+    "/v1/videos/avatar/image2video",
+    request
+  );
+  return response.data;
+}
+
+/**
+ * Get Avatar task status by ID
+ */
+export async function getAvatarTaskStatus(taskId: string): Promise<KlingAvatarTask> {
+  const response = await klingRequest<KlingAvatarTask>(
+    "GET",
+    `/v1/videos/avatar/image2video/${taskId}`
+  );
+  return response.data;
+}
+
+/**
+ * Poll for Avatar task completion with timeout
+ */
+export async function waitForAvatarTask(
+  taskId: string,
+  maxWaitMs: number = 300000 // 5 minutes
+): Promise<KlingAvatarTask> {
+  const startTime = Date.now();
+  const pollInterval = 5000; // 5 seconds
+
+  while (Date.now() - startTime < maxWaitMs) {
+    const task = await getAvatarTaskStatus(taskId);
+
+    if (task.task_status === "succeed") {
+      return task;
+    }
+
+    if (task.task_status === "failed") {
+      throw new Error(
+        `Kling Avatar task failed: ${task.task_status_msg || "Unknown error"}`
+      );
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, pollInterval));
+  }
+
+  throw new Error(`Kling Avatar task timed out after ${maxWaitMs}ms`);
+}
+
+/**
+ * Generate an agent narration video using Kling Avatar 2.0
+ * 
+ * @param headshotUrl - URL of the agent's headshot (jpg/png, ≥300px)
+ * @param voiceUrl    - URL of the agent's voice recording (mp3/wav, 2-300s)
+ * @param propertyAddress - Used to generate a contextual prompt
+ * @param mode        - "std" (faster/cheaper) or "pro" (higher quality)
+ * @returns URL of the generated avatar video
+ */
+export async function generateAgentAvatarVideo(
+  headshotUrl: string,
+  voiceUrl: string,
+  propertyAddress: string,
+  mode: "std" | "pro" = "std"
+): Promise<string> {
+  const prompt = `Real estate agent presenting a property tour. Professional demeanor, warm smile, natural head movement while speaking. Property: ${propertyAddress}`;
+
+  console.log(`[KlingAvatar] Generating avatar for property: ${propertyAddress}`);
+
+  const task = await createAvatarTask({
+    image: headshotUrl,
+    sound_file: voiceUrl,
+    prompt,
+    mode,
+  });
+
+  console.log(`[KlingAvatar] Task submitted: ${task.task_id}`);
+
+  const completed = await waitForAvatarTask(task.task_id);
+
+  const videoUrl = completed.task_result?.videos?.[0]?.url;
+  if (!videoUrl) {
+    throw new Error("Kling Avatar task completed but no video URL returned");
+  }
+
+  console.log(`[KlingAvatar] ✓ Avatar video ready: ${videoUrl}`);
+  return videoUrl;
+}

@@ -55,6 +55,8 @@ export default function PropertyTours() {
   const [customCameraPrompt, setCustomCameraPrompt] = useState("");
   const [perPhotoMovements, setPerPhotoMovements] = useState<string[]>([]);
   const [movementSpeed, setMovementSpeed] = useState<"slow" | "fast">("fast");
+  const [enableAvatarOverlay, setEnableAvatarOverlay] = useState(false);
+  const [avatarOverlayPosition, setAvatarOverlayPosition] = useState<"bottom-left" | "bottom-right">("bottom-left");
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropImageIndex, setCropImageIndex] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -347,6 +349,8 @@ Generate ONLY the script text, no additional commentary.`;
         voiceoverScript: customScript || undefined,
         perPhotoMovements: perPhotoMovements.length > 0 ? perPhotoMovements : undefined,
         movementSpeed,
+        enableAvatarOverlay,
+        avatarOverlayPosition,
       });
 
       // Set generating state
@@ -1026,6 +1030,55 @@ Generate ONLY the script text, no additional commentary.`;
                 </div>
               )}
             </div>
+
+            {/* AI Agent Avatar Overlay */}
+            {(videoMode === "ai-enhanced" || videoMode === "full-ai") && (
+              <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/30">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="enableAvatarOverlay"
+                    checked={enableAvatarOverlay}
+                    onCheckedChange={(checked) => setEnableAvatarOverlay(checked as boolean)}
+                  />
+                  <Label htmlFor="enableAvatarOverlay" className="text-sm font-medium cursor-pointer">
+                    AI Agent Avatar Overlay
+                  </Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Your AI twin appears in the corner narrating the tour. Set up your headshot and voice recording in{" "}
+                  <a href="/account" className="underline text-primary">Account Settings</a> first.
+                </p>
+                {enableAvatarOverlay && (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium">Avatar Position</Label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAvatarOverlayPosition("bottom-left")}
+                        className={`flex-1 py-1.5 px-3 rounded text-xs border transition-colors ${
+                          avatarOverlayPosition === "bottom-left"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "border-border hover:bg-muted"
+                        }`}
+                      >
+                        ↙ Bottom Left
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAvatarOverlayPosition("bottom-right")}
+                        className={`flex-1 py-1.5 px-3 rounded text-xs border transition-colors ${
+                          avatarOverlayPosition === "bottom-right"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "border-border hover:bg-muted"
+                        }`}
+                      >
+                        ↘ Bottom Right
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Video Settings */}
             <div className="grid grid-cols-2 gap-4">

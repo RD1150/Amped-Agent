@@ -216,6 +216,30 @@ export const reelsRouter = router({
     }),
 
   /**
+   * Delete a reel by ID (only owner can delete)
+   */
+  deleteReel: protectedProcedure
+    .input(z.object({ reelId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Verify ownership
+      const [reel] = await db
+        .select()
+        .from(aiReels)
+        .where(and(eq(aiReels.id, input.reelId), eq(aiReels.userId, ctx.user.id)))
+        .limit(1);
+
+      if (!reel) throw new Error("Reel not found or access denied");
+
+      // Delete from database
+      await db.delete(aiReels).where(eq(aiReels.id, input.reelId));
+
+      return { success: true };
+    }),
+
+  /**
    * List all reels for the authenticated user (not expired)
    */
   listReels: protectedProcedure.query(async ({ ctx }) => {

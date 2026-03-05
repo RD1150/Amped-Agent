@@ -82,6 +82,14 @@ export const personas = mysqlTable("personas", {
   brandValues: text("brandValues"), // JSON: string[] - e.g. ["trust", "local expertise", "family-focused"]
   marketContext: text("marketContext"), // JSON: { city: string, state: string, marketType: "hot" | "balanced" | "buyers", keyTrends: string[] }
   isCompleted: boolean("isCompleted").default(false),
+  // Kling Avatar 2.0 fields - for AI twin narration overlay in property tours
+  klingAvatarHeadshotUrl: text("klingAvatarHeadshotUrl"), // Agent headshot for Kling Avatar 2.0 (jpg/png, ≥300px)
+  klingAvatarVoiceUrl: text("klingAvatarVoiceUrl"),     // Agent voice recording URL (mp3/wav, 2-300s)
+  klingAvatarEnabled: boolean("klingAvatarEnabled").default(false), // Whether avatar overlay is globally enabled
+  // ElevenLabs voice clone fields - for AI voiceover narration in property tours
+  elevenlabsVoiceId: varchar("elevenlabsVoiceId", { length: 255 }), // ElevenLabs cloned voice ID
+  elevenlabsVoiceName: varchar("elevenlabsVoiceName", { length: 255 }), // Display name for the cloned voice
+  voiceSampleUrl: text("voiceSampleUrl"), // URL to agent's voice recording sample (mp3/wav, 15s–5min)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -505,6 +513,11 @@ export const propertyTours = mysqlTable("property_tours", {
   customCameraPrompt: text("customCameraPrompt"), // Custom Runway ML camera movement prompt (e.g., "drone shot flying over property")
   perPhotoMovements: text("perPhotoMovements"), // JSON array of camera movement presets for each photo (e.g., ["zoom-in-pan-right", "dramatic-zoom", ...])
   movementSpeed: mysqlEnum("movementSpeed", ["slow", "fast"]).default("slow"), // Camera movement speed: slow (6-8s per photo, cinematic) or fast (3-4s per photo, energetic)
+  // Kling Avatar 2.0 overlay
+  enableAvatarOverlay: boolean("enableAvatarOverlay").default(false), // Enable agent AI twin corner overlay
+  avatarOverlayPosition: mysqlEnum("avatarOverlayPosition", ["bottom-left", "bottom-right"]).default("bottom-left"),
+  klingAvatarTaskId: varchar("klingAvatarTaskId", { length: 255 }), // Kling task ID for polling
+  klingAvatarVideoUrl: text("klingAvatarVideoUrl"), // Generated Kling Avatar video URL
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),

@@ -2,11 +2,18 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Download, Calendar, Clock, Video, AlertCircle } from "lucide-react";
+import { Loader2, Download, Calendar, Clock, Video, AlertCircle, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function MyReels() {
+  const utils = trpc.useUtils();
   const { data: reels, isLoading } = trpc.autoreels.getReels.useQuery();
+
+  const deleteReelMutation = trpc.reels.deleteReel.useMutation({
+    onSuccess: () => {
+      utils.autoreels.getReels.invalidate();
+    },
+  });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -134,6 +141,23 @@ export default function MyReels() {
                     }}
                   >
                     Share
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    disabled={deleteReelMutation.isPending}
+                    onClick={() => {
+                      if (confirm("Delete this reel? This cannot be undone.")) {
+                        deleteReelMutation.mutate({ reelId: reel.id });
+                      }
+                    }}
+                  >
+                    {deleteReelMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
 
