@@ -313,31 +313,42 @@ export async function imageToVideo(
 }
 
 /**
- * Generate a cinematic prompt for the room type
+ * Generate a dramatic cinematic prompt for the room type
+ * These prompts are intentionally specific and bold to push Kling AI
+ * toward visible, dramatic camera movement — not subtle Ken Burns-style pans
  */
 function getRoomPrompt(roomType: string): string {
   const roomLower = roomType.toLowerCase();
 
-  if (roomLower.includes("exterior") || roomLower.includes("facade")) {
-    return "Cinematic reveal of the property exterior, smooth camera movement showcasing architectural details";
+  if (roomLower.includes("exterior") || roomLower.includes("facade") || roomLower.includes("front")) {
+    return "Dramatic aerial crane descending from high above, sweeping down to reveal the full estate facade in golden hour light, cinematic real estate reveal shot";
   }
-  if (roomLower.includes("living") || roomLower.includes("family")) {
-    return "Smooth camera walkthrough of the living space, revealing comfortable and elegant interior design";
+  if (roomLower.includes("living") || roomLower.includes("family") || roomLower.includes("great room")) {
+    return "Bold forward dolly push through the living room, depth of field pulling focus from foreground furniture to the panoramic windows beyond, luxury real estate cinematic";
   }
   if (roomLower.includes("kitchen")) {
-    return "Camera glides through the kitchen revealing premium appliances and modern design details";
+    return "Sweeping left arc tracking shot revealing the full kitchen island and premium appliances, camera moves decisively through the space like a professional film crew";
   }
-  if (roomLower.includes("bedroom") || roomLower.includes("master")) {
-    return "Gentle camera movement through the bedroom revealing a serene and luxurious retreat";
+  if (roomLower.includes("bedroom") || roomLower.includes("master") || roomLower.includes("suite") || roomLower.includes("primary")) {
+    return "Elegant rightward arc tracking shot entering the master suite, revealing the full room from a dramatic angle, warm cinematic lighting, luxury hotel quality";
   }
-  if (roomLower.includes("bathroom") || roomLower.includes("bath")) {
-    return "Camera slowly reveals the spa-like bathroom with premium fixtures and elegant finishes";
+  if (roomLower.includes("bathroom") || roomLower.includes("bath") || roomLower.includes("spa")) {
+    return "Slow dramatic push-in toward the freestanding soaking tub, camera zooms in with purpose revealing marble surfaces and spa luxury, cinematic close-up reveal";
   }
-  if (roomLower.includes("outdoor") || roomLower.includes("pool")) {
-    return "Sweeping camera movement revealing the stunning outdoor living space and landscaping";
+  if (roomLower.includes("pool") || roomLower.includes("outdoor") || roomLower.includes("patio") || roomLower.includes("backyard")) {
+    return "Sweeping aerial pullback from the pool surface rising to reveal the full outdoor estate, ocean or landscape visible in background, dramatic drone-style reveal";
+  }
+  if (roomLower.includes("dining")) {
+    return "Smooth arc around the dining table revealing the full room, chandelier prominent, camera sweeps left with confidence, architectural photography motion";
+  }
+  if (roomLower.includes("office") || roomLower.includes("library") || roomLower.includes("study")) {
+    return "Slow deliberate zoom-in toward the desk and built-in shelving, camera pushes forward with cinematic purpose, revealing the room's depth and sophistication";
+  }
+  if (roomLower.includes("hall") || roomLower.includes("entry") || roomLower.includes("foyer")) {
+    return "Camera advances boldly through the entryway, forward push revealing the grand foyer and staircase, cinematic walk-through establishing shot";
   }
 
-  return "Smooth cinematic camera movement revealing the beautiful interior space";
+  return "Bold cinematic camera movement revealing the luxury space with professional real estate film quality, dramatic and intentional motion";
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

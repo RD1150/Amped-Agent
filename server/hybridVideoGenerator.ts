@@ -44,9 +44,9 @@ export async function generateHeroVideoClips(
 
           videoUrl = await klingImageToVideo(hero.url, hero.reason, {
             aspectRatio,
-            duration: "5",
+            duration: "10", // 10s clips for Full Cinematic — more time for dramatic motion to develop
             model: "kling-v1-5",
-            mode: "std",
+            mode: "pro",   // Pro mode = higher quality, more dramatic motion
             prompt: customCameraPrompt || undefined,
           });
           engine = `Kling AI (${cameraControl.type})`;

@@ -3225,3 +3225,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix AI-Enhanced mode - currently renders as slideshow, not cinematic AI camera movement - FIXED: Corrected clip timing to use cumulative start times so AI clips don't collide
 - [x] Remove AI-Enhanced tier entirely - removed from UI, backend router, credits, usage tracking, VideoPreviewGallery, UsageCounter, WelcomeModal, and Home page pricing
 - [x] Fix Ken Burns hard cut/flash between photos - replaced with 0.8s crossfade dissolve transitions with clip overlap
+- [x] Implement dramatic photo-type-aware camera movement prompts for Full Cinematic Kling AI clips - upgraded to pro mode, 10s clips, bold room-specific prompts
