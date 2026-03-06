@@ -512,11 +512,16 @@ Generate ONLY the script text, no additional commentary.`;
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Example Videos</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
-          {/* Ken Burns Example - placeholder until real video is provided */}
+          {/* Ken Burns Example */}
           <Card className="overflow-hidden">
-            <div className="aspect-video bg-muted flex flex-col items-center justify-center gap-3 text-muted-foreground">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" /></svg>
-              <p className="text-sm font-medium opacity-50">Example video coming soon</p>
+            <div className="aspect-video bg-black">
+              <video
+                controls
+                className="w-full h-full"
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/ken-burns-example_38bbc49c.mp4"
+              >
+                Your browser does not support the video tag.
+              </video>
             </div>
             <div className="p-4">
               <h3 className="font-semibold text-lg mb-1">Standard — Ken Burns</h3>
