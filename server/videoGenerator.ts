@@ -183,27 +183,52 @@ export async function generatePropertyTourVideo(
   }
 
   // Create clips for each image/video with varied Ken Burns effects
+  // IMPORTANT: Use cumulative start times to handle AI clips (which have different durations)
+  // AI clips are 5s (Kling native duration), Ken Burns clips use durationPerImage
+  const AI_CLIP_DURATION = 5; // Kling AI always generates 5-second clips
+  
+  // First pass: calculate the actual duration of each clip
+  const clipDurations = imageUrls.map((url) => {
+    const aiVideoUrl = aiVideoMap.get(url);
+    if (aiVideoUrl) return AI_CLIP_DURATION;
+    return durationPerImage;
+  });
+  
+  // Second pass: build cumulative start times
+  const clipStarts: number[] = [];
+  let cumulativeStart = 0;
+  for (let i = 0; i < imageUrls.length; i++) {
+    clipStarts.push(cumulativeStart);
+    cumulativeStart += clipDurations[i];
+  }
+  
+  // Recalculate total duration based on actual clip durations
+  const actualMainDuration = cumulativeStart;
+  
   const clips: any[] = imageUrls.map((url, index) => {
     // Check if this image has an AI-generated video
     const aiVideoUrl = aiVideoMap.get(url);
+    const clipStart = clipStarts[index];
+    const clipLength = clipDurations[index];
     
     // If AI video is available, use it instead of static image
     if (aiVideoUrl) {
-      console.log(`[VideoGenerator] Using AI video for: ${url}`);
-      // AI clips get 50% more time (8-10s vs 5-6s) for dramatic cinematic movements
-      const aiClipDuration = durationPerImage * 1.5;
+      console.log(`[VideoGenerator] Using AI video for clip ${index + 1}: ${url} (start=${clipStart.toFixed(1)}s, length=${clipLength}s)`);
       return {
         asset: {
           type: "video",
           src: aiVideoUrl,
-          volume: 0, // Mute AI video, use music track instead
+          trim: 0,        // Start from beginning of the AI clip
+          volume: 0,      // Mute AI video audio, use music track instead
         },
-        start: index * durationPerImage,
-        length: aiClipDuration,
+        start: clipStart,
+        length: clipLength,
         fit: "cover",
-        transition: {
-          in: "fade",
-        },
+        ...(index > 0 && {
+          transition: {
+            in: "fade",
+          },
+        }),
       };
     }
     
@@ -218,10 +243,9 @@ export async function generatePropertyTourVideo(
           src: url,
           volume: 0.3, // Lower volume so music is more prominent
         },
-        start: index * durationPerImage,
-        length: durationPerImage,
+        start: clipStart,
+        length: clipLength,
         fit: "cover",
-        // No transitions for seamless flow
       };
     }
     
@@ -259,13 +283,17 @@ export async function generatePropertyTourVideo(
     // Smart fit for vertical videos (9:16) to reduce aggressive cropping
     const fitMode = aspectRatio === "9:16" ? "contain" : "cover";
     
+    // Slight overlap for seamless Ken Burns transitions
+    const overlapIn = index > 0 ? 0.3 : 0;
+    const overlapOut = index < imageUrls.length - 1 ? 0.3 : 0;
+    
     return {
       asset: {
         type: "image",
         src: url,
       },
-      start: index * durationPerImage - (index > 0 ? 0.3 : 0), // Overlap by 0.3s for seamless flow
-      length: durationPerImage + (index < options.imageUrls.length - 1 ? 0.3 : 0), // Extend to overlap with next clip
+      start: clipStart - overlapIn,
+      length: clipLength + overlapIn + overlapOut,
       ...(index > 0 && {
         transition: {
           in: "fade",
@@ -276,6 +304,10 @@ export async function generatePropertyTourVideo(
     };
   });
 
+  // Use actual computed duration (accounts for AI clips being 5s vs Ken Burns clips)
+  // This ensures text overlays and outros are timed correctly
+  const effectiveDuration = actualMainDuration;
+  
   // Build property details text
   const detailsParts: string[] = [];
   if (propertyDetails.price) detailsParts.push(propertyDetails.price);
@@ -313,7 +345,7 @@ export async function generatePropertyTourVideo(
       },
     },
     start: 0,
-    length: duration,
+    length: effectiveDuration,
     position: "bottom",
     offset: {
       y: aspectRatio === "9:16" ? -0.15 : -0.12,
@@ -344,7 +376,7 @@ export async function generatePropertyTourVideo(
         },
       },
       start: 0,
-      length: duration,
+      length: effectiveDuration,
       position: "bottom",
       offset: {
         y: aspectRatio === "9:16" ? -0.05 : -0.03,
@@ -468,7 +500,7 @@ export async function generatePropertyTourVideo(
             width: htmlWidth,
             height: htmlHeight,
           },
-          start: duration + 2, // After intro + main content
+          start: effectiveDuration + 2, // After intro card + main content
           length: 3,
           transition: {
             in: "fade",
@@ -529,8 +561,8 @@ export async function generatePropertyTourVideo(
     start: clip.start + introLength,
   }));
   
-  // Update total duration to include intro and outro
-  const totalDuration = duration + introLength + (outroCard.length > 0 ? 3 : 0);
+  // Update total duration to include intro and outro (use effectiveDuration for AI-aware timing)
+  const totalDuration = effectiveDuration + introLength + (outroCard.length > 0 ? 3 : 0);
 
   // Apply cinematic enhancements to main clips
   const cinematicOptions: CinematicOptions = {
@@ -620,7 +652,7 @@ export async function generatePropertyTourVideo(
         volume: 1.0,
       },
       start: introLength, // Start after intro
-      length: duration, // Match main video duration
+      length: effectiveDuration, // Match actual main video duration
     });
   }
 
