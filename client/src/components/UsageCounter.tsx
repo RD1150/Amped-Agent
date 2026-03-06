@@ -23,7 +23,7 @@ export default function UsageCounter() {
     );
   }
 
-  const { tier, standardUsed, aiEnhancedUsed, fullAiUsed, standardLimit, aiEnhancedLimit, fullAiLimit } = usage;
+  const { tier, standardUsed, fullAiUsed, standardLimit, fullAiLimit } = usage;
 
   const tiers = [
     {
@@ -34,15 +34,6 @@ export default function UsageCounter() {
       color: "text-blue-600",
       bgColor: "bg-blue-100 dark:bg-blue-900",
       progressColor: "bg-blue-600",
-    },
-    {
-      name: "AI-Enhanced",
-      icon: TrendingUp,
-      used: aiEnhancedUsed,
-      limit: aiEnhancedLimit,
-      color: "text-purple-600",
-      bgColor: "bg-purple-100 dark:bg-purple-900",
-      progressColor: "bg-purple-600",
     },
     {
       name: "Full AI Cinematic",

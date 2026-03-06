@@ -46,7 +46,7 @@ export default function PropertyTours() {
   const [musicVolume, setMusicVolume] = useState(50);
   const [cardTemplate, setCardTemplate] = useState<"modern" | "luxury" | "bold" | "classic" | "contemporary">("modern");
   const [includeIntroVideo, setIncludeIntroVideo] = useState(false);
-  const [videoMode, setVideoMode] = useState<"standard" | "ai-enhanced" | "full-ai">("standard");
+  const [videoMode, setVideoMode] = useState<"standard" | "full-ai">("standard");
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel - professional female
   const [showScriptEditor, setShowScriptEditor] = useState(false);
@@ -511,7 +511,7 @@ Generate ONLY the script text, no additional commentary.`;
       {/* Example Videos Section */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Example Videos</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
           {/* Ken Burns Example */}
           <Card className="overflow-hidden">
             <div className="aspect-video bg-black">
@@ -527,28 +527,6 @@ Generate ONLY the script text, no additional commentary.`;
               <h3 className="font-semibold text-lg mb-1">Ken Burns Effect Example</h3>
               <p className="text-sm text-muted-foreground mb-2">
                 Standard mode with smooth zoom and pan effects
-              </p>
-              <p className="text-xs text-muted-foreground italic">
-                Note: "Your branding here" - your profile picture and contact info will appear when branding is enabled
-              </p>
-            </div>
-          </Card>
-
-          {/* AI-Enhanced Example */}
-          <Card className="overflow-hidden">
-            <div className="aspect-video bg-black">
-              <video
-                controls
-                className="w-full h-full"
-                src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/LONrycATwxPCfYzp.mp4"
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-lg mb-1">AI-Enhanced Example</h3>
-              <p className="text-sm text-muted-foreground mb-2">
-                70-80% of clips use cinematic AI camera movements (crane shots, FPV drone, orbiting) with 50% longer duration for dramatic effect
               </p>
               <p className="text-xs text-muted-foreground italic">
                 Note: "Your branding here" - your profile picture and contact info will appear when branding is enabled
@@ -907,12 +885,6 @@ Generate ONLY the script text, no additional commentary.`;
                       <span className="text-xs text-muted-foreground">Ken Burns effects only</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="ai-enhanced">
-                    <div className="flex flex-col">
-                      <span className="font-semibold">AI-Enhanced ($9.99)</span>
-                      <span className="text-xs text-muted-foreground">Cinematic AI on 3-5 hero shots</span>
-                    </div>
-                  </SelectItem>
                   <SelectItem value="full-ai">
                     <div className="flex flex-col">
                       <span className="font-semibold">Full Cinematic (75 credits)</span>
@@ -923,8 +895,8 @@ Generate ONLY the script text, no additional commentary.`;
               </Select>
             </div>
 
-            {/* Custom Camera Movement Prompt (for AI modes) */}
-            {(videoMode === "ai-enhanced" || videoMode === "full-ai") && (
+            {/* Custom Camera Movement Prompt (for Full Cinematic mode) */}
+            {videoMode === "full-ai" && (
               <div className="space-y-3">
                 <div>
                   <Label htmlFor="promptTemplate">Camera Movement Preset</Label>
@@ -1032,7 +1004,7 @@ Generate ONLY the script text, no additional commentary.`;
             </div>
 
             {/* AI Agent Avatar Overlay */}
-            {(videoMode === "ai-enhanced" || videoMode === "full-ai") && (
+            {videoMode === "full-ai" && (
               <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/30">
                 <div className="flex items-center space-x-2">
                   <Checkbox

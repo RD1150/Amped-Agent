@@ -33,7 +33,7 @@ export const propertyToursRouter = router({
         musicTrack: z.string().optional(),
         cardTemplate: z.enum(["modern", "luxury", "bold", "classic", "contemporary"]).default("modern"),
         includeIntroVideo: z.boolean().default(false),
-        videoMode: z.enum(["standard", "ai-enhanced", "full-ai"]).default("standard"),
+        videoMode: z.enum(["standard", "full-ai"]).default("standard"),
         enableVoiceover: z.boolean().default(false),
         voiceId: z.string().optional(),
         customCameraPrompt: z.string().optional(),
@@ -140,7 +140,7 @@ export const propertyToursRouter = router({
         
         if (cinematicCount >= CINEMATIC_MONTHLY_LIMIT) {
           throw new Error(
-            `Monthly Full Cinematic limit reached (${cinematicCount}/${CINEMATIC_MONTHLY_LIMIT}). You can generate more Full Cinematic Property Tours next month. Use Standard or AI-Enhanced tiers instead.`
+            `Monthly Full Cinematic limit reached (${cinematicCount}/${CINEMATIC_MONTHLY_LIMIT}). You can generate more Full Cinematic Property Tours next month. Use Standard tier instead.`
           );
         }
         
@@ -152,7 +152,7 @@ export const propertyToursRouter = router({
 
       // Calculate credit cost
       const costBreakdown = credits.calculateVideoCost({
-        videoMode: tour.videoMode as "standard" | "ai-enhanced" | "full-ai",
+        videoMode: tour.videoMode as "standard" | "full-ai",
         enableVoiceover: tour.enableVoiceover || false,
       });
 
@@ -202,8 +202,8 @@ export const propertyToursRouter = router({
           musicTrack: tour.musicTrack || undefined,
           cardTemplate: (tour.cardTemplate as "modern" | "luxury" | "bold" | "classic" | "contemporary") || "modern",
           includeIntroVideo: tour.includeIntroVideo ?? false,
-          videoMode: (tour.videoMode as "standard" | "ai-enhanced" | "full-ai") || "standard",
-          enableVoiceover: tour.enableVoiceover ?? false,
+          videoMode: tour.videoMode as "standard" | "full-ai",
+          enableVoiceover: tour.enableVoiceover || false,
           customCameraPrompt: tour.customCameraPrompt || undefined,
           voiceoverScript: tour.voiceoverScript || undefined,
           perPhotoMovements: tour.perPhotoMovements ? JSON.parse(tour.perPhotoMovements) : undefined,
@@ -368,7 +368,7 @@ export const propertyToursRouter = router({
       // Refund credits if video was processing or failed (user shouldn't lose credits)
       if (tour.status === "processing" || tour.status === "failed") {
         const costBreakdown = credits.calculateVideoCost({
-          videoMode: tour.videoMode as "standard" | "ai-enhanced" | "full-ai",
+          videoMode: tour.videoMode as "standard" | "full-ai",
           enableVoiceover: tour.enableVoiceover || false,
         });
         
@@ -471,17 +471,6 @@ export const propertyToursRouter = router({
         )
       );
 
-    const [aiEnhancedResult] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(propertyTours)
-      .where(
-        and(
-          eq(propertyTours.userId, ctx.user.id),
-          eq(propertyTours.videoMode, "ai-enhanced"),
-          gte(propertyTours.createdAt, monthStart)
-        )
-      );
-
     const [fullAiResult] = await db
       .select({ count: sql<number>`count(*)` })
       .from(propertyTours)
@@ -494,18 +483,15 @@ export const propertyToursRouter = router({
       );
 
     const standardUsed = standardResult?.count || 0;
-    const aiEnhancedUsed = aiEnhancedResult?.count || 0;
     const fullAiUsed = fullAiResult?.count || 0;
 
     // Determine limits based on tier
     let standardLimit = -1; // -1 means unlimited
-    let aiEnhancedLimit = -1;
     let fullAiLimit = -1;
 
     if (tier === "starter") {
       // Free tier: limited by credits only, but show reasonable limits
       standardLimit = 20;
-      aiEnhancedLimit = 10;
       fullAiLimit = 5;
     }
     // Professional and Agency tiers have unlimited
@@ -513,10 +499,8 @@ export const propertyToursRouter = router({
     return {
       tier: tier === "starter" ? "Starter" : tier === "pro" ? "Professional" : "Agency",
       standardUsed,
-      aiEnhancedUsed,
       fullAiUsed,
       standardLimit,
-      aiEnhancedLimit,
       fullAiLimit,
     };
   }),

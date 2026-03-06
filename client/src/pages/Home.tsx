@@ -616,37 +616,11 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* AI-Enhanced Tier (15 credits) */}
-            <Card className="bg-slate-800/50 border-amber-500/50 overflow-hidden group hover:border-amber-500 transition-all ring-2 ring-amber-500/30">
-              <div className="relative aspect-[9/16] bg-black">
-                <div className="absolute top-2 left-2 z-10 bg-amber-500 px-3 py-1 rounded-full">
-                  <span className="text-xs font-semibold text-slate-900">15 Credits • POPULAR</span>
-                </div>
-                <video 
-                  className="w-full h-full object-cover" 
-                  controls
-                  playsInline
-                >
-                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/e48a263f-2e51-41f3-bdd3-152f7eba6118.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">AI-Enhanced</h3>
-                <p className="text-sm text-slate-400 mb-3">AI motion on hero shots • Professional voiceover</p>
-                <ul className="text-xs text-slate-500 space-y-1">
-                  <li>✓ Dramatic zoom on key shots</li>
-                  <li>✓ Slide transitions</li>
-                  <li>✓ Female AI voiceover</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Full Cinematic Tier (40 credits) */}
+            {/* Full Cinematic Tier (75 credits) */}
             <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
               <div className="relative aspect-[9/16] bg-black">
                 <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 rounded-full">
-                  <span className="text-xs font-semibold text-slate-900">40 Credits • PREMIUM</span>
+                  <span className="text-xs font-semibold text-slate-900">75 Credits • PREMIUM</span>
                 </div>
                 <video 
                   className="w-full h-full object-cover" 

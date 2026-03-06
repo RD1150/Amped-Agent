@@ -15,7 +15,7 @@ import {
 interface VideoSample {
   id: string;
   title: string;
-  mode: "standard" | "ai-enhanced" | "full-ai";
+  mode: "standard" | "full-ai";
   thumbnail: string;
   videoUrl: string;
   voice?: string;
@@ -32,16 +32,6 @@ const sampleVideos: VideoSample[] = [
     videoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/BLeuXFrFCJNvYbPz.mp4",
     description: "Ken Burns effects with smooth transitions",
     credits: 5,
-  },
-  {
-    id: "2",
-    title: "Luxury Waterfront Estate",
-    mode: "ai-enhanced",
-    thumbnail: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=450&fit=crop",
-    videoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/BLeuXFrFCJNvYbPz.mp4",
-    voice: "Rachel - Professional",
-    description: "AI motion on hero shots + voiceover",
-    credits: 15,
   },
   {
     id: "3",
@@ -62,13 +52,6 @@ const modeConfig = {
     color: "text-blue-600",
     bgColor: "bg-blue-100 dark:bg-blue-900",
     badgeVariant: "secondary" as const,
-  },
-  "ai-enhanced": {
-    label: "AI-Enhanced",
-    icon: Sparkles,
-    color: "text-purple-600",
-    bgColor: "bg-purple-100 dark:bg-purple-900",
-    badgeVariant: "default" as const,
   },
   "full-ai": {
     label: "Full AI Cinematic",
@@ -145,7 +128,7 @@ export default function VideoPreviewGallery() {
 
         <div className="mt-8 p-6 bg-muted rounded-lg">
           <h4 className="font-semibold mb-3">Compare Quality Tiers</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Play className="w-4 h-4 text-blue-600" />
@@ -160,25 +143,13 @@ export default function VideoPreviewGallery() {
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-4 h-4 text-purple-600" />
-                <span className="font-medium">AI-Enhanced (15 credits)</span>
+                <Zap className="w-4 h-4 text-amber-600" />
+                <span className="font-medium">Full AI Cinematic (75 credits)</span>
               </div>
               <ul className="space-y-1 text-muted-foreground">
                 <li>• Everything in Standard</li>
-                <li>• AI motion on 3-5 hero shots</li>
-                <li>• Professional voiceover</li>
-                <li>• 3D parallax effects</li>
-              </ul>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-4 h-4 text-amber-600" />
-                <span className="font-medium">Full AI (40 credits)</span>
-              </div>
-              <ul className="space-y-1 text-muted-foreground">
-                <li>• Everything in AI-Enhanced</li>
-                <li>• AI motion on ALL photos</li>
-                <li>• Cinematic camera movements</li>
+                <li>• Runway AI motion on ALL photos</li>
+                <li>• Custom cinematic camera movements</li>
                 <li>• Hollywood-style production</li>
               </ul>
             </div>

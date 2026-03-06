@@ -132,7 +132,7 @@ export function WelcomeModal() {
                       <li>Go to <strong>Property Tours</strong> in the sidebar</li>
                       <li>Upload 5-10 property photos</li>
                       <li>Add property details (address, price, features)</li>
-                      <li>Choose your video mode (Standard, AI-Enhanced, or Full AI Cinematic)</li>
+                      <li>Choose your video mode (Standard or Full AI Cinematic)</li>
                       <li>Click <strong>Generate Video</strong> and watch the magic happen!</li>
                     </ol>
                   </div>

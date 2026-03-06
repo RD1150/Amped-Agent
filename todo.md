@@ -3223,3 +3223,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Fix: Eliminate black screen tail at end of generated videos
 - [x] Fix broken/silent music tracks in property tour music library (most tracks play nothing) - FIXED: Replaced 19 broken 3KB stub files with verified CDN-hosted MP3s
 - [x] Fix AI-Enhanced mode - currently renders as slideshow, not cinematic AI camera movement - FIXED: Corrected clip timing to use cumulative start times so AI clips don't collide
+- [x] Remove AI-Enhanced tier entirely - removed from UI, backend router, credits, usage tracking, VideoPreviewGallery, UsageCounter, WelcomeModal, and Home page pricing
