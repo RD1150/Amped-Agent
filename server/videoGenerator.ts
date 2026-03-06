@@ -283,9 +283,11 @@ export async function generatePropertyTourVideo(
     // Smart fit for vertical videos (9:16) to reduce aggressive cropping
     const fitMode = aspectRatio === "9:16" ? "contain" : "cover";
     
-    // Slight overlap for seamless Ken Burns transitions
-    const overlapIn = index > 0 ? 0.3 : 0;
-    const overlapOut = index < imageUrls.length - 1 ? 0.3 : 0;
+    // Smooth crossfade dissolve between photos
+    // Overlap clips so the fade-out of one overlaps the fade-in of the next
+    const crossfadeDuration = 0.8; // 0.8s dissolve feels cinematic without being slow
+    const overlapIn = index > 0 ? crossfadeDuration : 0;
+    const overlapOut = index < imageUrls.length - 1 ? crossfadeDuration : 0;
     
     return {
       asset: {
@@ -294,11 +296,10 @@ export async function generatePropertyTourVideo(
       },
       start: clipStart - overlapIn,
       length: clipLength + overlapIn + overlapOut,
-      ...(index > 0 && {
-        transition: {
-          in: "fade",
-        },
-      }),
+      transition: {
+        ...(index > 0 && { in: "fade" }),
+        ...(index < imageUrls.length - 1 && { out: "fade" }),
+      },
       fit: fitMode,
       effect, // Use Shotstack's built-in Ken Burns effects
     };
