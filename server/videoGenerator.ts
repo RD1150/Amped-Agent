@@ -689,8 +689,8 @@ export async function generatePropertyTourVideo(
       format: "mp4",
       resolution,
       ...(size && { size }), // Add size for custom dimensions
-      fps: 25, // 25fps reduces Shotstack credit cost significantly
-      quality: "medium",
+      fps: videoMode === "full-ai" ? 30 : 25, // 30fps for Full Cinematic smoothness; 25fps for Standard (cost saving)
+      quality: videoMode === "full-ai" ? "high" : "medium", // Full Cinematic = true 1080p; Standard = 720p medium
       // Generate poster image from the most visually appealing frame
       // Capture at 25% through the video (after intro, during property photos)
       poster: {

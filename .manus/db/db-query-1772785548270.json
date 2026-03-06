@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, address, videoMode, status, errorMessage, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, address, videoMode, status, errorMessage, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "1290001",
+      "address": "Cinematic- Malibu",
+      "videoMode": "full-ai",
+      "status": "completed",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-06 08:18:03"
+    },
+    {
+      "id": "1260003",
+      "address": "CINEMATIC",
+      "videoMode": "full-ai",
+      "status": "completed",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-06 07:23:53"
+    },
+    {
+      "id": "1260002",
+      "address": "Ken Burns-Malibu",
+      "videoMode": "standard",
+      "status": "completed",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-06 07:16:27"
+    },
+    {
+      "id": "1260001",
+      "address": "Second AI Malibu Test",
+      "videoMode": "ai-enhanced",
+      "status": "completed",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-06 06:30:51"
+    },
+    {
+      "id": "1230036",
+      "address": "Private Property",
+      "videoMode": "standard",
+      "status": "pending",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-06 06:07:18"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tvideoMode\tstatus\terrorMessage\tcreatedAt\n1290001\tCinematic- Malibu\tfull-ai\tcompleted\tNULL\t2026-03-06 08:18:03\n1260003\tCINEMATIC\tfull-ai\tcompleted\tNULL\t2026-03-06 07:23:53\n1260002\tKen Burns-Malibu\tstandard\tcompleted\tNULL\t2026-03-06 07:16:27\n1260001\tSecond AI Malibu Test\tai-enhanced\tcompleted\tNULL\t2026-03-06 06:30:51\n1230036\tPrivate Property\tstandard\tpending\tNULL\t2026-03-06 06:07:18\n",
+  "stderr": "",
+  "execution_time_ms": 351
+}

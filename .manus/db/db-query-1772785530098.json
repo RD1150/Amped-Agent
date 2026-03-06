@@ -1,0 +1,13 @@
+{
+  "query": "SHOW TABLES LIKE '%tour%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SHOW TABLES LIKE '%tour%';",
+  "rows": [
+    {
+      "Tables_in_K9BXxKfRk2PJ2AbRYdraAT (%tour%)": "property_tours"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_K9BXxKfRk2PJ2AbRYdraAT (%tour%)\nproperty_tours\n",
+  "stderr": "",
+  "execution_time_ms": 348
+}
