@@ -3233,3 +3233,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add inline edit button to all generated posts in Authority Post Builder - Edit/Done Editing toggle with inline textarea, edits flow through to Copy and Save to Drafts
 - [x] Add Edit button to AutoReels Engine hook and script output sections - Edit/Done toggle on Hook, Script, and Caption cards
 - [x] Add Edit button to all generated post types across the entire app - Hooks Library (Edit+Copy per card), Content Templates (Edit+Copy per field in dialog)
+- [x] Fix: agent name conditional in all intro card templates - showAgentName=false hides it when branding disabled
+- [x] Build mid-tier pricing: voiceover is +5 credits add-on for both Standard and Full Cinematic; Full Cinematic reduced from 75 to 40 credits
+- [ ] Push all latest code to GitHub

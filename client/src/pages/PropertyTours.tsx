@@ -938,14 +938,14 @@ Generate ONLY the script text, no additional commentary.`;
                 <SelectContent>
                   <SelectItem value="standard">
                     <div className="flex flex-col">
-                      <span className="font-semibold">Standard (Free)</span>
-                      <span className="text-xs text-muted-foreground">Ken Burns effects only</span>
+                      <span className="font-semibold">Standard (5 credits)</span>
+                      <span className="text-xs text-muted-foreground">Ken Burns effects, crossfade dissolves, music</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="full-ai">
                     <div className="flex flex-col">
-                      <span className="font-semibold">Full Cinematic (75 credits)</span>
-                      <span className="text-xs text-muted-foreground">Runway AI motion + optional voiceover (2/month max)</span>
+                      <span className="font-semibold">Full AI Cinematic (40 credits)</span>
+                      <span className="text-xs text-muted-foreground">Kling AI pro mode, 1080p/30fps, dramatic camera movement</span>
                     </div>
                   </SelectItem>
                 </SelectContent>

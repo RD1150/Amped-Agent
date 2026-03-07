@@ -607,20 +607,20 @@ export default function HomePage() {
               </div>
               <CardContent className="p-4">
                 <h3 className="text-lg font-semibold text-white mb-2">Standard</h3>
-                <p className="text-sm text-slate-400 mb-3">Basic Ken Burns effects • No voiceover</p>
+                <p className="text-sm text-slate-400 mb-3">Ken Burns effects • Crossfade dissolves • Music</p>
                 <ul className="text-xs text-slate-500 space-y-1">
-                  <li>✓ Smooth transitions</li>
-                  <li>✓ Professional pacing</li>
-                  <li>✗ No voiceover</li>
+                  <li>✓ Smooth crossfade transitions</li>
+                  <li>✓ Professional music library</li>
+                  <li>✓ Add voiceover for +5 credits</li>
                 </ul>
               </CardContent>
             </Card>
 
-            {/* Full Cinematic Tier (75 credits) */}
+            {/* Full Cinematic Tier (40 credits) */}
             <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
               <div className="relative aspect-[9/16] bg-black">
                 <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 rounded-full">
-                  <span className="text-xs font-semibold text-slate-900">75 Credits • PREMIUM</span>
+                  <span className="text-xs font-semibold text-slate-900">40 Credits • PREMIUM</span>
                 </div>
                 <video 
                   className="w-full h-full object-cover" 
@@ -632,12 +632,12 @@ export default function HomePage() {
                 </video>
               </div>
               <CardContent className="p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Full Cinematic</h3>
-                <p className="text-sm text-slate-400 mb-3">Maximum AI motion • Premium voiceover</p>
+                <h3 className="text-lg font-semibold text-white mb-2">Full AI Cinematic</h3>
+                <p className="text-sm text-slate-400 mb-3">Kling AI pro mode • 1080p/30fps • Dramatic camera movement</p>
                 <ul className="text-xs text-slate-500 space-y-1">
-                  <li>✓ Cinematic motion on ALL shots</li>
-                  <li>✓ Advanced transitions</li>
-                  <li>✓ Deep male AI voiceover</li>
+                  <li>✓ AI cinematic motion on ALL shots</li>
+                  <li>✓ True 1080p/30fps quality</li>
+                  <li>✓ Add voiceover for +5 credits</li>
                 </ul>
               </CardContent>
             </Card>

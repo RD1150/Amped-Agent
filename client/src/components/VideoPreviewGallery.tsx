@@ -144,13 +144,13 @@ export default function VideoPreviewGallery() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="w-4 h-4 text-amber-600" />
-                <span className="font-medium">Full AI Cinematic (75 credits)</span>
+                <span className="font-medium">Full AI Cinematic (40 credits)</span>
               </div>
               <ul className="space-y-1 text-muted-foreground">
                 <li>• Everything in Standard</li>
-                <li>• Runway AI motion on ALL photos</li>
-                <li>• Custom cinematic camera movements</li>
-                <li>• Hollywood-style production</li>
+                <li>• Kling AI pro mode on ALL photos</li>
+                <li>• True 1080p/30fps quality</li>
+                <li>• Dramatic room-specific camera movement</li>
               </ul>
             </div>
           </div>
