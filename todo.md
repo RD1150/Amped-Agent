@@ -3230,3 +3230,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix video buffering on Property Tours page - added smart VideoThumbnail component with preload-on-click, loading spinner, and play-when-ready logic
 - [x] Fix Authority Reels Engine ClipStart schema error - fixed float precision issues in videoRenderer.ts by rounding all start/length values
 - [x] Enlarge avatar crop box in Authority Reels Engine - upgraded to 90vw/90vh modal, circular crop shape, 420px min height
+- [x] Add inline edit button to all generated posts in Authority Post Builder - Edit/Done Editing toggle with inline textarea, edits flow through to Copy and Save to Drafts

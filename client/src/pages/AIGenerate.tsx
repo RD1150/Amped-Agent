@@ -26,7 +26,9 @@ import {
   Image as ImageIcon,
   Loader2,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Pencil,
+  Save
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -62,6 +64,7 @@ export default function AIGenerate() {
   const [includeCTA, setIncludeCTA] = useState(false);
   const [ctaText, setCtaText] = useState("");
   const [showPostingDialog, setShowPostingDialog] = useState(false);
+  const [isEditingContent, setIsEditingContent] = useState(false);
 
   // Image generation states
   const [imagePrompt, setImagePrompt] = useState("");
@@ -536,10 +539,30 @@ export default function AIGenerate() {
                         </Button>
                       </div>
                     )}
-                    <div className="border rounded-lg p-4 bg-muted/50">
-                      <Streamdown>{generatedContent}</Streamdown>
+                    <div className="border rounded-lg p-4 bg-muted/50 relative">
+                      {isEditingContent ? (
+                        <Textarea
+                          value={generatedContent}
+                          onChange={(e) => setGeneratedContent(e.target.value)}
+                          className="min-h-[200px] w-full text-sm font-normal resize-y border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                          autoFocus
+                        />
+                      ) : (
+                        <Streamdown>{generatedContent}</Streamdown>
+                      )}
                     </div>
                     <div className="flex gap-2">
+                      <Button
+                        onClick={() => setIsEditingContent(!isEditingContent)}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        {isEditingContent ? (
+                          <><Save className="mr-2 h-4 w-4" />Done Editing</>
+                        ) : (
+                          <><Pencil className="mr-2 h-4 w-4" />Edit</>
+                        )}
+                      </Button>
                       <Button onClick={handleCopy} variant="outline" className="flex-1">
                         {copied ? (
                           <>
