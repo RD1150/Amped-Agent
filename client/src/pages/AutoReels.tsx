@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2 } from "lucide-react";
+import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -37,6 +37,11 @@ export default function AutoReels() {
   const [caption, setCaption] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
   
+  // Edit states for generated content
+  const [isEditingHook, setIsEditingHook] = useState(false);
+  const [isEditingScript, setIsEditingScript] = useState(false);
+  const [isEditingCaption, setIsEditingCaption] = useState(false);
+
   // Avatar state
   const [useAvatarIntro, setUseAvatarIntro] = useState(false);
   const [avatarImage, setAvatarImage] = useState<File | null>(null);
@@ -716,14 +721,58 @@ export default function AutoReels() {
           <div className="grid md:grid-cols-2 gap-6">
             {/* Hook */}
             <Card className="p-6">
-              <h3 className="font-semibold mb-3">Selected Hook</h3>
-              <p className="text-sm">{selectedHook}</p>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold">Selected Hook</h3>
+                <Button
+                  onClick={() => setIsEditingHook(!isEditingHook)}
+                  variant="ghost"
+                  size="sm"
+                >
+                  {isEditingHook ? (
+                    <><Save className="mr-2 h-4 w-4" />Done</>
+                  ) : (
+                    <><Pencil className="mr-2 h-4 w-4" />Edit</>
+                  )}
+                </Button>
+              </div>
+              {isEditingHook ? (
+                <Textarea
+                  value={selectedHook}
+                  onChange={(e) => setSelectedHook(e.target.value)}
+                  className="min-h-[80px] text-sm resize-y"
+                  autoFocus
+                />
+              ) : (
+                <p className="text-sm">{selectedHook}</p>
+              )}
             </Card>
 
             {/* Script */}
             <Card className="p-6">
-              <h3 className="font-semibold mb-3">Video Script</h3>
-              <p className="text-sm whitespace-pre-wrap">{script}</p>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold">Video Script</h3>
+                <Button
+                  onClick={() => setIsEditingScript(!isEditingScript)}
+                  variant="ghost"
+                  size="sm"
+                >
+                  {isEditingScript ? (
+                    <><Save className="mr-2 h-4 w-4" />Done</>
+                  ) : (
+                    <><Pencil className="mr-2 h-4 w-4" />Edit</>
+                  )}
+                </Button>
+              </div>
+              {isEditingScript ? (
+                <Textarea
+                  value={script}
+                  onChange={(e) => setScript(e.target.value)}
+                  className="min-h-[120px] text-sm resize-y"
+                  autoFocus
+                />
+              ) : (
+                <p className="text-sm whitespace-pre-wrap">{script}</p>
+              )}
             </Card>
           </div>
 
@@ -731,12 +780,34 @@ export default function AutoReels() {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">Caption</h3>
-              <Button onClick={handleCopyCaption} variant="ghost" size="sm">
-                <Copy className="mr-2 h-4 w-4" />
-                Copy
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setIsEditingCaption(!isEditingCaption)}
+                  variant="ghost"
+                  size="sm"
+                >
+                  {isEditingCaption ? (
+                    <><Save className="mr-2 h-4 w-4" />Done</>
+                  ) : (
+                    <><Pencil className="mr-2 h-4 w-4" />Edit</>
+                  )}
+                </Button>
+                <Button onClick={handleCopyCaption} variant="ghost" size="sm">
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy
+                </Button>
+              </div>
             </div>
-            <p className="text-sm whitespace-pre-wrap">{caption}</p>
+            {isEditingCaption ? (
+              <Textarea
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                className="min-h-[120px] text-sm resize-y"
+                autoFocus
+              />
+            ) : (
+              <p className="text-sm whitespace-pre-wrap">{caption}</p>
+            )}
           </Card>
 
           {/* Alternative Hooks */}
