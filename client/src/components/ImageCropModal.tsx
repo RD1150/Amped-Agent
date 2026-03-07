@@ -100,21 +100,24 @@ export function ImageCropModal({ open, onClose, imageUrl, onCropComplete }: Imag
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh]">
+      <DialogContent className="max-w-5xl w-[90vw] h-[90vh]">
         <DialogHeader>
           <DialogTitle>Crop Photo</DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 relative bg-black rounded-lg overflow-hidden">
+        <div className="flex-1 relative bg-black rounded-lg overflow-hidden" style={{ minHeight: '420px' }}>
           <Cropper
             image={imageUrl}
             crop={crop}
             zoom={zoom}
             rotation={rotation}
-            aspect={16 / 9}
+            aspect={1}
+            cropShape="round"
+            showGrid={false}
             onCropChange={onCropChange}
             onZoomChange={onZoomChange}
             onCropComplete={onCropCompleteInternal}
+            style={{ containerStyle: { borderRadius: '8px' } }}
           />
         </div>
 

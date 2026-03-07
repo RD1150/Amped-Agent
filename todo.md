@@ -3229,3 +3229,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix Full Cinematic output quality - upgraded from medium/25fps to high/30fps - now renders at true 1080p
 - [x] Fix video buffering on Property Tours page - added smart VideoThumbnail component with preload-on-click, loading spinner, and play-when-ready logic
 - [x] Fix Authority Reels Engine ClipStart schema error - fixed float precision issues in videoRenderer.ts by rounding all start/length values
+- [x] Enlarge avatar crop box in Authority Reels Engine - upgraded to 90vw/90vh modal, circular crop shape, 420px min height
