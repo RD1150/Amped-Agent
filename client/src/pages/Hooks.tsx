@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Sparkles, Filter, TrendingUp } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Search, Sparkles, Filter, TrendingUp, Pencil, Save, Copy } from "lucide-react";
 import { useLocation } from "wouter";
+import { toast } from "sonner";
 
 type HookCategory = "buyer" | "seller" | "investor" | "local" | "luxury" | "relocation" | "general";
 type HookFormat = "video" | "email" | "social" | "carousel";
@@ -27,6 +29,8 @@ export default function Hooks() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<HookCategory | "all">("all");
   const [selectedFormat, setSelectedFormat] = useState<HookFormat | "all">("all");
+  const [editingHookId, setEditingHookId] = useState<number | null>(null);
+  const [editedHookText, setEditedHookText] = useState<string>("");
 
   // Fetch all hooks
   const { data: hooks, isLoading } = trpc.hooks.list.useQuery();
@@ -66,9 +70,18 @@ export default function Hooks() {
     return icons[format];
   };
 
+  const getEffectiveHookText = (hook: Hook) =>
+    editingHookId === hook.id ? editedHookText : hook.hookText;
+
   const handleUseHook = (hook: Hook) => {
-    // Navigate to AI Generate page with hook pre-filled
-    setLocation(`/ai-generate?hook=${encodeURIComponent(hook.hookText)}`);
+    const text = getEffectiveHookText(hook);
+    setLocation(`/ai-generate?hook=${encodeURIComponent(text)}`);
+  };
+
+  const handleCopyHook = (hook: Hook) => {
+    const text = getEffectiveHookText(hook);
+    navigator.clipboard.writeText(text);
+    toast.success("Hook copied to clipboard!");
   };
 
   return (
@@ -163,18 +176,48 @@ export default function Hooks() {
                       {getFormatIcon(hook.format)} {hook.format}
                     </Badge>
                   </div>
-                  {hook.isPremium && (
-                    <Badge variant="secondary" className="text-xs">
-                      ⭐ Pro
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-1">
+                    {hook.isPremium && (
+                      <Badge variant="secondary" className="text-xs">
+                        ⭐ Pro
+                      </Badge>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2"
+                      onClick={() => {
+                        if (editingHookId === hook.id) {
+                          setEditingHookId(null);
+                        } else {
+                          setEditingHookId(hook.id);
+                          setEditedHookText(hook.hookText);
+                        }
+                      }}
+                    >
+                      {editingHookId === hook.id ? (
+                        <><Save className="h-3 w-3 mr-1" />Done</>
+                      ) : (
+                        <><Pencil className="h-3 w-3 mr-1" />Edit</>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="font-semibold text-foreground leading-relaxed">
-                    "{hook.hookText}"
-                  </p>
+                  {editingHookId === hook.id ? (
+                    <Textarea
+                      value={editedHookText}
+                      onChange={(e) => setEditedHookText(e.target.value)}
+                      className="min-h-[80px] text-sm resize-y"
+                      autoFocus
+                    />
+                  ) : (
+                    <p className="font-semibold text-foreground leading-relaxed">
+                      "{hook.hookText}"
+                    </p>
+                  )}
                 </div>
 
                 {hook.useCase && (
@@ -199,10 +242,20 @@ export default function Hooks() {
                   <span className="text-xs text-muted-foreground">
                     Used {hook.usageCount} times
                   </span>
-                  <Button size="sm" onClick={() => handleUseHook(hook)}>
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    Use This Hook
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleCopyHook(hook)}
+                    >
+                      <Copy className="h-3 w-3 mr-1" />
+                      Copy
+                    </Button>
+                    <Button size="sm" onClick={() => handleUseHook(hook)}>
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Use This Hook
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

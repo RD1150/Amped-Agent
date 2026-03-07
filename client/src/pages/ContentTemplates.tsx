@@ -13,8 +13,12 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  Sparkles
+  Sparkles,
+  Pencil,
+  Save,
+  Copy
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -33,8 +37,9 @@ import {
 } from "@/components/ui/dialog";
 
 export default function ContentTemplates() {
-
   const [csvFile, setCSVFile] = useState<File | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editedValues, setEditedValues] = useState<Record<number, { hook?: string; reelIdea?: string; script?: string }>>({});
   const [isUploading, setIsUploading] = useState(false);
 
   const { data: templates, refetch } = trpc.contentTemplates.list.useQuery({});
@@ -259,19 +264,85 @@ export default function ContentTemplates() {
                             </DialogHeader>
                             <div className="space-y-4">
                               <div>
-                                <Label>Hook</Label>
-                                <p className="text-sm mt-1">{template.hook}</p>
+                                <div className="flex items-center justify-between mb-1">
+                                  <Label>Hook</Label>
+                                  <div className="flex gap-1">
+                                    <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => {
+                                      navigator.clipboard.writeText(editedValues[template.id]?.hook ?? template.hook);
+                                      toast.success("Copied!");
+                                    }}><Copy className="h-3 w-3" /></Button>
+                                    <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => {
+                                      if (editingField === `hook-${template.id}`) {
+                                        setEditingField(null);
+                                      } else {
+                                        setEditingField(`hook-${template.id}`);
+                                        setEditedValues(prev => ({ ...prev, [template.id]: { ...prev[template.id], hook: prev[template.id]?.hook ?? template.hook } }));
+                                      }
+                                    }}>
+                                      {editingField === `hook-${template.id}` ? <><Save className="h-3 w-3 mr-1" />Done</> : <><Pencil className="h-3 w-3 mr-1" />Edit</>}
+                                    </Button>
+                                  </div>
+                                </div>
+                                {editingField === `hook-${template.id}` ? (
+                                  <Textarea value={editedValues[template.id]?.hook ?? template.hook} onChange={(e) => setEditedValues(prev => ({ ...prev, [template.id]: { ...prev[template.id], hook: e.target.value } }))} className="min-h-[60px] text-sm resize-y" autoFocus />
+                                ) : (
+                                  <p className="text-sm mt-1">{editedValues[template.id]?.hook ?? template.hook}</p>
+                                )}
                               </div>
                               {template.reelIdea && (
                                 <div>
-                                  <Label>Reel Idea</Label>
-                                  <p className="text-sm mt-1">{template.reelIdea}</p>
+                                  <div className="flex items-center justify-between mb-1">
+                                    <Label>Reel Idea</Label>
+                                    <div className="flex gap-1">
+                                      <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => {
+                                        navigator.clipboard.writeText(editedValues[template.id]?.reelIdea ?? template.reelIdea ?? "");
+                                        toast.success("Copied!");
+                                      }}><Copy className="h-3 w-3" /></Button>
+                                      <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => {
+                                        if (editingField === `reelIdea-${template.id}`) {
+                                          setEditingField(null);
+                                        } else {
+                                          setEditingField(`reelIdea-${template.id}`);
+                                          setEditedValues(prev => ({ ...prev, [template.id]: { ...prev[template.id], reelIdea: prev[template.id]?.reelIdea ?? template.reelIdea ?? "" } }));
+                                        }
+                                      }}>
+                                        {editingField === `reelIdea-${template.id}` ? <><Save className="h-3 w-3 mr-1" />Done</> : <><Pencil className="h-3 w-3 mr-1" />Edit</>}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  {editingField === `reelIdea-${template.id}` ? (
+                                    <Textarea value={editedValues[template.id]?.reelIdea ?? template.reelIdea ?? ""} onChange={(e) => setEditedValues(prev => ({ ...prev, [template.id]: { ...prev[template.id], reelIdea: e.target.value } }))} className="min-h-[60px] text-sm resize-y" />
+                                  ) : (
+                                    <p className="text-sm mt-1">{editedValues[template.id]?.reelIdea ?? template.reelIdea}</p>
+                                  )}
                                 </div>
                               )}
                               {template.script && (
                                 <div>
-                                  <Label>Script/Prompt</Label>
-                                  <p className="text-sm mt-1 whitespace-pre-wrap">{template.script}</p>
+                                  <div className="flex items-center justify-between mb-1">
+                                    <Label>Script/Prompt</Label>
+                                    <div className="flex gap-1">
+                                      <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => {
+                                        navigator.clipboard.writeText(editedValues[template.id]?.script ?? template.script ?? "");
+                                        toast.success("Copied!");
+                                      }}><Copy className="h-3 w-3" /></Button>
+                                      <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => {
+                                        if (editingField === `script-${template.id}`) {
+                                          setEditingField(null);
+                                        } else {
+                                          setEditingField(`script-${template.id}`);
+                                          setEditedValues(prev => ({ ...prev, [template.id]: { ...prev[template.id], script: prev[template.id]?.script ?? template.script ?? "" } }));
+                                        }
+                                      }}>
+                                        {editingField === `script-${template.id}` ? <><Save className="h-3 w-3 mr-1" />Done</> : <><Pencil className="h-3 w-3 mr-1" />Edit</>}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  {editingField === `script-${template.id}` ? (
+                                    <Textarea value={editedValues[template.id]?.script ?? template.script ?? ""} onChange={(e) => setEditedValues(prev => ({ ...prev, [template.id]: { ...prev[template.id], script: e.target.value } }))} className="min-h-[100px] text-sm resize-y" />
+                                  ) : (
+                                    <p className="text-sm mt-1 whitespace-pre-wrap">{editedValues[template.id]?.script ?? template.script}</p>
+                                  )}
                                 </div>
                               )}
                             </div>

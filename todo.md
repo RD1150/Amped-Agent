@@ -3232,3 +3232,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Enlarge avatar crop box in Authority Reels Engine - upgraded to 90vw/90vh modal, circular crop shape, 420px min height
 - [x] Add inline edit button to all generated posts in Authority Post Builder - Edit/Done Editing toggle with inline textarea, edits flow through to Copy and Save to Drafts
 - [x] Add Edit button to AutoReels Engine hook and script output sections - Edit/Done toggle on Hook, Script, and Caption cards
+- [x] Add Edit button to all generated post types across the entire app - Hooks Library (Edit+Copy per card), Content Templates (Edit+Copy per field in dialog)
