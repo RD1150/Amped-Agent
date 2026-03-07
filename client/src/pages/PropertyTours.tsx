@@ -20,6 +20,61 @@ import { ImageCropModal } from "@/components/ImageCropModal";
 import { compressVideo } from "@/lib/videoCompression";
 import { MusicLibrary } from "@/components/MusicLibrary";
 
+// Smart video thumbnail that preloads before allowing play
+function VideoThumbnail({ src, thumbnailUrl, address }: { src: string; thumbnailUrl?: string; address: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const handlePlayClick = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (!isReady) {
+      setIsLoading(true);
+      video.preload = "auto";
+      video.load();
+      video.oncanplaythrough = () => {
+        setIsLoading(false);
+        setIsReady(true);
+        video.play();
+        setIsPlaying(true);
+      };
+    } else {
+      if (isPlaying) {
+        video.pause();
+        setIsPlaying(false);
+      } else {
+        video.play();
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  return (
+    <div className="w-full h-full relative group cursor-pointer" onClick={handlePlayClick}>
+      <video
+        ref={videoRef}
+        src={src}
+        className="w-full h-full object-cover"
+        playsInline
+        preload="none"
+        poster={thumbnailUrl}
+        onEnded={() => setIsPlaying(false)}
+      />
+      {!isPlaying && (
+        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+          {isLoading ? (
+            <Loader2 className="h-6 w-6 text-white animate-spin" />
+          ) : (
+            <Play className="h-6 w-6 text-white" />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PropertyTours() {
   const utils = trpc.useUtils();
 
@@ -519,6 +574,8 @@ Generate ONLY the script text, no additional commentary.`;
                 controls
                 className="w-full h-full"
                 src="https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/ken-burns-example_38bbc49c.mp4"
+                preload="auto"
+                playsInline
               >
                 Your browser does not support the video tag.
               </video>
@@ -1312,18 +1369,11 @@ Generate ONLY the script text, no additional commentary.`;
                   <div className="flex items-start gap-4">
                     <div className="w-32 h-24 bg-muted rounded flex items-center justify-center overflow-hidden relative group">
                       {tour.status === "completed" && tour.videoUrl ? (
-                        <>
-                          <video
-                            src={tour.videoUrl}
-                            className="w-full h-full object-cover"
-                            muted
-                            playsInline
-                            preload="metadata"
-                          />
-                          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                            <Play className="h-6 w-6 text-white" />
-                          </div>
-                        </>
+                        <VideoThumbnail
+                          src={tour.videoUrl}
+                          thumbnailUrl={tour.thumbnailUrl || undefined}
+                          address={tour.address}
+                        />
                       ) : tour.thumbnailUrl ? (
                         <img
                           src={tour.thumbnailUrl}
