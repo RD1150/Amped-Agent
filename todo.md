@@ -3228,3 +3228,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Implement dramatic photo-type-aware camera movement prompts for Full Cinematic Kling AI clips - upgraded to pro mode, 10s clips, bold room-specific prompts
 - [x] Fix Full Cinematic output quality - upgraded from medium/25fps to high/30fps - now renders at true 1080p
 - [x] Fix video buffering on Property Tours page - added smart VideoThumbnail component with preload-on-click, loading spinner, and play-when-ready logic
+- [x] Fix Authority Reels Engine ClipStart schema error - fixed float precision issues in videoRenderer.ts by rounding all start/length values

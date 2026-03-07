@@ -114,7 +114,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
     videoAsset.trim = 0;
     videoClip.asset = videoAsset;
     videoClip.start = 0;
-    videoClip.length = videoLength;
+    videoClip.length = Math.round(videoLength * 100) / 100;
     videoClip.fit = 'cover'; // Fill the frame
     videoTrack.clips = [videoClip];
     
@@ -139,7 +139,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
     
     hookClip.asset = hookAsset;
     hookClip.start = 0;
-    hookClip.length = 2;
+    hookClip.length = 2.0;
     hookClip.transition = { in: 'fade', out: 'fade' };
     hookTrack.clips = [hookClip];
     
@@ -172,8 +172,8 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       };
       
       clip.asset = asset;
-      clip.start = sub.start + 2; // Start after hook
-      clip.length = sub.length;
+      clip.start = Math.round((sub.start + 2) * 100) / 100; // Start after hook, rounded to avoid float precision issues
+      clip.length = Math.round(sub.length * 100) / 100;
       
       return clip;
     });
@@ -188,7 +188,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
     audioAsset.volume = 0.3; // Low volume for background
     audioClip.asset = audioAsset;
     audioClip.start = 0;
-    audioClip.length = videoLength;
+    audioClip.length = Math.round(videoLength * 100) / 100;
     audioTrack.clips = [audioClip];
     
     // Add all tracks to timeline (order matters - bottom to top)
