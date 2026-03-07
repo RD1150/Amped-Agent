@@ -3235,4 +3235,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add Edit button to all generated post types across the entire app - Hooks Library (Edit+Copy per card), Content Templates (Edit+Copy per field in dialog)
 - [x] Fix: agent name conditional in all intro card templates - showAgentName=false hides it when branding disabled
 - [x] Build mid-tier pricing: voiceover is +5 credits add-on for both Standard and Full Cinematic; Full Cinematic reduced from 75 to 40 credits
-- [ ] Push all latest code to GitHub
+- [x] Push all latest code to GitHub (all checkpoints auto-sync to github.com/RD1150/authority-content)
