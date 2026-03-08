@@ -3236,3 +3236,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix: agent name conditional in all intro card templates - showAgentName=false hides it when branding disabled
 - [x] Build mid-tier pricing: voiceover is +5 credits add-on for both Standard and Full Cinematic; Full Cinematic reduced from 75 to 40 credits
 - [x] Push all latest code to GitHub (all checkpoints auto-sync to github.com/RD1150/authority-content)
+
+## ElevenLabs Voiceover Integration
+- [x] Add generateVoiceoverScript tRPC procedure to propertyTours router (LLM-powered, server-side)
+- [x] Fix frontend generateScript to use tRPC instead of raw fetch to non-existent endpoint
+- [x] Harden ElevenLabs textToSpeech error handling in videoGenerator.ts (propagate errors, don't swallow)
+- [x] Add voiceover credit badge to PropertyTours UI (show +5 credits when voiceover toggled on)
+- [ ] Add voice preview button to let users hear each voice before selecting
+- [x] Write vitest for voiceover script generation and ElevenLabs integration (14/14 tests pass)
+- [ ] Test end-to-end: voiceover checkbox → script review → video generation → audio in final video

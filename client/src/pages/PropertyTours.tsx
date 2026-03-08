@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -129,6 +129,7 @@ export default function PropertyTours() {
   const generateVideo = trpc.propertyTours.generateVideo.useMutation();
   const deleteTour = trpc.propertyTours.delete.useMutation();
   const fetchPropertyData = trpc.propertyTours.fetchPropertyData.useMutation();
+  const generateVoiceoverScript = trpc.propertyTours.generateVoiceoverScript.useMutation();
 
   // Handle file selection
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -324,37 +325,27 @@ export default function PropertyTours() {
     }
   };
 
-  // Generate voiceover script using LLM
-  const generateScript = async (): Promise<string> => {
-    const propertyDetails = `
-Address: ${address}
-Price: ${price || 'Not specified'}
-Beds: ${beds || 'Not specified'}
-Baths: ${baths || 'Not specified'}
-Square Feet: ${sqft || 'Not specified'}
-Property Type: ${propertyType || 'Not specified'}
-Description: ${description || 'Not specified'}
-`;
-
-    const prompt = `Generate a professional, engaging ${duration}-second voiceover script for a real estate property tour video. The script should highlight the key features and create excitement about the property. Keep it natural and conversational.
-
-Property Details:${propertyDetails}
-
-Generate ONLY the script text, no additional commentary.`;
-
+  // Generate voiceover script using tRPC (server-side LLM)
+  const generateScript = useCallback(async (): Promise<string> => {
     try {
-      const response = await fetch('/api/trpc/ai.generateScript', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+      const result = await generateVoiceoverScript.mutateAsync({
+        address,
+        price: price || undefined,
+        beds: beds ? parseFloat(beds) : undefined,
+        baths: baths ? parseFloat(baths) : undefined,
+        sqft: sqft ? parseInt(sqft) : undefined,
+        propertyType: propertyType || undefined,
+        description: description || undefined,
+        duration,
+        style: "professional",
       });
-      const data = await response.json();
-      return data.result?.script || "Welcome to this beautiful property. Let me show you around this amazing home.";
+      return result.script;
     } catch (error) {
       console.error('Failed to generate script:', error);
-      return "Welcome to this beautiful property. Let me show you around this amazing home.";
+      toast.error("Failed to generate voiceover script. You can write your own below.");
+      return "Welcome to this stunning property. Let me take you on a tour of this beautiful home, featuring exceptional design and premium finishes throughout. Contact me today to schedule your private showing.";
     }
-  };
+  }, [address, price, beds, baths, sqft, propertyType, description, duration, generateVoiceoverScript]);
 
   // Handle tour creation and video generation
   const handleCreateTour = async () => {
@@ -371,8 +362,10 @@ Generate ONLY the script text, no additional commentary.`;
 
     // If voiceover is enabled and script not reviewed yet, show script editor
     if (enableVoiceover && !showScriptEditor && !customScript) {
-      // Generate script first
+      // Generate script first using tRPC
+      toast.loading("Generating voiceover script...", { id: "script-gen" });
       const script = await generateScript();
+      toast.dismiss("script-gen");
       setGeneratedScript(script);
       setCustomScript(script);
       setShowScriptEditor(true);
@@ -1014,47 +1007,75 @@ Generate ONLY the script text, no additional commentary.`;
             </div>
 
             {/* Voiceover Options */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="enableVoiceover"
-                  checked={enableVoiceover}
-                  onCheckedChange={(checked) => setEnableVoiceover(checked as boolean)}
-                />
-                <Label htmlFor="enableVoiceover" className="text-sm font-normal cursor-pointer">
-                  Enable AI Voiceover Narration
-                </Label>
+            <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="enableVoiceover"
+                    checked={enableVoiceover}
+                    onCheckedChange={(checked) => setEnableVoiceover(checked as boolean)}
+                  />
+                  <Label htmlFor="enableVoiceover" className="text-sm font-medium cursor-pointer">
+                    AI Voiceover Narration
+                  </Label>
+                </div>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                  enableVoiceover
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}>
+                  +5 credits
+                </span>
               </div>
+              <p className="text-xs text-muted-foreground">
+                ElevenLabs AI generates a professional narration track from your property details. Script is auto-generated and editable before rendering.
+              </p>
               {enableVoiceover && (
-                <div className="space-y-3">
+                <div className="space-y-3 pt-1">
                   <div>
-                    <Label htmlFor="voiceId">Voice Selection</Label>
+                    <Label htmlFor="voiceId" className="text-xs font-medium">Voice</Label>
                     <Select value={voiceId} onValueChange={setVoiceId}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="21m00Tcm4TlvDq8ikWAM">Rachel - Professional Female</SelectItem>
-                        <SelectItem value="pNInz6obpgDQGcFmaJgB">Adam - Professional Male</SelectItem>
-                        <SelectItem value="EXAVITQu4vr4xnSDxMaL">Bella - Warm Female</SelectItem>
-                        <SelectItem value="TxGEqnHWrfWFTfGW9XjX">Josh - Authoritative Male</SelectItem>
+                        <SelectItem value="21m00Tcm4TlvDq8ikWAM">🎙️ Rachel — Professional Female</SelectItem>
+                        <SelectItem value="pNInz6obpgDQGcFmaJgB">🎙️ Adam — Professional Male</SelectItem>
+                        <SelectItem value="EXAVITQu4vr4xnSDxMaL">🎙️ Bella — Warm Female</SelectItem>
+                        <SelectItem value="TxGEqnHWrfWFTfGW9XjX">🎙️ Josh — Authoritative Male</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
                   <div>
-                    <Label htmlFor="voiceoverScript">Voiceover Script (Optional)</Label>
+                    <Label htmlFor="voiceoverScript" className="text-xs font-medium">Custom Script (Optional)</Label>
                     <Textarea
                       id="voiceoverScript"
-                      placeholder="Leave blank to auto-generate script from property details, or paste/write your custom narration script here..."
+                      placeholder="Leave blank — AI will auto-generate a script from your property details. Or paste your own narration here."
                       value={customScript}
                       onChange={(e) => setCustomScript(e.target.value)}
-                      rows={5}
-                      className="resize-none font-mono text-sm"
+                      rows={4}
+                      className="resize-none font-mono text-xs mt-1"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Custom script will be narrated exactly as written. Leave blank for AI-generated script based on property details.
-                    </p>
+                    {customScript && (
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-xs text-muted-foreground">
+                          {customScript.split(/\s+/).filter(Boolean).length} words · ~{Math.ceil(customScript.split(/\s+/).filter(Boolean).length / 2.5)}s spoken
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setCustomScript("")}
+                          className="text-xs text-muted-foreground hover:text-destructive underline"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    )}
+                    {!customScript && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Script will be generated and shown for review before video creation.
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

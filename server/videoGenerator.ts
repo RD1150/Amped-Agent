@@ -114,40 +114,65 @@ export async function generatePropertyTourVideo(
   // Generate voiceover if enabled
   let voiceoverUrl: string | undefined;
   if (enableVoiceover) {
-    console.log("[VideoGenerator] Generating voiceover narration...");
-    const { generatePropertyTourScript } = await import("./scriptGenerator");
-    const { textToSpeech } = await import("./_core/elevenLabs");
-    const { storagePut } = await import("./storage");
-    
-    // Generate or use provided script
-    const script = voiceoverScript || await generatePropertyTourScript({
-      propertyDetails: {
-        address: propertyDetails.address,
-        price: propertyDetails.price ? parseFloat(propertyDetails.price.replace(/[^0-9.]/g, "")) : undefined,
-        bedrooms: propertyDetails.beds,
-        bathrooms: propertyDetails.baths,
-        squareFeet: propertyDetails.sqft,
-        description: propertyDetails.description,
-      },
-      duration,
-      style: "professional",
-    });
-    
-    console.log("[VideoGenerator] Script generated:", script.substring(0, 100) + "...");
-    
-    // Generate audio with ElevenLabs
-    const audioBuffer = await textToSpeech({
-      text: script,
-      voice_id: voiceId,
-    });
-    
-    // Upload to S3
-    const timestamp = Date.now();
-    const audioKey = `property-tours/voiceovers/${timestamp}-voiceover.mp3`;
-    const { url } = await storagePut(audioKey, audioBuffer, "audio/mpeg");
-    voiceoverUrl = url;
-    
-    console.log("[VideoGenerator] Voiceover generated and uploaded:", voiceoverUrl);
+    console.log("[VideoGenerator] Generating voiceover narration with ElevenLabs...");
+    try {
+      const { generatePropertyTourScript } = await import("./scriptGenerator");
+      const { textToSpeech } = await import("./_core/elevenLabs");
+      const { storagePut } = await import("./storage");
+
+      // Validate ElevenLabs API key is configured
+      if (!process.env.ELEVENLABS_API_KEY) {
+        throw new Error("ElevenLabs API key is not configured. Please add ELEVENLABS_API_KEY to your environment.");
+      }
+
+      // Generate or use provided script
+      const script = voiceoverScript || await generatePropertyTourScript({
+        propertyDetails: {
+          address: propertyDetails.address,
+          price: propertyDetails.price ? parseFloat(propertyDetails.price.replace(/[^0-9.]/g, "")) : undefined,
+          bedrooms: propertyDetails.beds,
+          bathrooms: propertyDetails.baths,
+          squareFeet: propertyDetails.sqft,
+          description: propertyDetails.description,
+        },
+        duration,
+        style: "professional",
+      });
+
+      if (!script || script.trim().length === 0) {
+        throw new Error("Failed to generate voiceover script — empty response from LLM.");
+      }
+
+      console.log(`[VideoGenerator] Script generated (${script.split(/\s+/).length} words):`, script.substring(0, 120) + "...");
+
+      // Generate audio with ElevenLabs
+      const audioBuffer = await textToSpeech({
+        text: script,
+        voice_id: voiceId || "21m00Tcm4TlvDq8ikWAM", // Default to Rachel
+        stability: 0.5,
+        similarity_boost: 0.75,
+        use_speaker_boost: true,
+      });
+
+      if (!audioBuffer || audioBuffer.length === 0) {
+        throw new Error("ElevenLabs returned empty audio buffer.");
+      }
+
+      console.log(`[VideoGenerator] ElevenLabs audio generated: ${(audioBuffer.length / 1024).toFixed(1)}KB`);
+
+      // Upload to S3
+      const timestamp = Date.now();
+      const audioKey = `property-tours/voiceovers/${timestamp}-${Math.random().toString(36).substring(7)}.mp3`;
+      const { url } = await storagePut(audioKey, audioBuffer, "audio/mpeg");
+      voiceoverUrl = url;
+
+      console.log("[VideoGenerator] Voiceover uploaded to S3:", voiceoverUrl);
+    } catch (voiceoverError) {
+      const errMsg = voiceoverError instanceof Error ? voiceoverError.message : String(voiceoverError);
+      console.error("[VideoGenerator] Voiceover generation FAILED:", errMsg);
+      // Propagate the error so the user knows voiceover failed
+      throw new Error(`Voiceover generation failed: ${errMsg}`);
+    }
   }
 
   // Generate AI videos for hero photos if using AI-enhanced or full-ai mode

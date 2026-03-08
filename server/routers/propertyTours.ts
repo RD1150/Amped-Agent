@@ -442,6 +442,47 @@ export const propertyToursRouter = router({
     }),
 
   /**
+   * Generate a voiceover script for a property tour using LLM
+   * Called from the frontend before video generation so users can review/edit
+   */
+  generateVoiceoverScript: protectedProcedure
+    .input(
+      z.object({
+        address: z.string().min(1),
+        price: z.string().optional(),
+        beds: z.number().optional(),
+        baths: z.number().optional(),
+        sqft: z.number().optional(),
+        propertyType: z.string().optional(),
+        description: z.string().optional(),
+        duration: z.number().int().min(10).max(120).default(30),
+        style: z.enum(["professional", "warm", "luxury", "casual"]).default("professional"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { generatePropertyTourScript, estimateScriptDuration } = await import("../scriptGenerator");
+
+      const script = await generatePropertyTourScript({
+        propertyDetails: {
+          address: input.address,
+          price: input.price ? parseFloat(input.price.replace(/[^0-9.]/g, "")) : undefined,
+          bedrooms: input.beds,
+          bathrooms: input.baths,
+          squareFeet: input.sqft,
+          description: input.description,
+        },
+        duration: input.duration,
+        style: input.style,
+      });
+
+      return {
+        script,
+        estimatedDuration: estimateScriptDuration(script),
+        wordCount: script.split(/\s+/).length,
+      };
+    }),
+
+  /**
    * Get monthly video generation usage by tier
    */
   getMonthlyUsage: protectedProcedure.query(async ({ ctx }) => {
