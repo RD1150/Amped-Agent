@@ -104,6 +104,9 @@ export default function PropertyTours() {
   const [videoMode, setVideoMode] = useState<"standard" | "full-ai">("standard");
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel - professional female
+  const [voiceoverStyle, setVoiceoverStyle] = useState<"professional" | "warm" | "luxury" | "casual">("professional");
+  const [previewingVoiceId, setPreviewingVoiceId] = useState<string | null>(null);
+  const [previewAudioUrl, setPreviewAudioUrl] = useState<string | null>(null);
   const [showScriptEditor, setShowScriptEditor] = useState(false);
   const [generatedScript, setGeneratedScript] = useState("");
   const [customScript, setCustomScript] = useState("");
@@ -130,6 +133,7 @@ export default function PropertyTours() {
   const deleteTour = trpc.propertyTours.delete.useMutation();
   const fetchPropertyData = trpc.propertyTours.fetchPropertyData.useMutation();
   const generateVoiceoverScript = trpc.propertyTours.generateVoiceoverScript.useMutation();
+  const previewVoice = trpc.propertyTours.previewVoice.useMutation();
 
   // Handle file selection
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -325,6 +329,24 @@ export default function PropertyTours() {
     }
   };
 
+  // Preview a voice using ElevenLabs
+  const handleVoicePreview = async (vId: string) => {
+    if (previewingVoiceId === vId) return; // already loading
+    setPreviewingVoiceId(vId);
+    setPreviewAudioUrl(null);
+    try {
+      const result = await previewVoice.mutateAsync({ voiceId: vId });
+      setPreviewAudioUrl(result.url);
+      // Auto-play via a hidden audio element
+      const audio = new Audio(result.url);
+      audio.play().catch(() => {});
+    } catch {
+      toast.error("Could not load voice preview. Please try again.");
+    } finally {
+      setPreviewingVoiceId(null);
+    }
+  };
+
   // Generate voiceover script using tRPC (server-side LLM)
   const generateScript = useCallback(async (): Promise<string> => {
     try {
@@ -337,7 +359,7 @@ export default function PropertyTours() {
         propertyType: propertyType || undefined,
         description: description || undefined,
         duration,
-        style: "professional",
+        style: voiceoverStyle,
       });
       return result.script;
     } catch (error) {
@@ -345,7 +367,7 @@ export default function PropertyTours() {
       toast.error("Failed to generate voiceover script. You can write your own below.");
       return "Welcome to this stunning property. Let me take you on a tour of this beautiful home, featuring exceptional design and premium finishes throughout. Contact me today to schedule your private showing.";
     }
-  }, [address, price, beds, baths, sqft, propertyType, description, duration, generateVoiceoverScript]);
+  }, [address, price, beds, baths, sqft, propertyType, description, duration, voiceoverStyle, generateVoiceoverScript]);
 
   // Handle tour creation and video generation
   const handleCreateTour = async () => {
@@ -1031,27 +1053,89 @@ export default function PropertyTours() {
                 ElevenLabs AI generates a professional narration track from your property details. Script is auto-generated and editable before rendering.
               </p>
               {enableVoiceover && (
-                <div className="space-y-3 pt-1">
+                <div className="space-y-4 pt-1">
+
+                  {/* Narration Style */}
                   <div>
-                    <Label htmlFor="voiceId" className="text-xs font-medium">Voice</Label>
-                    <Select value={voiceId} onValueChange={setVoiceId}>
-                      <SelectTrigger className="h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="21m00Tcm4TlvDq8ikWAM">🎙️ Rachel — Professional Female</SelectItem>
-                        <SelectItem value="pNInz6obpgDQGcFmaJgB">🎙️ Adam — Professional Male</SelectItem>
-                        <SelectItem value="EXAVITQu4vr4xnSDxMaL">🎙️ Bella — Warm Female</SelectItem>
-                        <SelectItem value="TxGEqnHWrfWFTfGW9XjX">🎙️ Josh — Authoritative Male</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label className="text-xs font-medium">Narration Style</Label>
+                    <div className="grid grid-cols-2 gap-2 mt-1.5">
+                      {([
+                        { value: "professional", label: "Professional", desc: "Authoritative & polished" },
+                        { value: "warm",         label: "Warm",         desc: "Friendly & welcoming" },
+                        { value: "luxury",       label: "Luxury",       desc: "Elegant & exclusive" },
+                        { value: "casual",       label: "Casual",       desc: "Relaxed & conversational" },
+                      ] as const).map((s) => (
+                        <button
+                          key={s.value}
+                          type="button"
+                          onClick={() => setVoiceoverStyle(s.value)}
+                          className={`text-left p-2 rounded-md border text-xs transition-colors ${
+                            voiceoverStyle === s.value
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border hover:border-primary/50"
+                          }`}
+                        >
+                          <div className="font-semibold">{s.label}</div>
+                          <div className="text-muted-foreground">{s.desc}</div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  
+
+                  {/* Voice Selection with Preview */}
                   <div>
-                    <Label htmlFor="voiceoverScript" className="text-xs font-medium">Custom Script (Optional)</Label>
+                    <Label className="text-xs font-medium">Voice</Label>
+                    <div className="space-y-1.5 mt-1.5">
+                      {([
+                        { id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel", desc: "Professional Female", tag: "Popular" },
+                        { id: "pNInz6obpgDQGcFmaJgB", name: "Adam",   desc: "Professional Male",   tag: "" },
+                        { id: "EXAVITQu4vr4xnSDxMaL", name: "Bella",  desc: "Warm Female",         tag: "" },
+                        { id: "TxGEqnHWrfWFTfGW9XjX", name: "Josh",   desc: "Authoritative Male",  tag: "" },
+                      ]).map((v) => (
+                        <div
+                          key={v.id}
+                          onClick={() => setVoiceId(v.id)}
+                          className={`flex items-center justify-between p-2 rounded-md border cursor-pointer transition-colors ${
+                            voiceId === v.id
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className={`w-3 h-3 rounded-full border-2 flex-shrink-0 ${
+                              voiceId === v.id ? "border-primary bg-primary" : "border-muted-foreground"
+                            }`} />
+                            <div>
+                              <span className="text-xs font-medium">{v.name}</span>
+                              <span className="text-xs text-muted-foreground ml-1.5">{v.desc}</span>
+                              {v.tag && (
+                                <span className="ml-1.5 text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-medium">{v.tag}</span>
+                              )}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleVoicePreview(v.id); }}
+                            disabled={previewingVoiceId === v.id}
+                            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary border border-border hover:border-primary/50 px-2 py-1 rounded transition-colors disabled:opacity-50"
+                          >
+                            {previewingVoiceId === v.id ? (
+                              <><Loader2 className="w-3 h-3 animate-spin" /> Loading...</>
+                            ) : (
+                              <><Play className="w-3 h-3" /> Preview</>
+                            )}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Script */}
+                  <div>
+                    <Label htmlFor="voiceoverScript" className="text-xs font-medium">Custom Script <span className="text-muted-foreground font-normal">(Optional)</span></Label>
                     <Textarea
                       id="voiceoverScript"
-                      placeholder="Leave blank — AI will auto-generate a script from your property details. Or paste your own narration here."
+                      placeholder="Leave blank — AI will auto-generate a script in the selected style from your property details. Or paste your own narration here."
                       value={customScript}
                       onChange={(e) => setCustomScript(e.target.value)}
                       rows={4}
@@ -1073,7 +1157,7 @@ export default function PropertyTours() {
                     )}
                     {!customScript && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        Script will be generated and shown for review before video creation.
+                        Script will be generated in <strong>{voiceoverStyle}</strong> style and shown for review before video creation.
                       </p>
                     )}
                   </div>

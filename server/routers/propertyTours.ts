@@ -483,6 +483,43 @@ export const propertyToursRouter = router({
     }),
 
   /**
+   * Preview a voice by generating a short ElevenLabs sample clip
+   * Returns an S3 URL to the audio file for in-browser playback
+   */
+  previewVoice: protectedProcedure
+    .input(
+      z.object({
+        voiceId: z.string().min(1),
+        sampleText: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { textToSpeech } = await import("../_core/elevenLabs");
+      const { storagePut } = await import("../storage");
+
+      const text =
+        input.sampleText ||
+        "Welcome to this stunning property. I'm excited to take you on a tour of this beautiful home.";
+
+      const audioBuffer = await textToSpeech({
+        text,
+        voice_id: input.voiceId,
+        stability: 0.5,
+        similarity_boost: 0.75,
+        use_speaker_boost: true,
+      });
+
+      if (!audioBuffer || audioBuffer.length === 0) {
+        throw new Error("ElevenLabs returned empty audio buffer for voice preview.");
+      }
+
+      const key = `property-tours/voice-previews/${input.voiceId}-${Date.now()}.mp3`;
+      const { url } = await storagePut(key, audioBuffer, "audio/mpeg");
+
+      return { url, voiceId: input.voiceId };
+    }),
+
+  /**
    * Get monthly video generation usage by tier
    */
   getMonthlyUsage: protectedProcedure.query(async ({ ctx }) => {

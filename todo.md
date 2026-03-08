@@ -3245,3 +3245,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add voice preview button to let users hear each voice before selecting
 - [x] Write vitest for voiceover script generation and ElevenLabs integration (14/14 tests pass)
 - [ ] Test end-to-end: voiceover checkbox → script review → video generation → audio in final video
+
+## Voice Preview, Style Selector & E2E Test
+- [x] Add previewVoice tRPC mutation to propertyTours router (generates short ElevenLabs sample, returns S3 URL)
+- [x] Add voiceoverStyle field to generateVoiceoverScript procedure (professional/warm/luxury/casual)
+- [x] Update generateVideo procedure to pass voiceoverStyle through to videoGenerator
+- [x] Build voice preview buttons in PropertyTours UI (play icon per voice, inline audio player)
+- [x] Build voiceover style selector in PropertyTours UI (4 options with descriptions)
+- [x] Write vitest for previewVoice and style selector integration (12/12 tests pass)
