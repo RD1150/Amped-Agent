@@ -98,6 +98,33 @@ export const appRouter = router({
       .mutation(async ({ ctx }) => {
         return db.acceptTermsOfService(ctx.user.id);
       }),
+    getVoicePreference: protectedProcedure.query(async ({ ctx }) => {
+      const dbConn = await db.getDb();
+      if (!dbConn) return { voiceId: "21m00Tcm4TlvDq8ikWAM", voiceoverStyle: "professional" as const };
+      const { users } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const rows = await dbConn.select({
+        preferredVoiceId: users.preferredVoiceId,
+        preferredVoiceoverStyle: users.preferredVoiceoverStyle,
+      }).from(users).where(eq(users.id, ctx.user.id)).limit(1);
+      const row = rows[0];
+      return {
+        voiceId: row?.preferredVoiceId || "21m00Tcm4TlvDq8ikWAM",
+        voiceoverStyle: (row?.preferredVoiceoverStyle || "professional") as "professional" | "warm" | "luxury" | "casual",
+      };
+    }),
+    saveVoicePreference: protectedProcedure
+      .input(z.object({
+        voiceId: z.string().min(1),
+        voiceoverStyle: z.enum(["professional", "warm", "luxury", "casual"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateUser(ctx.user.id, {
+          preferredVoiceId: input.voiceId,
+          preferredVoiceoverStyle: input.voiceoverStyle,
+        });
+        return { success: true };
+      }),
   }),
 
   persona: router({

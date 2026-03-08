@@ -411,23 +411,62 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
       caption: z.string().optional(),
       videoLength: videoLengthEnum,
       tone: toneEnum,
+      enableVoiceover: z.boolean().optional().default(false),
+      voiceId: z.string().optional(),
+      voiceoverStyle: z.enum(["professional", "warm", "luxury", "casual"]).optional().default("professional"),
     }))
     .mutation(async ({ ctx, input }) => {
-      const { hook, script, caption, videoLength, tone } = input;
+      const { hook, script, caption, videoLength, tone, enableVoiceover, voiceId, voiceoverStyle } = input;
+
+      // Deduct voiceover credits if requested
+      if (enableVoiceover) {
+        const { deductCredits } = await import("../credits");
+        await deductCredits({ userId: ctx.user.id, amount: 5, usageType: "voiceover", description: "AutoReels voiceover narration" });
+      }
       
       try {
         console.log('[renderVideo] Starting video render with params:', {
           hook: hook.substring(0, 50),
           scriptLength: script.length,
           videoLength,
-          tone
+          tone,
+          enableVoiceover,
+          voiceoverStyle,
         });
+
+        // Generate voiceover audio if requested
+        let voiceoverAudioUrl: string | undefined;
+        if (enableVoiceover) {
+          try {
+            const { textToSpeech } = await import("../_core/elevenLabs");
+            const { storagePut } = await import("../storage");
+            const fullScript = `${hook}. ${script}`;
+            const audioBuffer = await textToSpeech({
+              text: fullScript,
+              voice_id: voiceId || "21m00Tcm4TlvDq8ikWAM",
+              stability: voiceoverStyle === "professional" ? 0.6 : voiceoverStyle === "luxury" ? 0.7 : 0.5,
+              similarity_boost: 0.75,
+              use_speaker_boost: true,
+            });
+            if (!audioBuffer || audioBuffer.length === 0) {
+              throw new Error("ElevenLabs returned empty audio for AutoReel voiceover.");
+            }
+            const key = `autoreels/voiceover/${ctx.user.id}-${Date.now()}.mp3`;
+            const { url } = await storagePut(key, audioBuffer, "audio/mpeg");
+            voiceoverAudioUrl = url;
+            console.log('[renderVideo] Voiceover audio generated:', voiceoverAudioUrl);
+          } catch (voErr: any) {
+            console.error('[renderVideo] Voiceover generation failed, continuing without audio:', voErr.message);
+            // Non-fatal: render without voiceover rather than failing the whole job
+          }
+        }
         
         const result = await renderAutoReel({
           hook,
           script,
           videoLength: parseInt(videoLength),
           tone,
+          voiceoverAudioUrl,
         });
         
         console.log('[renderVideo] Render initiated successfully:', result);

@@ -32,6 +32,7 @@ interface VideoRenderOptions {
   script: string;
   videoLength: number; // in seconds
   tone: 'calm' | 'bold' | 'authoritative' | 'warm';
+  voiceoverAudioUrl?: string; // Optional ElevenLabs narration track
 }
 
 interface RenderResult {
@@ -99,7 +100,7 @@ function getBackgroundMusicUrl(tone: string): string {
  * Render a vertical video (9:16) with hook, script, subtitles, and background music
  */
 export async function renderAutoReel(options: VideoRenderOptions): Promise<RenderResult> {
-  const { hook, script, videoLength, tone } = options;
+  const { hook, script, videoLength, tone, voiceoverAudioUrl } = options;
   
   try {
     // Create edit
@@ -185,19 +186,30 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
     const audioClip = new Clip();
     const audioAsset = new AudioAsset();
     audioAsset.src = getBackgroundMusicUrl(tone);
-    audioAsset.volume = 0.3; // Low volume for background
+    // Lower music volume when voiceover is present so narration is clearly audible
+    audioAsset.volume = voiceoverAudioUrl ? 0.1 : 0.3;
     audioClip.asset = audioAsset;
     audioClip.start = 0;
     audioClip.length = Math.round(videoLength * 100) / 100;
     audioTrack.clips = [audioClip];
+
+    // Track 5: ElevenLabs voiceover narration (optional)
+    const tracks = [subtitleTrack, hookTrack, audioTrack, videoTrack];
+    if (voiceoverAudioUrl) {
+      const voiceTrack = new Track();
+      const voiceClip = new Clip();
+      const voiceAsset = new AudioAsset();
+      voiceAsset.src = voiceoverAudioUrl;
+      voiceAsset.volume = 1.0; // Full volume for narration
+      voiceClip.asset = voiceAsset;
+      voiceClip.start = 0;
+      voiceClip.length = Math.round(videoLength * 100) / 100;
+      voiceTrack.clips = [voiceClip];
+      tracks.unshift(voiceTrack); // Top-most audio layer
+    }
     
     // Add all tracks to timeline (order matters - bottom to top)
-    timeline.tracks = [
-      subtitleTrack,  // Top layer
-      hookTrack,
-      audioTrack,
-      videoTrack      // Bottom layer
-    ];
+    timeline.tracks = tracks;
     
     // Configure output - 9:16 vertical format
     const output = new Output();

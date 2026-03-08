@@ -120,11 +120,24 @@ export default function PropertyTours() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
 
+  const [previewingScript, setPreviewingScript] = useState(false);
+  const [scriptAudioUrl, setScriptAudioUrl] = useState<string | null>(null);
+  const [scriptAudioPlaying, setScriptAudioPlaying] = useState(false);
+
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
   const { data: creditCost } = trpc.credits.calculateCost.useQuery({ videoMode, enableVoiceover });
   const { data: balance } = trpc.credits.getBalance.useQuery();
   const { data: dailyUsage } = trpc.rateLimit.getDailyUsage.useQuery();
+  const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
+
+  // Auto-populate voice preferences from saved profile settings
+  useEffect(() => {
+    if (voicePref) {
+      setVoiceId(voicePref.voiceId);
+      setVoiceoverStyle(voicePref.voiceoverStyle);
+    }
+  }, [voicePref]);
 
   // Mutations
   const uploadImages = trpc.propertyTours.uploadImages.useMutation();
@@ -1591,8 +1604,61 @@ export default function PropertyTours() {
             />
             <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
               <span>{customScript.length} characters</span>
-              <span>~{Math.ceil(customScript.split(' ').length / 150 * 60)} seconds</span>
+              <span>~{Math.ceil(customScript.split(' ').length / 150 * 60)} seconds spoken</span>
             </div>
+
+            {/* Preview Audio section */}
+            <div className="mb-4 p-3 rounded-md bg-secondary/40 border border-border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">Preview Narration</p>
+                  <p className="text-xs text-muted-foreground">Hear the full script before committing credits to the render.</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={previewingScript || !customScript.trim()}
+                  onClick={async () => {
+                    setPreviewingScript(true);
+                    setScriptAudioUrl(null);
+                    try {
+                      const result = await previewVoice.mutateAsync({
+                        voiceId,
+                        sampleText: customScript.trim(),
+                      });
+                      setScriptAudioUrl(result.url);
+                      const audio = new Audio(result.url);
+                      audio.onplay = () => setScriptAudioPlaying(true);
+                      audio.onended = () => setScriptAudioPlaying(false);
+                      audio.onpause = () => setScriptAudioPlaying(false);
+                      audio.play().catch(() => {});
+                    } catch {
+                      toast.error("Could not generate audio preview. Please try again.");
+                    } finally {
+                      setPreviewingScript(false);
+                    }
+                  }}
+                  className="flex items-center gap-1.5 flex-shrink-0"
+                >
+                  {previewingScript ? (
+                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating...</>
+                  ) : (
+                    <><Play className="w-3.5 h-3.5" /> Preview Audio</>
+                  )}
+                </Button>
+              </div>
+              {scriptAudioUrl && (
+                <audio
+                  key={scriptAudioUrl}
+                  src={scriptAudioUrl}
+                  controls
+                  autoPlay
+                  className="w-full mt-3 h-8"
+                  style={{ height: "32px" }}
+                />
+              )}
+            </div>
+
             <div className="flex gap-3">
               <Button
                 variant="outline"
@@ -1600,6 +1666,7 @@ export default function PropertyTours() {
                   setShowScriptEditor(false);
                   setCustomScript("");
                   setGeneratedScript("");
+                  setScriptAudioUrl(null);
                 }}
                 className="flex-1"
               >
@@ -1608,6 +1675,7 @@ export default function PropertyTours() {
               <Button
                 onClick={() => {
                   setShowScriptEditor(false);
+                  setScriptAudioUrl(null);
                   handleCreateTour();
                 }}
                 className="flex-1"

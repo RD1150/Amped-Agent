@@ -1,0 +1,9 @@
+{
+  "query": "\nALTER TABLE users \n  ADD COLUMN IF NOT EXISTS preferredVoiceId VARCHAR(64) DEFAULT '21m00Tcm4TlvDq8ikWAM',\n  ADD COLUMN IF NOT EXISTS preferredVoiceoverStyle ENUM('professional','warm','luxury','casual') DEFAULT 'professional';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute \nALTER TABLE users \n  ADD COLUMN IF NOT EXISTS preferredVoiceId VARCHAR(64) DEFAULT '21m00Tcm4TlvDq8ikWAM',\n  ADD COLUMN IF NOT EXISTS preferredVoiceoverStyle ENUM('professional','warm','luxury','casual') DEFAULT 'professional';\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1009
+}

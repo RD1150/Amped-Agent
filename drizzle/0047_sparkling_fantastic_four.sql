@@ -1,0 +1,2 @@
+ALTER TABLE `users` ADD `preferredVoiceId` varchar(64) DEFAULT '21m00Tcm4TlvDq8ikWAM';--> statement-breakpoint
+ALTER TABLE `users` ADD `preferredVoiceoverStyle` enum('professional','warm','luxury','casual') DEFAULT 'professional';

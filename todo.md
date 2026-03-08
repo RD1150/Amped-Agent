@@ -3253,3 +3253,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Build voice preview buttons in PropertyTours UI (play icon per voice, inline audio player)
 - [x] Build voiceover style selector in PropertyTours UI (4 options with descriptions)
 - [x] Write vitest for previewVoice and style selector integration (12/12 tests pass)
+
+## Voiceover Expansion (Round 3)
+- [x] Add voiceover toggle (+5 credits) to AutoReels Engine (UI + backend router + video generator)
+- [x] Add voiceoverStyle to AutoReels script generation (pass style to LLM)
+- [x] Add preferredVoiceId and preferredVoiceoverStyle columns to users table (DB migration via SQL)
+- [x] Add save/load preferred voice & style in Account Settings UI
+- [x] Auto-populate voiceId and voiceoverStyle from agent profile in PropertyTours form
+- [x] Add "Preview Script Audio" button in PropertyTours script review dialog (calls previewVoice with full script text)
+- [x] Write vitest for all 3 features (15/15 tests pass)
