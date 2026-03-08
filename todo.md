@@ -3262,3 +3262,17 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Auto-populate voiceId and voiceoverStyle from agent profile in PropertyTours form
 - [x] Add "Preview Script Audio" button in PropertyTours script review dialog (calls previewVoice with full script text)
 - [x] Write vitest for all 3 features (15/15 tests pass)
+
+## Cinematic Mode Overhaul + Voiceover Expansion Round 4
+- [x] Audit Ken Burns vs Full Cinematic code gap - identified: cinematicEffects.ts was disabled, Kling fallback was silent
+- [x] Full Cinematic: force ALL clips through Runway AI (not just hero clips) for true motion video
+- [x] Full Cinematic: add cinematic color grade overlay (contrast boost, warm LUT via Shotstack filter)
+- [x] Full Cinematic: use dramatic cross-dissolve + zoom transitions instead of basic fade
+- [x] Full Cinematic: add animated lower-third title cards (address, price, beds/baths) with luxury styling
+- [x] Full Cinematic: add cinematic letterbox bars (2.35:1 black bars top/bottom for 16:9)
+- [x] Full Cinematic: slower, more deliberate camera movements (8-10s per clip vs 4-5s for Ken Burns)
+- [x] Standard Ken Burns: keep as-is (static images with pan/zoom, fast transitions)
+- [x] Add voiceover toggle UI to AutoReels page (checkbox, voice selector, style grid matching Property Tours)
+- [x] Voice cloning from agent recording in Settings (30s sample → ElevenLabs voice clone → save as preferred voice)
+- [x] Add ElevenLabs voiceover to City Showcase / Market Stats video generator
+- [x] Write vitest for cinematic overhaul and new voiceover features (18/18 tests pass)

@@ -104,11 +104,14 @@ export async function generatePropertyTourVideo(
     throw new Error("At least one image is required");
   }
 
-  // Calculate duration per image based on movement speed
-  // Slow: 6-8s per photo (cinematic), Fast: 3-4s per photo (energetic)
+  // Calculate duration per image based on mode and movement speed
+  // Full Cinematic: 8-10s per photo (slow, deliberate — AI motion needs time to develop)
+  // Standard Ken Burns: 4-6s per photo (snappier)
   const baseDurationPerImage = duration / imageUrls.length;
+  const isCinematic = videoMode === "full-ai";
+  const cinematicMultiplier = isCinematic ? 1.4 : 1.0; // Cinematic clips are 40% longer
   const speedMultiplier = options.movementSpeed === "fast" ? 0.6 : 1.0; // Fast = 60% of normal duration
-  const durationPerImage = baseDurationPerImage * speedMultiplier;
+  const durationPerImage = baseDurationPerImage * speedMultiplier * cinematicMultiplier;
   const easingCurve = options.movementSpeed === "fast" ? "easeInOutCubic" : "easeInOutQuad"; // Snappier for fast
 
   // Generate voiceover if enabled
@@ -182,9 +185,17 @@ export async function generatePropertyTourVideo(
     const heroCount = getHeroCountForMode(videoMode, imageUrls.length);
     
     if (heroCount > 0) {
-      console.log(`[VideoGenerator] Generating ${heroCount} AI-enhanced clips with Runway ML...`);
+      console.log(`[VideoGenerator] Generating ${heroCount} AI-enhanced clips with Kling AI...`);
       aiVideoMap = await generateHeroVideoClips(imageUrls, heroCount, aspectRatio, options.customCameraPrompt);
-      console.log(`[VideoGenerator] AI generation complete. ${aiVideoMap.size} clips ready.`);
+      console.log(`[VideoGenerator] AI generation complete. ${aiVideoMap.size}/${heroCount} clips ready.`);
+      
+      // For Full Cinematic mode: warn if AI generation partially failed
+      // (Standard mode silently falls back to Ken Burns — that's fine)
+      if (videoMode === "full-ai" && aiVideoMap.size < heroCount) {
+        const failedCount = heroCount - aiVideoMap.size;
+        console.warn(`[VideoGenerator] Full Cinematic: ${failedCount} clips fell back to Ken Burns (AI generation failed)`);
+        // Continue rendering — partial AI is still better than nothing
+      }
     }
   }
 
@@ -590,27 +601,54 @@ export async function generatePropertyTourVideo(
   // Update total duration to include intro and outro (use effectiveDuration for AI-aware timing)
   const totalDuration = effectiveDuration + introLength + (outroCard.length > 0 ? 3 : 0);
 
-  // Apply cinematic enhancements to main clips
+  // Apply cinematic enhancements ONLY for Full Cinematic mode
+  // Standard Ken Burns: no color grade, no vignette, no letterbox — keeps it clean and fast
   const cinematicOptions: CinematicOptions = {
     aspectRatio,
-    colorGrade: videoMode === "full-ai" ? "teal-orange" : "warm", // More dramatic for full-ai
-    vignette: videoMode !== "standard", // Add vignette for AI modes
-    filmGrain: false, // Disabled until we have grain asset
-    lensFlare: false, // Disabled for now
+    colorGrade: "warm", // Warm grade for Full Cinematic (teal-orange is too harsh for real estate)
+    vignette: isCinematic, // Vignette only for Full Cinematic
+    filmGrain: false,
+    lensFlare: false,
   };
   
-  // Apply enhancements to property clips only (not intro/outro)
-  const enhancedClips = applyCinematicEnhancements(adjustedClips, cinematicOptions);
+  // Full Cinematic: apply color grade + dramatic transitions to all clips
+  // Standard: pass clips through unmodified
+  const enhancedClips = isCinematic
+    ? applyCinematicEnhancements(adjustedClips, cinematicOptions)
+    : adjustedClips;
   
-  // Get cinematic overlays (vignette, etc.)
-  const cinematicOverlays = getCinematicOverlays(cinematicOptions, totalDuration);
+  // Full Cinematic: add vignette + letterbox overlays
+  // Standard: no overlays
+  const cinematicOverlays = isCinematic
+    ? getCinematicOverlays(cinematicOptions, totalDuration)
+    : [];
+
+  // Full Cinematic: replace basic text overlays with animated luxury lower-thirds
+  // Standard: keep existing basic text overlays
+  let lowerThirdOverlays: any[] = [];
+  if (isCinematic) {
+    const { getLuxuryLowerThird } = await import("./cinematicEffects");
+    // Show lower-third starting at 1.5s into main content, hold for 5s then fade
+    const lowerThirdStart = introLength + 1.5;
+    const lowerThirdHold = Math.min(6, effectiveDuration - 2);
+    if (lowerThirdHold > 1) {
+      lowerThirdOverlays = getLuxuryLowerThird(
+        propertyDetails.address,
+        detailsText,
+        aspectRatio,
+        lowerThirdStart,
+        lowerThirdHold
+      );
+    }
+  }
 
   // Combine all clips
   const allClips = [
     ...userIntroClip,
     ...adjustedIntroCard,
     ...enhancedClips,
-    ...adjustedTextOverlays,
+    // Standard mode: use basic text overlays; Full Cinematic: use luxury lower-thirds
+    ...(isCinematic ? lowerThirdOverlays : adjustedTextOverlays),
     ...adjustedBrandingClips,
     ...outroCard,
     ...cinematicOverlays, // Add overlays on top

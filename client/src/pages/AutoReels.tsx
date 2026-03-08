@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save } from "lucide-react";
+import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save, Mic, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -52,6 +52,15 @@ export default function AutoReels() {
   const [showAvatarCropModal, setShowAvatarCropModal] = useState(false);
   const [avatarImageToCrop, setAvatarImageToCrop] = useState<string>("");
 
+  // Voiceover state
+  const [enableVoiceover, setEnableVoiceover] = useState(false);
+  const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Default: Rachel
+  const [voiceoverStyle, setVoiceoverStyle] = useState<"professional" | "warm" | "luxury" | "casual">("professional");
+  const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
+  const [voicePreviewAudio, setVoicePreviewAudio] = useState<{ [key: string]: string }>({});
+  const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const inputMethodLabels = {
     bullets: "Bullet Points",
     caption: "Long Caption",
@@ -65,6 +74,16 @@ export default function AutoReels() {
     blog: "Paste your blog post or paragraph here...",
     listing: "Paste your property listing description here..."
   };
+
+  // Load saved voice preferences
+  const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
+  const previewVoiceMutation = trpc.propertyTours.previewVoice.useMutation();
+
+  // Auto-populate from saved preferences
+  useEffect(() => {
+    if (voicePref?.voiceId) setVoiceId(voicePref.voiceId);
+    if (voicePref?.voiceoverStyle) setVoiceoverStyle(voicePref.voiceoverStyle as any);
+  }, [voicePref]);
 
   const generateMutation = trpc.autoreels.generate.useMutation();
   const renderVideoMutation = trpc.autoreels.renderVideo.useMutation();
@@ -200,7 +219,10 @@ export default function AutoReels() {
         script: script,
         caption: caption,
         videoLength,
-        tone
+        tone,
+        enableVoiceover,
+        voiceId: enableVoiceover ? voiceId : undefined,
+        voiceoverStyle: enableVoiceover ? voiceoverStyle : undefined,
       });
       
       if (renderResult.status === 'failed') {
@@ -660,6 +682,135 @@ export default function AutoReels() {
                   </div>
                 </RadioGroup>
               </div>
+            </div>
+
+            {/* Voiceover Add-On */}
+            <div className="border rounded-xl p-5 space-y-4 bg-gradient-to-br from-violet-500/5 to-violet-500/10 border-violet-500/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                    <Mic className="h-5 w-5 text-violet-500" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">ElevenLabs Voiceover</h3>
+                      <span className="text-xs bg-violet-500/20 text-violet-600 dark:text-violet-400 px-2 py-0.5 rounded-full font-medium">+5 credits</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">AI narration synced to your reel</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={enableVoiceover}
+                  onCheckedChange={setEnableVoiceover}
+                />
+              </div>
+
+              {enableVoiceover && (
+                <div className="space-y-4 pt-2">
+                  {/* Voice Selector */}
+                  <div>
+                    <Label className="text-sm font-medium mb-3 block">Voice</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel", desc: "Calm · Female" },
+                        { id: "EXAVITQu4vr4xnSDxMaL", name: "Bella", desc: "Warm · Female" },
+                        { id: "ErXwobaYiN019PkySvjV", name: "Antoni", desc: "Smooth · Male" },
+                        { id: "VR6AewLTigWG4xSOukaG", name: "Arnold", desc: "Deep · Male" },
+                      ].map((voice) => (
+                        <div
+                          key={voice.id}
+                          className={`relative rounded-lg border p-3 cursor-pointer transition-all ${
+                            voiceId === voice.id
+                              ? "border-violet-500 bg-violet-500/10"
+                              : "border-border hover:border-violet-500/50"
+                          }`}
+                          onClick={() => setVoiceId(voice.id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-medium">{voice.name}</p>
+                              <p className="text-xs text-muted-foreground">{voice.desc}</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 shrink-0"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if (playingVoiceId === voice.id) {
+                                  audioRef.current?.pause();
+                                  setPlayingVoiceId(null);
+                                  return;
+                                }
+                                if (voicePreviewAudio[voice.id]) {
+                                  const audio = new Audio(voicePreviewAudio[voice.id]);
+                                  audioRef.current = audio;
+                                  audio.play();
+                                  setPlayingVoiceId(voice.id);
+                                  audio.onended = () => setPlayingVoiceId(null);
+                                  return;
+                                }
+                                setPreviewingVoice(voice.id);
+                                try {
+                                  const result = await previewVoiceMutation.mutateAsync({
+                                    voiceId: voice.id,
+                                    sampleText: "Welcome to this stunning property. I'm excited to show you around.",
+                                  });
+                                  setVoicePreviewAudio(prev => ({ ...prev, [voice.id]: result.url }));
+                                  const audio = new Audio(result.url);
+                                  audioRef.current = audio;
+                                  audio.play();
+                                  setPlayingVoiceId(voice.id);
+                                  audio.onended = () => setPlayingVoiceId(null);
+                                } catch {
+                                  toast.error("Preview failed");
+                                } finally {
+                                  setPreviewingVoice(null);
+                                }
+                              }}
+                              disabled={previewingVoice === voice.id}
+                            >
+                              {previewingVoice === voice.id ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : playingVoiceId === voice.id ? (
+                                <Square className="h-3.5 w-3.5 fill-current" />
+                              ) : (
+                                <Play className="h-3.5 w-3.5" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Narration Style */}
+                  <div>
+                    <Label className="text-sm font-medium mb-3 block">Narration Style</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { value: "professional" as const, label: "Professional", desc: "Clear, credible, authoritative" },
+                        { value: "warm" as const, label: "Warm", desc: "Friendly, approachable, inviting" },
+                        { value: "luxury" as const, label: "Luxury", desc: "Elegant, refined, aspirational" },
+                        { value: "casual" as const, label: "Casual", desc: "Conversational, relatable, fun" },
+                      ].map((style) => (
+                        <div
+                          key={style.value}
+                          className={`rounded-lg border p-3 cursor-pointer transition-all ${
+                            voiceoverStyle === style.value
+                              ? "border-violet-500 bg-violet-500/10"
+                              : "border-border hover:border-violet-500/50"
+                          }`}
+                          onClick={() => setVoiceoverStyle(style.value)}
+                        >
+                          <p className="text-sm font-medium">{style.label}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{style.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Generate Button */}

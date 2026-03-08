@@ -50,6 +50,9 @@ export const users = mysqlTable("users", {
   // Voiceover preferences (saved from PropertyTours / AutoReels)
   preferredVoiceId: varchar("preferredVoiceId", { length: 64 }).default("21m00Tcm4TlvDq8ikWAM"),
   preferredVoiceoverStyle: mysqlEnum("preferredVoiceoverStyle", ["professional", "warm", "luxury", "casual"]).default("professional"),
+  // Cloned voice (ElevenLabs Instant Voice Clone from agent recording)
+  clonedVoiceId: varchar("clonedVoiceId", { length: 64 }),
+  clonedVoiceName: varchar("clonedVoiceName", { length: 128 }),
 });
 
 export type User = typeof users.$inferSelect;

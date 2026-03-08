@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { User, Bell, Shield, Palette, LogOut, Mic, Play, Loader2 } from "lucide-react";
+import { User, Bell, Shield, Palette, LogOut, Mic, Play, Loader2, Trash2, CheckCircle, AlertCircle, Square, Upload } from "lucide-react";
+import { useRef } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 
@@ -35,6 +36,90 @@ export default function Settings() {
   const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
   const saveVoicePref = trpc.auth.saveVoicePreference.useMutation();
   const previewVoice = trpc.propertyTours.previewVoice.useMutation();
+
+  // Voice cloning state
+  const { data: clonedVoice, refetch: refetchClonedVoice } = trpc.auth.getClonedVoice.useQuery();
+  const cloneVoiceMutation = trpc.auth.cloneAgentVoice.useMutation();
+  const deleteClonedVoiceMutation = trpc.auth.deleteClonedVoice.useMutation();
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
+  const [isUploadingRecording, setIsUploadingRecording] = useState(false);
+  const [isCloningVoice, setIsCloningVoice] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      chunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        setRecordedBlob(blob);
+        setRecordedUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach(t => t.stop());
+      };
+      mediaRecorderRef.current = recorder;
+      recorder.start(100);
+      setIsRecording(true);
+      setRecordingSeconds(0);
+      recordingTimerRef.current = setInterval(() => setRecordingSeconds(s => s + 1), 1000);
+    } catch {
+      toast.error("Microphone access denied. Please allow microphone access in your browser.");
+    }
+  };
+
+  const handleStopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  };
+
+  const handleCloneVoice = async () => {
+    if (!recordedBlob) { toast.error("Please record a voice sample first."); return; }
+    if (recordingSeconds < 15) { toast.error("Recording must be at least 15 seconds for best results."); return; }
+    setIsUploadingRecording(true);
+    try {
+      // Upload to S3 via the existing upload endpoint
+      const formData = new FormData();
+      formData.append("file", recordedBlob, "voice-sample.webm");
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!uploadRes.ok) throw new Error("Upload failed");
+      const { url: audioUrl } = await uploadRes.json();
+      setIsUploadingRecording(false);
+      setIsCloningVoice(true);
+      const result = await cloneVoiceMutation.mutateAsync({ audioUrl });
+      await refetchClonedVoice();
+      // Auto-set as preferred voice
+      setSelectedVoiceId(result.voiceId);
+      await saveVoicePref.mutateAsync({ voiceId: result.voiceId, voiceoverStyle: selectedStyle });
+      toast.success(`Your voice "${result.voiceName}" has been cloned and set as your default voice!`);
+      setRecordedBlob(null);
+      setRecordedUrl(null);
+      setRecordingSeconds(0);
+    } catch (err: any) {
+      toast.error(err.message || "Voice cloning failed. Please try again.");
+    } finally {
+      setIsUploadingRecording(false);
+      setIsCloningVoice(false);
+    }
+  };
+
+  const handleDeleteClonedVoice = async () => {
+    try {
+      await deleteClonedVoiceMutation.mutateAsync();
+      await refetchClonedVoice();
+      // Reset preferred voice to Rachel
+      setSelectedVoiceId("21m00Tcm4TlvDq8ikWAM");
+      toast.success("Cloned voice deleted. Preferred voice reset to Rachel.");
+    } catch {
+      toast.error("Failed to delete cloned voice.");
+    }
+  };
 
   // Load saved preferences
   useEffect(() => {
@@ -213,6 +298,108 @@ export default function Settings() {
             <Button variant="destructive" size="sm">
               Delete Account
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Voice Cloning */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mic className="h-5 w-5 text-violet-500" />
+            Clone Your Voice
+          </CardTitle>
+          <CardDescription>
+            Record 30–60 seconds of your natural speaking voice. ElevenLabs will clone it and use it as your default narration voice across all videos.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Existing cloned voice status */}
+          {clonedVoice?.clonedVoiceId && (
+            <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <div>
+                  <p className="text-sm font-medium">{clonedVoice.clonedVoiceName}</p>
+                  <p className="text-xs text-muted-foreground">Active cloned voice · auto-selected in all videos</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-destructive hover:text-destructive"
+                onClick={handleDeleteClonedVoice}
+                disabled={deleteClonedVoiceMutation.isPending}
+              >
+                {deleteClonedVoiceMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              </Button>
+            </div>
+          )}
+
+          {/* Recording tips */}
+          <div className="bg-violet-500/5 border border-violet-500/20 rounded-lg p-3">
+            <p className="text-xs font-medium text-violet-600 dark:text-violet-400 mb-1">Tips for best results:</p>
+            <ul className="text-xs text-muted-foreground space-y-0.5">
+              <li>• Record in a quiet room with minimal background noise</li>
+              <li>• Speak naturally at your normal pace — no need to perform</li>
+              <li>• Aim for 30–60 seconds (minimum 15s required)</li>
+              <li>• Read a property description or market update aloud</li>
+            </ul>
+          </div>
+
+          {/* Recorder */}
+          <div className="flex flex-col items-center gap-4">
+            {!recordedUrl ? (
+              <Button
+                onClick={isRecording ? handleStopRecording : handleStartRecording}
+                variant={isRecording ? "destructive" : "outline"}
+                className="w-full"
+                size="lg"
+              >
+                {isRecording ? (
+                  <><Square className="h-4 w-4 mr-2 fill-current" /> Stop Recording ({recordingSeconds}s)</>
+                ) : (
+                  <><Mic className="h-4 w-4 mr-2" /> Start Recording</>
+                )}
+              </Button>
+            ) : (
+              <div className="w-full space-y-3">
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
+                  <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">Recording complete ({recordingSeconds}s)</p>
+                    <audio src={recordedUrl} controls className="w-full mt-1 h-8" />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => { setRecordedBlob(null); setRecordedUrl(null); setRecordingSeconds(0); }}
+                  >
+                    Re-record
+                  </Button>
+                  <Button
+                    className="flex-1 bg-violet-600 hover:bg-violet-700"
+                    onClick={handleCloneVoice}
+                    disabled={isUploadingRecording || isCloningVoice || recordingSeconds < 15}
+                  >
+                    {isUploadingRecording ? (
+                      <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Uploading...</>
+                    ) : isCloningVoice ? (
+                      <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Cloning Voice...</>
+                    ) : (
+                      <><Upload className="h-4 w-4 mr-2" /> Clone My Voice</>
+                    )}
+                  </Button>
+                </div>
+                {recordingSeconds < 15 && (
+                  <p className="text-xs text-amber-500 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> Need at least 15 seconds for voice cloning.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

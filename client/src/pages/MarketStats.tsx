@@ -3,7 +3,10 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, TrendingUp, Home, DollarSign, Calendar, Sparkles, TrendingDown, Minus } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Search, TrendingUp, Home, DollarSign, Calendar, Sparkles, TrendingDown, Minus, Mic, Video, Loader2 } from "lucide-react";
 
 interface MarketData {
   location: string;
@@ -21,6 +24,14 @@ export default function MarketStats() {
   const [location, setLocation] = useState("");
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Voiceover state
+  const [enableVoiceover, setEnableVoiceover] = useState(false);
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
+  const generateMarketVideoMutation = trpc.marketStats.generateMarketVideo.useMutation();
+  const utils = trpc.useUtils();
 
   // Fetch market stats (mock data for now)
   const fetchMarketStats = trpc.marketStats.getMarketData.useMutation({
@@ -68,6 +79,50 @@ export default function MarketStats() {
       marketTemperature: marketData.marketTemperature,
       insights: marketData.insights,
     });
+  };
+
+  const handleGenerateVideo = async () => {
+    if (!marketData) return;
+    setIsGeneratingVideo(true);
+    setVideoUrl(null);
+    try {
+      const result = await generateMarketVideoMutation.mutateAsync({
+        location: marketData.location,
+        medianPrice: marketData.medianPrice,
+        priceChange: marketData.priceChange,
+        daysOnMarket: marketData.daysOnMarket,
+        activeListings: marketData.activeListings,
+        inventoryChange: marketData.inventoryChange,
+        pricePerSqft: marketData.pricePerSqft,
+        marketTemperature: marketData.marketTemperature,
+        insights: marketData.insights,
+        enableVoiceover,
+        voiceId: enableVoiceover ? (voicePref?.voiceId || "21m00Tcm4TlvDq8ikWAM") : undefined,
+        voiceoverStyle: enableVoiceover ? (voicePref?.voiceoverStyle || "professional") : undefined,
+      });
+
+      // Poll for completion
+      const renderId = result.renderId;
+      let attempts = 0;
+      const poll = async (): Promise<void> => {
+        if (attempts++ >= 60) throw new Error("Video rendering timeout");
+        const status = await utils.autoreels.checkRenderStatus.fetch({ renderId });
+        if (status.status === "done" && status.url) {
+          setVideoUrl(status.url);
+          toast.success("Market update video ready!");
+        } else if (status.status === "failed") {
+          throw new Error(status.error || "Rendering failed");
+        } else {
+          await new Promise(r => setTimeout(r, 5000));
+          return poll();
+        }
+      };
+      await poll();
+    } catch (err: any) {
+      toast.error(err.message || "Video generation failed.");
+    } finally {
+      setIsGeneratingVideo(false);
+    }
   };
 
   const getTrendIcon = (change: number) => {
@@ -124,7 +179,7 @@ export default function MarketStats() {
       {/* Market Stats Display */}
       {marketData && (
         <>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h2 className="text-2xl font-bold">{marketData.location}</h2>
               <div className="flex items-center gap-2 mt-1">
@@ -133,11 +188,44 @@ export default function MarketStats() {
                 </span>
               </div>
             </div>
-            <Button onClick={handleGeneratePost} disabled={isGenerating} size="lg">
-              <Sparkles className="h-4 w-4 mr-2" />
-              {isGenerating ? "Generating..." : "Generate Market Update Post"}
-            </Button>
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Voiceover toggle */}
+              <div className="flex items-center gap-2 border rounded-lg px-3 py-2 bg-violet-500/5 border-violet-500/20">
+                <Mic className="h-4 w-4 text-violet-500" />
+                <Label htmlFor="market-vo" className="text-sm cursor-pointer">Voiceover</Label>
+                <span className="text-xs text-violet-500 font-medium">+5 credits</span>
+                <Switch id="market-vo" checked={enableVoiceover} onCheckedChange={setEnableVoiceover} />
+              </div>
+              <Button onClick={handleGeneratePost} disabled={isGenerating} variant="outline">
+                <Sparkles className="h-4 w-4 mr-2" />
+                {isGenerating ? "Generating..." : "Generate Post"}
+              </Button>
+              <Button onClick={handleGenerateVideo} disabled={isGeneratingVideo} size="lg">
+                {isGeneratingVideo ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Rendering Video...</>
+                ) : (
+                  <><Video className="h-4 w-4 mr-2" /> Generate Video{enableVoiceover ? " + Voiceover" : ""}</>
+                )}
+              </Button>
+            </div>
           </div>
+
+          {/* Video output */}
+          {videoUrl && (
+            <Card className="bg-card border-border">
+              <CardHeader><CardTitle>Market Update Video</CardTitle></CardHeader>
+              <CardContent>
+                <div className="aspect-video max-w-2xl mx-auto rounded-lg overflow-hidden bg-black">
+                  <video src={videoUrl} controls className="w-full h-full" />
+                </div>
+                <div className="flex gap-3 mt-4 justify-center">
+                  <Button variant="outline" onClick={() => { const a = document.createElement('a'); a.href = videoUrl; a.download = `market-update-${Date.now()}.mp4`; a.click(); }}>
+                    Download Video
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="bg-card border-border">

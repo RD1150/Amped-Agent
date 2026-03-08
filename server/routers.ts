@@ -125,6 +125,76 @@ export const appRouter = router({
         });
         return { success: true };
       }),
+
+    // Voice cloning from agent recording
+    cloneAgentVoice: protectedProcedure
+      .input(z.object({
+        audioUrl: z.string().url(), // S3 URL to the recorded audio sample
+        voiceName: z.string().min(1).max(64).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { cloneVoice, deleteVoice } = await import("./_core/elevenLabs");
+        const dbConn = await db.getDb();
+        const { users } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+
+        // Delete old cloned voice if it exists
+        if (dbConn) {
+          const rows = await dbConn.select({ clonedVoiceId: users.clonedVoiceId })
+            .from(users).where(eq(users.id, ctx.user.id)).limit(1);
+          const oldVoiceId = rows[0]?.clonedVoiceId;
+          if (oldVoiceId) {
+            try { await deleteVoice(oldVoiceId); } catch { /* ignore cleanup errors */ }
+          }
+        }
+
+        const voiceName = input.voiceName || `${ctx.user.name || "Agent"}'s Voice`;
+        const result = await cloneVoice({
+          name: voiceName,
+          audioUrl: input.audioUrl,
+          description: `Cloned voice for real estate agent ${ctx.user.name || ctx.user.id}`,
+        });
+
+        await db.updateUser(ctx.user.id, {
+          clonedVoiceId: result.voice_id,
+          clonedVoiceName: voiceName,
+          preferredVoiceId: result.voice_id, // Auto-set as preferred voice
+        });
+
+        return { voiceId: result.voice_id, voiceName, success: true };
+      }),
+
+    getClonedVoice: protectedProcedure.query(async ({ ctx }) => {
+      const dbConn = await db.getDb();
+      if (!dbConn) return { clonedVoiceId: null, clonedVoiceName: null };
+      const { users } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const rows = await dbConn.select({
+        clonedVoiceId: users.clonedVoiceId,
+        clonedVoiceName: users.clonedVoiceName,
+      }).from(users).where(eq(users.id, ctx.user.id)).limit(1);
+      const row = rows[0];
+      return { clonedVoiceId: row?.clonedVoiceId || null, clonedVoiceName: row?.clonedVoiceName || null };
+    }),
+
+    deleteClonedVoice: protectedProcedure.mutation(async ({ ctx }) => {
+      const { deleteVoice } = await import("./_core/elevenLabs");
+      const dbConn = await db.getDb();
+      if (!dbConn) return { success: false };
+      const { users } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const rows = await dbConn.select({ clonedVoiceId: users.clonedVoiceId })
+        .from(users).where(eq(users.id, ctx.user.id)).limit(1);
+      const voiceId = rows[0]?.clonedVoiceId;
+      if (voiceId) {
+        try { await deleteVoice(voiceId); } catch { /* ignore */ }
+      }
+      await db.updateUser(ctx.user.id, {
+        clonedVoiceId: null as any,
+        clonedVoiceName: null as any,
+      });
+      return { success: true };
+    }),
   }),
 
   persona: router({
