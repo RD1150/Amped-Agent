@@ -41,6 +41,7 @@ import AdminSettings from "./pages/AdminSettings";
 import Drafts from "./pages/Drafts";
 import ScriptToReel from "./pages/ScriptToReel";
 import MyReels from "./pages/MyReels";
+import MyVideos from "./pages/MyVideos";
 import NewsletterBuilder from "./pages/NewsletterBuilder";
 import Onboarding from "./pages/Onboarding";
 
@@ -96,6 +97,7 @@ function Router() {
         <Route path="/content-templates" component={ContentTemplates} />
         <Route path="/script-to-reel" component={ScriptToReel} />
         <Route path="/my-reels" component={MyReels} />
+        <Route path="/my-videos" component={MyVideos} />
         <Route path="/newsletter" component={NewsletterBuilder} />
         <Route path="/drafts" component={Drafts} />
         <Route path="/coach" component={PerformanceCoach} />

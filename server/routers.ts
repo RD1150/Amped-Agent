@@ -23,6 +23,7 @@ import { draftsRouter } from "./routers/drafts";
 import { reelsRouter } from "./routers/reels";
 import { newsletterRouter } from "./routers/newsletter";
 import { musicLibraryRouter } from "./routers/musicLibrary";
+import { myVideosRouter } from "./routers/myVideos";
 
 export const appRouter = router({
   system: systemRouter,
@@ -33,6 +34,7 @@ export const appRouter = router({
   reels: reelsRouter,
   newsletter: newsletterRouter,
   musicLibrary: musicLibraryRouter,
+  myVideos: myVideosRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

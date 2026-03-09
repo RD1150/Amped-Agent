@@ -104,7 +104,7 @@ const menuSections = [
     title: "CONTENT MANAGEMENT",
     items: [
       { icon: Calendar, label: "Content Calendar", path: "/calendar", description: "Schedule and manage all posts" },
-      { icon: Video, label: "My Reels", path: "/my-reels", description: "View generated videos (90-day storage)" },
+      { icon: Video, label: "My Videos", path: "/my-videos", description: "All generated Property Tours, Reels & Market videos" },
       { icon: FileText, label: "Content Templates", path: "/content-templates", description: "Browse pre-made post templates" },
     ]
   },

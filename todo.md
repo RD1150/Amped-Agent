@@ -3276,3 +3276,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Voice cloning from agent recording in Settings (30s sample → ElevenLabs voice clone → save as preferred voice)
 - [x] Add ElevenLabs voiceover to City Showcase / Market Stats video generator
 - [x] Write vitest for cinematic overhaul and new voiceover features (18/18 tests pass)
+
+## My Videos Library + Hooks Voiceover (Round 5)
+- [x] Add generated_videos table to drizzle schema (id, userId, title, type, videoUrl, thumbnailUrl, renderId, status, hasVoiceover, creditsCost, metadata, createdAt)
+- [x] Add list, save, updateStatus, delete tRPC procedures to myVideosRouter
+- [x] Build My Videos page (/my-videos) with grid layout, type filter tabs, inline video player, download/delete actions
+- [x] Add My Videos link to sidebar navigation (replaced My Reels)
+- [x] Add speaker icon button to each Hooks Library card for ElevenLabs audio preview
+- [x] Reuses propertyTours.previewVoice mutation (no new endpoint needed)
+- [x] Inline audio player appears below hook card when preview is playing
+- [x] Write vitest for My Videos and Hooks voiceover features (23/23 tests pass)

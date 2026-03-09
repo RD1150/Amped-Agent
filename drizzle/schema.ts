@@ -707,3 +707,24 @@ export const cityShowcaseVideos = mysqlTable("city_showcase_videos", {
 
 export type CityShowcaseVideo = typeof cityShowcaseVideos.$inferSelect;
 export type InsertCityShowcaseVideo = typeof cityShowcaseVideos.$inferInsert;
+
+// ─── Generated Videos Library ─────────────────────────────────────────────────
+// Unified record for all generated videos (Property Tours, AutoReels, Market Stats)
+export const generatedVideos = mysqlTable("generated_videos", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  type: mysqlEnum("type", ["property_tour", "authority_reel", "market_stats"]).notNull(),
+  videoUrl: text("videoUrl"),
+  thumbnailUrl: text("thumbnailUrl"),
+  renderId: varchar("renderId", { length: 128 }),
+  status: mysqlEnum("status", ["rendering", "completed", "failed"]).default("rendering").notNull(),
+  durationSeconds: int("durationSeconds"),
+  hasVoiceover: boolean("hasVoiceover").default(false).notNull(),
+  creditsCost: int("creditsCost").default(0).notNull(),
+  metadata: text("metadata"), // JSON: address, price, location, etc.
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type GeneratedVideo = typeof generatedVideos.$inferSelect;
+export type InsertGeneratedVideo = typeof generatedVideos.$inferInsert;

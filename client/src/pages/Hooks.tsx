@@ -5,7 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Sparkles, Filter, TrendingUp, Pencil, Save, Copy } from "lucide-react";
+import {
+  Search,
+  Sparkles,
+  Filter,
+  TrendingUp,
+  Pencil,
+  Save,
+  Copy,
+  Volume2,
+  VolumeX,
+  Loader2,
+} from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 
@@ -32,19 +43,46 @@ export default function Hooks() {
   const [editingHookId, setEditingHookId] = useState<number | null>(null);
   const [editedHookText, setEditedHookText] = useState<string>("");
 
+  // Voiceover state per hook
+  const [previewingHookId, setPreviewingHookId] = useState<number | null>(null);
+  const [hookAudioUrls, setHookAudioUrls] = useState<Record<number, string>>({});
+  const [playingHookId, setPlayingHookId] = useState<number | null>(null);
+
   // Fetch all hooks
   const { data: hooks, isLoading } = trpc.hooks.list.useQuery();
 
+  // Fetch saved voice preference for the preview
+  const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
+
+  // previewVoice mutation from propertyTours router
+  const previewVoiceMutation = trpc.propertyTours.previewVoice.useMutation({
+    onSuccess: (data, variables) => {
+      // variables contains the hookId we stored in sampleText context
+      if (data.url) {
+        setHookAudioUrls((prev) => ({ ...prev, [previewingHookId!]: data.url }));
+        setPlayingHookId(previewingHookId);
+      }
+      setPreviewingHookId(null);
+    },
+    onError: (err) => {
+      toast.error(`Voice preview failed: ${err.message}`);
+      setPreviewingHookId(null);
+    },
+  });
+
   // Filter hooks based on search and filters
   const filteredHooks = hooks?.filter((hook: Hook) => {
-    const matchesSearch = hook.hookText.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         hook.useCase?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      hook.hookText.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      hook.useCase?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || hook.category === selectedCategory;
     const matchesFormat = selectedFormat === "all" || hook.format === selectedFormat;
     return matchesSearch && matchesCategory && matchesFormat;
   });
 
-  const categories: Array<HookCategory | "all"> = ["all", "buyer", "seller", "investor", "local", "luxury", "relocation", "general"];
+  const categories: Array<HookCategory | "all"> = [
+    "all", "buyer", "seller", "investor", "local", "luxury", "relocation", "general",
+  ];
   const formats: Array<HookFormat | "all"> = ["all", "video", "email", "social", "carousel"];
 
   const getCategoryColor = (category: HookCategory) => {
@@ -82,6 +120,27 @@ export default function Hooks() {
     const text = getEffectiveHookText(hook);
     navigator.clipboard.writeText(text);
     toast.success("Hook copied to clipboard!");
+  };
+
+  const handlePreviewVoice = (hook: Hook) => {
+    const text = getEffectiveHookText(hook);
+
+    // If already generated, toggle play/stop
+    if (hookAudioUrls[hook.id]) {
+      if (playingHookId === hook.id) {
+        setPlayingHookId(null);
+      } else {
+        setPlayingHookId(hook.id);
+      }
+      return;
+    }
+
+    // Generate the preview
+    setPreviewingHookId(hook.id);
+    previewVoiceMutation.mutate({
+      voiceId: voicePref?.voiceId ?? "21m00Tcm4TlvDq8ikWAM",
+      sampleText: text,
+    });
   };
 
   return (
@@ -132,7 +191,9 @@ export default function Hooks() {
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
                 >
-                  {category === "all" ? "All Categories" : category.charAt(0).toUpperCase() + category.slice(1)}
+                  {category === "all"
+                    ? "All Categories"
+                    : category.charAt(0).toUpperCase() + category.slice(1)}
                 </Button>
               ))}
             </div>
@@ -149,7 +210,9 @@ export default function Hooks() {
                   size="sm"
                   onClick={() => setSelectedFormat(format)}
                 >
-                  {format === "all" ? "All Formats" : format.charAt(0).toUpperCase() + format.slice(1)}
+                  {format === "all"
+                    ? "All Formats"
+                    : format.charAt(0).toUpperCase() + format.slice(1)}
                 </Button>
               ))}
             </div>
@@ -165,13 +228,14 @@ export default function Hooks() {
       ) : filteredHooks && filteredHooks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredHooks.map((hook: Hook) => (
-            <Card key={hook.id} className="bg-card border-border hover:border-primary transition-colors">
+            <Card
+              key={hook.id}
+              className="bg-card border-border hover:border-primary transition-colors"
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Badge className={getCategoryColor(hook.category)}>
-                      {hook.category}
-                    </Badge>
+                    <Badge className={getCategoryColor(hook.category)}>{hook.category}</Badge>
                     <Badge variant="outline" className="text-xs">
                       {getFormatIcon(hook.format)} {hook.format}
                     </Badge>
@@ -196,9 +260,15 @@ export default function Hooks() {
                       }}
                     >
                       {editingHookId === hook.id ? (
-                        <><Save className="h-3 w-3 mr-1" />Done</>
+                        <>
+                          <Save className="h-3 w-3 mr-1" />
+                          Done
+                        </>
                       ) : (
-                        <><Pencil className="h-3 w-3 mr-1" />Edit</>
+                        <>
+                          <Pencil className="h-3 w-3 mr-1" />
+                          Edit
+                        </>
                       )}
                     </Button>
                   </div>
@@ -229,7 +299,9 @@ export default function Hooks() {
 
                 {hook.exampleExpansion && (
                   <div>
-                    <p className="text-xs text-muted-foreground font-medium mb-1">Example expansion:</p>
+                    <p className="text-xs text-muted-foreground font-medium mb-1">
+                      Example expansion:
+                    </p>
                     <p className="text-sm text-muted-foreground italic">
                       {hook.exampleExpansion.length > 100
                         ? hook.exampleExpansion.substring(0, 100) + "..."
@@ -238,11 +310,47 @@ export default function Hooks() {
                   </div>
                 )}
 
+                {/* Inline audio player when preview is available */}
+                {hookAudioUrls[hook.id] && playingHookId === hook.id && (
+                  <audio
+                    key={hookAudioUrls[hook.id]}
+                    src={hookAudioUrls[hook.id]}
+                    autoPlay
+                    className="w-full h-8"
+                    controls
+                    onEnded={() => setPlayingHookId(null)}
+                  />
+                )}
+
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-xs text-muted-foreground">
                     Used {hook.usageCount} times
                   </span>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
+                    {/* Voice preview button */}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 px-2 gap-1"
+                      onClick={() => handlePreviewVoice(hook)}
+                      disabled={previewingHookId === hook.id}
+                      title={
+                        hookAudioUrls[hook.id]
+                          ? playingHookId === hook.id
+                            ? "Stop audio"
+                            : "Play audio"
+                          : "Preview with your voice"
+                      }
+                    >
+                      {previewingHookId === hook.id ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : hookAudioUrls[hook.id] && playingHookId === hook.id ? (
+                        <VolumeX className="h-3 w-3" />
+                      ) : (
+                        <Volume2 className="h-3 w-3" />
+                      )}
+                    </Button>
+
                     <Button
                       size="sm"
                       variant="outline"
@@ -253,7 +361,7 @@ export default function Hooks() {
                     </Button>
                     <Button size="sm" onClick={() => handleUseHook(hook)}>
                       <Sparkles className="h-3 w-3 mr-1" />
-                      Use This Hook
+                      Use
                     </Button>
                   </div>
                 </div>
