@@ -116,36 +116,29 @@ export const propertyToursRouter = router({
         );
       }
 
-       // Check monthly Cinematic limit for full-ai mode (unlimited for rdshop70@gmail.com)
+      // Check monthly Cinematic limit for full-ai mode (unlimited for rdshop70@gmail.com)
       if (tour.videoMode === 'full-ai' && ctx.user.email !== 'rdshop70@gmail.com') {
-        const db = await getDb();
-        if (!db) throw new Error("Database not available");
-        const [user] = await db.select().from(users).where(eq(users.id, ctx.user.id)).limit(1);
+        const dbConn = await getDb();
+        if (!dbConn) throw new Error("Database not available");
+        const [user] = await dbConn.select().from(users).where(eq(users.id, ctx.user.id)).limit(1);
         
-        // Reset counter if it's a new month
         const now = new Date();
         const lastReset = user?.lastCinematicCountReset || new Date(0);
         const isNewMonth = now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear();
         if (isNewMonth) {
-          await db.update(users)
-            .set({ 
-              cinematicPropertyToursThisMonth: 0,
-              lastCinematicCountReset: now 
-            })
+          await dbConn.update(users)
+            .set({ cinematicPropertyToursThisMonth: 0, lastCinematicCountReset: now })
             .where(eq(users.id, ctx.user.id));
         }
         
         const cinematicCount = isNewMonth ? 0 : (user?.cinematicPropertyToursThisMonth || 0);
         const CINEMATIC_MONTHLY_LIMIT = 2;
-        
         if (cinematicCount >= CINEMATIC_MONTHLY_LIMIT) {
           throw new Error(
             `Monthly Full Cinematic limit reached (${cinematicCount}/${CINEMATIC_MONTHLY_LIMIT}). You can generate more Full Cinematic Property Tours next month. Use Standard tier instead.`
           );
         }
-        
-        // Increment counter
-        await db.update(users)
+        await dbConn.update(users)
           .set({ cinematicPropertyToursThisMonth: cinematicCount + 1 })
           .where(eq(users.id, ctx.user.id));
       }
@@ -175,82 +168,113 @@ export const propertyToursRouter = router({
         relatedResourceType: "property_tour",
       });
 
-      // Update status to processing
-      await db.updatePropertyTour(input.tourId, { status: "processing" });
+      // Mark as processing immediately so the UI can start polling
+      await db.updatePropertyTour(input.tourId, {
+        status: "processing",
+        processingStage: "preparing",
+      });
 
-      try {
-        // Parse image URLs
-        const imageUrls = JSON.parse(tour.imageUrls) as string[];
+      // ─── FIRE AND FORGET ──────────────────────────────────────────────────────
+      // The heavy work (Kling AI clip generation, ElevenLabs voiceover, Shotstack
+      // submission) runs in a detached background task so this mutation returns
+      // immediately. The frontend polls checkRenderStatus for progress.
+      // ─────────────────────────────────────────────────────────────────────────
+      const tourId = input.tourId;
+      const userId = ctx.user.id;
 
-        // Generate video with Shotstack (async)
-        const { renderId } = await generatePropertyTourVideo({
-          imageUrls,
-          propertyDetails: {
-            address: tour.address,
-            price: tour.price || undefined,
-            beds: tour.beds || undefined,
-            baths: tour.baths ? parseFloat(tour.baths) : undefined,
-            sqft: tour.sqft || undefined,
-            propertyType: tour.propertyType || undefined,
-            description: tour.description || undefined,
-          },
-          template: (tour.template as "modern" | "luxury" | "cozy") || "modern",
-          duration: tour.duration || 30,
-          includeBranding: tour.includeBranding ?? true,
-          userId: ctx.user.id,
-          aspectRatio: (tour.aspectRatio as "16:9" | "9:16" | "1:1") || "16:9",
-          musicTrack: tour.musicTrack || undefined,
-          cardTemplate: (tour.cardTemplate as "modern" | "luxury" | "bold" | "classic" | "contemporary") || "modern",
-          includeIntroVideo: tour.includeIntroVideo ?? false,
-          videoMode: tour.videoMode as "standard" | "full-ai",
-          enableVoiceover: tour.enableVoiceover || false,
-          customCameraPrompt: tour.customCameraPrompt || undefined,
-          voiceoverScript: tour.voiceoverScript || undefined,
-          perPhotoMovements: tour.perPhotoMovements ? JSON.parse(tour.perPhotoMovements) : undefined,
-          movementSpeed: (tour.movementSpeed as "slow" | "fast") || "slow",
-          enableAvatarOverlay: tour.enableAvatarOverlay ?? false,
-          avatarOverlayPosition: (tour.avatarOverlayPosition as "bottom-left" | "bottom-right") || "bottom-left",
-          // Fetch agent headshot, voice, and ElevenLabs voice ID from their persona profile
-          ...await (async () => {
-            const { getPersonaByUserId } = await import("../db");
-            const persona = await getPersonaByUserId(ctx.user.id);
-            return {
-              agentHeadshotUrl: persona?.klingAvatarHeadshotUrl || undefined,
-              agentVoiceUrl: persona?.klingAvatarVoiceUrl || undefined,
-              // Use cloned voice ID if available, otherwise fall back to tour.voiceId or default
-              voiceId: persona?.elevenlabsVoiceId || tour.voiceId || undefined,
-            };
-          })(),
-        });
+      setImmediate(async () => {
+        try {
+          const imageUrls = JSON.parse(tour.imageUrls) as string[];
 
-        // Store render ID for polling
-        await db.updatePropertyTour(input.tourId, {
-          videoUrl: renderId, // Store renderId temporarily
-          status: "processing",
-        });
+          // Stage 1: Fetch persona data
+          await db.updatePropertyTour(tourId, { processingStage: "preparing" });
+          const { getPersonaByUserId } = await import("../db");
+          const persona = await getPersonaByUserId(userId);
 
-        // Increment daily video count after successful submission
-        await rateLimit.incrementDailyVideoCount(ctx.user.id);
+          // Stage 2: Generate voiceover (if enabled) — this is fast, ~5s
+          if (tour.enableVoiceover) {
+            await db.updatePropertyTour(tourId, { processingStage: "generating_voiceover" });
+          }
 
-        return { renderId };
-      } catch (error) {
-        // Update status to failed
-        await db.updatePropertyTour(input.tourId, {
-          status: "failed",
-          errorMessage: error instanceof Error ? error.message : "Unknown error",
-        });
-        
-        // Refund credits since generation failed
-        await credits.refundCredits({
-          userId: ctx.user.id,
-          amount: costBreakdown.totalCredits,
-          reason: `Video generation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-          relatedResourceId: input.tourId,
-          relatedResourceType: "property_tour",
-        });
-        
-        throw new Error(`Failed to generate video: ${error instanceof Error ? error.message : "Unknown error"}. Your credits have been refunded.`);
-      }
+          // Stage 3: Generate AI video clips (if full-ai) — this is the slow part
+          if (tour.videoMode === "full-ai") {
+            await db.updatePropertyTour(tourId, { processingStage: "generating_ai_clips" });
+          }
+
+          // Stage 4: Submit to Shotstack
+          await db.updatePropertyTour(tourId, { processingStage: "submitting_to_shotstack" });
+
+          const { renderId } = await generatePropertyTourVideo({
+            imageUrls,
+            propertyDetails: {
+              address: tour.address,
+              price: tour.price || undefined,
+              beds: tour.beds || undefined,
+              baths: tour.baths ? parseFloat(tour.baths) : undefined,
+              sqft: tour.sqft || undefined,
+              propertyType: tour.propertyType || undefined,
+              description: tour.description || undefined,
+            },
+            template: (tour.template as "modern" | "luxury" | "cozy") || "modern",
+            duration: tour.duration || 30,
+            includeBranding: tour.includeBranding ?? true,
+            userId,
+            aspectRatio: (tour.aspectRatio as "16:9" | "9:16" | "1:1") || "16:9",
+            musicTrack: tour.musicTrack || undefined,
+            cardTemplate: (tour.cardTemplate as "modern" | "luxury" | "bold" | "classic" | "contemporary") || "modern",
+            includeIntroVideo: tour.includeIntroVideo ?? false,
+            videoMode: tour.videoMode as "standard" | "full-ai",
+            enableVoiceover: tour.enableVoiceover || false,
+            customCameraPrompt: tour.customCameraPrompt || undefined,
+            voiceoverScript: tour.voiceoverScript || undefined,
+            perPhotoMovements: tour.perPhotoMovements ? JSON.parse(tour.perPhotoMovements) : undefined,
+            movementSpeed: (tour.movementSpeed as "slow" | "fast") || "slow",
+            enableAvatarOverlay: tour.enableAvatarOverlay ?? false,
+            avatarOverlayPosition: (tour.avatarOverlayPosition as "bottom-left" | "bottom-right") || "bottom-left",
+            agentHeadshotUrl: persona?.klingAvatarHeadshotUrl || undefined,
+            agentVoiceUrl: persona?.klingAvatarVoiceUrl || undefined,
+            voiceId: persona?.elevenlabsVoiceId || tour.voiceId || undefined,
+          });
+
+          // Store renderId in videoUrl field for polling
+          await db.updatePropertyTour(tourId, {
+            videoUrl: renderId,
+            status: "processing",
+            processingStage: "rendering",
+          });
+
+          // Increment daily video count
+          await rateLimit.incrementDailyVideoCount(userId);
+
+          console.log(`[PropertyTours] Background job complete for tour ${tourId}. Shotstack renderId: ${renderId}`);
+        } catch (error) {
+          const errMsg = error instanceof Error ? error.message : "Unknown error";
+          console.error(`[PropertyTours] Background job FAILED for tour ${tourId}:`, errMsg);
+
+          await db.updatePropertyTour(tourId, {
+            status: "failed",
+            errorMessage: errMsg,
+            processingStage: null,
+          });
+
+          // Refund credits
+          const costBreakdown = credits.calculateVideoCost({
+            videoMode: tour.videoMode as "standard" | "full-ai",
+            enableVoiceover: tour.enableVoiceover || false,
+          });
+          await credits.refundCredits({
+            userId,
+            amount: costBreakdown.totalCredits,
+            reason: `Video generation failed: ${errMsg}`,
+            relatedResourceId: tourId,
+            relatedResourceType: "property_tour",
+          });
+        }
+      });
+      // ─── END FIRE AND FORGET ──────────────────────────────────────────────────
+
+      // Return immediately — frontend will poll checkRenderStatus
+      return { queued: true };
     }),
 
   /**
@@ -276,49 +300,70 @@ export const propertyToursRouter = router({
           videoUrl: tour.videoUrl,
           thumbnailUrl: tour.thumbnailUrl,
           error: tour.errorMessage,
+          processingStage: tour.processingStage,
         };
       }
 
-      // Check Shotstack render status
-      if (tour.status === "processing" && tour.videoUrl) {
-        const renderId = tour.videoUrl; // videoUrl temporarily stores renderId
-        const renderStatus = await checkRenderStatus(renderId);
-
-        if (renderStatus.status === "done" && renderStatus.url) {
-          // Update tour with final video URL and thumbnail (use poster as primary thumbnail)
-          const thumbnailUrl = renderStatus.poster || renderStatus.thumbnail;
-          
-          await db.updatePropertyTour(input.tourId, {
-            videoUrl: renderStatus.url,
-            thumbnailUrl,
-            status: "completed",
-          });
-
-          return {
-            status: "completed" as const,
-            videoUrl: renderStatus.url,
-            thumbnailUrl,
-          };
-        } else if (renderStatus.status === "failed") {
-          await db.updatePropertyTour(input.tourId, {
-            status: "failed",
-            errorMessage: renderStatus.error || "Video generation failed",
-          });
-
-          return {
-            status: "failed" as const,
-            error: renderStatus.error,
-          };
-        }
-
-        // Still processing
+      // Background job still running (no renderId yet — AI clips or voiceover in progress)
+      if (tour.status === "processing" && !tour.videoUrl) {
         return {
           status: "processing" as const,
+          processingStage: tour.processingStage || "preparing",
         };
+      }
+
+      // Check Shotstack render status (renderId is stored in videoUrl temporarily)
+      if (tour.status === "processing" && tour.videoUrl) {
+        // Detect if videoUrl looks like a Shotstack renderId (UUID) vs a real URL
+        const isRenderId = /^[0-9a-f-]{36}$/i.test(tour.videoUrl);
+        
+        if (isRenderId) {
+          const renderId = tour.videoUrl;
+          const renderStatus = await checkRenderStatus(renderId);
+
+          if (renderStatus.status === "done" && renderStatus.url) {
+            const thumbnailUrl = renderStatus.poster || renderStatus.thumbnail;
+            await db.updatePropertyTour(input.tourId, {
+              videoUrl: renderStatus.url,
+              thumbnailUrl,
+              status: "completed",
+              processingStage: null,
+            });
+            return {
+              status: "completed" as const,
+              videoUrl: renderStatus.url,
+              thumbnailUrl,
+              processingStage: null,
+            };
+          } else if (renderStatus.status === "failed") {
+            await db.updatePropertyTour(input.tourId, {
+              status: "failed",
+              errorMessage: renderStatus.error || "Video generation failed",
+              processingStage: null,
+            });
+            return {
+              status: "failed" as const,
+              error: renderStatus.error,
+              processingStage: null,
+            };
+          }
+
+          // Map Shotstack status to a processingStage for the UI
+          const shotstackStage = renderStatus.status === "rendering" ? "rendering"
+            : renderStatus.status === "saving" ? "saving"
+            : renderStatus.status === "fetching" ? "fetching_assets"
+            : "rendering";
+
+          return {
+            status: "processing" as const,
+            processingStage: shotstackStage,
+          };
+        }
       }
 
       return {
         status: tour.status as any,
+        processingStage: tour.processingStage,
       };
     }),
 

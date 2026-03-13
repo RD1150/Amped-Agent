@@ -1,0 +1,1 @@
+ALTER TABLE `property_tours` ADD `processingStage` varchar(100);

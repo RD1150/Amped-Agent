@@ -439,16 +439,29 @@ export default function PropertyTours() {
       // Set generating state
       setGeneratingTourId(tour.id);
       setGenerationProgress(10);
-      setGenerationStatus("Submitting video to Shotstack...");
+      setGenerationStatus("Queuing video generation...");
 
-      // Generate video (returns renderId)
+      // Generate video — returns immediately (fire-and-forget background job)
       await generateVideo.mutateAsync({ tourId: tour.id });
 
-      setGenerationProgress(20);
-      setGenerationStatus("Video queued for processing...");
+      setGenerationProgress(15);
+      setGenerationStatus("Video queued. Starting generation...");
 
       let pollCount = 0;
-      const maxPolls = 60; // 5 minutes at 5s intervals
+      // Full Cinematic can take up to 30 min (5 photos × 5 min Kling AI + Shotstack)
+      // Standard Ken Burns takes ~3-5 min
+      const maxPolls = videoMode === "full-ai" ? 360 : 90; // 30 min vs 7.5 min at 5s intervals
+
+      // Stage → progress % and human-readable message
+      const stageInfo: Record<string, { progress: number; message: string }> = {
+        preparing:                { progress: 20, message: "Preparing your property tour..." },
+        generating_voiceover:     { progress: 30, message: "Generating AI voiceover narration with ElevenLabs..." },
+        generating_ai_clips:      { progress: 35, message: "Generating cinematic AI video clips with Kling AI (this takes a few minutes per photo)..." },
+        submitting_to_shotstack:  { progress: 70, message: "Submitting to Shotstack for final render..." },
+        fetching_assets:          { progress: 75, message: "Shotstack is fetching your assets..." },
+        rendering:                { progress: 80, message: "Rendering your video..." },
+        saving:                   { progress: 92, message: "Finalizing and saving your video..." },
+      };
 
       // Poll for completion
       const pollInterval = setInterval(async () => {
@@ -457,31 +470,34 @@ export default function PropertyTours() {
           console.log(`[PropertyTours] Poll #${pollCount} for tour ${tour.id}`);
           const status = await utils.propertyTours.checkRenderStatus.fetch({ tourId: tour.id });
           console.log("[PropertyTours] Status response:", status);
-          
-          // Update progress based on status
-          if (status.status === "fetching") {
-            setGenerationProgress(30);
-            setGenerationStatus("Fetching property images...");
-          } else if (status.status === "rendering") {
+
+          // Update progress based on processingStage
+          const stage = (status as any).processingStage as string | null | undefined;
+          if (stage && stageInfo[stage]) {
+            const { progress, message } = stageInfo[stage];
+            // For rendering, advance progress gradually with poll count
+            if (stage === "rendering") {
+              setGenerationProgress(Math.min(80 + Math.floor(pollCount * 0.5), 91));
+            } else {
+              setGenerationProgress(progress);
+            }
+            setGenerationStatus(message);
+          } else if (status.status === "processing" && !stage) {
+            // Legacy fallback: no processingStage
             const renderProgress = Math.min(30 + (pollCount * 2), 80);
             setGenerationProgress(renderProgress);
-            setGenerationStatus("Rendering video with Ken Burns effects...");
-          } else if (status.status === "saving") {
-            setGenerationProgress(90);
-            setGenerationStatus("Finalizing video...");
+            setGenerationStatus("Rendering your video...");
           }
-          
+
           if (status.status === "done" || status.status === "completed") {
             clearInterval(pollInterval);
             setGenerationProgress(100);
             setGenerationStatus("Video ready!");
-            
             setTimeout(() => {
               setGeneratingTourId(null);
               setGenerationProgress(0);
               setGenerationStatus("");
             }, 2000);
-            
             toast.success("Your property tour video is ready!");
             utils.propertyTours.list.invalidate();
           } else if (status.status === "failed") {
@@ -489,17 +505,18 @@ export default function PropertyTours() {
             setGeneratingTourId(null);
             setGenerationProgress(0);
             setGenerationStatus("");
-            toast.error(status.error || "Video generation failed");
+            toast.error((status as any).error || "Video generation failed. Your credits have been refunded.");
             utils.propertyTours.list.invalidate();
+            utils.credits.getBalance.invalidate();
           }
-          
+
           // Timeout after max polls
           if (pollCount >= maxPolls) {
             clearInterval(pollInterval);
             setGeneratingTourId(null);
             setGenerationProgress(0);
             setGenerationStatus("");
-            toast.error("Video generation timed out. Please try again.");
+            toast.error("Video generation is taking longer than expected. Check My Videos later — it may still complete.");
           }
         } catch (error) {
           clearInterval(pollInterval);

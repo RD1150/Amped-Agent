@@ -527,6 +527,7 @@ export const propertyTours = mysqlTable("property_tours", {
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),
+  processingStage: varchar("processingStage", { length: 100 }), // Background job stage: "preparing", "generating_ai_clips", "generating_voiceover", "submitting_to_shotstack"
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

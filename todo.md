@@ -3286,3 +3286,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Reuses propertyTours.previewVoice mutation (no new endpoint needed)
 - [x] Inline audio player appears below hook card when preview is playing
 - [x] Write vitest for My Videos and Hooks voiceover features (23/23 tests pass)
+
+## Bug: Video Render Stuck at 10% (FIXED)
+- [x] Diagnose why Property Tours render gets stuck at 10% - ROOT CAUSE: generateVideo mutation was synchronous, blocking for up to 25 min waiting for Kling AI
+- [x] Fix: rewrote generateVideo to fire-and-forget (setImmediate background job), returns immediately
+- [x] Added processingStage column to property_tours table for granular status tracking
+- [x] Updated checkRenderStatus to return processingStage and detect renderId vs real URL
+- [x] Updated frontend polling to show stage-specific messages (preparing, generating AI clips, rendering, etc.)
+- [x] Extended maxPolls for Full Cinematic (360 polls = 30 min) vs Standard (90 polls = 7.5 min)
+- [x] Timeout now shows friendly message instead of error (video may still complete in background)
