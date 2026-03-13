@@ -3295,3 +3295,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Updated frontend polling to show stage-specific messages (preparing, generating AI clips, rendering, etc.)
 - [x] Extended maxPolls for Full Cinematic (360 polls = 30 min) vs Standard (90 polls = 7.5 min)
 - [x] Timeout now shows friendly message instead of error (video may still complete in background)
+
+## Bug: Shotstack 400 Bad Request - 6 Validation Errors (FIXED)
+- [x] Diagnosed: empty transition:{} objects on first/last clips, filter on video clips, all clips in single track
+- [x] Added sanitizeClip() to strip empty transition objects before submission
+- [x] Added stripFilterFromVideoClips() to remove filter from AI video clips (only valid on image clips)
+- [x] Separated tracks: base video/image clips in track[0], HTML overlays in track[1]
+- [x] Fixed poster.capture to be clamped within [1, totalDuration-0.5] range
+- [x] Validated: all 5 Standard clips and 5 Cinematic clips pass validation test

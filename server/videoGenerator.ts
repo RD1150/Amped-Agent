@@ -642,17 +642,51 @@ export async function generatePropertyTourVideo(
     }
   }
 
-  // Combine all clips
-  const allClips = [
+  /**
+   * Strip empty transition objects from clips.
+   * Shotstack rejects clips with transition: {} (must have at least `in` or `out`).
+   */
+  function sanitizeClip(clip: any): any {
+    const c = { ...clip };
+    if (c.transition && Object.keys(c.transition).length === 0) {
+      delete c.transition;
+    }
+    return c;
+  }
+
+  /**
+   * Remove `filter` from video clips — Shotstack only supports filter on image clips.
+   */
+  function stripFilterFromVideoClips(clips: any[]): any[] {
+    return clips.map(clip => {
+      const c = sanitizeClip(clip);
+      if (c.asset?.type === "video" && c.filter) {
+        delete c.filter;
+      }
+      return c;
+    });
+  }
+
+  // Base video/image track: user intro + intro card + main photo/video clips + outro card
+  // These are all image/video assets — no HTML overlays mixed in
+  const baseVideoClips = stripFilterFromVideoClips([
     ...userIntroClip,
     ...adjustedIntroCard,
     ...enhancedClips,
-    // Standard mode: use basic text overlays; Full Cinematic: use luxury lower-thirds
-    ...(isCinematic ? lowerThirdOverlays : adjustedTextOverlays),
     ...adjustedBrandingClips,
     ...outroCard,
-    ...cinematicOverlays, // Add overlays on top
-  ];
+  ]);
+
+  // Overlay track: text overlays, lower-thirds, vignette, letterbox
+  // These are HTML/text assets — must be in a separate track layered on top
+  const overlayClips = [
+    ...(isCinematic ? lowerThirdOverlays : adjustedTextOverlays),
+    ...cinematicOverlays,
+  ].map(sanitizeClip);
+
+  // For Shotstack: tracks are rendered bottom-to-top (track[0] = bottom)
+  // So base video goes in track[0], overlays go in track[1]
+  const allClips = baseVideoClips; // kept for backward compat reference
 
   // Map aspect ratio to resolution and size
   let resolution: string;
@@ -721,43 +755,63 @@ export async function generatePropertyTourVideo(
   }
 
   // Create edit payload
+  // Shotstack tracks are rendered bottom-to-top:
+  //   track[0] = base video/image clips (bottom layer)
+  //   track[1] = text/HTML overlays (middle layer)
+  //   track[2] = voiceover audio (audio-only track)
+  //   track[3] = avatar overlay (top layer, optional)
+  const tracks: any[] = [
+    { clips: baseVideoClips },
+  ];
+
+  // Add overlay track only if there are overlays
+  if (overlayClips.length > 0) {
+    tracks.push({ clips: overlayClips });
+  }
+
+  // Add voiceover audio track
+  if (voiceoverTrack.length > 0) {
+    tracks.push({ clips: voiceoverTrack });
+  }
+
+  // Add Kling Avatar 2.0 overlay track
+  if (avatarVideoUrl) {
+    tracks.push({
+      clips: [{
+        asset: {
+          type: "video",
+          src: avatarVideoUrl,
+          volume: 0,
+        },
+        start: introLength,
+        length: duration,
+        fit: "none",
+        scale: 0.22,
+        position: avatarOverlayPosition === "bottom-right" ? "bottomRight" : "bottomLeft",
+        offset: { x: avatarOverlayPosition === "bottom-right" ? 0.02 : -0.02, y: 0.03 },
+        transition: { in: "fade", out: "fade" },
+      }],
+    });
+  }
+
   const payload: any = {
     timeline: {
       soundtrack,
-      tracks: [
-        {
-          clips: allClips,
-        },
-        ...(voiceoverTrack.length > 0 ? [{ clips: voiceoverTrack }] : []),
-        // Kling Avatar 2.0 overlay — agent appears in corner throughout the video
-        ...(avatarVideoUrl ? [{
-          clips: [{
-            asset: {
-              type: "video",
-              src: avatarVideoUrl,
-              volume: 0,
-            },
-            start: introLength,
-            length: duration,
-            fit: "none",
-            scale: 0.22,
-            position: avatarOverlayPosition === "bottom-right" ? "bottomRight" : "bottomLeft",
-            offset: { x: avatarOverlayPosition === "bottom-right" ? 0.02 : -0.02, y: 0.03 },
-            transition: { in: "fade", out: "fade" },
-          }]
-        }] : []),
-      ],
+      tracks,
     },
     output: {
       format: "mp4",
       resolution,
       ...(size && { size }), // Add size for custom dimensions
-      fps: videoMode === "full-ai" ? 30 : 25, // 30fps for Full Cinematic smoothness; 25fps for Standard (cost saving)
-      quality: videoMode === "full-ai" ? "high" : "medium", // Full Cinematic = true 1080p; Standard = 720p medium
-      // Generate poster image from the most visually appealing frame
-      // Capture at 25% through the video (after intro, during property photos)
+      fps: videoMode === "full-ai" ? 30 : 25, // 30fps for Full Cinematic smoothness; 25fps for Standard
+      quality: videoMode === "full-ai" ? "high" : "medium", // valid Shotstack values: low | medium | high
+      // Poster: capture a frame at 25% into the main content
+      // Clamp to [1, totalDuration - 0.5] to avoid out-of-range errors
       poster: {
-        capture: Math.max(introLength + (duration * 0.25), 1), // Capture at 25% of main content
+        capture: Math.min(
+          Math.max(introLength + (effectiveDuration * 0.25), 1),
+          Math.max(totalDuration - 0.5, 1)
+        ),
       },
     },
   };
