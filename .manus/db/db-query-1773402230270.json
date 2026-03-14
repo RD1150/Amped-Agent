@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, address, status, errorMessage, processingStage FROM property_tours ORDER BY id DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, address, status, errorMessage, processingStage FROM property_tours ORDER BY id DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "1410001",
+      "address": "Telluride Co Mountain Home",
+      "status": "failed",
+      "errorMessage": "Failed to generate video: Shotstack API error: 400 Bad Request. First clip: {\"hasTransition\":false,\"hasEffect\":false}. Shotstack response: {\"success\":false,\"message\":\"Bad Request\",\"response\":{\"request_id\":\"req_1773402118549_7q7nlzm6n\",\"message\":\"Validation failed for timeline: Found 6 validation errors\",\"errors\":[{\"type\":\"validation_erro",
+      "processingStage": "NULL"
+    },
+    {
+      "id": "1320017",
+      "address": "Private Property",
+      "status": "pending",
+      "errorMessage": "NULL",
+      "processingStage": "NULL"
+    },
+    {
+      "id": "1320016",
+      "address": "Private Property",
+      "status": "pending",
+      "errorMessage": "NULL",
+      "processingStage": "NULL"
+    },
+    {
+      "id": "1320014",
+      "address": "789 Beach Blvd, Malibu, CA 90265",
+      "status": "pending",
+      "errorMessage": "NULL",
+      "processingStage": "NULL"
+    },
+    {
+      "id": "1320013",
+      "address": "456 Oak Ave, Beverly Hills, CA 90210",
+      "status": "pending",
+      "errorMessage": "NULL",
+      "processingStage": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tstatus\terrorMessage\tprocessingStage\n1410001\tTelluride Co Mountain Home\tfailed\tFailed to generate video: Shotstack API error: 400 Bad Request. First clip: {\"hasTransition\":false,\"hasEffect\":false}. Shotstack response: {\"success\":false,\"message\":\"Bad Request\",\"response\":{\"request_id\":\"req_1773402118549_7q7nlzm6n\",\"message\":\"Validation failed for timeline: Found 6 validation errors\",\"errors\":[{\"type\":\"validation_erro\tNULL\n1320017\tPrivate Property\tpending\tNULL\tNULL\n1320016\tPrivate Property\tpending\tNULL\tNULL\n1320014\t789 Beach Blvd, Malibu, CA 90265\tpending\tNULL\tNULL\n1320013\t456 Oak Ave, Beverly Hills, CA 90210\tpending\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 369
+}

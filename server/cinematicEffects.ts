@@ -12,38 +12,19 @@ export interface CinematicOptions {
 }
 
 /**
- * Shotstack-compatible filter object for color grading
- * Uses brightness/contrast/saturation adjustments (validated against Shotstack API)
+ * Shotstack-compatible filter preset string for color grading.
+ * Valid values: "none" | "blur" | "boost" | "contrast" | "darken" | "greyscale" | "lighten" | "muted" | "negative"
+ * We map our grade names to the closest Shotstack preset.
  */
-export function getColorGradingFilter(grade: string = "warm") {
-  const grades: Record<string, { brightness: number; contrast: number; saturation: number }> = {
-    "teal-orange": {
-      brightness: 0.05,
-      contrast: 0.15,
-      saturation: 0.2,
-    },
-    "moody": {
-      brightness: -0.08,
-      contrast: 0.2,
-      saturation: -0.1,
-    },
-    "warm": {
-      brightness: 0.08,
-      contrast: 0.15,
-      saturation: 0.12,
-    },
-    "cool": {
-      brightness: 0.02,
-      contrast: 0.1,
-      saturation: 0.05,
-    },
-    "natural": {
-      brightness: 0.0,
-      contrast: 0.05,
-      saturation: 0.0,
-    },
+export function getColorGradingFilter(grade: string = "warm"): string {
+  const gradeToPreset: Record<string, string> = {
+    "teal-orange": "boost",   // Vibrant/saturated look
+    "moody": "muted",          // Desaturated moody look
+    "warm": "boost",           // Warm/vibrant — closest to warm grade
+    "cool": "contrast",        // Higher contrast, slightly cooler
+    "natural": "none",         // No filter
   };
-  return grades[grade] || grades["warm"];
+  return gradeToPreset[grade] || "boost";
 }
 
 /**
@@ -180,16 +161,15 @@ export function getLuxuryLowerThird(
 /**
  * Apply cinematic color grade filter to a clip
  * Returns the clip with filter applied (Shotstack-validated approach)
+ * Note: filter is only valid on image clips, not video clips.
  */
 export function applyColorGradeToClip(clip: any, grade: string = "warm"): any {
-  const filter = getColorGradingFilter(grade);
+  // Only apply filter to image clips — Shotstack rejects filter on video clips
+  if (clip.asset?.type !== "image") return clip;
+  const filterPreset = getColorGradingFilter(grade);
   return {
     ...clip,
-    filter: {
-      brightness: filter.brightness,
-      contrast: filter.contrast,
-      saturation: filter.saturation,
-    },
+    filter: filterPreset,
   };
 }
 
@@ -207,24 +187,26 @@ export function applyCinematicEnhancements(
   return clips.map((clip, index) => {
     const enhanced = { ...clip };
 
-    // Apply color grade filter to image and video clips
-    if (clip.asset?.type === "image" || clip.asset?.type === "video") {
-      const filter = getColorGradingFilter(grade);
-      enhanced.filter = {
-        brightness: filter.brightness,
-        contrast: filter.contrast,
-        saturation: filter.saturation,
-      };
+    // Apply color grade filter to image clips ONLY
+    // Shotstack does NOT support filter on video clips
+    if (clip.asset?.type === "image") {
+      enhanced.filter = getColorGradingFilter(grade);
 
       // Use more dramatic transitions for cinematic mode
       // zoomIn transition = zoom-dissolve effect (more cinematic than plain fade)
       const cinematicTransitions = ["fade", "zoom", "slideLeft", "slideRight", "carouselLeft", "carouselRight"];
-      const transitionIn = cinematicTransitions[index % cinematicTransitions.length];
+      const transIn = index > 0 ? cinematicTransitions[index % cinematicTransitions.length] : undefined;
+      const transOut = index < clips.length - 1 ? "fade" : undefined;
 
-      enhanced.transition = {
-        ...(index > 0 && { in: transitionIn }),
-        ...(index < clips.length - 1 && { out: "fade" }),
-      };
+      // Only add transition if at least one direction is defined
+      if (transIn || transOut) {
+        enhanced.transition = {
+          ...(transIn && { in: transIn }),
+          ...(transOut && { out: transOut }),
+        };
+      } else {
+        delete enhanced.transition;
+      }
     }
 
     return enhanced;

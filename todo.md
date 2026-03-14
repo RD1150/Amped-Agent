@@ -14,6 +14,9 @@
 - [x] Review Shotstack account settings and tier limits - NO RESTRICTIONS
 - [x] Integration verified working - ALL TESTS PASSED
 - [x] Technical audit report complete - See SHOTSTACK_AUDIT_REPORT.md
+- [x] Fix Shotstack 400 Bad Request - 6 validation errors: invalid filter object format (must use preset strings like "boost", not {brightness,contrast,saturation})
+- [x] Fix perPhotoMovements null values causing 400 validation error on create mutation
+- [x] Verified: Standard mode and Full Cinematic mode both submit successfully to Shotstack
 
 ## Property Tours - Full AI Cinematic Mode
 - [x] Fix Luma AI content moderation issues (currently blocking all images) - RESOLVED: Switched to Runway AI

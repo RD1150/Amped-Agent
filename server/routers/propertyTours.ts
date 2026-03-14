@@ -9,6 +9,13 @@ import { fetchPropertyData } from "../rapidapi";
 import { getDb } from "../db";
 import { users, propertyTours } from "../../drizzle/schema";
 import { eq, and, gte, sql } from "drizzle-orm";
+import * as fs from "fs";
+
+function bgLog(msg: string) {
+  const line = `[${new Date().toISOString()}] ${msg}\n`;
+  try { fs.appendFileSync("/home/ubuntu/luxestate/.manus-logs/videogen.log", line); } catch {}
+  console.log(msg);
+}
 
 export const propertyToursRouter = router({
   /**
@@ -38,7 +45,7 @@ export const propertyToursRouter = router({
         voiceId: z.string().optional(),
         customCameraPrompt: z.string().optional(),
         voiceoverScript: z.string().optional(),
-        perPhotoMovements: z.array(z.string()).optional(),
+        perPhotoMovements: z.array(z.string().nullable().transform(v => v ?? "auto")).optional(),
         movementSpeed: z.enum(["slow", "fast"]).default("slow"),
         enableAvatarOverlay: z.boolean().default(false),
         avatarOverlayPosition: z.enum(["bottom-left", "bottom-right"]).default("bottom-left"),
@@ -183,13 +190,17 @@ export const propertyToursRouter = router({
       const userId = ctx.user.id;
 
       setImmediate(async () => {
+        bgLog(`[PropertyTours] 🚀 Background job STARTED for tour ${tourId} (mode: ${tour.videoMode})`);
         try {
           const imageUrls = JSON.parse(tour.imageUrls) as string[];
+          bgLog(`[PropertyTours] Image URLs (${imageUrls.length}): ${JSON.stringify(imageUrls)}`);
 
           // Stage 1: Fetch persona data
           await db.updatePropertyTour(tourId, { processingStage: "preparing" });
+          bgLog(`[PropertyTours] Stage: preparing`);
           const { getPersonaByUserId } = await import("../db");
           const persona = await getPersonaByUserId(userId);
+          bgLog(`[PropertyTours] Persona fetched: ${persona ? 'yes' : 'no'}`);
 
           // Stage 2: Generate voiceover (if enabled) — this is fast, ~5s
           if (tour.enableVoiceover) {
@@ -203,7 +214,9 @@ export const propertyToursRouter = router({
 
           // Stage 4: Submit to Shotstack
           await db.updatePropertyTour(tourId, { processingStage: "submitting_to_shotstack" });
+          bgLog(`[PropertyTours] Stage: submitting_to_shotstack`);
 
+          bgLog(`[PropertyTours] Calling generatePropertyTourVideo...`);
           const { renderId } = await generatePropertyTourVideo({
             imageUrls,
             propertyDetails: {
@@ -246,9 +259,11 @@ export const propertyToursRouter = router({
           // Increment daily video count
           await rateLimit.incrementDailyVideoCount(userId);
 
-          console.log(`[PropertyTours] Background job complete for tour ${tourId}. Shotstack renderId: ${renderId}`);
+          bgLog(`[PropertyTours] Background job complete for tour ${tourId}. Shotstack renderId: ${renderId}`);
         } catch (error) {
           const errMsg = error instanceof Error ? error.message : "Unknown error";
+          bgLog(`[PropertyTours] ❌ Background job FAILED for tour ${tourId}: ${errMsg}`);
+          bgLog(`[PropertyTours] Error stack: ${error instanceof Error ? error.stack : ''}`);
           console.error(`[PropertyTours] Background job FAILED for tour ${tourId}:`, errMsg);
 
           await db.updatePropertyTour(tourId, {

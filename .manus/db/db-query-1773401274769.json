@@ -1,0 +1,100 @@
+{
+  "query": "SELECT id, address, status, processingStage, videoUrl, errorMessage, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, address, status, processingStage, videoUrl, errorMessage, createdAt FROM property_tours ORDER BY createdAt DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "1320016",
+      "address": "Private Property",
+      "status": "pending",
+      "processingStage": "NULL",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-08 07:31:52"
+    },
+    {
+      "id": "1320017",
+      "address": "Private Property",
+      "status": "pending",
+      "processingStage": "NULL",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-08 07:31:52"
+    },
+    {
+      "id": "1320014",
+      "address": "789 Beach Blvd, Malibu, CA 90265",
+      "status": "pending",
+      "processingStage": "NULL",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-08 07:31:52"
+    },
+    {
+      "id": "1320008",
+      "address": "Medium Video Test",
+      "status": "pending",
+      "processingStage": "NULL",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-08 07:31:51"
+    },
+    {
+      "id": "1320007",
+      "address": "Short Video Test",
+      "status": "pending",
+      "processingStage": "NULL",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-08 07:31:51"
+    },
+    {
+      "id": "1320009",
+      "address": "Long Video Test",
+      "status": "pending",
+      "processingStage": "NULL",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-08 07:31:51"
+    },
+    {
+      "id": "1320001",
+      "address": "123 Main St, Los Angeles, CA 90001",
+      "status": "pending",
+      "processingStage": "NULL",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-08 07:31:51"
+    },
+    {
+      "id": "1320005",
+      "address": "Music Test Property",
+      "status": "pending",
+      "processingStage": "NULL",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-08 07:31:51"
+    },
+    {
+      "id": "1320006",
+      "address": "Full Options Test",
+      "status": "pending",
+      "processingStage": "NULL",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-08 07:31:51"
+    },
+    {
+      "id": "1320003",
+      "address": "789 Test Ave, Los Angeles, CA 90001",
+      "status": "pending",
+      "processingStage": "NULL",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "createdAt": "2026-03-08 07:31:51"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tstatus\tprocessingStage\tvideoUrl\terrorMessage\tcreatedAt\n1320016\tPrivate Property\tpending\tNULL\tNULL\tNULL\t2026-03-08 07:31:52\n1320017\tPrivate Property\tpending\tNULL\tNULL\tNULL\t2026-03-08 07:31:52\n1320014\t789 Beach Blvd, Malibu, CA 90265\tpending\tNULL\tNULL\tNULL\t2026-03-08 07:31:52\n1320008\tMedium Video Test\tpending\tNULL\tNULL\tNULL\t2026-03-08 07:31:51\n1320007\tShort Video Test\tpending\tNULL\tNULL\tNULL\t2026-03-08 07:31:51\n1320009\tLong Video Test\tpending\tNULL\tNULL\tNULL\t2026-03-08 07:31:51\n1320001\t123 Main St, Los Angeles, CA 90001\tpending\tNULL\tNULL\tNULL\t2026-03-08 07:31:51\n1320005\tMusic Test Property\tpending\tNULL\tNULL\tNULL\t2026-03-08 07:31:51\n1320006\tFull Options Test\tpending\tNULL\tNULL\tNULL\t2026-03-08 07:31:51\n1320003\t789 Test Ave, Los Angeles, CA 90001\tpending\tNULL\tNULL\tNULL\t2026-03-08 07:31:51\n",
+  "stderr": "",
+  "execution_time_ms": 735
+}

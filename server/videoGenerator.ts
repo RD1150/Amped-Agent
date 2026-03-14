@@ -1,4 +1,15 @@
 // Direct HTTP API implementation to avoid Shotstack SDK parsing issues
+import * as fs from "fs";
+
+// Write logs to a file so we can debug background job issues
+function writeLog(message: string) {
+  const timestamp = new Date().toISOString();
+  const line = `[${timestamp}] ${message}\n`;
+  try {
+    fs.appendFileSync("/home/ubuntu/luxestate/.manus-logs/videogen.log", line);
+  } catch {}
+  console.log(message);
+}
 
 export interface PropertyDetails {
   address: string;
@@ -69,10 +80,11 @@ function getMusicTrackUrl(trackId: string): string {
 export async function generatePropertyTourVideo(
   options: VideoGenerationOptions
 ): Promise<{ renderId: string }> {
-  console.log("[VideoGenerator] ========== FUNCTION CALLED ==========");
-  console.log("[VideoGenerator] Video mode:", options.videoMode);
-  console.log("[VideoGenerator] Image count:", options.imageUrls.length);
-  console.log("[VideoGenerator] Aspect ratio:", options.aspectRatio);
+  writeLog("[VideoGenerator] ========== FUNCTION CALLED ==========");
+  writeLog(`[VideoGenerator] Video mode: ${options.videoMode}`);
+  writeLog(`[VideoGenerator] Image count: ${options.imageUrls.length}`);
+  writeLog(`[VideoGenerator] Aspect ratio: ${options.aspectRatio}`);
+  writeLog(`[VideoGenerator] Image URLs: ${JSON.stringify(options.imageUrls)}`);
   
   const apiKey = process.env.SHOTSTACK_API_KEY;
   
@@ -325,20 +337,28 @@ export async function generatePropertyTourVideo(
     const overlapIn = index > 0 ? crossfadeDuration : 0;
     const overlapOut = index < imageUrls.length - 1 ? crossfadeDuration : 0;
     
-    return {
+    // Build transition only if there's actually an in or out
+    const transitionIn = index > 0 ? "fade" : undefined;
+    const transitionOut = index < imageUrls.length - 1 ? "fade" : undefined;
+    const transition = (transitionIn || transitionOut)
+      ? { ...(transitionIn && { in: transitionIn }), ...(transitionOut && { out: transitionOut }) }
+      : undefined;
+    
+    // Ensure start is never negative (first clip starts at 0 or introLength)
+    const adjustedStart = Math.max(0, clipStart - overlapIn);
+    
+    const imageClip: any = {
       asset: {
         type: "image",
         src: url,
       },
-      start: clipStart - overlapIn,
+      start: adjustedStart,
       length: clipLength + overlapIn + overlapOut,
-      transition: {
-        ...(index > 0 && { in: "fade" }),
-        ...(index < imageUrls.length - 1 && { out: "fade" }),
-      },
       fit: fitMode,
       effect, // Use Shotstack's built-in Ken Burns effects
     };
+    if (transition) imageClip.transition = transition;
+    return imageClip;
   });
 
   // Use actual computed duration (accounts for AI clips being 5s vs Ken Burns clips)
@@ -356,70 +376,50 @@ export async function generatePropertyTourVideo(
   }
   const detailsText = detailsParts.join(" · ");
 
-  // Add text overlays using Shotstack text assets (cleaner rendering)
+  // Add text overlays using HTML assets (more flexible than Shotstack text assets)
   const textOverlays: any[] = [];
+  const overlayWidth = htmlWidth;
+  const overlayHeight = htmlHeight;
+  const addrFontSize = aspectRatio === "9:16" ? 38 : 42;
+  const detailFontSize = aspectRatio === "9:16" ? 28 : 32;
+  const bottomPadding = aspectRatio === "9:16" ? Math.round(overlayHeight * 0.12) : Math.round(overlayHeight * 0.08);
   
-  // Address overlay - positioned at bottom with proper padding
+  // Combined address + details overlay at bottom
+  const overlayHtml = `<div style="
+    width:${overlayWidth}px;
+    height:${overlayHeight}px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    padding-bottom:${bottomPadding}px;
+    box-sizing:border-box;
+    font-family:'Montserrat',sans-serif;
+  ">
+    <div style="
+      background:rgba(0,0,0,0.5);
+      border-radius:8px;
+      padding:12px 24px;
+      text-align:center;
+      margin-bottom:8px;
+    ">
+      <div style="color:#FFFFFF;font-size:${addrFontSize}px;font-weight:700;line-height:1.2;">${propertyDetails.address}</div>
+      ${detailsText ? `<div style="color:#C9A962;font-size:${detailFontSize}px;font-weight:500;margin-top:4px;letter-spacing:1px;">${detailsText}</div>` : ""}
+    </div>
+  </div>`;
+  
   textOverlays.push({
     asset: {
-      type: "text",
-      text: propertyDetails.address,
-      font: {
-        family: "Montserrat SemiBold",
-        size: aspectRatio === "9:16" ? 38 : 42,
-        color: "#FFFFFF",
-        weight: 700,
-      },
-      background: {
-        color: "#000000",
-        opacity: 0.45,
-        borderRadius: 8,
-        padding: 15,
-      },
-      alignment: {
-        horizontal: "center",
-        vertical: "bottom",
-      },
+      type: "html",
+      html: overlayHtml,
+      css: "body{margin:0;padding:0;overflow:hidden;background:transparent}",
+      width: overlayWidth,
+      height: overlayHeight,
     },
     start: 0,
     length: effectiveDuration,
-    position: "bottom",
-    offset: {
-      y: aspectRatio === "9:16" ? -0.15 : -0.12,
-    },
+    position: "center",
   });
-  
-  // Details overlay - positioned above address
-  if (detailsText) {
-    textOverlays.push({
-      asset: {
-        type: "text",
-        text: detailsText,
-        font: {
-          family: "Montserrat SemiBold",
-          size: aspectRatio === "9:16" ? 28 : 32,
-          color: "#FFFFFF",
-          weight: 600,
-        },
-        background: {
-          color: "#000000",
-          opacity: 0.45,
-          borderRadius: 6,
-          padding: 12,
-        },
-        alignment: {
-          horizontal: "center",
-          vertical: "bottom",
-        },
-      },
-      start: 0,
-      length: effectiveDuration,
-      position: "bottom",
-      offset: {
-        y: aspectRatio === "9:16" ? -0.05 : -0.03,
-      },
-    });
-  }
 
   // REMOVED: Mid-video branding overlay
   // Branding now only appears on intro/outro cards to avoid blocking property views
@@ -656,12 +656,21 @@ export async function generatePropertyTourVideo(
 
   /**
    * Remove `filter` from video clips — Shotstack only supports filter on image clips.
+   * Also strips empty transition objects.
    */
   function stripFilterFromVideoClips(clips: any[]): any[] {
     return clips.map(clip => {
       const c = sanitizeClip(clip);
       if (c.asset?.type === "video" && c.filter) {
         delete c.filter;
+      }
+      // Ensure start is never negative
+      if (typeof c.start === "number" && c.start < 0) {
+        c.start = 0;
+      }
+      // Ensure length is always positive
+      if (typeof c.length === "number" && c.length <= 0) {
+        c.length = 1;
       }
       return c;
     });
@@ -822,10 +831,10 @@ export async function generatePropertyTourVideo(
   }
 
   try {
-    console.log("[VideoGenerator] Submitting render to Shotstack...");
-    console.log("[VideoGenerator] Image count:", imageUrls.length);
-    console.log("[VideoGenerator] Duration:", duration);
-    console.log("[VideoGenerator] Payload:", JSON.stringify(payload, null, 2));
+    writeLog("[VideoGenerator] Submitting render to Shotstack...");
+    writeLog(`[VideoGenerator] Image count: ${imageUrls.length}`);
+    writeLog(`[VideoGenerator] Duration: ${duration}`);
+    writeLog(`[VideoGenerator] FULL PAYLOAD: ${JSON.stringify(payload)}`);
     
     // Submit render job via HTTP
     const response = await fetch(`${SHOTSTACK_API_URL}/render`, {
@@ -839,6 +848,8 @@ export async function generatePropertyTourVideo(
 
     if (!response.ok) {
       const errorText = await response.text();
+      writeLog(`[VideoGenerator] Shotstack API error: ${response.status} ${response.statusText}`);
+      writeLog(`[VideoGenerator] FULL ERROR BODY: ${errorText}`);
       console.error("[VideoGenerator] Shotstack API error:", response.status, response.statusText);
       console.error("[VideoGenerator] Error response body:", errorText);
       console.error("[VideoGenerator] Request URL:", `${SHOTSTACK_API_URL}/render`);

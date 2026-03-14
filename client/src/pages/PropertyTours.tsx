@@ -430,7 +430,9 @@ export default function PropertyTours() {
         voiceId: enableVoiceover ? voiceId : undefined,
         customCameraPrompt: customCameraPrompt || undefined,
         voiceoverScript: customScript || undefined,
-        perPhotoMovements: perPhotoMovements.length > 0 ? perPhotoMovements : undefined,
+        perPhotoMovements: perPhotoMovements.length > 0 
+          ? perPhotoMovements.map(m => m || "auto")  // Replace null/undefined with "auto"
+          : undefined,
         movementSpeed,
         enableAvatarOverlay,
         avatarOverlayPosition,
@@ -540,7 +542,13 @@ export default function PropertyTours() {
       // Refresh tours list
       utils.propertyTours.list.invalidate();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create tour");
+      // Reset generating state so the progress bar doesn't stay stuck
+      setGeneratingTourId(null);
+      setGenerationProgress(0);
+      setGenerationStatus("");
+      const errMsg = error instanceof Error ? error.message : "Failed to create tour";
+      console.error("[PropertyTours] handleCreateTour error:", errMsg, error);
+      toast.error(errMsg);
     }
   };
 
@@ -792,6 +800,10 @@ export default function PropertyTours() {
                         value={perPhotoMovements[i] || "auto"}
                         onValueChange={(value) => {
                           const newMovements = [...perPhotoMovements];
+                          // Fill any gaps with "auto" to avoid sparse array with nulls
+                          for (let j = 0; j <= i; j++) {
+                            if (!newMovements[j]) newMovements[j] = "auto";
+                          }
                           newMovements[i] = value;
                           setPerPhotoMovements(newMovements);
                         }}
