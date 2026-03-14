@@ -1,0 +1,8 @@
+{
+  "query": "SELECT \n  COUNT(*) as total_users,\n  SUM(CASE WHEN trial_ends_at IS NOT NULL THEN 1 ELSE 0 END) as has_trial_end,\n  SUM(CASE WHEN trial_ends_at IS NULL THEN 1 ELSE 0 END) as no_trial_end,\n  SUM(CASE WHEN trial_ends_at < NOW() THEN 1 ELSE 0 END) as trial_expired,\n  SUM(CASE WHEN trial_ends_at >= NOW() THEN 1 ELSE 0 END) as trial_active,\n  SUM(CASE WHEN subscription_status = 'active' THEN 1 ELSE 0 END) as paid_subscribers\nFROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT \n  COUNT(*) as total_users,\n  SUM(CASE WHEN trial_ends_at IS NOT NULL THEN 1 ELSE 0 END) as has_trial_end,\n  SUM(CASE WHEN trial_ends_at IS NULL THEN 1 ELSE 0 END) as no_trial_end,\n  SUM(CASE WHEN trial_ends_at < NOW() THEN 1 ELSE 0 END) as trial_expired,\n  SUM(CASE WHEN trial_ends_at >= NOW() THEN 1 ELSE 0 END) as trial_active,\n  SUM(CASE WHEN subscription_status = 'active' THEN 1 ELSE 0 END) as paid_subscribers\nFROM users;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'trial_ends_at' in ''"
+  ]
+}

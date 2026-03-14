@@ -1,0 +1,45 @@
+{
+  "query": "SELECT MAX(id) as max_id, MIN(id) as min_id, COUNT(*) as real_count FROM users;\nSELECT id, email, name FROM users WHERE id > 100 LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT MAX(id) as max_id, MIN(id) as min_id, COUNT(*) as real_count FROM users;\nSELECT id, email, name FROM users WHERE id > 100 LIMIT 5;",
+  "rows": [
+    {
+      "max_id": "9900019",
+      "min_id": "1",
+      "real_count": "8770"
+    },
+    {
+      "max_id": "id",
+      "min_id": "email",
+      "real_count": "name"
+    },
+    {
+      "max_id": "30001",
+      "min_id": "NULL",
+      "real_count": "NULL"
+    },
+    {
+      "max_id": "30002",
+      "min_id": "NULL",
+      "real_count": "NULL"
+    },
+    {
+      "max_id": "30003",
+      "min_id": "NULL",
+      "real_count": "NULL"
+    },
+    {
+      "max_id": "60001",
+      "min_id": "NULL",
+      "real_count": "NULL"
+    },
+    {
+      "max_id": "60002",
+      "min_id": "NULL",
+      "real_count": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "max_id\tmin_id\treal_count\n9900019\t1\t8770\nid\temail\tname\n30001\tNULL\tNULL\n30002\tNULL\tNULL\n30003\tNULL\tNULL\n60001\tNULL\tNULL\n60002\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 412
+}

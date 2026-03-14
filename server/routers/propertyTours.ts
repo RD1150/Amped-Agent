@@ -642,4 +642,125 @@ export const propertyToursRouter = router({
       fullAiLimit,
     };
   }),
+
+  /**
+   * Retry a failed property tour video generation
+   * Resets the tour status to pending and re-triggers the background job
+   */
+  retryVideo: protectedProcedure
+    .input(z.object({ tourId: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const tour = await db.getPropertyTourById(input.tourId);
+      if (!tour) throw new Error("Property tour not found");
+      if (tour.userId !== ctx.user.id) throw new Error("Unauthorized");
+      if (tour.status !== "failed") throw new Error("Only failed tours can be retried");
+
+      // Check daily rate limit
+      const rateLimitStatus = await rateLimit.checkDailyVideoLimit(ctx.user.id);
+      if (!rateLimitStatus.allowed) {
+        throw new Error(`Daily video limit reached. Try again after ${rateLimitStatus.resetTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC.`);
+      }
+
+      // Check credits
+      const costBreakdown = credits.calculateVideoCost({
+        videoMode: tour.videoMode as "standard" | "full-ai",
+        enableVoiceover: tour.enableVoiceover || false,
+      });
+      const hasEnoughCredits = await credits.hasCredits(ctx.user.id, costBreakdown.totalCredits);
+      if (!hasEnoughCredits) {
+        const currentBalance = await credits.getCreditBalance(ctx.user.id);
+        throw new Error(`Insufficient credits. Need ${costBreakdown.totalCredits} but have ${currentBalance}.`);
+      }
+
+      // Deduct credits
+      await credits.deductCredits({
+        userId: ctx.user.id,
+        amount: costBreakdown.totalCredits,
+        usageType: `${tour.videoMode}_video_retry`,
+        description: `Retried ${tour.videoMode} video for "${tour.address}"`,
+        relatedResourceId: input.tourId,
+        relatedResourceType: "property_tour",
+      });
+
+      // Reset tour status
+      await db.updatePropertyTour(input.tourId, {
+        status: "processing",
+        errorMessage: null,
+        videoUrl: null,
+        thumbnailUrl: null,
+        processingStage: "preparing",
+      });
+
+      const tourId = input.tourId;
+      const userId = ctx.user.id;
+
+      setImmediate(async () => {
+        bgLog(`[PropertyTours] 🔄 RETRY background job STARTED for tour ${tourId}`);
+        try {
+          const imageUrls = JSON.parse(tour.imageUrls) as string[];
+          const { getPersonaByUserId } = await import("../db");
+          const persona = await getPersonaByUserId(userId);
+
+          await db.updatePropertyTour(tourId, { processingStage: "submitting_to_shotstack" });
+
+          const { renderId } = await generatePropertyTourVideo({
+            imageUrls,
+            propertyDetails: {
+              address: tour.address,
+              price: tour.price || undefined,
+              beds: tour.beds || undefined,
+              baths: tour.baths ? parseFloat(tour.baths) : undefined,
+              sqft: tour.sqft || undefined,
+              propertyType: tour.propertyType || undefined,
+              description: tour.description || undefined,
+            },
+            template: (tour.template as "modern" | "luxury" | "cozy") || "modern",
+            duration: tour.duration || 30,
+            includeBranding: tour.includeBranding ?? true,
+            userId,
+            aspectRatio: (tour.aspectRatio as "16:9" | "9:16" | "1:1") || "16:9",
+            musicTrack: tour.musicTrack || undefined,
+            cardTemplate: (tour.cardTemplate as "modern" | "luxury" | "bold" | "classic" | "contemporary") || "modern",
+            includeIntroVideo: tour.includeIntroVideo ?? false,
+            videoMode: tour.videoMode as "standard" | "full-ai",
+            enableVoiceover: tour.enableVoiceover || false,
+            customCameraPrompt: tour.customCameraPrompt || undefined,
+            voiceoverScript: tour.voiceoverScript || undefined,
+            perPhotoMovements: tour.perPhotoMovements ? JSON.parse(tour.perPhotoMovements) : undefined,
+            movementSpeed: (tour.movementSpeed as "slow" | "fast") || "slow",
+            enableAvatarOverlay: tour.enableAvatarOverlay ?? false,
+            avatarOverlayPosition: (tour.avatarOverlayPosition as "bottom-left" | "bottom-right") || "bottom-left",
+            agentHeadshotUrl: persona?.klingAvatarHeadshotUrl || undefined,
+            agentVoiceUrl: persona?.klingAvatarVoiceUrl || undefined,
+            voiceId: persona?.elevenlabsVoiceId || tour.voiceId || undefined,
+          });
+
+          await db.updatePropertyTour(tourId, {
+            videoUrl: renderId,
+            status: "processing",
+            processingStage: "rendering",
+          });
+
+          await rateLimit.incrementDailyVideoCount(userId);
+          bgLog(`[PropertyTours] 🔄 RETRY complete for tour ${tourId}. renderId: ${renderId}`);
+        } catch (error) {
+          const errMsg = error instanceof Error ? error.message : "Unknown error";
+          bgLog(`[PropertyTours] ❌ RETRY FAILED for tour ${tourId}: ${errMsg}`);
+          await db.updatePropertyTour(tourId, {
+            status: "failed",
+            errorMessage: errMsg,
+            processingStage: null,
+          });
+          await credits.refundCredits({
+            userId,
+            amount: costBreakdown.totalCredits,
+            reason: `Retry failed: ${errMsg}`,
+            relatedResourceId: tourId,
+            relatedResourceType: "property_tour",
+          });
+        }
+      });
+
+      return { queued: true };
+    }),
 });

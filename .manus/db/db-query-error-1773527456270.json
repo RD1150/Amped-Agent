@@ -1,0 +1,10 @@
+{
+  "query": "SELECT \n  COUNT(*) as total_users_past_14_days,\n  SUM(CASE WHEN subscriptionStatus != 'active' THEN 1 ELSE 0 END) as unpaid_past_trial\nFROM users \nWHERE createdAt < DATE_SUB(NOW(), INTERVAL 14 DAY);\n\nSELECT createdAt, subscriptionStatus, COUNT(*) as count \nFROM users \nGROUP BY DATE(createdAt), subscriptionStatus \nORDER BY createdAt DESC \nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT \n  COUNT(*) as total_users_past_14_days,\n  SUM(CASE WHEN subscriptionStatus != 'active' THEN 1 ELSE 0 END) as unpaid_past_trial\nFROM users \nWHERE createdAt < DATE_SUB(NOW(), INTERVAL 14 DAY);\n\nSELECT createdAt, subscriptionStatus, COUNT(*) as count \nFROM users \nGROUP BY DATE(createdAt), subscriptionStatus \nORDER BY createdAt DESC \nLIMIT 20;",
+  "returncode": 1,
+  "logs": [
+    "total_users_past_14_days\tunpaid_past_trial",
+    "7461\t7447",
+    "ERROR 1055 (42000) at line 7: Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'K9BXxKfRk2PJ2AbRYdraAT.users.createdAt' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by"
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "query": "SELECT id, email, name FROM users ORDER BY id ASC LIMIT 10;\nSELECT id, email, name FROM users ORDER BY id DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, email, name FROM users ORDER BY id ASC LIMIT 10;\nSELECT id, email, name FROM users ORDER BY id DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta"
+    },
+    {
+      "id": "2",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "3",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "4",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "5",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "6",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "7",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "8",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "9",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "10",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "id",
+      "email": "email",
+      "name": "name"
+    },
+    {
+      "id": "9900019",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "9900018",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "9900017",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "9900016",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "9900015",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "9900014",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "9900013",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "9900012",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "9900011",
+      "email": "NULL",
+      "name": "NULL"
+    },
+    {
+      "id": "9900010",
+      "email": "NULL",
+      "name": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\n1\trdshop70@gmail.com\tReena Dutta\n2\tNULL\tNULL\n3\tNULL\tNULL\n4\tNULL\tNULL\n5\tNULL\tNULL\n6\tNULL\tNULL\n7\tNULL\tNULL\n8\tNULL\tNULL\n9\tNULL\tNULL\n10\tNULL\tNULL\nid\temail\tname\n9900019\tNULL\tNULL\n9900018\tNULL\tNULL\n9900017\tNULL\tNULL\n9900016\tNULL\tNULL\n9900015\tNULL\tNULL\n9900014\tNULL\tNULL\n9900013\tNULL\tNULL\n9900012\tNULL\tNULL\n9900011\tNULL\tNULL\n9900010\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 419
+}

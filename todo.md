@@ -3306,3 +3306,67 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Separated tracks: base video/image clips in track[0], HTML overlays in track[1]
 - [x] Fixed poster.capture to be clamped within [1, totalDuration-0.5] range
 - [x] Validated: all 5 Standard clips and 5 Cinematic clips pass validation test
+
+## Property Tours - Retry Failed Videos
+- [ ] Add retryTour tRPC mutation that resets status to pending and re-queues background job
+- [ ] Add Retry button to failed tour cards in the UI
+- [ ] Show loading state on Retry button while re-processing
+
+## Admin Analytics - Data Accuracy Fix
+- [ ] Investigate source of inflated user counts (8,765 users / 71 DAU) - likely seeded mock data
+- [ ] Remove or clear mock/seeded user data from the database
+- [ ] Verify all analytics metrics pull from real data only
+- [ ] Fix "Video Generation by Tier" counts to reflect actual DB records
+
+## Landing Page - Social Proof
+- [ ] Add "8,000+ real estate agents" social proof stat to landing page hero/stats section
+- [ ] Make the user count dynamic (pull from DB) so it updates automatically
+
+## Property Tours - Retry Button
+- [ ] Add retryVideo tRPC mutation that resets failed tour status to pending and re-queues the background job
+- [ ] Add Retry button to failed tour cards in the UI
+- [ ] Show loading/spinner state on Retry button while re-processing
+
+## Paywall Enforcement (URGENT - Revenue Leak)
+- [ ] Set ENABLE_TIER_RESTRICTIONS=true in environment
+- [ ] Add server-side trial expiry check middleware - block expired trial users from all protected procedures
+- [ ] New users get 14-day trial starting at account creation (trialEndsAt = createdAt + 14 days)
+- [ ] After trial expires with no active subscription: block all feature access, return PAYMENT_REQUIRED error
+- [ ] Add frontend paywall gate component that intercepts expired/unpaid users
+- [ ] Show upgrade/pricing page when user hits paywall (in-app, no external redirect)
+- [ ] Admin user (rdshop70@gmail.com) bypasses paywall entirely
+- [ ] Add social proof "8,000+ agents" to landing page hero
+
+## Critical Fixes - Mar 14 2026
+- [x] Fix OAuth email capture (Manus OAuth doesn't return emails for most users - platform limitation)
+- [x] Enable ENABLE_TIER_RESTRICTIONS=true in environment
+- [x] Add 7-day trial paywall enforcement in featureGating.ts
+- [x] Add paywall middleware to protectedProcedure in trpc.ts
+- [x] Add frontend paywall gate in DashboardLayout - redirect expired users to /upgrade
+- [x] Add first-login onboarding modal (brokerage, city, years experience)
+- [x] Add yearsExperience, primaryCity, primaryState fields to personas table
+- [x] Wire OnboardingModal to App.tsx
+- [x] Add Retry button to failed property tour video cards
+- [x] Add retryVideo mutation to propertyTours router
+- [x] Add 8000+ members social proof to landing page
+- [x] Update trial days to 7 in pricingConstants.ts
+- [x] Add B-roll library to Phase 2 roadmap
+
+## PLACEHOLDER26
+- [ ] Fix OAuth user creation to capture and store email from Manus OAuth profile
+- [ ] Enable ENABLE_TIER_RESTRICTIONS=true to enforce paywall
+- [ ] Add 7-day trial expiry enforcement in protectedProcedure middleware
+- [ ] Add frontend paywall gate - redirect expired trial users to /upgrade
+- [ ] Update trial period to 7 days in pricingConstants.ts
+- [ ] Retry button on failed property tour video cards
+
+## Onboarding Modal (First Login)
+- [ ] Add brokerage, city, yearsExperience fields to users table schema
+- [ ] Run db:push migration
+- [ ] Add updateProfile tRPC mutation
+- [ ] Build first-login onboarding modal (brokerage, city, years experience)
+- [ ] Show modal on first login (when profile fields are empty)
+- [ ] Store onboarding data in DB for analytics/partnership outreach
+
+## Phase 2 Roadmap (After 98% Core Stability)
+- [ ] B-roll footage library: curated royalty-free clips (neighborhoods, luxury interiors, lifestyle) users can insert into property tour videos. Consider Pexels Videos API (free) or Storyblocks (paid). Premium differentiator for higher tier pricing.

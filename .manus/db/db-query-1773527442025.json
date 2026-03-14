@@ -1,0 +1,66 @@
+{
+  "query": "SHOW COLUMNS FROM users LIKE '%trial%';\nSHOW COLUMNS FROM users LIKE '%subscription%';\nSHOW COLUMNS FROM users LIKE '%created%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SHOW COLUMNS FROM users LIKE '%trial%';\nSHOW COLUMNS FROM users LIKE '%subscription%';\nSHOW COLUMNS FROM users LIKE '%created%';",
+  "rows": [
+    {
+      "Field": "stripeSubscriptionId",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "subscriptionStatus",
+      "Type": "enum('active','trialing','past_due','canceled','incomplete','incomplete_expired','unpaid','inactive')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "inactive",
+      "Extra": ""
+    },
+    {
+      "Field": "subscriptionEndDate",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "subscriptionTier",
+      "Type": "enum('starter','pro','premium','essential','professional')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "starter",
+      "Extra": ""
+    },
+    {
+      "Field": "Field",
+      "Type": "Type",
+      "Null": "Null",
+      "Key": "Key",
+      "Default": "Default",
+      "Extra": "Extra"
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "ghlSubAccountCreatedAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nstripeSubscriptionId\tvarchar(255)\tYES\t\tNULL\t\nsubscriptionStatus\tenum('active','trialing','past_due','canceled','incomplete','incomplete_expired','unpaid','inactive')\tYES\t\tinactive\t\nsubscriptionEndDate\ttimestamp\tYES\t\tNULL\t\nsubscriptionTier\tenum('starter','pro','premium','essential','professional')\tYES\t\tstarter\t\nField\tType\tNull\tKey\tDefault\tExtra\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nghlSubAccountCreatedAt\ttimestamp\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 439
+}

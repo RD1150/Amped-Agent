@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, authOnlyProcedure } from "../_core/trpc";
 import * as credits from "../credits";
 
 export const creditsRouter = router({
   /**
    * Get current credit balance
    */
-  getBalance: protectedProcedure.query(async ({ ctx }) => {
+  getBalance: authOnlyProcedure.query(async ({ ctx }) => {
     const balance = await credits.getCreditBalance(ctx.user.id);
     return { balance };
   }),
@@ -14,7 +14,7 @@ export const creditsRouter = router({
   /**
    * Get credit transaction history
    */
-  getHistory: protectedProcedure
+  getHistory: authOnlyProcedure
     .input(
       z.object({
         limit: z.number().int().min(1).max(100).default(50),

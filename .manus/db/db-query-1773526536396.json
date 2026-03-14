@@ -1,0 +1,130 @@
+{
+  "query": "SELECT id, email, name, role FROM users ORDER BY id LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, email, name, role FROM users ORDER BY id LIMIT 20;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "rdshop70@gmail.com",
+      "name": "Reena Dutta",
+      "role": "admin"
+    },
+    {
+      "id": "2",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "3",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "4",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "5",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "6",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "7",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "8",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "9",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "10",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "11",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "12",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "13",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "14",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "15",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "16",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "17",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "18",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "20",
+      "email": "NULL",
+      "name": "NULL",
+      "role": "admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\trole\n1\trdshop70@gmail.com\tReena Dutta\tadmin\n2\tNULL\tNULL\tadmin\n3\tNULL\tNULL\tadmin\n4\tNULL\tNULL\tadmin\n5\tNULL\tNULL\tadmin\n6\tNULL\tNULL\tadmin\n7\tNULL\tNULL\tadmin\n8\tNULL\tNULL\tadmin\n9\tNULL\tNULL\tadmin\n10\tNULL\tNULL\tadmin\n11\tNULL\tNULL\tadmin\n12\tNULL\tNULL\tadmin\n13\tNULL\tNULL\tadmin\n14\tNULL\tNULL\tadmin\n15\tNULL\tNULL\tadmin\n16\tNULL\tNULL\tadmin\n17\tNULL\tNULL\tadmin\n18\tNULL\tNULL\tadmin\n19\tNULL\tNULL\tadmin\n20\tNULL\tNULL\tadmin\n",
+  "stderr": "",
+  "execution_time_ms": 366
+}

@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Video, Loader2, Download, Trash2, Play, Edit } from "lucide-react";
+import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
@@ -144,6 +144,7 @@ export default function PropertyTours() {
   const createTour = trpc.propertyTours.create.useMutation();
   const generateVideo = trpc.propertyTours.generateVideo.useMutation();
   const deleteTour = trpc.propertyTours.delete.useMutation();
+  const retryVideo = trpc.propertyTours.retryVideo.useMutation();
   const fetchPropertyData = trpc.propertyTours.fetchPropertyData.useMutation();
   const generateVoiceoverScript = trpc.propertyTours.generateVoiceoverScript.useMutation();
   const previewVoice = trpc.propertyTours.previewVoice.useMutation();
@@ -1589,9 +1590,30 @@ export default function PropertyTours() {
                             Generating video...
                           </span>
                         ) : tour.status === "failed" ? (
-                          <span className="text-sm text-destructive">
-                            Failed: {tour.errorMessage}
-                          </span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm text-destructive line-clamp-1 max-w-[200px]" title={tour.errorMessage || ""}>Failed: {tour.errorMessage}</span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2 text-xs"
+                              onClick={async () => {
+                                try {
+                                  await retryVideo.mutateAsync({ tourId: tour.id });
+                                  toast.success("Retrying video generation...");
+                                  utils.propertyTours.list.invalidate();
+                                  setGeneratingTourId(tour.id);
+                                  setGenerationProgress(5);
+                                  setGenerationStatus("Retrying...");
+                                } catch (error) {
+                                  toast.error(error instanceof Error ? error.message : "Failed to retry");
+                                }
+                              }}
+                              disabled={retryVideo.isPending}
+                            >
+                              {retryVideo.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3 mr-1" />}
+                              Retry
+                            </Button>
+                          </div>
                         ) : null}
                         <Button
                           size="sm"

@@ -177,7 +177,7 @@ export default function DashboardLayout({
   });
   // Onboarding is controlled by persona.isCompleted, not localStorage
   const { loading, user } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { data: persona, isLoading: personaLoading } = trpc.persona.get.useQuery(undefined, {
     enabled: !!user,
   });
@@ -189,12 +189,22 @@ export default function DashboardLayout({
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
 
-  // Redirect to onboarding if user hasn't completed it
+  // Paywall gate: redirect expired trial users to /upgrade
   useEffect(() => {
-    if (user && !user.hasCompletedOnboarding) {
-      setLocation("/onboarding");
+    if (!user) return;
+    if (user.role === "admin") return;
+    if (user.subscriptionStatus === "active") return;
+    // Don't redirect if already on upgrade/billing pages
+    const exemptPaths = ["/upgrade", "/credits", "/settings", "/help", "/faq", "/contact"];
+    if (exemptPaths.some(p => location.startsWith(p))) return;
+    // Check if trial has expired (7 days from createdAt)
+    const trialEnd = new Date(user.createdAt);
+    trialEnd.setDate(trialEnd.getDate() + 7);
+    const trialExpired = new Date() > trialEnd;
+    if (trialExpired) {
+      setLocation("/upgrade");
     }
-  }, [user, setLocation]);
+  }, [user, location, setLocation]);
 
   if (loading || personaLoading) {
     return <DashboardLayoutSkeleton />

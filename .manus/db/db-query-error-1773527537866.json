@@ -1,0 +1,19 @@
+{
+  "query": "SELECT COUNT(*) as total_content_posts FROM content_posts;\nSELECT COUNT(*) as total_credit_transactions FROM credit_transactions;\nSELECT usageType, COUNT(*) as count, SUM(amount) as total_credits FROM credit_transactions GROUP BY usageType;\nSELECT COUNT(*) as total_reels FROM auto_reels;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT COUNT(*) as total_content_posts FROM content_posts;\nSELECT COUNT(*) as total_credit_transactions FROM credit_transactions;\nSELECT usageType, COUNT(*) as count, SUM(amount) as total_credits FROM credit_transactions GROUP BY usageType;\nSELECT COUNT(*) as total_reels FROM auto_reels;",
+  "returncode": 1,
+  "logs": [
+    "total_content_posts",
+    "8",
+    "total_credit_transactions",
+    "148",
+    "usageType\tcount\ttotal_credits",
+    "ai_enhanced_video\t6\t-90",
+    "NULL\t68\t2765",
+    "ai-enhanced_video\t8\t-120",
+    "full_ai_video\t6\t-240",
+    "standard_video\t25\t-125",
+    "full-ai_video\t35\t-1960",
+    "ERROR 1146 (42S02) at line 4: Table 'k9bxxkfrk2pj2abrydraat.auto_reels' doesn't exist"
+  ]
+}

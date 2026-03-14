@@ -47,6 +47,8 @@ import Onboarding from "./pages/Onboarding";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
+import { OnboardingModal } from "./components/OnboardingModal";
+import { trpc } from "./lib/trpc";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import AIDisclaimer from "./pages/AIDisclaimer";
@@ -123,13 +125,28 @@ function Router() {
   );
 }
 
+function AppWithOnboarding() {
+  const { data: user, refetch } = trpc.auth.me.useQuery();
+  const showOnboarding = !!(user && !user.hasCompletedOnboarding);
+
+  return (
+    <>
+      <Router />
+      <OnboardingModal
+        open={showOnboarding}
+        onComplete={() => refetch()}
+      />
+    </>
+  );
+}
+
 function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light" switchable={false}>
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <AppWithOnboarding />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

@@ -1,0 +1,14 @@
+{
+  "query": "SELECT \n  COUNT(*) as total_users_past_14_days,\n  SUM(CASE WHEN subscriptionStatus != 'active' THEN 1 ELSE 0 END) as unpaid_past_trial\nFROM users \nWHERE createdAt < DATE_SUB(NOW(), INTERVAL 14 DAY);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT \n  COUNT(*) as total_users_past_14_days,\n  SUM(CASE WHEN subscriptionStatus != 'active' THEN 1 ELSE 0 END) as unpaid_past_trial\nFROM users \nWHERE createdAt < DATE_SUB(NOW(), INTERVAL 14 DAY);",
+  "rows": [
+    {
+      "total_users_past_14_days": "7461",
+      "unpaid_past_trial": "7447"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_users_past_14_days\tunpaid_past_trial\n7461\t7447\n",
+  "stderr": "",
+  "execution_time_ms": 374
+}

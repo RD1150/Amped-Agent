@@ -94,7 +94,7 @@ export const PRICING_TIERS: Record<SubscriptionTier, PricingTier> = {
   },
 };
 
-export const TRIAL_DAYS = 14;
+export const TRIAL_DAYS = 7;
 
 export function getUserTier(subscription: any): SubscriptionTier {
   if (!subscription || subscription.status !== 'active') {

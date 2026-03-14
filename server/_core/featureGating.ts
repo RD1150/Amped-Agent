@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 
 /**
  * Feature Gating System
- * Controls access to features based on subscription tier
+ * Controls access to features based on subscription tier and trial status
  */
 
 export type SubscriptionTier = "starter" | "pro" | "premium";
@@ -81,6 +81,82 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
 };
 
 /**
+ * Trial period in days
+ */
+export const TRIAL_DAYS = 7;
+
+/**
+ * Check if user's trial period is still active (within 7 days of account creation)
+ */
+export function isTrialActive(user: User): boolean {
+  const trialEnd = new Date(user.createdAt);
+  trialEnd.setDate(trialEnd.getDate() + TRIAL_DAYS);
+  return new Date() < trialEnd;
+}
+
+/**
+ * Get trial end date for a user
+ */
+export function getTrialEndDate(user: User): Date {
+  const trialEnd = new Date(user.createdAt);
+  trialEnd.setDate(trialEnd.getDate() + TRIAL_DAYS);
+  return trialEnd;
+}
+
+/**
+ * Get days remaining in trial (0 if expired)
+ */
+export function getTrialDaysRemaining(user: User): number {
+  const trialEnd = getTrialEndDate(user);
+  const now = new Date();
+  const msRemaining = trialEnd.getTime() - now.getTime();
+  return Math.max(0, Math.ceil(msRemaining / (1000 * 60 * 60 * 24)));
+}
+
+/**
+ * Check if user has a paid active subscription
+ */
+export function hasActiveSubscription(user: User): boolean {
+  return user.subscriptionStatus === "active";
+}
+
+/**
+ * Check if user is on trial (within 14 days AND no active paid subscription)
+ */
+export function isOnTrial(user: User): boolean {
+  return !hasActiveSubscription(user) && isTrialActive(user);
+}
+
+/**
+ * Check if user has access to the platform at all.
+ * Access is granted if:
+ *   1. User is an admin
+ *   2. User has an active paid subscription
+ *   3. User is within their 14-day trial window
+ */
+export function hasPlatformAccess(user: User): boolean {
+  if (user.role === "admin") return true;
+  if (hasActiveSubscription(user)) return true;
+  if (isTrialActive(user)) return true;
+  return false;
+}
+
+/**
+ * Enforce platform access — throws PAYMENT_REQUIRED if user has no access.
+ * Call this at the top of any protected procedure.
+ */
+export function requirePlatformAccess(user: User): void {
+  if (!areTierRestrictionsEnabled()) return;
+  if (!hasPlatformAccess(user)) {
+    const trialEnd = getTrialEndDate(user);
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: `SUBSCRIPTION_REQUIRED:Your 7-day free trial ended on ${trialEnd.toLocaleDateString()}. Please subscribe to continue using Authority Content.`,
+    });
+  }
+}
+
+/**
  * Check if user has access to a feature
  */
 export function hasFeatureAccess(
@@ -101,7 +177,6 @@ export function requireFeatureAccess(
   featureName: string
 ): void {
   if (!hasFeatureAccess(user, feature)) {
-    const tier = user.subscriptionTier || "starter";
     const requiredTier = getRequiredTier(feature);
     throw new TRPCError({
       code: "FORBIDDEN",
@@ -132,25 +207,7 @@ export function getUserFeatures(user: User): TierFeatures {
 }
 
 /**
- * Check if user is on trial
- */
-export function isOnTrial(user: User): boolean {
-  return user.subscriptionStatus === "trialing";
-}
-
-/**
- * Check if user has active subscription
- */
-export function hasActiveSubscription(user: User): boolean {
-  return (
-    user.subscriptionStatus === "active" ||
-    user.subscriptionStatus === "trialing"
-  );
-}
-
-/**
  * Environment flag to enable/disable tier restrictions
- * Useful for development and testing
  */
 export function areTierRestrictionsEnabled(): boolean {
   return process.env.ENABLE_TIER_RESTRICTIONS === "true";

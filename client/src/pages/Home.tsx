@@ -59,14 +59,24 @@ export default function HomePage() {
             This is your Authority Operating System.
           </p>
 
-          {/* Agent Headshots Row */}
-          <div className="flex justify-center items-center gap-3 py-6">
+          {/* Social Proof - 8000+ Users */}
+          <div className="flex flex-col items-center gap-3 py-6">
             <div className="flex -space-x-3">
               {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/30 to-slate-700 border-2 border-slate-800 flex items-center justify-center text-white font-semibold">
+                <div key={i} className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/30 to-slate-700 border-2 border-slate-800 flex items-center justify-center text-white font-semibold text-sm">
                   {String.fromCharCode(64 + i)}
                 </div>
               ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-0.5">
+                {[1,2,3,4,5].map(i => (
+                  <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <p className="text-slate-300 font-semibold">
+                Trusted by <span className="text-amber-400 font-bold">8,000+</span> members on the platform
+              </p>
             </div>
           </div>
           <p className="text-slate-400 font-medium">

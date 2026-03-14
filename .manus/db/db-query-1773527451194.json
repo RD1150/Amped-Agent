@@ -1,0 +1,20 @@
+{
+  "query": "SELECT \n  COUNT(*) as total_users,\n  SUM(CASE WHEN subscriptionStatus = 'active' THEN 1 ELSE 0 END) as paid_active,\n  SUM(CASE WHEN subscriptionStatus = 'trialing' THEN 1 ELSE 0 END) as trialing,\n  SUM(CASE WHEN subscriptionStatus = 'inactive' THEN 1 ELSE 0 END) as inactive,\n  SUM(CASE WHEN subscriptionStatus = 'canceled' THEN 1 ELSE 0 END) as canceled,\n  SUM(CASE WHEN subscriptionStatus = 'past_due' THEN 1 ELSE 0 END) as past_due,\n  MIN(createdAt) as first_signup,\n  MAX(createdAt) as latest_signup\nFROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT \n  COUNT(*) as total_users,\n  SUM(CASE WHEN subscriptionStatus = 'active' THEN 1 ELSE 0 END) as paid_active,\n  SUM(CASE WHEN subscriptionStatus = 'trialing' THEN 1 ELSE 0 END) as trialing,\n  SUM(CASE WHEN subscriptionStatus = 'inactive' THEN 1 ELSE 0 END) as inactive,\n  SUM(CASE WHEN subscriptionStatus = 'canceled' THEN 1 ELSE 0 END) as canceled,\n  SUM(CASE WHEN subscriptionStatus = 'past_due' THEN 1 ELSE 0 END) as past_due,\n  MIN(createdAt) as first_signup,\n  MAX(createdAt) as latest_signup\nFROM users;",
+  "rows": [
+    {
+      "total_users": "8778",
+      "paid_active": "14",
+      "trialing": "0",
+      "inactive": "8764",
+      "canceled": "0",
+      "past_due": "0",
+      "first_signup": "2026-01-23 23:49:22",
+      "latest_signup": "2026-03-14 22:29:14"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_users\tpaid_active\ttrialing\tinactive\tcanceled\tpast_due\tfirst_signup\tlatest_signup\n8778\t14\t0\t8764\t0\t0\t2026-01-23 23:49:22\t2026-03-14 22:29:14\n",
+  "stderr": "",
+  "execution_time_ms": 391
+}

@@ -1,0 +1,130 @@
+{
+  "query": "SELECT COUNT(*) as total_content_posts FROM content_posts;\nSELECT usageType, COUNT(*) as count, SUM(amount) as total_credits FROM credit_transactions GROUP BY usageType;\nSHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT COUNT(*) as total_content_posts FROM content_posts;\nSELECT usageType, COUNT(*) as count, SUM(amount) as total_credits FROM credit_transactions GROUP BY usageType;\nSHOW TABLES;",
+  "rows": [
+    {
+      "total_content_posts": "8"
+    },
+    {
+      "total_content_posts": "usageType\tcount\ttotal_credits"
+    },
+    {
+      "total_content_posts": "ai-enhanced_video\t8\t-120"
+    },
+    {
+      "total_content_posts": "full_ai_video\t6\t-240"
+    },
+    {
+      "total_content_posts": "NULL\t68\t2765"
+    },
+    {
+      "total_content_posts": "standard_video\t25\t-125"
+    },
+    {
+      "total_content_posts": "full-ai_video\t35\t-1960"
+    },
+    {
+      "total_content_posts": "ai_enhanced_video\t6\t-90"
+    },
+    {
+      "total_content_posts": "Tables_in_K9BXxKfRk2PJ2AbRYdraAT"
+    },
+    {
+      "total_content_posts": "__drizzle_migrations"
+    },
+    {
+      "total_content_posts": "ab_tests"
+    },
+    {
+      "total_content_posts": "ai_reels"
+    },
+    {
+      "total_content_posts": "analytics"
+    },
+    {
+      "total_content_posts": "beta_signups"
+    },
+    {
+      "total_content_posts": "calendar_events"
+    },
+    {
+      "total_content_posts": "city_showcase_videos"
+    },
+    {
+      "total_content_posts": "content_posts"
+    },
+    {
+      "total_content_posts": "content_templates"
+    },
+    {
+      "total_content_posts": "credit_transactions"
+    },
+    {
+      "total_content_posts": "crop_templates"
+    },
+    {
+      "total_content_posts": "custom_prompt_templates"
+    },
+    {
+      "total_content_posts": "drafts"
+    },
+    {
+      "total_content_posts": "generated_videos"
+    },
+    {
+      "total_content_posts": "ghl_oauth_integrations"
+    },
+    {
+      "total_content_posts": "ghl_settings"
+    },
+    {
+      "total_content_posts": "hooks"
+    },
+    {
+      "total_content_posts": "import_jobs"
+    },
+    {
+      "total_content_posts": "integrations"
+    },
+    {
+      "total_content_posts": "personas"
+    },
+    {
+      "total_content_posts": "post_analytics"
+    },
+    {
+      "total_content_posts": "posting_schedules"
+    },
+    {
+      "total_content_posts": "property_tours"
+    },
+    {
+      "total_content_posts": "reel_usage"
+    },
+    {
+      "total_content_posts": "subscription_tiers"
+    },
+    {
+      "total_content_posts": "uploads"
+    },
+    {
+      "total_content_posts": "usage_alerts"
+    },
+    {
+      "total_content_posts": "usage_tracking"
+    },
+    {
+      "total_content_posts": "user_subscriptions"
+    },
+    {
+      "total_content_posts": "users"
+    },
+    {
+      "total_content_posts": "white_label_settings"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_content_posts\n8\nusageType\tcount\ttotal_credits\nai-enhanced_video\t8\t-120\nfull_ai_video\t6\t-240\nNULL\t68\t2765\nstandard_video\t25\t-125\nfull-ai_video\t35\t-1960\nai_enhanced_video\t6\t-90\nTables_in_K9BXxKfRk2PJ2AbRYdraAT\n__drizzle_migrations\nab_tests\nai_reels\nanalytics\nbeta_signups\ncalendar_events\ncity_showcase_videos\ncontent_posts\ncontent_templates\ncredit_transactions\ncrop_templates\ncustom_prompt_templates\ndrafts\ngenerated_videos\nghl_oauth_integrations\nghl_settings\nhooks\nimport_jobs\nintegrations\npersonas\npost_analytics\nposting_schedules\nproperty_tours\nreel_usage\nsubscription_tiers\nuploads\nusage_alerts\nusage_tracking\nuser_subscriptions\nusers\nwhite_label_settings\n",
+  "stderr": "",
+  "execution_time_ms": 456
+}

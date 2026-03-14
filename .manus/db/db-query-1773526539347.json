@@ -1,0 +1,314 @@
+{
+  "query": "DESCRIBE users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute DESCRIBE users;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "openId",
+      "Type": "varchar(64)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "name",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "email",
+      "Type": "varchar(320)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "loginMethod",
+      "Type": "varchar(64)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "role",
+      "Type": "enum('user','admin')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "user",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    },
+    {
+      "Field": "lastSignedIn",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "stripeCustomerId",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "stripeSubscriptionId",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "subscriptionStatus",
+      "Type": "enum('active','trialing','past_due','canceled','incomplete','incomplete_expired','unpaid','inactive')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "inactive",
+      "Extra": ""
+    },
+    {
+      "Field": "subscriptionEndDate",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "cancelAtPeriodEnd",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "subscriptionTier",
+      "Type": "enum('starter','pro','premium','essential','professional')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "starter",
+      "Extra": ""
+    },
+    {
+      "Field": "ghlSubAccountId",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "ghlLocationId",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "ghlSubAccountCreatedAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "avatarImageUrl",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "avatarVideoUrl",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "standardVideosThisMonth",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "aiEnhancedVideosThisMonth",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "fullAiVideosThisMonth",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "lastVideoCountReset",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "creditBalance",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "50",
+      "Extra": ""
+    },
+    {
+      "Field": "dailyVideoCount",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "lastDailyReset",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "hasCompletedOnboarding",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "onboardingStep",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "1",
+      "Extra": ""
+    },
+    {
+      "Field": "hasAcceptedTerms",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "termsAcceptedAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "cinematicPropertyToursThisMonth",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "cinematicAuthorityReelsThisMonth",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "lastCinematicCountReset",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "preferredVoiceId",
+      "Type": "varchar(64)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "21m00Tcm4TlvDq8ikWAM",
+      "Extra": ""
+    },
+    {
+      "Field": "preferredVoiceoverStyle",
+      "Type": "enum('professional','warm','luxury','casual')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "professional",
+      "Extra": ""
+    },
+    {
+      "Field": "clonedVoiceId",
+      "Type": "varchar(64)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "clonedVoiceName",
+      "Type": "varchar(128)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint\tNO\tPRI\tNULL\tauto_increment\nopenId\tvarchar(64)\tNO\t\tNULL\t\nname\ttext\tYES\t\tNULL\t\nemail\tvarchar(320)\tYES\t\tNULL\t\nloginMethod\tvarchar(64)\tYES\t\tNULL\t\nrole\tenum('user','admin')\tNO\t\tuser\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nupdatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\nlastSignedIn\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nstripeCustomerId\tvarchar(255)\tYES\t\tNULL\t\nstripeSubscriptionId\tvarchar(255)\tYES\t\tNULL\t\nsubscriptionStatus\tenum('active','trialing','past_due','canceled','incomplete','incomplete_expired','unpaid','inactive')\tYES\t\tinactive\t\nsubscriptionEndDate\ttimestamp\tYES\t\tNULL\t\ncancelAtPeriodEnd\ttinyint(1)\tYES\t\t0\t\nsubscriptionTier\tenum('starter','pro','premium','essential','professional')\tYES\t\tstarter\t\nghlSubAccountId\tvarchar(255)\tYES\t\tNULL\t\nghlLocationId\tvarchar(255)\tYES\t\tNULL\t\nghlSubAccountCreatedAt\ttimestamp\tYES\t\tNULL\t\navatarImageUrl\ttext\tYES\t\tNULL\t\navatarVideoUrl\ttext\tYES\t\tNULL\t\nstandardVideosThisMonth\tint\tNO\t\t0\t\naiEnhancedVideosThisMonth\tint\tNO\t\t0\t\nfullAiVideosThisMonth\tint\tNO\t\t0\t\nlastVideoCountReset\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\ncreditBalance\tint\tNO\t\t50\t\ndailyVideoCount\tint\tNO\t\t0\t\nlastDailyReset\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nhasCompletedOnboarding\ttinyint(1)\tNO\t\t0\t\nonboardingStep\tint\tNO\t\t1\t\nhasAcceptedTerms\ttinyint(1)\tNO\t\t0\t\ntermsAcceptedAt\ttimestamp\tYES\t\tNULL\t\ncinematicPropertyToursThisMonth\tint\tNO\t\t0\t\ncinematicAuthorityReelsThisMonth\tint\tNO\t\t0\t\nlastCinematicCountReset\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\npreferredVoiceId\tvarchar(64)\tYES\t\t21m00Tcm4TlvDq8ikWAM\t\npreferredVoiceoverStyle\tenum('professional','warm','luxury','casual')\tYES\t\tprofessional\t\nclonedVoiceId\tvarchar(64)\tYES\t\tNULL\t\nclonedVoiceName\tvarchar(128)\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 353
+}

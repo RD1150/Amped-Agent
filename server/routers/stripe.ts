@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { router, protectedProcedure, publicProcedure } from '../_core/trpc';
+import { router, protectedProcedure, authOnlyProcedure, publicProcedure } from '../_core/trpc';
 import { getDb } from '../db';
 import { users } from '../../drizzle/schema';
 import { eq } from 'drizzle-orm';
@@ -14,7 +14,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 
 export const stripeRouter = router({
   // Create checkout session for credit purchase
-  createCreditCheckout: protectedProcedure
+  createCreditCheckout: authOnlyProcedure
     .input(
       z.object({
         packageKey: z.enum(['starter', 'professional', 'agency']),
@@ -76,7 +76,7 @@ export const stripeRouter = router({
     }),
 
   // Create checkout session for subscription
-  createCheckoutSession: protectedProcedure
+  createCheckoutSession: authOnlyProcedure
     .input(
       z.object({
         tier: z.enum(['essential', 'professional', 'premium']),
@@ -140,7 +140,7 @@ export const stripeRouter = router({
     }),
 
   // Create billing portal session
-  createBillingPortalSession: protectedProcedure
+  createBillingPortalSession: authOnlyProcedure
     .input(
       z.object({
         returnUrl: z.string(),
@@ -176,7 +176,7 @@ export const stripeRouter = router({
     }),
 
   // Get subscription status
-  getSubscriptionStatus: protectedProcedure.query(async ({ ctx }) => {
+  getSubscriptionStatus: authOnlyProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
 
     const db = await getDb();

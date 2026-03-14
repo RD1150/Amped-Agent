@@ -1,6 +1,6 @@
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, authOnlyProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { invokeLLM } from "./_core/llm";
 import { moderateContent } from "./_core/contentModeration";
@@ -43,17 +43,17 @@ export const appRouter = router({
       ctx.res.clearCookie("session", { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
-    updateAvatarImage: protectedProcedure
+    updateAvatarImage: authOnlyProcedure
       .input(z.object({ avatarImageUrl: z.string().url() }))
       .mutation(async ({ ctx, input }) => {
         return db.updateUserAvatar(ctx.user.id, input.avatarImageUrl, null);
       }),
-    updateAvatarVideo: protectedProcedure
+    updateAvatarVideo: authOnlyProcedure
       .input(z.object({ avatarVideoUrl: z.string().url() }))
       .mutation(async ({ ctx, input }) => {
         return db.updateUserAvatar(ctx.user.id, null, input.avatarVideoUrl);
       }),
-    updateProfile: protectedProcedure
+    updateProfile: authOnlyProcedure
       .input(z.object({
         name: z.string().min(1),
         bio: z.string().optional(),
@@ -62,7 +62,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return db.updateUserProfile(ctx.user.id, input);
       }),
-    uploadHeadshot: protectedProcedure
+    uploadHeadshot: authOnlyProcedure
       .input(z.object({
         imageData: z.string(), // base64 encoded image
         fileName: z.string(),
@@ -87,16 +87,36 @@ export const appRouter = router({
         
         return { url };
       }),
-    saveOnboardingStep: protectedProcedure
+    saveOnboardingStep: authOnlyProcedure
       .input(z.object({ step: z.number().min(1).max(5) }))
       .mutation(async ({ ctx, input }) => {
         return db.saveOnboardingStep(ctx.user.id, input.step);
       }),
-    completeOnboarding: protectedProcedure
+    completeOnboarding: authOnlyProcedure
       .mutation(async ({ ctx }) => {
         return db.markOnboardingComplete(ctx.user.id);
       }),
-    acceptTerms: protectedProcedure
+
+    saveOnboarding: authOnlyProcedure
+      .input(z.object({
+        brokerageName: z.string().min(1).max(255),
+        primaryCity: z.string().min(1).max(255),
+        primaryState: z.string().min(1).max(100),
+        yearsExperience: z.number().int().min(0).max(60),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Save to persona (brokerage, city, state, years)
+        await db.upsertPersona(ctx.user.id, {
+          brokerageName: input.brokerageName,
+          primaryCity: input.primaryCity,
+          primaryState: input.primaryState,
+          yearsExperience: input.yearsExperience,
+        });
+        // Mark onboarding complete
+        await db.markOnboardingComplete(ctx.user.id);
+        return { success: true };
+      }),
+    acceptTerms: authOnlyProcedure
       .mutation(async ({ ctx }) => {
         return db.acceptTermsOfService(ctx.user.id);
       }),
@@ -228,6 +248,9 @@ export const appRouter = router({
         elevenlabsVoiceId: z.string().optional(),
         elevenlabsVoiceName: z.string().optional(),
         voiceSampleUrl: z.string().optional(),
+        yearsExperience: z.number().int().min(0).max(60).optional(),
+        primaryCity: z.string().max(255).optional(),
+        primaryState: z.string().max(100).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);
