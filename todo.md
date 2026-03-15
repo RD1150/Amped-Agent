@@ -3498,3 +3498,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add voice-over option (ElevenLabs narration per room)
 - [x] Add to Property Tours section in sidebar
 - [x] Write vitest tests (16 tests passing)
+
+## My Lead Magnets Library
+- [x] Add lead_magnets table to drizzle/schema.ts (id, userId, type, city, agentName, pdfUrl, pdfKey, createdAt)
+- [x] Push DB migration with pnpm db:push
+- [x] Update leadMagnet router to save each generated PDF to the lead_magnets table
+- [x] Add getMyLeadMagnets and deleteLeadMagnet tRPC procedures
+- [x] Build MyLeadMagnets.tsx page with grid of saved PDFs, download + delete actions
+- [x] Add "My Lead Magnets" to sidebar nav under LIBRARY section
+- [x] Add route /my-lead-magnets to App.tsx
+- [x] Write vitest tests for new procedures (13 tests passing)

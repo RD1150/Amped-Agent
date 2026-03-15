@@ -400,6 +400,13 @@
       "when": 1773560049463,
       "tag": "0056_outgoing_caretaker",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "5",
+      "when": 1773611796252,
+      "tag": "0057_wooden_living_mummy",
+      "breakpoints": true
     }
   ]
 }

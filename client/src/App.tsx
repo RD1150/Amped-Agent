@@ -49,6 +49,7 @@ import BulkImport from "./pages/BulkImport";
 import RepurposeEngine from "./pages/RepurposeEngine";
 import LeadMagnet from "./pages/LeadMagnet";
 import CinematicWalkthrough from "./pages/CinematicWalkthrough";
+import MyLeadMagnets from "./pages/MyLeadMagnets";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -108,6 +109,7 @@ function Router() {
         <Route path="/repurpose" component={RepurposeEngine} />
         <Route path="/lead-magnet" component={LeadMagnet} />
         <Route path="/cinematic-walkthrough" component={CinematicWalkthrough} />
+        <Route path="/my-lead-magnets" component={MyLeadMagnets} />
         <Route path="/script-to-reel" component={ScriptToReel} />
         <Route path="/my-reels" component={MyReels} />
         <Route path="/my-videos" component={MyVideos} />

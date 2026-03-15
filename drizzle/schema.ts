@@ -773,3 +773,19 @@ export const youtubeConnections = mysqlTable("youtube_connections", {
 });
 export type YoutubeConnection = typeof youtubeConnections.$inferSelect;
 export type InsertYoutubeConnection = typeof youtubeConnections.$inferInsert;
+
+// ─── Lead Magnets ──────────────────────────────────────────────────────────────
+// Stores generated lead magnet PDFs for the My Lead Magnets library
+export const leadMagnets = mysqlTable("lead_magnets", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  type: mysqlEnum("type", ["first_time_buyer_guide", "neighborhood_report", "market_update"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  city: varchar("city", { length: 255 }).notNull(),
+  agentName: varchar("agentName", { length: 255 }),
+  agentBrokerage: varchar("agentBrokerage", { length: 255 }),
+  pdfUrl: text("pdfUrl").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type LeadMagnet = typeof leadMagnets.$inferSelect;
+export type InsertLeadMagnet = typeof leadMagnets.$inferInsert;

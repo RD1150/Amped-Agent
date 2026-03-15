@@ -3,6 +3,9 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import * as db from "../db";
 import { storagePut } from "../storage";
+import { getDb } from "../db";
+import { leadMagnets } from "../../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
 
 /**
  * Lead Magnet Generator Router
@@ -107,15 +110,19 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
       const fileKey = `lead-magnets/${ctx.user.id}/${type}-${suffix}.pdf`;
       const { url } = await storagePut(fileKey, pdfBuffer, "application/pdf");
 
-      // Step 4: Save record to DB as a draft post for reference
-      await db.createContentPost({
+      // Step 4: Save to lead_magnets table for My Lead Magnets library
+      const database = await getDb();
+      if (!database) throw new Error("Database unavailable");
+      // Map frontend type to schema enum
+      const schemaType = type === "buyer_guide" ? "first_time_buyer_guide" : type as "neighborhood_report" | "market_update";
+      await database.insert(leadMagnets).values({
         userId: ctx.user.id,
-        title: `Lead Magnet: ${typeLabels[type]} — ${city}`,
-        content: JSON.stringify({ type, city, pdfUrl: url, ...content }),
-        contentType: "custom",
-        format: "static_post",
-        status: "draft",
-        aiGenerated: true,
+        type: schemaType,
+        title: `${typeLabels[type]} — ${city}`,
+        city,
+        agentName,
+        agentBrokerage: agentBrokerage || undefined,
+        pdfUrl: url,
       });
 
       return {
@@ -125,6 +132,36 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
         pdfUrl: url,
         agentName,
       };
+    }),
+
+  /**
+   * Get all lead magnets for the current user
+   */
+  getMyLeadMagnets: protectedProcedure.query(async ({ ctx }) => {
+    const database = await getDb();
+    if (!database) return [];
+    const results = await database
+      .select()
+      .from(leadMagnets)
+      .where(eq(leadMagnets.userId, ctx.user.id))
+      .orderBy(desc(leadMagnets.createdAt));
+    return results;
+  }),
+
+  /**
+   * Delete a lead magnet by ID (only owner can delete)
+   */
+  deleteLeadMagnet: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const database = await getDb();
+      if (!database) throw new Error("Database unavailable");
+      await database
+        .delete(leadMagnets)
+        .where(
+          eq(leadMagnets.id, input.id)
+        );
+      return { success: true };
     }),
 });
 
