@@ -90,25 +90,36 @@ import FirstPostOnboarding from "./FirstPostOnboarding";
 // Organized menu structure with categories
 const menuSections = [
   {
-    title: "CONTENT CREATION",
+    title: "HOME",
     items: [
-      { icon: Home, label: "Home", path: "/dashboard", description: "Dashboard overview" },
-      { icon: Sparkles, label: "Authority Post Builder", path: "/generate", description: "Generate social media posts (text + images)" },
-      { icon: Video, label: "Authority Reels Engine", path: "/autoreels", description: "Create talking avatar videos (15-60 sec)" },
+      { icon: Home, label: "Dashboard", path: "/dashboard", description: "Dashboard overview" },
+    ]
+  },
+  {
+    title: "CREATE",
+    items: [
+      { icon: Sparkles, label: "Post Builder", path: "/generate", description: "Generate social media posts (text + images)" },
+      { icon: Video, label: "Reels Engine", path: "/autoreels", description: "Create talking avatar videos (15-60 sec)" },
       { icon: Building2, label: "Property Tours", path: "/property-tours", description: "Generate property showcase videos with music" },
       { icon: Mail, label: "Newsletter Builder", path: "/newsletter", description: "Design email newsletters", badge: "Premium" },
     ]
   },
   {
-    title: "CONTENT MANAGEMENT",
+    title: "PUBLISH",
     items: [
       { icon: Calendar, label: "Content Calendar", path: "/calendar", description: "Schedule and manage all posts" },
+      { icon: Link2, label: "Integrations", path: "/integrations", description: "Connect Facebook, Instagram, LinkedIn, GBP" },
+    ]
+  },
+  {
+    title: "LIBRARY",
+    items: [
       { icon: Video, label: "My Videos", path: "/my-videos", description: "All generated Property Tours, Reels & Market videos" },
       { icon: FileText, label: "Content Templates", path: "/content-templates", description: "Browse pre-made post templates" },
     ]
   },
   {
-    title: "TOOLS & INSIGHTS",
+    title: "GROW",
     items: [
       { icon: TrendingUp, label: "Market Insights", path: "/market-stats", description: "Real estate market data and trends" },
       { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails", description: "Generate click-worthy thumbnails" },
@@ -117,10 +128,9 @@ const menuSections = [
     ]
   },
   {
-    title: "SETTINGS",
+    title: "ACCOUNT",
     items: [
       { icon: User, label: "Authority Profile", path: "/authority-profile", description: "Your branding, bio, headshot" },
-      { icon: Link2, label: "Integrations", path: "/integrations", description: "Connect social media accounts" },
       { icon: CreditCard, label: "Credits", path: "/credits", description: "View usage and upgrade" },
       { icon: Settings, label: "Settings", path: "/settings", description: "App preferences" },
     ]

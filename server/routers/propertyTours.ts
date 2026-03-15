@@ -40,7 +40,7 @@ export const propertyToursRouter = router({
         musicTrack: z.string().optional(),
         cardTemplate: z.enum(["modern", "luxury", "bold", "classic", "contemporary"]).default("modern"),
         includeIntroVideo: z.boolean().default(false),
-        videoMode: z.enum(["standard", "full-ai"]).default("standard"),
+        videoMode: z.enum(["standard"]).default("standard"),
         enableVoiceover: z.boolean().default(false),
         voiceId: z.string().optional(),
         customCameraPrompt: z.string().optional(),
@@ -152,7 +152,7 @@ export const propertyToursRouter = router({
 
       // Calculate credit cost
       const costBreakdown = credits.calculateVideoCost({
-        videoMode: tour.videoMode as "standard" | "full-ai",
+        videoMode: "standard",
         enableVoiceover: tour.enableVoiceover || false,
       });
 
@@ -236,7 +236,7 @@ export const propertyToursRouter = router({
             musicTrack: tour.musicTrack || undefined,
             cardTemplate: (tour.cardTemplate as "modern" | "luxury" | "bold" | "classic" | "contemporary") || "modern",
             includeIntroVideo: tour.includeIntroVideo ?? false,
-            videoMode: tour.videoMode as "standard" | "full-ai",
+            videoMode: "standard",
             enableVoiceover: tour.enableVoiceover || false,
             customCameraPrompt: tour.customCameraPrompt || undefined,
             voiceoverScript: tour.voiceoverScript || undefined,
@@ -274,7 +274,7 @@ export const propertyToursRouter = router({
 
           // Refund credits
           const costBreakdown = credits.calculateVideoCost({
-            videoMode: tour.videoMode as "standard" | "full-ai",
+            videoMode: "standard",
             enableVoiceover: tour.enableVoiceover || false,
           });
           await credits.refundCredits({
@@ -428,7 +428,7 @@ export const propertyToursRouter = router({
       // Refund credits if video was processing or failed (user shouldn't lose credits)
       if (tour.status === "processing" || tour.status === "failed") {
         const costBreakdown = credits.calculateVideoCost({
-          videoMode: tour.videoMode as "standard" | "full-ai",
+          videoMode: "standard",
           enableVoiceover: tour.enableVoiceover || false,
         });
         
@@ -615,7 +615,7 @@ export const propertyToursRouter = router({
       .where(
         and(
           eq(propertyTours.userId, ctx.user.id),
-          eq(propertyTours.videoMode, "full-ai"),
+          eq(propertyTours.videoMode, "standard"),
           gte(propertyTours.createdAt, monthStart)
         )
       );
@@ -663,7 +663,7 @@ export const propertyToursRouter = router({
 
       // Check credits
       const costBreakdown = credits.calculateVideoCost({
-        videoMode: tour.videoMode as "standard" | "full-ai",
+        videoMode: "standard",
         enableVoiceover: tour.enableVoiceover || false,
       });
       const hasEnoughCredits = await credits.hasCredits(ctx.user.id, costBreakdown.totalCredits);
@@ -722,7 +722,7 @@ export const propertyToursRouter = router({
             musicTrack: tour.musicTrack || undefined,
             cardTemplate: (tour.cardTemplate as "modern" | "luxury" | "bold" | "classic" | "contemporary") || "modern",
             includeIntroVideo: tour.includeIntroVideo ?? false,
-            videoMode: tour.videoMode as "standard" | "full-ai",
+            videoMode: "standard",
             enableVoiceover: tour.enableVoiceover || false,
             customCameraPrompt: tour.customCameraPrompt || undefined,
             voiceoverScript: tour.voiceoverScript || undefined,

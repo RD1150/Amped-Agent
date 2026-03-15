@@ -102,7 +102,7 @@ export default function PropertyTours() {
   const [musicVolume, setMusicVolume] = useState(50);
   const [cardTemplate, setCardTemplate] = useState<"modern" | "luxury" | "bold" | "classic" | "contemporary">("modern");
   const [includeIntroVideo, setIncludeIntroVideo] = useState(false);
-  const [videoMode, setVideoMode] = useState<"standard" | "full-ai">("standard");
+
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel - professional female
   const [voiceoverStyle, setVoiceoverStyle] = useState<"professional" | "warm" | "luxury" | "casual">("professional");
@@ -111,11 +111,9 @@ export default function PropertyTours() {
   const [showScriptEditor, setShowScriptEditor] = useState(false);
   const [generatedScript, setGeneratedScript] = useState("");
   const [customScript, setCustomScript] = useState("");
-  const [customCameraPrompt, setCustomCameraPrompt] = useState("");
   const [perPhotoMovements, setPerPhotoMovements] = useState<string[]>([]);
   const [movementSpeed, setMovementSpeed] = useState<"slow" | "fast">("fast");
-  const [enableAvatarOverlay, setEnableAvatarOverlay] = useState(false);
-  const [avatarOverlayPosition, setAvatarOverlayPosition] = useState<"bottom-left" | "bottom-right">("bottom-left");
+
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropImageIndex, setCropImageIndex] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -127,7 +125,7 @@ export default function PropertyTours() {
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
-  const { data: creditCost } = trpc.credits.calculateCost.useQuery({ videoMode, enableVoiceover });
+  const { data: creditCost } = trpc.credits.calculateCost.useQuery({ videoMode: "standard", enableVoiceover });
   const { data: balance } = trpc.credits.getBalance.useQuery();
   const { data: dailyUsage } = trpc.rateLimit.getDailyUsage.useQuery();
   const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
@@ -427,17 +425,14 @@ export default function PropertyTours() {
         musicTrack,
         cardTemplate,
         includeIntroVideo,
-        videoMode,
+        videoMode: "standard",
         enableVoiceover,
         voiceId: enableVoiceover ? voiceId : undefined,
-        customCameraPrompt: customCameraPrompt || undefined,
         voiceoverScript: customScript || undefined,
         perPhotoMovements: perPhotoMovements.length > 0 
           ? perPhotoMovements.map(m => m || "auto")  // Replace null/undefined with "auto"
           : undefined,
         movementSpeed,
-        enableAvatarOverlay,
-        avatarOverlayPosition,
       });
 
       // Set generating state
@@ -452,15 +447,13 @@ export default function PropertyTours() {
       setGenerationStatus("Video queued. Starting generation...");
 
       let pollCount = 0;
-      // Full Cinematic can take up to 30 min (5 photos × 5 min Kling AI + Shotstack)
-      // Standard Ken Burns takes ~3-5 min
-      const maxPolls = videoMode === "full-ai" ? 360 : 90; // 30 min vs 7.5 min at 5s intervals
+      // Ken Burns takes ~3-5 min (90 polls × 5s = 7.5 min max)
+      const maxPolls = 90;
 
       // Stage → progress % and human-readable message
       const stageInfo: Record<string, { progress: number; message: string }> = {
         preparing:                { progress: 20, message: "Preparing your property tour..." },
         generating_voiceover:     { progress: 30, message: "Generating AI voiceover narration with ElevenLabs..." },
-        generating_ai_clips:      { progress: 35, message: "Generating cinematic AI video clips with Kling AI (this takes a few minutes per photo)..." },
         submitting_to_shotstack:  { progress: 70, message: "Submitting to Shotstack for final render..." },
         fetching_assets:          { progress: 75, message: "Shotstack is fetching your assets..." },
         rendering:                { progress: 80, message: "Rendering your video..." },
@@ -987,71 +980,7 @@ export default function PropertyTours() {
               </Label>
             </div>
 
-            {/* Video Generation Mode */}
-            <div>
-              <Label htmlFor="videoMode">Video Generation Mode</Label>
-              <Select value={videoMode} onValueChange={(v: any) => setVideoMode(v)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="standard">
-                    <div className="flex flex-col">
-                      <span className="font-semibold">Standard (5 credits)</span>
-                      <span className="text-xs text-muted-foreground">Ken Burns effects, crossfade dissolves, music</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="full-ai">
-                    <div className="flex flex-col">
-                      <span className="font-semibold">Full AI Cinematic (40 credits)</span>
-                      <span className="text-xs text-muted-foreground">Kling AI pro mode, 1080p/30fps, dramatic camera movement</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
-            {/* Custom Camera Movement Prompt (for Full Cinematic mode) */}
-            {videoMode === "full-ai" && (
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="promptTemplate">Camera Movement Preset</Label>
-                  <Select
-                    value={customCameraPrompt}
-                    onValueChange={(value) => setCustomCameraPrompt(value === "custom" ? "" : value)}
-                  >
-                    <SelectTrigger id="promptTemplate">
-                      <SelectValue placeholder="Choose a preset or write custom..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="custom">Custom (write your own)</SelectItem>
-                      <SelectItem value="Aerial drone shot slowly revealing the entire property from above">🚁 Drone Shot - Aerial reveal</SelectItem>
-                      <SelectItem value="Smooth dolly push moving forward through the space">🎬 Dolly Push - Forward movement</SelectItem>
-                      <SelectItem value="Elegant crane shot descending to reveal the space from above">🏗️ Crane Shot - Descending reveal</SelectItem>
-                      <SelectItem value="Tracking shot smoothly gliding through each area">📹 Tracking Shot - Smooth glide</SelectItem>
-                      <SelectItem value="Slow pan across the space revealing details">↔️ Pan Across - Horizontal sweep</SelectItem>
-                      <SelectItem value="Cinematic zoom slowly pushing into key details">🔍 Zoom In - Detail focus</SelectItem>
-                      <SelectItem value="Wide pullback zoom revealing the full space">🔎 Zoom Out - Full reveal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="cameraPrompt">Or Write Custom Prompt</Label>
-                  <Textarea
-                    id="cameraPrompt"
-                    placeholder="e.g., 'Drone shot flying over the property' or 'Slow dolly push through the front door' - Leave blank for auto-generated prompts"
-                    value={customCameraPrompt}
-                    onChange={(e) => setCustomCameraPrompt(e.target.value)}
-                    rows={3}
-                    className="resize-none"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Select a preset above or write your own camera movement description
-                  </p>
-                </div>
-              </div>
-            )}
 
             {/* Movement Speed Preset */}
             <div className="space-y-2">
@@ -1209,54 +1138,7 @@ export default function PropertyTours() {
               )}
             </div>
 
-            {/* AI Agent Avatar Overlay */}
-            {videoMode === "full-ai" && (
-              <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/30">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="enableAvatarOverlay"
-                    checked={enableAvatarOverlay}
-                    onCheckedChange={(checked) => setEnableAvatarOverlay(checked as boolean)}
-                  />
-                  <Label htmlFor="enableAvatarOverlay" className="text-sm font-medium cursor-pointer">
-                    AI Agent Avatar Overlay
-                  </Label>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Your AI twin appears in the corner narrating the tour. Set up your headshot and voice recording in{" "}
-                  <a href="/account" className="underline text-primary">Account Settings</a> first.
-                </p>
-                {enableAvatarOverlay && (
-                  <div className="space-y-2">
-                    <Label className="text-xs font-medium">Avatar Position</Label>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setAvatarOverlayPosition("bottom-left")}
-                        className={`flex-1 py-1.5 px-3 rounded text-xs border transition-colors ${
-                          avatarOverlayPosition === "bottom-left"
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "border-border hover:bg-muted"
-                        }`}
-                      >
-                        ↙ Bottom Left
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setAvatarOverlayPosition("bottom-right")}
-                        className={`flex-1 py-1.5 px-3 rounded text-xs border transition-colors ${
-                          avatarOverlayPosition === "bottom-right"
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "border-border hover:bg-muted"
-                        }`}
-                      >
-                        ↘ Bottom Right
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+
 
             {/* Video Settings */}
             <div className="grid grid-cols-2 gap-4">
@@ -1438,7 +1320,6 @@ export default function PropertyTours() {
                     setMusicTrack(undefined);
                     setCardTemplate("modern");
                     setIncludeIntroVideo(false);
-                    setVideoMode("standard");
                     setEnableVoiceover(false);
                     setShowScriptEditor(false);
                     setGeneratedScript("");

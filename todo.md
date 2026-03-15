@@ -3403,3 +3403,16 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add GBP publish button to Content Calendar publish dialog
 - [x] Add GBP post type to AIGenerate page
 - [x] Write vitest tests for GBP router (8 passing)
+
+## Remove Full AI Cinematic Mode - Mar 14 2026
+- [ ] Remove Full AI Cinematic toggle/tab from PropertyTours page UI
+- [ ] Remove Runway AI calls from propertyTours backend router
+- [ ] Remove Full AI Cinematic from pricing/credits display on dashboard
+- [ ] Remove Full AI Cinematic from usage tracking logic
+- [ ] Remove RUNWAY_API_KEY dependency (keep key in env but stop using it)
+- [ ] Rename remaining mode to something cleaner if needed
+
+## Menu Reorganization - Mar 14 2026
+- [x] Reorganize sidebar into: HOME / CREATE / PUBLISH / LIBRARY / GROW / ACCOUNT
+- [x] Move Integrations from ACCOUNT to PUBLISH section
+- [x] Finish removing Full AI Cinematic from backend router and videoGenerator

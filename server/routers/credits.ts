@@ -31,7 +31,7 @@ export const creditsRouter = router({
   calculateCost: protectedProcedure
     .input(
       z.object({
-        videoMode: z.enum(["standard", "full-ai"]),
+        videoMode: z.enum(["standard"]),
         enableVoiceover: z.boolean(),
       })
     )

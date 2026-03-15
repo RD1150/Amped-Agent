@@ -197,25 +197,16 @@ export async function getCreditHistory(userId: number, limit: number = 50) {
  * Calculate credit cost for a property tour video
  */
 export function calculateVideoCost(params: {
-  videoMode: "standard" | "full-ai";
+  videoMode: "standard";
   enableVoiceover: boolean;
 }): { totalCredits: number; breakdown: { item: string; credits: number }[] } {
-  const { videoMode, enableVoiceover } = params;
+  const { enableVoiceover } = params;
 
   const breakdown: { item: string; credits: number }[] = [];
 
-  // Base video cost
-  let videoCredits = 0;
-  switch (videoMode) {
-    case "standard":
-      videoCredits = CREDIT_COSTS.standard_video;
-      breakdown.push({ item: "Standard Video (Ken Burns)", credits: videoCredits });
-      break;
-    case "full-ai":
-      videoCredits = CREDIT_COSTS.full_ai_video;
-      breakdown.push({ item: "Full AI Cinematic (all photos)", credits: videoCredits });
-      break;
-  }
+  // Base video cost — Ken Burns (Standard)
+  const videoCredits = CREDIT_COSTS.standard_video;
+  breakdown.push({ item: "Property Tour Video (Ken Burns)", credits: videoCredits });
 
   let totalCredits = videoCredits;
 
