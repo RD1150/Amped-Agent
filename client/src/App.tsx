@@ -46,6 +46,8 @@ import MyVideos from "./pages/MyVideos";
 import NewsletterBuilder from "./pages/NewsletterBuilder";
 import Onboarding from "./pages/Onboarding";
 import BulkImport from "./pages/BulkImport";
+import RepurposeEngine from "./pages/RepurposeEngine";
+import LeadMagnet from "./pages/LeadMagnet";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -102,6 +104,8 @@ function Router() {
         <Route path="/property-tours" component={PropertyTours} />
         <Route path="/content-templates" component={ContentTemplates} />
         <Route path="/bulk-import" component={BulkImport} />
+        <Route path="/repurpose" component={RepurposeEngine} />
+        <Route path="/lead-magnet" component={LeadMagnet} />
         <Route path="/script-to-reel" component={ScriptToReel} />
         <Route path="/my-reels" component={MyReels} />
         <Route path="/my-videos" component={MyVideos} />

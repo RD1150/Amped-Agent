@@ -4,6 +4,30 @@ import * as db from "../db";
 import { v4 as uuidv4 } from "uuid";
 import { invokeLLM } from "../_core/llm";
 
+// ============ IN-MEMORY JOB STORE ============
+// Tracks progress for async batch generation jobs.
+// Keyed by jobId (uuid). Cleared after 30 minutes.
+type JobStatus = 'pending' | 'running' | 'done' | 'failed';
+interface BatchJob {
+  userId: number;
+  status: JobStatus;
+  total: number;
+  completed: number;
+  failed: number;
+  createdPostIds: number[];
+  errorMessage?: string;
+  startedAt: number;
+}
+const batchJobs = new Map<string, BatchJob>();
+
+// Prune jobs older than 30 minutes every 5 minutes
+setInterval(() => {
+  const cutoff = Date.now() - 30 * 60 * 1000;
+  for (const [id, job] of Array.from(batchJobs.entries())) {
+    if (job.startedAt < cutoff) batchJobs.delete(id);
+  }
+}, 5 * 60 * 1000);
+
 /**
  * Content Templates Router
  * Handles CSV bulk uploads of hooks, reel ideas, and scripts for automated content generation
@@ -384,6 +408,126 @@ export const contentTemplatesRouter = router({
         });
         throw error;
       }
+    }),
+
+  /**
+   * Start an async job that generates full carousel post copy for all pending templates
+   * belonging to the current user (or a specific batch). Returns a jobId immediately;
+   * poll getJobProgress to track completion.
+   */
+  generateAllPosts: protectedProcedure
+    .input(z.object({
+      batchId: z.string().optional(), // if provided, only generate for this import batch
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.user.id;
+
+      // Fetch pending templates
+      let templates: any[];
+      if (input.batchId) {
+        const all = await db.getContentTemplatesByBatchId(input.batchId);
+        templates = all.filter(t => t.userId === userId && t.status === 'pending');
+      } else {
+        templates = await db.getPendingContentTemplates(userId);
+      }
+
+      if (templates.length === 0) {
+        throw new Error('No pending templates found to generate. All templates may already be generated.');
+      }
+
+      const jobId = uuidv4();
+      const job: BatchJob = {
+        userId,
+        status: 'running',
+        total: templates.length,
+        completed: 0,
+        failed: 0,
+        createdPostIds: [],
+        startedAt: Date.now(),
+      };
+      batchJobs.set(jobId, job);
+
+      // Fire-and-forget background processing
+      setImmediate(async () => {
+        const persona = await db.getPersonaByUserId(userId);
+        for (const template of templates) {
+          const currentJob = batchJobs.get(jobId);
+          if (!currentJob) break; // job was pruned
+
+          try {
+            const prompt = buildContentPrompt(template, persona);
+            const response = await invokeLLM({
+              messages: [
+                {
+                  role: 'system',
+                  content: 'You are a professional real estate social media content creator. Create engaging, authentic content that helps real estate agents connect with their audience and drive leads.',
+                },
+                { role: 'user', content: prompt },
+              ],
+            });
+
+            const generatedContent =
+              typeof response.choices[0].message.content === 'string'
+                ? response.choices[0].message.content
+                : JSON.stringify(response.choices[0].message.content);
+
+            const post = await db.createContentPost({
+              userId,
+              title: template.hook.substring(0, 100),
+              content: generatedContent,
+              contentType: mapContentTypeToPostType(template.contentType || 'post'),
+              format: mapContentTypeToFormat(template.contentType || 'post'),
+              status: 'draft',
+              platforms: template.platform ? JSON.stringify([template.platform]) : undefined,
+              aiGenerated: true,
+            });
+
+            const postId = Number((post as any).insertId ?? 0);
+
+            await db.updateContentTemplate(template.id, {
+              status: 'generated',
+              generatedPostId: postId || undefined,
+            });
+
+            currentJob.completed += 1;
+            if (postId) currentJob.createdPostIds.push(postId);
+          } catch (err: any) {
+            console.error(`[generateAllPosts] Failed for template ${template.id}:`, err.message);
+            await db.updateContentTemplate(template.id, {
+              status: 'failed',
+              errorMessage: err.message,
+            }).catch(() => {});
+            const j = batchJobs.get(jobId);
+            if (j) j.failed += 1;
+          }
+        }
+
+        const finalJob = batchJobs.get(jobId);
+        if (finalJob) {
+          finalJob.status = finalJob.failed === finalJob.total ? 'failed' : 'done';
+        }
+      });
+
+      return { jobId, total: templates.length };
+    }),
+
+  /**
+   * Poll the progress of an async batch generation job.
+   */
+  getJobProgress: protectedProcedure
+    .input(z.object({ jobId: z.string() }))
+    .query(({ ctx, input }) => {
+      const job = batchJobs.get(input.jobId);
+      if (!job || job.userId !== ctx.user.id) {
+        return { status: 'not_found' as const, total: 0, completed: 0, failed: 0 };
+      }
+      return {
+        status: job.status,
+        total: job.total,
+        completed: job.completed,
+        failed: job.failed,
+        createdPostIds: job.createdPostIds,
+      };
     }),
 
   /**

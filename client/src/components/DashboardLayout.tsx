@@ -50,7 +50,8 @@ import {
   Award,
   Building2,
   CreditCard,
-  MessageSquare
+  MessageSquare,
+  Shuffle
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -103,6 +104,8 @@ const menuSections = [
       { icon: Building2, label: "Property Tours", path: "/property-tours", description: "Generate property showcase videos with music" },
       { icon: Upload, label: "Bulk Import", path: "/bulk-import", description: "Import content ideas from CSV in bulk" },
       { icon: Mail, label: "Newsletter Builder", path: "/newsletter", description: "Design email newsletters", badge: "Premium" },
+      { icon: Shuffle, label: "Repurpose Engine", path: "/repurpose", description: "Write once, publish everywhere — 5 formats from 1 idea", badge: "Premium" },
+      { icon: FileText, label: "Lead Magnet Generator", path: "/lead-magnet", description: "Generate branded PDF lead magnets for Facebook Lead Ads", badge: "Premium" },
     ]
   },
   {

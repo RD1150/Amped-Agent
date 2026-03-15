@@ -26,6 +26,8 @@ import { musicLibraryRouter } from "./routers/musicLibrary";
 import { myVideosRouter } from "./routers/myVideos";
 import { gbpRouter } from "./routers/gbp";
 import { youtubeRouter } from "./routers/youtube";
+import { repurposeRouter } from "./routers/repurpose";
+import { leadMagnetRouter } from "./routers/leadMagnet";
 
 export const appRouter = router({
   system: systemRouter,
@@ -39,6 +41,8 @@ export const appRouter = router({
   myVideos: myVideosRouter,
   gbp: gbpRouter,
   youtube: youtubeRouter,
+  repurpose: repurposeRouter,
+  leadMagnet: leadMagnetRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

@@ -1,9 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 import {
   Upload,
   FileText,
@@ -14,41 +16,119 @@ import {
   Info,
   Table,
   Zap,
+  Play,
+  Loader2,
+  ArrowRight,
+  LayoutGrid,
 } from "lucide-react";
 
 export default function BulkImport() {
+  const [, setLocation] = useLocation();
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [detectedFormat, setDetectedFormat] = useState<"carousel" | "native" | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Batch generation job state
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [generatingBatchId, setGeneratingBatchId] = useState<string | null>(null);
 
   const uploadCSV = trpc.contentTemplates.uploadCSV.useMutation({
     onSuccess: (result) => {
       toast.success(result.message);
       setCsvFile(null);
       setDetectedFormat(null);
-      refetchBatches();
+      refetchTemplates();
     },
     onError: (err) => {
       toast.error(err.message || "Failed to import CSV");
     },
   });
 
-  const { data: allTemplates, refetch: refetchBatches } = trpc.contentTemplates.list.useQuery({ limit: 500 });
+  const { data: allTemplates, refetch: refetchTemplates } = trpc.contentTemplates.list.useQuery({ limit: 500 });
+
+  // Poll job progress when a job is running
+  const { data: jobProgress } = trpc.contentTemplates.getJobProgress.useQuery(
+    { jobId: activeJobId! },
+    {
+      enabled: !!activeJobId,
+      refetchInterval: activeJobId ? 2000 : false,
+    }
+  );
+
+  // Handle job completion
+  useEffect(() => {
+    if (!jobProgress) return;
+    if (jobProgress.status === "done") {
+      const count = jobProgress.completed;
+      toast.success(`${count} post${count !== 1 ? "s" : ""} generated and saved to Drafts!`, {
+        action: {
+          label: "View Drafts",
+          onClick: () => setLocation("/drafts"),
+        },
+        duration: 8000,
+      });
+      setActiveJobId(null);
+      setGeneratingBatchId(null);
+      refetchTemplates();
+    } else if (jobProgress.status === "failed") {
+      toast.error("Generation failed. Please try again.");
+      setActiveJobId(null);
+      setGeneratingBatchId(null);
+    }
+  }, [jobProgress?.status]);
+
+  const generateAllPosts = trpc.contentTemplates.generateAllPosts.useMutation({
+    onSuccess: (result) => {
+      setActiveJobId(result.jobId);
+      toast.info(`Generating ${result.total} posts in the background…`);
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to start generation");
+      setGeneratingBatchId(null);
+    },
+  });
 
   // Derive batch history from templates
   const batches = allTemplates
     ? Object.values(
-        allTemplates.reduce((acc: Record<string, { importBatchId: string; count: number; importedAt: number }>, t: any) => {
-          if (!t.importBatchId) return acc;
-          if (!acc[t.importBatchId]) {
-            acc[t.importBatchId] = { importBatchId: t.importBatchId, count: 0, importedAt: t.createdAt ?? Date.now() };
-          }
-          acc[t.importBatchId].count++;
-          return acc;
-        }, {})
-      ).sort((a: any, b: any) => b.importedAt - a.importedAt).slice(0, 10)
+        allTemplates.reduce(
+          (
+            acc: Record<
+              string,
+              {
+                importBatchId: string;
+                count: number;
+                pendingCount: number;
+                generatedCount: number;
+                importedAt: number;
+              }
+            >,
+            t: any
+          ) => {
+            if (!t.importBatchId) return acc;
+            if (!acc[t.importBatchId]) {
+              acc[t.importBatchId] = {
+                importBatchId: t.importBatchId,
+                count: 0,
+                pendingCount: 0,
+                generatedCount: 0,
+                importedAt: t.createdAt ?? Date.now(),
+              };
+            }
+            acc[t.importBatchId].count++;
+            if (t.status === "pending") acc[t.importBatchId].pendingCount++;
+            if (t.status === "generated") acc[t.importBatchId].generatedCount++;
+            return acc;
+          },
+          {}
+        )
+      )
+        .sort((a: any, b: any) => b.importedAt - a.importedAt)
+        .slice(0, 10)
     : [];
+
+  const pendingTotal = allTemplates ? allTemplates.filter((t: any) => t.status === "pending").length : 0;
 
   const detectFormat = (content: string) => {
     const firstLine = content.split("\n")[0].toLowerCase();
@@ -81,6 +161,11 @@ export default function BulkImport() {
     uploadCSV.mutate({ csvContent, filename: csvFile.name });
   };
 
+  const handleGenerateAll = (batchId?: string) => {
+    setGeneratingBatchId(batchId ?? "all");
+    generateAllPosts.mutate({ batchId });
+  };
+
   const downloadCarouselSample = () => {
     const sample = `ID,Topic,Description,Category,Subcategory,Tags,Difficulty,Target Audience,Seasonal,Key Points
 1,Unlocking the Door to Your Dream Home,Helps buyers understand the home buying process,Buying,First-Time Buyers,homebuying;realestate;firsttimehomebuyer,Beginner,First-Time Buyers,No,Get Pre-Approved;Find Your Agent;Make an Offer;Close the Deal
@@ -105,6 +190,12 @@ export default function BulkImport() {
     a.click();
   };
 
+  const isJobRunning = !!activeJobId && jobProgress?.status === "running";
+  const jobPercent =
+    isJobRunning && jobProgress && jobProgress.total > 0
+      ? Math.round((jobProgress.completed / jobProgress.total) * 100)
+      : 0;
+
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       {/* Header */}
@@ -114,6 +205,68 @@ export default function BulkImport() {
           Upload a CSV to import dozens of content ideas at once. Hooks are auto-generated by AI when missing.
         </p>
       </div>
+
+      {/* Active Job Progress Banner */}
+      {isJobRunning && jobProgress && (
+        <Card className="border border-primary/40 bg-primary/5">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                <span className="font-semibold text-foreground text-sm">Generating posts…</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {jobProgress.completed} / {jobProgress.total} complete
+              </span>
+            </div>
+            <Progress value={jobPercent} className="h-2" />
+            <p className="text-xs text-muted-foreground">
+              Each post is being written by AI with your brand voice. You can navigate away — this runs in the background.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Generate All Posts CTA — shown when there are pending templates */}
+      {pendingTotal > 0 && !isJobRunning && (
+        <Card className="border border-amber-500/30 bg-amber-500/5">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+                  <LayoutGrid className="w-5 h-5 text-amber-500" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground text-sm">
+                    {pendingTotal} template{pendingTotal !== 1 ? "s" : ""} ready to generate
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Click below to generate full carousel post copy for all pending templates at once.
+                    Posts will be saved to your Drafts automatically.
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => handleGenerateAll()}
+                disabled={generateAllPosts.isPending}
+                className="gap-2 shrink-0"
+              >
+                {generateAllPosts.isPending && generatingBatchId === "all" ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Starting…
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Generate All {pendingTotal} Posts
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Format Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -276,7 +429,7 @@ export default function BulkImport() {
             {batches.map((batch: any) => (
               <div
                 key={batch.importBatchId}
-                className="flex items-center justify-between p-3 rounded-lg border border-border bg-card"
+                className="flex items-center justify-between p-3 rounded-lg border border-border bg-card gap-3 flex-wrap"
               >
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
@@ -286,12 +439,46 @@ export default function BulkImport() {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Batch {batch.importBatchId.slice(0, 8)}… · {new Date(batch.importedAt).toLocaleDateString()}
+                      {batch.generatedCount > 0 && (
+                        <span className="ml-2 text-green-600">· {batch.generatedCount} generated</span>
+                      )}
+                      {batch.pendingCount > 0 && (
+                        <span className="ml-2 text-amber-600">· {batch.pendingCount} pending</span>
+                      )}
                     </p>
                   </div>
                 </div>
-                <Badge variant="secondary" className="text-xs">
-                  {batch.count} items
-                </Badge>
+                <div className="flex items-center gap-2">
+                  {batch.pendingCount > 0 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5 text-xs h-7"
+                      disabled={isJobRunning || generateAllPosts.isPending}
+                      onClick={() => handleGenerateAll(batch.importBatchId)}
+                    >
+                      {generateAllPosts.isPending && generatingBatchId === batch.importBatchId ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Play className="w-3 h-3" />
+                      )}
+                      Generate {batch.pendingCount}
+                    </Button>
+                  )}
+                  {batch.generatedCount > 0 && batch.pendingCount === 0 && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="gap-1.5 text-xs h-7"
+                      onClick={() => setLocation("/drafts")}
+                    >
+                      View Drafts <ArrowRight className="w-3 h-3" />
+                    </Button>
+                  )}
+                  <Badge variant="secondary" className="text-xs">
+                    {batch.count} items
+                  </Badge>
+                </div>
               </div>
             ))}
           </div>

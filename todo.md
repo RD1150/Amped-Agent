@@ -3460,3 +3460,30 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Verify 92-row carousel CSV imports without errors
 - [x] Confirm AI hook generation works for rows without hook column
 - [x] Confirm Key Points map correctly to carousel slides
+
+## Batch "Generate All Posts" from Bulk Import (New Priority)
+- [x] Add batchGeneratePosts tRPC procedure: loops all pending carousel templates, generates full post copy via AI, saves each as a Draft
+- [x] Add progress tracking: store job status (pending/running/done/failed) and count in DB or in-memory
+- [x] Add getGenerationProgress tRPC query to poll progress from frontend
+- [x] Add "Generate All Posts" button to Bulk Import page with progress bar UI
+- [x] Show per-batch generate button (generate only templates from a specific import batch)
+- [x] Redirect to Drafts page when generation completes
+- [x] Mark templates as 'generated' status after successful draft creation
+- [x] Write vitest tests for batchGeneratePosts procedure
+
+## Auto-Repurpose Engine (Premium Feature)
+- [x] Build repurpose tRPC router: one topic+body input → 5 format outputs (carousel, reel script, newsletter, GBP post, LinkedIn)
+- [x] Create RepurposeEngine.tsx frontend page with tabbed output view and copy buttons
+- [x] Add Repurpose Engine to sidebar navigation with Premium badge
+- [x] Add route /repurpose to App.tsx
+- [x] Write 6 vitest tests for repurpose router
+- [x] Update Premium tier description in pricingConstants.ts
+
+## Lead Magnet Generator (Premium Feature)
+- [x] Build leadMagnet tRPC router: generates branded PDF lead magnets (Buyer Guide, Neighborhood Report, Market Update)
+- [x] Install html-pdf-node for server-side PDF rendering
+- [x] Create LeadMagnet.tsx frontend page with type selector, form, and download/copy link result
+- [x] Add Lead Magnet Generator to sidebar navigation with Premium badge
+- [x] Add route /lead-magnet to App.tsx
+- [x] Write 8 vitest tests for leadMagnet router
+- [x] Update Premium tier features list in pricingConstants.ts
