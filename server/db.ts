@@ -8,7 +8,6 @@ import {
   InsertIntegration, integrations,
   InsertUpload, uploads,
   InsertImportJob, importJobs,
-  InsertGHLSettings, ghlSettings,
   InsertAnalytics, analytics,
   InsertPostingSchedule, postingSchedules,
   subscriptionTiers, SubscriptionTier,
@@ -395,30 +394,6 @@ export async function getImportJobById(id: number) {
   const result = await db.select().from(importJobs).where(eq(importJobs.id, id)).limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
-
-// ============ GHL SETTINGS HELPERS ============
-
-export async function getGHLSettingsByUserId(userId: number) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(ghlSettings).where(eq(ghlSettings.userId, userId)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
-}
-
-export async function upsertGHLSettings(userId: number, data: Partial<InsertGHLSettings>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const existing = await getGHLSettingsByUserId(userId);
-  if (existing) {
-    await db.update(ghlSettings).set({ ...data, updatedAt: new Date() }).where(eq(ghlSettings.userId, userId));
-    return { ...existing, ...data };
-  } else {
-    const result = await db.insert(ghlSettings).values({ ...data, userId });
-    return { id: Number(result[0].insertId), userId, ...data };
-  }
-}
-
 
 // ============ ANALYTICS HELPERS ============
 

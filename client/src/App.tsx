@@ -13,7 +13,6 @@ import Integrations from "./pages/Integrations";
 import AIGenerate from "./pages/AIGenerate";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
-import GHLSettings from "./pages/GHLSettings";
 import Analytics from "./pages/Analytics";
 import Schedules from "./pages/Schedules";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -108,7 +107,6 @@ function Router() {
         <Route path="/hooks" component={Hooks} />
 
         <Route path="/upgrade" component={Upgrade} />
-        <Route path="/ghl" component={GHLSettings} />
         <Route path="/analytics" component={Analytics} />
         <Route path="/schedules" component={Schedules} />
         <Route path="/settings" component={Settings} />

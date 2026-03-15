@@ -763,4 +763,139 @@ export const propertyToursRouter = router({
 
       return { queued: true };
     }),
+
+  /**
+   * Generate YouTube SEO metadata for a completed property tour video
+   */
+  generateYouTubeSEO: protectedProcedure
+    .input(z.object({ tourId: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const tour = await db.getPropertyTourById(input.tourId);
+      if (!tour) throw new Error("Property tour not found");
+      if (tour.userId !== ctx.user.id) throw new Error("Unauthorized");
+
+      const { invokeLLM } = await import("../_core/llm");
+
+      // Build property summary for the LLM
+      const propDetails = [
+        tour.address,
+        tour.price ? `Priced at ${tour.price}` : null,
+        tour.beds ? `${tour.beds} beds` : null,
+        tour.baths ? `${tour.baths} baths` : null,
+        tour.sqft ? `${tour.sqft} sqft` : null,
+        tour.propertyType || null,
+        tour.description ? `Description: ${tour.description}` : null,
+      ].filter(Boolean).join(", ");
+
+      const systemPrompt = `You are a YouTube SEO expert specializing in real estate video content. 
+Your goal is to maximize organic search visibility for property tour videos on YouTube.
+Always output valid JSON matching the schema exactly.`;
+
+      const userPrompt = `Generate YouTube SEO metadata for this property tour video:
+${propDetails}
+
+Return JSON with this exact structure:
+{
+  "title": "string (max 100 chars, include address, price, key features, and 'Property Tour' or 'Home Tour' — make it compelling and searchable)",
+  "description": "string (500-800 chars, start with the most important info, include full address, price, beds/baths/sqft, key features, neighborhood, agent CTA, and relevant hashtags at the end)",
+  "tags": ["array of 15-20 keyword strings, mix of specific (address, city) and general (real estate, home tour, property tour, buying a home, etc.)"],
+  "timestamps": [
+    { "time": "0:00", "label": "Introduction" },
+    { "time": "0:10", "label": "Exterior & Curb Appeal" },
+    { "time": "0:25", "label": "Main Living Areas" },
+    { "time": "0:45", "label": "Kitchen & Dining" },
+    { "time": "1:00", "label": "Bedrooms" },
+    { "time": "1:20", "label": "Bathrooms" },
+    { "time": "1:35", "label": "Backyard & Outdoor Space" },
+    { "time": "1:50", "label": "Contact & Next Steps" }
+  ]
+}
+Adjust timestamps to match the video duration of ${tour.duration || 60} seconds. Make all content specific to this property.`;
+
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "youtube_seo",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                description: { type: "string" },
+                tags: { type: "array", items: { type: "string" } },
+                timestamps: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      time: { type: "string" },
+                      label: { type: "string" },
+                    },
+                    required: ["time", "label"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+              required: ["title", "description", "tags", "timestamps"],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      const rawContent = response.choices[0]?.message?.content;
+      const raw = typeof rawContent === "string" ? rawContent : "{}";
+      const seo = JSON.parse(raw) as {
+        title: string;
+        description: string;
+        tags: string[];
+        timestamps: { time: string; label: string }[];
+      };
+
+      // Save to DB
+      await db.updatePropertyTour(input.tourId, {
+        youtubeTitle: seo.title,
+        youtubeDescription: seo.description,
+        youtubeTags: JSON.stringify(seo.tags),
+        youtubeTimestamps: JSON.stringify(seo.timestamps),
+      });
+
+      return {
+        title: seo.title,
+        description: seo.description,
+        tags: seo.tags,
+        timestamps: seo.timestamps,
+      };
+    }),
+
+  /**
+   * Save manually edited YouTube SEO metadata
+   */
+  saveYouTubeSEO: protectedProcedure
+    .input(z.object({
+      tourId: z.number().int().positive(),
+      title: z.string().max(100),
+      description: z.string(),
+      tags: z.array(z.string()),
+      timestamps: z.array(z.object({ time: z.string(), label: z.string() })),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const tour = await db.getPropertyTourById(input.tourId);
+      if (!tour) throw new Error("Property tour not found");
+      if (tour.userId !== ctx.user.id) throw new Error("Unauthorized");
+
+      await db.updatePropertyTour(input.tourId, {
+        youtubeTitle: input.title,
+        youtubeDescription: input.description,
+        youtubeTags: JSON.stringify(input.tags),
+        youtubeTimestamps: JSON.stringify(input.timestamps),
+      });
+
+      return { success: true };
+    }),
 });

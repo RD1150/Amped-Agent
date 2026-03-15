@@ -44,7 +44,7 @@ export default function Privacy() {
             </p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Service providers (Stripe for payments, hosting providers)</li>
-              <li>Third-party platforms you connect (GoHighLevel, Facebook)</li>
+              <li>Third-party platforms you connect (Facebook, Instagram, LinkedIn)</li>
               <li>Law enforcement when required by law</li>
             </ul>
           </section>

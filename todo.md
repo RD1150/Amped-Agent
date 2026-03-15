@@ -3370,3 +3370,23 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Phase 2 Roadmap (After 98% Core Stability)
 - [ ] B-roll footage library: curated royalty-free clips (neighborhoods, luxury interiors, lifestyle) users can insert into property tour videos. Consider Pexels Videos API (free) or Storyblocks (paid). Premium differentiator for higher tier pricing.
+
+## Remove GHL & Add YouTube SEO - Mar 14 2026
+- [x] Remove GHL from App.tsx (route + import)
+- [x] Remove GHL from DashboardLayout.tsx (sidebar nav item, useAutoProvisionGHL hook)
+- [x] Remove GHLSettings.tsx page
+- [x] Remove useAutoProvisionGHL.ts hook
+- [x] Remove GHL from Integrations.tsx page
+- [x] Update ContentCalendar.tsx publish flow to use native FB/IG/LinkedIn instead of GHL
+- [x] Remove ghl router from server/routers.ts
+- [x] Remove ghlSettings table from drizzle/schema.ts
+- [x] Remove ghlSubAccountId/ghlLocationId/ghlSubAccountCreatedAt from users table
+- [x] Run pnpm db:push to apply schema changes
+- [x] Remove GHL test files from server/
+- [x] Add generateYouTubeSEO tRPC procedure (LLM generates title, description, tags, timestamps)
+- [x] Add youtubeTitle, youtubeDescription, youtubeTags, youtubeTimestamps columns to property_tours table
+- [x] Run pnpm db:push for YouTube SEO columns
+- [x] Build YouTubeSEOPanel component with copy buttons
+- [x] Wire YouTubeSEOPanel into PropertyTours page (shown after video is ready)
+- [x] Wire YouTubeSEOPanel into MyVideos page (links to Property Tours)
+- [x] Add YouTube SEO vitest tests (4 passing)

@@ -2,7 +2,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, CheckCircle2, AlertCircle, Facebook, Instagram, Linkedin } from "lucide-react";
+import { CheckCircle2, AlertCircle, Facebook, Instagram, Linkedin } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -15,10 +15,6 @@ export default function Integrations() {
   
   // Get LinkedIn connection status
   const { data: linkedinConnection, refetch: refetchLinkedIn } = trpc.linkedin.getConnection.useQuery();
-  
-  // Get GHL connection status
-  const { data: ghlSettings } = trpc.ghl.getSettings.useQuery();
-  const isGHLConnected = ghlSettings?.isConnected && ghlSettings?.apiKey && ghlSettings?.locationId;
 
   const getAuthUrlMutation = trpc.facebook.getAuthUrl.useMutation();
   const disconnectFacebookMutation = trpc.facebook.disconnect.useMutation();
@@ -32,12 +28,8 @@ export default function Integrations() {
       setIsConnecting(true);
       const redirectUri = `${window.location.origin}/integrations/facebook/callback`;
       const result = await getAuthUrlMutation.mutateAsync({ redirectUri });
-      
-      // Store state in sessionStorage for verification
       sessionStorage.setItem("facebook_oauth_state", result.state);
       sessionStorage.setItem("facebook_oauth_redirect", redirectUri);
-      
-      // Redirect to Facebook OAuth
       window.location.href = result.authUrl;
     } catch (error) {
       toast.error("Failed to start Facebook connection");
@@ -54,7 +46,6 @@ export default function Integrations() {
       toast.success("Facebook disconnected");
     } catch (error) {
       toast.error("Failed to disconnect Facebook");
-      console.error(error);
     }
   };
 
@@ -65,7 +56,6 @@ export default function Integrations() {
       toast.success("Instagram disconnected");
     } catch (error) {
       toast.error("Failed to disconnect Instagram");
-      console.error(error);
     }
   };
 
@@ -74,12 +64,8 @@ export default function Integrations() {
       setIsConnecting(true);
       const redirectUri = `${window.location.origin}/integrations/linkedin/callback`;
       const result = await getLinkedInAuthUrlMutation.mutateAsync({ redirectUri });
-      
-      // Store state in sessionStorage for verification
       sessionStorage.setItem("linkedin_oauth_state", result.state);
       sessionStorage.setItem("linkedin_oauth_redirect", redirectUri);
-      
-      // Redirect to LinkedIn OAuth
       window.location.href = result.authUrl;
     } catch (error) {
       toast.error("Failed to start LinkedIn connection");
@@ -95,7 +81,6 @@ export default function Integrations() {
       toast.success("LinkedIn disconnected");
     } catch (error) {
       toast.error("Failed to disconnect LinkedIn");
-      console.error(error);
     }
   };
 
@@ -118,9 +103,7 @@ export default function Integrations() {
               </div>
               <div>
                 <CardTitle>Facebook</CardTitle>
-                <CardDescription>
-                  Post directly to your Facebook Page
-                </CardDescription>
+                <CardDescription>Post directly to your Facebook Page</CardDescription>
               </div>
             </div>
             {facebookConnection?.isConnected ? (
@@ -169,7 +152,7 @@ export default function Integrations() {
                 <p className="text-sm font-medium">Connect Your Facebook Page</p>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                   <li>Post directly to your Facebook Page</li>
-                  <li>No middleman required</li>
+                  <li>No third-party service required</li>
                   <li>Secure OAuth 2.0 authentication</li>
                 </ul>
               </div>
@@ -196,9 +179,7 @@ export default function Integrations() {
               </div>
               <div>
                 <CardTitle>Instagram</CardTitle>
-                <CardDescription>
-                  Post directly to your Instagram Business or Creator Account
-                </CardDescription>
+                <CardDescription>Post directly to your Instagram Business or Creator Account</CardDescription>
               </div>
             </div>
             {instagramConnection?.isConnected ? (
@@ -220,9 +201,7 @@ export default function Integrations() {
               <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div>
                   <p className="text-sm font-medium">@{instagramConnection.instagramUsername}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Connected via Facebook Page
-                  </p>
+                  <p className="text-xs text-muted-foreground">Connected via Facebook Page</p>
                 </div>
                 <Button
                   variant="outline"
@@ -240,20 +219,17 @@ export default function Integrations() {
                 <p className="text-sm font-medium">Connect Instagram Account</p>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                   <li>Requires Facebook Page connection first</li>
-                  <li>Supports Business & Creator accounts</li>
+                  <li>Supports Business and Creator accounts</li>
                   <li>Post images and captions directly</li>
-                  <li>Schedule posts and manage content</li>
                 </ul>
               </div>
               {!facebookConnection?.isConnected ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground italic">
                   Connect Facebook first to enable Instagram posting
                 </p>
               ) : (
                 <Button
-                  onClick={() => {
-                    window.location.href = "/integrations/instagram/setup";
-                  }}
+                  onClick={() => { window.location.href = "/integrations/instagram/setup"; }}
                   className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                 >
                   <Instagram className="h-4 w-4 mr-2" />
@@ -275,9 +251,7 @@ export default function Integrations() {
               </div>
               <div>
                 <CardTitle>LinkedIn</CardTitle>
-                <CardDescription>
-                  Post directly to your LinkedIn profile
-                </CardDescription>
+                <CardDescription>Post directly to your LinkedIn profile</CardDescription>
               </div>
             </div>
             {linkedinConnection?.isConnected ? (
@@ -326,7 +300,7 @@ export default function Integrations() {
                 <p className="text-sm font-medium">Connect Your LinkedIn Profile</p>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                   <li>Post directly to your LinkedIn profile</li>
-                  <li>No middleman required</li>
+                  <li>No third-party service required</li>
                   <li>Secure OAuth 2.0 authentication</li>
                 </ul>
               </div>
@@ -343,75 +317,22 @@ export default function Integrations() {
         </CardContent>
       </Card>
 
-      {/* GHL Card (Optional) */}
-      {isGHLConnected && (
-        <Card className="border-2 border-primary/20">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-2xl">
-                  📱
-                </div>
-                <div>
-                  <CardTitle>GoHighLevel</CardTitle>
-                  <CardDescription>
-                    Post to multiple platforms via GHL Social Planner
-                  </CardDescription>
-                </div>
-              </div>
-              <Badge variant="default" className="bg-green-500/20 text-green-400 border-green-500/30">
-                <CheckCircle2 className="h-3 w-3 mr-1" />
-                Connected
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium">Location</p>
-                  <p className="text-xs text-muted-foreground">{ghlSettings?.locationId || "Not set"}</p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    window.location.href = "/ghl";
-                  }}
-                >
-                  Manage
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Posts to LinkedIn, Twitter, TikTok, YouTube, and more through GHL
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Information Card */}
+      {/* Info Card */}
       <Card>
         <CardHeader>
           <CardTitle>About Social Media Integrations</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="space-y-2">
+          <div className="space-y-1">
             <p className="text-sm font-medium">Direct Posting</p>
             <p className="text-xs text-muted-foreground">
-              Facebook and Instagram use direct OAuth connections for reliable posting without third-party services
+              Facebook, Instagram, and LinkedIn use direct OAuth connections — no third-party services required.
             </p>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1">
             <p className="text-sm font-medium">Coming Soon</p>
             <p className="text-xs text-muted-foreground">
-              Twitter/X, TikTok, and YouTube integrations are in development
-            </p>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium">GoHighLevel Option</p>
-            <p className="text-xs text-muted-foreground">
-              If you have GHL, you can post to all platforms through their Social Planner
+              TikTok and Twitter/X integrations are on the roadmap.
             </p>
           </div>
         </CardContent>

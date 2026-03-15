@@ -101,36 +101,37 @@ export default function ContentCalendar() {
     },
   });
 
-  const { data: ghlSettings } = trpc.ghl.getSettings.useQuery();
-  const { data: socialAccounts } = trpc.ghl.getSocialAccounts.useQuery(
-    undefined,
-    { 
-      enabled: !!ghlSettings?.isConnected,
-      retry: false,
-      refetchOnWindowFocus: false,
-    }
-  );
+  // Get connected social accounts
+  const { data: facebookConnection } = trpc.facebook.getConnection.useQuery();
+  const { data: linkedinConnection } = trpc.linkedin.getConnection.useQuery();
 
-  const pushToGHL = trpc.ghl.pushToSocialPlanner.useMutation({
+  const postToFacebook = trpc.facebook.postToFacebook.useMutation({
     onSuccess: () => {
       utils.content.list.invalidate();
-      toast.success("Successfully pushed to GHL Social Planner!");
+      toast.success("Posted to Facebook!");
     },
     onError: (error) => {
-      toast.error(`Failed to push to GHL: ${error.message}`);
+      toast.error(`Failed to post to Facebook: ${error.message}`);
     },
   });
 
-  // Get GHL connection status
-  const isGHLConnected = ghlSettings?.isConnected && ghlSettings?.apiKey && ghlSettings?.locationId;
+  const postToLinkedIn = trpc.linkedin.createPost.useMutation({
+    onSuccess: () => {
+      utils.content.list.invalidate();
+      toast.success("Posted to LinkedIn!");
+    },
+    onError: (error) => {
+      toast.error(`Failed to post to LinkedIn: ${error.message}`);
+    },
+  });
+
+  const hasAnySocialConnected = facebookConnection?.isConnected || linkedinConnection?.isConnected;
 
   const handleOpenPublishDialog = (postId: number) => {
-    // Check if GHL is connected
-    if (!isGHLConnected) {
-      toast.error("Please connect GoHighLevel in Integrations first");
+    if (!hasAnySocialConnected) {
+      toast.error("Please connect a social media account in Integrations first");
       return;
     }
-
     setSelectedPostId(postId);
     setIsPublishDialogOpen(true);
   };
@@ -172,19 +173,21 @@ export default function ContentCalendar() {
       toast.error("No post selected");
       return;
     }
-
-    const accountIds = socialAccounts?.accounts.map((acc: any) => acc.id) || [];
-    
-    if (accountIds.length === 0) {
-      toast.error("No social accounts connected in GoHighLevel");
+    const post = contentPosts.find(p => p.id === selectedPostId);
+    if (!post) return;
+    const content = post.content || "";
+    const promises: Promise<any>[] = [];
+    if (facebookConnection?.isConnected) {
+      promises.push(postToFacebook.mutateAsync({ message: content, imageUrl: post.imageUrl || undefined }));
+    }
+    if (linkedinConnection?.isConnected) {
+      promises.push(postToLinkedIn.mutateAsync({ text: content, imageUrl: post.imageUrl || undefined }));
+    }
+    if (promises.length === 0) {
+      toast.error("No social accounts connected");
       return;
     }
-
-    pushToGHL.mutate({
-      contentPostId: selectedPostId,
-      accountIds,
-    });
-
+    await Promise.allSettled(promises);
     setIsPublishDialogOpen(false);
     setSelectedPostId(null);
   };
@@ -194,16 +197,9 @@ export default function ContentCalendar() {
       toast.error("Please select date and time");
       return;
     }
-
-    const accountIds = socialAccounts?.accounts.map((acc: any) => acc.id) || [];
-    const scheduledDateTime = new Date(`${scheduleDate}T${scheduleTime}`);
-    
-    pushToGHL.mutate({
-      contentPostId: selectedPostId,
-      accountIds,
-      scheduledAt: scheduledDateTime,
-    });
-
+    // Schedule via socialPosting router
+    trpc.socialPosting.schedulePost.useMutation;
+    toast.info("Scheduling is coming soon — for now, use Publish Now.");
     setIsPublishDialogOpen(false);
     setSelectedPostId(null);
     setScheduleDate("");
@@ -654,23 +650,21 @@ export default function ContentCalendar() {
         onOpenChange={setIsPublishDialogOpen}
         post={selectedPostForPublish || null}
         onPublish={async (data) => {
-          const accountIds = socialAccounts?.accounts.map((acc: any) => acc.id) || [];
-          
-          if (accountIds.length === 0) {
-            toast.error("No social accounts connected in GoHighLevel");
+          const post = contentPosts.find(p => p.id === data.postId);
+          if (!post) return;
+          const content = post.content || "";
+          const promises: Promise<any>[] = [];
+          if (data.platforms.includes("facebook") && facebookConnection?.isConnected) {
+            promises.push(postToFacebook.mutateAsync({ message: content, imageUrl: post.imageUrl || undefined }));
+          }
+          if (data.platforms.includes("linkedin") && linkedinConnection?.isConnected) {
+            promises.push(postToLinkedIn.mutateAsync({ text: content, imageUrl: post.imageUrl || undefined }));
+          }
+          if (promises.length === 0) {
+            toast.error("Selected platforms are not connected. Go to Integrations to connect them.");
             return;
           }
-
-          const scheduledDateTime = data.scheduleDate && data.scheduleTime
-            ? new Date(`${data.scheduleDate}T${data.scheduleTime}`)
-            : undefined;
-
-          pushToGHL.mutate({
-            contentPostId: data.postId,
-            accountIds,
-            scheduledAt: scheduledDateTime,
-          });
-
+          await Promise.allSettled(promises);
           setSelectedPostId(null);
         }}
       />

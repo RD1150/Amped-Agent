@@ -20,10 +20,6 @@ export const users = mysqlTable("users", {
   subscriptionStatus: mysqlEnum("subscriptionStatus", ["active", "trialing", "past_due", "canceled", "incomplete", "incomplete_expired", "unpaid", "inactive"]).default("inactive"),
   subscriptionEndDate: timestamp("subscriptionEndDate"),
   cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").default(false),
-  // GHL sub-account fields (auto-provisioned, hidden from user)
-  ghlSubAccountId: varchar("ghlSubAccountId", { length: 255 }),
-  ghlLocationId: varchar("ghlLocationId", { length: 255 }),
-  ghlSubAccountCreatedAt: timestamp("ghlSubAccountCreatedAt"),
   // D-ID avatar fields
   avatarImageUrl: text("avatarImageUrl"), // User's headshot for D-ID avatar generation
   avatarVideoUrl: text("avatarVideoUrl"), // Generated D-ID avatar intro video URL
@@ -222,24 +218,6 @@ export const importJobs = mysqlTable("import_jobs", {
 
 export type ImportJob = typeof importJobs.$inferSelect;
 export type InsertImportJob = typeof importJobs.$inferInsert;
-
-/**
- * GoHighLevel settings
- */
-export const ghlSettings = mysqlTable("ghl_settings", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().unique(),
-  apiKey: text("apiKey"),
-  locationId: varchar("locationId", { length: 255 }),
-  agencyId: varchar("agencyId", { length: 255 }),
-  isConnected: boolean("isConnected").default(false),
-  lastSyncAt: timestamp("lastSyncAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type GHLSettings = typeof ghlSettings.$inferSelect;
-export type InsertGHLSettings = typeof ghlSettings.$inferInsert;
 
 /**
  * Analytics - track post performance metrics
@@ -527,6 +505,11 @@ export const propertyTours = mysqlTable("property_tours", {
   avatarOverlayPosition: mysqlEnum("avatarOverlayPosition", ["bottom-left", "bottom-right"]).default("bottom-left"),
   klingAvatarTaskId: varchar("klingAvatarTaskId", { length: 255 }), // Kling task ID for polling
   klingAvatarVideoUrl: text("klingAvatarVideoUrl"), // Generated Kling Avatar video URL
+  // YouTube SEO
+  youtubeTitle: text("youtubeTitle"), // AI-generated YouTube-optimized title
+  youtubeDescription: text("youtubeDescription"), // AI-generated YouTube description with keywords
+  youtubeTags: text("youtubeTags"), // JSON array of keyword tags
+  youtubeTimestamps: text("youtubeTimestamps"), // JSON array of {time, label} chapter markers
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),

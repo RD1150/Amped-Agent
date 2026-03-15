@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { ImageCropModal } from "@/components/ImageCropModal";
 import { compressVideo } from "@/lib/videoCompression";
 import { MusicLibrary } from "@/components/MusicLibrary";
+import YouTubeSEOPanel from "@/components/YouTubeSEOPanel";
 
 // Smart video thumbnail that preloads before allowing play
 function VideoThumbnail({ src, thumbnailUrl, address }: { src: string; thumbnailUrl?: string; address: string }) {
@@ -1624,9 +1625,22 @@ export default function PropertyTours() {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    </div>
                   </div>
-                </Card>
+                  {/* YouTube SEO Panel */}
+                  <div className="px-4 pb-4">
+                    <YouTubeSEOPanel
+                      tourId={tour.id}
+                      videoUrl={tour.videoUrl}
+                      initialData={{
+                        youtubeTitle: tour.youtubeTitle,
+                        youtubeDescription: tour.youtubeDescription,
+                        youtubeTags: tour.youtubeTags,
+                        youtubeTimestamps: tour.youtubeTimestamps,
+                      }}
+                    />
+                  </div>
+                </div>
+              </Card>
               ))}
             </div>
           ) : (

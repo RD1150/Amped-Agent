@@ -191,7 +191,7 @@ export default function PrivacyPolicy() {
         </CardHeader>
         <CardContent className="space-y-4 text-muted-foreground">
           <p>
-            Our platform integrates with third-party services (Facebook, Instagram, LinkedIn, X, GoHighLevel). 
+            Our platform integrates with third-party services (Facebook, Instagram, LinkedIn). 
             These services have their own privacy policies:
           </p>
           <ul className="list-disc list-inside ml-4 space-y-1">

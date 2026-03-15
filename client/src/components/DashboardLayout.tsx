@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useAutoProvisionGHL } from "@/hooks/useAutoProvisionGHL";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { trpc } from "@/lib/trpc";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -182,8 +181,6 @@ export default function DashboardLayout({
     enabled: !!user,
   });
   
-  // Automatically create GHL sub-account on first login
-  useAutoProvisionGHL();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
