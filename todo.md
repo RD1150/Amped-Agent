@@ -3432,3 +3432,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add market_data_cache table to DB schema (location, data, cachedAt, expiresAt)
 - [x] Implement 24-hour cache-first logic in market stats router
 - [x] Cache all Realtor API calls: market trends, property listings, neighborhood stats
+
+## Bulk CSV Loader Overhaul - Mar 15 2026
+- [x] Update uploadCSV backend to accept carousel CSV columns (Topic, Description, Key Points, Tags, Category, Subcategory, Target Audience, Difficulty, Seasonal)
+- [x] Auto-generate hook via AI from Topic + Description when hook column is absent or empty
+- [x] Map Key Points (semicolon-separated) to reelIdea field for carousel slide structure
+- [x] Create dedicated BulkImport page with CSV upload, format guide, and import history
+- [x] Add Bulk Import to CREATE section of sidebar nav
+- [x] Remove bulk upload from ContentTemplates page (keep templates list only)

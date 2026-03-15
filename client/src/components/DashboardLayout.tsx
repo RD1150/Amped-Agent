@@ -101,6 +101,7 @@ const menuSections = [
       { icon: Sparkles, label: "Post Builder", path: "/generate", description: "Generate social media posts (text + images)" },
       { icon: Video, label: "AI Reels", path: "/autoreels", description: "Create talking avatar videos (15-60 sec)" },
       { icon: Building2, label: "Property Tours", path: "/property-tours", description: "Generate property showcase videos with music" },
+      { icon: Upload, label: "Bulk Import", path: "/bulk-import", description: "Import content ideas from CSV in bulk" },
       { icon: Mail, label: "Newsletter Builder", path: "/newsletter", description: "Design email newsletters", badge: "Premium" },
     ]
   },

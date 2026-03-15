@@ -11,13 +11,15 @@ import { invokeLLM } from "../_core/llm";
 
 export const contentTemplatesRouter = router({
   /**
-   * Upload and parse CSV file with content templates
-   * Expected CSV format:
-   * Hook,Reel Idea,Script,Category,Platform,Content Type,Scheduled Date
+   * Upload and parse CSV file with content templates.
+   * Supports two formats:
+   *   1. Native format:  Hook, Reel Idea, Script, Category, Platform, Content Type, Scheduled Date
+   *   2. Carousel format: ID, Topic, Description, Category, Subcategory, Tags, Difficulty, Target Audience, Seasonal, Key Points
+   * When no 'hook' column is present, hooks are auto-generated via AI from Topic + Description.
    */
   uploadCSV: protectedProcedure
     .input(z.object({
-      csvContent: z.string(), // Raw CSV content as string
+      csvContent: z.string(),
       filename: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
@@ -31,69 +33,174 @@ export const contentTemplatesRouter = router({
         throw new Error("CSV must contain at least a header row and one data row");
       }
 
-      // Parse header row
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-      
-      // Validate required columns
-      const requiredColumns = ['hook'];
-      const missingColumns = requiredColumns.filter(col => !headers.includes(col));
-      if (missingColumns.length > 0) {
-        throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
-      }
+      // Parse header row — normalize to lowercase, trimmed
+      const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
 
-      // Find column indices
+      // Detect format: native (has 'hook') vs carousel (has 'topic')
+      const isCarouselFormat = !headers.includes('hook') && headers.includes('topic');
+
+      // Column indices — native format
       const hookIndex = headers.indexOf('hook');
-      const reelIdeaIndex = headers.indexOf('reel idea') || headers.indexOf('reelidea');
-      const scriptIndex = headers.indexOf('script') || headers.indexOf('prompt');
+      const reelIdeaIndex = Math.max(headers.indexOf('reel idea'), headers.indexOf('reelidea'));
+      const scriptIndex = Math.max(headers.indexOf('script'), headers.indexOf('prompt'));
       const categoryIndex = headers.indexOf('category');
       const platformIndex = headers.indexOf('platform');
-      const contentTypeIndex = headers.indexOf('content type') || headers.indexOf('contenttype');
-      const scheduledDateIndex = headers.indexOf('scheduled date') || headers.indexOf('scheduleddate');
+      const contentTypeIndex = Math.max(headers.indexOf('content type'), headers.indexOf('contenttype'));
+      const scheduledDateIndex = Math.max(headers.indexOf('scheduled date'), headers.indexOf('scheduleddate'));
 
-      // Parse data rows
-      const templates = [];
+      // Column indices — carousel format
+      const topicIndex = headers.indexOf('topic');
+      const descriptionIndex = headers.indexOf('description');
+      const keyPointsIndex = headers.indexOf('key points');
+      const tagsIndex = headers.indexOf('tags');
+      const subcategoryIndex = headers.indexOf('subcategory');
+      const targetAudienceIndex = headers.indexOf('target audience');
+
+      // Parse data rows into raw records first
+      type RawRecord = {
+        topic?: string;
+        description?: string;
+        keyPoints?: string;
+        tags?: string;
+        category?: string;
+        subcategory?: string;
+        targetAudience?: string;
+        hook?: string;
+        reelIdea?: string;
+        script?: string;
+        platform?: string;
+        contentType?: string;
+        scheduledDate?: string;
+        rowNumber: number;
+      };
+
+      const rawRecords: RawRecord[] = [];
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
-        if (!line) continue; // Skip empty lines
-
-        // Split by comma, but respect quoted values
+        if (!line) continue;
         const values = parseCSVLine(line);
-        
-        if (values.length === 0 || !values[hookIndex]) {
-          console.warn(`Skipping row ${i + 1}: missing hook`);
-          continue;
+        if (values.length === 0) continue;
+
+        if (isCarouselFormat) {
+          const topic = topicIndex >= 0 ? values[topicIndex]?.trim() : '';
+          const description = descriptionIndex >= 0 ? values[descriptionIndex]?.trim() : '';
+          if (!topic && !description) {
+            console.warn(`Skipping row ${i + 1}: no topic or description`);
+            continue;
+          }
+          rawRecords.push({
+            topic,
+            description,
+            keyPoints: keyPointsIndex >= 0 ? values[keyPointsIndex]?.trim() : undefined,
+            tags: tagsIndex >= 0 ? values[tagsIndex]?.trim() : undefined,
+            category: categoryIndex >= 0 ? values[categoryIndex]?.trim() : undefined,
+            subcategory: subcategoryIndex >= 0 ? values[subcategoryIndex]?.trim() : undefined,
+            targetAudience: targetAudienceIndex >= 0 ? values[targetAudienceIndex]?.trim() : undefined,
+            contentType: 'carousel',
+            rowNumber: i,
+          });
+        } else {
+          const hook = hookIndex >= 0 ? values[hookIndex]?.trim() : '';
+          if (!hook) {
+            console.warn(`Skipping row ${i + 1}: missing hook`);
+            continue;
+          }
+          rawRecords.push({
+            hook,
+            reelIdea: reelIdeaIndex >= 0 ? values[reelIdeaIndex]?.trim() : undefined,
+            script: scriptIndex >= 0 ? values[scriptIndex]?.trim() : undefined,
+            category: categoryIndex >= 0 ? values[categoryIndex]?.trim() : undefined,
+            platform: platformIndex >= 0 ? values[platformIndex]?.trim() : undefined,
+            contentType: contentTypeIndex >= 0 ? values[contentTypeIndex]?.trim() : undefined,
+            scheduledDate: scheduledDateIndex >= 0 ? values[scheduledDateIndex]?.trim() : undefined,
+            rowNumber: i,
+          });
         }
-
-        const template: any = {
-          userId,
-          hook: values[hookIndex]?.trim() || '',
-          reelIdea: reelIdeaIndex >= 0 ? values[reelIdeaIndex]?.trim() : null,
-          script: scriptIndex >= 0 ? values[scriptIndex]?.trim() : null,
-          category: categoryIndex >= 0 ? values[categoryIndex]?.trim() : null,
-          platform: platformIndex >= 0 ? values[platformIndex]?.trim() : null,
-          contentType: contentTypeIndex >= 0 ? mapContentType(values[contentTypeIndex]?.trim()) : 'post',
-          scheduledDate: scheduledDateIndex >= 0 ? parseDate(values[scheduledDateIndex]?.trim()) : null,
-          isScheduled: false,
-          status: 'pending' as const,
-          importBatchId: batchId,
-          rowNumber: i,
-        };
-
-        templates.push(template);
       }
 
-      if (templates.length === 0) {
-        throw new Error("No valid templates found in CSV");
+      if (rawRecords.length === 0) {
+        throw new Error("No valid rows found in CSV");
       }
 
-      // Bulk insert templates
+      // For carousel format: batch-generate hooks via AI for all rows
+      const templates: any[] = [];
+      if (isCarouselFormat) {
+        // Build a single LLM call to generate all hooks at once (efficient)
+        const hookPrompts = rawRecords.map((r, idx) =>
+          `${idx + 1}. Topic: "${r.topic}" | Description: "${r.description}"`
+        ).join('\n');
+
+        const llmResult = await invokeLLM({
+          messages: [
+            {
+              role: 'system',
+              content: `You are a real estate social media expert. For each topic+description pair, write ONE scroll-stopping Instagram hook (1-2 sentences, max 20 words). The hook must create curiosity, address a fear or desire, and speak directly to home buyers or sellers. Return ONLY a numbered list matching the input — no explanations, no extra text.`,
+            },
+            { role: 'user', content: hookPrompts },
+          ],
+        });
+
+        const rawHooks = (llmResult.choices[0]?.message?.content as string || '').trim().split('\n');
+        // Parse numbered list: "1. hook text" → "hook text"
+        const generatedHooks = rawHooks.map(line => line.replace(/^\d+\.\s*/, '').trim()).filter(Boolean);
+
+        for (let idx = 0; idx < rawRecords.length; idx++) {
+          const r = rawRecords[idx];
+          const hook = generatedHooks[idx] || `${r.topic} — what every buyer needs to know`;
+          // Build reelIdea from key points (semicolon-separated slide titles)
+          const reelIdea = r.keyPoints
+            ? `Carousel slides: ${r.keyPoints.split(';').map(s => s.trim()).filter(Boolean).join(' → ')}`
+            : undefined;
+          // Build hashtags from tags
+          const tagsStr = r.tags
+            ? r.tags.split(';').map(t => `#${t.trim().replace(/\s+/g, '')}`).filter(Boolean).join(' ')
+            : undefined;
+          const category = r.subcategory || r.category || 'Real Estate';
+
+          templates.push({
+            userId,
+            hook,
+            reelIdea: reelIdea || null,
+            script: tagsStr || null,
+            category,
+            platform: null,
+            contentType: 'carousel' as const,
+            scheduledDate: null,
+            isScheduled: false,
+            status: 'pending' as const,
+            importBatchId: batchId,
+            rowNumber: r.rowNumber,
+          });
+        }
+      } else {
+        for (const r of rawRecords) {
+          templates.push({
+            userId,
+            hook: r.hook!,
+            reelIdea: r.reelIdea || null,
+            script: r.script || null,
+            category: r.category || null,
+            platform: r.platform || null,
+            contentType: mapContentType(r.contentType),
+            scheduledDate: r.scheduledDate ? parseDate(r.scheduledDate) : null,
+            isScheduled: false,
+            status: 'pending' as const,
+            importBatchId: batchId,
+            rowNumber: r.rowNumber,
+          });
+        }
+      }
+
+      // Bulk insert
       await db.createContentTemplatesBatch(templates);
 
       return {
         success: true,
         batchId,
         count: templates.length,
-        message: `Successfully imported ${templates.length} content templates`,
+        message: `Successfully imported ${templates.length} content templates${
+          isCarouselFormat ? ' with AI-generated hooks' : ''
+        }`,
       };
     }),
 
