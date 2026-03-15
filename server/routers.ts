@@ -28,6 +28,7 @@ import { gbpRouter } from "./routers/gbp";
 import { youtubeRouter } from "./routers/youtube";
 import { repurposeRouter } from "./routers/repurpose";
 import { leadMagnetRouter } from "./routers/leadMagnet";
+import { cinematicWalkthroughRouter } from "./routers/cinematicWalkthrough";
 
 export const appRouter = router({
   system: systemRouter,
@@ -43,6 +44,7 @@ export const appRouter = router({
   youtube: youtubeRouter,
   repurpose: repurposeRouter,
   leadMagnet: leadMagnetRouter,
+  cinematicWalkthrough: cinematicWalkthroughRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

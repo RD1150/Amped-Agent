@@ -3487,3 +3487,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add route /lead-magnet to App.tsx
 - [x] Write 8 vitest tests for leadMagnet router
 - [x] Update Premium tier features list in pricingConstants.ts
+
+## Cinematic Walkthrough Video (Momenzo-style)
+
+- [x] Research Runway Gen-3 Alpha API - confirm model name, image-to-video endpoint, motion prompting
+- [x] Build backend router: cinematicWalkthrough with Runway Gen-3 per-photo clip generation
+- [x] Write room-type motion prompts (living room, kitchen, bedroom, bathroom, exterior, backyard)
+- [x] Assemble clips via Shotstack into final walkthrough video with music
+- [x] Build frontend: dedicated Cinematic Walkthrough page with photo upload + room type labels
+- [x] Add voice-over option (ElevenLabs narration per room)
+- [x] Add to Property Tours section in sidebar
+- [x] Write vitest tests (16 tests passing)

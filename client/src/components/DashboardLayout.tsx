@@ -51,7 +51,8 @@ import {
   Building2,
   CreditCard,
   MessageSquare,
-  Shuffle
+  Shuffle,
+  Film
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -106,6 +107,7 @@ const menuSections = [
       { icon: Mail, label: "Newsletter Builder", path: "/newsletter", description: "Design email newsletters", badge: "Premium" },
       { icon: Shuffle, label: "Repurpose Engine", path: "/repurpose", description: "Write once, publish everywhere — 5 formats from 1 idea", badge: "Premium" },
       { icon: FileText, label: "Lead Magnet Generator", path: "/lead-magnet", description: "Generate branded PDF lead magnets for Facebook Lead Ads", badge: "Premium" },
+      { icon: Film, label: "Cinematic Walkthrough", path: "/cinematic-walkthrough", description: "AI-powered Momenzo-style property walkthrough video", badge: "Premium" },
     ]
   },
   {

@@ -457,6 +457,9 @@ async function renderHtmlToPdf(html: string): Promise<Buffer> {
     format: "A4",
     margin: { top: "0mm", right: "0mm", bottom: "0mm", left: "0mm" },
     printBackground: true,
+    // Use system Chromium in sandbox environment
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
   };
 
   const file = { content: html };
