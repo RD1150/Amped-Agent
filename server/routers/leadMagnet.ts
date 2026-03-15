@@ -6,6 +6,7 @@ import { storagePut } from "../storage";
 import { getDb } from "../db";
 import { leadMagnets } from "../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
+import PDFDocument from "pdfkit";
 
 /**
  * Lead Magnet Generator Router
@@ -89,8 +90,8 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
         throw new Error("AI returned invalid content. Please try again.");
       }
 
-      // Step 2: Render HTML → PDF
-      const html = buildPdfHtml({
+      // Step 2: Render PDF using PDFKit (pure Node.js, no system deps)
+      const pdfBuffer = await buildPdfWithPDFKit({
         type,
         content,
         agentName,
@@ -102,8 +103,6 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
         neighborhood: input.neighborhood,
         month: input.month,
       });
-
-      const pdfBuffer = await renderHtmlToPdf(html);
 
       // Step 3: Upload to S3
       const suffix = Math.random().toString(36).slice(2, 8);
@@ -264,8 +263,238 @@ function buildContentPrompt(
 }`;
 }
 
-// ============ HTML TEMPLATE ============
+// ============ PDFKIT RENDERER ============
 
+function hexToRgb(hex: string): [number, number, number] {
+  const clean = hex.replace("#", "");
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  return [isNaN(r) ? 26 : r, isNaN(g) ? 58 : g, isNaN(b) ? 92 : b];
+}
+
+function wrapText(doc: any, text: string, x: number, y: number, maxWidth: number, lineHeight: number): number {
+  const lines = doc.heightOfString(text, { width: maxWidth });
+  doc.text(text, x, y, { width: maxWidth });
+  return y + lines + lineHeight;
+}
+
+async function buildPdfWithPDFKit(opts: {
+  type: LeadMagnetType;
+  content: any;
+  agentName: string;
+  agentPhone: string;
+  agentEmail: string;
+  agentBrokerage: string;
+  city: string;
+  primaryColor: string;
+  neighborhood?: string;
+  month?: string;
+}): Promise<Buffer> {
+  const { type, content, agentName, agentPhone, agentEmail, agentBrokerage, city, primaryColor } = opts;
+  const [pr, pg, pb] = hexToRgb(primaryColor);
+  const label = typeLabels[type];
+
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: "A4", margin: 0, info: { Title: label, Author: agentName } });
+    const chunks: Buffer[] = [];
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    const W = doc.page.width;   // 595
+    const margin = 48;
+    const contentWidth = W - margin * 2;
+
+    // ── HEADER BAND ──
+    doc.rect(0, 0, W, 110).fill([pr, pg, pb]);
+    doc.fillColor("white").fontSize(9).font("Helvetica")
+      .text(label.toUpperCase(), margin, 24, { characterSpacing: 2 });
+    doc.fontSize(22).font("Helvetica-Bold")
+      .text(content.title || label, margin, 38, { width: contentWidth });
+    if (content.subtitle) {
+      doc.fontSize(11).font("Helvetica").fillOpacity(0.85)
+        .text(content.subtitle, margin, 72, { width: contentWidth });
+    }
+    doc.fillOpacity(1);
+
+    let y = 130;
+
+    // ── INTRODUCTION ──
+    if (content.introduction) {
+      doc.fillColor("#374151").fontSize(11).font("Helvetica")
+        .text(content.introduction, margin, y, { width: contentWidth, lineGap: 3 });
+      y += doc.heightOfString(content.introduction, { width: contentWidth }) + 20;
+    }
+
+    // ── TYPE-SPECIFIC BODY ──
+    if (type === "buyer_guide" && content.sections) {
+      for (const section of content.sections) {
+        // Check if we need a new page
+        if (y > 720) { doc.addPage(); y = margin; }
+        // Section heading bar
+        doc.rect(margin, y, contentWidth, 24).fill([pr, pg, pb]);
+        doc.fillColor("white").fontSize(11).font("Helvetica-Bold")
+          .text(section.heading, margin + 10, y + 6, { width: contentWidth - 20 });
+        y += 30;
+        doc.fillColor("#4b5563").fontSize(10).font("Helvetica")
+          .text(section.content, margin, y, { width: contentWidth, lineGap: 2 });
+        y += doc.heightOfString(section.content, { width: contentWidth }) + 6;
+        if (section.tip) {
+          doc.rect(margin, y, 3, 28).fill([pr, pg, pb]);
+          doc.fillColor("#374151").fontSize(9).font("Helvetica-Oblique")
+            .text(`💡 ${section.tip}`, margin + 10, y + 4, { width: contentWidth - 14 });
+          y += 34;
+        }
+        y += 12;
+      }
+      // FAQ
+      if (content.faqItems && content.faqItems.length > 0) {
+        if (y > 680) { doc.addPage(); y = margin; }
+        doc.rect(margin, y, contentWidth, 24).fill([pr, pg, pb]);
+        doc.fillColor("white").fontSize(11).font("Helvetica-Bold")
+          .text("Frequently Asked Questions", margin + 10, y + 6);
+        y += 30;
+        for (const faq of content.faqItems) {
+          if (y > 720) { doc.addPage(); y = margin; }
+          doc.fillColor([pr, pg, pb]).fontSize(10).font("Helvetica-Bold")
+            .text(`Q: ${faq.question}`, margin, y, { width: contentWidth });
+          y += doc.heightOfString(`Q: ${faq.question}`, { width: contentWidth }) + 4;
+          doc.fillColor("#6b7280").fontSize(9).font("Helvetica")
+            .text(faq.answer, margin + 10, y, { width: contentWidth - 10, lineGap: 2 });
+          y += doc.heightOfString(faq.answer, { width: contentWidth - 10 }) + 12;
+        }
+      }
+    } else if (type === "neighborhood_report" && content.highlights) {
+      // Highlights grid (2 columns)
+      const colW = (contentWidth - 12) / 2;
+      for (let i = 0; i < content.highlights.length; i++) {
+        const h = content.highlights[i];
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        if (col === 0 && row > 0) y += 60;
+        if (y > 700) { doc.addPage(); y = margin; }
+        const hx = margin + col * (colW + 12);
+        doc.rect(hx, y, colW, 52).fill("#f9fafb").stroke("#e5e7eb");
+        doc.fillColor([pr, pg, pb]).fontSize(11).font("Helvetica-Bold")
+          .text(`${h.label}`, hx + 10, y + 8, { width: colW - 20 });
+        doc.fillColor("#6b7280").fontSize(9).font("Helvetica")
+          .text(h.value, hx + 10, y + 24, { width: colW - 20, lineGap: 1 });
+      }
+      const rowCount = Math.ceil(content.highlights.length / 2);
+      y += rowCount * 60 + 16;
+      // Market snapshot
+      if (content.marketSnapshot) {
+        if (y > 680) { doc.addPage(); y = margin; }
+        doc.rect(margin, y, contentWidth, 24).fill([pr, pg, pb]);
+        doc.fillColor("white").fontSize(11).font("Helvetica-Bold")
+          .text(content.marketSnapshot.heading || "Market Snapshot", margin + 10, y + 6);
+        y += 30;
+        doc.fillColor("#4b5563").fontSize(10).font("Helvetica")
+          .text(content.marketSnapshot.description, margin, y, { width: contentWidth, lineGap: 2 });
+        y += doc.heightOfString(content.marketSnapshot.description, { width: contentWidth }) + 12;
+        // Stats row
+        const stats = content.marketSnapshot.stats || [];
+        const sw = contentWidth / Math.max(stats.length, 1);
+        for (let i = 0; i < stats.length; i++) {
+          const sx = margin + i * sw;
+          doc.rect(sx, y, sw - 8, 44).fill("#f3f4f6");
+          doc.fillColor("#6b7280").fontSize(8).font("Helvetica")
+            .text(stats[i].label, sx + 6, y + 6, { width: sw - 16 });
+          doc.fillColor([pr, pg, pb]).fontSize(13).font("Helvetica-Bold")
+            .text(stats[i].value, sx + 6, y + 20, { width: sw - 16 });
+        }
+        y += 52;
+      }
+      if (content.whyLiveHere) {
+        if (y > 680) { doc.addPage(); y = margin; }
+        doc.rect(margin, y, contentWidth, 24).fill([pr, pg, pb]);
+        doc.fillColor("white").fontSize(11).font("Helvetica-Bold")
+          .text("Why People Love Living Here", margin + 10, y + 6);
+        y += 30;
+        doc.fillColor("#4b5563").fontSize(10).font("Helvetica")
+          .text(content.whyLiveHere, margin, y, { width: contentWidth, lineGap: 2 });
+        y += doc.heightOfString(content.whyLiveHere, { width: contentWidth }) + 12;
+      }
+    } else if (type === "market_update" && content.keyStats) {
+      // Market condition badge
+      if (content.marketCondition) {
+        doc.rect(margin, y, 160, 28).fill([pr, pg, pb]);
+        doc.fillColor("white").fontSize(11).font("Helvetica-Bold")
+          .text(content.marketCondition, margin + 10, y + 8);
+        y += 34;
+        if (content.marketConditionExplanation) {
+          doc.fillColor("#4b5563").fontSize(10).font("Helvetica")
+            .text(content.marketConditionExplanation, margin, y, { width: contentWidth, lineGap: 2 });
+          y += doc.heightOfString(content.marketConditionExplanation, { width: contentWidth }) + 14;
+        }
+      }
+      // Key stats grid
+      const stats = content.keyStats || [];
+      const sw = contentWidth / Math.min(stats.length, 2);
+      for (let i = 0; i < stats.length; i++) {
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        if (col === 0 && row > 0) y += 64;
+        if (y > 700) { doc.addPage(); y = margin; }
+        const sx = margin + col * sw;
+        const trendColor = stats[i].trend === "up" ? [22, 163, 74] : stats[i].trend === "down" ? [220, 38, 38] : [107, 114, 128];
+        doc.rect(sx, y, sw - 8, 56).fill("#f9fafb").stroke("#e5e7eb");
+        doc.fillColor("#6b7280").fontSize(8).font("Helvetica")
+          .text(stats[i].label, sx + 8, y + 6, { width: sw - 20 });
+        doc.fillColor([pr, pg, pb]).fontSize(14).font("Helvetica-Bold")
+          .text(stats[i].value, sx + 8, y + 20, { width: sw - 20 });
+        doc.fillColor(trendColor as [number, number, number]).fontSize(8).font("Helvetica")
+          .text(stats[i].note || "", sx + 8, y + 40, { width: sw - 20 });
+      }
+      const rowCount = Math.ceil(stats.length / 2);
+      y += rowCount * 64 + 16;
+      // Buyer/Seller advice
+      for (const [heading, text] of [
+        ["Advice for Buyers", content.buyerAdvice],
+        ["Advice for Sellers", content.sellerAdvice],
+        ["Market Outlook", content.outlook],
+      ]) {
+        if (!text) continue;
+        if (y > 680) { doc.addPage(); y = margin; }
+        doc.rect(margin, y, contentWidth, 24).fill([pr, pg, pb]);
+        doc.fillColor("white").fontSize(11).font("Helvetica-Bold")
+          .text(heading as string, margin + 10, y + 6);
+        y += 30;
+        doc.fillColor("#4b5563").fontSize(10).font("Helvetica")
+          .text(text as string, margin, y, { width: contentWidth, lineGap: 2 });
+        y += doc.heightOfString(text as string, { width: contentWidth }) + 14;
+      }
+    }
+
+    // ── CLOSING MESSAGE ──
+    if (content.closingMessage) {
+      if (y > 700) { doc.addPage(); y = margin; }
+      doc.rect(margin, y, contentWidth, 1).fill("#e5e7eb");
+      y += 10;
+      doc.fillColor("#374151").fontSize(10).font("Helvetica-Oblique")
+        .text(content.closingMessage, margin, y, { width: contentWidth, lineGap: 3 });
+      y += doc.heightOfString(content.closingMessage, { width: contentWidth }) + 16;
+    }
+
+    // ── FOOTER ──
+    const footerY = doc.page.height - 48;
+    doc.rect(0, footerY - 8, W, 56).fill([pr, pg, pb]);
+    const agentLine = [agentName, agentBrokerage].filter(Boolean).join(" · ");
+    const contactLine = [agentPhone, agentEmail].filter(Boolean).join(" · ");
+    doc.fillColor("white").fontSize(10).font("Helvetica-Bold")
+      .text(agentLine, margin, footerY, { width: contentWidth });
+    if (contactLine) {
+      doc.fillColor("white").fontSize(9).font("Helvetica").fillOpacity(0.85)
+        .text(contactLine, margin, footerY + 14, { width: contentWidth });
+    }
+    doc.fillOpacity(1);
+
+    doc.end();
+  });
+}
+
+// ── Legacy HTML builder (kept for reference, no longer used) ──
 function buildPdfHtml(opts: {
   type: LeadMagnetType;
   content: any;

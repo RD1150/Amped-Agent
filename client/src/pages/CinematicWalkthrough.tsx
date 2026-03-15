@@ -41,7 +41,7 @@ const ROOM_TYPE_LABELS: Record<string, string> = {
 };
 
 const MUSIC_OPTIONS = [
-  { value: "", label: "No music" },
+  { value: "none", label: "No music" },
   { value: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/vsuIkwkfirpwAsAL.mp3", label: "Elegant Strings" },
   { value: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0c6ff1bab.mp3", label: "Cinematic Ambient" },
   { value: "https://cdn.pixabay.com/download/audio/2021/11/25/audio_5b5b8b8b8b.mp3", label: "Luxury Piano" },
@@ -68,7 +68,7 @@ export default function CinematicWalkthrough() {
   const [propertyAddress, setPropertyAddress] = useState("");
   const [agentName, setAgentName] = useState("");
   const [agentBrokerage, setAgentBrokerage] = useState("");
-  const [musicTrackUrl, setMusicTrackUrl] = useState("");
+  const [musicTrackUrl, setMusicTrackUrl] = useState("none");
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [voiceoverScript, setVoiceoverScript] = useState("");
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
@@ -185,7 +185,7 @@ export default function CinematicWalkthrough() {
         propertyAddress: propertyAddress.trim(),
         agentName: agentName.trim() || undefined,
         agentBrokerage: agentBrokerage.trim() || undefined,
-        musicTrackUrl: musicTrackUrl || undefined,
+        musicTrackUrl: musicTrackUrl === "none" ? undefined : musicTrackUrl || undefined,
         enableVoiceover,
         voiceoverScript: enableVoiceover ? voiceoverScript : undefined,
         aspectRatio,

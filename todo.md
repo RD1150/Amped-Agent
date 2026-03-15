@@ -3508,3 +3508,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add "My Lead Magnets" to sidebar nav under LIBRARY section
 - [x] Add route /my-lead-magnets to App.tsx
 - [x] Write vitest tests for new procedures (13 tests passing)
+
+## Lead Magnet PDF Fix (Production)
+- [x] Replace html-pdf-node/Puppeteer with PDFKit (pure Node.js, no system deps)
+- [x] Rebuild PDF templates using PDFKit programmatic drawing
+- [x] Test generation on production server
+
+## Bug Fixes (Mar 15)
+- [x] Fix empty Select.Item value in CinematicWalkthrough music selector (crashes with "must have a value prop")
+- [x] Fix PDFKit TypeScript null errors in leadMagnet.ts (lines 117, 141, 156)
