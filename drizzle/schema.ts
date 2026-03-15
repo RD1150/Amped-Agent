@@ -741,3 +741,15 @@ export const gbpLocations = mysqlTable("gbp_locations", {
 
 export type GbpLocation = typeof gbpLocations.$inferSelect;
 export type InsertGbpLocation = typeof gbpLocations.$inferInsert;
+
+// ─── Market Data Cache ─────────────────────────────────────────────────────────
+// Persists RapidAPI Realtor API responses across server restarts to conserve quota
+export const marketDataCache = mysqlTable("market_data_cache", {
+  id: int("id").autoincrement().primaryKey(),
+  locationKey: varchar("locationKey", { length: 255 }).notNull().unique(), // normalized lowercase location
+  data: text("data").notNull(), // JSON stringified MarketStatsData
+  cachedAt: timestamp("cachedAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+});
+export type MarketDataCacheRow = typeof marketDataCache.$inferSelect;
+export type InsertMarketDataCache = typeof marketDataCache.$inferInsert;

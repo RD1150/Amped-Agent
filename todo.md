@@ -3416,3 +3416,19 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Reorganize sidebar into: HOME / CREATE / PUBLISH / LIBRARY / GROW / ACCOUNT
 - [x] Move Integrations from ACCOUNT to PUBLISH section
 - [x] Finish removing Full AI Cinematic from backend router and videoGenerator
+
+## Bulk CSV Loader Fix - Mar 15 2026
+- [ ] Make 'hook' column optional in CSV validation (carousel CSVs don't have it)
+- [ ] Update CSV template/sample to show hook as optional
+
+## Bulk CSV Loader Fix - Mar 15 2026
+- [ ] Accept carousel CSV format: ID, Topic, Description, Category, Subcategory, Tags, Difficulty, Target Audience, Seasonal, Key Points
+- [ ] Auto-generate hook via AI when hook column is missing (use Topic + Description)
+- [ ] Map Key Points (semicolon-separated) to carousel slides
+- [ ] Map Tags to hashtags, Category/Subcategory to post category
+- [ ] Update frontend CSV parser to handle new column mapping
+
+## Market Insights API Caching - Mar 15 2026
+- [x] Add market_data_cache table to DB schema (location, data, cachedAt, expiresAt)
+- [x] Implement 24-hour cache-first logic in market stats router
+- [x] Cache all Realtor API calls: market trends, property listings, neighborhood stats

@@ -212,37 +212,64 @@ function generateInsights(params: {
   return insights;
 }
 
-/**
- * Cache for market data to optimize API usage
- * Key: location, Value: { data, timestamp }
- */
-const marketDataCache = new Map<
-  string,
-  { data: MarketStatsData; timestamp: number }
->();
-
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const CACHE_DURATION_HOURS = 24;
 
 /**
- * Get market data with caching (24-hour cache to optimize API usage)
+ * Get market data with DB-backed persistent caching (24-hour TTL).
+ * Survives server restarts — prevents burning RapidAPI quota on every deploy.
  */
 export async function getMarketData(location: string): Promise<MarketStatsData> {
   const normalizedLocation = location.toLowerCase().trim();
-  const cached = marketDataCache.get(normalizedLocation);
 
-  // Return cached data if still valid
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    return cached.data;
+  try {
+    const { getDb } = await import('./db');
+    const { marketDataCache } = await import('../drizzle/schema');
+    const { eq } = await import('drizzle-orm');
+
+    const db = await getDb();
+    if (db) {
+      // Check DB cache first
+      const [cached] = await db
+        .select()
+        .from(marketDataCache)
+        .where(eq(marketDataCache.locationKey, normalizedLocation))
+        .limit(1);
+
+      if (cached && new Date(cached.expiresAt) > new Date()) {
+        console.log(`[MarketStats] Cache HIT for "${normalizedLocation}" (expires ${cached.expiresAt})`);
+        return JSON.parse(cached.data) as MarketStatsData;
+      }
+
+      // Cache miss — fetch fresh data
+      console.log(`[MarketStats] Cache MISS for "${normalizedLocation}" — calling RapidAPI`);
+      const data = await fetchMarketData(location);
+
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + CACHE_DURATION_HOURS * 60 * 60 * 1000);
+
+      // Upsert into DB cache
+      await db
+        .insert(marketDataCache)
+        .values({
+          locationKey: normalizedLocation,
+          data: JSON.stringify(data),
+          cachedAt: now,
+          expiresAt,
+        })
+        .onDuplicateKeyUpdate({
+          set: {
+            data: JSON.stringify(data),
+            cachedAt: now,
+            expiresAt,
+          },
+        });
+
+      return data;
+    }
+  } catch (err) {
+    console.warn('[MarketStats] DB cache error, falling back to direct API call:', err);
   }
 
-  // Fetch fresh data
-  const data = await fetchMarketData(location);
-
-  // Cache the result
-  marketDataCache.set(normalizedLocation, {
-    data,
-    timestamp: Date.now(),
-  });
-
-  return data;
+  // Fallback: no DB available, call API directly
+  return fetchMarketData(location);
 }

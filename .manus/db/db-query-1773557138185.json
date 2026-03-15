@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `market_data_cache` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `locationKey` varchar(255) NOT NULL,\n  `data` text NOT NULL,\n  `cachedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `expiresAt` timestamp NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `market_data_cache_locationKey_unique` (`locationKey`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute CREATE TABLE IF NOT EXISTS `market_data_cache` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `locationKey` varchar(255) NOT NULL,\n  `data` text NOT NULL,\n  `cachedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `expiresAt` timestamp NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `market_data_cache_locationKey_unique` (`locationKey`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 494
+}
