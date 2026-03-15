@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Facebook, Instagram, Linkedin, CalendarIcon, Send, Loader2 } from "lucide-react";
+import { Facebook, Instagram, Linkedin, CalendarIcon, Send, Loader2, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,8 @@ export function PostingDialog({
   const { data: facebookConnection } = trpc.facebook.getConnection.useQuery();
   const { data: instagramConnection } = trpc.facebook.getInstagramConnection.useQuery();
   const { data: linkedinConnection } = trpc.linkedin.getConnection.useQuery();
+  const { data: gbpStatus } = trpc.gbp.getStatus.useQuery();
+  const gbpPostMutation = trpc.gbp.createPost.useMutation();
 
   const postNowMutation = trpc.socialPosting.postNow.useMutation();
   const schedulePostMutation = trpc.socialPosting.schedulePost.useMutation();
@@ -68,6 +70,13 @@ export function PostingDialog({
       icon: Linkedin,
       connected: linkedinConnection?.isConnected,
       color: "text-blue-700",
+    },
+    {
+      id: "google_business",
+      name: "Google Business Profile",
+      icon: MapPin,
+      connected: gbpStatus?.isConnected && !!gbpStatus?.locationId,
+      color: "text-emerald-600",
     },
   ];
 
@@ -104,27 +113,58 @@ export function PostingDialog({
         contentType: "custom",
       });
 
-      if (scheduleMode && scheduledDate) {
-        // Schedule the post
-        await schedulePostMutation.mutateAsync({
-          contentPostId: contentPost.id,
-          scheduledAt: scheduledDate,
-          platforms: selectedPlatforms as any,
-        });
-        toast.success(`Post scheduled for ${format(scheduledDate, "PPP")}`);
-      } else {
-        // Post immediately
-        const result = await postNowMutation.mutateAsync({
-          contentPostId: contentPost.id,
-          platforms: selectedPlatforms as any,
-        });
+      // Handle GBP separately (direct post, not via socialPosting router)
+      const gbpSelected = selectedPlatforms.includes("google_business");
+      const otherPlatforms = selectedPlatforms.filter((p) => p !== "google_business");
 
-        if (result.success) {
-          toast.success(
-            `Posted successfully to ${result.postedPlatforms.join(", ")}`
-          );
+      if (scheduleMode && scheduledDate) {
+        // Schedule the post (social platforms only — GBP doesn't support scheduling yet)
+        if (otherPlatforms.length > 0) {
+          await schedulePostMutation.mutateAsync({
+            contentPostId: contentPost.id,
+            scheduledAt: scheduledDate,
+            platforms: otherPlatforms as any,
+          });
+        }
+        if (gbpSelected) {
+          // For GBP, post immediately even in schedule mode (GBP scheduling not supported)
+          await gbpPostMutation.mutateAsync({ summary: content, topicType: "STANDARD", mediaUrl: imageUrl ?? undefined });
+          toast.success(`Scheduled social posts + posted to Google Business Profile`);
         } else {
-          toast.error("Failed to post to some platforms. Check Integrations page.");
+          toast.success(`Post scheduled for ${format(scheduledDate, "PPP")}`);
+        }
+      } else {
+        const results: string[] = [];
+        const errors: string[] = [];
+
+        // Post to social platforms
+        if (otherPlatforms.length > 0) {
+          const result = await postNowMutation.mutateAsync({
+            contentPostId: contentPost.id,
+            platforms: otherPlatforms as any,
+          });
+          if (result.success) {
+            results.push(...result.postedPlatforms);
+          } else {
+            errors.push("some social platforms");
+          }
+        }
+
+        // Post to GBP
+        if (gbpSelected) {
+          try {
+            await gbpPostMutation.mutateAsync({ summary: content, topicType: "STANDARD", mediaUrl: imageUrl ?? undefined });
+            results.push("Google Business Profile");
+          } catch (err: any) {
+            errors.push("Google Business Profile");
+          }
+        }
+
+        if (results.length > 0) {
+          toast.success(`Posted to: ${results.join(", ")}`);
+        }
+        if (errors.length > 0) {
+          toast.error(`Failed to post to: ${errors.join(", ")}`);
         }
       }
 

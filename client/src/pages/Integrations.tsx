@@ -2,12 +2,18 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertCircle, Facebook, Instagram, Linkedin } from "lucide-react";
+import { CheckCircle2, AlertCircle, Facebook, Instagram, Linkedin, MapPin, ChevronDown } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useState } from "react";
 
 export default function Integrations() {
   const [isConnecting, setIsConnecting] = useState(false);
+  const [selectedGbpAccount, setSelectedGbpAccount] = useState<string | null>(null);
+  const [gbpAccounts, setGbpAccounts] = useState<Array<{id: string; name: string; type: string}>>([]);
+  const [gbpLocations, setGbpLocations] = useState<Array<{id: string; name: string; address: string | null}>>([]);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [showLocationSelect, setShowLocationSelect] = useState(false);
   
   // Get Facebook connection status
   const { data: facebookConnection, refetch: refetchFacebook } = trpc.facebook.getConnection.useQuery();
@@ -21,6 +27,17 @@ export default function Integrations() {
   const disconnectInstagramMutation = trpc.facebook.disconnectInstagram.useMutation();
   
   const getLinkedInAuthUrlMutation = trpc.linkedin.getAuthUrl.useMutation();
+
+  // GBP
+  const { data: gbpStatus, refetch: refetchGbp } = trpc.gbp.getStatus.useQuery();
+  const getGbpAuthUrlMutation = trpc.gbp.getAuthUrl.useMutation();
+  const [gbpAccountIdForQuery, setGbpAccountIdForQuery] = useState<string | null>(null);
+  const { data: gbpLocationsData, isFetching: isFetchingLocations } = trpc.gbp.listLocations.useQuery(
+    { accountId: gbpAccountIdForQuery ?? "" },
+    { enabled: !!gbpAccountIdForQuery }
+  );
+  const saveGbpLocationMutation = trpc.gbp.saveLocation.useMutation();
+  const disconnectGbpMutation = trpc.gbp.disconnect.useMutation();
   const disconnectLinkedInMutation = trpc.linkedin.disconnect.useMutation();
 
   const handleConnectFacebook = async () => {
@@ -56,6 +73,54 @@ export default function Integrations() {
       toast.success("Instagram disconnected");
     } catch (error) {
       toast.error("Failed to disconnect Instagram");
+    }
+  };
+
+  const handleConnectGbp = async () => {
+    try {
+      setIsConnecting(true);
+      const redirectUri = `${window.location.origin}/integrations/google/callback`;
+      const result = await getGbpAuthUrlMutation.mutateAsync({ redirectUri });
+      sessionStorage.setItem("gbp_oauth_state", result.state);
+      sessionStorage.setItem("gbp_oauth_redirect", redirectUri);
+      window.location.href = result.authUrl;
+    } catch (error) {
+      toast.error("Failed to start Google connection");
+      console.error(error);
+      setIsConnecting(false);
+    }
+  };
+
+  const handleLoadGbpLocations = (accountId: string) => {
+    setGbpAccountIdForQuery(accountId);
+    setShowLocationSelect(true);
+  };
+
+  const handleSaveGbpLocation = async (locationId: string) => {
+    const loc = (gbpLocationsData ?? []).find((l) => l.id === locationId);
+    if (!loc) return;
+    try {
+      await saveGbpLocationMutation.mutateAsync({
+        locationId: loc.id,
+        locationName: loc.name,
+        address: loc.address ?? undefined,
+        googleAccountId: selectedGbpAccount ?? undefined,
+      });
+      await refetchGbp();
+      setShowLocationSelect(false);
+      toast.success(`Connected to "${loc.name}"`);
+    } catch (error) {
+      toast.error("Failed to save location");
+    }
+  };
+
+  const handleDisconnectGbp = async () => {
+    try {
+      await disconnectGbpMutation.mutateAsync();
+      await refetchGbp();
+      toast.success("Google Business Profile disconnected");
+    } catch (error) {
+      toast.error("Failed to disconnect");
     }
   };
 
@@ -311,6 +376,108 @@ export default function Integrations() {
               >
                 <Linkedin className="h-4 w-4 mr-2" />
                 {isConnecting ? "Connecting..." : "Connect LinkedIn"}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Google Business Profile Card */}
+      <Card className="border-2 border-emerald-500/20">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <MapPin className="h-6 w-6 text-emerald-500" />
+              </div>
+              <div>
+                <CardTitle>Google Business Profile</CardTitle>
+                <CardDescription>Post updates directly to your Google Business listing</CardDescription>
+              </div>
+            </div>
+            {gbpStatus?.isConnected && gbpStatus?.locationId ? (
+              <Badge variant="default" className="bg-green-500/20 text-green-400 border-green-500/30">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Connected
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="bg-muted text-muted-foreground">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Not Connected
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {gbpStatus?.isConnected && gbpStatus?.locationId ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="text-sm font-medium">{gbpStatus.locationName || "Business Location"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {gbpStatus.address || gbpStatus.googleEmail || "Google Business Profile"}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDisconnectGbp}
+                  disabled={disconnectGbpMutation.isPending}
+                >
+                  Disconnect
+                </Button>
+              </div>
+            </div>
+          ) : gbpStatus?.isConnected && !gbpStatus?.locationId ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Google account connected as <strong>{gbpStatus.googleEmail}</strong>. Select your business location to finish setup.</p>
+              {gbpAccounts.length > 0 && !showLocationSelect && (
+                <Select onValueChange={(val) => { setSelectedGbpAccount(val); handleLoadGbpLocations(val); }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Google Business account" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {gbpAccounts.map((acc) => (
+                      <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {showLocationSelect && (gbpLocationsData ?? []).length > 0 && (
+                <Select onValueChange={handleSaveGbpLocation}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your business location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(gbpLocationsData ?? []).map((loc) => (
+                      <SelectItem key={loc.id} value={loc.id}>
+                        {loc.name}{loc.address ? ` — ${loc.address}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {showLocationSelect && !isFetchingLocations && (gbpLocationsData ?? []).length === 0 && (
+                <p className="text-sm text-muted-foreground">No business locations found for this account.</p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                <p className="text-sm font-medium">Connect Your Google Business Profile</p>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Post updates, listings, and open houses directly to Google Search</li>
+                  <li>Reach buyers searching for homes in your area</li>
+                  <li>Secure Google OAuth 2.0 — no third-party required</li>
+                </ul>
+              </div>
+              <Button
+                onClick={handleConnectGbp}
+                disabled={isConnecting || getGbpAuthUrlMutation.isPending}
+                className="w-full bg-emerald-600 hover:bg-emerald-700"
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                {isConnecting ? "Connecting..." : "Connect Google Business Profile"}
               </Button>
             </div>
           )}

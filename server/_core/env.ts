@@ -27,4 +27,6 @@ export const ENV = {
   KLING_SECRET_KEY: process.env.KLING_SECRET_KEY ?? "",
   NEWSLETTER_PRO_URL: process.env.NEWSLETTER_PRO_URL ?? "https://newsletterpro.app",
   NEWSLETTER_SSO_SECRET: process.env.NEWSLETTER_SSO_SECRET ?? "",
+  googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
 };

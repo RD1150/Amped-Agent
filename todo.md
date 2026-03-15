@@ -3390,3 +3390,16 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Wire YouTubeSEOPanel into PropertyTours page (shown after video is ready)
 - [x] Wire YouTubeSEOPanel into MyVideos page (links to Property Tours)
 - [x] Add YouTube SEO vitest tests (4 passing)
+
+## Google Business Profile Integration - Mar 14 2026
+- [x] Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to env.ts
+- [x] Extend integrations table platform enum to include 'google_business'
+- [x] Add gbpLocations table (userId, accountId, locationId, locationName, address)
+- [x] Run SQL to add GBP columns to DB
+- [x] Build server/routers/gbp.ts: getAuthUrl, handleCallback, listLocations, createPost, disconnect
+- [x] Register gbpRouter in server/routers.ts
+- [x] Add GBP connect card to Integrations page
+- [x] Add GBP post type option to AI Post Builder (content type selector)
+- [x] Add GBP publish button to Content Calendar publish dialog
+- [x] Add GBP post type to AIGenerate page
+- [x] Write vitest tests for GBP router (8 passing)

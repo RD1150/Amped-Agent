@@ -104,6 +104,16 @@ export default function ContentCalendar() {
   // Get connected social accounts
   const { data: facebookConnection } = trpc.facebook.getConnection.useQuery();
   const { data: linkedinConnection } = trpc.linkedin.getConnection.useQuery();
+  const { data: gbpStatus } = trpc.gbp.getStatus.useQuery();
+  const postToGbp = trpc.gbp.createPost.useMutation({
+    onSuccess: () => {
+      utils.content.list.invalidate();
+      toast.success("Posted to Google Business Profile!");
+    },
+    onError: (error) => {
+      toast.error(`Failed to post to GBP: ${error.message}`);
+    },
+  });
 
   const postToFacebook = trpc.facebook.postToFacebook.useMutation({
     onSuccess: () => {
@@ -125,7 +135,7 @@ export default function ContentCalendar() {
     },
   });
 
-  const hasAnySocialConnected = facebookConnection?.isConnected || linkedinConnection?.isConnected;
+  const hasAnySocialConnected = facebookConnection?.isConnected || linkedinConnection?.isConnected || (gbpStatus?.isConnected && !!gbpStatus?.locationId);
 
   const handleOpenPublishDialog = (postId: number) => {
     if (!hasAnySocialConnected) {
@@ -659,6 +669,9 @@ export default function ContentCalendar() {
           }
           if (data.platforms.includes("linkedin") && linkedinConnection?.isConnected) {
             promises.push(postToLinkedIn.mutateAsync({ text: content, imageUrl: post.imageUrl || undefined }));
+          }
+          if (data.platforms.includes("google_business") && gbpStatus?.isConnected && gbpStatus?.locationId) {
+            promises.push(postToGbp.mutateAsync({ summary: content, topicType: "STANDARD", mediaUrl: post.imageUrl || undefined }));
           }
           if (promises.length === 0) {
             toast.error("Selected platforms are not connected. Go to Integrations to connect them.");

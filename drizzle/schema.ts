@@ -715,3 +715,29 @@ export const generatedVideos = mysqlTable("generated_videos", {
 });
 export type GeneratedVideo = typeof generatedVideos.$inferSelect;
 export type InsertGeneratedVideo = typeof generatedVideos.$inferInsert;
+
+/**
+ * Google Business Profile locations
+ * Stores the user's connected GBP location(s) for posting
+ */
+export const gbpLocations = mysqlTable("gbp_locations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  // Google OAuth tokens
+  accessToken: text("accessToken").notNull(),
+  refreshToken: text("refreshToken"),
+  tokenExpiresAt: timestamp("tokenExpiresAt"),
+  // Google Account info
+  googleAccountId: varchar("googleAccountId", { length: 255 }), // accounts/{id}
+  googleEmail: varchar("googleEmail", { length: 320 }),
+  // Business location info (selected by user after OAuth)
+  locationName: varchar("locationName", { length: 255 }), // e.g. "Reena Dutta - REALTOR"
+  locationId: varchar("locationId", { length: 255 }), // accounts/{id}/locations/{id}
+  address: text("address"),
+  isConnected: boolean("isConnected").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GbpLocation = typeof gbpLocations.$inferSelect;
+export type InsertGbpLocation = typeof gbpLocations.$inferInsert;

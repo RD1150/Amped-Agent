@@ -37,6 +37,7 @@ const PLATFORMS = [
   { id: "facebook", name: "Facebook", icon: "📘", color: "bg-blue-600" },
   { id: "instagram", name: "Instagram", icon: "📷", color: "bg-pink-600" },
   { id: "linkedin", name: "LinkedIn", icon: "💼", color: "bg-blue-700" },
+  { id: "google_business", name: "Google Business Profile", icon: "📍", color: "bg-emerald-600" },
   { id: "twitter", name: "Twitter/X", icon: "🐦", color: "bg-sky-500" },
   { id: "tiktok", name: "TikTok", icon: "🎵", color: "bg-black" },
 ];

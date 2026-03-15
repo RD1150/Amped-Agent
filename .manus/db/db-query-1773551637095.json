@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `gbp_locations` (\n  `id` int AUTO_INCREMENT PRIMARY KEY NOT NULL,\n  `userId` int NOT NULL,\n  `accessToken` text NOT NULL,\n  `refreshToken` text,\n  `tokenExpiresAt` timestamp,\n  `googleAccountId` varchar(255),\n  `googleEmail` varchar(320),\n  `locationName` varchar(255),\n  `locationId` varchar(255),\n  `address` text,\n  `isConnected` boolean NOT NULL DEFAULT true,\n  `createdAt` timestamp NOT NULL DEFAULT (now()),\n  `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute CREATE TABLE IF NOT EXISTS `gbp_locations` (\n  `id` int AUTO_INCREMENT PRIMARY KEY NOT NULL,\n  `userId` int NOT NULL,\n  `accessToken` text NOT NULL,\n  `refreshToken` text,\n  `tokenExpiresAt` timestamp,\n  `googleAccountId` varchar(255),\n  `googleEmail` varchar(320),\n  `locationName` varchar(255),\n  `locationId` varchar(255),\n  `address` text,\n  `isConnected` boolean NOT NULL DEFAULT true,\n  `createdAt` timestamp NOT NULL DEFAULT (now()),\n  `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 447
+}
