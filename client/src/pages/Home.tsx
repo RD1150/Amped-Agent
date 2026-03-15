@@ -626,31 +626,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Full Cinematic Tier (40 credits) */}
-            <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
-              <div className="relative aspect-[9/16] bg-black">
-                <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 rounded-full">
-                  <span className="text-xs font-semibold text-slate-900">40 Credits • PREMIUM</span>
-                </div>
-                <video 
-                  className="w-full h-full object-cover" 
-                  controls
-                  playsInline
-                >
-                  <source src="https://shotstack-api-v1-output.s3-ap-southeast-2.amazonaws.com/dv10cghii1/d857b764-1030-4edd-8f90-c88bfa9c9d89.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Full AI Cinematic</h3>
-                <p className="text-sm text-slate-400 mb-3">Kling AI pro mode • 1080p/30fps • Dramatic camera movement</p>
-                <ul className="text-xs text-slate-500 space-y-1">
-                  <li>✓ AI cinematic motion on ALL shots</li>
-                  <li>✓ True 1080p/30fps quality</li>
-                  <li>✓ Add voiceover for +5 credits</li>
-                </ul>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Instructions for updating */}

@@ -3440,3 +3440,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Create dedicated BulkImport page with CSV upload, format guide, and import history
 - [x] Add Bulk Import to CREATE section of sidebar nav
 - [x] Remove bulk upload from ContentTemplates page (keep templates list only)
+
+## Dashboard & Template UX Cleanup - Mar 15 2026
+- [x] Remove "Full AI Cinematic" row from dashboard Monthly Usage widget
+- [x] Add "Open in Post Builder" button to Content Templates for imported carousels
+- [x] Remove Full AI Cinematic from UsageCounter, WelcomeModal, Credits, Home, VideoPreviewGallery
+- [x] AIGenerate pre-fills hook, topic, contentType from URL params when opened from Content Templates

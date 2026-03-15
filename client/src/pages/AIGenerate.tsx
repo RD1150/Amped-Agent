@@ -49,9 +49,17 @@ type StockCategory = "property" | "interior" | "exterior" | "neighborhood" | "pe
 
 export default function AIGenerate() {
   const [, setLocation] = useLocation();
-  const [topic, setTopic] = useState("");
-  const [contentType, setContentType] = useState<ContentType>("custom");
-  const [contentFormat, setContentFormat] = useState<ContentFormat>("static_post");
+
+  // Pre-fill from URL params (e.g. when opened from Content Templates)
+  const urlParams = new URLSearchParams(window.location.search);
+  const prefillHook = urlParams.get("hook") ?? "";
+  const prefillTopic = urlParams.get("topic") ?? "";
+  const prefillContentType = (urlParams.get("contentType") as ContentType) ?? "custom";
+  const prefillFormat = urlParams.get("contentType") === "carousel" ? "carousel" as ContentFormat : "static_post" as ContentFormat;
+
+  const [topic, setTopic] = useState(prefillTopic);
+  const [contentType, setContentType] = useState<ContentType>(prefillContentType);
+  const [contentFormat, setContentFormat] = useState<ContentFormat>(prefillFormat);
   const [tone, setTone] = useState<BrandVoice>("professional");
   const [generatedContent, setGeneratedContent] = useState("");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -60,7 +68,7 @@ export default function AIGenerate() {
   const [selectedTemplate, setSelectedTemplate] = useState<SelectedTemplate>(null);
   const [includeHeadshot, setIncludeHeadshot] = useState(true);
   const [customMessage, setCustomMessage] = useState("");
-  const [customHook, setCustomHook] = useState("");
+  const [customHook, setCustomHook] = useState(prefillHook);
   const [includeCTA, setIncludeCTA] = useState(false);
   const [ctaText, setCtaText] = useState("");
   const [showPostingDialog, setShowPostingDialog] = useState(false);

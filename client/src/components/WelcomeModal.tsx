@@ -93,7 +93,7 @@ export function WelcomeModal() {
                   </div>
                   <h4 className="font-semibold text-lg mb-2">50 Free Credits</h4>
                   <p className="text-sm text-muted-foreground">
-                    Enough to create 10 standard videos or 3 Full AI Cinematic tours
+                    Enough to create 10 property tour videos with Ken Burns effects
                   </p>
                 </Card>
 
@@ -132,7 +132,7 @@ export function WelcomeModal() {
                       <li>Go to <strong>Property Tours</strong> in the sidebar</li>
                       <li>Upload 5-10 property photos</li>
                       <li>Add property details (address, price, features)</li>
-                      <li>Choose your video mode (Standard or Full AI Cinematic)</li>
+                      <li>Choose your music and Ken Burns style</li>
                       <li>Click <strong>Generate Video</strong> and watch the magic happen!</li>
                     </ol>
                   </div>

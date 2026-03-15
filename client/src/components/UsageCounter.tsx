@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { trpc } from "@/lib/trpc";
-import { Video, TrendingUp, Zap } from "lucide-react";
+import { Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import {
@@ -23,28 +23,9 @@ export default function UsageCounter() {
     );
   }
 
-  const { tier, standardUsed, fullAiUsed, standardLimit, fullAiLimit } = usage;
-
-  const tiers = [
-    {
-      name: "Standard",
-      icon: Video,
-      used: standardUsed,
-      limit: standardLimit,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100 dark:bg-blue-900",
-      progressColor: "bg-blue-600",
-    },
-    {
-      name: "Full AI Cinematic",
-      icon: Zap,
-      used: fullAiUsed,
-      limit: fullAiLimit,
-      color: "text-amber-600",
-      bgColor: "bg-amber-100 dark:bg-amber-900",
-      progressColor: "bg-amber-600",
-    },
-  ];
+  const { tier, standardUsed, standardLimit } = usage;
+  const isUnlimited = standardLimit === -1;
+  const percentage = isUnlimited ? 0 : (standardUsed / standardLimit) * 100;
 
   return (
     <Card className="p-6">
@@ -68,37 +49,25 @@ export default function UsageCounter() {
         </TooltipProvider>
       </div>
 
-      <div className="space-y-4">
-        {tiers.map((tierInfo) => {
-          const Icon = tierInfo.icon;
-          const percentage = tierInfo.limit === -1 ? 0 : (tierInfo.used / tierInfo.limit) * 100;
-          const isUnlimited = tierInfo.limit === -1;
-
-          return (
-            <div key={tierInfo.name} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className={`w-8 h-8 ${tierInfo.bgColor} rounded-full flex items-center justify-center`}>
-                    <Icon className={`w-4 h-4 ${tierInfo.color}`} />
-                  </div>
-                  <span className="text-sm font-medium">{tierInfo.name}</span>
-                </div>
-                <span className="text-sm text-muted-foreground">
-                  {isUnlimited ? (
-                    <span className="font-medium text-green-600">∞ Unlimited</span>
-                  ) : (
-                    <>
-                      {tierInfo.used}/{tierInfo.limit} used
-                    </>
-                  )}
-                </span>
-              </div>
-              {!isUnlimited && (
-                <Progress value={percentage} className="h-2" />
-              )}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+              <Video className="w-4 h-4 text-blue-600" />
             </div>
-          );
-        })}
+            <span className="text-sm font-medium">Property Tour Videos</span>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {isUnlimited ? (
+              <span className="font-medium text-green-600">∞ Unlimited</span>
+            ) : (
+              <>{standardUsed}/{standardLimit} used</>
+            )}
+          </span>
+        </div>
+        {!isUnlimited && (
+          <Progress value={percentage} className="h-2" />
+        )}
       </div>
 
       {tier === "Starter" && (

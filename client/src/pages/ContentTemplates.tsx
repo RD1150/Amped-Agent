@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,8 @@ import {
   Sparkles,
   Pencil,
   Save,
-  Copy
+  Copy,
+  ExternalLink
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -44,6 +46,7 @@ export default function ContentTemplates() {
 
   const { data: templates, refetch } = trpc.contentTemplates.list.useQuery({});
   const uploadCSV = trpc.contentTemplates.uploadCSV.useMutation();
+  const [, setLocation] = useLocation();
   const deleteTemplate = trpc.contentTemplates.delete.useMutation();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -365,19 +368,23 @@ export default function ContentTemplates() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          {template.status === 'pending' && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="gap-2"
-                              onClick={() => {
-                                toast.info("Batch generation will be available in the next update");
-                              }}
-                            >
-                              <Sparkles className="h-4 w-4" />
-                              Generate
-                            </Button>
-                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-2"
+                            onClick={() => {
+                              const params = new URLSearchParams({
+                                hook: template.hook ?? "",
+                                topic: template.reelIdea ?? "",
+                                platform: template.platform ?? "Instagram",
+                                contentType: template.contentType ?? "carousel",
+                              });
+                              setLocation(`/generate?${params.toString()}`);
+                            }}
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                            Open in Post Builder
+                          </Button>
                           <Button
                             size="sm"
                             variant="ghost"

@@ -118,9 +118,8 @@ export default function Credits() {
                     </div>
                   </div>
                   <div className="pt-4 border-t text-xs text-muted-foreground space-y-1">
-                    <p>• Standard video: 5 credits</p>
-                    <p>• AI-Enhanced: 15 credits</p>
-                    <p>• Full AI Cinematic: 40 credits</p>
+                    <p>• Property Tour video: 5 credits</p>
+                    <p>• AI Reel: 15 credits</p>
                     <p>• Voiceover add-on: +5 credits</p>
                   </div>
                 </CardContent>
