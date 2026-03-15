@@ -22,6 +22,7 @@ import Hooks from "./pages/Hooks";
 import FacebookCallback from "./pages/FacebookCallback";
 import LinkedInCallback from "./pages/LinkedInCallback";
 import GoogleCallback from "./pages/GoogleCallback";
+import YouTubeCallback from "./pages/YouTubeCallback";
 import InstagramSetup from "./pages/InstagramSetup";
 import AgentOnboarding from "./components/AgentOnboarding";
 import FAQ from "./pages/FAQ";
@@ -77,6 +78,7 @@ function Router() {
       <Route path="/integrations/facebook/callback" component={FacebookCallback} />
       <Route path="/integrations/linkedin/callback" component={LinkedInCallback} />
       <Route path="/integrations/google/callback" component={GoogleCallback} />
+      <Route path="/integrations/youtube/callback" component={YouTubeCallback} />
       <Route path="/integrations/instagram/setup" component={InstagramSetup} />
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/agent-onboarding" component={AgentOnboarding} />

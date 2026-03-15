@@ -3446,3 +3446,17 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add "Open in Post Builder" button to Content Templates for imported carousels
 - [x] Remove Full AI Cinematic from UsageCounter, WelcomeModal, Credits, Home, VideoPreviewGallery
 - [x] AIGenerate pre-fills hook, topic, contentType from URL params when opened from Content Templates
+
+## YouTube OAuth Integration - Mar 15 2026
+- [ ] Build YouTube OAuth connect card in Integrations page
+- [ ] Add YouTube OAuth backend router (getAuthUrl, handleCallback, disconnect)
+- [ ] Add youtube_connections table to DB schema
+- [ ] Add YouTube callback page (client/src/pages/YouTubeCallback.tsx)
+- [ ] Register /integrations/youtube/callback route in App.tsx
+- [ ] Add YouTube to PostingDialog platform list
+- [ ] Write vitest tests for YouTube OAuth router
+
+## Bulk Import Verification - Mar 15 2026
+- [x] Verify 92-row carousel CSV imports without errors
+- [x] Confirm AI hook generation works for rows without hook column
+- [x] Confirm Key Points map correctly to carousel slides

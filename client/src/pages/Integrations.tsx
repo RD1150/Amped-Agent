@@ -2,7 +2,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertCircle, Facebook, Instagram, Linkedin, MapPin, ChevronDown } from "lucide-react";
+import { CheckCircle2, AlertCircle, Facebook, Instagram, Linkedin, MapPin, ChevronDown, Youtube } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -27,6 +27,35 @@ export default function Integrations() {
   const disconnectInstagramMutation = trpc.facebook.disconnectInstagram.useMutation();
   
   const getLinkedInAuthUrlMutation = trpc.linkedin.getAuthUrl.useMutation();
+
+  // YouTube
+  const { data: youtubeConnection, refetch: refetchYoutube } = trpc.youtube.getConnection.useQuery();
+  const getYoutubeAuthUrlMutation = trpc.youtube.getAuthUrl.useMutation();
+  const disconnectYoutubeMutation = trpc.youtube.disconnect.useMutation();
+
+  const handleConnectYoutube = async () => {
+    try {
+      setIsConnecting(true);
+      const redirectUri = `${window.location.origin}/integrations/youtube/callback`;
+      const result = await getYoutubeAuthUrlMutation.mutateAsync({ redirectUri });
+      sessionStorage.setItem("youtube_oauth_state", result.state);
+      sessionStorage.setItem("youtube_oauth_redirect", redirectUri);
+      window.location.href = result.authUrl;
+    } catch (err: any) {
+      toast.error(err.message || "Failed to start YouTube connection");
+      setIsConnecting(false);
+    }
+  };
+
+  const handleDisconnectYoutube = async () => {
+    try {
+      await disconnectYoutubeMutation.mutateAsync();
+      await refetchYoutube();
+      toast.success("YouTube channel disconnected");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to disconnect YouTube");
+    }
+  };
 
   // GBP
   const { data: gbpStatus, refetch: refetchGbp } = trpc.gbp.getStatus.useQuery();
@@ -478,6 +507,78 @@ export default function Integrations() {
               >
                 <MapPin className="h-4 w-4 mr-2" />
                 {isConnecting ? "Connecting..." : "Connect Google Business Profile"}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* YouTube Card */}
+      <Card className="border-2 border-red-500/20">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-lg bg-red-500/10 flex items-center justify-center">
+                <Youtube className="h-6 w-6 text-red-500" />
+              </div>
+              <div>
+                <CardTitle>YouTube</CardTitle>
+                <CardDescription>Publish property tours directly to your YouTube channel</CardDescription>
+              </div>
+            </div>
+            {youtubeConnection?.connected ? (
+              <Badge variant="default" className="bg-green-500/20 text-green-400 border-green-500/30">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Connected
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="bg-muted text-muted-foreground">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Not Connected
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {youtubeConnection?.connected ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  {youtubeConnection.channelThumbnail && (
+                    <img src={youtubeConnection.channelThumbnail} alt="Channel" className="h-8 w-8 rounded-full" />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium">{youtubeConnection.channelTitle || "YouTube Channel"}</p>
+                    <p className="text-xs text-muted-foreground">{youtubeConnection.channelId}</p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDisconnectYoutube}
+                  disabled={disconnectYoutubeMutation.isPending}
+                >
+                  Disconnect
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                <p className="text-sm font-medium">Connect Your YouTube Channel</p>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Publish property tour videos directly from Authority Content</li>
+                  <li>Auto-fill AI-generated titles, descriptions, and tags on upload</li>
+                  <li>Secure Google OAuth 2.0 — no third-party required</li>
+                </ul>
+              </div>
+              <Button
+                onClick={handleConnectYoutube}
+                disabled={isConnecting || getYoutubeAuthUrlMutation.isPending}
+                className="w-full bg-red-600 hover:bg-red-700"
+              >
+                <Youtube className="h-4 w-4 mr-2" />
+                {isConnecting ? "Connecting..." : "Connect YouTube Channel"}
               </Button>
             </div>
           )}

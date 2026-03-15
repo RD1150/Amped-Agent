@@ -17,6 +17,8 @@ import {
   Pencil,
   Save,
   X,
+  Upload,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -77,6 +79,33 @@ export default function YouTubeSEOPanel({ tourId, videoUrl, initialData }: YouTu
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<YouTubeSEOData | null>(null);
   const [newTag, setNewTag] = useState("");
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+
+  // Check if YouTube is connected
+  const { data: youtubeConnection } = trpc.youtube.getConnection.useQuery();
+
+  const uploadToYoutubeMutation = trpc.youtube.uploadVideo.useMutation({
+    onSuccess: (data) => {
+      setPublishedUrl(data.videoUrl);
+      toast.success("Video published to YouTube!", {
+        action: { label: "View", onClick: () => window.open(data.videoUrl, "_blank") },
+      });
+    },
+    onError: (error) => {
+      toast.error(`YouTube upload failed: ${error.message}`);
+    },
+  });
+
+  const handlePublishToYoutube = () => {
+    if (!seoData || !videoUrl) return;
+    uploadToYoutubeMutation.mutate({
+      videoUrl,
+      title: seoData.title,
+      description: seoData.description,
+      tags: seoData.tags,
+      privacyStatus: "public",
+    });
+  };
 
   const generateMutation = trpc.propertyTours.generateYouTubeSEO.useMutation({
     onSuccess: (data) => {
@@ -348,6 +377,42 @@ export default function YouTubeSEOPanel({ tourId, videoUrl, initialData }: YouTu
               ))}
             </div>
           </div>
+        </CardContent>
+      )}
+
+      {/* Publish to YouTube button */}
+      {seoData && !isEditing && youtubeConnection?.connected && (
+        <CardContent className="pt-0">
+          {publishedUrl ? (
+            <a
+              href={publishedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-md bg-green-600/10 border border-green-500/30 text-green-500 text-sm font-medium hover:bg-green-600/20 transition-colors"
+            >
+              <ExternalLink className="h-4 w-4" />
+              View on YouTube
+            </a>
+          ) : (
+            <Button
+              onClick={handlePublishToYoutube}
+              disabled={uploadToYoutubeMutation.isPending}
+              className="w-full bg-red-600 hover:bg-red-700 text-white gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              {uploadToYoutubeMutation.isPending ? "Uploading to YouTube..." : "Publish to YouTube"}
+            </Button>
+          )}
+        </CardContent>
+      )}
+
+      {seoData && !isEditing && !youtubeConnection?.connected && (
+        <CardContent className="pt-0">
+          <p className="text-xs text-muted-foreground text-center">
+            Connect your YouTube channel in{" "}
+            <a href="/integrations" className="text-red-500 hover:underline">Integrations</a>{" "}
+            to publish directly from here.
+          </p>
         </CardContent>
       )}
 

@@ -355,7 +355,7 @@ function DashboardLayoutContent({
               <div key={section.title} className="mb-4">
                 {/* Section Header */}
                 <div className="px-4 py-2">
-                  <h3 className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">
+                  <h3 className="text-[11px] font-bold text-sidebar-foreground/80 uppercase tracking-widest">
                     {section.title}
                   </h3>
                 </div>

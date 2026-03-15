@@ -753,3 +753,23 @@ export const marketDataCache = mysqlTable("market_data_cache", {
 });
 export type MarketDataCacheRow = typeof marketDataCache.$inferSelect;
 export type InsertMarketDataCache = typeof marketDataCache.$inferInsert;
+
+// ─── YouTube Connections ───────────────────────────────────────────────────────
+// Stores OAuth tokens for connected YouTube channels
+export const youtubeConnections = mysqlTable("youtube_connections", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  // OAuth tokens
+  accessToken: text("accessToken").notNull(),
+  refreshToken: text("refreshToken"),
+  tokenExpiresAt: timestamp("tokenExpiresAt"),
+  // Channel info (populated after OAuth)
+  channelId: varchar("channelId", { length: 255 }),
+  channelTitle: varchar("channelTitle", { length: 255 }),
+  channelThumbnail: text("channelThumbnail"),
+  isConnected: boolean("isConnected").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type YoutubeConnection = typeof youtubeConnections.$inferSelect;
+export type InsertYoutubeConnection = typeof youtubeConnections.$inferInsert;

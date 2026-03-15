@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS youtube_connections (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  userId INT NOT NULL,\n  accessToken TEXT NOT NULL,\n  refreshToken TEXT,\n  tokenExpiresAt TIMESTAMP NULL,\n  channelId VARCHAR(255),\n  channelTitle VARCHAR(255),\n  channelThumbnail TEXT,\n  isConnected BOOLEAN NOT NULL DEFAULT TRUE,\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute CREATE TABLE IF NOT EXISTS youtube_connections (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  userId INT NOT NULL,\n  accessToken TEXT NOT NULL,\n  refreshToken TEXT,\n  tokenExpiresAt TIMESTAMP NULL,\n  channelId VARCHAR(255),\n  channelTitle VARCHAR(255),\n  channelThumbnail TEXT,\n  isConnected BOOLEAN NOT NULL DEFAULT TRUE,\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 473
+}
