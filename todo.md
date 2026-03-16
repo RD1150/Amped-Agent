@@ -3571,11 +3571,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add CREATOMATE_API_KEY secret
 - [x] Build creatomateRenderer.ts for AutoReels (Ken Burns zoom+pan, text overlays, audio)
 - [x] Migrate videoGenerator.ts Property Tours to Creatomate API
-- [ ] Migrate AI Cinematic Walkthrough to Creatomate
+- [x] Migrate AI Cinematic Walkthrough to Creatomate
 - [x] Update render status polling to use Creatomate render IDs
-- [ ] Remove shotstack-sdk npm package and all Shotstack references
-- [ ] Test Property Tour render end-to-end with Creatomate
-- [ ] Test AutoReels render end-to-end with Creatomate
+- [x] Remove shotstack-sdk npm package and all Shotstack references
+- [x] Test Property Tour render end-to-end with Creatomate (live render succeeded)
+- [x] Test AutoReels render end-to-end with Creatomate
 
 ## AI Spend Tracking Dashboard (Mar 16, 2026)
 - [x] Create api_usage_logs DB table (service, feature, cost_usd, units, unit_type, user_id, created_at)
@@ -3591,5 +3591,5 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Finish replacing Shotstack in videoGenerator.ts with Creatomate
 - [x] Replace Shotstack in videoRenderer.ts (AutoReels) with Creatomate
 - [x] Update checkRenderStatus to use Creatomate API
-- [ ] Migrate AI Cinematic Walkthrough to Creatomate
-- [ ] Remove all Shotstack SDK references from codebase
+- [x] Migrate AI Cinematic Walkthrough to Creatomate
+- [x] Remove all Shotstack SDK references from codebase

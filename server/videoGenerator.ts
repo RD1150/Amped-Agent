@@ -51,7 +51,6 @@ export type CardTemplate = "modern" | "luxury" | "bold" | "classic" | "contempor
 import { ENV } from "./_core/env";
 import { applyCinematicEnhancements, getCinematicOverlays, type CinematicOptions } from "./cinematicEffects";
 
-const SHOTSTACK_API_URL = ENV.SHOTSTACK_HOST;
 
 /**
  * Get music track URL from music library
@@ -86,13 +85,6 @@ export async function generatePropertyTourVideo(
   writeLog(`[VideoGenerator] Aspect ratio: ${options.aspectRatio}`);
   writeLog(`[VideoGenerator] Image URLs: ${JSON.stringify(options.imageUrls)}`);
   
-  const apiKey = process.env.SHOTSTACK_API_KEY;
-  
-  if (!apiKey) {
-    console.error("[VideoGenerator] SHOTSTACK_API_KEY not configured");
-    throw new Error("SHOTSTACK_API_KEY is not configured. Please contact support.");
-  }
-
   const {
     imageUrls,
     propertyDetails,

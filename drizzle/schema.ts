@@ -623,13 +623,13 @@ export const aiReels = mysqlTable("ai_reels", {
   script: text("script").notNull(), // The script used for generation
   // D-ID simple avatar fields
   didVideoUrl: text("didVideoUrl"), // Original D-ID video URL (nullable for Shotstack reels)
-  avatarUrl: text("avatarUrl"), // Avatar image used (nullable for Shotstack reels)
-  voiceId: varchar("voiceId", { length: 100 }), // Voice ID used (nullable for Shotstack reels)
-  // Shotstack Authority Reels fields
+  avatarUrl: text("avatarUrl"), // Avatar image used (nullable for Creatomate reels)
+  voiceId: varchar("voiceId", { length: 100 }), // Voice ID used (nullable for Creatomate reels)
+  // Authority Reels fields
   hook: text("hook"), // Opening hook text for Authority Reels
   caption: text("caption"), // Full caption/description for Authority Reels
-  shotstackRenderUrl: text("shotstackRenderUrl"), // Shotstack video URL
-  shotstackRenderId: varchar("shotstackRenderId", { length: 255 }), // Shotstack render ID for status tracking
+  shotstackRenderUrl: text("shotstackRenderUrl"), // Render video URL (Creatomate)
+  shotstackRenderId: varchar("shotstackRenderId", { length: 255 }), // Creatomate render ID for status tracking
   // Common fields
   s3Key: varchar("s3Key", { length: 500 }), // S3 object key
   s3Url: text("s3Url"), // S3 public URL (our copy)

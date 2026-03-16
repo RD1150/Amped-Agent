@@ -39,13 +39,16 @@ function getApiKey(): string {
 async function submitRender(renderScript: object): Promise<string> {
   const apiKey = getApiKey();
 
+  // Creatomate API requires the composition to be wrapped in a "source" field
+  const payload = { source: renderScript };
+
   const response = await fetch(CREATOMATE_API_URL, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(renderScript),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {

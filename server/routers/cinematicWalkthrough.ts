@@ -163,11 +163,11 @@ async function pollRunwayTask(taskId: string, maxWaitMs = 300000): Promise<strin
 }
 
 // ============================================================
-// SHOTSTACK ASSEMBLY
-// Stitches all clips into a final walkthrough video
+// CREATOMATE ASSEMBLY
+// Stitches all clips into a final walkthrough video via Creatomate
 // ============================================================
 
-async function assembleShotstackVideo(opts: {
+async function assembleCreatomateVideo(opts: {
   clips: Array<{ url: string; roomLabel: string; duration: number }>;
   propertyAddress: string;
   agentName: string;
@@ -175,145 +175,196 @@ async function assembleShotstackVideo(opts: {
   musicTrackUrl?: string;
   voiceoverUrl?: string;
   aspectRatio: "16:9" | "9:16";
+  userId?: number | null;
 }): Promise<string> {
-  const { clips, propertyAddress, agentName, agentBrokerage, musicTrackUrl, voiceoverUrl, aspectRatio } = opts;
+  const { clips, propertyAddress, agentName, agentBrokerage, musicTrackUrl, voiceoverUrl, aspectRatio, userId } = opts;
 
-  const [width, height] = aspectRatio === "16:9" ? [1280, 720] : [720, 1280];
+  const [width, height] = aspectRatio === "16:9" ? [1920, 1080] : [1080, 1920];
   const totalDuration = clips.reduce((sum, c) => sum + c.duration, 0) + 3;
 
+  // Build Creatomate elements
+  const elements: any[] = [];
   let currentTime = 0;
-  const videoClips = clips.map((clip) => {
-    const item = {
-      asset: { type: "video", src: clip.url },
-      start: currentTime,
-      length: clip.duration,
-      transition: { in: "fade", out: "fade" },
-    };
+
+  // Video clips with room labels
+  for (const clip of clips) {
+    // Main video clip
+    elements.push({
+      type: "video",
+      source: clip.url,
+      time: currentTime,
+      duration: clip.duration,
+      animations: [
+        { time: 0, duration: 0.5, easing: "linear", type: "fade", fade: "in" },
+        { time: clip.duration - 0.5, duration: 0.5, easing: "linear", type: "fade", fade: "out" },
+      ],
+    });
+
+    // Room label overlay
+    elements.push({
+      type: "text",
+      text: clip.roomLabel,
+      time: currentTime + 0.5,
+      duration: 2.5,
+      x_alignment: "0%",
+      y_alignment: "85%",
+      x: "8%",
+      font_family: "Georgia",
+      font_size: aspectRatio === "16:9" ? "36 vmin" : "28 vmin",
+      font_color: "#ffffff",
+      shadow_color: "rgba(0,0,0,0.8)",
+      shadow_blur: "8px",
+      animations: [
+        { time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" },
+        { time: 2.1, duration: 0.4, easing: "ease-in", type: "fade", fade: "out" },
+      ],
+    });
+
     currentTime += clip.duration - 0.5;
-    return item;
-  });
+  }
 
-  let labelTime = 0;
-  const labelOverlays = clips.map((clip) => {
-    const item = {
-      asset: {
-        type: "html",
-        html: `<p style="font-family: 'Georgia', serif; font-size: 28px; color: white; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); letter-spacing: 1px;">${clip.roomLabel}</p>`,
-        width: 600,
-        height: 60,
+  // Outro card
+  elements.push({
+    type: "composition",
+    time: totalDuration - 3,
+    duration: 3,
+    width: "100%",
+    height: "100%",
+    fill_color: "rgba(0,0,0,0.85)",
+    animations: [{ time: 0, duration: 0.5, easing: "ease-out", type: "fade", fade: "in" }],
+    elements: [
+      {
+        type: "text",
+        text: "Presented by",
+        y_alignment: "40%",
+        x_alignment: "50%",
+        font_family: "Georgia",
+        font_size: "18 vmin",
+        font_color: "#c9a84c",
+        letter_spacing: "3px",
       },
-      start: labelTime + 0.5,
-      length: 2.5,
-      position: "bottomLeft",
-      offset: { x: 0.05, y: 0.08 },
-      transition: { in: "fade", out: "fade" },
-    };
-    labelTime += clip.duration - 0.5;
-    return item;
+      {
+        type: "text",
+        text: agentName,
+        y_alignment: "50%",
+        x_alignment: "50%",
+        font_family: "Georgia",
+        font_size: "32 vmin",
+        font_color: "#ffffff",
+        font_weight: "700",
+      },
+      ...(agentBrokerage ? [{
+        type: "text",
+        text: agentBrokerage,
+        y_alignment: "60%",
+        x_alignment: "50%",
+        font_family: "Georgia",
+        font_size: "18 vmin",
+        font_color: "#aaaaaa",
+      }] : []),
+      {
+        type: "text",
+        text: propertyAddress,
+        y_alignment: "72%",
+        x_alignment: "50%",
+        font_family: "Georgia",
+        font_size: "14 vmin",
+        font_color: "#c9a84c",
+        letter_spacing: "1px",
+      },
+    ],
   });
 
-  const outroCard = {
-    asset: {
-      type: "html",
-      html: `<div style="background: rgba(0,0,0,0.85); padding: 40px; text-align: center; font-family: 'Georgia', serif;">
-        <p style="color: #c9a84c; font-size: 18px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px;">Presented by</p>
-        <p style="color: white; font-size: 32px; font-weight: bold; margin-bottom: 4px;">${agentName}</p>
-        ${agentBrokerage ? `<p style="color: #aaa; font-size: 18px;">${agentBrokerage}</p>` : ""}
-        <p style="color: #c9a84c; font-size: 14px; margin-top: 16px; letter-spacing: 1px;">${propertyAddress}</p>
-      </div>`,
-      width,
-      height,
-    },
-    start: totalDuration - 3,
-    length: 3,
-    transition: { in: "fade" },
-  };
-
-  const tracks: any[] = [
-    { clips: videoClips },
-    { clips: [...labelOverlays, outroCard] },
-  ];
-
+  // Audio tracks
   if (musicTrackUrl) {
-    tracks.push({
-      clips: [{
-        asset: { type: "audio", src: musicTrackUrl, volume: voiceoverUrl ? 0.2 : 0.5 },
-        start: 0,
-        length: totalDuration,
-      }],
+    elements.push({
+      type: "audio",
+      source: musicTrackUrl,
+      time: 0,
+      duration: totalDuration,
+      volume: voiceoverUrl ? 0.2 : 0.5,
     });
   }
 
   if (voiceoverUrl) {
-    tracks.push({
-      clips: [{
-        asset: { type: "audio", src: voiceoverUrl, volume: 1.0 },
-        start: 0,
-        length: totalDuration,
-      }],
+    elements.push({
+      type: "audio",
+      source: voiceoverUrl,
+      time: 0,
+      duration: totalDuration,
+      volume: 1.0,
     });
   }
 
   const payload = {
-    timeline: { background: "#000000", tracks },
-    output: {
-      format: "mp4",
-      resolution: aspectRatio === "16:9" ? "hd" : "sd",
-      aspectRatio,
-    },
+    output_format: "mp4",
+    width,
+    height,
+    duration: totalDuration,
+    elements,
   };
 
-  log(`Submitting Shotstack render: ${clips.length} clips, ${totalDuration}s total`);
+  log(`Submitting Creatomate render: ${clips.length} clips, ${totalDuration}s total`);
 
-  const renderRes = await fetch(`${ENV.SHOTSTACK_HOST}/render`, {
+  const CREATOMATE_API_KEY = ENV.CREATOMATE_API_KEY;
+  if (!CREATOMATE_API_KEY) throw new Error("CREATOMATE_API_KEY not configured");
+
+  const renderRes = await fetch("https://api.creatomate.com/v1/renders", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": ENV.SHOTSTACK_API_KEY,
+      "Authorization": `Bearer ${CREATOMATE_API_KEY}`,
     },
     body: JSON.stringify(payload),
   });
 
   if (!renderRes.ok) {
     const err = await renderRes.text();
-    throw new Error(`Shotstack render error: ${renderRes.status} - ${err}`);
+    throw new Error(`Creatomate render error: ${renderRes.status} - ${err}`);
   }
 
-  const renderData = await renderRes.json() as { response: { id: string } };
-  const renderId = renderData.response.id;
-  log(`Shotstack render started: ${renderId}`);
+  const renderData = await renderRes.json() as Array<{ id: string }>;
+  const renderId = renderData[0]?.id;
+  if (!renderId) throw new Error("Creatomate did not return a render ID");
+  log(`Creatomate render started: ${renderId}`);
 
-  return await pollShotstackRender(renderId);
+  // Track cost (estimate: 1 credit per second)
+  try {
+    const { trackCreatomate } = await import("../_core/costTracker");
+    await trackCreatomate(userId ?? null, "cinematic_walkthrough", renderId);
+  } catch {}
+
+  return await pollCreatomateRender(renderId);
 }
 
-async function pollShotstackRender(renderId: string, maxWaitMs = 600000): Promise<string> {
+async function pollCreatomateRender(renderId: string, maxWaitMs = 600000): Promise<string> {
   const start = Date.now();
   const interval = 10000;
+  const CREATOMATE_API_KEY = ENV.CREATOMATE_API_KEY;
 
   while (Date.now() - start < maxWaitMs) {
     await new Promise((r) => setTimeout(r, interval));
 
-    const res = await fetch(`${ENV.SHOTSTACK_HOST}/render/${renderId}`, {
-      headers: { "x-api-key": ENV.SHOTSTACK_API_KEY },
+    const res = await fetch(`https://api.creatomate.com/v1/renders/${renderId}`, {
+      headers: { "Authorization": `Bearer ${CREATOMATE_API_KEY}` },
     });
 
     if (!res.ok) continue;
 
-    const data = await res.json() as { response: { status: string; url?: string } };
-    const { status, url } = data.response;
-    log(`Shotstack render ${renderId} status: ${status}`);
+    const data = await res.json() as { status: string; url?: string };
+    log(`Creatomate render ${renderId} status: ${data.status}`);
 
-    if (status === "done" && url) {
-      log(`✓ Shotstack render complete: ${url}`);
-      return url;
+    if (data.status === "succeeded" && data.url) {
+      log(`✓ Creatomate render complete: ${data.url}`);
+      return data.url;
     }
 
-    if (status === "failed") {
-      throw new Error("Shotstack render failed");
+    if (data.status === "failed") {
+      throw new Error("Creatomate render failed");
     }
   }
 
-  throw new Error("Shotstack render timed out");
+  throw new Error("Creatomate render timed out");
 }
 
 // ============================================================
@@ -501,11 +552,11 @@ async function runWalkthroughJob(
     }
   }
 
-  // Assemble final video via Shotstack
+  // Assemble final video via Creatomate
   await dbUpdateJob(jobId, { status: "assembling" });
-  log(`Job ${jobId}: Assembling final video via Shotstack...`);
+  log(`Job ${jobId}: Assembling final video via Creatomate...`);
 
-  const videoUrl = await assembleShotstackVideo({
+  const videoUrl = await assembleCreatomateVideo({
     clips,
     propertyAddress: input.propertyAddress,
     agentName: agentName!,
@@ -513,6 +564,7 @@ async function runWalkthroughJob(
     musicTrackUrl: input.musicTrackUrl,
     voiceoverUrl,
     aspectRatio: input.aspectRatio,
+    userId,
   });
 
   // Save to My Videos library

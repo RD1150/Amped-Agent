@@ -182,7 +182,7 @@ export const propertyToursRouter = router({
       });
 
       // ─── FIRE AND FORGET ──────────────────────────────────────────────────────
-      // The heavy work (Kling AI clip generation, ElevenLabs voiceover, Shotstack
+      // The heavy work (Kling AI clip generation, ElevenLabs voiceover, Creatomate
       // submission) runs in a detached background task so this mutation returns
       // immediately. The frontend polls checkRenderStatus for progress.
       // ─────────────────────────────────────────────────────────────────────────
@@ -212,9 +212,9 @@ export const propertyToursRouter = router({
             await db.updatePropertyTour(tourId, { processingStage: "generating_ai_clips" });
           }
 
-          // Stage 4: Submit to Shotstack
-          await db.updatePropertyTour(tourId, { processingStage: "submitting_to_shotstack" });
-          bgLog(`[PropertyTours] Stage: submitting_to_shotstack`);
+          // Stage 4: Submit to Creatomate
+          await db.updatePropertyTour(tourId, { processingStage: "submitting_to_renderer" });
+          bgLog(`[PropertyTours] Stage: submitting_to_renderer`);
 
           bgLog(`[PropertyTours] Calling generatePropertyTourVideo...`);
           const { renderId } = await generatePropertyTourVideo({
@@ -259,7 +259,7 @@ export const propertyToursRouter = router({
           // Increment daily video count
           await rateLimit.incrementDailyVideoCount(userId);
 
-          bgLog(`[PropertyTours] Background job complete for tour ${tourId}. Shotstack renderId: ${renderId}`);
+          bgLog(`[PropertyTours] Background job complete for tour ${tourId}. Creatomate renderId: ${renderId}`);
         } catch (error) {
           const errMsg = error instanceof Error ? error.message : "Unknown error";
           bgLog(`[PropertyTours] ❌ Background job FAILED for tour ${tourId}: ${errMsg}`);
@@ -327,9 +327,9 @@ export const propertyToursRouter = router({
         };
       }
 
-      // Check Shotstack render status (renderId is stored in videoUrl temporarily)
+      // Check Creatomate render status (renderId is stored in videoUrl temporarily)
       if (tour.status === "processing" && tour.videoUrl) {
-        // Detect if videoUrl looks like a Shotstack renderId (UUID) vs a real URL
+        // Detect if videoUrl looks like a Creatomate renderId (UUID) vs a real URL
         const isRenderId = /^[0-9a-f-]{36}$/i.test(tour.videoUrl);
         
         if (isRenderId) {
@@ -363,15 +363,15 @@ export const propertyToursRouter = router({
             };
           }
 
-          // Map Shotstack status to a processingStage for the UI
-          const shotstackStage = renderStatus.status === "rendering" ? "rendering"
+          // Map Creatomate status to a processingStage for the UI
+          const renderStage = renderStatus.status === "rendering" ? "rendering"
             : renderStatus.status === "saving" ? "saving"
             : renderStatus.status === "fetching" ? "fetching_assets"
             : "rendering";
 
           return {
             status: "processing" as const,
-            processingStage: shotstackStage,
+            processingStage: renderStage,
           };
         }
       }
@@ -701,7 +701,7 @@ export const propertyToursRouter = router({
           const { getPersonaByUserId } = await import("../db");
           const persona = await getPersonaByUserId(userId);
 
-          await db.updatePropertyTour(tourId, { processingStage: "submitting_to_shotstack" });
+          await db.updatePropertyTour(tourId, { processingStage: "submitting_to_renderer" });
 
           const { renderId } = await generatePropertyTourVideo({
             imageUrls,
