@@ -3593,3 +3593,15 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update checkRenderStatus to use Creatomate API
 - [x] Migrate AI Cinematic Walkthrough to Creatomate
 - [x] Remove all Shotstack SDK references from codebase
+
+## Property Tours - Video Samples Section (Mar 16, 2026)
+- [x] Replace placeholder images in Video Samples section with fresh luxury property photos
+- [x] Upload new images to CDN
+
+## Video Samples - Real Generated Videos (Mar 16, 2026)
+- [x] Source luxury property images for sample renders
+- [x] Render Ken Burns property tour sample via Creatomate
+- [x] Render Cinematic mode property tour sample via Creatomate
+- [x] Render AutoReel vertical video sample via Creatomate
+- [x] Upload thumbnails to CDN
+- [x] Update VideoPreviewGallery with all 3 real sample videos
