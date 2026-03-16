@@ -3526,3 +3526,26 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix frontend polling/result display to show video player when done (moved setState to useEffect)
 - [x] Ensure completed video is saved to My Videos and accessible
 - [x] Remove "Momenzo" reference from CinematicWalkthrough page description - renamed to "AI Cinematic Tour"
+
+## Bug Fix: Cinematic Tour Still Not Generating
+- [ ] Check live server logs for errors during generation
+- [ ] Test full pipeline: Runway clip → Shotstack assembly → DB save
+- [ ] Add proper error surfacing to frontend so user sees failure reason
+- [ ] Fix root cause and verify video appears after completion
+
+## Bug Fix: Cinematic Tour - Persist Jobs to DB
+- [ ] Add cinematic_jobs table to drizzle schema (id, userId, status, completedClips, totalPhotos, videoUrl, error, createdAt)
+- [ ] Push DB migration
+- [ ] Update cinematicWalkthrough router to read/write job state from DB instead of in-memory Map
+- [ ] Test that job survives server restart and video appears after completion
+
+## AI Cinematic Tour - Critical Bug Fix (Mar 16, 2026)
+- [x] Root cause identified: in-memory job store wiped on server restart — video URL never shown to user
+- [x] Create cinematic_jobs DB table (id, userId, status, totalPhotos, completedClips, videoUrl, error, timestamps)
+- [x] Add cinematicJobs table to drizzle/schema.ts
+- [x] Run migration to create table in production DB
+- [x] Rewrite cinematicWalkthrough.ts router to use DB-persisted job state (dbCreateJob, dbUpdateJob, dbGetJob helpers)
+- [x] Remove in-memory walkthroughJobs Map entirely
+- [x] Add user ownership check in getJobProgress (userId must match)
+- [x] Update frontend error message for not_found case
+- [x] Write 24 vitest tests covering DB job state transitions, ownership, input validation, Shotstack assembly

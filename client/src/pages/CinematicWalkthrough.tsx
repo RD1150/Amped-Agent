@@ -102,10 +102,10 @@ export default function CinematicWalkthrough() {
       setJobId(null);
       toast.error("Generation failed", { description: jobProgress.error || "Please try again." });
     } else if (jobProgress.status === "not_found" && isGenerating) {
-      // Job was lost (server restart) — stop polling
+      // Job not found in DB — unexpected, stop polling and surface error
       setIsGenerating(false);
       setJobId(null);
-      toast.error("Generation job lost", { description: "The server may have restarted. Please try again." });
+      toast.error("Generation job not found", { description: "The job could not be located. Please try again." });
     }
   }, [jobProgress?.status, jobProgress?.videoUrl]);
 

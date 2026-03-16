@@ -789,3 +789,19 @@ export const leadMagnets = mysqlTable("lead_magnets", {
 });
 export type LeadMagnet = typeof leadMagnets.$inferSelect;
 export type InsertLeadMagnet = typeof leadMagnets.$inferInsert;
+
+// ─── Cinematic Walkthrough Jobs ────────────────────────────────────────────────
+// Persists AI Cinematic Tour generation jobs so they survive server restarts
+export const cinematicJobs = mysqlTable("cinematic_jobs", {
+  id: varchar("id", { length: 64 }).primaryKey(), // UUID job ID
+  userId: int("userId").notNull(),
+  status: mysqlEnum("status", ["pending", "generating_clips", "assembling", "done", "failed"]).default("pending").notNull(),
+  totalPhotos: int("totalPhotos").default(0).notNull(),
+  completedClips: int("completedClips").default(0).notNull(),
+  videoUrl: text("videoUrl"),
+  error: text("error"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CinematicJob = typeof cinematicJobs.$inferSelect;
+export type InsertCinematicJob = typeof cinematicJobs.$inferInsert;

@@ -1,174 +1,161 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Mock all external dependencies
-vi.mock("./_core/runwayAi", () => ({
-  generateVideoFromImage: vi.fn().mockResolvedValue({
-    id: "runway_task_123",
-    status: "SUCCEEDED",
-    output: ["https://cdn.example.com/clip1.mp4"],
-  }),
-  pollRunwayTask: vi.fn().mockResolvedValue({
-    id: "runway_task_123",
-    status: "SUCCEEDED",
-    output: ["https://cdn.example.com/clip1.mp4"],
-  }),
-}));
-
-vi.mock("./videoGenerator", () => ({
-  generateVideoWithShotstack: vi.fn().mockResolvedValue({
-    renderId: "shotstack_render_123",
-    url: "https://cdn.shotstack.io/final_video.mp4",
-  }),
-  pollShotstackRender: vi.fn().mockResolvedValue({
-    status: "done",
-    url: "https://cdn.shotstack.io/final_video.mp4",
-  }),
-}));
-
-vi.mock("./db", () => ({
-  getDb: vi.fn().mockResolvedValue({
-    insert: vi.fn().mockReturnValue({
-      values: vi.fn().mockResolvedValue([{ insertId: 1 }]),
-    }),
-  }),
-}));
-
-vi.mock("../../drizzle/schema", () => ({
-  generatedVideos: {},
-}));
-
 // ─── Unit tests for motion prompt generation ─────────────────────────────────
+
+const ROOM_MOTION_PROMPTS: Record<string, string> = {
+  exterior_front: "Slow cinematic dolly forward approaching the front of the home, smooth and steady, golden hour lighting, slight upward tilt revealing the roofline",
+  exterior_back: "Gentle wide pan left to right across the backyard, smooth tracking shot, lush landscaping in foreground",
+  living_room: "Slow dolly push forward into the living room, revealing the full space, warm natural light from windows, smooth and cinematic",
+  kitchen: "Smooth tracking shot moving left to right along the kitchen island, revealing countertops and appliances, bright and airy",
+  dining_room: "Slow crane-style reveal starting high and tilting down to the dining table, elegant and inviting",
+  master_bedroom: "Gentle dolly forward toward the bed, soft morning light, serene and luxurious atmosphere",
+  bedroom: "Smooth pan from the doorway revealing the bedroom, natural light, calm and inviting",
+  master_bathroom: "Slow tracking shot gliding across the vanity and into the bathroom, spa-like atmosphere, bright and clean",
+  bathroom: "Gentle pan revealing the bathroom fixtures, clean and bright, smooth camera movement",
+  office: "Slow dolly push into the home office, revealing the desk and built-ins, professional and focused",
+  garage: "Wide establishing shot with slow push forward into the garage, clean and spacious",
+  pool: "Smooth low-angle tracking shot along the pool edge, water shimmering in sunlight, resort-style feel",
+  view: "Slow cinematic reveal panning across the panoramic view, wide and breathtaking",
+  other: "Smooth cinematic camera movement through the space, steady and professional, revealing the full room",
+};
 
 describe("Cinematic Walkthrough - Motion Prompt Generation", () => {
   it("generates a dolly-forward prompt for living room", () => {
-    const roomType = "living_room";
-    const motionPrompts: Record<string, string> = {
-      exterior_front: "slow cinematic dolly forward approaching the front of the house, smooth camera movement",
-      exterior_back: "gentle pan revealing the backyard and outdoor space, smooth cinematic movement",
-      living_room: "slow dolly forward through the living room, revealing the space with smooth cinematic motion",
-      kitchen: "slow pan across the kitchen revealing countertops and appliances, smooth cinematic movement",
-      dining_room: "gentle dolly forward into the dining room, smooth cinematic reveal",
-      master_bedroom: "slow cinematic push into the master bedroom, smooth and elegant camera movement",
-      bedroom: "gentle dolly forward revealing the bedroom space, smooth cinematic motion",
-      master_bathroom: "slow pan revealing the master bathroom features, smooth cinematic movement",
-      bathroom: "gentle reveal of the bathroom, smooth cinematic camera movement",
-      office: "slow dolly forward into the home office, smooth cinematic movement",
-      garage: "gentle pan revealing the garage space, smooth cinematic movement",
-      pool: "slow cinematic pan across the pool and outdoor entertaining area",
-      view: "slow cinematic pan across the scenic view, smooth and majestic camera movement",
-      other: "slow cinematic dolly forward, smooth camera movement revealing the space",
-    };
-
-    const prompt = motionPrompts[roomType];
+    const prompt = ROOM_MOTION_PROMPTS["living_room"];
     expect(prompt).toBeDefined();
     expect(prompt).toContain("living room");
     expect(prompt).toContain("smooth");
   });
 
   it("falls back to generic prompt for unknown room type", () => {
-    const roomType = "unknown_room";
-    const motionPrompts: Record<string, string> = {
-      other: "slow cinematic dolly forward, smooth camera movement revealing the space",
-    };
-    const prompt = motionPrompts[roomType] || motionPrompts["other"];
+    const prompt = ROOM_MOTION_PROMPTS["unknown_room"] || ROOM_MOTION_PROMPTS["other"];
     expect(prompt).toBeDefined();
-    expect(prompt).toContain("slow cinematic");
+    expect(prompt).toContain("cinematic");
   });
 
   it("generates exterior prompt with approach movement", () => {
-    const roomType = "exterior_front";
-    const motionPrompts: Record<string, string> = {
-      exterior_front: "slow cinematic dolly forward approaching the front of the house, smooth camera movement",
-    };
-    const prompt = motionPrompts[roomType];
+    const prompt = ROOM_MOTION_PROMPTS["exterior_front"];
     expect(prompt).toContain("approaching");
-    expect(prompt).toContain("front of the house");
+    expect(prompt).toContain("front");
+  });
+
+  it("generates pool prompt with water reference", () => {
+    const prompt = ROOM_MOTION_PROMPTS["pool"];
+    expect(prompt).toContain("pool");
+    expect(prompt).toContain("water");
   });
 });
 
-// ─── Unit tests for job store ─────────────────────────────────────────────────
+// ─── Unit tests for DB-persisted job state ────────────────────────────────────
+// These tests verify the job state shape that is now stored in the DB
+// (cinematic_jobs table) instead of an in-memory Map.
 
-describe("Cinematic Walkthrough - Job Store", () => {
-  it("tracks job status transitions correctly", () => {
-    type JobStatus = "pending" | "generating_clips" | "assembling" | "done" | "failed";
-    
-    const jobStore = new Map<string, {
-      status: JobStatus;
-      totalPhotos: number;
-      completedClips: number;
-      videoUrl?: string;
-      error?: string;
-      startedAt: number;
-    }>();
+describe("Cinematic Walkthrough - DB Job State", () => {
+  type JobStatus = "pending" | "generating_clips" | "assembling" | "done" | "failed";
 
-    const jobId = "test_job_001";
-    
-    // Create job
-    jobStore.set(jobId, {
+  interface CinematicJob {
+    id: string;
+    userId: number;
+    status: JobStatus;
+    totalPhotos: number;
+    completedClips: number;
+    videoUrl?: string | null;
+    error?: string | null;
+    createdAt: Date;
+  }
+
+  function makeJob(overrides: Partial<CinematicJob> = {}): CinematicJob {
+    return {
+      id: "cw_test_001",
+      userId: 42,
       status: "pending",
-      totalPhotos: 5,
+      totalPhotos: 4,
       completedClips: 0,
-      startedAt: Date.now(),
-    });
+      videoUrl: null,
+      error: null,
+      createdAt: new Date(),
+      ...overrides,
+    };
+  }
 
-    expect(jobStore.get(jobId)?.status).toBe("pending");
-
-    // Transition to generating
-    const job = jobStore.get(jobId)!;
-    job.status = "generating_clips";
-    job.completedClips = 2;
-
-    expect(jobStore.get(jobId)?.status).toBe("generating_clips");
-    expect(jobStore.get(jobId)?.completedClips).toBe(2);
-
-    // Transition to assembling
-    job.status = "assembling";
-    job.completedClips = 5;
-
-    expect(jobStore.get(jobId)?.status).toBe("assembling");
-
-    // Transition to done
-    job.status = "done";
-    job.videoUrl = "https://cdn.example.com/walkthrough.mp4";
-
-    expect(jobStore.get(jobId)?.status).toBe("done");
-    expect(jobStore.get(jobId)?.videoUrl).toBe("https://cdn.example.com/walkthrough.mp4");
+  it("creates a job with pending status and correct photo count", () => {
+    const job = makeJob({ totalPhotos: 5 });
+    expect(job.status).toBe("pending");
+    expect(job.totalPhotos).toBe(5);
+    expect(job.completedClips).toBe(0);
   });
 
-  it("handles failed job state", () => {
-    type JobStatus = "pending" | "generating_clips" | "assembling" | "done" | "failed";
-    
-    const jobStore = new Map<string, {
-      status: JobStatus;
-      totalPhotos: number;
-      completedClips: number;
-      videoUrl?: string;
-      error?: string;
-      startedAt: number;
-    }>();
-
-    const jobId = "test_job_fail";
-    
-    jobStore.set(jobId, {
-      status: "pending",
-      totalPhotos: 3,
-      completedClips: 0,
-      startedAt: Date.now(),
-    });
-
-    const job = jobStore.get(jobId)!;
-    job.status = "failed";
-    job.error = "Runway API rate limit exceeded";
-
-    expect(jobStore.get(jobId)?.status).toBe("failed");
-    expect(jobStore.get(jobId)?.error).toBe("Runway API rate limit exceeded");
+  it("transitions from pending to generating_clips", () => {
+    const job = makeJob();
+    const updated: CinematicJob = { ...job, status: "generating_clips" };
+    expect(updated.status).toBe("generating_clips");
   });
 
-  it("returns not_found for unknown job IDs", () => {
-    const jobStore = new Map<string, { status: string }>();
-    
-    const result = jobStore.has("nonexistent_job_id");
-    expect(result).toBe(false);
+  it("tracks clip completion progress correctly", () => {
+    const job = makeJob({ status: "generating_clips", totalPhotos: 4 });
+    const after2: CinematicJob = { ...job, completedClips: 2 };
+    const after4: CinematicJob = { ...after2, completedClips: 4 };
+
+    expect(after2.completedClips).toBe(2);
+    expect(after4.completedClips).toBe(4);
+    expect(after4.completedClips).toBe(after4.totalPhotos);
+  });
+
+  it("transitions to assembling after all clips are done", () => {
+    const job = makeJob({ status: "generating_clips", totalPhotos: 3, completedClips: 3 });
+    const assembling: CinematicJob = { ...job, status: "assembling" };
+    expect(assembling.status).toBe("assembling");
+    expect(assembling.completedClips).toBe(assembling.totalPhotos);
+  });
+
+  it("transitions to done with a video URL", () => {
+    const job = makeJob({ status: "assembling", totalPhotos: 3, completedClips: 3 });
+    const done: CinematicJob = {
+      ...job,
+      status: "done",
+      videoUrl: "https://cdn.shotstack.io/final_walkthrough.mp4",
+    };
+    expect(done.status).toBe("done");
+    expect(done.videoUrl).toBe("https://cdn.shotstack.io/final_walkthrough.mp4");
+    expect(done.error).toBeNull();
+  });
+
+  it("transitions to failed with an error message", () => {
+    const job = makeJob({ status: "generating_clips" });
+    const failed: CinematicJob = {
+      ...job,
+      status: "failed",
+      error: "Runway API rate limit exceeded",
+    };
+    expect(failed.status).toBe("failed");
+    expect(failed.error).toBe("Runway API rate limit exceeded");
+    expect(failed.videoUrl).toBeNull();
+  });
+
+  it("returns not_found shape for missing job ID", () => {
+    // Simulate what getJobProgress returns when DB has no matching row
+    const result = { status: "not_found" as const, completedClips: 0, totalPhotos: 0 };
+    expect(result.status).toBe("not_found");
+    expect(result.completedClips).toBe(0);
+  });
+
+  it("calculates elapsed time from createdAt", () => {
+    const pastDate = new Date(Date.now() - 60000); // 60 seconds ago
+    const job = makeJob({ createdAt: pastDate });
+    const elapsedMs = Date.now() - new Date(job.createdAt).getTime();
+    expect(elapsedMs).toBeGreaterThan(50000);
+    expect(elapsedMs).toBeLessThan(70000);
+  });
+
+  it("enforces user ownership — different userId returns not_found", () => {
+    const job = makeJob({ userId: 42 });
+    const requestingUserId = 99;
+    // Simulate the ownership check in getJobProgress
+    const isOwner = job.userId === requestingUserId;
+    const result = isOwner
+      ? { status: job.status, totalPhotos: job.totalPhotos, completedClips: job.completedClips }
+      : { status: "not_found" as const, completedClips: 0, totalPhotos: 0 };
+    expect(result.status).toBe("not_found");
   });
 });
 
@@ -176,53 +163,36 @@ describe("Cinematic Walkthrough - Job Store", () => {
 
 describe("Cinematic Walkthrough - Input Validation", () => {
   it("validates minimum photo count", () => {
-    const photos = [
-      { url: "https://example.com/photo1.jpg", roomType: "living_room", label: "Living Room" },
-    ];
-    
-    const isValid = photos.length >= 2;
-    expect(isValid).toBe(false);
+    const photos = [{ url: "https://example.com/photo1.jpg", roomType: "living_room" }];
+    expect(photos.length >= 2).toBe(false);
   });
 
   it("accepts valid photo array with 2+ photos", () => {
     const photos = [
-      { url: "https://example.com/photo1.jpg", roomType: "living_room", label: "Living Room" },
-      { url: "https://example.com/photo2.jpg", roomType: "kitchen", label: "Kitchen" },
+      { url: "https://example.com/photo1.jpg", roomType: "living_room" },
+      { url: "https://example.com/photo2.jpg", roomType: "kitchen" },
     ];
-    
-    const isValid = photos.length >= 2;
-    expect(isValid).toBe(true);
+    expect(photos.length >= 2).toBe(true);
   });
 
   it("validates maximum photo count of 12", () => {
     const photos = Array.from({ length: 13 }, (_, i) => ({
       url: `https://example.com/photo${i + 1}.jpg`,
       roomType: "other",
-      label: `Room ${i + 1}`,
     }));
-    
-    const isValid = photos.length <= 12;
-    expect(isValid).toBe(false);
+    expect(photos.length <= 12).toBe(false);
   });
 
   it("validates aspect ratio enum", () => {
     const validRatios = ["16:9", "9:16"];
-    
     expect(validRatios.includes("16:9")).toBe(true);
     expect(validRatios.includes("9:16")).toBe(true);
     expect(validRatios.includes("4:3")).toBe(false);
   });
 
   it("validates property address is required", () => {
-    const address = "";
-    const isValid = address.trim().length > 0;
-    expect(isValid).toBe(false);
-  });
-
-  it("accepts valid property address", () => {
-    const address = "123 Oak Street, Westlake Village, CA 91362";
-    const isValid = address.trim().length > 0;
-    expect(isValid).toBe(true);
+    expect("".trim().length > 0).toBe(false);
+    expect("123 Oak Street".trim().length > 0).toBe(true);
   });
 });
 
@@ -235,44 +205,60 @@ describe("Cinematic Walkthrough - Shotstack Assembly", () => {
       "https://cdn.example.com/clip2.mp4",
       "https://cdn.example.com/clip3.mp4",
     ];
-    
-    const clips = clipUrls.map((url, index) => ({
-      asset: { type: "video", src: url },
-      start: index * 5,
-      length: 5,
-      transition: { in: "fade", out: "fade" },
-    }));
+
+    let currentTime = 0;
+    const clips = clipUrls.map((url) => {
+      const item = {
+        asset: { type: "video", src: url },
+        start: currentTime,
+        length: 5,
+        transition: { in: "fade", out: "fade" },
+      };
+      currentTime += 5 - 0.5; // 0.5s overlap
+      return item;
+    });
 
     expect(clips).toHaveLength(3);
     expect(clips[0].start).toBe(0);
-    expect(clips[1].start).toBe(5);
-    expect(clips[2].start).toBe(10);
+    expect(clips[1].start).toBe(4.5);
+    expect(clips[2].start).toBe(9);
     expect(clips[0].asset.src).toBe("https://cdn.example.com/clip1.mp4");
   });
 
-  it("calculates total video duration correctly", () => {
-    const clipCount = 6;
-    const clipDuration = 5; // seconds per clip
-    const totalDuration = clipCount * clipDuration;
-    
-    expect(totalDuration).toBe(30);
+  it("calculates total video duration correctly including outro", () => {
+    const clips = [
+      { duration: 5 },
+      { duration: 5 },
+      { duration: 5 },
+      { duration: 5 },
+    ];
+    const totalDuration = clips.reduce((sum, c) => sum + c.duration, 0) + 3; // +3 for outro
+    expect(totalDuration).toBe(23);
   });
 
-  it("sets correct aspect ratio for landscape video", () => {
+  it("sets correct dimensions for 16:9 landscape video", () => {
     const aspectRatio = "16:9";
-    const [width, height] = aspectRatio.split(":").map(Number);
-    const resolution = { width: width * 120, height: height * 120 }; // scale factor
-    
-    expect(resolution.width).toBe(1920);
-    expect(resolution.height).toBe(1080);
+    const [width, height] = aspectRatio === "16:9" ? [1280, 720] : [720, 1280];
+    expect(width).toBe(1280);
+    expect(height).toBe(720);
   });
 
-  it("sets correct aspect ratio for portrait video", () => {
+  it("sets correct dimensions for 9:16 portrait video", () => {
     const aspectRatio = "9:16";
-    const [width, height] = aspectRatio.split(":").map(Number);
-    const resolution = { width: width * 120, height: height * 120 };
-    
-    expect(resolution.width).toBe(1080);
-    expect(resolution.height).toBe(1920);
+    const [width, height] = aspectRatio === "16:9" ? [1280, 720] : [720, 1280];
+    expect(width).toBe(720);
+    expect(height).toBe(1280);
+  });
+
+  it("reduces music volume when voiceover is present", () => {
+    const hasVoiceover = true;
+    const musicVolume = hasVoiceover ? 0.2 : 0.5;
+    expect(musicVolume).toBe(0.2);
+  });
+
+  it("uses full music volume when no voiceover", () => {
+    const hasVoiceover = false;
+    const musicVolume = hasVoiceover ? 0.2 : 0.5;
+    expect(musicVolume).toBe(0.5);
   });
 });

@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as db from "../db";
 import { getDb } from "../db";
-import { generatedVideos } from "../../drizzle/schema";
+import { generatedVideos, cinematicJobs } from "../../drizzle/schema";
 import { ENV } from "../_core/env";
 import * as fs from "fs";
 
@@ -36,6 +37,41 @@ const ROOM_MOTION_PROMPTS: Record<string, string> = {
 };
 
 const ROOM_TYPE_OPTIONS = Object.keys(ROOM_MOTION_PROMPTS) as [string, ...string[]];
+
+// ============================================================
+// DB HELPERS — read/write cinematic_jobs table
+// All job state is persisted to DB so it survives server restarts.
+// ============================================================
+
+async function dbCreateJob(jobId: string, userId: number, totalPhotos: number) {
+  const database = await getDb();
+  await database!.insert(cinematicJobs).values({
+    id: jobId,
+    userId,
+    status: "pending",
+    totalPhotos,
+    completedClips: 0,
+  });
+}
+
+async function dbUpdateJob(
+  jobId: string,
+  patch: {
+    status?: "pending" | "generating_clips" | "assembling" | "done" | "failed";
+    completedClips?: number;
+    videoUrl?: string;
+    error?: string;
+  }
+) {
+  const database = await getDb();
+  await database!.update(cinematicJobs).set(patch).where(eq(cinematicJobs.id, jobId));
+}
+
+async function dbGetJob(jobId: string) {
+  const database = await getDb();
+  const rows = await database!.select().from(cinematicJobs).where(eq(cinematicJobs.id, jobId));
+  return rows[0] ?? null;
+}
 
 // ============================================================
 // RUNWAY API HELPERS (using gen4_turbo for best quality)
@@ -75,7 +111,6 @@ async function generateRunwayClip(
   const task = await response.json() as { id: string };
   log(`Runway task created: ${task.id}`);
 
-  // Poll for completion
   return await pollRunwayTask(task.id);
 }
 
@@ -144,9 +179,8 @@ async function assembleShotstackVideo(opts: {
   const { clips, propertyAddress, agentName, agentBrokerage, musicTrackUrl, voiceoverUrl, aspectRatio } = opts;
 
   const [width, height] = aspectRatio === "16:9" ? [1280, 720] : [720, 1280];
-  const totalDuration = clips.reduce((sum, c) => sum + c.duration, 0) + 3; // +3 for outro
+  const totalDuration = clips.reduce((sum, c) => sum + c.duration, 0) + 3;
 
-  // Build clip tracks
   let currentTime = 0;
   const videoClips = clips.map((clip) => {
     const item = {
@@ -155,11 +189,10 @@ async function assembleShotstackVideo(opts: {
       length: clip.duration,
       transition: { in: "fade", out: "fade" },
     };
-    currentTime += clip.duration - 0.5; // 0.5s overlap for smooth transitions
+    currentTime += clip.duration - 0.5;
     return item;
   });
 
-  // Room label overlays
   let labelTime = 0;
   const labelOverlays = clips.map((clip) => {
     const item = {
@@ -179,7 +212,6 @@ async function assembleShotstackVideo(opts: {
     return item;
   });
 
-  // Outro card
   const outroCard = {
     asset: {
       type: "html",
@@ -202,7 +234,6 @@ async function assembleShotstackVideo(opts: {
     { clips: [...labelOverlays, outroCard] },
   ];
 
-  // Music track
   if (musicTrackUrl) {
     tracks.push({
       clips: [{
@@ -213,7 +244,6 @@ async function assembleShotstackVideo(opts: {
     });
   }
 
-  // Voice-over track
   if (voiceoverUrl) {
     tracks.push({
       clips: [{
@@ -225,10 +255,7 @@ async function assembleShotstackVideo(opts: {
   }
 
   const payload = {
-    timeline: {
-      background: "#000000",
-      tracks,
-    },
+    timeline: { background: "#000000", tracks },
     output: {
       format: "mp4",
       resolution: aspectRatio === "16:9" ? "hd" : "sd",
@@ -290,19 +317,8 @@ async function pollShotstackRender(renderId: string, maxWaitMs = 600000): Promis
 }
 
 // ============================================================
-// IN-MEMORY JOB STORE (for progress tracking)
+// JOB ID GENERATOR
 // ============================================================
-
-interface WalkthroughJob {
-  status: "pending" | "generating_clips" | "assembling" | "done" | "failed";
-  totalPhotos: number;
-  completedClips: number;
-  videoUrl?: string;
-  error?: string;
-  startedAt: number;
-}
-
-const walkthroughJobs = new Map<string, WalkthroughJob>();
 
 function generateJobId(): string {
   return `cw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -330,6 +346,7 @@ export const cinematicWalkthroughRouter = router({
   /**
    * Start a cinematic walkthrough generation job.
    * Returns a jobId immediately; poll getJobProgress for updates.
+   * Job state is persisted to DB so it survives server restarts.
    */
   generate: protectedProcedure
     .input(
@@ -340,7 +357,7 @@ export const cinematicWalkthroughRouter = router({
               url: z.string().url("Photo URL must be a valid HTTPS URL"),
               roomType: z.string().default("other"),
               customPrompt: z.string().optional(),
-              label: z.string().optional(), // Display label for the room
+              label: z.string().optional(),
             })
           )
           .min(2, "At least 2 photos are required")
@@ -358,20 +375,17 @@ export const cinematicWalkthroughRouter = router({
     .mutation(async ({ ctx, input }) => {
       const jobId = generateJobId();
 
-      walkthroughJobs.set(jobId, {
-        status: "pending",
-        totalPhotos: input.photos.length,
-        completedClips: 0,
-        startedAt: Date.now(),
-      });
+      // Persist job to DB immediately — survives server restarts
+      await dbCreateJob(jobId, ctx.user.id, input.photos.length);
+      log(`Job ${jobId} created in DB for user ${ctx.user.id}`);
 
       // Run generation in background (don't await)
-      runWalkthroughJob(jobId, ctx.user.id, input).catch((err) => {
-        log(`Job ${jobId} failed: ${err.message}`);
-        const job = walkthroughJobs.get(jobId);
-        if (job) {
-          job.status = "failed";
-          job.error = err.message;
+      runWalkthroughJob(jobId, ctx.user.id, input).catch(async (err) => {
+        log(`Job ${jobId} top-level failure: ${err.message}`);
+        try {
+          await dbUpdateJob(jobId, { status: "failed", error: err.message });
+        } catch (dbErr: any) {
+          log(`Job ${jobId}: Failed to persist error to DB: ${dbErr.message}`);
         }
       });
 
@@ -379,28 +393,33 @@ export const cinematicWalkthroughRouter = router({
     }),
 
   /**
-   * Poll job progress
+   * Poll job progress — reads from DB, survives server restarts
    */
   getJobProgress: protectedProcedure
     .input(z.object({ jobId: z.string() }))
-    .query(({ input }) => {
-      const job = walkthroughJobs.get(input.jobId);
+    .query(async ({ ctx, input }) => {
+      const job = await dbGetJob(input.jobId);
       if (!job) {
+        return { status: "not_found" as const, completedClips: 0, totalPhotos: 0 };
+      }
+      // Security: only the job owner can poll it
+      if (job.userId !== ctx.user.id) {
         return { status: "not_found" as const, completedClips: 0, totalPhotos: 0 };
       }
       return {
         status: job.status,
         totalPhotos: job.totalPhotos,
         completedClips: job.completedClips,
-        videoUrl: job.videoUrl,
-        error: job.error,
-        elapsedMs: Date.now() - job.startedAt,
+        videoUrl: job.videoUrl ?? undefined,
+        error: job.error ?? undefined,
+        elapsedMs: Date.now() - new Date(job.createdAt).getTime(),
       };
     }),
 });
 
 // ============================================================
 // BACKGROUND JOB RUNNER
+// All state mutations go through dbUpdateJob() — no in-memory state
 // ============================================================
 
 async function runWalkthroughJob(
@@ -418,9 +437,7 @@ async function runWalkthroughJob(
     aspectRatio: "16:9" | "9:16";
   }
 ) {
-  const job = walkthroughJobs.get(jobId)!;
-  job.status = "generating_clips";
-
+  await dbUpdateJob(jobId, { status: "generating_clips" });
   log(`Job ${jobId}: Generating ${input.photos.length} Runway clips...`);
 
   // Get agent info from persona if not provided
@@ -453,11 +470,11 @@ async function runWalkthroughJob(
           .join(" ");
 
       clips.push({ url: clipUrl, roomLabel, duration: 5 });
-      job.completedClips = i + 1;
+      await dbUpdateJob(jobId, { completedClips: i + 1 });
       log(`Job ${jobId}: Clip ${i + 1} done ✓`);
     } catch (err: any) {
-      log(`Job ${jobId}: Clip ${i + 1} failed: ${err.message} — using fallback Ken Burns`);
-      // Fallback: use the original photo as a static clip via Shotstack Ken Burns
+      log(`Job ${jobId}: Clip ${i + 1} failed: ${err.message} — using fallback static photo`);
+      // Fallback: use the original photo as a static clip
       clips.push({
         url: photo.url,
         roomLabel:
@@ -468,7 +485,7 @@ async function runWalkthroughJob(
             .join(" "),
         duration: 5,
       });
-      job.completedClips = i + 1;
+      await dbUpdateJob(jobId, { completedClips: i + 1 });
     }
   }
 
@@ -485,7 +502,7 @@ async function runWalkthroughJob(
   }
 
   // Assemble final video via Shotstack
-  job.status = "assembling";
+  await dbUpdateJob(jobId, { status: "assembling" });
   log(`Job ${jobId}: Assembling final video via Shotstack...`);
 
   const videoUrl = await assembleShotstackVideo({
@@ -498,7 +515,7 @@ async function runWalkthroughJob(
     aspectRatio: input.aspectRatio,
   });
 
-  // Save to My Videos
+  // Save to My Videos library
   try {
     const database = await getDb();
     await database!.insert(generatedVideos).values({
@@ -512,12 +529,13 @@ async function runWalkthroughJob(
       creditsCost: input.photos.length * 5,
       metadata: JSON.stringify({ address: input.propertyAddress, mode: "cinematic_walkthrough" }),
     });
+    log(`Job ${jobId}: Saved to My Videos library ✓`);
   } catch (err: any) {
     log(`Job ${jobId}: Failed to save to My Videos: ${err.message}`);
   }
 
-  job.status = "done";
-  job.videoUrl = videoUrl;
+  // Mark job as done with final video URL — this is what the frontend polls for
+  await dbUpdateJob(jobId, { status: "done", videoUrl });
   log(`Job ${jobId}: ✓ Complete! Video: ${videoUrl}`);
 }
 

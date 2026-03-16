@@ -407,6 +407,13 @@
       "when": 1773611796252,
       "tag": "0057_wooden_living_mummy",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "5",
+      "when": 1773646410589,
+      "tag": "0058_smart_barracuda",
+      "breakpoints": true
     }
   ]
 }
