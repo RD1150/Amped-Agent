@@ -3517,3 +3517,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Bug Fixes (Mar 15)
 - [x] Fix empty Select.Item value in CinematicWalkthrough music selector (crashes with "must have a value prop")
 - [x] Fix PDFKit TypeScript null errors in leadMagnet.ts (lines 117, 141, 156)
+
+## Share via Email - My Lead Magnets
+- [x] Add Share via Email button to each lead magnet card (mailto link with pre-filled subject + body)

@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { FileText, Download, Trash2, Plus, MapPin, Calendar, Building2 } from "lucide-react";
+import { FileText, Download, Trash2, Plus, MapPin, Calendar, Building2, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
 
@@ -61,6 +61,14 @@ export default function MyLeadMagnets() {
     navigator.clipboard.writeText(pdfUrl).then(() => {
       toast.success("Link copied to clipboard");
     });
+  };
+
+  const handleShareEmail = (magnet: { title: string; city: string; agentName: string | null; pdfUrl: string }) => {
+    const subject = encodeURIComponent(`Your Free ${magnet.title}`);
+    const body = encodeURIComponent(
+      `Hi,\n\nI put together a free resource just for you — ${magnet.title} for ${magnet.city}.\n\nClick the link below to download your copy:\n${magnet.pdfUrl}\n\nFeel free to reach out if you have any questions!\n\n${magnet.agentName || ""}`
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
   const formatDate = (date: Date | string) => {
@@ -182,6 +190,16 @@ export default function MyLeadMagnets() {
                       >
                         <Download className="w-3 h-3" />
                         Download
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 gap-1.5 text-xs"
+                        onClick={() => handleShareEmail(magnet)}
+                        title="Share via Email"
+                      >
+                        <Mail className="w-3 h-3" />
+                        Email
                       </Button>
                       <Button
                         size="sm"
