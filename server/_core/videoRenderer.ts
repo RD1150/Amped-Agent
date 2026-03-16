@@ -1,31 +1,10 @@
-import { createRequire } from 'module';
-import {
-  EditApi,
-  ApiClient,
-  Edit,
-  Timeline,
-  Track,
-  Clip,
-  VideoAsset,
-  TitleAsset,
-  AudioAsset,
-  Output,
-  Soundtrack
-} from 'shotstack-sdk';
+/**
+ * AutoReels Video Renderer — powered by Creatomate
+ * Replaces the previous Shotstack-based implementation.
+ */
 import { ENV } from './env';
 
-// @ts-ignore - TextAsset exists but not in TypeScript definitions
-const require = createRequire(import.meta.url);
-const { TextAsset } = require('shotstack-sdk');
-
-// Configure Shotstack API client
-function getConfiguredApi() {
-  const defaultClient = ApiClient.instance;
-  const DeveloperKey = defaultClient.authentications['DeveloperKey'];
-  DeveloperKey.apiKey = ENV.SHOTSTACK_API_KEY;
-  defaultClient.basePath = ENV.SHOTSTACK_HOST; // Configurable via SHOTSTACK_HOST env variable
-  return new EditApi();
-}
+const CREATOMATE_API_URL = 'https://api.creatomate.com/v1';
 
 interface VideoRenderOptions {
   hook: string;
@@ -46,261 +25,233 @@ interface RenderResult {
  * Generate subtitle timing from script text
  * Splits script into chunks and assigns timing
  */
-function generateSubtitleTiming(script: string, duration: number): Array<{text: string, start: number, length: number}> {
-  // Split script into sentences or phrases
+function generateSubtitleTiming(
+  script: string,
+  duration: number
+): Array<{ text: string; start: number; length: number }> {
   const sentences = script
     .split(/[.!?]+/)
-    .map(s => s.trim())
-    .filter(s => s.length > 0);
-  
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+
   if (sentences.length === 0) return [];
-  
-  // Calculate timing for each sentence
+
   const timePerSentence = duration / sentences.length;
-  
+
   return sentences.map((text, index) => ({
     text,
     start: index * timePerSentence,
-    length: timePerSentence
+    length: timePerSentence,
   }));
-}
-
-/**
- * Get stock video URL based on tone
- * In production, this would query Pexels/Unsplash API
- * For now, using placeholder stock footage
- */
-function getStockFootageUrl(tone: string): string {
-  // These are example stock video URLs - replace with actual stock footage API in production
-  const stockVideos = {
-    calm: 'https://shotstack-assets.s3.amazonaws.com/footage/beach-sunset.mp4',
-    bold: 'https://shotstack-assets.s3.amazonaws.com/footage/city-timelapse.mp4',
-    authoritative: 'https://shotstack-assets.s3.amazonaws.com/footage/office-professional.mp4',
-    warm: 'https://shotstack-assets.s3.amazonaws.com/footage/home-cozy.mp4'
-  };
-  
-  return stockVideos[tone as keyof typeof stockVideos] || stockVideos.calm;
 }
 
 /**
  * Get background music URL based on tone
  */
 function getBackgroundMusicUrl(tone: string): string {
-  const musicTracks = {
+  const musicTracks: Record<string, string> = {
     calm: 'https://shotstack-assets.s3.amazonaws.com/music/ambient-calm.mp3',
     bold: 'https://shotstack-assets.s3.amazonaws.com/music/upbeat-energetic.mp3',
     authoritative: 'https://shotstack-assets.s3.amazonaws.com/music/corporate-professional.mp3',
-    warm: 'https://shotstack-assets.s3.amazonaws.com/music/acoustic-warm.mp3'
+    warm: 'https://shotstack-assets.s3.amazonaws.com/music/acoustic-warm.mp3',
   };
-  
-  return musicTracks[tone as keyof typeof musicTracks] || musicTracks.calm;
+  return musicTracks[tone] || musicTracks.calm;
 }
 
 /**
- * Render a vertical video (9:16) with hook, script, subtitles, and background music
+ * Render a vertical AutoReel video (9:16) using Creatomate RenderScript
  */
 export async function renderAutoReel(options: VideoRenderOptions): Promise<RenderResult> {
   const { hook, script, videoLength, tone, voiceoverAudioUrl } = options;
-  
-  try {
-    // Create edit
-    const edit = new Edit();
-    const timeline = new Timeline();
-    
-    // Track 1: Background video
-    const videoTrack = new Track();
-    const videoClip = new Clip();
-    const videoAsset = new VideoAsset();
-    videoAsset.src = getStockFootageUrl(tone);
-    videoAsset.trim = 0;
-    videoClip.asset = videoAsset;
-    videoClip.start = 0;
-    videoClip.length = Math.round(videoLength * 100) / 100;
-    videoClip.fit = 'cover'; // Fill the frame
-    videoTrack.clips = [videoClip];
-    
-    // Track 2: Hook title (first 2 seconds)
-    const hookTrack = new Track();
-    const hookClip = new Clip();
-    const hookAsset = new (TextAsset as any)();
-    hookAsset.type = 'text';
-    hookAsset.text = hook;
-    hookAsset.width = 900;
-    hookAsset.height = 200;
-    hookAsset.font = {
-      family: 'Montserrat',
-      color: '#ffffff',
-      size: 48,
-      weight: 700
-    };
-    hookAsset.alignment = {
-      horizontal: 'center',
-      vertical: 'center'
-    };
-    
-    hookClip.asset = hookAsset;
-    hookClip.start = 0;
-    hookClip.length = 2.0;
-    hookClip.transition = { in: 'fade', out: 'fade' };
-    hookTrack.clips = [hookClip];
-    
-    // Track 3: Script subtitles (after hook)
-    const subtitleTrack = new Track();
-    const subtitles = generateSubtitleTiming(script, videoLength - 2);
-    
-    const subtitleClips = subtitles.map(sub => {
-      const clip = new Clip();
-      const asset = new (TextAsset as any)();
-      asset.type = 'text';
-      asset.text = sub.text;
-      asset.width = 900;
-      asset.height = 100;
-      asset.font = {
-        family: 'Open Sans',
-        color: '#ffffff',
-        size: 32,
-        weight: 600
-      };
-      asset.alignment = {
-        horizontal: 'center',
-        vertical: 'bottom'
-      };
-      asset.background = {
-        color: '#000000',
-        opacity: 0.7,
-        padding: 10,
-        borderRadius: 5
-      };
-      
-      clip.asset = asset;
-      clip.start = Math.round((sub.start + 2) * 100) / 100; // Start after hook, rounded to avoid float precision issues
-      clip.length = Math.round(sub.length * 100) / 100;
-      
-      return clip;
-    });
-    
-    subtitleTrack.clips = subtitleClips;
-    
-    // Track 4: Background music
-    const audioTrack = new Track();
-    const audioClip = new Clip();
-    const audioAsset = new AudioAsset();
-    audioAsset.src = getBackgroundMusicUrl(tone);
-    // Lower music volume when voiceover is present so narration is clearly audible
-    audioAsset.volume = voiceoverAudioUrl ? 0.1 : 0.3;
-    audioClip.asset = audioAsset;
-    audioClip.start = 0;
-    audioClip.length = Math.round(videoLength * 100) / 100;
-    audioTrack.clips = [audioClip];
 
-    // Track 5: ElevenLabs voiceover narration (optional)
-    const tracks = [subtitleTrack, hookTrack, audioTrack, videoTrack];
-    if (voiceoverAudioUrl) {
-      const voiceTrack = new Track();
-      const voiceClip = new Clip();
-      const voiceAsset = new AudioAsset();
-      voiceAsset.src = voiceoverAudioUrl;
-      voiceAsset.volume = 1.0; // Full volume for narration
-      voiceClip.asset = voiceAsset;
-      voiceClip.start = 0;
-      voiceClip.length = Math.round(videoLength * 100) / 100;
-      voiceTrack.clips = [voiceClip];
-      tracks.unshift(voiceTrack); // Top-most audio layer
-    }
-    
-    // Add all tracks to timeline (order matters - bottom to top)
-    timeline.tracks = tracks;
-    
-    // Configure output - 9:16 vertical format
-    const output = new Output();
-    output.format = 'mp4';
-    output.resolution = 'hd'; // Use 'hd' for 1080x1920
-    output.aspectRatio = '9:16';
-    output.fps = 30;
-    output.quality = 'medium';
-    
-    edit.timeline = timeline;
-    edit.output = output;
-    
-    // Submit render
-    console.log('[VideoRenderer] Submitting render to Shotstack...');
-    console.log('[VideoRenderer] API Key configured:', !!ENV.SHOTSTACK_API_KEY);
-    console.log('[VideoRenderer] Host:', ENV.SHOTSTACK_HOST);
-    
-    const api = getConfiguredApi();
-    const response = await api.postRender(edit);
-    
-    if (!response.success || !response.response?.id) {
-      throw new Error('Failed to submit render request');
-    }
-    
-    return {
-      renderId: response.response.id,
-      status: 'queued'
+  const apiKey = ENV.CREATOMATE_API_KEY;
+  if (!apiKey) {
+    return { renderId: '', status: 'failed', error: 'CREATOMATE_API_KEY is not configured.' };
+  }
+
+  try {
+    const subtitles = generateSubtitleTiming(script, videoLength - 2);
+    const musicUrl = getBackgroundMusicUrl(tone);
+    const musicVolume = voiceoverAudioUrl ? 0.1 : 0.3;
+
+    // Build Creatomate elements array
+    const elements: any[] = [];
+
+    // Background gradient (dark, tone-aware)
+    const bgColors: Record<string, string> = {
+      calm: '#0f2027',
+      bold: '#1a0a2e',
+      authoritative: '#0d1b2a',
+      warm: '#2d1b00',
     };
-  } catch (error: any) {
-    console.error('[VideoRenderer] Video render error:', error);
-    console.error('[VideoRenderer] Error details:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      stack: error.stack
+    elements.push({
+      type: 'shape',
+      track: 1,
+      time: 0,
+      duration: videoLength,
+      x: '50%',
+      y: '50%',
+      width: '100%',
+      height: '100%',
+      fill_color: bgColors[tone] || bgColors.calm,
     });
-    
-    // Provide more specific error messages
-    let errorMessage = 'Unknown error occurred';
-    
-    if (error.message?.includes('API key') || error.message?.includes('authentication')) {
-      errorMessage = 'Shotstack API key is missing or invalid. Please configure SHOTSTACK_API_KEY in Settings → Secrets.';
-    } else if (error.message?.includes('network') || error.message?.includes('ENOTFOUND')) {
-      errorMessage = 'Network error connecting to Shotstack API. Please check your internet connection.';
-    } else if (error.message) {
-      errorMessage = error.message;
+
+    // Hook text (first 2 seconds)
+    elements.push({
+      type: 'text',
+      track: 2,
+      time: 0,
+      duration: 2,
+      text: hook,
+      x: '50%',
+      y: '50%',
+      width: '90%',
+      font_family: 'Montserrat',
+      font_size: '9 vmin',
+      font_weight: '700',
+      fill_color: '#ffffff',
+      text_align: 'center',
+      animations: [
+        { time: 'start', duration: 0.4, easing: 'ease-out', type: 'text-slide', direction: 'up' },
+        { time: 'end', duration: 0.4, easing: 'ease-in', type: 'fade' },
+      ],
+    });
+
+    // Subtitle clips (after hook)
+    subtitles.forEach((sub, i) => {
+      elements.push({
+        type: 'text',
+        track: 3,
+        time: sub.start + 2,
+        duration: sub.length,
+        text: sub.text,
+        x: '50%',
+        y: '80%',
+        width: '90%',
+        font_family: 'Open Sans',
+        font_size: '6 vmin',
+        font_weight: '600',
+        fill_color: '#ffffff',
+        text_align: 'center',
+        background_color: 'rgba(0,0,0,0.7)',
+        background_x_padding: '10%',
+        background_y_padding: '5%',
+        background_border_radius: '5px',
+        animations: [
+          { time: 'start', duration: 0.2, easing: 'ease-out', type: 'fade' },
+          { time: 'end', duration: 0.2, easing: 'ease-in', type: 'fade' },
+        ],
+      });
+    });
+
+    // Background music
+    elements.push({
+      type: 'audio',
+      track: 4,
+      time: 0,
+      duration: videoLength,
+      source: musicUrl,
+      volume: musicVolume,
+    });
+
+    // Voiceover narration (optional)
+    if (voiceoverAudioUrl) {
+      elements.push({
+        type: 'audio',
+        track: 5,
+        time: 0,
+        duration: videoLength,
+        source: voiceoverAudioUrl,
+        volume: 1.0,
+      });
     }
-    
+
+    const renderScript = {
+      output_format: 'mp4',
+      width: 1080,
+      height: 1920,
+      frame_rate: 30,
+      elements,
+    };
+
+    console.log('[VideoRenderer] Submitting AutoReel render to Creatomate...');
+
+    const response = await fetch(`${CREATOMATE_API_URL}/renders`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        source: renderScript,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[VideoRenderer] Creatomate API error:', response.status, errorText);
+      throw new Error(`Creatomate API error: ${response.status} — ${errorText.substring(0, 200)}`);
+    }
+
+    const result = await response.json();
+    // Creatomate returns an array of renders
+    const render = Array.isArray(result) ? result[0] : result;
+
+    if (!render?.id) {
+      throw new Error('Invalid response from Creatomate API — missing render ID');
+    }
+
+    console.log('[VideoRenderer] Creatomate render queued:', render.id);
+    return { renderId: render.id, status: 'queued' };
+  } catch (error: any) {
+    console.error('[VideoRenderer] AutoReel render error:', error);
     return {
       renderId: '',
       status: 'failed',
-      error: errorMessage
+      error: error.message || 'Unknown error occurred',
     };
   }
 }
 
 /**
- * Check render status and get video URL when complete
+ * Check render status for an AutoReel (Creatomate)
  */
 export async function getRenderStatus(renderId: string): Promise<RenderResult> {
+  const apiKey = ENV.CREATOMATE_API_KEY;
+  if (!apiKey) {
+    return { renderId, status: 'failed', error: 'CREATOMATE_API_KEY is not configured.' };
+  }
+
   try {
-    const api = getConfiguredApi();
-    const response = await api.getRender(renderId);
-    
-    if (!response.success || !response.response) {
-      throw new Error('Failed to get render status');
+    const response = await fetch(`${CREATOMATE_API_URL}/renders/${renderId}`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Creatomate status check error: ${response.status} — ${errorText.substring(0, 200)}`);
     }
-    
-    const render = response.response;
-    
+
+    const render = await response.json();
+
+    // Map Creatomate statuses to legacy interface
+    const statusMap: Record<string, RenderResult['status']> = {
+      planned: 'queued',
+      waiting: 'queued',
+      transcribing: 'rendering',
+      rendering: 'rendering',
+      succeeded: 'done',
+      failed: 'failed',
+    };
+
     return {
       renderId,
-      status: render.status as RenderResult['status'],
-      url: render.url,
-      error: render.error
+      status: statusMap[render.status] ?? 'rendering',
+      url: render.url || undefined,
+      error: render.error_message || undefined,
     };
   } catch (error: any) {
-    console.error('Get render status error:', error);
-    
-    let errorMessage = 'Unknown error occurred';
-    
-    if (error.message?.includes('API key') || error.message?.includes('authentication')) {
-      errorMessage = 'Shotstack API key is missing or invalid.';
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
-    
-    return {
-      renderId,
-      status: 'failed',
-      error: errorMessage
-    };
+    console.error('[VideoRenderer] Get render status error:', error);
+    return { renderId, status: 'failed', error: error.message || 'Unknown error occurred' };
   }
 }

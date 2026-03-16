@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { ENV } from "./env";
+import { trackKling } from "./costTracker";
 
 /**
  * Kling AI API client for image-to-video generation with camera control
@@ -309,6 +310,8 @@ export async function imageToVideo(
   }
 
   console.log(`[KlingAI] ✓ Video ready: ${videoUrl}`);
+  // Fire-and-forget cost log
+  trackKling(null, "ai_clip", task.task_id);
   return videoUrl;
 }
 

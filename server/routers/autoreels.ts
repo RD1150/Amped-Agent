@@ -494,6 +494,22 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
           response: error.response?.data,
           statusCode: error.response?.status
         });
+
+        // Refund voiceover credits if render failed after deduction
+        if (enableVoiceover) {
+          try {
+            const { refundCredits } = await import("../credits");
+            await refundCredits({
+              userId: ctx.user.id,
+              amount: 5,
+              reason: `AutoReels render failed: ${error.message || 'Unknown error'}`,
+              relatedResourceType: "authority_reel",
+            });
+            console.log('[renderVideo] Voiceover credits refunded due to render failure');
+          } catch (refundErr: any) {
+            console.error('[renderVideo] Failed to refund credits:', refundErr.message);
+          }
+        }
         
         // Throw a more descriptive error
         throw new Error(`Video render failed: ${error.message || 'Unknown error'}`);

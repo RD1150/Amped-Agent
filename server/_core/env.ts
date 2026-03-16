@@ -19,6 +19,7 @@ export const ENV = {
   linkedinClientSecret: process.env.LINKEDIN_CLIENT_SECRET ?? "",
   SHOTSTACK_API_KEY: process.env.SHOTSTACK_API_KEY ?? "",
   SHOTSTACK_HOST: process.env.SHOTSTACK_HOST ?? "https://api.shotstack.io/stage",
+  CREATOMATE_API_KEY: process.env.CREATOMATE_API_KEY ?? "",
   LUMA_API_KEY: process.env.LUMA_API_KEY ?? "",
   RUNWAY_API_KEY: process.env.RUNWAY_API_KEY ?? "",
   ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY ?? "",

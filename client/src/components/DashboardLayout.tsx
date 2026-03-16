@@ -147,6 +147,7 @@ const menuSections = [
     adminOnly: true,
     items: [
       { icon: BarChart3, label: "Admin Analytics", path: "/admin/analytics", description: "Platform analytics" },
+      { icon: BarChart3, label: "AI Spend", path: "/admin/spend", description: "AI cost tracking" },
     ]
   }
 ];

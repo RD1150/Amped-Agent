@@ -1,5 +1,7 @@
 import { ENV } from "./env";
 
+import { trackOpenAI } from "./costTracker";
+
 export type Role = "system" | "user" | "assistant" | "tool" | "function";
 
 export type TextContent = {
@@ -328,5 +330,9 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     );
   }
 
-  return (await response.json()) as InvokeResult;
+  const result = (await response.json()) as InvokeResult;
+  // Fire-and-forget cost log using token usage if available
+  const tokens = result.usage?.total_tokens ?? 0;
+  if (tokens > 0) trackOpenAI(null, "llm", tokens);
+  return result;
 }

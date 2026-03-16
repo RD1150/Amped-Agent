@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `api_usage_logs` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `userId` int,\n  `service` enum('creatomate','elevenlabs','runway','kling','openai','did','shotstack') NOT NULL,\n  `feature` varchar(128) NOT NULL,\n  `units` decimal(10,4) NOT NULL,\n  `unitType` varchar(32) NOT NULL,\n  `estimatedCostUsd` decimal(10,6) NOT NULL,\n  `renderId` varchar(128),\n  `metadata` text,\n  `createdAt` timestamp NOT NULL DEFAULT (now()),\n  CONSTRAINT `api_usage_logs_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute CREATE TABLE IF NOT EXISTS `api_usage_logs` (\n  `id` int AUTO_INCREMENT NOT NULL,\n  `userId` int,\n  `service` enum('creatomate','elevenlabs','runway','kling','openai','did','shotstack') NOT NULL,\n  `feature` varchar(128) NOT NULL,\n  `units` decimal(10,4) NOT NULL,\n  `unitType` varchar(32) NOT NULL,\n  `estimatedCostUsd` decimal(10,6) NOT NULL,\n  `renderId` varchar(128),\n  `metadata` text,\n  `createdAt` timestamp NOT NULL DEFAULT (now()),\n  CONSTRAINT `api_usage_logs_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 933
+}

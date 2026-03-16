@@ -1,5 +1,6 @@
 import { ENV } from "./env";
 
+import { trackElevenLabs } from "./costTracker";
 const ELEVENLABS_API_URL = "https://api.elevenlabs.io/v1";
 
 export interface VoiceOption {
@@ -62,6 +63,8 @@ export async function textToSpeech(
   }
 
   const arrayBuffer = await response.arrayBuffer();
+  // Fire-and-forget cost log
+  trackElevenLabs(null, "tts", text.length);
   return Buffer.from(arrayBuffer);
 }
 

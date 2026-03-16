@@ -1,5 +1,7 @@
 import { ENV } from "./env";
 
+import { trackRunway } from "./costTracker";
+
 /**
  * Runway ML Gen-3 Alpha API client for image-to-video generation
  * Documentation: https://docs.runwayml.com/reference/image-to-video
@@ -146,7 +148,9 @@ export async function imageToVideo(
     throw new Error("Runway generation completed but no video URL returned");
   }
 
+  const duration = options.duration || 5;
   console.log(`[Runway] ✓ Video generated: ${completed.output[0]}`);
-  
+  // Fire-and-forget cost log
+  trackRunway(null, "ai_clip", duration, task.id);
   return completed.output[0];
 }

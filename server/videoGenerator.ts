@@ -719,12 +719,8 @@ export async function generatePropertyTourVideo(
       break;
   }
 
-  // Add music soundtrack if selected (extend to cover intro/outro)
-  const soundtrack: any = musicTrack ? {
-    src: getMusicTrackUrl(musicTrack),
-    // No fade effects for constant audio throughout (ultra-smooth)
-    volume: enableVoiceover ? 0.3 : 0.6, // Increased volume for audibility
-  } : undefined;
+  // Resolve music track URL
+  const musicTrackUrl = musicTrack ? getMusicTrackUrl(musicTrack) : undefined;
 
   // Generate or use cached Kling Avatar video for agent overlay
   let avatarVideoUrl: string | undefined;
@@ -749,151 +745,68 @@ export async function generatePropertyTourVideo(
     }
   }
 
-  // Add voiceover audio track if enabled
-  const voiceoverTrack: any[] = [];
-  if (voiceoverUrl) {
-    voiceoverTrack.push({
-      asset: {
-        type: "audio",
-        src: voiceoverUrl,
-        volume: 1.0,
-      },
-      start: introLength, // Start after intro
-      length: effectiveDuration, // Match actual main video duration
-    });
+  // Fetch agent persona for branding
+  let agentName = "";
+  let agentPhone: string | undefined;
+  let agentEmail: string | undefined;
+  let agentWebsite: string | undefined;
+  if (includeBranding && userId) {
+    try {
+      const dbModule = await import("./db");
+      const persona = await dbModule.getPersonaByUserId(userId);
+      if (persona) {
+        agentName = persona.agentName || "";
+        agentPhone = persona.phoneNumber || undefined;
+        agentEmail = persona.emailAddress || undefined;
+        agentWebsite = persona.websiteUrl || undefined;
+      }
+    } catch (err: any) {
+      console.warn("[VideoGenerator] Failed to fetch agent persona:", err.message);
+    }
   }
 
-  // Create edit payload
-  // Shotstack tracks are rendered bottom-to-top:
-  //   track[0] = base video/image clips (bottom layer)
-  //   track[1] = text/HTML overlays (middle layer)
-  //   track[2] = voiceover audio (audio-only track)
-  //   track[3] = avatar overlay (top layer, optional)
-  const tracks: any[] = [
-    { clips: baseVideoClips },
-  ];
-
-  // Add overlay track only if there are overlays
-  if (overlayClips.length > 0) {
-    tracks.push({ clips: overlayClips });
-  }
-
-  // Add voiceover audio track
-  if (voiceoverTrack.length > 0) {
-    tracks.push({ clips: voiceoverTrack });
-  }
-
-  // Add Kling Avatar 2.0 overlay track
-  if (avatarVideoUrl) {
-    tracks.push({
-      clips: [{
-        asset: {
-          type: "video",
-          src: avatarVideoUrl,
-          volume: 0,
-        },
-        start: introLength,
-        length: duration,
-        fit: "none",
-        scale: 0.22,
-        position: avatarOverlayPosition === "bottom-right" ? "bottomRight" : "bottomLeft",
-        offset: { x: avatarOverlayPosition === "bottom-right" ? 0.02 : -0.02, y: 0.03 },
-        transition: { in: "fade", out: "fade" },
-      }],
-    });
-  }
-
-  const payload: any = {
-    timeline: {
-      soundtrack,
-      tracks,
-    },
-    output: {
-      format: "mp4",
-      resolution,
-      ...(size && { size }), // Add size for custom dimensions
-      fps: videoMode === "full-ai" ? 30 : 25, // 30fps for Full Cinematic smoothness; 25fps for Standard
-      quality: videoMode === "full-ai" ? "high" : "medium", // valid Shotstack values: low | medium | high
-      // Poster: capture a frame at 25% into the main content
-      // Clamp to [1, totalDuration - 0.5] to avoid out-of-range errors
-      poster: {
-        capture: Math.min(
-          Math.max(introLength + (effectiveDuration * 0.25), 1),
-          Math.max(totalDuration - 0.5, 1)
-        ),
-      },
-    },
-  };
-
-  // Remove undefined soundtrack
-  if (!soundtrack) {
-    delete payload.timeline.soundtrack;
-  }
+  // ── Submit to Creatomate ──────────────────────────────────────────────────
+  writeLog("[VideoGenerator] Submitting render to Creatomate...");
+  writeLog(`[VideoGenerator] Image count: ${imageUrls.length}`);
+  writeLog(`[VideoGenerator] Duration: ${duration}`);
 
   try {
-    writeLog("[VideoGenerator] Submitting render to Shotstack...");
-    writeLog(`[VideoGenerator] Image count: ${imageUrls.length}`);
-    writeLog(`[VideoGenerator] Duration: ${duration}`);
-    writeLog(`[VideoGenerator] FULL PAYLOAD: ${JSON.stringify(payload)}`);
-    
-    // Submit render job via HTTP
-    const response = await fetch(`${SHOTSTACK_API_URL}/render`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-      },
-      body: JSON.stringify(payload),
+    const { renderPropertyTour } = await import("./_core/creatomateRenderer");
+    const result = await renderPropertyTour({
+      imageUrls,
+      propertyDetails,
+      duration,
+      musicTrackUrl,
+      includeBranding,
+      aspectRatio,
+      cardTemplate,
+      videoMode,
+      enableVoiceover,
+      voiceoverUrl,
+      perPhotoMovements: options.perPhotoMovements,
+      movementSpeed: options.movementSpeed,
+      aiVideoMap,
+      agentName,
+      agentPhone,
+      agentEmail,
+      agentWebsite,
+      avatarVideoUrl,
+      avatarOverlayPosition,
+      includeIntroVideo,
+      introVideoUrl: includeIntroVideo ? "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/eskOJdrujAZgEfsC.mp4" : undefined,
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      writeLog(`[VideoGenerator] Shotstack API error: ${response.status} ${response.statusText}`);
-      writeLog(`[VideoGenerator] FULL ERROR BODY: ${errorText}`);
-      console.error("[VideoGenerator] Shotstack API error:", response.status, response.statusText);
-      console.error("[VideoGenerator] Error response body:", errorText);
-      console.error("[VideoGenerator] Request URL:", `${SHOTSTACK_API_URL}/render`);
-      
-      // Include first clip details in error for debugging
-      const firstClip = payload.timeline.tracks[0]?.clips[0];
-      const clipInfo = firstClip ? JSON.stringify({
-        hasTransition: !!firstClip.transition,
-        hasEffect: !!firstClip.effect,
-        effect: firstClip.effect,
-        transition: firstClip.transition
-      }) : 'no clips';
-      
-      throw new Error(`Shotstack API error: ${response.status} ${response.statusText}. First clip: ${clipInfo}. Shotstack response: ${errorText.substring(0, 200)}`);
-    }
-
-    const result = await response.json();
-    
-    if (!result || !result.response || !result.response.id) {
-      throw new Error("Invalid response from Shotstack API");
-    }
-
-    console.log("[VideoGenerator] Shotstack render started:", result.response.id);
-
-    return {
-      renderId: result.response.id,
-    };
+    writeLog(`[VideoGenerator] Creatomate render queued: ${result.renderId}`);
+    return { renderId: result.renderId };
   } catch (error: any) {
-    console.error("[VideoGenerator] Shotstack render failed:", error);
-    console.error("[VideoGenerator] Error details:", error.message);
-    
-    // Check for specific error types
-    if (error.status === 401 || error.status === 403) {
-      throw new Error("Invalid Shotstack API key. Please check your configuration.");
-    }
-    
-    throw new Error(
-      `Failed to generate video: ${error instanceof Error ? error.message : "Unknown error"}`
-    );
+    writeLog(`[VideoGenerator] Creatomate render failed: ${error.message}`);
+    console.error("[VideoGenerator] Creatomate render failed:", error);
+    throw new Error(`Failed to generate video: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 }
 
 /**
- * Check the status of a Shotstack render job
+ * Check the status of a Creatomate render job
  */
 export async function checkRenderStatus(renderId: string): Promise<{
   status: "queued" | "fetching" | "rendering" | "saving" | "done" | "failed";
@@ -902,50 +815,24 @@ export async function checkRenderStatus(renderId: string): Promise<{
   poster?: string;
   error?: string;
 }> {
-  const apiKey = process.env.SHOTSTACK_API_KEY;
-  
-  if (!apiKey) {
-    throw new Error("SHOTSTACK_API_KEY is not configured");
-  }
-
   try {
-    console.log("[VideoGenerator] Checking render status for:", renderId);
-    
-    const response = await fetch(`${SHOTSTACK_API_URL}/render/${renderId}`, {
-      method: "GET",
-      headers: {
-        "x-api-key": apiKey,
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[VideoGenerator] Status check error:", errorText);
-      throw new Error(`Shotstack API error: ${response.status} ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    
-    if (!result || !result.response) {
-      throw new Error("Invalid response from Shotstack API");
-    }
-
-    const render = result.response;
-    
-    console.log("[VideoGenerator] Render status:", render.status);
-    if (render.url) {
-      console.log("[VideoGenerator] Video URL:", render.url);
-    }
-    if (render.poster) {
-      console.log("[VideoGenerator] Poster URL:", render.poster);
-    }
-
+    console.log("[VideoGenerator] Checking Creatomate render status for:", renderId);
+    const { checkRenderStatus: creatomateCheck } = await import("./_core/creatomateRenderer");
+    const result = await creatomateCheck(renderId);
+    // Map Creatomate statuses to legacy interface
+    const statusMap: Record<string, "queued" | "fetching" | "rendering" | "saving" | "done" | "failed"> = {
+      queued: "queued",
+      waiting: "queued",
+      rendering: "rendering",
+      done: "done",
+      failed: "failed",
+    };
     return {
-      status: render.status as any,
-      url: render.url || undefined,
-      thumbnail: render.thumbnail || undefined,
-      poster: render.poster || undefined,
-      error: render.error || undefined,
+      status: statusMap[result.status] ?? "rendering",
+      url: result.url,
+      thumbnail: result.thumbnail,
+      poster: result.poster,
+      error: result.error,
     };
   } catch (error) {
     console.error("[VideoGenerator] Failed to check render status:", error);

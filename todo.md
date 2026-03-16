@@ -3549,3 +3549,47 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add user ownership check in getJobProgress (userId must match)
 - [x] Update frontend error message for not_found case
 - [x] Write 24 vitest tests covering DB job state transitions, ownership, input validation, Shotstack assembly
+
+## AutoReels - ClipStart Validation Bug (Mar 16, 2026)
+- [ ] Fix Shotstack ClipStart error: numeric start times must be strings (e.g. "2" not 2)
+- [ ] Audit all Shotstack payload builders in AutoReels for numeric vs string type mismatches
+
+## AutoReels - Shotstack Credit Protection (Mar 16, 2026)
+- [ ] Add Shotstack pre-flight credit balance check before submitting any render
+- [ ] Block render and show clear error if credits are below minimum threshold (~50 credits)
+- [ ] Surface credit balance in the UI so user can see current Shotstack balance
+- [ ] Add low-credit warning toast when balance drops below 100 credits
+
+## Shotstack Credit Reduction (Mar 16, 2026)
+- [ ] Add pre-render payload validation (catch ClipStart, missing assets, invalid durations) before hitting Shotstack API
+- [ ] Add confirmation dialog before any render: show estimated credit cost and ask user to confirm
+- [ ] Cache completed render URLs in DB so re-viewing a finished video never triggers a new render
+- [ ] Prevent duplicate renders: if a render is already in progress for the same job, block new submission
+- [ ] Add render cost estimate display in UI (e.g. "This will use ~30 Shotstack credits")
+
+## Creatomate Migration (Mar 16, 2026)
+- [x] Add CREATOMATE_API_KEY secret
+- [x] Build creatomateRenderer.ts for AutoReels (Ken Burns zoom+pan, text overlays, audio)
+- [x] Migrate videoGenerator.ts Property Tours to Creatomate API
+- [ ] Migrate AI Cinematic Walkthrough to Creatomate
+- [x] Update render status polling to use Creatomate render IDs
+- [ ] Remove shotstack-sdk npm package and all Shotstack references
+- [ ] Test Property Tour render end-to-end with Creatomate
+- [ ] Test AutoReels render end-to-end with Creatomate
+
+## AI Spend Tracking Dashboard (Mar 16, 2026)
+- [x] Create api_usage_logs DB table (service, feature, cost_usd, units, unit_type, user_id, created_at)
+- [x] Add cost logging to Creatomate renders (per render, estimated cost)
+- [x] Add cost logging to ElevenLabs TTS (per character count)
+- [x] Add cost logging to Runway AI clip generation (per second of video)
+- [x] Add cost logging to Kling AI avatar/clip generation (per render)
+- [x] Add cost logging to LLM calls (per token)
+- [x] Build admin /spend-tracker page with monthly totals, per-service breakdown, and per-feature charts
+- [ ] Add daily/weekly/monthly cost summary cards to admin dashboard
+
+## Creatomate Migration (Mar 16, 2026)
+- [x] Finish replacing Shotstack in videoGenerator.ts with Creatomate
+- [x] Replace Shotstack in videoRenderer.ts (AutoReels) with Creatomate
+- [x] Update checkRenderStatus to use Creatomate API
+- [ ] Migrate AI Cinematic Walkthrough to Creatomate
+- [ ] Remove all Shotstack SDK references from codebase

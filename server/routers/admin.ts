@@ -2,7 +2,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "../db";
-import { users, propertyTours, creditTransactions } from "../../drizzle/schema";
+import { users, propertyTours, creditTransactions, apiUsageLogs } from "../../drizzle/schema";
 import { sql, eq, and, gte } from "drizzle-orm";
 
 // Admin-only procedure
@@ -168,6 +168,72 @@ export const adminRouter = router({
       premiumUsers,
     };
   }),
+
+  /**
+   * Get AI spend analytics (admin only)
+   */
+  getSpendAnalytics: adminProcedure
+    .input(z.object({ months: z.number().min(1).max(12).default(3) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const since = new Date();
+      since.setMonth(since.getMonth() - input.months);
+
+      // Total spend by service
+      const byService = await db
+        .select({
+          service: apiUsageLogs.service,
+          totalCost: sql<number>`SUM(CAST(${apiUsageLogs.estimatedCostUsd} AS DECIMAL(10,6)))`,
+          totalUnits: sql<number>`SUM(CAST(${apiUsageLogs.units} AS DECIMAL(10,4)))`,
+          callCount: sql<number>`COUNT(*)`,
+        })
+        .from(apiUsageLogs)
+        .where(gte(apiUsageLogs.createdAt, since))
+        .groupBy(apiUsageLogs.service);
+
+      // Total spend by feature
+      const byFeature = await db
+        .select({
+          feature: apiUsageLogs.feature,
+          service: apiUsageLogs.service,
+          totalCost: sql<number>`SUM(CAST(${apiUsageLogs.estimatedCostUsd} AS DECIMAL(10,6)))`,
+          callCount: sql<number>`COUNT(*)`,
+        })
+        .from(apiUsageLogs)
+        .where(gte(apiUsageLogs.createdAt, since))
+        .groupBy(apiUsageLogs.feature, apiUsageLogs.service)
+        .orderBy(sql`SUM(CAST(${apiUsageLogs.estimatedCostUsd} AS DECIMAL(10,6))) DESC`);
+
+      // Monthly spend totals (last N months)
+      const monthlySpend = await db
+        .select({
+          month: sql<string>`DATE_FORMAT(${apiUsageLogs.createdAt}, '%Y-%m')`,
+          service: apiUsageLogs.service,
+          totalCost: sql<number>`SUM(CAST(${apiUsageLogs.estimatedCostUsd} AS DECIMAL(10,6)))`,
+        })
+        .from(apiUsageLogs)
+        .where(gte(apiUsageLogs.createdAt, since))
+        .groupBy(sql`DATE_FORMAT(${apiUsageLogs.createdAt}, '%Y-%m')`, apiUsageLogs.service)
+        .orderBy(sql`DATE_FORMAT(${apiUsageLogs.createdAt}, '%Y-%m') ASC`);
+
+      // Grand total
+      const [totalResult] = await db
+        .select({
+          total: sql<number>`SUM(CAST(${apiUsageLogs.estimatedCostUsd} AS DECIMAL(10,6)))`,
+        })
+        .from(apiUsageLogs)
+        .where(gte(apiUsageLogs.createdAt, since));
+
+      return {
+        byService,
+        byFeature,
+        monthlySpend,
+        totalCost: totalResult?.total ?? 0,
+        periodMonths: input.months,
+      };
+    }),
 
   /**
    * Update welcome video URL for onboarding modal

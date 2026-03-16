@@ -805,3 +805,20 @@ export const cinematicJobs = mysqlTable("cinematic_jobs", {
 });
 export type CinematicJob = typeof cinematicJobs.$inferSelect;
 export type InsertCinematicJob = typeof cinematicJobs.$inferInsert;
+
+// ─── AI API Usage Logs ─────────────────────────────────────────────────────────
+// Tracks every AI API call with cost estimates for spend monitoring
+export const apiUsageLogs = mysqlTable("api_usage_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"), // null = system-level call
+  service: mysqlEnum("service", ["creatomate", "elevenlabs", "runway", "kling", "openai", "did", "shotstack"]).notNull(),
+  feature: varchar("feature", { length: 128 }).notNull(), // e.g. "property_tour", "auto_reel", "voiceover", "ai_clip"
+  units: decimal("units", { precision: 10, scale: 4 }).notNull(), // seconds, characters, tokens, renders
+  unitType: varchar("unitType", { length: 32 }).notNull(), // "seconds", "characters", "tokens", "renders"
+  estimatedCostUsd: decimal("estimatedCostUsd", { precision: 10, scale: 6 }).notNull(), // estimated USD cost
+  renderId: varchar("renderId", { length: 128 }), // optional render/job ID for cross-reference
+  metadata: text("metadata"), // JSON string for extra context
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ApiUsageLog = typeof apiUsageLogs.$inferSelect;
+export type InsertApiUsageLog = typeof apiUsageLogs.$inferInsert;
