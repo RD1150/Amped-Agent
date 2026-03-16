@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,19 +89,25 @@ export default function CinematicWalkthrough() {
     }
   );
 
-  // Handle job completion via useEffect
-  const prevJobStatus = useRef<string | undefined>(undefined);
-  if (jobProgress && jobProgress.status !== prevJobStatus.current) {
-    prevJobStatus.current = jobProgress.status;
+  // Handle job completion via useEffect (MUST be in useEffect, not render phase)
+  useEffect(() => {
+    if (!jobProgress) return;
     if (jobProgress.status === "done" && jobProgress.videoUrl) {
       setIsGenerating(false);
       setVideoUrl(jobProgress.videoUrl);
       setJobId(null);
+      toast.success("Your AI Cinematic Tour is ready!");
     } else if (jobProgress.status === "failed") {
       setIsGenerating(false);
       setJobId(null);
+      toast.error("Generation failed", { description: jobProgress.error || "Please try again." });
+    } else if (jobProgress.status === "not_found" && isGenerating) {
+      // Job was lost (server restart) — stop polling
+      setIsGenerating(false);
+      setJobId(null);
+      toast.error("Generation job lost", { description: "The server may have restarted. Please try again." });
     }
-  }
+  }, [jobProgress?.status, jobProgress?.videoUrl]);
 
   // ─── Photo handling ─────────────────────────────────────────────────────────
 
@@ -229,9 +235,9 @@ export default function CinematicWalkthrough() {
             <Film className="h-6 w-6 text-amber-500" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Cinematic Walkthrough</h1>
+            <h1 className="text-2xl font-bold text-foreground">AI Cinematic Tour</h1>
             <p className="text-sm text-muted-foreground">
-              AI-powered Momenzo-style video — realistic camera motion through every room
+              AI-powered property tour video — realistic camera motion through every room
             </p>
           </div>
           <Badge className="ml-auto bg-amber-500/10 text-amber-500 border-amber-500/30 text-xs">Premium</Badge>

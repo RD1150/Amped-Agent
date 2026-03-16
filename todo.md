@@ -3520,3 +3520,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Share via Email - My Lead Magnets
 - [x] Add Share via Email button to each lead magnet card (mailto link with pre-filled subject + body)
+
+## Bug Fix: Cinematic Walkthrough Video Not Showing After Generation
+- [x] Diagnose why completed video URL is not displayed after job finishes
+- [x] Fix frontend polling/result display to show video player when done (moved setState to useEffect)
+- [x] Ensure completed video is saved to My Videos and accessible
+- [x] Remove "Momenzo" reference from CinematicWalkthrough page description - renamed to "AI Cinematic Tour"
