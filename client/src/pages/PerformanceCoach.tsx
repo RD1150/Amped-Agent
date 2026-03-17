@@ -1,12 +1,25 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
-import { Loader2, Sparkles, TrendingUp, Target, MessageSquare, CheckCircle2, Award } from "lucide-react";
+import {
+  Loader2, Sparkles, TrendingUp, Target, MessageSquare,
+  CheckCircle2, Award, Upload, Image, Video, X, AlertCircle,
+  FileText
+} from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CoachFeedback {
   overallScore: number;
@@ -24,9 +37,33 @@ interface CoachFeedback {
   rewriteSuggestion: string;
 }
 
+interface VisualFeedback {
+  overallScore: number;
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  priorityAction: string;
+}
+
+const ANALYSIS_TYPES = [
+  { value: "headshot", label: "Professional Headshot", description: "Evaluate your profile photo for authority and approachability" },
+  { value: "listing_photo", label: "Listing Photo", description: "Get feedback on composition, lighting, and staging" },
+  { value: "social_post_screenshot", label: "Social Post Screenshot", description: "Analyze a screenshot of your Instagram or Facebook post" },
+  { value: "video_reel", label: "Video / Reel", description: "Review your video for hook strength, presence, and engagement" },
+  { value: "general", label: "General", description: "Any image or video for general marketing feedback" },
+];
+
 export default function PerformanceCoach() {
   const [postContent, setPostContent] = useState("");
   const [feedback, setFeedback] = useState<CoachFeedback | null>(null);
+
+  // Visual analysis state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [analysisType, setAnalysisType] = useState<string>("general");
+  const [additionalContext, setAdditionalContext] = useState("");
+  const [visualFeedback, setVisualFeedback] = useState<VisualFeedback | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const analyzePost = trpc.coach.analyze.useMutation({
     onSuccess: (data: CoachFeedback) => {
@@ -38,18 +75,81 @@ export default function PerformanceCoach() {
     },
   });
 
+  const analyzeVisual = trpc.coach.analyzeVisual.useMutation({
+    onSuccess: (data: VisualFeedback) => {
+      setVisualFeedback(data);
+      toast.success("Visual analysis complete!");
+    },
+    onError: (error: any) => {
+      toast.error(`Visual analysis failed: ${error.message}`);
+    },
+  });
+
   const handleAnalyze = () => {
     if (!postContent.trim()) {
       toast.error("Please enter post content to analyze");
       return;
     }
-
     if (postContent.length < 50) {
       toast.error("Post content is too short. Please enter at least 50 characters.");
       return;
     }
-
     analyzePost.mutate({ content: postContent });
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 16MB limit
+    if (file.size > 16 * 1024 * 1024) {
+      toast.error("File too large. Maximum size is 16MB.");
+      return;
+    }
+
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
+    if (!isImage && !isVideo) {
+      toast.error("Please upload an image (JPG, PNG, WebP) or video (MP4, MOV, WebM).");
+      return;
+    }
+
+    setSelectedFile(file);
+    setVisualFeedback(null);
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+
+    // Auto-set analysis type based on file type
+    if (isVideo && analysisType === "general") {
+      setAnalysisType("video_reel");
+    }
+  };
+
+  const handleVisualAnalyze = () => {
+    if (!selectedFile) {
+      toast.error("Please upload a photo or video first.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const fileData = e.target?.result as string;
+      analyzeVisual.mutate({
+        fileData,
+        mimeType: selectedFile.type,
+        fileName: selectedFile.name,
+        analysisType: analysisType as any,
+        additionalContext: additionalContext || undefined,
+      });
+    };
+    reader.readAsDataURL(selectedFile);
+  };
+
+  const clearFile = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setVisualFeedback(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const getScoreColor = (score: number) => {
@@ -64,11 +164,16 @@ export default function PerformanceCoach() {
     return "Needs Work";
   };
 
+  const getScoreBg = (score: number) => {
+    if (score >= 80) return "bg-green-50 border-green-200";
+    if (score >= 60) return "bg-yellow-50 border-yellow-200";
+    return "bg-red-50 border-red-200";
+  };
+
   return (
     <div className="container max-w-6xl py-8">
       {/* Hero Banner */}
       <div className="relative mb-10 rounded-2xl overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] border border-primary/20 shadow-xl">
-        {/* Subtle grid overlay */}
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-center gap-6">
           <div className="flex-1">
@@ -85,7 +190,7 @@ export default function PerformanceCoach() {
               Your unfair advantage in any market.
             </p>
             <p className="text-sm text-slate-400 max-w-xl">
-              Paste any post and get AI-powered strategic feedback — scored on engagement, authority, clarity, and market relevance. Know exactly what to fix before you publish.
+              Analyze your posts, headshots, listing photos, and videos. Get AI-powered strategic feedback scored on authority, engagement, and market impact.
             </p>
           </div>
           <div className="hidden md:flex flex-col items-center justify-center w-36 h-36 rounded-2xl bg-white/5 border border-white/10 shrink-0">
@@ -95,247 +200,308 @@ export default function PerformanceCoach() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Input Section */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Your Post</h2>
+      {/* Tabs */}
+      <Tabs defaultValue="text" className="w-full">
+        <TabsList className="mb-6 w-full max-w-md">
+          <TabsTrigger value="text" className="flex-1 flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Analyze Post
+          </TabsTrigger>
+          <TabsTrigger value="visual" className="flex-1 flex items-center gap-2">
+            <Image className="h-4 w-4" />
+            Analyze Photo / Video
+          </TabsTrigger>
+        </TabsList>
 
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="postContent">Post Content</Label>
-              <Textarea
-                id="postContent"
-                placeholder="Paste your post content here for analysis..."
-                value={postContent}
-                onChange={(e) => setPostContent(e.target.value)}
-                rows={12}
-                className="mt-1.5"
-              />
-              <p className="text-sm text-muted-foreground mt-1">
-                {postContent.length} characters
-              </p>
-            </div>
+        {/* ── TEXT ANALYSIS TAB ── */}
+        <TabsContent value="text">
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Your Post</h2>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="postContent">Post Content</Label>
+                  <Textarea
+                    id="postContent"
+                    placeholder="Paste your post content here for analysis..."
+                    value={postContent}
+                    onChange={(e) => setPostContent(e.target.value)}
+                    rows={12}
+                    className="mt-1.5"
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">{postContent.length} characters</p>
+                </div>
+                <Button onClick={handleAnalyze} disabled={analyzePost.isPending} className="w-full" size="lg">
+                  {analyzePost.isPending ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>
+                  ) : (
+                    <><Sparkles className="mr-2 h-4 w-4" />Analyze Post</>
+                  )}
+                </Button>
+              </div>
+            </Card>
 
-            <Button
-              onClick={handleAnalyze}
-              disabled={analyzePost.isPending}
-              className="w-full"
-              size="lg"
-            >
-              {analyzePost.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
-                </>
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Performance Analysis</h2>
+              {feedback ? (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className={`text-5xl font-bold ${getScoreColor(feedback.overallScore)}`}>{feedback.overallScore}</div>
+                    <div className="text-sm text-muted-foreground mt-1">{getScoreLabel(feedback.overallScore)}</div>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      { label: "Engagement Potential", key: "engagement" },
+                      { label: "Clarity & Readability", key: "clarity" },
+                      { label: "Call-to-Action Strength", key: "cta" },
+                      { label: "Authority & Credibility", key: "authority" },
+                    ].map(({ label, key }) => (
+                      <div key={key}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>{label}</span>
+                          <span className={getScoreColor((feedback.scores as any)[key])}>{(feedback.scores as any)[key]}/100</span>
+                        </div>
+                        <Progress value={(feedback.scores as any)[key]} className="h-2" />
+                      </div>
+                    ))}
+                    {feedback.scores.avatarAlignment !== undefined && (
+                      <div className="pt-2 border-t">
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="flex items-center"><Target className="h-3.5 w-3.5 mr-1.5 text-primary" />Avatar Alignment</span>
+                          <span className={getScoreColor(feedback.scores.avatarAlignment)}>{feedback.scores.avatarAlignment}/100</span>
+                        </div>
+                        <Progress value={feedback.scores.avatarAlignment} className="h-2" />
+                      </div>
+                    )}
+                  </div>
+                  {feedback.strengths.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-sm mb-2 flex items-center text-green-600"><CheckCircle2 className="h-4 w-4 mr-1" />Strengths</h3>
+                      <ul className="space-y-1 text-sm">{feedback.strengths.map((s, i) => <li key={i} className="flex items-start"><span className="text-green-600 mr-2">•</span><span>{s}</span></li>)}</ul>
+                    </div>
+                  )}
+                  {feedback.improvements.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-sm mb-2 flex items-center text-yellow-600"><Target className="h-4 w-4 mr-1" />Suggested Improvements</h3>
+                      <ul className="space-y-1 text-sm">{feedback.improvements.map((imp, i) => <li key={i} className="flex items-start"><span className="text-yellow-600 mr-2">•</span><span>{imp}</span></li>)}</ul>
+                    </div>
+                  )}
+                  <Button onClick={() => { setFeedback(null); setPostContent(""); }} variant="outline" className="w-full">Analyze Another Post</Button>
+                </div>
               ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Analyze Post
-                </>
+                <div className="h-full flex items-center justify-center text-center text-muted-foreground">
+                  <div><TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" /><p>Your performance analysis will appear here</p></div>
+                </div>
               )}
-            </Button>
+            </Card>
           </div>
-        </Card>
 
-        {/* Feedback Section */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Performance Analysis</h2>
+          {feedback?.rewriteSuggestion && (
+            <Card className="mt-6 p-6">
+              <h3 className="font-semibold mb-3 flex items-center"><MessageSquare className="h-5 w-5 mr-2" />Optimized Version</h3>
+              <div className="bg-muted p-4 rounded-lg"><p className="whitespace-pre-wrap">{feedback.rewriteSuggestion}</p></div>
+              <Button onClick={() => { navigator.clipboard.writeText(feedback.rewriteSuggestion); toast.success("Copied!"); }} variant="outline" className="mt-4">Copy Optimized Version</Button>
+            </Card>
+          )}
+        </TabsContent>
 
-          {feedback ? (
-            <div className="space-y-6">
-              {/* Overall Score */}
-              <div className="text-center">
-                <div className={`text-5xl font-bold ${getScoreColor(feedback.overallScore)}`}>
-                  {feedback.overallScore}
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  {getScoreLabel(feedback.overallScore)}
-                </div>
-              </div>
+        {/* ── VISUAL ANALYSIS TAB ── */}
+        <TabsContent value="visual">
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Upload Card */}
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-1">Upload Photo or Video</h2>
+              <p className="text-sm text-muted-foreground mb-5">Upload a headshot, listing photo, social post screenshot, or video reel for expert AI feedback.</p>
 
-              {/* Individual Scores */}
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Engagement Potential</span>
-                    <span className={getScoreColor(feedback.scores.engagement)}>
-                      {feedback.scores.engagement}/100
-                    </span>
-                  </div>
-                  <Progress value={feedback.scores.engagement} className="h-2" />
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Clarity & Readability</span>
-                    <span className={getScoreColor(feedback.scores.clarity)}>
-                      {feedback.scores.clarity}/100
-                    </span>
-                  </div>
-                  <Progress value={feedback.scores.clarity} className="h-2" />
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Call-to-Action Strength</span>
-                    <span className={getScoreColor(feedback.scores.cta)}>
-                      {feedback.scores.cta}/100
-                    </span>
-                  </div>
-                  <Progress value={feedback.scores.cta} className="h-2" />
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Authority & Credibility</span>
-                    <span className={getScoreColor(feedback.scores.authority)}>
-                      {feedback.scores.authority}/100
-                    </span>
-                  </div>
-                  <Progress value={feedback.scores.authority} className="h-2" />
-                </div>
-
-                {/* Personalized Scores */}
-                {feedback.scores.avatarAlignment !== undefined && (
-                  <div className="pt-2 border-t">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="flex items-center">
-                        <Target className="h-3.5 w-3.5 mr-1.5 text-primary" />
-                        Customer Avatar Alignment
-                      </span>
-                      <span className={getScoreColor(feedback.scores.avatarAlignment)}>
-                        {feedback.scores.avatarAlignment}/100
-                      </span>
-                    </div>
-                    <Progress value={feedback.scores.avatarAlignment} className="h-2" />
-                  </div>
-                )}
-
-                {feedback.scores.brandAlignment !== undefined && (
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="flex items-center">
-                        <Sparkles className="h-3.5 w-3.5 mr-1.5 text-primary" />
-                        Brand Values Alignment
-                      </span>
-                      <span className={getScoreColor(feedback.scores.brandAlignment)}>
-                        {feedback.scores.brandAlignment}/100
-                      </span>
-                    </div>
-                    <Progress value={feedback.scores.brandAlignment} className="h-2" />
-                  </div>
-                )}
-
-                {feedback.scores.marketRelevance !== undefined && (
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="flex items-center">
-                        <TrendingUp className="h-3.5 w-3.5 mr-1.5 text-primary" />
-                        Market Relevance
-                      </span>
-                      <span className={getScoreColor(feedback.scores.marketRelevance)}>
-                        {feedback.scores.marketRelevance}/100
-                      </span>
-                    </div>
-                    <Progress value={feedback.scores.marketRelevance} className="h-2" />
-                  </div>
-                )}
-              </div>
-
-              {/* Strengths */}
-              {feedback.strengths.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-sm mb-2 flex items-center text-green-600">
-                    <CheckCircle2 className="h-4 w-4 mr-1" />
-                    Strengths
-                  </h3>
-                  <ul className="space-y-1 text-sm">
-                    {feedback.strengths.map((strength, i) => (
-                      <li key={i} className="flex items-start">
-                        <span className="text-green-600 mr-2">•</span>
-                        <span>{strength}</span>
-                      </li>
+              {/* Analysis Type */}
+              <div className="mb-4">
+                <Label className="mb-1.5 block">What are you uploading?</Label>
+                <Select value={analysisType} onValueChange={setAnalysisType}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ANALYSIS_TYPES.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>
+                        <div>
+                          <div className="font-medium">{t.label}</div>
+                          <div className="text-xs text-muted-foreground">{t.description}</div>
+                        </div>
+                      </SelectItem>
                     ))}
-                  </ul>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Drop zone */}
+              {!selectedFile ? (
+                <div
+                  className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors mb-4"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                  <p className="font-medium mb-1">Click to upload</p>
+                  <p className="text-sm text-muted-foreground">JPG, PNG, WebP, MP4, MOV, WebM · Max 16MB</p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*,video/*"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                </div>
+              ) : (
+                <div className="relative mb-4 rounded-xl overflow-hidden border border-border bg-muted">
+                  {selectedFile.type.startsWith("video/") ? (
+                    <video src={previewUrl!} controls className="w-full max-h-56 object-contain" />
+                  ) : (
+                    <img src={previewUrl!} alt="Preview" className="w-full max-h-56 object-contain" />
+                  )}
+                  <button
+                    onClick={clearFile}
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 hover:bg-background border border-border"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                  <div className="px-3 py-2 text-xs text-muted-foreground flex items-center gap-1.5">
+                    {selectedFile.type.startsWith("video/") ? <Video className="h-3.5 w-3.5" /> : <Image className="h-3.5 w-3.5" />}
+                    {selectedFile.name} · {(selectedFile.size / (1024 * 1024)).toFixed(1)}MB
+                  </div>
                 </div>
               )}
 
-              {/* Improvements */}
-              {feedback.improvements.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-sm mb-2 flex items-center text-yellow-600">
-                    <Target className="h-4 w-4 mr-1" />
-                    Suggested Improvements
-                  </h3>
-                  <ul className="space-y-1 text-sm">
-                    {feedback.improvements.map((improvement, i) => (
-                      <li key={i} className="flex items-start">
-                        <span className="text-yellow-600 mr-2">•</span>
-                        <span>{improvement}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {/* Optional context */}
+              <div className="mb-5">
+                <Label htmlFor="context" className="mb-1.5 block">Additional context <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                <Textarea
+                  id="context"
+                  placeholder="e.g. This is my main Instagram profile photo. I'm targeting first-time buyers in Austin."
+                  value={additionalContext}
+                  onChange={(e) => setAdditionalContext(e.target.value)}
+                  rows={3}
+                />
+              </div>
 
               <Button
-                onClick={() => {
-                  setFeedback(null);
-                  setPostContent("");
-                }}
-                variant="outline"
+                onClick={handleVisualAnalyze}
+                disabled={!selectedFile || analyzeVisual.isPending}
                 className="w-full"
+                size="lg"
               >
-                Analyze Another Post
+                {analyzeVisual.isPending ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>
+                ) : (
+                  <><Sparkles className="mr-2 h-4 w-4" />Get Visual Feedback</>
+                )}
               </Button>
-            </div>
-          ) : (
-            <div className="h-full flex items-center justify-center text-center text-muted-foreground">
-              <div>
-                <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>Your performance analysis will appear here</p>
-              </div>
-            </div>
-          )}
-        </Card>
-      </div>
 
-      {/* Rewrite Suggestion */}
-      {feedback?.rewriteSuggestion && (
-        <Card className="mt-6 p-6">
-          <h3 className="font-semibold mb-3 flex items-center">
-            <MessageSquare className="h-5 w-5 mr-2" />
-            Optimized Version
-          </h3>
-          <div className="bg-muted p-4 rounded-lg">
-            <p className="whitespace-pre-wrap">{feedback.rewriteSuggestion}</p>
+              {analyzeVisual.isPending && (
+                <p className="text-xs text-muted-foreground text-center mt-2">This may take 15–30 seconds for videos</p>
+              )}
+            </Card>
+
+            {/* Results Card */}
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Visual Feedback</h2>
+
+              {visualFeedback ? (
+                <div className="space-y-5">
+                  {/* Score */}
+                  <div className={`rounded-xl border p-4 text-center ${getScoreBg(visualFeedback.overallScore)}`}>
+                    <div className={`text-5xl font-bold ${getScoreColor(visualFeedback.overallScore)}`}>
+                      {visualFeedback.overallScore}
+                    </div>
+                    <div className="text-sm font-medium mt-1">{getScoreLabel(visualFeedback.overallScore)} · {ANALYSIS_TYPES.find(t => t.value === analysisType)?.label}</div>
+                  </div>
+
+                  {/* Summary */}
+                  <div>
+                    <p className="text-sm leading-relaxed">{visualFeedback.summary}</p>
+                  </div>
+
+                  {/* Priority Action */}
+                  <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs font-semibold text-amber-700 mb-0.5">Priority Action</p>
+                        <p className="text-sm text-amber-800">{visualFeedback.priorityAction}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Strengths */}
+                  {visualFeedback.strengths.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-sm mb-2 flex items-center text-green-600">
+                        <CheckCircle2 className="h-4 w-4 mr-1" />What's Working
+                      </h3>
+                      <ul className="space-y-1.5 text-sm">
+                        {visualFeedback.strengths.map((s, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-green-500 mt-0.5">✓</span>
+                            <span>{s}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Improvements */}
+                  {visualFeedback.improvements.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-sm mb-2 flex items-center text-yellow-600">
+                        <Target className="h-4 w-4 mr-1" />How to Improve
+                      </h3>
+                      <ul className="space-y-2 text-sm">
+                        {visualFeedback.improvements.map((imp, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <Badge variant="outline" className="text-xs shrink-0 mt-0.5">{i + 1}</Badge>
+                            <span>{imp}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <Button
+                    onClick={() => { setVisualFeedback(null); clearFile(); }}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Analyze Another
+                  </Button>
+                </div>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground gap-4 py-8">
+                  <div className="grid grid-cols-2 gap-3 w-full max-w-xs opacity-60">
+                    {[
+                      { icon: "👤", label: "Headshot" },
+                      { icon: "🏠", label: "Listing Photo" },
+                      { icon: "📱", label: "Social Post" },
+                      { icon: "🎬", label: "Video Reel" },
+                    ].map((item) => (
+                      <div key={item.label} className="rounded-lg border border-dashed border-border p-3 text-center">
+                        <div className="text-2xl mb-1">{item.icon}</div>
+                        <div className="text-xs">{item.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm">Upload any of the above to get<br/>specific, actionable feedback</p>
+                </div>
+              )}
+            </Card>
           </div>
-          <Button
-            onClick={() => {
-              navigator.clipboard.writeText(feedback.rewriteSuggestion);
-              toast.success("Copied to clipboard!");
-            }}
-            variant="outline"
-            className="mt-4"
-          >
-            Copy Optimized Version
-          </Button>
-        </Card>
-      )}
+        </TabsContent>
+      </Tabs>
 
       {/* Tips Section */}
       <Card className="mt-6 p-6">
-        <h3 className="font-semibold mb-3">💡 Performance Tips</h3>
+        <h3 className="font-semibold mb-3">💡 Market Dominance Tips</h3>
         <div className="grid md:grid-cols-3 gap-4 text-sm">
-          <div>
-            <strong>Hook in first line:</strong> Grab attention immediately with a question, stat, or bold statement.
-          </div>
-          <div>
-            <strong>Clear CTA:</strong> Tell readers exactly what to do next - DM, comment, visit link, etc.
-          </div>
-          <div>
-            <strong>Show authority:</strong> Include specific numbers, local knowledge, or unique insights to build credibility.
-          </div>
+          <div><strong>Hook in first line:</strong> Grab attention immediately with a question, stat, or bold statement.</div>
+          <div><strong>Clear CTA:</strong> Tell readers exactly what to do next — DM, comment, visit link, etc.</div>
+          <div><strong>Show authority:</strong> Include specific numbers, local knowledge, or unique insights to build credibility.</div>
         </div>
       </Card>
     </div>

@@ -1551,6 +1551,94 @@ Create a compelling social media post.`;
   socialPosting: socialPostingRouter,
 
   coach: router({
+    analyzeVisual: protectedProcedure
+      .input(z.object({
+        fileData: z.string(), // base64 encoded
+        mimeType: z.string(), // image/jpeg, image/png, video/mp4, etc.
+        fileName: z.string(),
+        analysisType: z.enum(['headshot', 'listing_photo', 'social_post_screenshot', 'video_reel', 'general']).default('general'),
+        additionalContext: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Upload file to S3 first
+        const { storagePut } = await import("./storage");
+        const base64Data = input.fileData.split(',')[1] || input.fileData;
+        const buffer = Buffer.from(base64Data, 'base64');
+        const fileKey = `coach-uploads/${ctx.user.id}/${Date.now()}-${input.fileName}`;
+        const { url: fileUrl } = await storagePut(fileKey, buffer, input.mimeType);
+
+        // Get persona for personalized feedback
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+        let personaContext = '';
+        if (persona) {
+          try {
+            const brandValues = persona.brandValues ? JSON.parse(persona.brandValues) : [];
+            const marketContext = persona.marketContext ? JSON.parse(persona.marketContext) : null;
+            if (brandValues.length > 0) personaContext += `\nBrand Values: ${brandValues.join(', ')}`;
+            if (marketContext) personaContext += `\nMarket: ${marketContext.city}, ${marketContext.state}`;
+          } catch (e) {}
+        }
+
+        const analysisPrompts: Record<string, string> = {
+          headshot: 'Analyze this professional headshot for a real estate agent. Evaluate: background quality, lighting, attire professionalism, approachability, confidence, and overall brand impression. Give specific, actionable feedback on how to improve authority positioning.',
+          listing_photo: 'Analyze this real estate listing photo. Evaluate: composition, lighting, staging quality, what draws the eye, what detracts from the property, and how to make it more compelling for buyers.',
+          social_post_screenshot: 'Analyze this social media post screenshot from a real estate agent. Evaluate: visual design, text readability, brand consistency, engagement potential, call-to-action clarity, and overall authority positioning.',
+          video_reel: 'Analyze this real estate video/reel. Evaluate: opening hook strength, production quality, agent presence and energy, message clarity, call-to-action, and overall engagement potential. Note specific timestamps if relevant.',
+          general: 'Analyze this image or video from a real estate agent perspective. Provide specific, actionable feedback on how it could be improved for better authority positioning and market dominance.',
+        };
+
+        const prompt = analysisPrompts[input.analysisType];
+        const isVideo = input.mimeType.startsWith('video/');
+
+        const userMessage: any = isVideo
+          ? {
+              role: 'user' as const,
+              content: [
+                { type: 'text', text: `${prompt}${input.additionalContext ? `\n\nAdditional context: ${input.additionalContext}` : ''}` },
+                { type: 'file_url', file_url: { url: fileUrl, mime_type: input.mimeType as any } },
+              ],
+            }
+          : {
+              role: 'user' as const,
+              content: [
+                { type: 'text', text: `${prompt}${input.additionalContext ? `\n\nAdditional context: ${input.additionalContext}` : ''}` },
+                { type: 'image_url', image_url: { url: fileUrl, detail: 'high' as const } },
+              ],
+            };
+
+        const response = await invokeLLM({
+          messages: [
+            {
+              role: 'system',
+              content: `You are an expert real estate marketing coach and brand strategist. You provide specific, honest, actionable visual feedback to help real estate agents dominate their market.${personaContext}\n\nFormat your response as JSON with:\n- overallScore (0-100)\n- summary (2-3 sentence overall assessment)\n- strengths (array of 2-3 specific things done well)\n- improvements (array of 3-4 specific, actionable improvements with clear "how to fix" guidance)\n- priorityAction (the single most impactful change to make first)`,
+            },
+            userMessage,
+          ],
+          response_format: {
+            type: 'json_schema',
+            json_schema: {
+              name: 'visual_analysis',
+              strict: true,
+              schema: {
+                type: 'object',
+                properties: {
+                  overallScore: { type: 'number' },
+                  summary: { type: 'string' },
+                  strengths: { type: 'array', items: { type: 'string' } },
+                  improvements: { type: 'array', items: { type: 'string' } },
+                  priorityAction: { type: 'string' },
+                },
+                required: ['overallScore', 'summary', 'strengths', 'improvements', 'priorityAction'],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+
+        const content = response.choices[0].message.content;
+        return JSON.parse(typeof content === 'string' ? content : '');
+      }),
+
     analyze: protectedProcedure
       .input(z.object({
         content: z.string(),

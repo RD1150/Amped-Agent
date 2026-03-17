@@ -3676,3 +3676,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add comparison page to VIDEO section in sidebar as "Compare Video Types"
 - [x] Wire CTAs to each tool from comparison page
 - [x] Rename "Listing Slideshow" to "Listing Video" in sidebar
+
+## Market Dominance Coach - Visual Feedback
+- [ ] Add image/video upload to Coach backend router (LLM multimodal input)
+- [ ] Update Coach frontend with upload button and media preview in chat
+- [ ] Support headshots, listing photos, social post screenshots, and short video clips
