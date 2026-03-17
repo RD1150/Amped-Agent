@@ -3650,3 +3650,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add retry button on failed Cinematic Walkthrough jobs
 - [x] Show estimated time remaining during generation based on photo count
 - [x] Send email notification to agent when video is ready
+
+## Cinematic Walkthrough - View in My Content
+- [x] Add "View in My Content" button to video result card after generation completes

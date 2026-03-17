@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, X, Play, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info } from "lucide-react";
+import { Upload, X, Play, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library } from "lucide-react";
+import { Link } from "wouter";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -302,21 +303,29 @@ export default function CinematicWalkthrough() {
               className="w-full rounded-lg aspect-video bg-black"
               poster={photos[0]?.previewUrl}
             />
-            <div className="flex gap-3 mt-4">
-              <Button asChild className="flex-1 bg-amber-500 hover:bg-amber-600 text-black font-semibold">
-                <a href={videoUrl} download="cinematic-walkthrough.mp4">
-                  Download Video
-                </a>
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => {
-                  navigator.clipboard.writeText(videoUrl);
-                  toast.success("Link copied!");
-                }}
-              >
-                Copy Link
+            <div className="flex flex-col gap-3 mt-4">
+              <div className="flex gap-3">
+                <Button asChild className="flex-1 bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+                  <a href={videoUrl} download="cinematic-walkthrough.mp4">
+                    Download Video
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    navigator.clipboard.writeText(videoUrl);
+                    toast.success("Link copied!");
+                  }}
+                >
+                  Copy Link
+                </Button>
+              </div>
+              <Button asChild variant="outline" className="w-full border-amber-500/40 text-amber-500 hover:bg-amber-500/10">
+                <Link href="/my-content">
+                  <Library className="h-4 w-4 mr-2" />
+                  View in My Content
+                </Link>
               </Button>
             </div>
           </div>
