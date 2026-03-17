@@ -11,7 +11,10 @@ import {
   TrendingUp,
   FileText,
   Clock,
-  HelpCircle
+  HelpCircle,
+  Award,
+  ChevronRight,
+  Zap
 } from "lucide-react";
 import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 import UsageCounter from "@/components/UsageCounter";
@@ -259,6 +262,48 @@ export default function Dashboard() {
           </div>
         </Card>
       )}
+
+      {/* Market Dominance Coach Featured Card */}
+      <div
+        className="relative rounded-2xl overflow-hidden cursor-pointer group"
+        onClick={() => setLocation("/coach")}
+      >
+        {/* Dark gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]" />
+        {/* Grid overlay */}
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        {/* Glow accent */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />
+        <div className="relative px-8 py-7 flex flex-col md:flex-row md:items-center gap-6">
+          {/* Icon */}
+          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-amber-400/15 border border-amber-400/30 shrink-0">
+            <Award className="h-7 w-7 text-amber-400" />
+          </div>
+          {/* Text */}
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">Market Dominance Coach</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/15 text-amber-400 border border-amber-400/30">
+                <Zap className="h-2.5 w-2.5" />Premium
+              </span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-1">This Week's Challenge</h3>
+            <p className="text-sm text-slate-300 max-w-xl">
+              Write a post that positions you as the go-to expert in your city. Lead with a bold market stat, share your take, and end with a call to action. Then run it through the Coach to see your Authority Score.
+            </p>
+          </div>
+          {/* CTA */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              size="sm"
+              className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold gap-1.5 group-hover:shadow-lg group-hover:shadow-amber-400/20 transition-all"
+            >
+              Open Coach
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
 
       {/* Tips & Resources */}
       <Card className="p-6 bg-primary/5 border-primary/20">

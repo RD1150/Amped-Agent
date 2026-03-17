@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
-import { Loader2, Sparkles, TrendingUp, Target, MessageSquare, CheckCircle2 } from "lucide-react";
+import { Loader2, Sparkles, TrendingUp, Target, MessageSquare, CheckCircle2, Award } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface CoachFeedback {
@@ -66,11 +66,33 @@ export default function PerformanceCoach() {
 
   return (
     <div className="container max-w-6xl py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Market Dominance Coach</h1>
-        <p className="text-muted-foreground">
-          Get strategic positioning feedback to dominate your local market
-        </p>
+      {/* Hero Banner */}
+      <div className="relative mb-10 rounded-2xl overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] border border-primary/20 shadow-xl">
+        {/* Subtle grid overlay */}
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-center gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-400/15 text-amber-400 border border-amber-400/30">
+                <Award className="h-3.5 w-3.5" />
+                Premium Feature
+              </span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
+              Market Dominance Coach
+            </h1>
+            <p className="text-lg text-indigo-200 font-medium mb-1">
+              Your unfair advantage in any market.
+            </p>
+            <p className="text-sm text-slate-400 max-w-xl">
+              Paste any post and get AI-powered strategic feedback — scored on engagement, authority, clarity, and market relevance. Know exactly what to fix before you publish.
+            </p>
+          </div>
+          <div className="hidden md:flex flex-col items-center justify-center w-36 h-36 rounded-2xl bg-white/5 border border-white/10 shrink-0">
+            <Award className="h-14 w-14 text-amber-400 mb-2" />
+            <span className="text-xs text-slate-400 text-center leading-tight">AI Strategy<br/>Scoring</span>
+          </div>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">

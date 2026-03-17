@@ -3634,3 +3634,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Sidebar Navigation Update
 - [x] Move Market Dominance Coach to its own dedicated sidebar section (differentiator)
+
+## Sidebar Badge Update
+- [x] Add Premium badge to Market Dominance Coach sidebar item
+
+## Market Dominance Coach — Let It Shine
+- [x] Add Premium badge to Market Dominance Coach sidebar item
+- [x] Add bold tagline + hero treatment to the Coach page ("Your unfair advantage in any market")
+- [x] Pin Market Dominance Coach featured card with weekly challenge to the Dashboard

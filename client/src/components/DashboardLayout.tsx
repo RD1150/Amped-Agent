@@ -137,7 +137,7 @@ const menuSections = [
   {
     title: "MARKET DOMINANCE",
     items: [
-      { icon: Award, label: "Market Dominance Coach", path: "/coach", description: "AI coaching for market leadership" },
+      { icon: Award, label: "Market Dominance Coach", path: "/coach", description: "AI coaching for market leadership", badge: "Premium" },
     ]
   },
   {
