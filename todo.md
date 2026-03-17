@@ -3653,3 +3653,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Cinematic Walkthrough - View in My Content
 - [x] Add "View in My Content" button to video result card after generation completes
+
+## Bug - AI Cinematic Walkthrough Not Producing Output
+- [ ] Diagnose and fix why Cinematic Walkthrough generation produces no video
+
+## Bug - Cinematic Walkthrough Consistent Failure
+- [ ] Investigate and fix consistent generation failure in Cinematic Walkthrough

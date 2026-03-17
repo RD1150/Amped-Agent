@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, status, totalPhotos, completedClips, error, videoUrl, inputSnapshot IS NOT NULL as hasSnapshot, createdAt FROM cinematic_jobs ORDER BY createdAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, status, totalPhotos, completedClips, error, videoUrl, inputSnapshot IS NOT NULL as hasSnapshot, createdAt FROM cinematic_jobs ORDER BY createdAt DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "cw_1773728462010_mi2yd3",
+      "status": "failed",
+      "totalPhotos": "6",
+      "completedClips": "6",
+      "error": "Creatomate render error: 400 - {\"hint\":\"The parameter template_id, tags, or source must be provided.\",\"documentation\":\"https://creatomate.com/docs/api/quick-start/introduction\"}",
+      "videoUrl": "NULL",
+      "hasSnapshot": "0",
+      "createdAt": "2026-03-17 06:21:02"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\ttotalPhotos\tcompletedClips\terror\tvideoUrl\thasSnapshot\tcreatedAt\ncw_1773728462010_mi2yd3\tfailed\t6\t6\tCreatomate render error: 400 - {\"hint\":\"The parameter template_id, tags, or source must be provided.\",\"documentation\":\"https://creatomate.com/docs/api/quick-start/introduction\"}\tNULL\t0\t2026-03-17 06:21:02\n",
+  "stderr": "",
+  "execution_time_ms": 351
+}

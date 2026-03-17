@@ -8,6 +8,8 @@ import { ENV } from "../_core/env";
 import * as fs from "fs";
 
 function log(msg: string) {
+  // Ensure log directory exists
+  try { fs.mkdirSync("/home/ubuntu/luxestate/.manus-logs", { recursive: true }); } catch {}
   const line = `[${new Date().toISOString()}] [CinematicWalkthrough] ${msg}\n`;
   try { fs.appendFileSync("/home/ubuntu/luxestate/.manus-logs/cinematic.log", line); } catch {}
   console.log(msg);
@@ -82,11 +84,17 @@ async function dbGetJob(jobId: string) {
 async function generateRunwayClip(
   imageUrl: string,
   roomType: string,
-  customPrompt?: string
+  customPrompt?: string,
+  attempt = 1
 ): Promise<string> {
   const promptText = customPrompt || ROOM_MOTION_PROMPTS[roomType] || ROOM_MOTION_PROMPTS.other;
 
-  log(`Generating Runway clip for room: ${roomType}, prompt: ${promptText.substring(0, 60)}...`);
+  log(`Generating Runway clip for room: ${roomType} (attempt ${attempt}), prompt: ${promptText.substring(0, 60)}...`);
+
+  // Add a small delay between clips to avoid rate limits (3s after first clip)
+  if (attempt === 1) {
+    await new Promise((r) => setTimeout(r, 3000));
+  }
 
   const response = await fetch("https://api.dev.runwayml.com/v1/image_to_video", {
     method: "POST",
@@ -104,6 +112,16 @@ async function generateRunwayClip(
     }),
   });
 
+  // Handle rate limiting with exponential backoff
+  if (response.status === 429 || response.status === 503) {
+    if (attempt <= 3) {
+      const waitMs = attempt * 15000; // 15s, 30s, 45s
+      log(`Runway rate limited (${response.status}), waiting ${waitMs/1000}s before retry ${attempt + 1}...`);
+      await new Promise((r) => setTimeout(r, waitMs));
+      return generateRunwayClip(imageUrl, roomType, customPrompt, attempt + 1);
+    }
+  }
+
   if (!response.ok) {
     const err = await response.text();
     log(`Runway API error ${response.status}: ${err}`);
@@ -116,7 +134,7 @@ async function generateRunwayClip(
   return await pollRunwayTask(task.id);
 }
 
-async function pollRunwayTask(taskId: string, maxWaitMs = 300000): Promise<string> {
+async function pollRunwayTask(taskId: string, maxWaitMs = 420000): Promise<string> {
   const start = Date.now();
   const interval = 8000;
 
@@ -161,7 +179,7 @@ async function pollRunwayTask(taskId: string, maxWaitMs = 300000): Promise<strin
     }
   }
 
-  throw new Error("Runway generation timed out after 5 minutes");
+  throw new Error("Runway generation timed out after 7 minutes");
 }
 
 // ============================================================
