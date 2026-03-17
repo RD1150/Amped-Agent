@@ -102,13 +102,18 @@ const menuSections = [
     items: [
       { icon: Sparkles, label: "Post Builder", path: "/generate", description: "Generate social media posts (text + images)" },
       { icon: Video, label: "AI Reels", path: "/autoreels", description: "Create talking avatar videos (15-60 sec)" },
-      { icon: Building2, label: "Property Tours", path: "/property-tours", description: "Generate property showcase videos with music" },
       { icon: Upload, label: "Bulk Import", path: "/bulk-import", description: "Import content ideas from CSV in bulk" },
       { icon: Mail, label: "Newsletter Builder", path: "/newsletter", description: "Design email newsletters", badge: "Premium" },
       { icon: Shuffle, label: "Repurpose Engine", path: "/repurpose", description: "Write once, publish everywhere — 5 formats from 1 idea", badge: "Premium" },
       { icon: FileText, label: "Lead Magnet Generator", path: "/lead-magnet", description: "Generate branded PDF lead magnets for Facebook Lead Ads", badge: "Premium" },
-      { icon: Film, label: "Cinematic Walkthrough", path: "/cinematic-walkthrough", description: "AI-powered Momenzo-style property walkthrough video", badge: "Premium" },
       { icon: FileText, label: "My Lead Magnets", path: "/my-lead-magnets", description: "View and download your saved lead magnet PDFs" },
+    ]
+  },
+  {
+    title: "VIDEO",
+    items: [
+      { icon: Building2, label: "Listing Slideshow", path: "/property-tours", description: "Quick slideshow video for any listing · 1–2 min" },
+      { icon: Film, label: "AI Property Film", path: "/cinematic-walkthrough", description: "AI-animated cinematic film for premium listings · 5–10 min", badge: "Premium" },
     ]
   },
   {
@@ -122,7 +127,6 @@ const menuSections = [
     title: "LIBRARY",
     items: [
       { icon: Shuffle, label: "My Content", path: "/my-content", description: "All videos, reels, lead magnets in one place" },
-      { icon: Video, label: "My Videos", path: "/my-videos", description: "Property Tour & Market videos" },
       { icon: FileText, label: "Content Templates", path: "/content-templates", description: "Browse pre-made post templates" },
     ]
   },

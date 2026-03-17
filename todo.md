@@ -3659,3 +3659,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Bug - Cinematic Walkthrough Consistent Failure
 - [ ] Investigate and fix consistent generation failure in Cinematic Walkthrough
+
+## Sidebar Navigation Restructure (Completed)
+- [x] Add VIDEO section to sidebar with Listing Slideshow and AI Property Film
+- [x] Add Premium badge to AI Property Film in sidebar
+- [x] Remove My Videos from Library section (My Content covers it)
+- [x] Update page titles: Property Tours → Listing Slideshow, Cinematic Walkthrough → AI Property Film

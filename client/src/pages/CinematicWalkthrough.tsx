@@ -273,7 +273,7 @@ export default function CinematicWalkthrough() {
             <Film className="h-6 w-6 text-amber-500" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">AI Cinematic Tour</h1>
+            <h1 className="text-2xl font-bold text-foreground">AI Property Film</h1>
             <p className="text-sm text-muted-foreground">
               AI-powered property tour video — realistic camera motion through every room
             </p>
@@ -294,7 +294,7 @@ export default function CinematicWalkthrough() {
         <div className="rounded-xl overflow-hidden border border-amber-500/30 bg-card">
           <div className="p-4 border-b border-border flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-500" />
-            <span className="font-semibold text-foreground">Your Cinematic Walkthrough is Ready!</span>
+            <span className="font-semibold text-foreground">Your AI Property Film is Ready!</span>
           </div>
           <div className="p-4">
             <video
@@ -592,12 +592,12 @@ export default function CinematicWalkthrough() {
         {isGenerating ? (
           <>
             <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-            Generating Cinematic Walkthrough…
+            Generating AI Property Film…
           </>
         ) : (
           <>
             <Play className="h-5 w-5 mr-2" />
-            Generate Cinematic Walkthrough
+            Generate AI Property Film
           </>
         )}
       </Button>
