@@ -3642,3 +3642,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add Premium badge to Market Dominance Coach sidebar item
 - [x] Add bold tagline + hero treatment to the Coach page ("Your unfair advantage in any market")
 - [x] Pin Market Dominance Coach featured card with weekly challenge to the Dashboard
+
+## Bug Fix - Cinematic Walkthrough
+- [x] Fix Creatomate "template_id must be provided" error in Cinematic Walkthrough generation

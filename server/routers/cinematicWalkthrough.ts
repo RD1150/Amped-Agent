@@ -296,12 +296,17 @@ async function assembleCreatomateVideo(opts: {
     });
   }
 
+  // Creatomate requires a `source` object for dynamic (template-free) renders.
+  // Passing elements at the top level causes a 400 "template_id must be provided" error.
   const payload = {
     output_format: "mp4",
-    width,
-    height,
-    duration: totalDuration,
-    elements,
+    source: {
+      output_format: "mp4",
+      width,
+      height,
+      duration: totalDuration,
+      elements,
+    },
   };
 
   log(`Submitting Creatomate render: ${clips.length} clips, ${totalDuration}s total`);
