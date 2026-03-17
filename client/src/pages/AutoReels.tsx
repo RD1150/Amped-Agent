@@ -839,31 +839,60 @@ export default function AutoReels() {
         <div className="space-y-6">
           {/* Video Preview */}
           {videoUrl && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Your Reel</h2>
-              <div className="aspect-[9/16] max-w-sm mx-auto bg-black rounded-lg overflow-hidden">
-                <video src={videoUrl} controls className="w-full h-full" />
+            <Card className="overflow-hidden border-2 border-green-500/40 shadow-lg">
+              {/* Ready banner */}
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4 text-white flex items-center gap-3">
+                <span className="text-2xl">🎉</span>
+                <div>
+                  <p className="font-bold text-lg">Your Reel is Ready!</p>
+                  <p className="text-green-100 text-sm">Download it and post to Instagram, TikTok, or YouTube Shorts</p>
+                </div>
               </div>
-              
-              <div className="flex gap-3 mt-6 justify-center flex-wrap">
-                <Button onClick={handleDownload} variant="outline">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </Button>
-                <Button onClick={handleRegenerate} variant="outline">
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Regenerate
-                </Button>
-                <Button 
-                  onClick={() => {
-                    // TODO: Implement social posting
-                    toast.info("Social posting coming soon! For now, download and post manually.");
-                  }}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Post to Social
-                </Button>
+
+              <div className="p-6">
+                {/* Vertical video player */}
+                <div className="aspect-[9/16] max-w-[280px] mx-auto bg-black rounded-xl overflow-hidden shadow-xl">
+                  <video src={videoUrl} controls className="w-full h-full" playsInline />
+                </div>
+
+                {/* Primary actions */}
+                <div className="grid grid-cols-2 gap-3 mt-6 max-w-sm mx-auto">
+                  <Button onClick={handleDownload} size="lg" className="gap-2 h-12">
+                    <Download className="h-5 w-5" />
+                    Download
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="gap-2 h-12"
+                    onClick={() => {
+                      navigator.clipboard.writeText(videoUrl);
+                      toast.success("Video link copied!");
+                    }}
+                  >
+                    <Copy className="h-5 w-5" />
+                    Copy Link
+                  </Button>
+                </div>
+
+                {/* Secondary actions */}
+                <div className="flex gap-3 mt-3 justify-center flex-wrap">
+                  <Button onClick={handleRegenerate} variant="ghost" size="sm" className="gap-2">
+                    <RefreshCw className="h-4 w-4" />
+                    Regenerate
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => {
+                      toast.info("Social posting coming soon! For now, download and post manually.");
+                    }}
+                  >
+                    <Share2 className="h-4 w-4" />
+                    Post to Social
+                  </Button>
+                </div>
               </div>
             </Card>
           )}

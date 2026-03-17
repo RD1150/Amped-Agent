@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw } from "lucide-react";
+import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
@@ -118,6 +118,11 @@ export default function PropertyTours() {
   const [cropImageIndex, setCropImageIndex] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
+
+  // Video-ready celebration modal
+  const [readyVideoUrl, setReadyVideoUrl] = useState<string | null>(null);
+  const [readyVideoAddress, setReadyVideoAddress] = useState<string>("");
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const [previewingScript, setPreviewingScript] = useState(false);
   const [scriptAudioUrl, setScriptAudioUrl] = useState<string | null>(null);
@@ -486,16 +491,28 @@ export default function PropertyTours() {
             setGenerationStatus("Rendering your video...");
           }
 
-          if (status.status === "done" || status.status === "completed") {
+            if (status.status === "done" || status.status === "completed") {
             clearInterval(pollInterval);
             setGenerationProgress(100);
             setGenerationStatus("Video ready!");
-            setTimeout(() => {
+            setTimeout(async () => {
               setGeneratingTourId(null);
               setGenerationProgress(0);
               setGenerationStatus("");
-            }, 2000);
-            toast.success("Your property tour video is ready!");
+              // Show the video-ready modal
+              if ((status as any).videoUrl) {
+                setReadyVideoUrl((status as any).videoUrl);
+                setReadyVideoAddress(address || "Your Property Tour");
+              } else {
+                // Fetch from list to get the URL
+                const tours = await utils.propertyTours.list.fetch();
+                const latest = tours?.find((t: any) => t.status === "completed" && t.videoUrl);
+                if (latest?.videoUrl) {
+                  setReadyVideoUrl(latest.videoUrl);
+                  setReadyVideoAddress(latest.address || "Your Property Tour");
+                }
+              }
+            }, 1500);
             utils.propertyTours.list.invalidate();
           } else if (status.status === "failed") {
             clearInterval(pollInterval);
@@ -1633,6 +1650,75 @@ export default function PropertyTours() {
         </div>
       )}
       
+      {/* Video Ready Celebration Modal */}
+      {readyVideoUrl && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-5 text-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <PartyPopper className="w-6 h-6" />
+                  <div>
+                    <p className="font-bold text-lg">Your Video is Ready!</p>
+                    <p className="text-green-100 text-sm truncate max-w-[280px]">{readyVideoAddress}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setReadyVideoUrl(null)}
+                  className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Video player */}
+            <div className="bg-black aspect-video">
+              <video
+                src={readyVideoUrl}
+                controls
+                autoPlay
+                className="w-full h-full"
+                playsInline
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="p-5 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <a
+                  href={readyVideoUrl}
+                  download
+                  className="flex items-center justify-center gap-2 h-11 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Download Video
+                </a>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(readyVideoUrl!);
+                    setCopiedLink(true);
+                    toast.success("Video link copied!");
+                    setTimeout(() => setCopiedLink(false), 2000);
+                  }}
+                  className="flex items-center justify-center gap-2 h-11 rounded-lg border border-border bg-muted/40 hover:bg-muted font-semibold text-sm transition-colors"
+                >
+                  {copiedLink ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                  {copiedLink ? "Copied!" : "Copy Link"}
+                </button>
+              </div>
+              <button
+                onClick={() => setReadyVideoUrl(null)}
+                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+              >
+                Close and view in library below
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Image Crop Modal */}
       {cropModalOpen && cropImageIndex !== null && (
         <ImageCropModal

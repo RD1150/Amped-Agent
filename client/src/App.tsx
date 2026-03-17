@@ -51,6 +51,7 @@ import RepurposeEngine from "./pages/RepurposeEngine";
 import LeadMagnet from "./pages/LeadMagnet";
 import CinematicWalkthrough from "./pages/CinematicWalkthrough";
 import MyLeadMagnets from "./pages/MyLeadMagnets";
+import MyContent from "./pages/MyContent";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -115,6 +116,7 @@ function Router() {
         <Route path="/script-to-reel" component={ScriptToReel} />
         <Route path="/my-reels" component={MyReels} />
         <Route path="/my-videos" component={MyVideos} />
+        <Route path="/my-content" component={MyContent} />
         <Route path="/newsletter" component={NewsletterBuilder} />
         <Route path="/drafts" component={Drafts} />
         <Route path="/coach" component={PerformanceCoach} />

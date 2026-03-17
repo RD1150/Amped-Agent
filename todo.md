@@ -3605,3 +3605,26 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Render AutoReel vertical video sample via Creatomate
 - [x] Upload thumbnails to CDN
 - [x] Update VideoPreviewGallery with all 3 real sample videos
+
+## Zero-Friction Output Experience (New)
+- [ ] Repurpose Engine: Add visual Instagram carousel mock with phone frame and slide preview
+- [ ] Repurpose Engine: Add "Copy All" mega-button at top of results
+- [ ] Repurpose Engine: Add "Save to Drafts" button on each format tab
+- [ ] Property Tours: Add full-screen video result modal with Download + Share buttons after render
+- [ ] AI Reels: Add full-screen video result modal with Download + Share buttons after render
+- [ ] My Content library: Unified page showing videos, reels, lead magnets, and repurposed posts
+- [ ] My Content library: Add to sidebar under LIBRARY section
+
+## Zero-Friction Output Experience
+- [x] Repurpose Engine - visual Instagram phone-frame carousel mock with slide navigation
+- [x] Repurpose Engine - "Copy Everything" button grabs all 5 formats at once
+- [x] Repurpose Engine - per-format copy buttons on every section
+- [x] Repurpose Engine - visual email mock for newsletter, GBP mock, LinkedIn mock
+- [x] Repurpose Engine - "Open in AI Reels" shortcut from Reel Script tab
+- [x] Property Tours - "Your Video is Ready!" celebration modal with video player, Download + Copy Link
+- [x] AI Reels - "Your Reel is Ready!" green banner with large vertical video player, Download + Copy Link
+- [x] My Content library page - unified view of all videos, reels, and lead magnets
+- [x] My Content - filter tabs: All, Property Tours, AI Reels, Lead Magnets
+- [x] My Content - hover-to-play video preview on all video cards
+- [x] My Content - Download + Copy Link on every card
+- [x] Sidebar - "My Content" nav item added to LIBRARY section

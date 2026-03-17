@@ -121,7 +121,8 @@ const menuSections = [
   {
     title: "LIBRARY",
     items: [
-      { icon: Video, label: "My Videos", path: "/my-videos", description: "All generated Property Tours, Reels & Market videos" },
+      { icon: Shuffle, label: "My Content", path: "/my-content", description: "All videos, reels, lead magnets in one place" },
+      { icon: Video, label: "My Videos", path: "/my-videos", description: "Property Tour & Market videos" },
       { icon: FileText, label: "Content Templates", path: "/content-templates", description: "Browse pre-made post templates" },
     ]
   },
