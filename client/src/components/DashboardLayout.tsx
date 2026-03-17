@@ -132,6 +132,11 @@ const menuSections = [
       { icon: TrendingUp, label: "Market Insights", path: "/market-stats", description: "Real estate market data and trends" },
       { icon: Youtube, label: "YouTube Thumbnails", path: "/thumbnails", description: "Generate click-worthy thumbnails" },
       { icon: Lightbulb, label: "Expert Hooks", path: "/hooks", description: "Browse proven hook formulas" },
+    ]
+  },
+  {
+    title: "MARKET DOMINANCE",
+    items: [
       { icon: Award, label: "Market Dominance Coach", path: "/coach", description: "AI coaching for market leadership" },
     ]
   },

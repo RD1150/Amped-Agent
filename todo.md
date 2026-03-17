@@ -3628,3 +3628,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] My Content - hover-to-play video preview on all video cards
 - [x] My Content - Download + Copy Link on every card
 - [x] Sidebar - "My Content" nav item added to LIBRARY section
+
+## Bug Fix - Fake Seed Data
+- [x] Delete all seed/test lead magnet rows from the database (user never generated them)
+
+## Sidebar Navigation Update
+- [x] Move Market Dominance Coach to its own dedicated sidebar section (differentiator)
