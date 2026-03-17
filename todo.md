@@ -3665,3 +3665,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add Premium badge to AI Property Film in sidebar
 - [x] Remove My Videos from Library section (My Content covers it)
 - [x] Update page titles: Property Tours → Listing Slideshow, Cinematic Walkthrough → AI Property Film
+
+## Video Comparison Page
+- [ ] Build side-by-side video comparison page (Listing Video vs AI Property Film)
+- [ ] Add comparison page to VIDEO section in sidebar
+- [ ] Wire CTAs to each tool from comparison page
+
+## Video Comparison Page (Completed)
+- [x] Build side-by-side video comparison page (Listing Video vs AI Property Film)
+- [x] Add comparison page to VIDEO section in sidebar as "Compare Video Types"
+- [x] Wire CTAs to each tool from comparison page
+- [x] Rename "Listing Slideshow" to "Listing Video" in sidebar

@@ -52,6 +52,7 @@ import LeadMagnet from "./pages/LeadMagnet";
 import CinematicWalkthrough from "./pages/CinematicWalkthrough";
 import MyLeadMagnets from "./pages/MyLeadMagnets";
 import MyContent from "./pages/MyContent";
+import VideoComparison from "./pages/VideoComparison";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -112,6 +113,7 @@ function Router() {
         <Route path="/repurpose" component={RepurposeEngine} />
         <Route path="/lead-magnet" component={LeadMagnet} />
         <Route path="/cinematic-walkthrough" component={CinematicWalkthrough} />
+        <Route path="/video-comparison" component={VideoComparison} />
         <Route path="/my-lead-magnets" component={MyLeadMagnets} />
         <Route path="/script-to-reel" component={ScriptToReel} />
         <Route path="/my-reels" component={MyReels} />
