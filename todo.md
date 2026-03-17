@@ -3645,3 +3645,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Bug Fix - Cinematic Walkthrough
 - [x] Fix Creatomate "template_id must be provided" error in Cinematic Walkthrough generation
+
+## Cinematic Walkthrough UX Improvements
+- [x] Add retry button on failed Cinematic Walkthrough jobs
+- [x] Show estimated time remaining during generation based on photo count
+- [x] Send email notification to agent when video is ready

@@ -800,6 +800,7 @@ export const cinematicJobs = mysqlTable("cinematic_jobs", {
   completedClips: int("completedClips").default(0).notNull(),
   videoUrl: text("videoUrl"),
   error: text("error"),
+  inputSnapshot: text("inputSnapshot"), // JSON snapshot of input for retry
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

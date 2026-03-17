@@ -421,6 +421,13 @@
       "when": 1773651019825,
       "tag": "0059_fearless_hiroim",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "5",
+      "when": 1773729657249,
+      "tag": "0060_sweet_warbound",
+      "breakpoints": true
     }
   ]
 }

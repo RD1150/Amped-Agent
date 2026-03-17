@@ -79,8 +79,13 @@ export default function CinematicWalkthrough() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
+  // Failed job state for retry
+  const [failedJobId, setFailedJobId] = useState<string | null>(null);
+  const [failedJobError, setFailedJobError] = useState<string | null>(null);
+
   // tRPC
   const generateMutation = trpc.cinematicWalkthrough.generate.useMutation();
+  const retryMutation = trpc.cinematicWalkthrough.retry.useMutation();
   const { data: jobProgress } = trpc.cinematicWalkthrough.getJobProgress.useQuery(
     { jobId: jobId! },
     {
@@ -99,13 +104,14 @@ export default function CinematicWalkthrough() {
       toast.success("Your AI Cinematic Tour is ready!");
     } else if (jobProgress.status === "failed") {
       setIsGenerating(false);
+      setFailedJobId(jobId);
+      setFailedJobError(jobProgress.error || "Generation failed. Please try again.");
       setJobId(null);
-      toast.error("Generation failed", { description: jobProgress.error || "Please try again." });
     } else if (jobProgress.status === "not_found" && isGenerating) {
-      // Job not found in DB — unexpected, stop polling and surface error
       setIsGenerating(false);
+      setFailedJobId(jobId);
+      setFailedJobError("The job could not be located. Please try again.");
       setJobId(null);
-      toast.error("Generation job not found", { description: "The job could not be located. Please try again." });
     }
   }, [jobProgress?.status, jobProgress?.videoUrl]);
 
@@ -224,6 +230,37 @@ export default function CinematicWalkthrough() {
       ? "Starting generation…"
       : "Processing…";
 
+  // Estimated time: ~90s per clip (Runway) + 60s assembly
+  const estimatedTotalSec = jobProgress
+    ? jobProgress.totalPhotos * 90 + 60
+    : photos.length * 90 + 60;
+  const elapsedSec = jobProgress?.elapsedMs ? Math.floor(jobProgress.elapsedMs / 1000) : 0;
+  const remainingSec = Math.max(0, estimatedTotalSec - elapsedSec);
+  const remainingLabel =
+    remainingSec > 60
+      ? `~${Math.ceil(remainingSec / 60)} min remaining`
+      : remainingSec > 0
+      ? `~${remainingSec}s remaining`
+      : "Almost done…";
+
+  // ─── Retry handler ───────────────────────────────────────────────────────────
+
+  const handleRetry = async () => {
+    if (!failedJobId) return;
+    setFailedJobId(null);
+    setFailedJobError(null);
+    setIsGenerating(true);
+    setVideoUrl(null);
+    try {
+      const result = await retryMutation.mutateAsync({ failedJobId });
+      setJobId(result.jobId);
+      toast.success("Retrying generation", { description: `Restarting ${result.totalPhotos} clips.` });
+    } catch (err: any) {
+      setIsGenerating(false);
+      toast.error("Retry failed", { description: err.message });
+    }
+  };
+
   // ─── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -286,12 +323,51 @@ export default function CinematicWalkthrough() {
         </div>
       )}
 
+      {/* Failure card with Retry button */}
+      {failedJobId && failedJobError && (
+        <div className="rounded-xl border border-red-500/40 bg-red-500/5 p-6 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="p-1.5 rounded-full bg-red-500/10 shrink-0 mt-0.5">
+              <X className="h-4 w-4 text-red-500" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-foreground">Generation failed</p>
+              <p className="text-sm text-muted-foreground mt-0.5">{failedJobError}</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              onClick={handleRetry}
+              disabled={retryMutation.isPending}
+              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+            >
+              {retryMutation.isPending ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Retrying…</>
+              ) : (
+                <><Play className="h-4 w-4 mr-2" />Retry Generation</>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => { setFailedJobId(null); setFailedJobError(null); }}
+            >
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Progress */}
       {isGenerating && (
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <Loader2 className="h-5 w-5 text-amber-500 animate-spin" />
-            <span className="font-semibold text-foreground">{progressLabel}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Loader2 className="h-5 w-5 text-amber-500 animate-spin" />
+              <span className="font-semibold text-foreground">{progressLabel}</span>
+            </div>
+            <span className="text-xs font-medium text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-full">
+              {remainingLabel}
+            </span>
           </div>
           <div className="w-full bg-muted rounded-full h-2.5">
             <div
@@ -300,7 +376,7 @@ export default function CinematicWalkthrough() {
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            Runway Gen-4 is animating each photo with realistic camera movement. Please keep this tab open.
+            Runway Gen-4 is animating each photo with realistic camera movement. You'll receive a notification when it's ready — you can safely close this tab.
           </p>
         </div>
       )}

@@ -43,7 +43,7 @@ const ROOM_TYPE_OPTIONS = Object.keys(ROOM_MOTION_PROMPTS) as [string, ...string
 // All job state is persisted to DB so it survives server restarts.
 // ============================================================
 
-async function dbCreateJob(jobId: string, userId: number, totalPhotos: number) {
+async function dbCreateJob(jobId: string, userId: number, totalPhotos: number, inputSnapshot?: string) {
   const database = await getDb();
   await database!.insert(cinematicJobs).values({
     id: jobId,
@@ -51,6 +51,7 @@ async function dbCreateJob(jobId: string, userId: number, totalPhotos: number) {
     status: "pending",
     totalPhotos,
     completedClips: 0,
+    inputSnapshot: inputSnapshot ?? null,
   });
 }
 
@@ -61,6 +62,7 @@ async function dbUpdateJob(
     completedClips?: number;
     videoUrl?: string;
     error?: string;
+    inputSnapshot?: string;
   }
 ) {
   const database = await getDb();
@@ -432,7 +434,7 @@ export const cinematicWalkthroughRouter = router({
       const jobId = generateJobId();
 
       // Persist job to DB immediately — survives server restarts
-      await dbCreateJob(jobId, ctx.user.id, input.photos.length);
+      await dbCreateJob(jobId, ctx.user.id, input.photos.length, JSON.stringify(input));
       log(`Job ${jobId} created in DB for user ${ctx.user.id}`);
 
       // Run generation in background (don't await)
@@ -446,6 +448,31 @@ export const cinematicWalkthroughRouter = router({
       });
 
       return { jobId, totalPhotos: input.photos.length };
+    }),
+
+  /**
+   * Retry a failed job — creates a new job with the same input snapshot
+   */
+  retry: protectedProcedure
+    .input(z.object({ failedJobId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const failedJob = await dbGetJob(input.failedJobId);
+      if (!failedJob || failedJob.userId !== ctx.user.id) {
+        throw new Error("Job not found or access denied");
+      }
+      if (!failedJob.inputSnapshot) {
+        throw new Error("No input snapshot available for retry");
+      }
+      const originalInput = JSON.parse(failedJob.inputSnapshot);
+      const newJobId = generateJobId();
+      await dbCreateJob(newJobId, ctx.user.id, originalInput.photos.length, failedJob.inputSnapshot);
+      runWalkthroughJob(newJobId, ctx.user.id, originalInput).catch(async (err) => {
+        log(`Retry job ${newJobId} top-level failure: ${err.message}`);
+        try {
+          await dbUpdateJob(newJobId, { status: "failed", error: err.message });
+        } catch {}
+      });
+      return { jobId: newJobId, totalPhotos: originalInput.photos.length };
     }),
 
   /**
@@ -594,6 +621,25 @@ async function runWalkthroughJob(
   // Mark job as done with final video URL — this is what the frontend polls for
   await dbUpdateJob(jobId, { status: "done", videoUrl });
   log(`Job ${jobId}: ✓ Complete! Video: ${videoUrl}`);
+
+  // Send email notification to the agent
+  try {
+    const database = await getDb();
+    const userRows = await database!.select().from(
+      (await import("../../drizzle/schema")).users
+    ).where(eq((await import("../../drizzle/schema")).users.id, userId)).limit(1);
+    const userRecord = userRows[0];
+    if (userRecord?.email) {
+      const { notifyOwner } = await import("../_core/notification");
+      await notifyOwner({
+        title: `🎬 Cinematic Walkthrough Ready — ${input.propertyAddress}`,
+        content: `Hi ${userRecord.name || "Agent"},\n\nYour AI Cinematic Walkthrough for ${input.propertyAddress} is ready!\n\nWatch and download your video here:\n${videoUrl}\n\nLog in to Authority Content to view it in your library.\n\nBest,\nAuthority Content`,
+      });
+      log(`Job ${jobId}: Email notification sent to ${userRecord.email} ✓`);
+    }
+  } catch (err: any) {
+    log(`Job ${jobId}: Email notification failed (non-critical): ${err.message}`);
+  }
 }
 
 // ============================================================
