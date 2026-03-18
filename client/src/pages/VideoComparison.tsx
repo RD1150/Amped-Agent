@@ -71,15 +71,22 @@ export default function VideoComparison() {
             </div>
           </div>
 
-          {/* Real demo video */}
-          <div className="relative rounded-xl overflow-hidden bg-muted aspect-video mb-5 border border-border">
-            <video
-              className="w-full h-full object-cover"
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/listing-video-demo_f41a2cf0.mp4"
-              controls
-              preload="metadata"
-              poster="https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/photo1_49f8dd66.jpg"
-            />
+          {/* Listing Video demo placeholder */}
+          <div className="relative rounded-xl overflow-hidden bg-muted aspect-video mb-5 border border-border flex flex-col items-center justify-center gap-3">
+            <div className="p-4 rounded-full bg-primary/10">
+              <Building2 className="h-10 w-10 text-primary" />
+            </div>
+            <div className="text-center px-4">
+              <p className="font-semibold text-sm">Listing Video Demo</p>
+              <p className="text-xs text-muted-foreground mt-1">Generate your first Listing Video to see the Ken Burns effect in action — smooth panning and zooming across your listing photos.</p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => setLocation("/property-tours")}
+            >
+              <Play className="h-3 w-3 mr-1" />
+              Create a Listing Video
+            </Button>
           </div>
 
           <p className="text-sm text-muted-foreground mb-5">
