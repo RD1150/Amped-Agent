@@ -3681,3 +3681,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add image/video upload to Coach backend router (LLM multimodal input)
 - [ ] Update Coach frontend with upload button and media preview in chat
 - [ ] Support headshots, listing photos, social post screenshots, and short video clips
+
+## Video Comparison Page - Replace YouTube Placeholders
+- [ ] Replace YouTube embeds with real demo videos built from property photos
+- [ ] Generate Listing Video (Ken Burns) demo via Shotstack
+- [ ] Generate AI Property Film demo via Runway

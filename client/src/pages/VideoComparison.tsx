@@ -71,14 +71,14 @@ export default function VideoComparison() {
             </div>
           </div>
 
-          {/* Example video embed placeholder */}
-          <div className="relative rounded-xl overflow-hidden bg-muted aspect-video mb-5 flex items-center justify-center group cursor-pointer border border-border">
-            <iframe
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/3OTv1AGwmYM?rel=0&modestbranding=1"
-              title="Ken Burns Effect Demo"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
+          {/* Real demo video */}
+          <div className="relative rounded-xl overflow-hidden bg-muted aspect-video mb-5 border border-border">
+            <video
+              className="w-full h-full object-cover"
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/listing-video-demo_f41a2cf0.mp4"
+              controls
+              preload="metadata"
+              poster="https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/photo1_49f8dd66.jpg"
             />
           </div>
 
@@ -121,15 +121,23 @@ export default function VideoComparison() {
             </div>
           </div>
 
-          {/* Example video embed */}
-          <div className="relative rounded-xl overflow-hidden bg-muted aspect-video mb-5 flex items-center justify-center border border-amber-500/20">
-            <iframe
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/nW-1TS7NJGs?rel=0&modestbranding=1"
-              title="AI Real Estate Video with Runway"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+          {/* AI Film demo - coming soon placeholder */}
+          <div className="relative rounded-xl overflow-hidden bg-muted aspect-video mb-5 border border-amber-500/20 flex flex-col items-center justify-center gap-3">
+            <div className="p-4 rounded-full bg-amber-500/10">
+              <Film className="h-10 w-10 text-amber-500" />
+            </div>
+            <div className="text-center px-4">
+              <p className="font-semibold text-sm">AI Property Film Demo</p>
+              <p className="text-xs text-muted-foreground mt-1">Generate your first AI Property Film to see the difference — each photo comes to life with real camera movement through the space.</p>
+            </div>
+            <Button
+              size="sm"
+              className="bg-amber-500 hover:bg-amber-600 text-white"
+              onClick={() => setLocation("/cinematic-walkthrough")}
+            >
+              <Sparkles className="h-3 w-3 mr-1" />
+              Try it now
+            </Button>
           </div>
 
           <p className="text-sm text-muted-foreground mb-5">
