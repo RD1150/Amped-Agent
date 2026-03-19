@@ -229,34 +229,35 @@ export default function AutoReels() {
         throw new Error(renderResult.error || 'Video rendering failed');
       }
       
-      // Step 3: Poll for completion
+      // Step 3: Poll for completion (while loop — avoids recursive stack overflow)
       const renderId = renderResult.renderId;
-      let attempts = 0;
-      const maxAttempts = 60; // 5 minutes max (5s intervals)
-      
-      const pollStatus = async (): Promise<void> => {
-        if (attempts >= maxAttempts) {
-          throw new Error('Video rendering timeout');
-        }
-        
-        attempts++;
+      if (!renderId) {
+        throw new Error('Render submission failed — no render ID returned. Please try again.');
+      }
+      const maxAttempts = 72; // 6 minutes max (5s intervals)
+      let done = false;
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        setGenerationStep(`Rendering your video... (${Math.floor((attempt + 1) * 5)}s)`);
+
+        // Force a fresh network request by invalidating cache before fetching
+        await utils.autoreels.checkRenderStatus.invalidate({ renderId });
         const status = await utils.autoreels.checkRenderStatus.fetch({ renderId });
-        
+
         if (status.status === 'done' && status.url) {
           setVideoUrl(status.url);
           toast.success("Your reel is ready!");
-          return;
+          done = true;
+          break;
         } else if (status.status === 'failed') {
           throw new Error(status.error || 'Video rendering failed');
-        } else {
-          // Still rendering, poll again in 5 seconds
-          setGenerationStep(`Rendering your video... (${Math.floor(attempts * 5)}s)`);
-          await new Promise(resolve => setTimeout(resolve, 5000));
-          return pollStatus();
         }
-      };
-      
-      await pollStatus();
+      }
+
+      if (!done) {
+        throw new Error('Video rendering timed out after 6 minutes. Please try again.');
+      }
     } catch (error: any) {
       console.error('[AutoReels] Generation error:', error);
       console.error('[AutoReels] Error details:', {

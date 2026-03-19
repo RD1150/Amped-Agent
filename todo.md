@@ -3686,3 +3686,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Replace YouTube embeds with real demo videos built from property photos
 - [ ] Generate Listing Video (Ken Burns) demo via Shotstack
 - [ ] Generate AI Property Film demo via Runway
+
+## AI Reels Polling Fix (Session Mar 19, 2026)
+- [x] Fix AI Reels polling - replaced recursive pollStatus() with safe for-loop (prevents stack overflow)
+- [x] Add cache invalidation before each status check to force fresh Creatomate API calls
+- [x] Add guard for empty renderId before polling starts
+- [x] Clear 9 stuck "processing" jobs from ai_reels table (5 with no render ID, 4 expired Creatomate renders)
+- [x] Verify AI Property Film (Cinematic Walkthrough) polling is already correct (uses refetchInterval: 5000)
+- [x] Verify checkRenderStatus backend correctly calls Creatomate API and maps status values

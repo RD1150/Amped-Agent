@@ -1,0 +1,73 @@
+{
+  "query": "SELECT id, status, reelType, createdAt, shotstackRenderId FROM ai_reels WHERE status = 'processing' ORDER BY createdAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, status, reelType, createdAt, shotstackRenderId FROM ai_reels WHERE status = 'processing' ORDER BY createdAt DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "60001",
+      "status": "processing",
+      "reelType": "authority_reel",
+      "createdAt": "2026-03-16 07:55:10",
+      "shotstackRenderId": "b2a4ac93-bc38-4318-85ce-9ba84e44ec95"
+    },
+    {
+      "id": "30003",
+      "status": "processing",
+      "reelType": "authority_reel",
+      "createdAt": "2026-03-07 06:29:23",
+      "shotstackRenderId": "f7276f86-7b43-4397-9898-ded70e26f10f"
+    },
+    {
+      "id": "30002",
+      "status": "processing",
+      "reelType": "authority_reel",
+      "createdAt": "2026-03-07 06:28:48",
+      "shotstackRenderId": "a15b5af2-2dbf-4408-960a-ba318fddc8ea"
+    },
+    {
+      "id": "30001",
+      "status": "processing",
+      "reelType": "authority_reel",
+      "createdAt": "2026-03-07 06:16:36",
+      "shotstackRenderId": "062fa592-8578-41ae-8c9b-69adf197cc91"
+    },
+    {
+      "id": "5",
+      "status": "processing",
+      "reelType": "authority_reel",
+      "createdAt": "2026-02-17 11:13:17",
+      "shotstackRenderId": ""
+    },
+    {
+      "id": "4",
+      "status": "processing",
+      "reelType": "authority_reel",
+      "createdAt": "2026-02-17 11:11:36",
+      "shotstackRenderId": ""
+    },
+    {
+      "id": "3",
+      "status": "processing",
+      "reelType": "authority_reel",
+      "createdAt": "2026-02-17 11:09:11",
+      "shotstackRenderId": ""
+    },
+    {
+      "id": "2",
+      "status": "processing",
+      "reelType": "authority_reel",
+      "createdAt": "2026-02-17 11:07:13",
+      "shotstackRenderId": ""
+    },
+    {
+      "id": "1",
+      "status": "processing",
+      "reelType": "authority_reel",
+      "createdAt": "2026-02-17 11:01:02",
+      "shotstackRenderId": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\treelType\tcreatedAt\tshotstackRenderId\n60001\tprocessing\tauthority_reel\t2026-03-16 07:55:10\tb2a4ac93-bc38-4318-85ce-9ba84e44ec95\n30003\tprocessing\tauthority_reel\t2026-03-07 06:29:23\tf7276f86-7b43-4397-9898-ded70e26f10f\n30002\tprocessing\tauthority_reel\t2026-03-07 06:28:48\ta15b5af2-2dbf-4408-960a-ba318fddc8ea\n30001\tprocessing\tauthority_reel\t2026-03-07 06:16:36\t062fa592-8578-41ae-8c9b-69adf197cc91\n5\tprocessing\tauthority_reel\t2026-02-17 11:13:17\t\n4\tprocessing\tauthority_reel\t2026-02-17 11:11:36\t\n3\tprocessing\tauthority_reel\t2026-02-17 11:09:11\t\n2\tprocessing\tauthority_reel\t2026-02-17 11:07:13\t\n1\tprocessing\tauthority_reel\t2026-02-17 11:01:02\t\n",
+  "stderr": "",
+  "execution_time_ms": 434
+}
