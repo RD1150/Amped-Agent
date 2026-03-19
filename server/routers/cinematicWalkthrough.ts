@@ -207,16 +207,20 @@ async function assembleCreatomateVideo(opts: {
   let currentTime = 0;
 
   // Video clips with room labels
-  for (const clip of clips) {
-    // Main video clip
+  // Use a 0.3s cross-fade overlap between clips to eliminate black frames
+  const OVERLAP = 0.3;
+  for (let i = 0; i < clips.length; i++) {
+    const clip = clips[i];
+    // Main video clip — overlaps with previous by OVERLAP seconds
     elements.push({
       type: "video",
       source: clip.url,
       time: currentTime,
       duration: clip.duration,
+      track: i + 1, // separate track per clip so they can overlap
       animations: [
-        { time: 0, duration: 0.5, easing: "linear", type: "fade", fade: "in" },
-        { time: clip.duration - 0.5, duration: 0.5, easing: "linear", type: "fade", fade: "out" },
+        { time: 0,                       duration: OVERLAP, easing: "linear", type: "fade", fade: "in" },
+        { time: clip.duration - OVERLAP, duration: OVERLAP, easing: "linear", type: "fade", fade: "out" },
       ],
     });
 
@@ -224,8 +228,8 @@ async function assembleCreatomateVideo(opts: {
     elements.push({
       type: "text",
       text: clip.roomLabel,
-      time: currentTime + 0.5,
-      duration: 2.5,
+      time: currentTime + OVERLAP + 0.1,
+      duration: Math.min(2.5, clip.duration - OVERLAP - 0.5),
       x_alignment: "0%",
       y_alignment: "85%",
       x: "8%",
@@ -235,12 +239,13 @@ async function assembleCreatomateVideo(opts: {
       shadow_color: "rgba(0,0,0,0.8)",
       shadow_blur: "8px",
       animations: [
-        { time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" },
-        { time: 2.1, duration: 0.4, easing: "ease-in", type: "fade", fade: "out" },
+        { time: 0,   duration: 0.3, easing: "ease-out", type: "fade", fade: "in" },
+        { time: 2.0, duration: 0.3, easing: "ease-in",  type: "fade", fade: "out" },
       ],
     });
 
-    currentTime += clip.duration - 0.5;
+    // Advance time, overlapping with next clip
+    currentTime += clip.duration - OVERLAP;
   }
 
   // Outro card
