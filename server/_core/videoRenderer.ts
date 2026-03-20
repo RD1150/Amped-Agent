@@ -173,7 +173,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
         background_color: 'rgba(0,0,0,0.65)',
         background_x_padding: '8%',
         background_y_padding: '6%',
-        background_border_radius: '8px',
+        background_border_radius: '5%',
         animations: [
           { time: 'start', duration: 0.1, easing: 'ease-out', type: 'fade' },
           { time: 'end',   duration: 0.1, easing: 'ease-in',  type: 'fade' },

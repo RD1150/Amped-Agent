@@ -3722,3 +3722,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Register both routes in App.tsx
 - [x] Add job status recovery to AI Reels (getLatestPendingReel procedure + useEffect on page load)
 - [x] Add job status recovery to Cinematic Property Tour (getLatestPendingJob procedure + useEffect on page load)
+
+## AI Reels Creatomate Fix (Mar 20)
+- [x] Fix Text.background_border_radius format error - changed '8px' to '5%' (Creatomate requires percentage)
