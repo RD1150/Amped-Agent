@@ -123,7 +123,7 @@ export default function VideoComparison() {
               <Film className="h-6 w-6 text-amber-500" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">AI Property Film</h2>
+              <h2 className="text-xl font-bold">Cinematic Property Tour</h2>
               <p className="text-sm text-muted-foreground">Cinematic · 5–10 min to generate</p>
             </div>
           </div>
@@ -134,8 +134,8 @@ export default function VideoComparison() {
               <Film className="h-10 w-10 text-amber-500" />
             </div>
             <div className="text-center px-4">
-              <p className="font-semibold text-sm">AI Property Film Demo</p>
-              <p className="text-xs text-muted-foreground mt-1">Generate your first AI Property Film to see the difference — each photo comes to life with real camera movement through the space.</p>
+              <p className="font-semibold text-sm">Cinematic Property Tour Demo</p>
+              <p className="text-xs text-muted-foreground mt-1">Generate your first Cinematic Property Tour to see the difference — each photo comes to life with real camera movement through the space.</p>
             </div>
             <Button
               size="sm"
@@ -165,7 +165,7 @@ export default function VideoComparison() {
             onClick={() => setLocation("/cinematic-walkthrough")}
           >
             <Film className="h-4 w-4 mr-2" />
-            Create an AI Property Film
+            Create a Cinematic Property Tour
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </Card>
@@ -212,7 +212,7 @@ export default function VideoComparison() {
       <div className="rounded-xl bg-primary/5 border border-primary/20 p-6 text-center">
         <h3 className="text-lg font-semibold mb-2">Not sure which to use?</h3>
         <p className="text-muted-foreground text-sm max-w-xl mx-auto mb-4">
-          Use <strong>Listing Video</strong> for everyday listings and social content — it's fast and professional. Save <strong>AI Property Film</strong> for your best listings where you want to truly impress buyers and stand out from other agents.
+          Use <strong>Listing Video</strong> for everyday listings and social content — it's fast and professional. Save <strong>Cinematic Property Tour</strong> for your best listings where you want to truly impress buyers and stand out from other agents.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button variant="outline" onClick={() => setLocation("/property-tours")}>
@@ -221,7 +221,7 @@ export default function VideoComparison() {
           </Button>
           <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={() => setLocation("/cinematic-walkthrough")}>
             <Film className="h-4 w-4 mr-2" />
-            Try AI Property Film
+            Try Cinematic Property Tour
           </Button>
         </div>
       </div>

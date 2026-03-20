@@ -113,8 +113,8 @@ const menuSections = [
     title: "VIDEO",
     items: [
       { icon: Building2, label: "Listing Video", path: "/property-tours", description: "Quick Ken Burns video for any listing · 1–2 min" },
-      { icon: Film, label: "AI Property Film", path: "/cinematic-walkthrough", description: "AI-animated cinematic film for premium listings · 5–10 min", badge: "Premium" },
-      { icon: Sparkles, label: "Compare Video Types", path: "/video-comparison", description: "See the difference between Listing Video and AI Property Film" },
+      { icon: Film, label: "Cinematic Tour", path: "/cinematic-walkthrough", description: "AI-animated cinematic tour for premium listings · 5–10 min", badge: "Premium" },
+      { icon: Sparkles, label: "Compare Video Types", path: "/video-comparison", description: "See the difference between Listing Video and Cinematic Property Tour" },
     ]
   },
   {
