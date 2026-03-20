@@ -29,6 +29,8 @@ import { youtubeRouter } from "./routers/youtube";
 import { repurposeRouter } from "./routers/repurpose";
 import { leadMagnetRouter } from "./routers/leadMagnet";
 import { cinematicWalkthroughRouter } from "./routers/cinematicWalkthrough";
+import { blogBuilderRouter } from "./routers/blogBuilder";
+import { brandStoryRouter } from "./routers/brandStory";
 
 export const appRouter = router({
   system: systemRouter,
@@ -45,6 +47,8 @@ export const appRouter = router({
   repurpose: repurposeRouter,
   leadMagnet: leadMagnetRouter,
   cinematicWalkthrough: cinematicWalkthroughRouter,
+  blogBuilder: blogBuilderRouter,
+  brandStory: brandStoryRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

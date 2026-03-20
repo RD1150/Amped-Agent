@@ -3709,3 +3709,16 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Replace "Runway Gen-4 AI" references in VideoComparison with outcome-focused language
 - [x] Replace "Runway Gen-4" references in CinematicWalkthrough with outcome-focused language
 - [x] Replace "ElevenLabs" and "Shotstack" progress messages in PropertyTours with outcome-focused language
+
+## Blog Builder & Brand Storyteller (Session - Mar 20)
+- [x] Fix sidebar label wrapping for Cinematic Property Tour (truncate-ellipsis CSS)
+- [x] Build Blog Builder page - topic picker, city/niche input, AI generates 600-1000 word SEO blog post, copy/download
+- [x] Add blog_posts table to schema and push migration
+- [x] Add blogBuilder tRPC router with generatePost and getSavedPosts procedures
+- [x] Build Brand Storyteller page - guided 6-question interview, AI assembles polished brand story, copy/download
+- [x] Add brand_stories table to schema and push migration
+- [x] Add brandStory tRPC router with generateStory and getSavedStories procedures
+- [x] Add both tools to sidebar CREATE section
+- [x] Register both routes in App.tsx
+- [x] Add job status recovery to AI Reels (getLatestPendingReel procedure + useEffect on page load)
+- [x] Add job status recovery to Cinematic Property Tour (getLatestPendingJob procedure + useEffect on page load)

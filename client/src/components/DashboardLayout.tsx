@@ -52,7 +52,9 @@ import {
   CreditCard,
   MessageSquare,
   Shuffle,
-  Film
+  Film,
+  BookOpen,
+  Heart
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -107,6 +109,8 @@ const menuSections = [
       { icon: Shuffle, label: "Repurpose Engine", path: "/repurpose", description: "Write once, publish everywhere — 5 formats from 1 idea", badge: "Premium" },
       { icon: FileText, label: "Lead Magnet Generator", path: "/lead-magnet", description: "Generate branded PDF lead magnets for Facebook Lead Ads", badge: "Premium" },
       { icon: FileText, label: "My Lead Magnets", path: "/my-lead-magnets", description: "View and download your saved lead magnet PDFs" },
+      { icon: BookOpen, label: "Blog Builder", path: "/blog-builder", description: "Generate SEO-optimized blog posts for your market" },
+      { icon: Heart, label: "Brand Story", path: "/brand-story", description: "Craft your authentic agent brand story" },
     ]
   },
   {
@@ -393,7 +397,7 @@ function DashboardLayoutContent({
                           <item.icon
                             className={`h-4 w-4 ${isActive ? "text-primary" : "text-sidebar-foreground/70"}`}
                           />
-                          <span className={isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/70"}>{item.label}</span>
+                          <span className={`${isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/70"} truncate`}>{item.label}</span>
                           {('badge' in item) && item.badge && (
                             <Badge variant="secondary" className="ml-auto text-xs">
                               {item.badge}

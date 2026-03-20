@@ -602,6 +602,30 @@ export const cinematicWalkthroughRouter = router({
         elapsedMs: Date.now() - new Date(job.createdAt).getTime(),
       };
     }),
+
+  /**
+   * Get the most recent active job for the current user (for job recovery on page load)
+   */
+  getLatestPendingJob: protectedProcedure
+    .query(async ({ ctx }) => {
+      const { getDb } = await import("../db");
+      const { cinematicJobs } = await import("../../drizzle/schema");
+      const { eq, and, desc, inArray } = await import("drizzle-orm");
+      const database = await getDb();
+      if (!database) return null;
+      const rows = await database
+        .select()
+        .from(cinematicJobs)
+        .where(
+          and(
+            eq(cinematicJobs.userId, ctx.user.id),
+            inArray(cinematicJobs.status, ["pending", "generating_clips", "assembling"])
+          )
+        )
+        .orderBy(desc(cinematicJobs.createdAt))
+        .limit(1);
+      return rows[0] ? { jobId: rows[0].id, status: rows[0].status } : null;
+    }),
 });
 
 // ============================================================

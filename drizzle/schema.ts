@@ -823,3 +823,46 @@ export const apiUsageLogs = mysqlTable("api_usage_logs", {
 });
 export type ApiUsageLog = typeof apiUsageLogs.$inferSelect;
 export type InsertApiUsageLog = typeof apiUsageLogs.$inferInsert;
+
+// ─── Blog Posts ─────────────────────────────────────────────────────────────────────────────────
+// Stores AI-generated blog posts for real estate agents
+export const blogPosts = mysqlTable("blog_posts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  content: text("content").notNull(), // Full blog post HTML/markdown
+  topic: varchar("topic", { length: 255 }).notNull(), // e.g. "First-Time Buyer Tips"
+  city: varchar("city", { length: 255 }), // Target city for hyperlocal SEO
+  niche: mysqlEnum("niche", ["buyers", "sellers", "investors", "luxury", "relocation", "general"]).default("general"),
+  wordCount: int("wordCount").default(0),
+  seoKeywords: text("seoKeywords"), // JSON array of target keywords
+  metaDescription: text("metaDescription"), // SEO meta description
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
+// ─── Brand Stories ─────────────────────────────────────────────────────────────────────────────
+// Stores AI-generated brand stories for real estate agents
+export const brandStories = mysqlTable("brand_stories", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  // Interview answers (raw input)
+  whyRealEstate: text("whyRealEstate"), // Why did you get into real estate?
+  mostMemorableWin: text("mostMemorableWin"), // Most memorable client win
+  whatMakesYouDifferent: text("whatMakesYouDifferent"), // What sets you apart?
+  whoYouServe: text("whoYouServe"), // Who is your ideal client?
+  yourMarket: text("yourMarket"), // What makes your market unique?
+  personalFact: text("personalFact"), // One personal fact that humanizes you
+  // Generated outputs
+  shortBio: text("shortBio"), // 2-3 sentence bio for social profiles
+  longBio: text("longBio"), // Full brand story (400-600 words)
+  elevatorPitch: text("elevatorPitch"), // 30-second verbal pitch
+  socialCaption: text("socialCaption"), // Instagram/Facebook intro post
+  linkedinSummary: text("linkedinSummary"), // LinkedIn About section
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type BrandStory = typeof brandStories.$inferSelect;
+export type InsertBrandStory = typeof brandStories.$inferInsert;

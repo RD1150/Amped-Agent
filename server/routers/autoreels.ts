@@ -626,4 +626,30 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
     .query(async ({ ctx }) => {
       return db.getAiReelsByUserId(ctx.user.id);
     }),
+
+  /**
+   * Get the most recent in-progress reel for job recovery
+   * Returns the latest processing reel with a renderId so the frontend can resume polling
+   */
+  getLatestPendingReel: protectedProcedure
+    .query(async ({ ctx }) => {
+      const { getDb } = await import("../db");
+      const { aiReels } = await import("../../drizzle/schema");
+      const { eq, and, desc, isNotNull } = await import("drizzle-orm");
+      const database = await getDb();
+      if (!database) return null;
+      const rows = await database
+        .select()
+        .from(aiReels)
+        .where(
+          and(
+            eq(aiReels.userId, ctx.user.id),
+            eq(aiReels.status, "processing"),
+            isNotNull(aiReels.shotstackRenderId)
+          )
+        )
+        .orderBy(desc(aiReels.createdAt))
+        .limit(1);
+      return rows[0] ?? null;
+    }),
 });

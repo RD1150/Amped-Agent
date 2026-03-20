@@ -93,6 +93,47 @@ export default function AutoReels() {
   const createTemplateMutation = trpc.autoreels.createCustomTemplate.useMutation();
   const deleteTemplateMutation = trpc.autoreels.deleteCustomTemplate.useMutation();
   const utils = trpc.useUtils();
+
+  // Job recovery: check for any in-progress render on page load
+  const { data: pendingReel } = trpc.autoreels.getLatestPendingReel.useQuery(undefined, {
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+    if (!pendingReel?.shotstackRenderId || videoUrl || isGenerating) return;
+    const renderId = pendingReel.shotstackRenderId;
+    setIsGenerating(true);
+    setGenerationStep("Resuming your video render — checking status…");
+    (async () => {
+      for (let i = 0; i < 72; i++) {
+        await new Promise((r) => setTimeout(r, 5000));
+        try {
+          await utils.autoreels.checkRenderStatus.invalidate({ renderId });
+          const status = await utils.autoreels.checkRenderStatus.fetch({ renderId });
+          if (status.status === "done" && status.url) {
+            setVideoUrl(status.url);
+            setIsGenerating(false);
+            setGenerationStep("");
+            toast.success("Your reel is ready!");
+            return;
+          }
+          if (status.status === "failed") {
+            setIsGenerating(false);
+            setGenerationStep("");
+            toast.error("The previous render failed. Please try generating again.");
+            return;
+          }
+          setGenerationStep(`Resuming render… ${(i + 1) * 5}s elapsed`);
+        } catch {
+          // Network blip — keep trying
+        }
+      }
+      setIsGenerating(false);
+      setGenerationStep("");
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingReel]);
   
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);

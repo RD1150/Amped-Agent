@@ -97,6 +97,21 @@ export default function CinematicWalkthrough() {
     }
   );
 
+  // Job recovery: check for any in-progress job on page load
+  const { data: pendingJob } = trpc.cinematicWalkthrough.getLatestPendingJob.useQuery(undefined, {
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+    if (!pendingJob?.jobId || jobId || videoUrl || isGenerating) return;
+    // Resume polling for the in-progress job
+    setJobId(pendingJob.jobId);
+    setIsGenerating(true);
+    toast.info("Resuming your Cinematic Property Tour — checking status…");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingJob]);
+
   // Handle job completion via useEffect (MUST be in useEffect, not render phase)
   useEffect(() => {
     if (!jobProgress) return;
