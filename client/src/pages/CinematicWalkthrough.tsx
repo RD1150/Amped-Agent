@@ -285,7 +285,7 @@ export default function CinematicWalkthrough() {
         <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-sm text-muted-foreground">
           <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
           <span>
-            Each photo is animated with a unique cinematic camera movement using Runway Gen-4 AI, then assembled into a
+            Each photo is animated with a unique cinematic camera movement, then assembled into a
             seamless walkthrough video. Generation takes <strong>3–8 minutes</strong> depending on the number of photos.
           </span>
         </div>
@@ -387,7 +387,7 @@ export default function CinematicWalkthrough() {
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            Runway Gen-4 is animating each photo with realistic camera movement. You'll receive a notification when it's ready — you can safely close this tab.
+            Your photos are being animated with cinematic camera movement and assembled into a professional walkthrough video. You'll receive a notification when it's ready — you can safely close this tab.
           </p>
         </div>
       )}

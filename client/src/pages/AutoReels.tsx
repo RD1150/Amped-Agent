@@ -694,7 +694,7 @@ export default function AutoReels() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">ElevenLabs Voiceover</h3>
+                      <h3 className="font-semibold">AI Voiceover Narration</h3>
                       <span className="text-xs bg-violet-500/20 text-violet-600 dark:text-violet-400 px-2 py-0.5 rounded-full font-medium">+5 credits</span>
                     </div>
                     <p className="text-xs text-muted-foreground">AI narration synced to your reel</p>

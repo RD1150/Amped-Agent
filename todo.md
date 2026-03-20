@@ -3703,3 +3703,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix broken music URLs in AI Property Film (replaced /download/ redirect URLs with direct CDN paths)
 - [x] Set default music track to Elegant Ambient so videos always have audio
 - [ ] Test both video types end-to-end after fixes
+
+## UI Language Cleanup - Remove Tech Stack References (Mar 20, 2026)
+- [x] Replace "ElevenLabs Voiceover" with "AI Voiceover Narration" in AutoReels
+- [x] Replace "Runway Gen-4 AI" references in VideoComparison with outcome-focused language
+- [x] Replace "Runway Gen-4" references in CinematicWalkthrough with outcome-focused language
+- [x] Replace "ElevenLabs" and "Shotstack" progress messages in PropertyTours with outcome-focused language

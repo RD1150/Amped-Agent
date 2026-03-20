@@ -27,7 +27,7 @@ const LISTING_VIDEO_FEATURES = [
 
 const AI_FILM_FEATURES = [
   { icon: Clock, text: "Ready in 5–10 minutes" },
-  { icon: Sparkles, text: "Runway Gen-4 AI animates each photo" },
+  { icon: Sparkles, text: "AI animates each photo with realistic camera movement" },
   { icon: Camera, text: "Camera moves through the space realistically" },
   { icon: Music, text: "Cinematic soundtrack + voice-over" },
   { icon: Film, text: "Near-broadcast quality output" },
@@ -36,7 +36,7 @@ const AI_FILM_FEATURES = [
 
 const COMPARISON_TABLE = [
   { label: "Generation time", listing: "1–2 min", film: "5–10 min" },
-  { label: "Technology", listing: "Ken Burns (pan & zoom)", film: "Runway Gen-4 AI" },
+  { label: "Motion Style", listing: "Smooth pan & zoom", film: "AI-generated camera movement" },
   { label: "Camera motion", listing: "Smooth pan across photo", film: "AI moves through the space" },
   { label: "Best for", listing: "Any listing, daily use", film: "Luxury & premium listings" },
   { label: "Music", listing: "Yes", film: "Yes" },
@@ -148,7 +148,7 @@ export default function VideoComparison() {
           </div>
 
           <p className="text-sm text-muted-foreground mb-5">
-            Runway Gen-4 AI analyzes each photo and generates realistic camera movement — the camera actually moves <em>through</em> the room, not just across it. The result looks like a professional videographer walked through the property.
+            Our AI analyzes each photo and generates realistic camera movement — the camera actually moves <em>through</em> the room, not just across it. The result looks like a professional videographer walked through the property.
           </p>
 
           <ul className="space-y-2 mb-6">

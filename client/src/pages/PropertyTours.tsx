@@ -458,9 +458,9 @@ export default function PropertyTours() {
       // Stage → progress % and human-readable message
       const stageInfo: Record<string, { progress: number; message: string }> = {
         preparing:                { progress: 20, message: "Preparing your property tour..." },
-        generating_voiceover:     { progress: 30, message: "Generating AI voiceover narration with ElevenLabs..." },
-        submitting_to_shotstack:  { progress: 70, message: "Submitting to Shotstack for final render..." },
-        fetching_assets:          { progress: 75, message: "Shotstack is fetching your assets..." },
+        generating_voiceover:     { progress: 30, message: "Generating professional AI voiceover narration..." },
+        submitting_to_shotstack:  { progress: 70, message: "Preparing your video for final render..." },
+        fetching_assets:          { progress: 75, message: "Loading your assets for rendering..." },
         rendering:                { progress: 80, message: "Rendering your video..." },
         saving:                   { progress: 92, message: "Finalizing and saving your video..." },
       };
@@ -1040,7 +1040,7 @@ export default function PropertyTours() {
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
-                ElevenLabs AI generates a professional narration track from your property details. Script is auto-generated and editable before rendering.
+                AI generates a professional narration track from your property details. The script is auto-generated and fully editable before rendering.
               </p>
               {enableVoiceover && (
                 <div className="space-y-4 pt-1">
