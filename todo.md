@@ -3694,3 +3694,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Clear 9 stuck "processing" jobs from ai_reels table (5 with no render ID, 4 expired Creatomate renders)
 - [x] Verify AI Property Film (Cinematic Walkthrough) polling is already correct (uses refetchInterval: 5000)
 - [x] Verify checkRenderStatus backend correctly calls Creatomate API and maps status values
+
+## Black Screen Fix - AI Reels & AI Property Film (Session Mar 19, 2026)
+- [x] Diagnose black screen root cause in AI Reels (Creatomate template in videoRenderer.ts)
+- [x] Fix AI Reels: richer background colors (not near-black), overlapping subtitle timing, bottom accent bar, branding watermark
+- [x] Diagnose black screen root cause in AI Property Film (Creatomate assembly in cinematicWalkthrough.ts)
+- [x] Fix AI Property Film: single-track video clips with fill_mode:cover, solid black safety background, fixed totalDuration calculation, rebuilt outro card
+- [x] Fix broken music URLs in AI Property Film (replaced /download/ redirect URLs with direct CDN paths)
+- [x] Set default music track to Elegant Ambient so videos always have audio
+- [ ] Test both video types end-to-end after fixes

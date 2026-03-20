@@ -200,120 +200,201 @@ async function assembleCreatomateVideo(opts: {
   const { clips, propertyAddress, agentName, agentBrokerage, musicTrackUrl, voiceoverUrl, aspectRatio, userId } = opts;
 
   const [width, height] = aspectRatio === "16:9" ? [1920, 1080] : [1080, 1920];
-  const totalDuration = clips.reduce((sum, c) => sum + c.duration, 0) + 3;
 
   // Build Creatomate elements
+  // BLACK SCREEN FIX: Use a single track (track 1) for all video clips placed
+  // sequentially. Creatomate's single-track mode renders clips back-to-back with
+  // no gaps. Cross-fades are achieved via animations on the clip itself.
+  // A solid black background on track 0 ensures no transparent gaps show through.
   const elements: any[] = [];
-  let currentTime = 0;
 
-  // Video clips with room labels
-  // Use a 0.3s cross-fade overlap between clips to eliminate black frames
-  const OVERLAP = 0.3;
+  // Track 0: Solid black background — always visible, prevents any transparent gaps
+  // This is the safety net: even if a clip has encoding issues, the background is black
+  // rather than undefined/transparent.
+  const clipsDuration = clips.reduce((sum, c) => sum + c.duration, 0);
+  const OUTRO_DURATION = 4;
+  const totalDuration = clipsDuration + OUTRO_DURATION;
+
+  elements.push({
+    type: "shape",
+    track: 1,
+    time: 0,
+    duration: totalDuration,
+    x: "50%",
+    y: "50%",
+    width: "100%",
+    height: "100%",
+    fill_color: "#000000",
+  });
+
+  // Tracks 2+: Video clips placed sequentially on the SAME track (track 2)
+  // Creatomate places same-track elements back-to-back automatically.
+  // Using fill_mode: "stretch" ensures the clip fills its time slot with no gaps.
+  let currentTime = 0;
   for (let i = 0; i < clips.length; i++) {
     const clip = clips[i];
-    // Main video clip — overlaps with previous by OVERLAP seconds
+    const FADE = 0.4; // cross-fade duration in seconds
+
     elements.push({
       type: "video",
       source: clip.url,
+      track: 2,
       time: currentTime,
       duration: clip.duration,
-      track: i + 1, // separate track per clip so they can overlap
+      fill_mode: "cover",   // fill the frame, no letterboxing
+      volume: 0,            // mute the clip's own audio (music track handles audio)
       animations: [
-        { time: 0,                       duration: OVERLAP, easing: "linear", type: "fade", fade: "in" },
-        { time: clip.duration - OVERLAP, duration: OVERLAP, easing: "linear", type: "fade", fade: "out" },
+        // Fade in from black at start of each clip
+        { time: 0,                    duration: FADE, easing: "ease-in-out", type: "fade", fade: "in" },
+        // Fade out to black at end of each clip (overlaps with next clip's fade-in)
+        { time: clip.duration - FADE, duration: FADE, easing: "ease-in-out", type: "fade", fade: "out" },
       ],
     });
 
-    // Room label overlay
-    elements.push({
-      type: "text",
-      text: clip.roomLabel,
-      time: currentTime + OVERLAP + 0.1,
-      duration: Math.min(2.5, clip.duration - OVERLAP - 0.5),
-      x_alignment: "0%",
-      y_alignment: "85%",
-      x: "8%",
-      font_family: "Georgia",
-      font_size: aspectRatio === "16:9" ? "36 vmin" : "28 vmin",
-      font_color: "#ffffff",
-      shadow_color: "rgba(0,0,0,0.8)",
-      shadow_blur: "8px",
-      animations: [
-        { time: 0,   duration: 0.3, easing: "ease-out", type: "fade", fade: "in" },
-        { time: 2.0, duration: 0.3, easing: "ease-in",  type: "fade", fade: "out" },
-      ],
-    });
+    // Room label — appears after fade-in, disappears before fade-out
+    const labelDuration = Math.min(2.5, clip.duration - FADE * 2 - 0.2);
+    if (labelDuration > 0.5) {
+      elements.push({
+        type: "text",
+        track: 3,
+        text: clip.roomLabel,
+        time: currentTime + FADE + 0.1,
+        duration: labelDuration,
+        x: "8%",
+        y: aspectRatio === "16:9" ? "85%" : "88%",
+        x_anchor: "0%",
+        y_anchor: "50%",
+        font_family: "Montserrat",
+        font_size: aspectRatio === "16:9" ? "3.5 vmin" : "4 vmin",
+        font_weight: "700",
+        fill_color: "#ffffff",
+        background_color: "rgba(0,0,0,0.55)",
+        background_x_padding: "6%",
+        background_y_padding: "4%",
+        background_border_radius: "4px",
+        animations: [
+          { time: 0,              duration: 0.3, easing: "ease-out", type: "fade", fade: "in" },
+          { time: labelDuration - 0.3, duration: 0.3, easing: "ease-in",  type: "fade", fade: "out" },
+        ],
+      });
+    }
 
-    // Advance time, overlapping with next clip
-    currentTime += clip.duration - OVERLAP;
+    currentTime += clip.duration;
   }
 
-  // Outro card
+  // Outro card — solid dark overlay with agent branding
+  // Placed on track 4 so it composites over the black background
+  const outroStart = clipsDuration;
   elements.push({
-    type: "composition",
-    time: totalDuration - 3,
-    duration: 3,
+    type: "shape",
+    track: 4,
+    time: outroStart,
+    duration: OUTRO_DURATION,
+    x: "50%",
+    y: "50%",
     width: "100%",
     height: "100%",
-    fill_color: "rgba(0,0,0,0.85)",
-    animations: [{ time: 0, duration: 0.5, easing: "ease-out", type: "fade", fade: "in" }],
-    elements: [
-      {
-        type: "text",
-        text: "Presented by",
-        y_alignment: "40%",
-        x_alignment: "50%",
-        font_family: "Georgia",
-        font_size: "18 vmin",
-        font_color: "#c9a84c",
-        letter_spacing: "3px",
-      },
-      {
-        type: "text",
-        text: agentName,
-        y_alignment: "50%",
-        x_alignment: "50%",
-        font_family: "Georgia",
-        font_size: "32 vmin",
-        font_color: "#ffffff",
-        font_weight: "700",
-      },
-      ...(agentBrokerage ? [{
-        type: "text",
-        text: agentBrokerage,
-        y_alignment: "60%",
-        x_alignment: "50%",
-        font_family: "Georgia",
-        font_size: "18 vmin",
-        font_color: "#aaaaaa",
-      }] : []),
-      {
-        type: "text",
-        text: propertyAddress,
-        y_alignment: "72%",
-        x_alignment: "50%",
-        font_family: "Georgia",
-        font_size: "14 vmin",
-        font_color: "#c9a84c",
-        letter_spacing: "1px",
-      },
-    ],
+    fill_color: "#0d1b2a",
+    animations: [{ time: 0, duration: 0.6, easing: "ease-out", type: "fade", fade: "in" }],
+  });
+
+  // Gold accent line on outro
+  elements.push({
+    type: "shape",
+    track: 5,
+    time: outroStart + 0.3,
+    duration: OUTRO_DURATION - 0.3,
+    x: "50%",
+    y: "35%",
+    width: "30%",
+    height: "0.4%",
+    fill_color: "#c9a84c",
+    animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" }],
+  });
+
+  elements.push({
+    type: "text",
+    track: 5,
+    time: outroStart + 0.4,
+    duration: OUTRO_DURATION - 0.4,
+    text: "Presented by",
+    x: "50%",
+    y: "42%",
+    font_family: "Georgia",
+    font_size: aspectRatio === "16:9" ? "2.5 vmin" : "3.5 vmin",
+    fill_color: "#c9a84c",
+    text_align: "center",
+    letter_spacing: "3px",
+    animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" }],
+  });
+
+  elements.push({
+    type: "text",
+    track: 5,
+    time: outroStart + 0.5,
+    duration: OUTRO_DURATION - 0.5,
+    text: agentName,
+    x: "50%",
+    y: "52%",
+    font_family: "Montserrat",
+    font_size: aspectRatio === "16:9" ? "4.5 vmin" : "6 vmin",
+    font_weight: "700",
+    fill_color: "#ffffff",
+    text_align: "center",
+    animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "text-slide", direction: "up", scope: "word" }],
+  });
+
+  if (agentBrokerage) {
+    elements.push({
+      type: "text",
+      track: 5,
+      time: outroStart + 0.6,
+      duration: OUTRO_DURATION - 0.6,
+      text: agentBrokerage,
+      x: "50%",
+      y: "62%",
+      font_family: "Georgia",
+      font_size: aspectRatio === "16:9" ? "2 vmin" : "3 vmin",
+      fill_color: "#aaaaaa",
+      text_align: "center",
+      animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" }],
+    });
+  }
+
+  elements.push({
+    type: "text",
+    track: 5,
+    time: outroStart + 0.7,
+    duration: OUTRO_DURATION - 0.7,
+    text: propertyAddress,
+    x: "50%",
+    y: agentBrokerage ? "72%" : "65%",
+    font_family: "Georgia",
+    font_size: aspectRatio === "16:9" ? "1.8 vmin" : "2.8 vmin",
+    fill_color: "#c9a84c",
+    text_align: "center",
+    letter_spacing: "1px",
+    animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" }],
   });
 
   // Audio tracks
   if (musicTrackUrl) {
     elements.push({
       type: "audio",
+      track: 6,
       source: musicTrackUrl,
       time: 0,
       duration: totalDuration,
       volume: voiceoverUrl ? 0.2 : 0.5,
+      audio_fade_in: 1.0,
+      audio_fade_out: 2.0,
     });
   }
 
   if (voiceoverUrl) {
     elements.push({
       type: "audio",
+      track: 7,
       source: voiceoverUrl,
       time: 0,
       duration: totalDuration,

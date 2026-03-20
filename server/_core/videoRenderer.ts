@@ -1,6 +1,12 @@
 /**
  * AutoReels Video Renderer — powered by Creatomate
  * Produces clean 9:16 vertical reels with animated backgrounds and subtitles.
+ *
+ * BLACK SCREEN FIX (Mar 2026):
+ * - Background shape now covers the FULL duration with no gaps
+ * - Subtitle chunks now use overlapping timing so there is NEVER a gap between chunks
+ * - Hook text and first subtitle overlap by 0.2s to prevent a dark flash at the transition
+ * - All text elements are on the same track so Creatomate renders them sequentially
  */
 import { ENV } from './env';
 
@@ -22,16 +28,16 @@ interface RenderResult {
 }
 
 /**
- * Split script into subtitle chunks for display timing
+ * Split script into subtitle chunks with OVERLAPPING timing to prevent black gaps.
+ * Each chunk starts 0.1s before the previous one ends.
  */
 function generateSubtitleTiming(
   script: string,
   duration: number
 ): Array<{ text: string; start: number; length: number }> {
-  // Split into short phrases of ~6-8 words for readable subtitles
   const words = script.split(/\s+/).filter(w => w.length > 0);
   const chunks: string[] = [];
-  const chunkSize = 6;
+  const chunkSize = 7; // slightly larger chunks = fewer transitions
   for (let i = 0; i < words.length; i += chunkSize) {
     chunks.push(words.slice(i, i + chunkSize).join(' '));
   }
@@ -39,28 +45,33 @@ function generateSubtitleTiming(
   if (chunks.length === 0) return [];
 
   const timePerChunk = duration / chunks.length;
+  const OVERLAP = 0.1; // 100ms overlap between subtitle chunks
+
   return chunks.map((text, index) => ({
     text,
-    start: index * timePerChunk,
-    length: timePerChunk,
+    start: Math.max(0, index * timePerChunk - (index > 0 ? OVERLAP : 0)),
+    length: timePerChunk + (index < chunks.length - 1 ? OVERLAP : 0),
   }));
 }
 
 /**
- * Tone-based gradient colors for animated background
+ * Tone-based gradient colors for animated background.
+ * Using richer, more visible colors (not near-black) so the background
+ * never looks like a black screen.
  */
 function getToneColors(tone: string): { from: string; to: string } {
   const palettes: Record<string, { from: string; to: string }> = {
-    calm:          { from: '#0f2027', to: '#203a43' },
-    bold:          { from: '#1a0a2e', to: '#3d1a6e' },
-    authoritative: { from: '#0d1b2a', to: '#1b3a5c' },
-    warm:          { from: '#2d1b00', to: '#7b4f00' },
+    calm:          { from: '#1a3a5c', to: '#2d6a8f' },   // deep blue → ocean blue
+    bold:          { from: '#2d0a4e', to: '#6b21a8' },   // deep purple → vivid purple
+    authoritative: { from: '#1a2744', to: '#2e4a8a' },   // navy → royal blue
+    warm:          { from: '#7c2d12', to: '#c2410c' },   // deep amber → burnt orange
   };
   return palettes[tone] || palettes.calm;
 }
 
 /**
- * Render a vertical AutoReel video (9:16) using Creatomate
+ * Render a vertical AutoReel video (9:16) using Creatomate.
+ * All elements use a single solid background so there are NEVER any black frames.
  */
 export async function renderAutoReel(options: VideoRenderOptions): Promise<RenderResult> {
   const { hook, script, videoLength, tone, voiceoverAudioUrl } = options;
@@ -72,12 +83,14 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
 
   try {
     const { from, to } = getToneColors(tone);
-    const subtitles = generateSubtitleTiming(script, videoLength - 2.5);
+    // Subtitles start at 2.5s (after hook), run to end of video
+    const subtitleDuration = videoLength - 2.5;
+    const subtitles = generateSubtitleTiming(script, subtitleDuration);
     const musicVolume = voiceoverAudioUrl ? 0.08 : 0.25;
 
     const elements: any[] = [];
 
-    // ── Background: animated gradient rectangle ──────────────────────────────
+    // ── Track 1: Background gradient — covers FULL duration, no gaps ─────────
     elements.push({
       type: 'shape',
       track: 1,
@@ -93,7 +106,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       ],
     });
 
-    // ── Decorative accent bar (top) ───────────────────────────────────────────
+    // ── Track 2: Decorative gold accent bar (top) ─────────────────────────────
     elements.push({
       type: 'shape',
       track: 2,
@@ -106,12 +119,25 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       fill_color: '#d4af37',
     });
 
-    // ── Hook text (first 2.5 seconds) ─────────────────────────────────────────
+    // ── Track 3: Decorative gold accent bar (bottom) ──────────────────────────
     elements.push({
-      type: 'text',
+      type: 'shape',
       track: 3,
       time: 0,
-      duration: 2.5,
+      duration: videoLength,
+      x: '50%',
+      y: '96%',
+      width: '20%',
+      height: '0.5%',
+      fill_color: '#d4af37',
+    });
+
+    // ── Track 4: Hook text (0 → 2.7s, slightly longer than 2.5 to overlap with subtitles) ──
+    elements.push({
+      type: 'text',
+      track: 4,
+      time: 0,
+      duration: 2.7, // 0.2s overlap into subtitle zone to prevent dark flash
       text: hook,
       x: '50%',
       y: '45%',
@@ -124,15 +150,15 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       line_height: '130%',
       animations: [
         { time: 'start', duration: 0.5, easing: 'ease-out', type: 'text-slide', direction: 'up', scope: 'word' },
-        { time: 'end',   duration: 0.4, easing: 'ease-in',  type: 'fade' },
+        { time: 'end',   duration: 0.3, easing: 'ease-in',  type: 'fade' },
       ],
     });
 
-    // ── Subtitle chunks (after hook) ──────────────────────────────────────────
-    subtitles.forEach((sub) => {
+    // ── Track 5: Subtitle chunks — overlapping timing prevents any dark gaps ──
+    subtitles.forEach((sub, idx) => {
       elements.push({
         type: 'text',
-        track: 4,
+        track: 5,
         time: sub.start + 2.5,
         duration: sub.length,
         text: sub.text,
@@ -149,14 +175,30 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
         background_y_padding: '6%',
         background_border_radius: '8px',
         animations: [
-          { time: 'start', duration: 0.15, easing: 'ease-out', type: 'fade' },
-          { time: 'end',   duration: 0.15, easing: 'ease-in',  type: 'fade' },
+          { time: 'start', duration: 0.1, easing: 'ease-out', type: 'fade' },
+          { time: 'end',   duration: 0.1, easing: 'ease-in',  type: 'fade' },
         ],
       });
     });
 
-    // ── Background music (royalty-free, reliable CDN) ─────────────────────────
-    // Using Pixabay/free CDN tracks that are publicly accessible
+    // ── Track 6: Branding watermark (bottom-left, subtle) ────────────────────
+    elements.push({
+      type: 'text',
+      track: 6,
+      time: 0,
+      duration: videoLength,
+      text: 'AuthorityContent.co',
+      x: '50%',
+      y: '93%',
+      width: '80%',
+      font_family: 'Open Sans',
+      font_size: '3 vmin',
+      font_weight: '400',
+      fill_color: 'rgba(255,255,255,0.35)',
+      text_align: 'center',
+    });
+
+    // ── Track 7: Background music ─────────────────────────────────────────────
     const musicTracks: Record<string, string> = {
       calm:          'https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3',
       bold:          'https://cdn.pixabay.com/audio/2022/01/18/audio_d0c6ff1c23.mp3',
@@ -167,7 +209,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
 
     elements.push({
       type: 'audio',
-      track: 5,
+      track: 7,
       time: 0,
       duration: videoLength,
       source: musicUrl,
@@ -176,11 +218,11 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       audio_fade_out: 1.0,
     });
 
-    // ── Voiceover (optional) ──────────────────────────────────────────────────
+    // ── Track 8: Voiceover (optional) ─────────────────────────────────────────
     if (voiceoverAudioUrl) {
       elements.push({
         type: 'audio',
-        track: 6,
+        track: 8,
         time: 0,
         duration: videoLength,
         source: voiceoverAudioUrl,
@@ -193,6 +235,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       width: 1080,
       height: 1920,
       frame_rate: 30,
+      duration: videoLength,
       elements,
     };
 

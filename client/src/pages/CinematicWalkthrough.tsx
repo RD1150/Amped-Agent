@@ -43,9 +43,11 @@ const ROOM_TYPE_LABELS: Record<string, string> = {
 
 const MUSIC_OPTIONS = [
   { value: "none", label: "No music" },
-  { value: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/vsuIkwkfirpwAsAL.mp3", label: "Elegant Strings" },
-  { value: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0c6ff1bab.mp3", label: "Cinematic Ambient" },
-  { value: "https://cdn.pixabay.com/download/audio/2021/11/25/audio_5b5b8b8b8b.mp3", label: "Luxury Piano" },
+  // Pixabay CDN audio links (direct .mp3 paths, not /download/ redirects)
+  { value: "https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3", label: "Elegant Ambient" },
+  { value: "https://cdn.pixabay.com/audio/2022/01/18/audio_d0c6ff1c23.mp3", label: "Cinematic Bold" },
+  { value: "https://cdn.pixabay.com/audio/2022/08/04/audio_2dde668d05.mp3", label: "Authoritative" },
+  { value: "https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3", label: "Warm & Inviting" },
 ];
 
 // ─── Upload helper ────────────────────────────────────────────────────────────
@@ -69,7 +71,7 @@ export default function CinematicWalkthrough() {
   const [propertyAddress, setPropertyAddress] = useState("");
   const [agentName, setAgentName] = useState("");
   const [agentBrokerage, setAgentBrokerage] = useState("");
-  const [musicTrackUrl, setMusicTrackUrl] = useState("none");
+  const [musicTrackUrl, setMusicTrackUrl] = useState("https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3"); // default: Elegant Ambient
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [voiceoverScript, setVoiceoverScript] = useState("");
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
