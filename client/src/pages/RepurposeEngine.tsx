@@ -159,6 +159,16 @@ export default function RepurposeEngine() {
   const [body, setBody] = useState("");
   const [result, setResult] = useState<RepurposeResult | null>(null);
 
+  const generateBody = trpc.repurpose.generateBody.useMutation({
+    onSuccess: (data) => {
+      setBody(data.body);
+      toast.success("Content body generated!");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to generate body. Please try again.");
+    },
+  });
+
   const repurpose = trpc.repurpose.repurposeContent.useMutation({
     onSuccess: (data) => {
       setResult(data as RepurposeResult);
@@ -270,7 +280,24 @@ export default function RepurposeEngine() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="body" className="text-sm">Content Body</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="body" className="text-sm">Content Body</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs gap-1.5 border-amber-500/40 text-amber-400 hover:bg-amber-500/10"
+                  disabled={!topic.trim() || generateBody.isPending}
+                  onClick={() => generateBody.mutate({ topic: topic.trim() })}
+                >
+                  {generateBody.isPending ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3 h-3" />
+                  )}
+                  {generateBody.isPending ? "Generating..." : "AI Generate"}
+                </Button>
+              </div>
               <Textarea
                 id="body"
                 placeholder="Describe the key points, insights, or story you want to share. The more detail you provide, the better the output. (2-5 sentences is ideal)"

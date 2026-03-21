@@ -3742,3 +3742,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add S3 upload endpoint in autoreels backend for reel photos
 - [ ] Pass uploaded photo URLs to Creatomate template as background images
 - [ ] Fall back to template library images when no photos uploaded
+
+## Repurpose Engine AI Generate Button (Mar 20)
+- [x] Add AI Generate button next to Content Body field in Repurpose Engine to auto-expand topic into body text

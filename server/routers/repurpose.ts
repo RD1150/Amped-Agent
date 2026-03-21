@@ -119,4 +119,41 @@ Repurpose this into 5 formats. Return this exact JSON structure:
         linkedin: parsed.linkedin,
       };
     }),
+
+  /**
+   * Expand a topic/title into a 2-4 sentence content body for use in repurposing.
+   */
+  generateBody: protectedProcedure
+    .input(
+      z.object({
+        topic: z.string().min(3, "Topic is required"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { topic } = input;
+      const persona = await db.getPersonaByUserId(ctx.user.id);
+      const name = persona?.agentName || "a real estate agent";
+      const location = persona?.primaryCity || "your area";
+      const voice = persona?.brandVoice || "professional";
+      const audience = persona?.targetAudience || "home buyers and sellers";
+
+      const response = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are a real estate content writer helping ${name} in ${location}. Brand voice: ${voice}. Audience: ${audience}. Write 2-4 sentences expanding a topic into a concise content body for social media repurposing. Be specific, actionable, and engaging. No hashtags, no emojis, no fluff.`,
+          },
+          {
+            role: "user",
+            content: `Expand this topic into 2-4 sentences of content body: "${topic}"`,
+          },
+        ],
+      });
+
+      const content = response.choices?.[0]?.message?.content;
+      if (!content || typeof content !== "string") {
+        throw new Error("Failed to generate content body");
+      }
+      return { body: content.trim() };
+    }),
 });
