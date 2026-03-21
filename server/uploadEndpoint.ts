@@ -95,4 +95,38 @@ router.post("/upload-images", upload.array("images", 10), async (req, res) => {
   }
 });
 
+// Single-file upload endpoint (used by avatar and other single-file uploads)
+router.post("/upload", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const file = req.file;
+    let processedBuffer = file.buffer;
+    let mimeType = file.mimetype;
+
+    // Compress images
+    if (file.mimetype.startsWith("image/")) {
+      processedBuffer = await sharp(file.buffer)
+        .resize(1200, 1200, { fit: "inside", withoutEnlargement: true })
+        .jpeg({ quality: 85 })
+        .toBuffer();
+      mimeType = "image/jpeg";
+    }
+
+    const randomSuffix = randomBytes(8).toString("hex");
+    const ext = mimeType === "image/jpeg" ? "jpg" : (file.originalname?.split(".").pop() || "bin");
+    const filename = `uploads/${Date.now()}-${randomSuffix}.${ext}`;
+
+    const { url } = await storagePut(filename, processedBuffer, mimeType);
+
+    console.log(`✅ Single upload: ${filename}`);
+    res.json({ url });
+  } catch (error) {
+    console.error("Single upload error:", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : "Upload failed" });
+  }
+});
+
 export default router;

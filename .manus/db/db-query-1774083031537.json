@@ -1,0 +1,90 @@
+{
+  "query": "SELECT id, name, email, avatarImageUrl, avatarVideoUrl, avatarVideoSavedAt FROM users ORDER BY id DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, name, email, avatarImageUrl, avatarVideoUrl, avatarVideoSavedAt FROM users ORDER BY id DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "11130097",
+      "name": "NULL",
+      "email": "NULL",
+      "avatarImageUrl": "NULL",
+      "avatarVideoUrl": "NULL",
+      "avatarVideoSavedAt": "NULL"
+    },
+    {
+      "id": "11130096",
+      "name": "NULL",
+      "email": "NULL",
+      "avatarImageUrl": "NULL",
+      "avatarVideoUrl": "NULL",
+      "avatarVideoSavedAt": "NULL"
+    },
+    {
+      "id": "11130095",
+      "name": "NULL",
+      "email": "NULL",
+      "avatarImageUrl": "NULL",
+      "avatarVideoUrl": "NULL",
+      "avatarVideoSavedAt": "NULL"
+    },
+    {
+      "id": "11130094",
+      "name": "NULL",
+      "email": "NULL",
+      "avatarImageUrl": "NULL",
+      "avatarVideoUrl": "NULL",
+      "avatarVideoSavedAt": "NULL"
+    },
+    {
+      "id": "11130093",
+      "name": "NULL",
+      "email": "NULL",
+      "avatarImageUrl": "NULL",
+      "avatarVideoUrl": "NULL",
+      "avatarVideoSavedAt": "NULL"
+    },
+    {
+      "id": "11130092",
+      "name": "NULL",
+      "email": "NULL",
+      "avatarImageUrl": "NULL",
+      "avatarVideoUrl": "NULL",
+      "avatarVideoSavedAt": "NULL"
+    },
+    {
+      "id": "11130091",
+      "name": "NULL",
+      "email": "NULL",
+      "avatarImageUrl": "NULL",
+      "avatarVideoUrl": "NULL",
+      "avatarVideoSavedAt": "NULL"
+    },
+    {
+      "id": "11130090",
+      "name": "NULL",
+      "email": "NULL",
+      "avatarImageUrl": "NULL",
+      "avatarVideoUrl": "NULL",
+      "avatarVideoSavedAt": "NULL"
+    },
+    {
+      "id": "11130089",
+      "name": "NULL",
+      "email": "NULL",
+      "avatarImageUrl": "NULL",
+      "avatarVideoUrl": "NULL",
+      "avatarVideoSavedAt": "NULL"
+    },
+    {
+      "id": "11130088",
+      "name": "NULL",
+      "email": "NULL",
+      "avatarImageUrl": "NULL",
+      "avatarVideoUrl": "NULL",
+      "avatarVideoSavedAt": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\tavatarImageUrl\tavatarVideoUrl\tavatarVideoSavedAt\n11130097\tNULL\tNULL\tNULL\tNULL\tNULL\n11130096\tNULL\tNULL\tNULL\tNULL\tNULL\n11130095\tNULL\tNULL\tNULL\tNULL\tNULL\n11130094\tNULL\tNULL\tNULL\tNULL\tNULL\n11130093\tNULL\tNULL\tNULL\tNULL\tNULL\n11130092\tNULL\tNULL\tNULL\tNULL\tNULL\n11130091\tNULL\tNULL\tNULL\tNULL\tNULL\n11130090\tNULL\tNULL\tNULL\tNULL\tNULL\n11130089\tNULL\tNULL\tNULL\tNULL\tNULL\n11130088\tNULL\tNULL\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 387
+}
