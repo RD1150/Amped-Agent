@@ -3725,3 +3725,20 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## AI Reels Creatomate Fix (Mar 20)
 - [x] Fix Text.background_border_radius format error - changed '8px' to '5%' (Creatomate requires percentage)
+
+## Sidebar Reorder (Mar 20)
+- [ ] Reorder CREATE section by workflow priority: Post Builder, Blog Builder, Newsletter Builder, Repurpose Engine, AI Reels, Lead Magnet Generator, My Lead Magnets, Bulk Import, Brand Story
+
+## AI Reels Background Video Fix (Mar 20)
+- [ ] Restore background video clips in Creatomate template (was lost during Shotstack→Creatomate migration)
+- [ ] Source reliable real estate stock video URLs by tone (calm, bold, authoritative, warm)
+- [ ] Fix subtitle timing - sentences not chunks, longer display duration per sentence
+- [ ] Test full render end-to-end with background video visible
+
+## AI Reels Image Background Rebuild (Mar 20)
+- [ ] Rebuild Creatomate reel template to use background images with Ken Burns zoom effect
+- [ ] Fix subtitle timing so text stays on screen long enough to read (min 2s per chunk)
+- [ ] Add photo uploader to AutoReels.tsx so agents can use their own listing photos
+- [ ] Add S3 upload endpoint in autoreels backend for reel photos
+- [ ] Pass uploaded photo URLs to Creatomate template as background images
+- [ ] Fall back to template library images when no photos uploaded

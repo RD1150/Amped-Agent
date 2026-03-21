@@ -414,9 +414,10 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
       enableVoiceover: z.boolean().optional().default(false),
       voiceId: z.string().optional(),
       voiceoverStyle: z.enum(["professional", "warm", "luxury", "casual"]).optional().default("professional"),
+      backgroundImages: z.array(z.string().url()).max(4).optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const { hook, script, caption, videoLength, tone, enableVoiceover, voiceId, voiceoverStyle } = input;
+      const { hook, script, caption, videoLength, tone, enableVoiceover, voiceId, voiceoverStyle, backgroundImages } = input;
 
       // Deduct voiceover credits if requested
       if (enableVoiceover) {
@@ -467,6 +468,7 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
           videoLength: parseInt(videoLength),
           tone,
           voiceoverAudioUrl,
+          backgroundImages: backgroundImages && backgroundImages.length > 0 ? backgroundImages : undefined,
         });
         
         console.log('[renderVideo] Render initiated successfully:', result);

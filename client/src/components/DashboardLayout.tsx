@@ -103,13 +103,13 @@ const menuSections = [
     title: "CREATE",
     items: [
       { icon: Sparkles, label: "Post Builder", path: "/generate", description: "Generate social media posts (text + images)" },
-      { icon: Video, label: "AI Reels", path: "/autoreels", description: "Create talking avatar videos (15-60 sec)" },
-      { icon: Upload, label: "Bulk Import", path: "/bulk-import", description: "Import content ideas from CSV in bulk" },
+      { icon: BookOpen, label: "Blog Builder", path: "/blog-builder", description: "Generate SEO-optimized blog posts for your market" },
       { icon: Mail, label: "Newsletter Builder", path: "/newsletter", description: "Design email newsletters", badge: "Premium" },
       { icon: Shuffle, label: "Repurpose Engine", path: "/repurpose", description: "Write once, publish everywhere — 5 formats from 1 idea", badge: "Premium" },
+      { icon: Video, label: "AI Reels", path: "/autoreels", description: "Create talking avatar videos (15-60 sec)" },
       { icon: FileText, label: "Lead Magnet Generator", path: "/lead-magnet", description: "Generate branded PDF lead magnets for Facebook Lead Ads", badge: "Premium" },
       { icon: FileText, label: "My Lead Magnets", path: "/my-lead-magnets", description: "View and download your saved lead magnet PDFs" },
-      { icon: BookOpen, label: "Blog Builder", path: "/blog-builder", description: "Generate SEO-optimized blog posts for your market" },
+      { icon: Upload, label: "Bulk Import", path: "/bulk-import", description: "Import content ideas from CSV in bulk" },
       { icon: Heart, label: "Brand Story", path: "/brand-story", description: "Craft your authentic agent brand story" },
     ]
   },

@@ -1,23 +1,56 @@
 /**
  * AutoReels Video Renderer — powered by Creatomate
- * Produces clean 9:16 vertical reels with animated backgrounds and subtitles.
+ * Produces professional 9:16 vertical reels with REAL background images.
  *
- * BLACK SCREEN FIX (Mar 2026):
- * - Background shape now covers the FULL duration with no gaps
- * - Subtitle chunks now use overlapping timing so there is NEVER a gap between chunks
- * - Hook text and first subtitle overlap by 0.2s to prevent a dark flash at the transition
- * - All text elements are on the same track so Creatomate renders them sequentially
+ * IMAGE BACKGROUND REBUILD (Mar 2026):
+ * - Background images (from template library or agent-uploaded) cycle every ~5s
+ * - Ken Burns zoom effect on each image for cinematic feel
+ * - Semi-transparent dark scrim over images so text is always readable
+ * - Subtitle chunks stay on screen minimum 2s each
+ * - Hook text is large and prominent (top half of screen)
+ * - Subtitles appear in lower third with pill background
  */
 import { ENV } from './env';
 
 const CREATOMATE_API_URL = 'https://api.creatomate.com/v1';
 
-interface VideoRenderOptions {
+// Default background images from the template library (manuscripts CDN)
+// These are AI-generated real estate lifestyle images we own
+const DEFAULT_REEL_BACKGROUNDS: Record<string, string[]> = {
+  buyers: [
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/bIBrluRIyfWvdiIL.png',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/mqHrktUlHhZnVQSc.png',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/KbZYPlDNAgRaPCtc.png',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/WjCfdrmFebClPHmg.png',
+  ],
+  sellers: [
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/AxbwYavTXsvBNXzM.jpg',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/UHVHptFEUfPHbUwO.jpg',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/GRKuKQfMKTkCGEEu.jpg',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/KcABQUZvkFiZmyzW.jpg',
+  ],
+  luxury: [
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/TjrudQDjJgekgJas.png',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/VXvEFFSUgKermTWt.png',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/zPqNaTvVpQhtpDri.png',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/mUGRhdniPYYhZPtV.png',
+  ],
+  investors: [
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/TnKhZDZDgGQmXMZZ.png',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/MdDPnpsRfrmQcJPZ.png',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/ptYTDxyqYOZJUuPT.png',
+    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/YzPlwfwteovlJJcb.png',
+  ],
+};
+
+export interface VideoRenderOptions {
   hook: string;
   script: string;
   videoLength: number; // in seconds
   tone: 'calm' | 'bold' | 'authoritative' | 'warm';
   voiceoverAudioUrl?: string;
+  backgroundImages?: string[]; // agent-uploaded photos (optional)
+  backgroundCategory?: string; // 'buyers' | 'sellers' | 'luxury' | 'investors'
 }
 
 interface RenderResult {
@@ -28,50 +61,61 @@ interface RenderResult {
 }
 
 /**
- * Split script into subtitle chunks with OVERLAPPING timing to prevent black gaps.
- * Each chunk starts 0.1s before the previous one ends.
+ * Split script into subtitle chunks.
+ * Each chunk is 5-8 words and stays on screen at least 2 seconds.
  */
 function generateSubtitleTiming(
   script: string,
-  duration: number
+  startAt: number,
+  totalDuration: number
 ): Array<{ text: string; start: number; length: number }> {
   const words = script.split(/\s+/).filter(w => w.length > 0);
   const chunks: string[] = [];
-  const chunkSize = 7; // slightly larger chunks = fewer transitions
+  const chunkSize = 6; // 6 words per chunk = readable pace
   for (let i = 0; i < words.length; i += chunkSize) {
     chunks.push(words.slice(i, i + chunkSize).join(' '));
   }
 
   if (chunks.length === 0) return [];
 
-  const timePerChunk = duration / chunks.length;
-  const OVERLAP = 0.1; // 100ms overlap between subtitle chunks
+  const availableTime = totalDuration - startAt;
+  const timePerChunk = Math.max(2.0, availableTime / chunks.length); // min 2s per chunk
 
   return chunks.map((text, index) => ({
     text,
-    start: Math.max(0, index * timePerChunk - (index > 0 ? OVERLAP : 0)),
-    length: timePerChunk + (index < chunks.length - 1 ? OVERLAP : 0),
+    start: startAt + index * timePerChunk,
+    length: timePerChunk + 0.1, // slight overlap to prevent gap
   }));
 }
 
 /**
- * Tone-based gradient colors for animated background.
- * Using richer, more visible colors (not near-black) so the background
- * never looks like a black screen.
+ * Pick background images: use agent-uploaded photos if provided,
+ * otherwise use the template library images for the given category.
+ * Returns 3-4 images to cycle through.
  */
-function getToneColors(tone: string): { from: string; to: string } {
-  const palettes: Record<string, { from: string; to: string }> = {
-    calm:          { from: '#1a3a5c', to: '#2d6a8f' },   // deep blue → ocean blue
-    bold:          { from: '#2d0a4e', to: '#6b21a8' },   // deep purple → vivid purple
-    authoritative: { from: '#1a2744', to: '#2e4a8a' },   // navy → royal blue
-    warm:          { from: '#7c2d12', to: '#c2410c' },   // deep amber → burnt orange
+function pickBackgroundImages(options: VideoRenderOptions): string[] {
+  if (options.backgroundImages && options.backgroundImages.length > 0) {
+    // Use agent's own photos, up to 4
+    return options.backgroundImages.slice(0, 4);
+  }
+
+  // Map tone to a default category
+  const toneToCategory: Record<string, string> = {
+    calm:          'buyers',
+    bold:          'sellers',
+    authoritative: 'investors',
+    warm:          'luxury',
   };
-  return palettes[tone] || palettes.calm;
+  const category = options.backgroundCategory || toneToCategory[options.tone] || 'buyers';
+  const pool = DEFAULT_REEL_BACKGROUNDS[category] || DEFAULT_REEL_BACKGROUNDS.buyers;
+
+  // Return 3 images
+  return pool.slice(0, 3);
 }
 
 /**
  * Render a vertical AutoReel video (9:16) using Creatomate.
- * All elements use a single solid background so there are NEVER any black frames.
+ * Uses real background images with Ken Burns zoom effect.
  */
 export async function renderAutoReel(options: VideoRenderOptions): Promise<RenderResult> {
   const { hook, script, videoLength, tone, voiceoverAudioUrl } = options;
@@ -82,123 +126,146 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
   }
 
   try {
-    const { from, to } = getToneColors(tone);
-    // Subtitles start at 2.5s (after hook), run to end of video
-    const subtitleDuration = videoLength - 2.5;
-    const subtitles = generateSubtitleTiming(script, subtitleDuration);
-    const musicVolume = voiceoverAudioUrl ? 0.08 : 0.25;
+    const bgImages = pickBackgroundImages(options);
+    const numImages = bgImages.length;
+    const timePerImage = videoLength / numImages;
 
     const elements: any[] = [];
+    let trackNum = 1;
 
-    // ── Track 1: Background gradient — covers FULL duration, no gaps ─────────
+    // ── Background images with Ken Burns zoom effect ──────────────────────────
+    // Each image fills the full frame for its time slice, with a slow zoom-in
+    bgImages.forEach((imageUrl, idx) => {
+      const imgStart = idx * timePerImage;
+      const imgDuration = timePerImage + 0.3; // slight overlap to prevent flash between images
+      elements.push({
+        type: 'image',
+        track: trackNum,
+        time: imgStart,
+        duration: imgDuration,
+        source: imageUrl,
+        x: '50%',
+        y: '50%',
+        width: '100%',
+        height: '100%',
+        fit: 'cover',
+        // Ken Burns: slow zoom from 100% to 110%
+        x_scale: [
+          { time: 'start', value: '100%' },
+          { time: 'end',   value: '108%' },
+        ],
+        y_scale: [
+          { time: 'start', value: '100%' },
+          { time: 'end',   value: '108%' },
+        ],
+        animations: idx > 0 ? [
+          { time: 'start', duration: 0.4, easing: 'ease-in-out', type: 'fade' },
+        ] : [],
+      });
+    });
+    trackNum++;
+
+    // ── Dark scrim overlay — makes text readable over any background ──────────
     elements.push({
       type: 'shape',
-      track: 1,
+      track: trackNum++,
       time: 0,
       duration: videoLength,
       x: '50%',
       y: '50%',
       width: '100%',
       height: '100%',
-      fill_color: [
-        { time: 0,           value: from },
-        { time: videoLength, value: to   },
-      ],
+      fill_color: 'rgba(0,0,0,0.45)',
     });
 
-    // ── Track 2: Decorative gold accent bar (top) ─────────────────────────────
+    // ── Gold accent bar (top) ─────────────────────────────────────────────────
     elements.push({
       type: 'shape',
-      track: 2,
+      track: trackNum++,
       time: 0,
       duration: videoLength,
       x: '50%',
-      y: '4%',
-      width: '20%',
-      height: '0.5%',
+      y: '5%',
+      width: '25%',
+      height: '0.4%',
       fill_color: '#d4af37',
     });
 
-    // ── Track 3: Decorative gold accent bar (bottom) ──────────────────────────
-    elements.push({
-      type: 'shape',
-      track: 3,
-      time: 0,
-      duration: videoLength,
-      x: '50%',
-      y: '96%',
-      width: '20%',
-      height: '0.5%',
-      fill_color: '#d4af37',
-    });
-
-    // ── Track 4: Hook text (0 → 2.7s, slightly longer than 2.5 to overlap with subtitles) ──
+    // ── Hook text — large, centered, top half of screen ───────────────────────
     elements.push({
       type: 'text',
-      track: 4,
+      track: trackNum++,
       time: 0,
-      duration: 2.7, // 0.2s overlap into subtitle zone to prevent dark flash
+      duration: 3.0,
       text: hook,
       x: '50%',
-      y: '45%',
-      width: '88%',
+      y: '38%',
+      width: '85%',
       font_family: 'Montserrat',
-      font_size: '8.5 vmin',
+      font_size: '9 vmin',
       font_weight: '800',
       fill_color: '#ffffff',
       text_align: 'center',
-      line_height: '130%',
+      line_height: '125%',
+      shadow_color: 'rgba(0,0,0,0.6)',
+      shadow_blur: '4%',
+      shadow_x: '1%',
+      shadow_y: '1%',
       animations: [
-        { time: 'start', duration: 0.5, easing: 'ease-out', type: 'text-slide', direction: 'up', scope: 'word' },
-        { time: 'end',   duration: 0.3, easing: 'ease-in',  type: 'fade' },
+        { time: 'start', duration: 0.6, easing: 'ease-out', type: 'text-slide', direction: 'up', scope: 'word' },
+        { time: 'end',   duration: 0.4, easing: 'ease-in',  type: 'fade' },
       ],
     });
 
-    // ── Track 5: Subtitle chunks — overlapping timing prevents any dark gaps ──
-    subtitles.forEach((sub, idx) => {
+    // ── Subtitle chunks — lower third, pill background ────────────────────────
+    const subtitles = generateSubtitleTiming(script, 3.2, videoLength - 0.5);
+    subtitles.forEach((sub) => {
       elements.push({
         type: 'text',
-        track: 5,
-        time: sub.start + 2.5,
+        track: trackNum,
+        time: sub.start,
         duration: sub.length,
         text: sub.text,
         x: '50%',
-        y: '78%',
-        width: '90%',
+        y: '80%',
+        width: '88%',
         font_family: 'Open Sans',
-        font_size: '6.5 vmin',
+        font_size: '7 vmin',
         font_weight: '700',
         fill_color: '#ffffff',
         text_align: 'center',
-        background_color: 'rgba(0,0,0,0.65)',
-        background_x_padding: '8%',
-        background_y_padding: '6%',
-        background_border_radius: '5%',
+        background_color: 'rgba(0,0,0,0.60)',
+        background_x_padding: '10%',
+        background_y_padding: '8%',
+        background_border_radius: '50%',
+        shadow_color: 'rgba(0,0,0,0.5)',
+        shadow_blur: '3%',
         animations: [
-          { time: 'start', duration: 0.1, easing: 'ease-out', type: 'fade' },
-          { time: 'end',   duration: 0.1, easing: 'ease-in',  type: 'fade' },
+          { time: 'start', duration: 0.15, easing: 'ease-out', type: 'fade' },
+          { time: 'end',   duration: 0.15, easing: 'ease-in',  type: 'fade' },
         ],
       });
     });
+    trackNum++;
 
-    // ── Track 6: Branding watermark (bottom-left, subtle) ────────────────────
+    // ── Branding watermark (subtle, bottom center) ────────────────────────────
     elements.push({
       type: 'text',
-      track: 6,
+      track: trackNum++,
       time: 0,
       duration: videoLength,
       text: 'AuthorityContent.co',
       x: '50%',
-      y: '93%',
+      y: '94%',
       width: '80%',
       font_family: 'Open Sans',
       font_size: '3 vmin',
       font_weight: '400',
-      fill_color: 'rgba(255,255,255,0.35)',
+      fill_color: 'rgba(255,255,255,0.40)',
       text_align: 'center',
     });
 
-    // ── Track 7: Background music ─────────────────────────────────────────────
+    // ── Background music ──────────────────────────────────────────────────────
     const musicTracks: Record<string, string> = {
       calm:          'https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3',
       bold:          'https://cdn.pixabay.com/audio/2022/01/18/audio_d0c6ff1c23.mp3',
@@ -206,23 +273,24 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       warm:          'https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3',
     };
     const musicUrl = musicTracks[tone] || musicTracks.calm;
+    const musicVolume = voiceoverAudioUrl ? 0.07 : 0.22;
 
     elements.push({
       type: 'audio',
-      track: 7,
+      track: trackNum++,
       time: 0,
       duration: videoLength,
       source: musicUrl,
       volume: musicVolume,
-      audio_fade_in: 0.5,
-      audio_fade_out: 1.0,
+      audio_fade_in: 0.8,
+      audio_fade_out: 1.2,
     });
 
-    // ── Track 8: Voiceover (optional) ─────────────────────────────────────────
+    // ── Voiceover (optional) ──────────────────────────────────────────────────
     if (voiceoverAudioUrl) {
       elements.push({
         type: 'audio',
-        track: 8,
+        track: trackNum++,
         time: 0,
         duration: videoLength,
         source: voiceoverAudioUrl,
@@ -239,7 +307,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       elements,
     };
 
-    console.log('[VideoRenderer] Submitting AutoReel render to Creatomate...');
+    console.log('[VideoRenderer] Submitting AutoReel render to Creatomate with', numImages, 'background images...');
 
     const response = await fetch(`${CREATOMATE_API_URL}/renders`, {
       method: 'POST',

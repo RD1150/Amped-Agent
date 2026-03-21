@@ -52,6 +52,12 @@ export default function AutoReels() {
   const [showAvatarCropModal, setShowAvatarCropModal] = useState(false);
   const [avatarImageToCrop, setAvatarImageToCrop] = useState<string>("");
 
+  // Background photos state (agent's own listing photos)
+  const [backgroundPhotos, setBackgroundPhotos] = useState<string[]>([]); // S3 URLs
+  const [backgroundPhotoFiles, setBackgroundPhotoFiles] = useState<File[]>([]); // local previews
+  const [backgroundPhotoPreviews, setBackgroundPhotoPreviews] = useState<string[]>([]);
+  const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
+
   // Voiceover state
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Default: Rachel
@@ -139,6 +145,52 @@ export default function AutoReels() {
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [newTemplateLabel, setNewTemplateLabel] = useState("");
   const [newTemplatePrompt, setNewTemplatePrompt] = useState("");
+
+  const handleBackgroundPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const validFiles = files.filter(f => f.type.startsWith('image/') && f.size <= 20 * 1024 * 1024);
+    if (validFiles.length !== files.length) {
+      toast.error('Some files were skipped (images only, max 20MB each)');
+    }
+    // Preview locally first
+    const newPreviews: string[] = [];
+    for (const file of validFiles) {
+      await new Promise<void>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result as string);
+          resolve();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    setBackgroundPhotoFiles(prev => [...prev, ...validFiles].slice(0, 4));
+    setBackgroundPhotoPreviews(prev => [...prev, ...newPreviews].slice(0, 4));
+    // Upload to S3 via existing upload-images endpoint
+    setIsUploadingPhotos(true);
+    try {
+      const formData = new FormData();
+      for (const file of validFiles.slice(0, 4)) {
+        formData.append('images', file);
+      }
+      const res = await fetch('/api/upload-images', { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('Upload failed');
+      const { urls } = await res.json();
+      setBackgroundPhotos(prev => [...prev, ...urls].slice(0, 4));
+      toast.success(`${urls.length} photo${urls.length > 1 ? 's' : ''} uploaded!`);
+    } catch (err) {
+      toast.error('Failed to upload photos. Please try again.');
+    } finally {
+      setIsUploadingPhotos(false);
+    }
+  };
+
+  const removeBackgroundPhoto = (index: number) => {
+    setBackgroundPhotos(prev => prev.filter((_, i) => i !== index));
+    setBackgroundPhotoPreviews(prev => prev.filter((_, i) => i !== index));
+    setBackgroundPhotoFiles(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleAvatarImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -264,6 +316,7 @@ export default function AutoReels() {
         enableVoiceover,
         voiceId: enableVoiceover ? voiceId : undefined,
         voiceoverStyle: enableVoiceover ? voiceoverStyle : undefined,
+        backgroundImages: backgroundPhotos.length > 0 ? backgroundPhotos : undefined,
       });
       
       if (renderResult.status === 'failed') {
@@ -853,6 +906,79 @@ export default function AutoReels() {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Background Photos Uploader */}
+            <div className="border rounded-xl p-5 space-y-4 bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20 mb-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                    <Upload className="h-5 w-5 text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Background Photos (Optional)</h3>
+                    <p className="text-xs text-muted-foreground">Use your own listing photos as the reel background</p>
+                  </div>
+                </div>
+              </div>
+
+              {backgroundPhotoPreviews.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  {backgroundPhotoPreviews.map((preview, idx) => (
+                    <div key={idx} className="relative group">
+                      <img
+                        src={preview}
+                        alt={`Background ${idx + 1}`}
+                        className="h-20 w-20 object-cover rounded-lg border-2 border-blue-500/30"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeBackgroundPhoto(idx)}
+                        className="absolute -top-2 -right-2 h-5 w-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                  {backgroundPhotoPreviews.length < 4 && (
+                    <Label htmlFor="bg-photo-upload" className="cursor-pointer">
+                      <div className="h-20 w-20 border-2 border-dashed border-blue-500/30 rounded-lg flex flex-col items-center justify-center hover:border-blue-500/60 transition-colors">
+                        <Plus className="h-5 w-5 text-blue-500" />
+                        <span className="text-xs text-muted-foreground mt-1">Add more</span>
+                      </div>
+                    </Label>
+                  )}
+                </div>
+              )}
+
+              {backgroundPhotoPreviews.length === 0 && (
+                <Label htmlFor="bg-photo-upload" className="cursor-pointer block">
+                  <div className="border-2 border-dashed border-blue-500/20 rounded-lg p-6 hover:border-blue-500/50 transition-colors text-center">
+                    {isUploadingPhotos ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                        <p className="text-sm text-muted-foreground">Uploading photos...</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload className="h-8 w-8 text-blue-500/60" />
+                        <p className="text-sm font-medium">Upload listing photos (up to 4)</p>
+                        <p className="text-xs text-muted-foreground">JPG, PNG — or leave empty to use our real estate backgrounds</p>
+                      </div>
+                    )}
+                  </div>
+                </Label>
+              )}
+
+              <input
+                id="bg-photo-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleBackgroundPhotoChange}
+                disabled={isUploadingPhotos || backgroundPhotoPreviews.length >= 4}
+              />
             </div>
 
             {/* Generate Button */}
