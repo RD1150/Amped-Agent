@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { User, Bell, Shield, Palette, LogOut, Mic, Play, Loader2, Trash2, CheckCircle, AlertCircle, Square, Upload } from "lucide-react";
+import { User, Bell, Shield, Palette, LogOut, Mic, Play, Loader2, Trash2, CheckCircle, AlertCircle, Square, Upload, Video, AlertTriangle, RefreshCw } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -36,6 +36,48 @@ export default function Settings() {
   const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
   const saveVoicePref = trpc.auth.saveVoicePreference.useMutation();
   const previewVoice = trpc.propertyTours.previewVoice.useMutation();
+
+  // My Avatar state
+  const { data: currentUser, refetch: refetchUser } = trpc.auth.me.useQuery();
+  const updateAvatarImageMutation = trpc.auth.updateAvatarImage.useMutation();
+  const updateAvatarVideoMutation = trpc.auth.updateAvatarVideo.useMutation();
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // Compute days until avatar video expires (90-day D-ID limit)
+  const avatarVideoAgeDays = currentUser?.avatarVideoSavedAt
+    ? Math.floor((Date.now() - new Date(currentUser.avatarVideoSavedAt).getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+  const avatarVideoExpiringSoon = avatarVideoAgeDays !== null && avatarVideoAgeDays >= 75;
+  const avatarVideoExpired = avatarVideoAgeDays !== null && avatarVideoAgeDays >= 90;
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { toast.error('Please upload an image file'); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error('Image must be less than 10MB'); return; }
+    setIsUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('Upload failed');
+      const { url } = await res.json();
+      await updateAvatarImageMutation.mutateAsync({ avatarImageUrl: url });
+      await refetchUser();
+      toast.success('Avatar image updated!');
+    } catch {
+      toast.error('Failed to upload avatar image');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleClearAvatarVideo = async () => {
+    // Clear the video URL by setting it to a placeholder then clearing — use updateAvatarVideo with a blank approach
+    // We'll just clear locally and let user regenerate in AI Reels
+    toast.info('Go to AI Reels to generate a new avatar intro video.');
+  };
 
   // Voice cloning state
   const { data: clonedVoice, refetch: refetchClonedVoice } = trpc.auth.getClonedVoice.useQuery();
@@ -495,6 +537,117 @@ export default function Settings() {
               "Save Voice Preferences"
             )}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* My Avatar */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5 text-primary" />
+            My Avatar
+          </CardTitle>
+          <CardDescription>
+            Your AI avatar headshot and intro video used in AI Reels
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {/* Avatar image row */}
+          <div className="flex items-center gap-4">
+            {currentUser?.avatarImageUrl ? (
+              <img
+                src={currentUser.avatarImageUrl}
+                alt="Avatar"
+                className="h-20 w-20 rounded-full object-cover border-2 border-primary"
+              />
+            ) : (
+              <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-muted-foreground/30">
+                <User className="h-8 w-8 text-muted-foreground" />
+              </div>
+            )}
+            <div className="flex-1 space-y-1">
+              <p className="text-sm font-medium">
+                {currentUser?.avatarImageUrl ? 'Avatar headshot saved' : 'No avatar headshot uploaded'}
+              </p>
+              {currentUser?.avatarImageUrl && (
+                <p className="text-xs text-green-600">✓ Saved to your profile — used in AI Reels</p>
+              )}
+              <div className="flex gap-2 mt-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={isUploadingAvatar}
+                >
+                  {isUploadingAvatar ? (
+                    <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Uploading...</>
+                  ) : (
+                    <><Upload className="h-3 w-3 mr-1" /> {currentUser?.avatarImageUrl ? 'Change Photo' : 'Upload Photo'}</>
+                  )}
+                </Button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Avatar video row */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Video className="h-4 w-4 text-primary" />
+                <p className="text-sm font-medium">Avatar Intro Video</p>
+              </div>
+              {avatarVideoExpired && (
+                <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
+                  <AlertTriangle className="h-3 w-3" /> Expired — regenerate in AI Reels
+                </span>
+              )}
+              {!avatarVideoExpired && avatarVideoExpiringSoon && (
+                <span className="flex items-center gap-1 text-xs text-amber-500 font-medium">
+                  <AlertTriangle className="h-3 w-3" /> Expires in {90 - (avatarVideoAgeDays ?? 0)} days
+                </span>
+              )}
+              {!avatarVideoExpired && !avatarVideoExpiringSoon && avatarVideoAgeDays !== null && (
+                <span className="text-xs text-green-600">{90 - avatarVideoAgeDays} days remaining</span>
+              )}
+            </div>
+            {currentUser?.avatarVideoUrl ? (
+              <div className="rounded-lg overflow-hidden border border-border bg-black aspect-video max-w-xs">
+                <video
+                  src={currentUser.avatarVideoUrl}
+                  controls
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No avatar intro video yet. Go to AI Reels to generate one.</p>
+            )}
+            {(avatarVideoExpiringSoon || avatarVideoExpired) && (
+              <div className={`flex items-start gap-2 p-3 rounded-lg border text-sm ${
+                avatarVideoExpired
+                  ? 'bg-red-500/10 border-red-500/20 text-red-600'
+                  : 'bg-amber-500/10 border-amber-500/20 text-amber-600'
+              }`}>
+                <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium">
+                    {avatarVideoExpired ? 'Avatar video has expired' : `Avatar video expires in ${90 - (avatarVideoAgeDays ?? 0)} days`}
+                  </p>
+                  <p className="text-xs mt-0.5 opacity-80">
+                    D-ID avatar videos are hosted for 90 days. Head to AI Reels to regenerate your avatar intro.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 

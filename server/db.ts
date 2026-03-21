@@ -130,7 +130,10 @@ export async function updateUserAvatar(
   
   const updateData: any = { updatedAt: new Date() };
   if (avatarImageUrl !== null) updateData.avatarImageUrl = avatarImageUrl;
-  if (avatarVideoUrl !== null) updateData.avatarVideoUrl = avatarVideoUrl;
+  if (avatarVideoUrl !== null) {
+    updateData.avatarVideoUrl = avatarVideoUrl;
+    updateData.avatarVideoSavedAt = new Date(); // Stamp generation time for 90-day expiry tracking
+  }
   
   await db.update(users).set(updateData).where(eq(users.id, userId));
   return { success: true };

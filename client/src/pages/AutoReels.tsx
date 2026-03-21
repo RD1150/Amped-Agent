@@ -539,13 +539,34 @@ export default function AutoReels() {
                 </div>
                 
                 {avatarVideoUrl && (
-                  <div className="mt-4">
+                  <div className="mt-4 space-y-2">
                     <Label className="text-sm font-medium mb-2 block">Avatar Intro Preview</Label>
                     <video 
                       src={avatarVideoUrl} 
                       controls 
                       className="w-full max-w-xs rounded-lg border"
                     />
+                    {/* Expiry warning */}
+                    {(() => {
+                      const savedAt = currentUser?.avatarVideoSavedAt;
+                      if (!savedAt) return null;
+                      const ageDays = Math.floor((Date.now() - new Date(savedAt).getTime()) / (1000 * 60 * 60 * 24));
+                      if (ageDays >= 90) return (
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-600">
+                          <span className="font-medium">⚠ Avatar video has expired (90 days).</span>
+                          <span>Please generate a new one below.</span>
+                        </div>
+                      );
+                      if (ageDays >= 75) return (
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-600">
+                          <span className="font-medium">⚠ Expires in {90 - ageDays} days.</span>
+                          <span>Consider regenerating your avatar intro soon.</span>
+                        </div>
+                      );
+                      return (
+                        <p className="text-xs text-green-600">✓ Valid for {90 - ageDays} more days</p>
+                      );
+                    })()}
                   </div>
                 )}
               </div>

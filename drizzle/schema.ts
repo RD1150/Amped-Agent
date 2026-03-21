@@ -23,6 +23,7 @@ export const users = mysqlTable("users", {
   // D-ID avatar fields
   avatarImageUrl: text("avatarImageUrl"), // User's headshot for D-ID avatar generation
   avatarVideoUrl: text("avatarVideoUrl"), // Generated D-ID avatar intro video URL
+  avatarVideoSavedAt: timestamp("avatarVideoSavedAt"), // When the D-ID avatar video was last generated (for 90-day expiry warning)
   // Video generation usage tracking
   standardVideosThisMonth: int("standardVideosThisMonth").default(0).notNull(),
   aiEnhancedVideosThisMonth: int("aiEnhancedVideosThisMonth").default(0).notNull(),

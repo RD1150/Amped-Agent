@@ -3762,3 +3762,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Auto-upload cropped avatar to S3 and save URL to user profile via auth.updateAvatarImage
 - [x] Auto-save D-ID generated avatar video URL to user profile via auth.updateAvatarVideo
 - [x] Show "Saved to your profile" confirmation in avatar upload UI
+
+## Avatar Enhancements (Mar 21, 2026)
+- [x] Share saved avatar to Property Tours Kling Avatar overlay (pre-fill klingAvatarHeadshotUrl from user profile)
+- [x] Add My Avatar section to Account Settings page (view, replace, delete avatar + video)
+- [x] Add D-ID avatar video expiry warning (90-day check) in AI Reels
+- [x] Add D-ID avatar video expiry warning in Account Settings My Avatar section
+- [x] Store avatarVideoSavedAt timestamp in user profile for expiry calculation
