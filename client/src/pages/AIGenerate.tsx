@@ -28,7 +28,8 @@ import {
   Trash2,
   RefreshCw,
   Pencil,
-  Save
+  Save,
+  Repeat2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -602,6 +603,20 @@ export default function AIGenerate() {
                       </Button>
                     </div>
                     <div className="flex gap-2 mt-2">
+                      <Button 
+                        onClick={() => {
+                          const params = new URLSearchParams({
+                            topic: topic || "Social Media Post",
+                            body: generatedContent.slice(0, 600),
+                          });
+                          setLocation(`/repurpose?${params.toString()}`);
+                        }}
+                        variant="outline"
+                        className="flex-1 gap-2 text-amber-600 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                      >
+                        <Repeat2 className="h-4 w-4" />
+                        Repurpose This
+                      </Button>
                       <Button 
                         onClick={() => {
                           setGeneratedContent("");

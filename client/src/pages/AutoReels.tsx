@@ -5,9 +5,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save, Mic, Play, Square } from "lucide-react";
+import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save, Mic, Play, Square, Repeat2 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ImageCropModal } from "@/components/ImageCropModal";
@@ -17,6 +18,7 @@ type VideoLength = "7" | "15" | "30";
 type Tone = "calm" | "bold" | "authoritative" | "warm";
 
 export default function AutoReels() {
+  const [, navigate] = useLocation();
   // Check URL for pre-filled script
   const urlParams = new URLSearchParams(window.location.search);
   const scriptParam = urlParams.get('script');
@@ -1185,7 +1187,22 @@ export default function AutoReels() {
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
+            <Button
+              variant="outline"
+              className="gap-2 text-amber-600 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+              onClick={() => {
+                const params = new URLSearchParams({
+                  topic: inputText.slice(0, 100) || "AI Reel",
+                  body: script || inputText,
+                });
+                navigate(`/repurpose?${params.toString()}`);
+              }}
+              disabled={!script}
+            >
+              <Repeat2 className="h-4 w-4" />
+              Repurpose Script
+            </Button>
             <Button 
               onClick={handleRenderVideo}
               disabled={isGenerating}

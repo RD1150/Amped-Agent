@@ -5,21 +5,28 @@ import * as db from "../db";
 
 /**
  * Auto-Repurpose Engine Router
- * Takes a single piece of content (topic + body) and generates 5 platform-optimized
- * formats simultaneously: carousel slides, reel script, newsletter section,
- * Google Business Profile post, and LinkedIn article intro.
+ * Takes a single piece of content and generates platform-native versions
+ * for LinkedIn, Instagram, Facebook, TikTok, and Reel Script.
+ * Each platform output is written in that platform's native style, tone,
+ * length, and structure — not generic format buckets.
  */
+
+const PLATFORMS = ["linkedin", "instagram", "facebook", "tiktok", "reelScript"] as const;
+type Platform = typeof PLATFORMS[number];
 
 export const repurposeRouter = router({
   /**
-   * Generate all 5 repurposed formats from a single input.
-   * Returns structured content for each format.
+   * Generate platform-native content for selected platforms from a single input.
+   * Returns structured content for each selected platform.
    */
   repurposeContent: protectedProcedure
     .input(
       z.object({
         topic: z.string().min(3, "Topic is required"),
         body: z.string().min(10, "Content body is required"),
+        platforms: z
+          .array(z.enum(["linkedin", "instagram", "facebook", "tiktok", "reelScript"]))
+          .min(1, "Select at least one platform"),
         // Optional context
         agentName: z.string().optional(),
         city: z.string().optional(),
@@ -27,56 +34,70 @@ export const repurposeRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { topic, body, agentName, city, targetAudience } = input;
+      const { topic, body, platforms, agentName, city, targetAudience } = input;
 
       // Load persona for brand voice context
       const persona = await db.getPersonaByUserId(ctx.user.id);
-      const name = agentName || persona?.agentName || "your agent";
+      const name = agentName || persona?.agentName || "a real estate agent";
       const location = city || persona?.primaryCity || "your area";
       const audience = targetAudience || persona?.targetAudience || "home buyers and sellers";
       const voice = persona?.brandVoice || "professional";
 
-      const systemPrompt = `You are a real estate content strategist helping ${name}, a real estate agent in ${location}. 
-Their brand voice is ${voice}. Their target audience is ${audience}.
-You will repurpose a single piece of content into 5 platform-optimized formats.
-Return ONLY valid JSON matching the exact schema provided — no markdown fences, no extra text.`;
+      const systemPrompt = `You are a platform-native social media strategist for ${name}, a real estate agent in ${location}.
+Brand voice: ${voice}. Target audience: ${audience}.
+
+You deeply understand how content performs differently on each platform:
+- LinkedIn: Professional thought leadership. Long-form. Personal story + insight + CTA. 3-5 hashtags max. No emojis.
+- Instagram: Visual-first. Short punchy hook before "more". Natural emojis. 5-15 hashtags. Conversational.
+- Facebook: Community-driven. Conversational tone. Questions drive engagement. Local market angle. Longer posts work.
+- TikTok: Ultra-casual. Direct-to-camera. Pattern interrupts every 5-7 seconds. "POV:" and "Story time:" formats. Trending hooks.
+- Reel Script: 30-60 second spoken script. Hook in first 3 seconds. Fast-paced. Written for Instagram/TikTok video.
+
+You will only generate content for the platforms requested. Return ONLY valid JSON — no markdown fences, no extra text.`;
+
+      // Build dynamic JSON schema based on selected platforms
+      const schemaProperties: Record<string, string> = {};
+      const schemaDescriptions: Record<string, string> = {
+        linkedin: `{
+    "hook": "Opening line that stops the scroll — bold statement or provocative question (1 sentence)",
+    "body": "3-5 short paragraphs. Professional tone. Line breaks between paragraphs. Personal angle. End with a question to drive comments. 1200-1500 chars total.",
+    "hashtags": ["#RealEstate", "#Homebuying", "#LocalMarket"]
+  }`,
+        instagram: `{
+    "caption": "Full Instagram caption. Punchy hook first line (before 'more'). Natural emojis throughout. Conversational. End with a question or CTA. 150-300 chars before the fold.",
+    "hashtags": ["#realestate", "#homebuying", "#[city]realestate"],
+    "altText": "Image alt text description for accessibility (1 sentence)"
+  }`,
+        facebook: `{
+    "post": "Full Facebook post. Conversational tone. Community-driven. Ask a question to spark comments. Local market angle. Can be longer (300-500 words works well here). No hashtag spam.",
+    "engagementQuestion": "A standalone question to add as first comment to boost engagement"
+  }`,
+        tiktok: `{
+    "hook": "First 3 seconds — ultra-casual, pattern interrupt (e.g. 'POV: You just lost a bidding war because of this one mistake')",
+    "script": "Full TikTok script. Casual, direct-to-camera. Short sentences. Pattern interrupt every 5-7 seconds. Written like you're talking to one person. Include [PAUSE], [POINT TO CAMERA], [TEXT ON SCREEN: ...] cues.",
+    "cta": "Closing CTA (e.g. 'Follow for more tips like this')",
+    "hashtags": ["#realestate", "#fyp", "#realestatetips"]
+  }`,
+        reelScript: `{
+    "hook": "First 3 seconds spoken hook — creates curiosity or shock",
+    "script": "Full 30-60 second reel script with [PAUSE] and [VISUAL: description] cues. Fast-paced. Written for Instagram/TikTok video.",
+    "cta": "Closing call to action",
+    "captionHook": "First line of the caption to pair with this reel"
+  }`,
+      };
+
+      const selectedSchemas = platforms
+        .map((p) => `  "${p}": ${schemaDescriptions[p]}`)
+        .join(",\n");
 
       const userPrompt = `Topic: "${topic}"
 Content: "${body}"
 
-Repurpose this into 5 formats. Return this exact JSON structure:
+Generate platform-native content for these platforms: ${platforms.join(", ")}.
+
+Return this exact JSON structure (only include the requested platforms):
 {
-  "carousel": {
-    "slides": [
-      { "slideNumber": 1, "headline": "Cover slide headline (max 8 words)", "body": "1-2 sentences of content" },
-      { "slideNumber": 2, "headline": "...", "body": "..." },
-      { "slideNumber": 3, "headline": "...", "body": "..." },
-      { "slideNumber": 4, "headline": "...", "body": "..." },
-      { "slideNumber": 5, "headline": "...", "body": "..." },
-      { "slideNumber": 6, "headline": "...", "body": "..." },
-      { "slideNumber": 7, "headline": "CTA slide headline", "body": "Call to action text" }
-    ],
-    "caption": "Instagram/Facebook caption with hook + 3-5 hashtags"
-  },
-  "reelScript": {
-    "hook": "First 3 seconds spoken hook (creates curiosity or shock)",
-    "script": "Full 30-60 second reel script with [PAUSE] and [VISUAL: description] cues",
-    "cta": "Closing call to action"
-  },
-  "newsletter": {
-    "subjectLine": "Email subject line (max 60 chars, curiosity-driven)",
-    "previewText": "Preview text (max 90 chars)",
-    "body": "2-3 paragraph newsletter section in a conversational tone. Include a personal angle and end with a soft CTA."
-  },
-  "gbpPost": {
-    "text": "Google Business Profile post (max 1500 chars). Professional, local, includes a clear CTA and contact prompt.",
-    "callToAction": "CALL | BOOK | LEARN_MORE | SIGN_UP | ORDER | SHOP | GET_OFFER"
-  },
-  "linkedin": {
-    "hook": "Opening line that stops the scroll (question or bold statement)",
-    "body": "3-5 short paragraphs. Professional tone. Use line breaks. End with a question to drive comments.",
-    "hashtags": ["#RealEstate", "#Homebuying", "#LocalMarket"]
-  }
+${selectedSchemas}
 }`;
 
       const response = await invokeLLM({
@@ -112,11 +133,12 @@ Repurpose this into 5 formats. Return this exact JSON structure:
 
       return {
         topic,
-        carousel: parsed.carousel,
-        reelScript: parsed.reelScript,
-        newsletter: parsed.newsletter,
-        gbpPost: parsed.gbpPost,
-        linkedin: parsed.linkedin,
+        platforms,
+        linkedin: parsed.linkedin || null,
+        instagram: parsed.instagram || null,
+        facebook: parsed.facebook || null,
+        tiktok: parsed.tiktok || null,
+        reelScript: parsed.reelScript || null,
       };
     }),
 

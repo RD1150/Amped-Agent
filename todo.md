@@ -3745,3 +3745,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Repurpose Engine AI Generate Button (Mar 20)
 - [x] Add AI Generate button next to Content Body field in Repurpose Engine to auto-expand topic into body text
+
+## Repurpose Engine Platform-Native Rebuild (Mar 21)
+- [x] Rebuild repurpose backend with platform-specific prompts (LinkedIn, Instagram, Facebook, TikTok, Reel Script)
+- [x] Rebuild Repurpose Engine frontend with platform checkboxes and native output cards
+- [x] Add "Repurpose This" button to Blog Builder output
+- [x] Add "Repurpose This" button to Post Builder output
+- [x] Add "Repurpose This" button to Newsletter Builder output
+- [x] Add "Repurpose This" button to AI Reels (repurpose the generated script)
+- [x] Add "Repurpose This" button to Cinematic Property Tour (repurpose the property description/script)
+- [x] Wire URL state so "Repurpose This" navigates to /repurpose with content pre-filled

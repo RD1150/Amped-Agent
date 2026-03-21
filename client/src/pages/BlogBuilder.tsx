@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Loader2, FileText, Copy, Trash2, ChevronDown, ChevronUp, Sparkles, Search } from "lucide-react";
+import { useLocation } from "wouter";
+import { Loader2, FileText, Copy, Trash2, ChevronDown, ChevronUp, Sparkles, Search, Repeat2 } from "lucide-react";
 
 const TOPIC_SUGGESTIONS = [
   "5 Things First-Time Buyers Wish They Knew Before Buying",
@@ -24,6 +25,7 @@ const TOPIC_SUGGESTIONS = [
 ];
 
 export default function BlogBuilder() {
+  const [, navigate] = useLocation();
   const [topic, setTopic] = useState("");
   const [city, setCity] = useState("");
   const [niche, setNiche] = useState<"buyers" | "sellers" | "investors" | "luxury" | "relocation" | "general">("general");
@@ -307,6 +309,21 @@ export default function BlogBuilder() {
                         <div className="bg-muted/40 rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap leading-relaxed max-h-[500px] overflow-y-auto font-mono text-xs">
                           {post.content}
                         </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2 text-amber-600 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                          onClick={() => {
+                            const params = new URLSearchParams({
+                              topic: post.title,
+                              body: post.content.slice(0, 600),
+                            });
+                            navigate(`/repurpose?${params.toString()}`);
+                          }}
+                        >
+                          <Repeat2 className="h-3.5 w-3.5" />
+                          Repurpose This Post
+                        </Button>
                         {post.metaDescription && (
                           <div className="space-y-1">
                             <div className="flex items-center justify-between">

@@ -90,35 +90,31 @@ describe("repurpose.repurposeContent", () => {
   it("requires topic to be at least 3 characters", async () => {
     const caller = appRouter.createCaller(makeCtx());
     await expect(
-      caller.repurpose.repurposeContent({ topic: "ab", body: "Some content body here" })
+      caller.repurpose.repurposeContent({ topic: "ab", body: "Some content body here", platforms: ["linkedin"] })
     ).rejects.toThrow();
   });
 
   it("requires body to be at least 10 characters", async () => {
     const caller = appRouter.createCaller(makeCtx());
     await expect(
-      caller.repurpose.repurposeContent({ topic: "Valid topic", body: "short" })
+      caller.repurpose.repurposeContent({ topic: "Valid topic", body: "short", platforms: ["linkedin"] })
     ).rejects.toThrow();
   });
 
-  it("returns all 5 repurposed formats", async () => {
+  it("returns platform-native content for selected platforms", async () => {
     const caller = appRouter.createCaller(makeCtx());
     const result = await caller.repurpose.repurposeContent({
       topic: "5 mistakes first-time buyers make",
       body: "Many first-time buyers make costly mistakes that could be avoided with the right guidance.",
+      platforms: ["linkedin", "instagram"],
     });
 
     expect(result.topic).toBe("5 mistakes first-time buyers make");
-    expect(result.carousel).toBeDefined();
-    expect(result.carousel.slides).toHaveLength(7);
-    expect(result.reelScript).toBeDefined();
-    expect(result.reelScript.hook).toBeTruthy();
-    expect(result.newsletter).toBeDefined();
-    expect(result.newsletter.subjectLine).toBeTruthy();
-    expect(result.gbpPost).toBeDefined();
-    expect(result.gbpPost.text).toBeTruthy();
+    expect(result.platforms).toContain("linkedin");
+    expect(result.platforms).toContain("instagram");
     expect(result.linkedin).toBeDefined();
-    expect(result.linkedin.hashtags).toBeInstanceOf(Array);
+    expect(result.linkedin?.hashtags).toBeInstanceOf(Array);
+    expect(result.instagram).toBeDefined();
   });
 
   it("saves a draft post to the database", async () => {
@@ -126,6 +122,7 @@ describe("repurpose.repurposeContent", () => {
     await caller.repurpose.repurposeContent({
       topic: "Why pre-approval matters",
       body: "Getting pre-approved before house hunting saves time and strengthens your offer significantly.",
+      platforms: ["linkedin"],
     });
 
     expect(db.createContentPost).toHaveBeenCalledWith(
@@ -143,6 +140,7 @@ describe("repurpose.repurposeContent", () => {
     await caller.repurpose.repurposeContent({
       topic: "Local market update",
       body: "The Austin market is showing strong buyer demand this spring season.",
+      platforms: ["linkedin"],
     });
 
     expect(invokeLLM).toHaveBeenCalledWith(
@@ -163,6 +161,7 @@ describe("repurpose.repurposeContent", () => {
     await caller.repurpose.repurposeContent({
       topic: "Seller tips for spring",
       body: "Spring is the best time to list your home for maximum buyer competition.",
+      platforms: ["linkedin"],
       agentName: "Bob Jones",
       city: "Denver",
     });

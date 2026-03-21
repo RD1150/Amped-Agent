@@ -12,12 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X } from "lucide-react";
+import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X, Repeat2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { ImageCropModal } from "@/components/ImageCropModal";
 import { compressVideo } from "@/lib/videoCompression";
+import { useLocation } from "wouter";
 import { MusicLibrary } from "@/components/MusicLibrary";
 import YouTubeSEOPanel from "@/components/YouTubeSEOPanel";
 
@@ -1708,6 +1709,19 @@ export default function PropertyTours() {
                   {copiedLink ? "Copied!" : "Copy Link"}
                 </button>
               </div>
+              <button
+                onClick={() => {
+                  const params = new URLSearchParams({
+                    topic: address ? `Property Tour: ${address}` : "Cinematic Property Tour",
+                    body: description || `A stunning property tour featuring ${beds ? beds + ' bed' : ''} ${baths ? baths + ' bath' : ''} ${address || 'property'}. ${description || ''}`.trim(),
+                  });
+                  window.location.href = `/repurpose?${params.toString()}`;
+                }}
+                className="w-full flex items-center justify-center gap-2 text-sm text-amber-600 hover:text-amber-700 transition-colors py-2 font-medium"
+              >
+                <Repeat2 className="w-4 h-4" />
+                Repurpose Property Story
+              </button>
               <button
                 onClick={() => setReadyVideoUrl(null)}
                 className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
