@@ -3755,3 +3755,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add "Repurpose This" button to AI Reels (repurpose the generated script)
 - [x] Add "Repurpose This" button to Cinematic Property Tour (repurpose the property description/script)
 - [x] Wire URL state so "Repurpose This" navigates to /repurpose with content pre-filled
+
+## Avatar Persistence Fix (Mar 21, 2026)
+- [x] Load saved avatarImageUrl from user profile on AutoReels mount
+- [x] Load saved avatarVideoUrl from user profile on AutoReels mount
+- [x] Auto-upload cropped avatar to S3 and save URL to user profile via auth.updateAvatarImage
+- [x] Auto-save D-ID generated avatar video URL to user profile via auth.updateAvatarVideo
+- [x] Show "Saved to your profile" confirmation in avatar upload UI

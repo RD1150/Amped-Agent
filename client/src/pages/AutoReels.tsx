@@ -87,11 +87,27 @@ export default function AutoReels() {
   const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
   const previewVoiceMutation = trpc.propertyTours.previewVoice.useMutation();
 
+  // Load saved avatar from user profile
+  const { data: currentUser } = trpc.auth.me.useQuery();
+  const updateAvatarImageMutation = trpc.auth.updateAvatarImage.useMutation();
+  const updateAvatarVideoMutation = trpc.auth.updateAvatarVideo.useMutation();
+
   // Auto-populate from saved preferences
   useEffect(() => {
     if (voicePref?.voiceId) setVoiceId(voicePref.voiceId);
     if (voicePref?.voiceoverStyle) setVoiceoverStyle(voicePref.voiceoverStyle as any);
   }, [voicePref]);
+
+  // Restore saved avatar image and video on mount
+  useEffect(() => {
+    if (currentUser?.avatarImageUrl && !avatarImagePreview) {
+      setAvatarImagePreview(currentUser.avatarImageUrl);
+    }
+    if (currentUser?.avatarVideoUrl && !avatarVideoUrl) {
+      setAvatarVideoUrl(currentUser.avatarVideoUrl);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
 
   const generateMutation = trpc.autoreels.generate.useMutation();
   const renderVideoMutation = trpc.autoreels.renderVideo.useMutation();
@@ -256,6 +272,12 @@ export default function AutoReels() {
       
       setAvatarVideoUrl(result.videoUrl);
       toast.success("Avatar intro video generated!");
+      // Persist the generated video URL to user profile
+      try {
+        await updateAvatarVideoMutation.mutateAsync({ avatarVideoUrl: result.videoUrl });
+      } catch {
+        // Non-blocking
+      }
     } catch (error: any) {
       toast.error(error.message || "Failed to generate avatar video");
       console.error(error);
@@ -466,7 +488,8 @@ export default function AutoReels() {
                               className="h-16 w-16 rounded-full object-cover"
                             />
                             <div className="flex-1">
-                              <p className="text-sm font-medium">Avatar image uploaded</p>
+                              <p className="text-sm font-medium">Avatar image saved</p>
+                              <p className="text-xs text-green-600">✓ Saved to your profile</p>
                               <p className="text-xs text-muted-foreground">Click to change</p>
                             </div>
                           </div>
@@ -1258,6 +1281,21 @@ export default function AutoReels() {
           setShowAvatarCropModal(false);
           setAvatarImageToCrop("");
           toast.success("Avatar image cropped and ready!");
+
+          // Upload to S3 and persist to user profile
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+            if (uploadRes.ok) {
+              const { url: s3Url } = await uploadRes.json();
+              setAvatarImagePreview(s3Url);
+              await updateAvatarImageMutation.mutateAsync({ avatarImageUrl: s3Url });
+              toast.success("Avatar saved to your profile!");
+            }
+          } catch {
+            // Non-blocking — avatar still works for this session
+          }
         }}
       />
     </div>
