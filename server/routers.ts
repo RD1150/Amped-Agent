@@ -1,4 +1,5 @@
 import { getSessionCookieOptions } from "./_core/cookies";
+import { COOKIE_NAME } from "../shared/const";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, authOnlyProcedure, router } from "./_core/trpc";
 import { z } from "zod";
@@ -31,6 +32,7 @@ import { leadMagnetRouter } from "./routers/leadMagnet";
 import { cinematicWalkthroughRouter } from "./routers/cinematicWalkthrough";
 import { blogBuilderRouter } from "./routers/blogBuilder";
 import { brandStoryRouter } from "./routers/brandStory";
+import { ghlRouter } from "./routers/ghl";
 
 export const appRouter = router({
   system: systemRouter,
@@ -49,12 +51,13 @@ export const appRouter = router({
   cinematicWalkthrough: cinematicWalkthroughRouter,
   blogBuilder: blogBuilderRouter,
   brandStory: brandStoryRouter,
+  ghl: ghlRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie("session", { ...cookieOptions, maxAge: -1 });
+      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
     updateAvatarImage: authOnlyProcedure
@@ -1442,6 +1445,77 @@ Create a compelling social media post.`;
         }
         
         return { success: true, message: "Event received" };
+      }),
+    ghl: publicProcedure
+      .input(z.object({
+        event: z.string(),
+        userId: z.string().optional(),
+        email: z.string().optional(),
+        name: z.string().optional(),
+        tier: z.enum(["basic", "pro", "agency"]).optional(),
+        status: z.enum(["active", "cancelled", "suspended", "trial"]).optional(),
+        stripeCustomerId: z.string().optional(),
+        stripeSubscriptionId: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        if (input.event === "user.created" || input.event === "user.subscribed") {
+          let user = input.email ? await db.getUserByEmail(input.email) : undefined;
+          if (!user && input.email) {
+            await db.upsertUser({
+              openId: `ghl_${input.userId || input.email}`,
+              email: input.email,
+              name: input.name,
+              loginMethod: "ghl",
+            });
+            user = await db.getUserByEmail(input.email);
+          }
+          if (user && input.tier) {
+            const tier = await db.getSubscriptionTierByName(input.tier);
+            if (tier) {
+              await db.upsertUserSubscription({
+                userId: user.id,
+                tierId: tier.id,
+                status: input.status || "active",
+                stripeCustomerId: input.stripeCustomerId,
+                stripeSubscriptionId: input.stripeSubscriptionId,
+                currentPeriodStart: new Date(),
+                currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+              });
+            }
+          }
+          return { success: true, message: "User subscription created" };
+        }
+        if (input.event === "user.subscription.updated") {
+          const user = input.email ? await db.getUserByEmail(input.email) : undefined;
+          if (user && input.tier) {
+            const tier = await db.getSubscriptionTierByName(input.tier);
+            if (tier) {
+              await db.upsertUserSubscription({
+                userId: user.id,
+                tierId: tier.id,
+                status: input.status || "active",
+                stripeCustomerId: input.stripeCustomerId,
+                stripeSubscriptionId: input.stripeSubscriptionId,
+              });
+            }
+          }
+          return { success: true, message: "Subscription updated" };
+        }
+        if (input.event === "user.subscription.cancelled") {
+          const user = input.email ? await db.getUserByEmail(input.email) : undefined;
+          if (user) {
+            const subscription = await db.getUserSubscription(user.id);
+            if (subscription) {
+              await db.upsertUserSubscription({
+                ...subscription,
+                status: "cancelled",
+                cancelAtPeriodEnd: true,
+              });
+            }
+          }
+          return { success: true, message: "Subscription cancelled" };
+        }
+        return { success: true, message: "GHL event received" };
       }),
   }),
 

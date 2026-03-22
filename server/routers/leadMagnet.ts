@@ -2,12 +2,14 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import * as db from "../db";
+import { createContentPost } from "../db";
 import { storagePut } from "../storage";
 import { getDb } from "../db";
 import { leadMagnets } from "../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 import PDFDocument from "pdfkit";
 import { notifyOwner } from "../_core/notification";
+import QRCode from "qrcode";
 
 /**
  * Lead Magnet Generator Router
@@ -43,6 +45,7 @@ export const leadMagnetRouter = router({
         agentPhone: z.string().optional(),
         agentEmail: z.string().optional(),
         agentBrokerage: z.string().optional(),
+        agentWebsite: z.string().optional(),
         // For neighborhood report
         neighborhood: z.string().optional(),
         // For market update
@@ -92,6 +95,7 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
       }
 
       // Step 2: Render PDF using PDFKit (pure Node.js, no system deps)
+      const agentWebsite = input.agentWebsite || persona?.websiteUrl || "";
       const pdfBuffer = await buildPdfWithPDFKit({
         type,
         content,
@@ -99,6 +103,7 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
         agentPhone,
         agentEmail,
         agentBrokerage,
+        agentWebsite,
         city,
         primaryColor,
         neighborhood: input.neighborhood,
@@ -123,6 +128,16 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
         agentName,
         agentBrokerage: agentBrokerage || undefined,
         pdfUrl: url,
+      });
+
+      // Step 5: Save a draft content post for the content calendar
+      await createContentPost({
+        userId: ctx.user.id,
+        content: content?.introduction || content?.intro || `${typeLabels[type]} for ${city}`,
+        title: `${typeLabels[type]} — ${city}`,
+        contentType: "market_report",
+        aiGenerated: true,
+        status: "draft",
       });
 
       return {
@@ -313,15 +328,26 @@ async function buildPdfWithPDFKit(opts: {
   agentPhone: string;
   agentEmail: string;
   agentBrokerage: string;
+  agentWebsite?: string;
   city: string;
   primaryColor: string;
   neighborhood?: string;
   month?: string;
 }): Promise<Buffer> {
-  const { type, content, agentName, agentPhone, agentEmail, agentBrokerage, city, primaryColor } = opts;
+  const { type, content, agentName, agentPhone, agentEmail, agentBrokerage, agentWebsite, city, primaryColor } = opts;
   const [pr, pg, pb] = hexToRgb(primaryColor);
   const label = typeLabels[type];
-
+  // Pre-generate QR code buffer BEFORE entering the Promise (await not allowed inside Promise executor)
+  let qrBuffer: Buffer | null = null;
+  if (agentWebsite) {
+    const qrUrl = agentWebsite.startsWith("http") ? agentWebsite : `https://${agentWebsite}`;
+    qrBuffer = await QRCode.toBuffer(qrUrl, {
+      type: "png",
+      width: 200,
+      margin: 2,
+      color: { dark: primaryColor.replace("#", "").padEnd(8, "ff"), light: "ffffffff" },
+    });
+  }
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 0, info: { Title: label, Author: agentName } });
     const chunks: Buffer[] = [];
@@ -504,23 +530,70 @@ async function buildPdfWithPDFKit(opts: {
       y += doc.heightOfString(content.closingMessage, { width: contentWidth }) + 16;
     }
 
-    // ── FOOTER ──
-    const footerY = doc.page.height - 48;
-    doc.rect(0, footerY - 8, W, 56).fill([pr, pg, pb]);
-    const agentLine = [agentName, agentBrokerage].filter(Boolean).join(" · ");
-    const contactLine = [agentPhone, agentEmail].filter(Boolean).join(" · ");
-    doc.fillColor("white").fontSize(10).font("Helvetica-Bold")
-      .text(agentLine, margin, footerY, { width: contentWidth });
-    if (contactLine) {
-      doc.fillColor("white").fontSize(9).font("Helvetica").fillOpacity(0.85)
-        .text(contactLine, margin, footerY + 14, { width: contentWidth });
+    // ── QR CODE PAGE (if website provided) ──
+    if (agentWebsite && qrBuffer) {
+      doc.addPage();
+      const qrUrl = agentWebsite.startsWith("http") ? agentWebsite : `https://${agentWebsite}`;
+      const qrSize = 180;
+      const qrX = (W - qrSize) / 2;
+      const qrY = 140;
+      // Header band
+      doc.rect(0, 0, W, 110).fill([pr, pg, pb]);
+      doc.fillColor("white").fontSize(9).font("Helvetica")
+        .text("CONNECT WITH ME", margin, 24, { characterSpacing: 2, align: "center", width: contentWidth });
+      doc.fontSize(20).font("Helvetica-Bold")
+        .text("Scan to Visit My Website", margin, 44, { align: "center", width: contentWidth });
+      doc.fontSize(11).font("Helvetica").fillOpacity(0.85)
+        .text(agentName, margin, 76, { align: "center", width: contentWidth });
+      doc.fillOpacity(1);
+      // QR code image
+      doc.image(qrBuffer, qrX, qrY, { width: qrSize, height: qrSize });
+      // URL text below QR
+      doc.fillColor([pr, pg, pb] as any).fontSize(11).font("Helvetica-Bold")
+        .text(qrUrl, margin, qrY + qrSize + 16, { align: "center", width: contentWidth });
+      doc.fillColor("#6b7280").fontSize(10).font("Helvetica")
+        .text("Scan the QR code above with your phone camera to visit my website", margin, qrY + qrSize + 36, { align: "center", width: contentWidth });
+      // Agent contact card at bottom
+      const cardY = qrY + qrSize + 80;
+      doc.rect(margin, cardY, contentWidth, 90).fill("#f9fafb");
+      doc.rect(margin, cardY, 4, 90).fill([pr, pg, pb]);
+      doc.fillColor("#111827").fontSize(14).font("Helvetica-Bold")
+        .text(agentName, margin + 20, cardY + 16, { width: contentWidth - 24 });
+      if (agentBrokerage) {
+        doc.fillColor("#6b7280").fontSize(10).font("Helvetica")
+          .text(agentBrokerage, margin + 20, cardY + 34, { width: contentWidth - 24 });
+      }
+      const contactLine2 = [agentPhone, agentEmail].filter(Boolean).join("  ·  ");
+      if (contactLine2) {
+        doc.fillColor("#374151").fontSize(10).font("Helvetica")
+          .text(contactLine2, margin + 20, cardY + 54, { width: contentWidth - 24 });
+      }
+      // Footer band
+      const footerY2 = doc.page.height - 48;
+      doc.rect(0, footerY2 - 8, W, 56).fill([pr, pg, pb]);
+      doc.fillColor("white").fontSize(9).font("Helvetica").fillOpacity(0.7)
+        .text("Generated by AuthorityContent.co", margin, footerY2 + 6, { align: "center", width: contentWidth });
+      doc.fillOpacity(1);
     }
-    doc.fillOpacity(1);
-
-    doc.end();
+    // ── FOOTER (on main content pages) ──
+    // Note: footer is drawn on the last content page before QR page
+    // We need to end the doc after QR page if website exists
+    if (!agentWebsite) {
+      const footerY = doc.page.height - 48;
+      doc.rect(0, footerY - 8, W, 56).fill([pr, pg, pb]);
+      const agentLine = [agentName, agentBrokerage].filter(Boolean).join(" · ");
+      const contactLine = [agentPhone, agentEmail].filter(Boolean).join(" · ");
+      doc.fillColor("white").fontSize(10).font("Helvetica-Bold")
+        .text(agentLine, margin, footerY, { width: contentWidth });
+      if (contactLine) {
+        doc.fillColor("white").fontSize(9).font("Helvetica").fillOpacity(0.85)
+          .text(contactLine, margin, footerY + 14, { width: contentWidth });
+      }
+      doc.fillOpacity(1);
+    }
+     doc.end();
   });
 }
-
 // ── Legacy HTML builder (kept for reference, no longer used) ──
 function buildPdfHtml(opts: {
   type: LeadMagnetType;

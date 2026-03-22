@@ -23,9 +23,19 @@ describe("Enhanced Performance Coach", () => {
     if (!user) throw new Error("Failed to create test user");
     testUserId = user.id;
 
-    // Create caller with test user context
+    // Create caller with test user context (include createdAt so trial is active)
     caller = appRouter.createCaller({
-      user: { id: testUserId, openId: user.openId, name: user.name, email: user.email!, role: "user" },
+      user: {
+        id: testUserId,
+        openId: user.openId,
+        name: user.name,
+        email: user.email!,
+        role: "user",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastSignedIn: new Date(),
+        loginMethod: "manus",
+      },
       req: {} as any,
       res: {} as any,
     });

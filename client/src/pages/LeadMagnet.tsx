@@ -302,6 +302,7 @@ export default function LeadMagnet() {
   const [agentPhone, setAgentPhone] = useState("");
   const [agentEmail, setAgentEmail] = useState("");
   const [agentBrokerage, setAgentBrokerage] = useState("");
+  const [agentWebsite, setAgentWebsite] = useState("");
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [showPreview, setShowPreview] = useState(true);
 
@@ -356,6 +357,7 @@ export default function LeadMagnet() {
       agentPhone: agentPhone || undefined,
       agentEmail: agentEmail || user?.email || undefined,
       agentBrokerage: agentBrokerage || undefined,
+      agentWebsite: agentWebsite || (persona as any)?.websiteUrl || undefined,
       neighborhood: neighborhood || undefined,
       month: month || undefined,
     });
@@ -676,6 +678,18 @@ export default function LeadMagnet() {
                         placeholder={user?.email || "agent@email.com"}
                         value={agentEmail}
                         onChange={(e) => setAgentEmail(e.target.value)}
+                        className="text-sm h-8"
+                      />
+                    </div>
+                    <div className="col-span-2 space-y-1.5">
+                      <Label htmlFor="agentWebsite" className="text-xs">
+                        Website URL <span className="text-muted-foreground font-normal">(adds a QR code page to the PDF)</span>
+                      </Label>
+                      <Input
+                        id="agentWebsite"
+                        placeholder={(persona as any)?.websiteUrl || "https://yourwebsite.com"}
+                        value={agentWebsite}
+                        onChange={(e) => setAgentWebsite(e.target.value)}
                         className="text-sm h-8"
                       />
                     </div>

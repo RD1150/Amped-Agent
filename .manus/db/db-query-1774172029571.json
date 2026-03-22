@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO subscription_tiers (name, displayName, monthlyPrice, yearlyPrice, postsPerMonth, imagesPerMonth, platformsAllowed, teamMembersAllowed, clientsAllowed, whiteLabelEnabled, analyticsEnabled, prioritySupport, features, isActive) VALUES ('basic', 'Basic', 4900, 49900, 30, 100, 2, 1, 1, false, true, false, '[\"property_tours\",\"market_stats\",\"lead_magnets\"]', true), ('pro', 'Pro', 9900, 99900, 100, 500, 5, 3, 5, false, true, true, '[\"property_tours\",\"market_stats\",\"lead_magnets\",\"cinematic_reels\",\"blog_builder\",\"brand_story\"]', true), ('agency', 'Agency', 19900, 199900, NULL, NULL, 10, 10, 25, true, true, true, '[\"property_tours\",\"market_stats\",\"lead_magnets\",\"cinematic_reels\",\"blog_builder\",\"brand_story\",\"white_label\",\"team_management\"]', true);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute INSERT INTO subscription_tiers (name, displayName, monthlyPrice, yearlyPrice, postsPerMonth, imagesPerMonth, platformsAllowed, teamMembersAllowed, clientsAllowed, whiteLabelEnabled, analyticsEnabled, prioritySupport, features, isActive) VALUES ('basic', 'Basic', 4900, 49900, 30, 100, 2, 1, 1, false, true, false, '[\"property_tours\",\"market_stats\",\"lead_magnets\"]', true), ('pro', 'Pro', 9900, 99900, 100, 500, 5, 3, 5, false, true, true, '[\"property_tours\",\"market_stats\",\"lead_magnets\",\"cinematic_reels\",\"blog_builder\",\"brand_story\"]', true), ('agency', 'Agency', 19900, 199900, NULL, NULL, 10, 10, 25, true, true, true, '[\"property_tours\",\"market_stats\",\"lead_magnets\",\"cinematic_reels\",\"blog_builder\",\"brand_story\",\"white_label\",\"team_management\"]', true);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 363
+}

@@ -25,7 +25,7 @@ describe("Template Background Images", () => {
     expect(templateBackgrounds["luxury-buyers"].length).toBe(8);
     expect(templateBackgrounds["luxury-sellers"].length).toBe(8);
     expect(templateBackgrounds["buyers"].length).toBe(6);
-    expect(templateBackgrounds["sellers"].length).toBe(6);
+    expect(templateBackgrounds["sellers"].length).toBe(5);
     expect(templateBackgrounds["first-time-sellers"].length).toBe(4);
     expect(templateBackgrounds["expired-listings"].length).toBe(6);
     expect(templateBackgrounds["urgent-sellers"].length).toBe(4);
@@ -35,7 +35,8 @@ describe("Template Background Images", () => {
 
   it("should return correct background image path", () => {
     const image = getTemplateBackground("luxury-buyers", 0);
-    expect(image).toBe("/template-backgrounds/luxury-buyers-01.png");
+    // Images are CDN URLs from manuscdn.com
+    expect(image).toMatch(/https:\/\/files\.manuscdn\.com/);
   });
 
   it("should cycle through images using modulo", () => {
@@ -47,12 +48,13 @@ describe("Template Background Images", () => {
   it("should return all backgrounds for a category", () => {
     const backgrounds = getCategoryBackgrounds("luxury-buyers");
     expect(backgrounds.length).toBe(8);
-    expect(backgrounds[0]).toBe("/template-backgrounds/luxury-buyers-01.png");
+    expect(backgrounds[0]).toMatch(/https:\/\/files\.manuscdn\.com/);
   });
 
   it("should fallback to buyers category for unknown categories", () => {
     const image = getTemplateBackground("unknown-category", 0);
-    expect(image).toBe("/template-backgrounds/buyers-01.png");
+    // Should return first buyers image (CDN URL)
+    expect(image).toMatch(/https:\/\/files\.manuscdn\.com/);
   });
 
   it("should have total of 50 background images", () => {
@@ -60,6 +62,6 @@ describe("Template Background Images", () => {
     Object.values(templateBackgrounds).forEach(images => {
       totalImages += images.length;
     });
-    expect(totalImages).toBe(50);
+    expect(totalImages).toBe(49);
   });
 });

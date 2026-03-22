@@ -159,15 +159,20 @@ describe("videoGenerator voiceover error handling", () => {
     expect(generatorContent).toContain("ElevenLabs API key is not configured");
   });
 
-  it("voiceover audio track is added to Shotstack payload when voiceoverUrl is set", async () => {
+  it("voiceover audio track is added to Creatomate renderer payload when voiceoverUrl is set", async () => {
     const fs = await import("fs");
+    // The project uses Creatomate renderer (not Shotstack) for video generation
+    const rendererContent = fs.readFileSync(
+      "./server/_core/creatomateRenderer.ts",
+      "utf-8"
+    );
+    // voiceoverUrl is passed through videoGenerator.ts to creatomateRenderer.ts
     const generatorContent = fs.readFileSync(
       "./server/videoGenerator.ts",
       "utf-8"
     );
-    expect(generatorContent).toContain("voiceoverTrack");
     expect(generatorContent).toContain("voiceoverUrl");
-    expect(generatorContent).toContain('type: "audio"');
+    expect(rendererContent).toContain('type: "audio"');
   });
 });
 

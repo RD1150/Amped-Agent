@@ -3774,3 +3774,26 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add color theme picker (4 palettes) to template selector
 - [ ] Add Repurpose This button to lead magnet result view
 - [ ] Add Send via Email dialog to result screen
+
+## Session: Mar 22, 2026 - Test Suite & API Fixes
+
+- [x] Verify RAPIDAPI_KEY is active in environment (confirmed: key already set)
+- [x] Confirm Market Update Reel end-to-end: Austin TX data fetches, video renders, download works
+- [x] Add agentWebsite URL input field to Lead Magnet form with QR code note
+- [x] Fix leadMagnet router to use createContentPost from db.ts (test alignment)
+- [x] Fix marketStats integration tests (cache timing + zipcode format)
+- [x] Update rapidapi.test.ts to use new US Real Estate API endpoint
+- [x] Fix templateRenderer.test.ts to match actual CDN URL format and real image counts (sellers=5, total=49)
+- [x] Fix coach.test.ts to include createdAt in user context (trial detection)
+- [x] Create GHL router (server/routers/ghl.ts) with getSettings/saveSettings/testConnection procedures
+- [x] Register ghlRouter in appRouter (routers.ts)
+- [x] Add webhooks.ghl procedure to webhooks router for GHL subscription events
+- [x] Seed subscription_tiers table with basic/pro/agency tiers
+- [x] Fix credits.ts to support ai-enhanced and full-ai video modes in calculateVideoCost
+- [x] Fix auth.logout test to use COOKIE_NAME constant
+- [x] Fix heroPhotoSelector.test.ts to match current getRecommendedHeroCount implementation
+- [x] Fix facebook.test.ts to use tRPC v11 API (_def.type instead of _def.mutation/_def.query)
+- [x] Fix voiceoverIntegration.test.ts to check creatomateRenderer.ts for audio track
+- [x] Fix did-service.test.ts to use mocked fetch (avoid real API calls / credit consumption)
+- [x] Replace shotstack.test.ts with Creatomate-based renderer tests
+- [x] All 410 tests passing across 55 test files

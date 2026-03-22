@@ -42,7 +42,7 @@ describe("reelsRouter", () => {
   describe("getUsage", () => {
     it("should return usage stats for authenticated user", async () => {
       const caller = reelsRouter.createCaller({
-        user: { id: 1, name: "Test User", email: "test@example.com", role: "user" },
+        user: { id: 1, name: "Test User", email: "test@example.com", role: "user", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date(), loginMethod: "manus", openId: "test-open-id" },
         req: {} as any,
         res: {} as any,
       });
@@ -63,7 +63,7 @@ describe("reelsRouter", () => {
       vi.mocked(didAi.generateTalkingAvatar).mockResolvedValue(mockVideoUrl);
 
       const caller = reelsRouter.createCaller({
-        user: { id: 1, name: "Test User", email: "test@example.com", role: "user" },
+        user: { id: 1, name: "Test User", email: "test@example.com", role: "user", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date(), loginMethod: "manus", openId: "test-open-id" },
         req: {} as any,
         res: {} as any,
       });
@@ -88,7 +88,7 @@ describe("reelsRouter", () => {
 
     it("should reject script that is too short", async () => {
       const caller = reelsRouter.createCaller({
-        user: { id: 1, name: "Test User", email: "test@example.com", role: "user" },
+        user: { id: 1, name: "Test User", email: "test@example.com", role: "user", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date(), loginMethod: "manus", openId: "test-open-id" },
         req: {} as any,
         res: {} as any,
       });
@@ -103,7 +103,7 @@ describe("reelsRouter", () => {
 
     it("should reject script that is too long", async () => {
       const caller = reelsRouter.createCaller({
-        user: { id: 1, name: "Test User", email: "test@example.com", role: "user" },
+        user: { id: 1, name: "Test User", email: "test@example.com", role: "user", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date(), loginMethod: "manus", openId: "test-open-id" },
         req: {} as any,
         res: {} as any,
       });
@@ -123,7 +123,7 @@ describe("reelsRouter", () => {
       vi.mocked(didAi.generateTalkingAvatar).mockResolvedValue(mockVideoUrl);
 
       const caller = reelsRouter.createCaller({
-        user: { id: 1, name: "Test User", email: "test@example.com", role: "user" },
+        user: { id: 1, name: "Test User", email: "test@example.com", role: "user", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date(), loginMethod: "manus", openId: "test-open-id" },
         req: {} as any,
         res: {} as any,
       });
@@ -146,7 +146,7 @@ describe("reelsRouter", () => {
       );
 
       const caller = reelsRouter.createCaller({
-        user: { id: 1, name: "Test User", email: "test@example.com", role: "user" },
+        user: { id: 1, name: "Test User", email: "test@example.com", role: "user", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date(), loginMethod: "manus", openId: "test-open-id" },
         req: {} as any,
         res: {} as any,
       });
@@ -163,7 +163,7 @@ describe("reelsRouter", () => {
   describe("listReels", () => {
     it("should return list of active reels for authenticated user", async () => {
       const caller = reelsRouter.createCaller({
-        user: { id: 1, name: "Test User", email: "test@example.com", role: "user" },
+        user: { id: 1, name: "Test User", email: "test@example.com", role: "user", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date(), loginMethod: "manus", openId: "test-open-id" },
         req: {} as any,
         res: {} as any,
       });

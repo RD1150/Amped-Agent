@@ -8,13 +8,13 @@ describe('RapidAPI Credentials', () => {
     expect(ENV.rapidApiKey.length).toBeGreaterThan(30);
   });
 
-  it('should successfully fetch data from Realtor API', async () => {
+  it('should successfully fetch data from US Real Estate API', async () => {
     const response = await fetch(
-      'https://realtor16.p.rapidapi.com/search/forsale?location=houston%2C%20tx&limit=1',
+      'https://us-real-estate.p.rapidapi.com/v2/for-sale?city=houston&state_code=TX&limit=1&offset=0',
       {
         headers: {
-          'x-rapidapi-host': 'realtor16.p.rapidapi.com',
-          'x-rapidapi-key': ENV.rapidApiKey,
+          'X-RapidAPI-Host': 'us-real-estate.p.rapidapi.com',
+          'X-RapidAPI-Key': ENV.rapidApiKey,
         },
       }
     );
@@ -22,8 +22,8 @@ describe('RapidAPI Credentials', () => {
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data).toBeDefined();
-    expect(data.properties).toBeDefined();
-    expect(Array.isArray(data.properties)).toBe(true);
-    expect(data.properties.length).toBeGreaterThan(0);
+    expect(data.data?.home_search?.results).toBeDefined();
+    expect(Array.isArray(data.data.home_search.results)).toBe(true);
+    expect(data.data.home_search.results.length).toBeGreaterThan(0);
   }, 10000); // 10 second timeout for API call
 });

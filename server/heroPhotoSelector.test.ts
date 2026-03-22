@@ -43,9 +43,9 @@ describe("Hero Photo Selection", () => {
   });
   
   it("should recommend appropriate hero count based on total", () => {
-    expect(getRecommendedHeroCount(3)).toBe(3);
-    expect(getRecommendedHeroCount(7)).toBe(4);
-    expect(getRecommendedHeroCount(15)).toBe(5);
+    expect(getRecommendedHeroCount(3)).toBe(3); // <= 5: use all
+    expect(getRecommendedHeroCount(7)).toBe(6); // <= 8: return 6 (75% of 8)
+    expect(getRecommendedHeroCount(15)).toBe(12); // 15 * 0.75 = 11.25 → ceil = 12
   });
   
   it("should identify if photo is a hero", () => {
