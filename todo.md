@@ -3769,3 +3769,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add D-ID avatar video expiry warning (90-day check) in AI Reels
 - [x] Add D-ID avatar video expiry warning in Account Settings My Avatar section
 - [x] Store avatarVideoSavedAt timestamp in user profile for expiry calculation
+
+## Lead Magnet Generator Enhancements
+- [ ] Add color theme picker (4 palettes) to template selector
+- [ ] Add Repurpose This button to lead magnet result view
+- [ ] Add Send via Email dialog to result screen

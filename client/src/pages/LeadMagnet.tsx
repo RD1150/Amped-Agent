@@ -5,7 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 import {
   Sparkles,
   Loader2,
@@ -19,6 +28,9 @@ import {
   RefreshCw,
   Eye,
   ChevronRight,
+  Repeat2,
+  Mail,
+  Palette,
 } from "lucide-react";
 
 type MagnetType = "buyer_guide" | "neighborhood_report" | "market_update";
@@ -29,11 +41,19 @@ interface MagnetTypeConfig {
   label: string;
   description: string;
   color: string;
-  accentColor: string;
+  defaultAccent: string;
   bgColor: string;
   previewLines: string[];
   extraFields?: string[];
 }
+
+// ── Color Themes ────────────────────────────────────────────────────────────
+const COLOR_THEMES = [
+  { id: "navy", label: "Navy", hex: "#1a3a5c" },
+  { id: "forest", label: "Forest", hex: "#166534" },
+  { id: "charcoal", label: "Charcoal", hex: "#374151" },
+  { id: "burgundy", label: "Burgundy", hex: "#7f1d1d" },
+];
 
 const MAGNET_TYPES: MagnetTypeConfig[] = [
   {
@@ -42,7 +62,7 @@ const MAGNET_TYPES: MagnetTypeConfig[] = [
     label: "First-Time Buyer Guide",
     description: "A comprehensive step-by-step guide for first-time buyers in your market. Perfect for Facebook Lead Ads.",
     color: "text-blue-500",
-    accentColor: "#2563eb",
+    defaultAccent: "#2563eb",
     bgColor: "bg-blue-50 dark:bg-blue-950/30",
     previewLines: ["Step 1: Get Pre-Approved", "Step 2: Find Your Home", "Step 3: Make an Offer", "Step 4: Close the Deal"],
     extraFields: [],
@@ -53,7 +73,7 @@ const MAGNET_TYPES: MagnetTypeConfig[] = [
     label: "Neighborhood Report",
     description: "An in-depth look at a specific neighborhood — schools, amenities, market data, and lifestyle.",
     color: "text-green-500",
-    accentColor: "#16a34a",
+    defaultAccent: "#16a34a",
     bgColor: "bg-green-50 dark:bg-green-950/30",
     previewLines: ["Schools & Education", "Local Amenities", "Market Trends", "Lifestyle & Community"],
     extraFields: ["neighborhood"],
@@ -64,7 +84,7 @@ const MAGNET_TYPES: MagnetTypeConfig[] = [
     label: "Market Update",
     description: "A monthly market snapshot with key stats, buyer/seller advice, and market outlook.",
     color: "text-amber-500",
-    accentColor: "#d97706",
+    defaultAccent: "#d97706",
     bgColor: "bg-amber-50 dark:bg-amber-950/30",
     previewLines: ["Median Home Price", "Days on Market", "Buyer vs Seller Market", "Market Outlook"],
     extraFields: ["month"],
@@ -85,9 +105,10 @@ interface GeneratedResult {
 }
 
 // ── Template Thumbnail ──────────────────────────────────────────────────────
-function TemplateThumbnail({ config, selected, onClick }: {
+function TemplateThumbnail({ config, selected, accentColor, onClick }: {
   config: MagnetTypeConfig;
   selected: boolean;
+  accentColor: string;
   onClick: () => void;
 }) {
   const Icon = config.icon;
@@ -105,11 +126,11 @@ function TemplateThumbnail({ config, selected, onClick }: {
         <div className="bg-white dark:bg-card rounded-lg shadow-sm p-3 space-y-2">
           {/* Header bar */}
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded flex items-center justify-center" style={{ backgroundColor: config.accentColor + "20" }}>
-              <Icon className="w-3 h-3" style={{ color: config.accentColor }} />
+            <div className="w-5 h-5 rounded flex items-center justify-center" style={{ backgroundColor: accentColor + "20" }}>
+              <Icon className="w-3 h-3" style={{ color: accentColor }} />
             </div>
             <div className="flex-1 space-y-1">
-              <div className="h-2 rounded-full w-3/4" style={{ backgroundColor: config.accentColor }} />
+              <div className="h-2 rounded-full w-3/4" style={{ backgroundColor: accentColor }} />
               <div className="h-1.5 rounded-full w-1/2 bg-muted" />
             </div>
           </div>
@@ -117,7 +138,7 @@ function TemplateThumbnail({ config, selected, onClick }: {
           <div className="space-y-1.5 pt-1">
             {config.previewLines.map((line, i) => (
               <div key={i} className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: config.accentColor }} />
+                <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
                 <div className="h-1.5 rounded-full bg-muted flex-1" style={{ width: `${60 + i * 8}%` }} />
               </div>
             ))}
@@ -149,6 +170,7 @@ function TemplateThumbnail({ config, selected, onClick }: {
 function ContentPreview({ result }: { result: GeneratedResult }) {
   const config = MAGNET_TYPES.find(t => t.id === result.type)!;
   const content = result.content;
+  const accentColor = result.primaryColor || config.defaultAccent;
 
   const renderSections = () => {
     if (!content) return null;
@@ -158,7 +180,7 @@ function ContentPreview({ result }: { result: GeneratedResult }) {
         <div key={i} className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
-              style={{ backgroundColor: config.accentColor }}>
+              style={{ backgroundColor: accentColor }}>
               {i + 1}
             </div>
             <h4 className="text-sm font-semibold text-foreground">{section.title || section.step}</h4>
@@ -179,7 +201,7 @@ function ContentPreview({ result }: { result: GeneratedResult }) {
       return sections.map(({ key, label }) => content[key] ? (
         <div key={key} className="space-y-1">
           <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: config.accentColor }} />
+            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
             {label}
           </h4>
           <p className="text-xs text-muted-foreground pl-3.5 leading-relaxed">{content[key]}</p>
@@ -201,7 +223,7 @@ function ContentPreview({ result }: { result: GeneratedResult }) {
         return (
           <div key={key} className="space-y-1">
             <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: config.accentColor }} />
+              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
               {label}
             </h4>
             <p className="text-xs text-muted-foreground pl-3.5 leading-relaxed">
@@ -218,7 +240,7 @@ function ContentPreview({ result }: { result: GeneratedResult }) {
   return (
     <div className="rounded-xl border border-border overflow-hidden shadow-sm">
       {/* PDF Header */}
-      <div className="p-5 text-white" style={{ backgroundColor: result.primaryColor || config.accentColor }}>
+      <div className="p-5 text-white" style={{ backgroundColor: accentColor }}>
         <div className="flex items-center gap-2 mb-3">
           <config.icon className="w-5 h-5 opacity-80" />
           <Badge className="bg-white/20 text-white border-white/30 text-[10px]">Lead Magnet Preview</Badge>
@@ -235,7 +257,7 @@ function ContentPreview({ result }: { result: GeneratedResult }) {
       {/* Content Body */}
       <div className="p-5 space-y-4 bg-card max-h-96 overflow-y-auto">
         {content?.intro && (
-          <p className="text-xs text-muted-foreground leading-relaxed italic border-l-2 pl-3" style={{ borderColor: config.accentColor }}>
+          <p className="text-xs text-muted-foreground leading-relaxed italic border-l-2 pl-3" style={{ borderColor: accentColor }}>
             {content.intro}
           </p>
         )}
@@ -258,7 +280,7 @@ function ContentPreview({ result }: { result: GeneratedResult }) {
           </div>
         </div>
         <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-          style={{ backgroundColor: result.primaryColor || config.accentColor }}>
+          style={{ backgroundColor: accentColor }}>
           {result.agentName?.charAt(0) || "A"}
         </div>
       </div>
@@ -268,7 +290,9 @@ function ContentPreview({ result }: { result: GeneratedResult }) {
 
 // ── Main Page ───────────────────────────────────────────────────────────────
 export default function LeadMagnet() {
+  const [, navigate] = useLocation();
   const [selectedType, setSelectedType] = useState<MagnetType | null>(null);
+  const [selectedTheme, setSelectedTheme] = useState<string>("navy");
   const [city, setCity] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [month, setMonth] = useState(
@@ -281,11 +305,17 @@ export default function LeadMagnet() {
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [showPreview, setShowPreview] = useState(true);
 
+  // Email dialog state
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientName, setRecipientName] = useState("");
+
   const { data: user } = trpc.auth.me.useQuery();
   const { data: persona } = trpc.persona.get.useQuery();
 
   const effectiveName = agentName || (persona as any)?.agentName || user?.name || "";
   const effectiveCity = city || (persona as any)?.primaryCity || "";
+  const activeThemeColor = COLOR_THEMES.find(t => t.id === selectedTheme)?.hex || "#1a3a5c";
 
   const generate = trpc.leadMagnet.generate.useMutation({
     onSuccess: (data) => {
@@ -295,6 +325,18 @@ export default function LeadMagnet() {
     },
     onError: (err) => {
       toast.error(err.message || "Failed to generate lead magnet. Please try again.");
+    },
+  });
+
+  const sendByEmail = trpc.leadMagnet.sendByEmail.useMutation({
+    onSuccess: (data) => {
+      toast.success(`PDF link sent to ${data.sentTo}!`);
+      setEmailDialogOpen(false);
+      setRecipientEmail("");
+      setRecipientName("");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to send email. Please try again.");
     },
   });
 
@@ -317,6 +359,45 @@ export default function LeadMagnet() {
       neighborhood: neighborhood || undefined,
       month: month || undefined,
     });
+  };
+
+  const handleSendEmail = () => {
+    if (!result) return;
+    if (!recipientEmail.trim()) {
+      toast.error("Please enter a recipient email address.");
+      return;
+    }
+    sendByEmail.mutate({
+      recipientEmail: recipientEmail.trim(),
+      recipientName: recipientName.trim() || undefined,
+      pdfUrl: result.pdfUrl,
+      magnetLabel: result.label,
+      agentName: result.agentName,
+    });
+  };
+
+  const handleRepurpose = () => {
+    if (!result) return;
+    const content = result.content;
+    let body = "";
+    if (result.type === "buyer_guide" && content?.sections) {
+      body = content.sections.map((s: any, i: number) => `${i + 1}. ${s.title || s.step}: ${s.content || s.description}`).join("\n\n");
+    } else if (result.type === "neighborhood_report") {
+      body = ["overview", "schools", "amenities", "market", "lifestyle"]
+        .filter(k => content?.[k])
+        .map(k => content[k])
+        .join("\n\n");
+    } else if (result.type === "market_update") {
+      body = ["summary", "buyer_advice", "seller_advice", "outlook"]
+        .filter(k => content?.[k])
+        .map(k => content[k])
+        .join("\n\n");
+    }
+    const params = new URLSearchParams({
+      topic: `${result.label} — ${result.city}`,
+      body: body.slice(0, 600),
+    });
+    navigate(`/repurpose?${params.toString()}`);
   };
 
   const handleReset = () => {
@@ -400,6 +481,22 @@ export default function LeadMagnet() {
                     Copy Shareable Link
                   </Button>
                   <Button
+                    variant="outline"
+                    className="w-full gap-2 text-blue-600 border-blue-500/40 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                    onClick={() => setEmailDialogOpen(true)}
+                  >
+                    <Mail className="w-4 h-4" />
+                    Send via Email
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2 text-amber-600 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                    onClick={handleRepurpose}
+                  >
+                    <Repeat2 className="w-4 h-4" />
+                    Repurpose This
+                  </Button>
+                  <Button
                     variant="ghost"
                     className="w-full gap-2 text-muted-foreground"
                     onClick={() => setShowPreview(!showPreview)}
@@ -445,8 +542,40 @@ export default function LeadMagnet() {
                   key={type.id}
                   config={type}
                   selected={selectedType === type.id}
+                  accentColor={activeThemeColor}
                   onClick={() => setSelectedType(type.id)}
                 />
+              ))}
+            </div>
+          </div>
+
+          {/* ── Color Theme Picker ── */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Palette className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold text-foreground">Brand Color</h2>
+              <span className="text-xs text-muted-foreground">— used as the PDF header and accent color</span>
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              {COLOR_THEMES.map((theme) => (
+                <button
+                  key={theme.id}
+                  onClick={() => setSelectedTheme(theme.id)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all text-sm ${
+                    selectedTheme === theme.id
+                      ? "border-primary bg-primary/5 font-semibold"
+                      : "border-border hover:border-primary/40 bg-card"
+                  }`}
+                >
+                  <div
+                    className="w-4 h-4 rounded-full shrink-0 ring-1 ring-black/10"
+                    style={{ backgroundColor: theme.hex }}
+                  />
+                  <span className="text-foreground text-xs">{theme.label}</span>
+                  {selectedTheme === theme.id && (
+                    <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
+                  )}
+                </button>
               ))}
             </div>
           </div>
@@ -582,6 +711,75 @@ export default function LeadMagnet() {
           )}
         </>
       )}
+
+      {/* ── Send via Email Dialog ── */}
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="w-5 h-5 text-blue-500" />
+              Send Lead Magnet via Email
+            </DialogTitle>
+            <DialogDescription>
+              Enter the recipient's details. The PDF download link will be sent to them directly.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="recipientEmail" className="text-sm">
+                Recipient Email <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="recipientEmail"
+                type="email"
+                placeholder="prospect@email.com"
+                value={recipientEmail}
+                onChange={(e) => setRecipientEmail(e.target.value)}
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="recipientName" className="text-sm">Recipient Name (optional)</Label>
+              <Input
+                id="recipientName"
+                placeholder="e.g. John Smith"
+                value={recipientName}
+                onChange={(e) => setRecipientName(e.target.value)}
+                className="text-sm"
+              />
+            </div>
+            {result && (
+              <div className="p-3 rounded-lg bg-muted/40 border border-border">
+                <p className="text-xs text-muted-foreground">
+                  Sending: <span className="font-medium text-foreground">{result.label}</span> — {result.city}
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSendEmail}
+              disabled={sendByEmail.isPending || !recipientEmail.trim()}
+              className="gap-2"
+            >
+              {sendByEmail.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Sending…
+                </>
+              ) : (
+                <>
+                  <Mail className="w-4 h-4" />
+                  Send Email
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
