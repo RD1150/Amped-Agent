@@ -40,7 +40,7 @@ export const propertyToursRouter = router({
         musicTrack: z.string().optional(),
         cardTemplate: z.enum(["modern", "luxury", "bold", "classic", "contemporary"]).default("modern"),
         includeIntroVideo: z.boolean().default(false),
-        videoMode: z.enum(["standard"]).default("standard"),
+        videoMode: z.enum(["standard", "ai-enhanced"]).default("standard"),
         enableVoiceover: z.boolean().default(false),
         voiceId: z.string().optional(),
         customCameraPrompt: z.string().optional(),
@@ -124,7 +124,7 @@ export const propertyToursRouter = router({
       }
 
       // Check monthly Cinematic limit for full-ai mode (unlimited for rdshop70@gmail.com)
-      if (tour.videoMode === 'full-ai' && ctx.user.email !== 'rdshop70@gmail.com') {
+      if (tour.videoMode === 'ai-enhanced' && ctx.user.email !== 'rdshop70@gmail.com') {
         const dbConn = await getDb();
         if (!dbConn) throw new Error("Database not available");
         const [user] = await dbConn.select().from(users).where(eq(users.id, ctx.user.id)).limit(1);
@@ -152,7 +152,7 @@ export const propertyToursRouter = router({
 
       // Calculate credit cost
       const costBreakdown = credits.calculateVideoCost({
-        videoMode: "standard",
+        videoMode: (tour.videoMode as "standard" | "ai-enhanced") || "standard",
         enableVoiceover: tour.enableVoiceover || false,
       });
 
@@ -208,7 +208,7 @@ export const propertyToursRouter = router({
           }
 
           // Stage 3: Generate AI video clips (if full-ai) — this is the slow part
-          if (tour.videoMode === "full-ai") {
+          if (tour.videoMode === "ai-enhanced") {
             await db.updatePropertyTour(tourId, { processingStage: "generating_ai_clips" });
           }
 
@@ -236,7 +236,7 @@ export const propertyToursRouter = router({
             musicTrack: tour.musicTrack || undefined,
             cardTemplate: (tour.cardTemplate as "modern" | "luxury" | "bold" | "classic" | "contemporary") || "modern",
             includeIntroVideo: tour.includeIntroVideo ?? false,
-            videoMode: "standard",
+            videoMode: (tour.videoMode as "standard" | "ai-enhanced") || "standard",
             enableVoiceover: tour.enableVoiceover || false,
             customCameraPrompt: tour.customCameraPrompt || undefined,
             voiceoverScript: tour.voiceoverScript || undefined,

@@ -114,6 +114,7 @@ export default function PropertyTours() {
   const [customScript, setCustomScript] = useState("");
   const [perPhotoMovements, setPerPhotoMovements] = useState<string[]>([]);
   const [movementSpeed, setMovementSpeed] = useState<"slow" | "fast">("fast");
+  const [videoMode, setVideoMode] = useState<"standard" | "ai-enhanced">("standard");
 
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropImageIndex, setCropImageIndex] = useState<number | null>(null);
@@ -137,7 +138,7 @@ export default function PropertyTours() {
 
   // Queries
   const { data: tours, isLoading: toursLoading } = trpc.propertyTours.list.useQuery();
-  const { data: creditCost } = trpc.credits.calculateCost.useQuery({ videoMode: "standard", enableVoiceover });
+  const { data: creditCost } = trpc.credits.calculateCost.useQuery({ videoMode, enableVoiceover });
   const { data: balance } = trpc.credits.getBalance.useQuery();
   const { data: dailyUsage } = trpc.rateLimit.getDailyUsage.useQuery();
   const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
@@ -439,7 +440,7 @@ export default function PropertyTours() {
         musicTrack,
         cardTemplate,
         includeIntroVideo,
-        videoMode: "standard",
+        videoMode,
         enableVoiceover,
         voiceId: enableVoiceover ? voiceId : undefined,
         voiceoverScript: customScript || undefined,
@@ -1119,6 +1120,48 @@ export default function PropertyTours() {
 
 
 
+            {/* Video Mode Selection */}
+            <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm font-semibold">Video Style</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Choose how your property tour is animated</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setVideoMode("standard")}
+                  className={`p-3 rounded-lg border-2 text-left transition-all ${
+                    videoMode === "standard"
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-background hover:border-primary/50"
+                  }`}
+                >
+                  <div className="text-sm font-semibold mb-1">🎬 Standard</div>
+                  <div className="text-xs text-muted-foreground">Smooth Ken Burns zoom &amp; pan effects</div>
+                  <div className="text-xs text-green-600 font-medium mt-1">Fast · 5 credits</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVideoMode("ai-enhanced")}
+                  className={`p-3 rounded-lg border-2 text-left transition-all ${
+                    videoMode === "ai-enhanced"
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-background hover:border-primary/50"
+                  }`}
+                >
+                  <div className="text-sm font-semibold mb-1">✨ AI Walkthrough</div>
+                  <div className="text-xs text-muted-foreground">Real camera movement through rooms</div>
+                  <div className="text-xs text-amber-600 font-medium mt-1">~5 min · 15 credits</div>
+                </button>
+              </div>
+              {videoMode === "ai-enhanced" && (
+                <p className="text-xs text-muted-foreground bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded p-2">
+                  🎥 AI Walkthrough uses Kling AI to generate real camera movement (dolly push, arc turns, crane shots) for your best 3–5 photos. Takes ~5 minutes to generate.
+                </p>
+              )}
+            </div>
             {/* Movement Speed Preset */}
             <div className="space-y-2">
               <Label htmlFor="movementSpeed">Camera Movement Speed</Label>

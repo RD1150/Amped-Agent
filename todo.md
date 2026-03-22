@@ -3797,3 +3797,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix did-service.test.ts to use mocked fetch (avoid real API calls / credit consumption)
 - [x] Replace shotstack.test.ts with Creatomate-based renderer tests
 - [x] All 410 tests passing across 55 test files
+
+## Session: Mar 22, 2026 - Cinematic Video & Auto Reels Fixes
+
+- [x] Fix Kling AI camera control - was using unsupported named types (forward_up, down_back etc), replaced with simple type + config objects
+- [x] Fix Kling API mode - camera_control requires pro mode + 5s duration + kling-v1-5 model
+- [x] Add AI Walkthrough mode toggle to Property Tours UI (Standard vs AI Walkthrough)
+- [x] Fix hardcoded videoMode: "standard" in propertyTours router - now uses actual tour videoMode
+- [x] Update propertyTours router to accept ai-enhanced videoMode enum value
+- [x] Update credits router calculateCost to accept ai-enhanced videoMode
+- [x] Verify Auto Reels end-to-end: script generation → Creatomate render → video playback working
+- [x] Fix getCameraControlForRoom to use simple type with zoom/pan/tilt config values per room type

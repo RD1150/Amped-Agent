@@ -193,44 +193,54 @@ export async function waitForTask(
 }
 
 /**
- * Room type to camera movement mapping for real estate walkthroughs
+/**
+ * Room type to camera movement mapping for real estate walkthroughs.
+ * 
+ * IMPORTANT: The Kling API only accepts type="simple" with a config object.
+ * Named types (forward_up, down_back, etc.) are rejected with a 400 error.
+ * We simulate the desired movements using simple pan/tilt/zoom values:
+ *   - zoom > 0: push in (dolly forward), zoom < 0: pull back
+ *   - pan > 0: pan right, pan < 0: pan left
+ *   - tilt > 0: tilt up, tilt < 0: tilt down
+ *   - horizontal: truck left/right, vertical: pedestal up/down
+ * Values range from -10 to 10.
  */
 export function getCameraControlForRoom(roomType: string): KlingCameraControl {
   const roomLower = roomType.toLowerCase();
 
-  // Exterior shots: dramatic pull-back reveal
+  // Exterior shots: pull-back reveal (zoom out + slight tilt down)
   if (
     roomLower.includes("exterior") ||
     roomLower.includes("facade") ||
     roomLower.includes("front") ||
     roomLower.includes("aerial")
   ) {
-    return { type: "down_back" };
+    return { type: "simple", config: { zoom: -7, tilt: -3, horizontal: 0, vertical: 0, pan: 0, roll: 0 } };
   }
 
-  // Living rooms, great rooms: forward push-in to reveal depth
+  // Living rooms, great rooms: forward dolly push-in (zoom in + slight tilt up)
   if (
     roomLower.includes("living") ||
     roomLower.includes("great room") ||
     roomLower.includes("family room") ||
     roomLower.includes("main")
   ) {
-    return { type: "forward_up" };
+    return { type: "simple", config: { zoom: 8, tilt: 3, horizontal: 0, vertical: 0, pan: 0, roll: 0 } };
   }
 
-  // Kitchens: left turn to reveal the full kitchen layout
+  // Kitchens: pan left across the kitchen layout
   if (roomLower.includes("kitchen") || roomLower.includes("dining")) {
-    return { type: "left_turn_forward" };
+    return { type: "simple", config: { pan: -6, zoom: 4, horizontal: 0, vertical: 0, tilt: 0, roll: 0 } };
   }
 
-  // Bedrooms: right turn for a gentle reveal
+  // Bedrooms: gentle pan right with slight zoom
   if (
     roomLower.includes("bedroom") ||
     roomLower.includes("master") ||
     roomLower.includes("suite") ||
     roomLower.includes("primary")
   ) {
-    return { type: "right_turn_forward" };
+    return { type: "simple", config: { pan: 5, zoom: 4, horizontal: 0, vertical: 0, tilt: 0, roll: 0 } };
   }
 
   // Bathrooms: zoom in to showcase details
@@ -239,10 +249,10 @@ export function getCameraControlForRoom(roomType: string): KlingCameraControl {
     roomLower.includes("bath") ||
     roomLower.includes("spa")
   ) {
-    return { type: "zoom_in" };
+    return { type: "simple", config: { zoom: 9, tilt: 2, horizontal: 0, vertical: 0, pan: 0, roll: 0 } };
   }
 
-  // Outdoor spaces, pools: pull-back to reveal the full space
+  // Outdoor spaces, pools: pull-back aerial reveal
   if (
     roomLower.includes("outdoor") ||
     roomLower.includes("pool") ||
@@ -251,21 +261,21 @@ export function getCameraControlForRoom(roomType: string): KlingCameraControl {
     roomLower.includes("backyard") ||
     roomLower.includes("garden")
   ) {
-    return { type: "down_back" };
+    return { type: "simple", config: { zoom: -8, vertical: -3, horizontal: 0, tilt: 0, pan: 0, roll: 0 } };
   }
 
-  // Hallways, entryways: forward push
+  // Hallways, entryways: forward push through the space
   if (
     roomLower.includes("hall") ||
     roomLower.includes("entry") ||
     roomLower.includes("foyer") ||
     roomLower.includes("stair")
   ) {
-    return { type: "forward_up" };
+    return { type: "simple", config: { zoom: 9, tilt: 2, horizontal: 0, vertical: 0, pan: 0, roll: 0 } };
   }
 
-  // Default: gentle forward push for any unrecognized room type
-  return { type: "forward_up" };
+  // Default: gentle forward push
+  return { type: "simple", config: { zoom: 7, tilt: 2, horizontal: 0, vertical: 0, pan: 0, roll: 0 } };
 }
 
 /**
@@ -289,14 +299,16 @@ export async function imageToVideo(
     `[KlingAI] Room: "${roomType}" → Camera: ${cameraControl.type}`
   );
 
+  // CRITICAL: camera_control ONLY works with mode="pro" + duration="5" + model="kling-v1-5"
+  // Using std mode with camera_control causes a 400 error and falls back to Ken Burns
   const task = await createImageToVideoTask({
-    model_name: options.model || "kling-v1-5",
+    model_name: "kling-v1-5",
     image: imageUrl,
     prompt: options.prompt || getRoomPrompt(roomType),
     cfg_scale: 0.5,
-    mode: options.mode || "std",
+    mode: "pro",  // MUST be pro for camera_control to work
     aspect_ratio: options.aspectRatio || "16:9",
-    duration: options.duration || "5",
+    duration: "5",  // MUST be 5s for camera_control to work
     camera_control: cameraControl,
   });
 
