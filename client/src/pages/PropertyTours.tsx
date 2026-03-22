@@ -1086,6 +1086,8 @@ export default function PropertyTours() {
                         <UserCircle2 className="w-6 h-6 text-muted-foreground mb-1" />
                         <span className="text-xs text-muted-foreground">Upload your headshot</span>
                         <input
+                          id="avatarHeadshotUpload"
+                          name="avatarHeadshotUpload"
                           type="file"
                           accept="image/*"
                           className="hidden"
@@ -1165,7 +1167,7 @@ export default function PropertyTours() {
 
                   {/* Narration Style */}
                   <div>
-                    <Label className="text-xs font-medium">Narration Style</Label>
+                    <Label htmlFor="voiceoverStyleGroup" className="text-xs font-medium">Narration Style</Label>
                     <div className="grid grid-cols-2 gap-2 mt-1.5">
                       {([
                         { value: "professional", label: "Professional", desc: "Authoritative & polished" },
@@ -1192,7 +1194,7 @@ export default function PropertyTours() {
 
                   {/* Voice Selection with Preview */}
                   <div>
-                    <Label className="text-xs font-medium">Voice</Label>
+                    <Label htmlFor="voiceSelectionGroup" className="text-xs font-medium">Voice</Label>
                     <div className="space-y-1.5 mt-1.5">
                       {([
                         { id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel", desc: "Professional Female", tag: "Popular" },
