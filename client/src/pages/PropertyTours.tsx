@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X, Repeat2 } from "lucide-react";
+import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X, Repeat2, UserCircle2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
@@ -117,6 +117,12 @@ export default function PropertyTours() {
 
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropImageIndex, setCropImageIndex] = useState<number | null>(null);
+  // Avatar headshot for intro video overlay
+  const [useProfileAvatar, setUseProfileAvatar] = useState<boolean | null>(null); // null = not yet decided
+  const [customAvatarFile, setCustomAvatarFile] = useState<File | null>(null);
+  const [customAvatarPreview, setCustomAvatarPreview] = useState<string>("");
+  const [avatarCropImageUrl, setAvatarCropImageUrl] = useState<string>("");
+  const [showAvatarCropModal, setShowAvatarCropModal] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
 
@@ -135,6 +141,8 @@ export default function PropertyTours() {
   const { data: balance } = trpc.credits.getBalance.useQuery();
   const { data: dailyUsage } = trpc.rateLimit.getDailyUsage.useQuery();
   const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
+  const { data: currentUser } = trpc.auth.me.useQuery();
+  const updateAvatarImageMutation = trpc.auth.updateAvatarImage.useMutation();
 
   // Auto-populate voice preferences from saved profile settings
   useEffect(() => {
@@ -991,12 +999,121 @@ export default function PropertyTours() {
               <Checkbox
                 id="includeIntroVideo"
                 checked={includeIntroVideo}
-                onCheckedChange={(checked) => setIncludeIntroVideo(checked as boolean)}
+                onCheckedChange={(checked) => {
+                  setIncludeIntroVideo(checked as boolean);
+                  if (!checked) {
+                    setUseProfileAvatar(null);
+                    setCustomAvatarPreview("");
+                    setCustomAvatarFile(null);
+                  }
+                }}
               />
               <Label htmlFor="includeIntroVideo" className="text-sm font-normal cursor-pointer">
                 Prepend my intro video (adds personal intro before property tour)
               </Label>
             </div>
+
+            {/* Avatar headshot choice — shown when intro video is enabled */}
+            {includeIntroVideo && (
+              <div className="ml-6 mt-2 p-4 rounded-lg border bg-muted/30 space-y-3">
+                <p className="text-sm font-medium">Agent Headshot for Intro</p>
+
+                {/* Saved profile avatar option */}
+                {currentUser?.avatarImageUrl && useProfileAvatar !== false && (
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={currentUser.avatarImageUrl}
+                      alt="Saved profile headshot"
+                      className="w-14 h-14 rounded-full object-cover border-2 border-primary"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Your saved headshot</p>
+                      <p className="text-xs text-muted-foreground">From your profile</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={useProfileAvatar === true ? "default" : "outline"}
+                        onClick={() => { setUseProfileAvatar(true); setCustomAvatarPreview(""); setCustomAvatarFile(null); }}
+                      >
+                        {useProfileAvatar === true ? <><Check className="w-3 h-3 mr-1" />Using this</> : "Use this"}
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setUseProfileAvatar(false)}
+                      >
+                        Use different
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Custom upload option */}
+                {(useProfileAvatar === false || !currentUser?.avatarImageUrl) && (
+                  <div className="space-y-2">
+                    {customAvatarPreview ? (
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={customAvatarPreview}
+                          alt="Custom headshot"
+                          className="w-14 h-14 rounded-full object-cover border-2 border-primary"
+                        />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">Custom headshot ready</p>
+                          <p className="text-xs text-muted-foreground">Will be used for this tour</p>
+                        </div>
+                        <div className="flex gap-2">
+                          {currentUser?.avatarImageUrl && (
+                            <Button type="button" size="sm" variant="ghost" onClick={() => setUseProfileAvatar(true)}>
+                              Use saved instead
+                            </Button>
+                          )}
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => { setCustomAvatarPreview(""); setCustomAvatarFile(null); }}
+                          >
+                            <X className="w-3 h-3 mr-1" />Remove
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                        <UserCircle2 className="w-6 h-6 text-muted-foreground mb-1" />
+                        <span className="text-xs text-muted-foreground">Upload your headshot</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = (ev) => {
+                              setAvatarCropImageUrl(ev.target?.result as string);
+                              setShowAvatarCropModal(true);
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+                )}
+
+                {/* Prompt to choose if no decision yet and profile avatar exists */}
+                {useProfileAvatar === null && currentUser?.avatarImageUrl && (
+                  <p className="text-xs text-muted-foreground">Choose to use your saved headshot or upload a different one.</p>
+                )}
+                {!currentUser?.avatarImageUrl && !customAvatarPreview && (
+                  <p className="text-xs text-amber-600">No saved headshot found. Upload one above, or go to AI Reels to save your profile headshot.</p>
+                )}
+              </div>
+            )}
 
 
 
@@ -1747,6 +1864,46 @@ export default function PropertyTours() {
             newUrls[cropImageIndex] = croppedImageUrl;
             setUploadedImageUrls(newUrls);
             toast.success("Photo cropped successfully");
+          }}
+        />
+      )}
+
+      {/* Avatar headshot crop modal */}
+      {showAvatarCropModal && avatarCropImageUrl && (
+        <ImageCropModal
+          open={showAvatarCropModal}
+          onClose={() => {
+            setShowAvatarCropModal(false);
+            setAvatarCropImageUrl("");
+          }}
+          imageUrl={avatarCropImageUrl}
+          onCropComplete={async (croppedImageUrl) => {
+            setShowAvatarCropModal(false);
+            setAvatarCropImageUrl("");
+            // Convert base64 to File
+            const response = await fetch(croppedImageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], "avatar.png", { type: "image/png" });
+            setCustomAvatarFile(file);
+            setCustomAvatarPreview(croppedImageUrl);
+            setUseProfileAvatar(false);
+            toast.success("Headshot cropped and ready!");
+            // Upload to S3 and optionally save to profile
+            try {
+              const formData = new FormData();
+              formData.append("file", file);
+              const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+              if (uploadRes.ok) {
+                const { url: s3Url } = await uploadRes.json();
+                setCustomAvatarPreview(s3Url);
+                // Offer to save to profile
+                toast.success("Headshot uploaded! Saving to your profile...");
+                await updateAvatarImageMutation.mutateAsync({ avatarImageUrl: s3Url });
+                toast.success("Headshot saved to your profile for future use!");
+              }
+            } catch {
+              // Non-blocking — headshot still works for this session
+            }
           }}
         />
       )}
