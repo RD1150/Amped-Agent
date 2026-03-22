@@ -130,6 +130,11 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
         city,
         pdfUrl: url,
         agentName,
+        agentPhone,
+        agentEmail,
+        agentBrokerage,
+        primaryColor,
+        content,
       };
     }),
 
