@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X, Repeat2, UserCircle2 } from "lucide-react";
+import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X, Repeat2, UserCircle2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
@@ -133,6 +133,7 @@ export default function PropertyTours() {
   const [copiedLink, setCopiedLink] = useState(false);
 
   const [previewingScript, setPreviewingScript] = useState(false);
+  const [expandedErrorTourId, setExpandedErrorTourId] = useState<number | null>(null);
   const [scriptAudioUrl, setScriptAudioUrl] = useState<string | null>(null);
   const [scriptAudioPlaying, setScriptAudioPlaying] = useState(false);
 
@@ -538,7 +539,18 @@ export default function PropertyTours() {
             setGeneratingTourId(null);
             setGenerationProgress(0);
             setGenerationStatus("");
-            toast.error((status as any).error || "Video generation failed. Your credits have been refunded.");
+            const errDetail = (status as any).error;
+            if (errDetail) {
+              toast.error(
+                <div>
+                  <p className="font-semibold mb-1">Video generation failed</p>
+                  <p className="text-xs font-mono break-all opacity-80">{errDetail}</p>
+                  <p className="text-xs mt-1 opacity-60">Your credits have been refunded. Click the failed tour to see the full error.</p>
+                </div>
+              );
+            } else {
+              toast.error("Video generation failed. Your credits have been refunded.");
+            }
             utils.propertyTours.list.invalidate();
             utils.credits.getBalance.invalidate();
           }
@@ -1695,29 +1707,44 @@ export default function PropertyTours() {
                             Generating video...
                           </span>
                         ) : tour.status === "failed" ? (
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm text-destructive line-clamp-1 max-w-[200px]" title={tour.errorMessage || ""}>Failed: {tour.errorMessage}</span>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-7 px-2 text-xs"
-                              onClick={async () => {
-                                try {
-                                  await retryVideo.mutateAsync({ tourId: tour.id });
-                                  toast.success("Retrying video generation...");
-                                  utils.propertyTours.list.invalidate();
-                                  setGeneratingTourId(tour.id);
-                                  setGenerationProgress(5);
-                                  setGenerationStatus("Retrying...");
-                                } catch (error) {
-                                  toast.error(error instanceof Error ? error.message : "Failed to retry");
-                                }
-                              }}
-                              disabled={retryVideo.isPending}
-                            >
-                              {retryVideo.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3 mr-1" />}
-                              Retry
-                            </Button>
+                          <div className="flex flex-col gap-1 w-full">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <button
+                                className="flex items-center gap-1.5 text-sm text-destructive hover:text-destructive/80 transition-colors"
+                                onClick={() => setExpandedErrorTourId(expandedErrorTourId === tour.id ? null : tour.id)}
+                                title="Click to see full error details"
+                              >
+                                <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                                <span className="line-clamp-1 max-w-[180px]">Generation failed</span>
+                                {expandedErrorTourId === tour.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                              </button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-xs"
+                                onClick={async () => {
+                                  try {
+                                    await retryVideo.mutateAsync({ tourId: tour.id });
+                                    toast.success("Retrying video generation...");
+                                    utils.propertyTours.list.invalidate();
+                                    setGeneratingTourId(tour.id);
+                                    setGenerationProgress(5);
+                                    setGenerationStatus("Retrying...");
+                                  } catch (error) {
+                                    toast.error(error instanceof Error ? error.message : "Failed to retry");
+                                  }
+                                }}
+                                disabled={retryVideo.isPending}
+                              >
+                                {retryVideo.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3 mr-1" />}
+                                Retry
+                              </Button>
+                            </div>
+                            {expandedErrorTourId === tour.id && tour.errorMessage && (
+                              <div className="mt-1 p-2 rounded bg-destructive/10 border border-destructive/20 text-xs text-destructive font-mono break-all whitespace-pre-wrap max-h-32 overflow-y-auto">
+                                {tour.errorMessage}
+                              </div>
+                            )}
                           </div>
                         ) : null}
                         <Button

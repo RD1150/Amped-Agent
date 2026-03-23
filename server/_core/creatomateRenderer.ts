@@ -589,6 +589,14 @@ export async function checkRenderStatus(renderId: string): Promise<RenderStatusR
   const render = await response.json();
 
   console.log("[Creatomate] Render status:", render.status, render.id);
+  if (render.status === "failed") {
+    console.error("[Creatomate] Render FAILED details:", JSON.stringify({
+      id: render.id,
+      status: render.status,
+      error_message: render.error_message,
+      error_type: render.error_type,
+    }, null, 2));
+  }
 
   // Map Creatomate statuses to our internal statuses
   // Creatomate statuses: planned, waiting, transcribing, rendering, succeeded, failed

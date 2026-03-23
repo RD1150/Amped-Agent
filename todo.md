@@ -3834,3 +3834,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Session: Mar 23, 2026 - Cinematic Tour Render Bug
 - [x] Investigate why cinematic tour fails at final render/compile stage after AI generation completes
 - [x] Fix the render failure and add better error reporting
+
+## Session: Mar 23, 2026 - Creatomate Error Display
+- [x] Surface detailed Creatomate error message in the UI when a video render fails
