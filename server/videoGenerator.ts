@@ -812,10 +812,15 @@ export async function checkRenderStatus(renderId: string): Promise<{
     const { checkRenderStatus: creatomateCheck } = await import("./_core/creatomateRenderer");
     const result = await creatomateCheck(renderId);
     // Map Creatomate statuses to legacy interface
+    // Creatomate statuses: planned, waiting, transcribing, rendering, succeeded, failed
+    // NOTE: Creatomate uses "succeeded" not "done" — must map both to avoid stuck renders
     const statusMap: Record<string, "queued" | "fetching" | "rendering" | "saving" | "done" | "failed"> = {
+      planned: "queued",
       queued: "queued",
       waiting: "queued",
+      transcribing: "rendering",
       rendering: "rendering",
+      succeeded: "done",  // ← Creatomate's actual completion status
       done: "done",
       failed: "failed",
     };

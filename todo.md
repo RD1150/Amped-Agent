@@ -3831,3 +3831,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add voice name input field before Clone button (custom label for the clone)
 - [x] Show post-clone audio preview immediately after successful clone
 - [x] Make directions panel collapsible (hidden by default if voice already cloned)
+## Session: Mar 23, 2026 - Cinematic Tour Render Bug
+- [x] Investigate why cinematic tour fails at final render/compile stage after AI generation completes
+- [x] Fix the render failure and add better error reporting

@@ -468,7 +468,9 @@ export default function PropertyTours() {
       let pollCount = 0;
       // AI Walkthrough: Kling clips run in parallel, ~8-12 min total
       // Standard Ken Burns: ~3-5 min total
-      const maxPolls = videoMode === "ai-enhanced" ? 200 : 90; // 200×5s=16.7min for AI, 90×5s=7.5min for standard
+      // ai-enhanced (AI Walkthrough): Kling AI clips (~8-15 min) + Creatomate render (~3-5 min) = up to 25 min
+      // standard: Ken Burns only, Creatomate render ~3-5 min = 7.5 min
+      const maxPolls = videoMode === "ai-enhanced" ? 360 : 90; // 360×5s=30min for AI Walkthrough, 90×5s=7.5min for standard
 
       // Stage → progress % and human-readable message
       const stageInfo: Record<string, { progress: number; message: string }> = {
