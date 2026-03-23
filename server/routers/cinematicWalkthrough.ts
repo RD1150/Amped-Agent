@@ -462,7 +462,7 @@ async function pollCreatomateRender(renderId: string, maxWaitMs = 600000): Promi
 
     if (!res.ok) continue;
 
-    const data = await res.json() as { status: string; url?: string };
+    const data = await res.json() as { status: string; url?: string; error_message?: string; error_type?: string };
     log(`Creatomate render ${renderId} status: ${data.status}`);
 
     if (data.status === "succeeded" && data.url) {
@@ -471,7 +471,11 @@ async function pollCreatomateRender(renderId: string, maxWaitMs = 600000): Promi
     }
 
     if (data.status === "failed") {
-      throw new Error("Creatomate render failed");
+      const detail = data.error_message
+        ? ` — ${data.error_message}`
+        : data.error_type ? ` (${data.error_type})` : "";
+      log(`✗ Creatomate render FAILED for ${renderId}: ${data.error_message ?? data.error_type ?? "unknown"}`);
+      throw new Error(`Creatomate render failed${detail}`);
     }
   }
 

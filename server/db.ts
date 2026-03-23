@@ -807,6 +807,25 @@ export async function deletePropertyTour(id: number) {
   await db.delete(propertyTours).where(eq(propertyTours.id, id));
 }
 
+/**
+ * Find all property tours stuck in "processing" state for longer than olderThanMinutes.
+ * These are orphaned background jobs killed by a server restart or crash.
+ */
+export async function getStuckProcessingTours(olderThanMinutes: number = 35) {
+  const db = await getDb();
+  if (!db) return [];
+  const cutoff = new Date(Date.now() - olderThanMinutes * 60 * 1000);
+  return db
+    .select()
+    .from(propertyTours)
+    .where(
+      and(
+        eq(propertyTours.status, "processing"),
+        lte(propertyTours.updatedAt, cutoff)
+      )
+    );
+}
+
 // ============ CONTENT TEMPLATES HELPERS ============
 // For CSV bulk uploads of hooks, reel ideas, and scripts
 

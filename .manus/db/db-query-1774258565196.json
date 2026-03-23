@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, address, status, processingStage, errorMessage, videoMode, enableVoiceover, updatedAt FROM property_tours WHERE status = 'failed' OR status = 'processing' ORDER BY updatedAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, address, status, processingStage, errorMessage, videoMode, enableVoiceover, updatedAt FROM property_tours WHERE status = 'failed' OR status = 'processing' ORDER BY updatedAt DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "1470001",
+      "address": "Cinematic Telluride",
+      "status": "failed",
+      "processingStage": "NULL",
+      "errorMessage": "Failed to generate video: Shotstack API error: 400 Bad Request. First clip: {\"hasTransition\":false,\"hasEffect\":false}. Shotstack response: {\"success\":false,\"message\":\"Bad Request\",\"response\":{\"request_id\":\"req_1773468841492_6a5c6pn95\",\"message\":\"Validation failed for timeline: Found 6 validation errors\",\"errors\":[{\"type\":\"validation_erro",
+      "videoMode": "full-ai",
+      "enableVoiceover": "0",
+      "updatedAt": "2026-03-14 06:14:02"
+    },
+    {
+      "id": "1410002",
+      "address": "Telluride Co",
+      "status": "failed",
+      "processingStage": "NULL",
+      "errorMessage": "Failed to generate video: Shotstack API error: 400 Bad Request. First clip: {\"hasTransition\":false,\"hasEffect\":false}. Shotstack response: {\"success\":false,\"message\":\"Bad Request\",\"response\":{\"request_id\":\"req_1773402411052_9qea7sys0\",\"message\":\"Validation failed for timeline: Found 6 validation errors\",\"errors\":[{\"type\":\"validation_erro",
+      "videoMode": "full-ai",
+      "enableVoiceover": "0",
+      "updatedAt": "2026-03-13 11:46:52"
+    },
+    {
+      "id": "1410001",
+      "address": "Telluride Co Mountain Home",
+      "status": "failed",
+      "processingStage": "NULL",
+      "errorMessage": "Failed to generate video: Shotstack API error: 400 Bad Request. First clip: {\"hasTransition\":false,\"hasEffect\":false}. Shotstack response: {\"success\":false,\"message\":\"Bad Request\",\"response\":{\"request_id\":\"req_1773402118549_7q7nlzm6n\",\"message\":\"Validation failed for timeline: Found 6 validation errors\",\"errors\":[{\"type\":\"validation_erro",
+      "videoMode": "full-ai",
+      "enableVoiceover": "0",
+      "updatedAt": "2026-03-13 11:41:59"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\taddress\tstatus\tprocessingStage\terrorMessage\tvideoMode\tenableVoiceover\tupdatedAt\n1470001\tCinematic Telluride\tfailed\tNULL\tFailed to generate video: Shotstack API error: 400 Bad Request. First clip: {\"hasTransition\":false,\"hasEffect\":false}. Shotstack response: {\"success\":false,\"message\":\"Bad Request\",\"response\":{\"request_id\":\"req_1773468841492_6a5c6pn95\",\"message\":\"Validation failed for timeline: Found 6 validation errors\",\"errors\":[{\"type\":\"validation_erro\tfull-ai\t0\t2026-03-14 06:14:02\n1410002\tTelluride Co\tfailed\tNULL\tFailed to generate video: Shotstack API error: 400 Bad Request. First clip: {\"hasTransition\":false,\"hasEffect\":false}. Shotstack response: {\"success\":false,\"message\":\"Bad Request\",\"response\":{\"request_id\":\"req_1773402411052_9qea7sys0\",\"message\":\"Validation failed for timeline: Found 6 validation errors\",\"errors\":[{\"type\":\"validation_erro\tfull-ai\t0\t2026-03-13 11:46:52\n1410001\tTelluride Co Mountain Home\tfailed\tNULL\tFailed to generate video: Shotstack API error: 400 Bad Request. First clip: {\"hasTransition\":false,\"hasEffect\":false}. Shotstack response: {\"success\":false,\"message\":\"Bad Request\",\"response\":{\"request_id\":\"req_1773402118549_7q7nlzm6n\",\"message\":\"Validation failed for timeline: Found 6 validation errors\",\"errors\":[{\"type\":\"validation_erro\tfull-ai\t0\t2026-03-13 11:41:59\n",
+  "stderr": "",
+  "execution_time_ms": 866
+}

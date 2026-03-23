@@ -356,9 +356,22 @@ export default function CinematicWalkthrough() {
             <div className="p-1.5 rounded-full bg-red-500/10 shrink-0 mt-0.5">
               <X className="h-4 w-4 text-red-500" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <p className="font-semibold text-foreground">Generation failed</p>
-              <p className="text-sm text-muted-foreground mt-0.5">{failedJobError}</p>
+              {/* Short summary — first 120 chars */}
+              <p className="text-sm text-muted-foreground mt-0.5 break-words">
+                {failedJobError.length > 120 ? failedJobError.slice(0, 120) + "…" : failedJobError}
+              </p>
+              {/* Expandable full error detail */}
+              {failedJobError.length > 30 && (
+                <details className="mt-2">
+                  <summary className="text-xs text-red-400 cursor-pointer hover:text-red-300 select-none flex items-center gap-1 list-none">
+                    <ChevronDown className="h-3 w-3" />
+                    Show full error detail
+                  </summary>
+                  <pre className="mt-2 p-3 rounded bg-red-950/40 border border-red-500/20 text-xs text-red-300 font-mono whitespace-pre-wrap break-all max-h-40 overflow-y-auto">{failedJobError}</pre>
+                </details>
+              )}
             </div>
           </div>
           <div className="flex gap-3">

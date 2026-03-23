@@ -3837,3 +3837,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Session: Mar 23, 2026 - Creatomate Error Display
 - [x] Surface detailed Creatomate error message in the UI when a video render fails
+
+## Session: Mar 23, 2026 - Connection Timeout Fix
+- [ ] Fix long-running connection timeout killing AI Walkthrough video generation mid-render
+
+## Session: Mar 23, 2026 - Cinematic Error Detail Fix
+- [x] Fix pollCreatomateRender to include error_message and error_type from Creatomate API response
+- [x] Improve CinematicWalkthrough failure banner to show expandable full error detail in monospace box
