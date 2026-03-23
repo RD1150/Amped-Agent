@@ -85,6 +85,7 @@ export default function AutoReels() {
 
   // Load saved voice preferences
   const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
+  const { data: personaData } = trpc.persona.get.useQuery();
   const previewVoiceMutation = trpc.propertyTours.previewVoice.useMutation();
 
   // Load saved avatar from user profile
@@ -93,10 +94,15 @@ export default function AutoReels() {
   const updateAvatarVideoMutation = trpc.auth.updateAvatarVideo.useMutation();
 
   // Auto-populate from saved preferences
+  // Prefer cloned voice if agent has one
   useEffect(() => {
-    if (voicePref?.voiceId) setVoiceId(voicePref.voiceId);
+    if (personaData && (personaData as any).elevenlabsVoiceId) {
+      setVoiceId((personaData as any).elevenlabsVoiceId);
+    } else if (voicePref?.voiceId) {
+      setVoiceId(voicePref.voiceId);
+    }
     if (voicePref?.voiceoverStyle) setVoiceoverStyle(voicePref.voiceoverStyle as any);
-  }, [voicePref]);
+  }, [voicePref, personaData]);
 
   // Restore saved avatar image and video on mount
   useEffect(() => {
@@ -852,6 +858,75 @@ export default function AutoReels() {
                   <div>
                     <Label className="text-sm font-medium mb-3 block">Voice</Label>
                     <div className="grid grid-cols-2 gap-2">
+                      {/* Cloned voice option — shown first if agent has one */}
+                      {(personaData as any)?.elevenlabsVoiceId && (
+                        <div
+                          className={`relative rounded-lg border p-3 cursor-pointer transition-all col-span-2 ${
+                            voiceId === (personaData as any).elevenlabsVoiceId
+                              ? "border-violet-500 bg-violet-500/10"
+                              : "border-border hover:border-violet-500/50"
+                          }`}
+                          onClick={() => setVoiceId((personaData as any).elevenlabsVoiceId)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-medium">{(personaData as any).elevenlabsVoiceName || "My Voice"}</p>
+                              <p className="text-xs text-muted-foreground">Your Cloned Voice</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] bg-green-500/20 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">Cloned</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 shrink-0"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  const vid = (personaData as any).elevenlabsVoiceId;
+                                  if (playingVoiceId === vid) {
+                                    audioRef.current?.pause();
+                                    setPlayingVoiceId(null);
+                                    return;
+                                  }
+                                  if (voicePreviewAudio[vid]) {
+                                    const audio = new Audio(voicePreviewAudio[vid]);
+                                    audioRef.current = audio;
+                                    audio.play();
+                                    setPlayingVoiceId(vid);
+                                    audio.onended = () => setPlayingVoiceId(null);
+                                    return;
+                                  }
+                                  setPreviewingVoice(vid);
+                                  try {
+                                    const result = await previewVoiceMutation.mutateAsync({
+                                      voiceId: vid,
+                                      sampleText: "Welcome to this stunning property. I'm excited to show you around.",
+                                    });
+                                    setVoicePreviewAudio(prev => ({ ...prev, [vid]: result.url }));
+                                    const audio = new Audio(result.url);
+                                    audioRef.current = audio;
+                                    audio.play();
+                                    setPlayingVoiceId(vid);
+                                    audio.onended = () => setPlayingVoiceId(null);
+                                  } catch {
+                                    toast.error("Preview failed");
+                                  } finally {
+                                    setPreviewingVoice(null);
+                                  }
+                                }}
+                                disabled={previewingVoice === (personaData as any).elevenlabsVoiceId}
+                              >
+                                {previewingVoice === (personaData as any).elevenlabsVoiceId ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : playingVoiceId === (personaData as any).elevenlabsVoiceId ? (
+                                  <Square className="h-3.5 w-3.5 fill-current" />
+                                ) : (
+                                  <Play className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       {[
                         { id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel", desc: "Calm · Female" },
                         { id: "EXAVITQu4vr4xnSDxMaL", name: "Bella", desc: "Warm · Female" },

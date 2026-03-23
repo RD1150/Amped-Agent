@@ -168,7 +168,7 @@ export async function getTaskStatus(taskId: string): Promise<KlingTask> {
  */
 export async function waitForTask(
   taskId: string,
-  maxWaitMs: number = 300000 // 5 minutes
+  maxWaitMs: number = 600000 // 10 minutes (Kling pro mode clips can take 4-8 min)
 ): Promise<KlingTask> {
   const startTime = Date.now();
   const pollInterval = 5000; // 5 seconds
@@ -426,7 +426,7 @@ export async function getAvatarTaskStatus(taskId: string): Promise<KlingAvatarTa
  */
 export async function waitForAvatarTask(
   taskId: string,
-  maxWaitMs: number = 300000 // 5 minutes
+  maxWaitMs: number = 600000 // 10 minutes (Kling pro mode clips can take 4-8 min)
 ): Promise<KlingAvatarTask> {
   const startTime = Date.now();
   const pollInterval = 5000; // 5 seconds

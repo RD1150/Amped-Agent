@@ -129,4 +129,28 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
+// Audio/voice sample upload endpoint (for ElevenLabs voice cloning)
+router.post("/upload-audio", upload.single("audio"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No audio file uploaded" });
+    }
+    const file = req.file;
+    const mimeType = file.mimetype;
+    // Only accept audio files
+    if (!mimeType.startsWith("audio/") && !file.originalname?.match(/\.(mp3|wav|m4a|ogg|flac|webm)$/i)) {
+      return res.status(400).json({ error: "Only audio files are accepted (mp3, wav, m4a, ogg, flac, webm)" });
+    }
+    const randomSuffix = randomBytes(8).toString("hex");
+    const ext = file.originalname?.split(".").pop()?.toLowerCase() || "mp3";
+    const filename = `voice-samples/${Date.now()}-${randomSuffix}.${ext}`;
+    const { url } = await storagePut(filename, file.buffer, mimeType || "audio/mpeg");
+    console.log(`✅ Voice sample uploaded: ${filename} (${(file.size / 1024).toFixed(0)}KB)`);
+    res.json({ url });
+  } catch (error) {
+    console.error("Audio upload error:", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : "Upload failed" });
+  }
+});
+
 export default router;

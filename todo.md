@@ -3808,3 +3808,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update credits router calculateCost to accept ai-enhanced videoMode
 - [x] Verify Auto Reels end-to-end: script generation → Creatomate render → video playback working
 - [x] Fix getCameraControlForRoom to use simple type with zoom/pan/tilt config values per room type
+## Session: Mar 23, 2026 - Voice Cloning Integration
+- [x] Add audio upload endpoint (/api/upload-audio) to uploadEndpoint.ts for voice samples
+- [x] Add Voice Cloning section to Authority Profile page (record in browser OR upload file)
+- [x] Wire cloneVoice tRPC mutation to Authority Profile UI with upload + clone button
+- [x] Show active cloned voice status with delete option in Authority Profile
+- [x] Add persona query to PropertyTours.tsx to detect cloned voice
+- [x] Auto-select cloned voice in PropertyTours when agent has one (overrides generic preference)
+- [x] Show cloned voice as first option in PropertyTours voice selector with "Cloned" badge
+- [x] Add persona query to AutoReels.tsx to detect cloned voice
+- [x] Auto-select cloned voice in AutoReels when agent has one
+- [x] Show cloned voice as full-width option in AutoReels voice grid with "Cloned" badge

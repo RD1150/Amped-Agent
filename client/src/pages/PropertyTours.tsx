@@ -143,15 +143,19 @@ export default function PropertyTours() {
   const { data: dailyUsage } = trpc.rateLimit.getDailyUsage.useQuery();
   const { data: voicePref } = trpc.auth.getVoicePreference.useQuery();
   const { data: currentUser } = trpc.auth.me.useQuery();
+  const { data: personaData } = trpc.persona.get.useQuery();
   const updateAvatarImageMutation = trpc.auth.updateAvatarImage.useMutation();
 
   // Auto-populate voice preferences from saved profile settings
+  // If agent has a cloned voice, prefer it over the generic preference
   useEffect(() => {
-    if (voicePref) {
+    if (personaData && (personaData as any).elevenlabsVoiceId) {
+      setVoiceId((personaData as any).elevenlabsVoiceId);
+    } else if (voicePref) {
       setVoiceId(voicePref.voiceId);
       setVoiceoverStyle(voicePref.voiceoverStyle);
     }
-  }, [voicePref]);
+  }, [voicePref, personaData]);
 
   // Mutations
   const uploadImages = trpc.propertyTours.uploadImages.useMutation();
@@ -462,13 +466,16 @@ export default function PropertyTours() {
       setGenerationStatus("Video queued. Starting generation...");
 
       let pollCount = 0;
-      // Ken Burns takes ~3-5 min (90 polls × 5s = 7.5 min max)
-      const maxPolls = 90;
+      // AI Walkthrough: Kling clips run in parallel, ~8-12 min total
+      // Standard Ken Burns: ~3-5 min total
+      const maxPolls = videoMode === "ai-enhanced" ? 200 : 90; // 200×5s=16.7min for AI, 90×5s=7.5min for standard
 
       // Stage → progress % and human-readable message
       const stageInfo: Record<string, { progress: number; message: string }> = {
         preparing:                { progress: 20, message: "Preparing your property tour..." },
         generating_voiceover:     { progress: 30, message: "Generating professional AI voiceover narration..." },
+        generating_ai_clips:      { progress: 45, message: "Generating AI walkthrough clips — this takes 5-10 minutes..." },
+        submitting_to_renderer:   { progress: 70, message: "Submitting to video renderer..." },
         submitting_to_shotstack:  { progress: 70, message: "Preparing your video for final render..." },
         fetching_assets:          { progress: 75, message: "Loading your assets for rendering..." },
         rendering:                { progress: 80, message: "Rendering your video..." },
@@ -1239,6 +1246,40 @@ export default function PropertyTours() {
                   <div>
                     <Label htmlFor="voiceSelectionGroup" className="text-xs font-medium">Voice</Label>
                     <div className="space-y-1.5 mt-1.5">
+                      {/* Cloned voice option — shown first if agent has one */}
+                      {(personaData as any)?.elevenlabsVoiceId && (
+                        <div
+                          onClick={() => setVoiceId((personaData as any).elevenlabsVoiceId)}
+                          className={`flex items-center justify-between p-2 rounded-md border cursor-pointer transition-colors ${
+                            voiceId === (personaData as any).elevenlabsVoiceId
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className={`w-3 h-3 rounded-full border-2 flex-shrink-0 ${
+                              voiceId === (personaData as any).elevenlabsVoiceId ? "border-primary bg-primary" : "border-muted-foreground"
+                            }`} />
+                            <div>
+                              <span className="text-xs font-medium">{(personaData as any).elevenlabsVoiceName || "My Voice"}</span>
+                              <span className="text-xs text-muted-foreground ml-1.5">Your Cloned Voice</span>
+                              <span className="ml-1.5 text-[10px] bg-green-500/20 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">Cloned</span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleVoicePreview((personaData as any).elevenlabsVoiceId); }}
+                            disabled={previewingVoiceId === (personaData as any).elevenlabsVoiceId}
+                            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary border border-border hover:border-primary/50 px-2 py-1 rounded transition-colors disabled:opacity-50"
+                          >
+                            {previewingVoiceId === (personaData as any).elevenlabsVoiceId ? (
+                              <><Loader2 className="w-3 h-3 animate-spin" /> Loading...</>
+                            ) : (
+                              <><Play className="w-3 h-3" /> Preview</>
+                            )}
+                          </button>
+                        </div>
+                      )}
                       {([
                         { id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel", desc: "Professional Female", tag: "Popular" },
                         { id: "pNInz6obpgDQGcFmaJgB", name: "Adam",   desc: "Professional Male",   tag: "" },

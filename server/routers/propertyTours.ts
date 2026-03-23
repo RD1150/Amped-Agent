@@ -207,14 +207,16 @@ export const propertyToursRouter = router({
             await db.updatePropertyTour(tourId, { processingStage: "generating_voiceover" });
           }
 
-          // Stage 3: Generate AI video clips (if full-ai) — this is the slow part
+          // Stage 3: For AI Walkthrough, show generating_ai_clips stage BEFORE calling generatePropertyTourVideo
+          // This stage stays visible during the entire Kling AI wait (~5-10 min)
+          // For standard mode, show submitting_to_renderer immediately
           if (tour.videoMode === "ai-enhanced") {
             await db.updatePropertyTour(tourId, { processingStage: "generating_ai_clips" });
+            bgLog(`[PropertyTours] Stage: generating_ai_clips (Kling AI will run inside generatePropertyTourVideo)`);
+          } else {
+            await db.updatePropertyTour(tourId, { processingStage: "submitting_to_renderer" });
+            bgLog(`[PropertyTours] Stage: submitting_to_renderer`);
           }
-
-          // Stage 4: Submit to Creatomate
-          await db.updatePropertyTour(tourId, { processingStage: "submitting_to_renderer" });
-          bgLog(`[PropertyTours] Stage: submitting_to_renderer`);
 
           bgLog(`[PropertyTours] Calling generatePropertyTourVideo...`);
           const { renderId } = await generatePropertyTourVideo({
