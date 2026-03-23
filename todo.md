@@ -3823,3 +3823,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add standard reading script to Voice Clone section in Authority Profile
 - [x] Show script in a styled card with copy-to-clipboard button
 - [x] Add "Read this aloud" instruction above the recording button
+## Session: Mar 23, 2026 - Voice Clone Directions
+- [x] Add numbered step-by-step directions panel to Voice Clone section in Authority Profile
+- [x] Include setup tips (quiet room, microphone distance, no music)
+- [x] Add visual step indicators (numbered circles) for clarity

@@ -45,6 +45,56 @@ If you're thinking about buying or selling, I'd love to connect. Let's talk abou
 
 Thank you for taking the time to learn more about me. I look forward to earning your trust and your business.`;
 
+function VoiceDirections() {
+  const steps = [
+    {
+      num: 1,
+      title: "Find a quiet space",
+      detail: "Close doors, turn off fans or music, and move away from windows. Even a closet works great — clothes absorb echo.",
+    },
+    {
+      num: 2,
+      title: "Position your microphone",
+      detail: "Hold your phone 6–8 inches from your mouth, or sit close to your laptop mic. Avoid holding it directly in front of your lips to prevent plosives (popping sounds).",
+    },
+    {
+      num: 3,
+      title: "Read the script below naturally",
+      detail: "Speak at your normal conversational pace — not too fast, not too slow. Vary your tone as if talking to a client. Avoid rushing or reading in a monotone voice.",
+    },
+    {
+      num: 4,
+      title: "Record or upload your audio",
+      detail: "Use Option A to record directly in your browser, or Option B to upload a pre-recorded file. Aim for at least 60 seconds — 90 seconds or more gives the best results.",
+    },
+    {
+      num: 5,
+      title: "Click \"Clone My Voice\"",
+      detail: "ElevenLabs will process your audio and create a custom voice model. This takes about 30 seconds. Once done, your cloned voice is automatically used in all Property Tours and Auto Reels.",
+    },
+  ];
+
+  return (
+    <div className="rounded-lg border border-border bg-muted/30 p-4">
+      <p className="text-sm font-semibold mb-3 flex items-center gap-2">
+        <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold shrink-0">?</span>
+        How to clone your voice — 5 easy steps
+      </p>
+      <ol className="space-y-3">
+        {steps.map((step) => (
+          <li key={step.num} className="flex gap-3">
+            <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold shrink-0 mt-0.5">{step.num}</span>
+            <div>
+              <p className="text-xs font-semibold">{step.title}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.detail}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 function VoiceScript() {
   const [copied, setCopied] = useState(false);
 
@@ -568,6 +618,9 @@ export default function AuthorityProfile() {
           )}
 
           <div className="space-y-5">
+            {/* Step-by-step directions */}
+            <VoiceDirections />
+
             {/* Standard reading script */}
             <VoiceScript />
 
