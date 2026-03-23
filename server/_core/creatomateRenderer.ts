@@ -209,12 +209,17 @@ function generateSubtitleTiming(
 }
 
 export async function renderAutoReel(options: AutoReelOptions): Promise<RenderResult> {
-  const { hook, script, videoLength, tone, voiceoverAudioUrl } = options;
+  const { hook, script, tone, voiceoverAudioUrl } = options;
+  // Enforce minimum 30-second duration
+  const videoLength = Math.max(30, options.videoLength);
+  // Only show subtitles for videos at or above the minimum readable duration
+  const SUBTITLE_MIN_DURATION = 30;
+  const enableSubtitles = videoLength >= SUBTITLE_MIN_DURATION;
 
   try {
     const elements: object[] = [];
 
-    // ── Track 1: Background video (bottom layer) ──────────────────────────────
+    // ── Track 1: Background video (bottom layer) ────────────────────────
     elements.push({
       type: "video",
       source: STOCK_FOOTAGE[tone] ?? STOCK_FOOTAGE.calm,
@@ -257,9 +262,10 @@ export async function renderAutoReel(options: AutoReelOptions): Promise<RenderRe
       ],
     });
 
-    // ── Track 4: Script subtitles ─────────────────────────────────────────────
-    const subtitles = generateSubtitleTiming(script, videoLength - 2);
-    subtitles.forEach((sub, i) => {
+    //    // ── Track 4: Script subtitles ─────────────────────────────────────
+    // Only add subtitles if the video is long enough for readable display
+    const subtitles = enableSubtitles ? generateSubtitleTiming(script, videoLength - 2) : [];
+    subtitles.forEach((sub, _i) => {
       elements.push({
         type: "text",
         track: 4,

@@ -137,7 +137,12 @@ function pickBackgroundImages(options: VideoRenderOptions): string[] {
  * Uses real background images with Ken Burns zoom effect.
  */
 export async function renderAutoReel(options: VideoRenderOptions): Promise<RenderResult> {
-  const { hook, script, videoLength, tone, voiceoverAudioUrl } = options;
+  const { hook, script, tone, voiceoverAudioUrl } = options;
+  // Enforce minimum 30-second duration
+  const videoLength = Math.max(30, options.videoLength);
+  // Only show subtitles for videos at or above the minimum readable duration
+  const SUBTITLE_MIN_DURATION = 30;
+  const enableSubtitles = videoLength >= SUBTITLE_MIN_DURATION;
 
   const apiKey = ENV.CREATOMATE_API_KEY;
   if (!apiKey) {
@@ -237,7 +242,8 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
     });
 
     // ── Subtitle chunks — lower third, pill background ────────────────────────
-    const subtitles = generateSubtitleTiming(script, 3.2, videoLength - 0.5);
+    // Only add subtitles if the video is long enough for readable display
+    const subtitles = enableSubtitles ? generateSubtitleTiming(script, 3.2, videoLength - 0.5) : [];
     subtitles.forEach((sub) => {
       elements.push({
         type: 'text',

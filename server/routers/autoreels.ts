@@ -7,7 +7,7 @@ import { generateAvatarIntro, getRemainingCredits } from "../lib/did-service";
 import * as db from "../db";
 
 const inputMethodEnum = z.enum(["bullets", "caption", "blog", "listing"]);
-const videoLengthEnum = z.enum(["7", "15", "30"]);
+const videoLengthEnum = z.enum(["30", "60"]);
 const toneEnum = z.enum(["calm", "bold", "authoritative", "warm"]);
 
 export const autoreelsRouter = router({

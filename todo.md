@@ -3862,5 +3862,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Wire US Real Estate API into Blog Builder (when city is provided)
 
 ## Session: Mar 23, 2026 - Reel Audio & Text Bugs
-- [ ] Fix inaudible voiceover in AI Reels - check volume level in Creatomate payload
-- [ ] Fix text still flashing too quickly - verify timing fix is applied to correct renderer path
+- [x] Fix inaudible voiceover in AI Reels - fixed volume format to "100%" string in both videoRenderer.ts and creatomateRenderer.ts
+- [x] Fix text still flashing too quickly - increased min display time to 3.5s, reduced chunk size to 5 words in both renderers
+
+## Session: Mar 23, 2026 - Minimum Reel Duration & Subtitle Enforcement
+- [x] Set minimum reel duration to 30 seconds in videoRenderer.ts (Math.max(30, videoLength))
+- [x] Set minimum reel duration to 30 seconds in creatomateRenderer.ts (Math.max(30, videoLength))
+- [x] Disable subtitles entirely for reels under 30 seconds (enableSubtitles flag)
+- [x] Update AutoReels UI video length selector to show only 30s and 60s options
+- [x] Update videoLengthEnum in autoreels router to z.enum(["30", "60"])
+- [x] Add reelDuration.test.ts with 9 tests covering minimum duration and subtitle logic

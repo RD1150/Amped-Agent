@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { ImageCropModal } from "@/components/ImageCropModal";
 
 type InputMethod = "bullets" | "caption" | "blog" | "listing";
-type VideoLength = "7" | "15" | "30";
+type VideoLength = "30" | "60";
 type Tone = "calm" | "bold" | "authoritative" | "warm";
 
 export default function AutoReels() {
@@ -25,7 +25,7 @@ export default function AutoReels() {
   
   const [inputMethod, setInputMethod] = useState<InputMethod>("bullets");
   const [inputText, setInputText] = useState(scriptParam || "");
-  const [videoLength, setVideoLength] = useState<VideoLength>("15");
+  const [videoLength, setVideoLength] = useState<VideoLength>("30");
   const [tone, setTone] = useState<Tone>("authoritative");
   const [niche] = useState("real estate");
   
@@ -927,16 +927,12 @@ export default function AutoReels() {
                 <Label className="text-base font-semibold mb-3 block">Video Length</Label>
                 <RadioGroup value={videoLength} onValueChange={(v) => setVideoLength(v as VideoLength)}>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="7" id="length-7" />
-                    <Label htmlFor="length-7" className="font-normal cursor-pointer">7 seconds</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="15" id="length-15" />
-                    <Label htmlFor="length-15" className="font-normal cursor-pointer">15 seconds</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
                     <RadioGroupItem value="30" id="length-30" />
-                    <Label htmlFor="length-30" className="font-normal cursor-pointer">30 seconds</Label>
+                    <Label htmlFor="length-30" className="font-normal cursor-pointer">30 seconds <span className="text-xs text-muted-foreground">(recommended)</span></Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="60" id="length-60" />
+                    <Label htmlFor="length-60" className="font-normal cursor-pointer">60 seconds</Label>
                   </div>
                 </RadioGroup>
               </div>
