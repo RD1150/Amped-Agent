@@ -3849,3 +3849,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add recoverStuckCinematicJobs() function to cinematicWalkthrough router
 - [x] Wire startup recovery into server boot sequence in _core/index.ts
 - [x] Log recovered jobs with count and IDs for observability
+
+## Session: Mar 23, 2026 - Retry Count Limit
+- [x] Add retryCount column to cinematic_jobs schema and push migration
+- [x] Increment retryCount on each retry in the retry procedure
+- [x] Block retry and show "Contact support" message when retryCount >= 3 in UI

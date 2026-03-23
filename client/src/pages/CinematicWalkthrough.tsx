@@ -85,6 +85,8 @@ export default function CinematicWalkthrough() {
   // Failed job state for retry
   const [failedJobId, setFailedJobId] = useState<string | null>(null);
   const [failedJobError, setFailedJobError] = useState<string | null>(null);
+  const [failedJobRetryCount, setFailedJobRetryCount] = useState<number>(0);
+  const MAX_RETRIES = 3;
 
   // tRPC
   const generateMutation = trpc.cinematicWalkthrough.generate.useMutation();
@@ -124,11 +126,13 @@ export default function CinematicWalkthrough() {
       setIsGenerating(false);
       setFailedJobId(jobId);
       setFailedJobError(jobProgress.error || "Generation failed. Please try again.");
+      setFailedJobRetryCount(jobProgress.retryCount ?? 0);
       setJobId(null);
     } else if (jobProgress.status === "not_found" && isGenerating) {
       setIsGenerating(false);
       setFailedJobId(jobId);
       setFailedJobError("The job could not be located. Please try again.");
+      setFailedJobRetryCount(0);
       setJobId(null);
     }
   }, [jobProgress?.status, jobProgress?.videoUrl]);
@@ -265,17 +269,33 @@ export default function CinematicWalkthrough() {
 
   const handleRetry = async () => {
     if (!failedJobId) return;
+    if (failedJobRetryCount >= MAX_RETRIES) {
+      toast.error("Retry limit reached", { description: "Please contact support for assistance." });
+      return;
+    }
+    const currentFailedJobId = failedJobId;
+    const currentFailedJobError = failedJobError;
     setFailedJobId(null);
     setFailedJobError(null);
     setIsGenerating(true);
     setVideoUrl(null);
     try {
-      const result = await retryMutation.mutateAsync({ failedJobId });
+      const result = await retryMutation.mutateAsync({ failedJobId: currentFailedJobId });
       setJobId(result.jobId);
-      toast.success("Retrying generation", { description: `Restarting ${result.totalPhotos} clips.` });
+      setFailedJobRetryCount(result.retryCount ?? 0);
+      toast.success("Retrying generation", {
+        description: `Attempt ${result.retryCount} of ${result.maxRetries}. Restarting ${result.totalPhotos} clips.`,
+      });
     } catch (err: any) {
       setIsGenerating(false);
-      toast.error("Retry failed", { description: err.message });
+      if (err.message?.includes("RETRY_LIMIT_REACHED")) {
+        // Server confirmed limit reached — show contact support UI
+        setFailedJobId(currentFailedJobId);
+        setFailedJobError(currentFailedJobError);
+        setFailedJobRetryCount(MAX_RETRIES);
+      } else {
+        toast.error("Retry failed", { description: err.message });
+      }
     }
   };
 
@@ -374,24 +394,57 @@ export default function CinematicWalkthrough() {
               )}
             </div>
           </div>
-          <div className="flex gap-3">
-            <Button
-              onClick={handleRetry}
-              disabled={retryMutation.isPending}
-              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
-            >
-              {retryMutation.isPending ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Retrying…</>
-              ) : (
-                <><Play className="h-4 w-4 mr-2" />Retry Generation</>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => { setFailedJobId(null); setFailedJobError(null); }}
-            >
-              Dismiss
-            </Button>
+          {/* Retry count indicator */}
+          {failedJobRetryCount > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Attempt {failedJobRetryCount} of {MAX_RETRIES} failed.
+              {failedJobRetryCount >= MAX_RETRIES
+                ? " No more retries available."
+                : ` ${MAX_RETRIES - failedJobRetryCount} retry${MAX_RETRIES - failedJobRetryCount === 1 ? "" : "ies"} remaining.`}
+            </p>
+          )}
+          <div className="flex gap-3 flex-wrap">
+            {failedJobRetryCount >= MAX_RETRIES ? (
+              <>
+                <Button
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold"
+                  onClick={() =>
+                    window.open(
+                      "mailto:support@authoritycontent.co?subject=Cinematic%20Tour%20Generation%20Failed&body=Hi%2C%20my%20Cinematic%20Tour%20has%20failed%203%20times.%20Please%20help.",
+                      "_blank"
+                    )
+                  }
+                >
+                  Contact Support
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => { setFailedJobId(null); setFailedJobError(null); setFailedJobRetryCount(0); }}
+                >
+                  Dismiss
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={handleRetry}
+                  disabled={retryMutation.isPending}
+                  className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+                >
+                  {retryMutation.isPending ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Retrying…</>
+                  ) : (
+                    <><Play className="h-4 w-4 mr-2" />Retry Generation</>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => { setFailedJobId(null); setFailedJobError(null); setFailedJobRetryCount(0); }}
+                >
+                  Dismiss
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}

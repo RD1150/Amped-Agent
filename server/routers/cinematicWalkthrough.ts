@@ -600,6 +600,7 @@ export const cinematicWalkthroughRouter = router({
   retry: protectedProcedure
     .input(z.object({ failedJobId: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const MAX_RETRIES = 3;
       const failedJob = await dbGetJob(input.failedJobId);
       if (!failedJob || failedJob.userId !== ctx.user.id) {
         throw new Error("Job not found or access denied");
@@ -607,16 +608,31 @@ export const cinematicWalkthroughRouter = router({
       if (!failedJob.inputSnapshot) {
         throw new Error("No input snapshot available for retry");
       }
+      // Enforce retry limit
+      const nextRetryCount = (failedJob.retryCount ?? 0) + 1;
+      if (nextRetryCount > MAX_RETRIES) {
+        throw new Error(`RETRY_LIMIT_REACHED:${MAX_RETRIES}`);
+      }
       const originalInput = JSON.parse(failedJob.inputSnapshot);
       const newJobId = generateJobId();
-      await dbCreateJob(newJobId, ctx.user.id, originalInput.photos.length, failedJob.inputSnapshot);
+      const database = await getDb();
+      // Create new job with incremented retryCount
+      await database!.insert(cinematicJobs).values({
+        id: newJobId,
+        userId: ctx.user.id,
+        status: "pending",
+        totalPhotos: originalInput.photos.length,
+        completedClips: 0,
+        inputSnapshot: failedJob.inputSnapshot,
+        retryCount: nextRetryCount,
+      });
       runWalkthroughJob(newJobId, ctx.user.id, originalInput).catch(async (err) => {
         log(`Retry job ${newJobId} top-level failure: ${err.message}`);
         try {
           await dbUpdateJob(newJobId, { status: "failed", error: err.message });
         } catch {}
       });
-      return { jobId: newJobId, totalPhotos: originalInput.photos.length };
+      return { jobId: newJobId, totalPhotos: originalInput.photos.length, retryCount: nextRetryCount, maxRetries: MAX_RETRIES };
     }),
 
   /**
@@ -640,6 +656,7 @@ export const cinematicWalkthroughRouter = router({
         videoUrl: job.videoUrl ?? undefined,
         error: job.error ?? undefined,
         elapsedMs: Date.now() - new Date(job.createdAt).getTime(),
+        retryCount: job.retryCount ?? 0,
       };
     }),
 

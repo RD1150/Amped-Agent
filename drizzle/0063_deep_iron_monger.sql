@@ -1,0 +1,1 @@
+ALTER TABLE `cinematic_jobs` ADD `retryCount` int DEFAULT 0 NOT NULL;
