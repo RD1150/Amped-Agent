@@ -83,17 +83,24 @@ function generateSubtitleTiming(
 ): Array<{ text: string; start: number; length: number }> {
   const words = script.split(/\s+/).filter(w => w.length > 0);
   const chunks: string[] = [];
-  const chunkSize = 6; // 6 words per chunk = readable pace
+  const chunkSize = 5; // 5 words per chunk = easier to read at a glance
   for (let i = 0; i < words.length; i += chunkSize) {
     chunks.push(words.slice(i, i + chunkSize).join(' '));
   }
 
   if (chunks.length === 0) return [];
 
+  const MIN_TIME_PER_CHUNK = 3.5; // minimum 3.5s per chunk so text is readable
   const availableTime = totalDuration - startAt;
-  const timePerChunk = Math.max(2.0, availableTime / chunks.length); // min 2s per chunk
+  const rawTimePerChunk = availableTime / chunks.length;
 
-  return chunks.map((text, index) => ({
+  // If the script is too long to display at readable speed, truncate chunks
+  // rather than flashing them too fast
+  const timePerChunk = Math.max(MIN_TIME_PER_CHUNK, rawTimePerChunk);
+  const maxChunks = Math.floor(availableTime / MIN_TIME_PER_CHUNK);
+  const displayChunks = chunks.slice(0, maxChunks);
+
+  return displayChunks.map((text, index) => ({
     text,
     start: startAt + index * timePerChunk,
     length: timePerChunk + 0.1, // slight overlap to prevent gap
