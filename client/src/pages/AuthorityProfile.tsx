@@ -27,7 +27,64 @@ import {
   Play,
   Square,
   Info,
+  Copy,
+  Check,
 } from "lucide-react";
+
+const VOICE_CLONE_SCRIPT = `Hi, my name is [Your Name] and I'm a real estate agent serving [Your City and surrounding areas].
+
+I've been helping buyers and sellers navigate the local market for [X] years, and I'm passionate about making the process as smooth and stress-free as possible.
+
+Whether you're a first-time buyer looking for your dream home, a seller ready to maximize your property's value, or an investor searching for your next opportunity — I'm here to guide you every step of the way.
+
+The real estate market is always moving, and having the right agent in your corner makes all the difference. I stay on top of local trends, pricing, and neighborhood insights so you don't have to.
+
+I believe every client deserves personalized attention, honest advice, and a strategy tailored to their unique goals. My job isn't done until you're completely satisfied with the outcome.
+
+If you're thinking about buying or selling, I'd love to connect. Let's talk about your goals and put together a plan that works for you.
+
+Thank you for taking the time to learn more about me. I look forward to earning your trust and your business.`;
+
+function VoiceScript() {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(VOICE_CLONE_SCRIPT).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="text-sm font-semibold">Read this script aloud to clone your voice</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Replace the bracketed placeholders with your own details, then record or upload yourself reading it.</p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCopy}
+          className="gap-1.5 shrink-0 ml-3"
+        >
+          {copied ? (
+            <><Check className="h-3.5 w-3.5 text-green-500" /> Copied!</>
+          ) : (
+            <><Copy className="h-3.5 w-3.5" /> Copy Script</>
+          )}
+        </Button>
+      </div>
+      <div className="bg-background/70 rounded-md p-3 max-h-52 overflow-y-auto">
+        <p className="text-xs leading-relaxed text-foreground whitespace-pre-line font-mono">{VOICE_CLONE_SCRIPT}</p>
+      </div>
+      <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1">
+        <Info className="h-3 w-3 shrink-0" />
+        Reading this full script (~90 seconds) gives ElevenLabs enough variety to produce a high-quality clone.
+      </p>
+    </div>
+  );
+}
 
 export default function AuthorityProfile() {
   const { data: persona, isLoading, refetch: refetchPersona } = trpc.persona.get.useQuery();
@@ -511,6 +568,9 @@ export default function AuthorityProfile() {
           )}
 
           <div className="space-y-5">
+            {/* Standard reading script */}
+            <VoiceScript />
+
             {/* Option 1: Record in browser */}
             <div>
               <Label className="text-sm font-medium mb-2 block">Option A — Record in browser</Label>

@@ -3819,3 +3819,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add persona query to AutoReels.tsx to detect cloned voice
 - [x] Auto-select cloned voice in AutoReels when agent has one
 - [x] Show cloned voice as full-width option in AutoReels voice grid with "Cloned" badge
+## Session: Mar 23, 2026 - Voice Clone Standard Script
+- [x] Add standard reading script to Voice Clone section in Authority Profile
+- [x] Show script in a styled card with copy-to-clipboard button
+- [x] Add "Read this aloud" instruction above the recording button
