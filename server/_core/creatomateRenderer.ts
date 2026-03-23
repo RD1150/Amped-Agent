@@ -187,16 +187,24 @@ function generateSubtitleTiming(
   script: string,
   duration: number
 ): Array<{ text: string; start: number; length: number }> {
-  const sentences = script
-    .split(/[.!?]+/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
-  if (sentences.length === 0) return [];
-  const timePerSentence = duration / sentences.length;
-  return sentences.map((text, i) => ({
+  const words = script.split(/\s+/).filter((w) => w.length > 0);
+  const chunks: string[] = [];
+  const chunkSize = 5; // 5 words per chunk — readable at a glance
+  for (let i = 0; i < words.length; i += chunkSize) {
+    chunks.push(words.slice(i, i + chunkSize).join(' '));
+  }
+  if (chunks.length === 0) return [];
+
+  const MIN_TIME_PER_CHUNK = 3.5; // minimum 3.5s so text is readable
+  const rawTimePerChunk = duration / chunks.length;
+  const timePerChunk = Math.max(MIN_TIME_PER_CHUNK, rawTimePerChunk);
+  const maxChunks = Math.floor(duration / MIN_TIME_PER_CHUNK);
+  const displayChunks = chunks.slice(0, maxChunks);
+
+  return displayChunks.map((text, index) => ({
     text,
-    start: i * timePerSentence,
-    length: timePerSentence,
+    start: index * timePerChunk,
+    length: timePerChunk + 0.1,
   }));
 }
 
@@ -224,10 +232,9 @@ export async function renderAutoReel(options: AutoReelOptions): Promise<RenderRe
       track: 2,
       time: 0,
       duration: videoLength,
-      volume: voiceoverAudioUrl ? 0.1 : 0.3,
+      volume: voiceoverAudioUrl ? '10%' : '30%',
     });
-
-    // ── Track 3: Hook text (first 2 seconds) ──────────────────────────────────
+    // ── Track 3: Hook text (first 2 seconds)) ──────────────────────────────────
     elements.push({
       type: "text",
       track: 3,
@@ -282,8 +289,9 @@ export async function renderAutoReel(options: AutoReelOptions): Promise<RenderRe
         source: voiceoverAudioUrl,
         track: 5,
         time: 0,
-        duration: videoLength,
-        volume: 1.0,
+        duration: 'media',
+        volume: '100%',
+        audio_fade_out: 0.5,
       });
     }
 
@@ -514,7 +522,7 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
       track: trackIdx++,
       time: 0,
       duration: totalDuration,
-      volume: enableVoiceover ? 0.3 : 0.6,
+      volume: enableVoiceover ? '30%' : '60%',
     });
   }
 
@@ -525,8 +533,9 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
       source: voiceoverUrl,
       track: trackIdx++,
       time: introOffset,
-      duration: mainDuration,
-      volume: 1.0,
+      duration: 'media',
+      volume: '100%',
+      audio_fade_out: 0.5,
     });
   }
 

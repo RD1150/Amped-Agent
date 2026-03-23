@@ -3860,3 +3860,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Wire US Real Estate API into Lead Magnet Generator (market_update and neighborhood_report types)
 - [x] Wire US Real Estate API into Post Builder (market_report content type) with location input field
 - [x] Wire US Real Estate API into Blog Builder (when city is provided)
+
+## Session: Mar 23, 2026 - Reel Audio & Text Bugs
+- [ ] Fix inaudible voiceover in AI Reels - check volume level in Creatomate payload
+- [ ] Fix text still flashing too quickly - verify timing fix is applied to correct renderer path

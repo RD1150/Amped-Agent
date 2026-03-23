@@ -292,7 +292,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       warm:          'https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3',
     };
     const musicUrl = musicTracks[tone] || musicTracks.calm;
-    const musicVolume = voiceoverAudioUrl ? 0.07 : 0.22;
+    const musicVolume = voiceoverAudioUrl ? '7%' : '22%';
 
     elements.push({
       type: 'audio',
@@ -311,9 +311,10 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
         type: 'audio',
         track: trackNum++,
         time: 0,
-        duration: videoLength,
+        duration: 'media', // use full audio length, not clipped to videoLength
         source: voiceoverAudioUrl,
-        volume: 1.0,
+        volume: '100%',
+        audio_fade_out: 0.5,
       });
     }
 
@@ -472,18 +473,17 @@ export async function renderMarketUpdateReel(options: MarketUpdateRenderOptions)
     });
 
     // ── Background music (authoritative) ─────────────────────────────────────
-    const musicVolume = voiceoverAudioUrl ? 0.06 : 0.20;
+    const musicVolume = voiceoverAudioUrl ? '6%' : '20%';
     elements.push({
       type: 'audio', track: trackNum++, time: 0, duration: TOTAL,
       source: 'https://cdn.pixabay.com/audio/2022/08/04/audio_2dde668d05.mp3',
       volume: musicVolume, audio_fade_in: 0.8, audio_fade_out: 1.2,
     });
-
-    // ── Voiceover (optional) ─────────────────────────────────────────────────
+    // ── Voiceover (optional) ──────────────────────────────────────────────────
     if (voiceoverAudioUrl) {
       elements.push({
-        type: 'audio', track: trackNum++, time: 0, duration: TOTAL,
-        source: voiceoverAudioUrl, volume: 1.0,
+        type: 'audio', track: trackNum++, time: 0, duration: 'media',
+        source: voiceoverAudioUrl, volume: '100%', audio_fade_out: 0.5,
       });
     }
 
