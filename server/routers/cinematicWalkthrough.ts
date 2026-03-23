@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as db from "../db";
 import { getDb } from "../db";
@@ -75,6 +75,42 @@ async function dbGetJob(jobId: string) {
   const database = await getDb();
   const rows = await database!.select().from(cinematicJobs).where(eq(cinematicJobs.id, jobId));
   return rows[0] ?? null;
+}
+
+// ============================================================
+// SERVER STARTUP RECOVERY
+// Called once on boot to resolve any jobs that were in-flight
+// when the server last shut down (deploy, crash, idle timeout).
+// These jobs will never complete on their own — mark them failed
+// with a clear message so agents can retry.
+// ============================================================
+export async function recoverStuckCinematicJobs(): Promise<void> {
+  try {
+    const database = await getDb();
+    if (!database) return;
+    const stuckStatuses = ["pending", "generating_clips", "assembling"] as const;
+    const stuck = await database
+      .select({ id: cinematicJobs.id, status: cinematicJobs.status, userId: cinematicJobs.userId })
+      .from(cinematicJobs)
+      .where(inArray(cinematicJobs.status, [...stuckStatuses]));
+    if (stuck.length === 0) {
+      log(`[Startup Recovery] No stuck cinematic jobs found.`);
+      return;
+    }
+    const ids = stuck.map((j) => j.id);
+    log(`[Startup Recovery] Found ${stuck.length} stuck job(s): ${ids.join(", ")} — marking as failed.`);
+    await database
+      .update(cinematicJobs)
+      .set({
+        status: "failed",
+        error: "Generation was interrupted because the server restarted. Please click Retry to restart your Cinematic Tour.",
+      })
+      .where(inArray(cinematicJobs.id, ids));
+    log(`[Startup Recovery] Marked ${stuck.length} job(s) as failed.`);
+  } catch (err) {
+    // Recovery is best-effort — never crash the server on startup
+    log(`[Startup Recovery] Error during recovery: ${err}`);
+  }
 }
 
 // ============================================================

@@ -3844,3 +3844,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Session: Mar 23, 2026 - Cinematic Error Detail Fix
 - [x] Fix pollCreatomateRender to include error_message and error_type from Creatomate API response
 - [x] Improve CinematicWalkthrough failure banner to show expandable full error detail in monospace box
+
+## Session: Mar 23, 2026 - Server Startup Recovery
+- [x] Add recoverStuckCinematicJobs() function to cinematicWalkthrough router
+- [x] Wire startup recovery into server boot sequence in _core/index.ts
+- [x] Log recovered jobs with count and IDs for observability

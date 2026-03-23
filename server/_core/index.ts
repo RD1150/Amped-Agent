@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import uploadEndpoint from "../uploadEndpoint";
+import { recoverStuckCinematicJobs } from "../routers/cinematicWalkthrough";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -62,6 +63,12 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    // Run startup recovery after a short delay to ensure DB is ready
+    setTimeout(() => {
+      recoverStuckCinematicJobs().catch((err) =>
+        console.error("[Startup Recovery] Unexpected error:", err)
+      );
+    }, 5000);
   });
 }
 
