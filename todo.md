@@ -3827,3 +3827,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add numbered step-by-step directions panel to Voice Clone section in Authority Profile
 - [x] Include setup tips (quiet room, microphone distance, no music)
 - [x] Add visual step indicators (numbered circles) for clarity
+## Session: Mar 23, 2026 - Voice Clone UX Improvements
+- [x] Add voice name input field before Clone button (custom label for the clone)
+- [x] Show post-clone audio preview immediately after successful clone
+- [x] Make directions panel collapsible (hidden by default if voice already cloned)

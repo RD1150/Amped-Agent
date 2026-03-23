@@ -29,6 +29,9 @@ import {
   Info,
   Copy,
   Check,
+  ChevronDown,
+  ChevronUp,
+  Volume2,
 } from "lucide-react";
 
 const VOICE_CLONE_SCRIPT = `Hi, my name is [Your Name] and I'm a real estate agent serving [Your City and surrounding areas].
@@ -45,7 +48,8 @@ If you're thinking about buying or selling, I'd love to connect. Let's talk abou
 
 Thank you for taking the time to learn more about me. I look forward to earning your trust and your business.`;
 
-function VoiceDirections() {
+function VoiceDirections({ defaultOpen = true }: { defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
   const steps = [
     {
       num: 1,
@@ -75,22 +79,33 @@ function VoiceDirections() {
   ];
 
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-4">
-      <p className="text-sm font-semibold mb-3 flex items-center gap-2">
-        <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold shrink-0">?</span>
-        How to clone your voice — 5 easy steps
-      </p>
-      <ol className="space-y-3">
-        {steps.map((step) => (
-          <li key={step.num} className="flex gap-3">
-            <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold shrink-0 mt-0.5">{step.num}</span>
-            <div>
-              <p className="text-xs font-semibold">{step.title}</p>
-              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.detail}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
+    <div className="rounded-lg border border-border bg-muted/30 overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+      >
+        <span className="text-sm font-semibold flex items-center gap-2">
+          <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold shrink-0">?</span>
+          How to clone your voice — 5 easy steps
+        </span>
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+      </button>
+      {open && (
+        <div className="px-4 pb-4">
+          <ol className="space-y-3">
+            {steps.map((step) => (
+              <li key={step.num} className="flex gap-3">
+                <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold shrink-0 mt-0.5">{step.num}</span>
+                <div>
+                  <p className="text-xs font-semibold">{step.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }
@@ -162,10 +177,14 @@ export default function AuthorityProfile() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [voiceName, setVoiceName] = useState("");
+  const [postClonePreviewUrl, setPostClonePreviewUrl] = useState<string | null>(null);
+  const [isPreviewingClone, setIsPreviewingClone] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const voiceFileInputRef = useRef<HTMLInputElement>(null);
+  const previewVoiceMutation = trpc.propertyTours.previewVoice.useMutation();
 
   useEffect(() => {
     if (persona) {
@@ -215,12 +234,28 @@ export default function AuthorityProfile() {
   });
 
   const cloneVoiceMutation = trpc.persona.cloneVoice.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Voice cloned successfully as "${data.voiceName}"! It will now be used for all AI voiceovers.`);
+    onSuccess: async (data) => {
+      toast.success(`Voice cloned as "${data.voiceName}"! Generating a preview...`);
       refetchPersona();
       setVoiceFile(null);
       setVoiceUploadUrl("");
       setRecordedBlob(null);
+      setVoiceName("");
+      // Auto-play a short preview of the cloned voice
+      setIsPreviewingClone(true);
+      try {
+        const result = await previewVoiceMutation.mutateAsync({
+          voiceId: data.voice_id,
+          sampleText: "Hi, this is my cloned voice. It will now be used for all my property tour voiceovers and AI reels.",
+        });
+        setPostClonePreviewUrl(result.url);
+        const audio = new Audio(result.url);
+        audio.play().catch(() => {});
+      } catch {
+        // Preview failure is non-critical
+      } finally {
+        setIsPreviewingClone(false);
+      }
     },
     onError: (error: any) => {
       toast.error(`Voice cloning failed: ${error.message}`);
@@ -372,7 +407,10 @@ export default function AuthorityProfile() {
 
     setIsCloningVoice(true);
     try {
-      await cloneVoiceMutation.mutateAsync({ voiceSampleUrl: url });
+      await cloneVoiceMutation.mutateAsync({
+        voiceSampleUrl: url,
+        voiceName: voiceName.trim() || undefined,
+      });
     } finally {
       setIsCloningVoice(false);
     }
@@ -618,8 +656,8 @@ export default function AuthorityProfile() {
           )}
 
           <div className="space-y-5">
-            {/* Step-by-step directions */}
-            <VoiceDirections />
+            {/* Step-by-step directions — collapsed by default if voice already cloned */}
+            <VoiceDirections defaultOpen={!hasClonedVoice} />
 
             {/* Standard reading script */}
             <VoiceScript />
@@ -711,6 +749,36 @@ export default function AuthorityProfile() {
                 For best results: record in a quiet room, speak at a natural pace, and include varied sentence lengths. Avoid background music or echo. 1–3 minutes of clear speech produces the most natural clone.
               </span>
             </div>
+
+            {/* Voice name input */}
+            <div>
+              <Label className="text-sm font-medium mb-1.5 block">Give your voice a name <span className="text-muted-foreground font-normal">(optional)</span></Label>
+              <Input
+                placeholder={`e.g. "${(persona as any)?.agentName || "Sarah"}'s Voice"`}
+                value={voiceName}
+                onChange={(e) => setVoiceName(e.target.value)}
+                maxLength={64}
+                disabled={isCloningVoice || isUploadingVoice}
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">This label appears in the voice picker in Property Tours and Auto Reels.</p>
+            </div>
+
+            {/* Post-clone preview */}
+            {postClonePreviewUrl && (
+              <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3">
+                <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-green-700 dark:text-green-400">Voice cloned! Here's how it sounds:</p>
+                  <audio controls src={postClonePreviewUrl} className="mt-1.5 w-full h-8" />
+                </div>
+              </div>
+            )}
+            {isPreviewingClone && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating voice preview…
+              </div>
+            )}
 
             {/* Clone button */}
             <Button
