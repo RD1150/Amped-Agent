@@ -10,6 +10,7 @@ import { eq, desc } from "drizzle-orm";
 import PDFDocument from "pdfkit";
 import { notifyOwner } from "../_core/notification";
 import QRCode from "qrcode";
+import { getMarketData } from "../marketStatsHelper";
 
 /**
  * Lead Magnet Generator Router
@@ -62,12 +63,31 @@ export const leadMagnetRouter = router({
       const agentBrokerage = input.agentBrokerage || persona?.brokerageName || "";
       const primaryColor = persona?.primaryColor || "#1a3a5c";
 
-      // Step 1: Generate content via LLM
+      // Step 1: Fetch real market data for market-related types
+      let realMarketData: any = null;
+      if (type === 'market_update' || type === 'neighborhood_report') {
+        try {
+          const locationQuery = type === 'neighborhood_report' && input.neighborhood
+            ? `${input.neighborhood}, ${city}`
+            : city;
+          realMarketData = await getMarketData(locationQuery);
+          console.log(`[LeadMagnet] Fetched real market data for ${locationQuery}:`, {
+            medianPrice: realMarketData.medianPrice,
+            daysOnMarket: realMarketData.daysOnMarket,
+            activeListings: realMarketData.activeListings,
+          });
+        } catch (err) {
+          console.warn('[LeadMagnet] Could not fetch real market data, falling back to LLM estimates:', err);
+        }
+      }
+
+      // Step 2: Generate content via LLM (with real data injected when available)
       const contentPrompt = buildContentPrompt(type, {
         city,
         agentName,
         neighborhood: input.neighborhood,
         month: input.month || new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+        realMarketData,
       });
 
       const response = await invokeLLM({
@@ -210,9 +230,9 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
 
 function buildContentPrompt(
   type: LeadMagnetType,
-  ctx: { city: string; agentName: string; neighborhood?: string; month?: string }
+  ctx: { city: string; agentName: string; neighborhood?: string; month?: string; realMarketData?: any }
 ): string {
-  const { city, agentName, neighborhood, month } = ctx;
+  const { city, agentName, neighborhood, month, realMarketData } = ctx;
 
   if (type === "buyer_guide") {
     return `Create a comprehensive First-Time Buyer Guide for ${city}. Return this exact JSON:
@@ -258,7 +278,15 @@ function buildContentPrompt(
 
   if (type === "neighborhood_report") {
     const area = neighborhood || city;
-    return `Create a Neighborhood Report for ${area}, ${city}. Return this exact JSON:
+    const marketContext = realMarketData
+      ? `\n\nIMPORTANT: Use these REAL market statistics (do not invent numbers):
+- Median Home Price: $${realMarketData.medianPrice.toLocaleString()} (${realMarketData.priceChange > 0 ? '+' : ''}${realMarketData.priceChange}% YoY)
+- Days on Market: ${realMarketData.daysOnMarket} days
+- Active Listings: ${realMarketData.activeListings.toLocaleString()} (${realMarketData.listingsChange > 0 ? '+' : ''}${realMarketData.listingsChange}% YoY)
+- Price per Sq Ft: $${realMarketData.pricePerSqft}
+- Market Temperature: ${realMarketData.marketTemperature}`
+      : '';
+    return `Create a Neighborhood Report for ${area}, ${city}.${marketContext} Return this exact JSON:
 {
   "title": "${area} Neighborhood Report",
   "subtitle": "Your complete guide to living in ${area}",
@@ -272,11 +300,11 @@ function buildContentPrompt(
   ],
   "marketSnapshot": {
     "heading": "Current Market Snapshot",
-    "description": "2-3 sentences about the current real estate market in ${area}",
+    "description": "2-3 sentences about the current real estate market in ${area} based on the real data provided",
     "stats": [
-      { "label": "Median Home Price", "value": "Estimated range for ${area}" },
-      { "label": "Average Days on Market", "value": "Estimated range" },
-      { "label": "Price per Sq Ft", "value": "Estimated range" }
+      { "label": "Median Home Price", "value": "${realMarketData ? '$' + realMarketData.medianPrice.toLocaleString() : 'Estimated range for ' + area}" },
+      { "label": "Average Days on Market", "value": "${realMarketData ? realMarketData.daysOnMarket + ' days' : 'Estimated range'}" },
+      { "label": "Price per Sq Ft", "value": "${realMarketData ? '$' + realMarketData.pricePerSqft + '/sqft' : 'Estimated range'}" }
     ]
   },
   "whyLiveHere": "2-3 compelling sentences about why people love ${area}",
@@ -285,21 +313,34 @@ function buildContentPrompt(
   }
 
   // market_update
-  return `Create a Market Update for ${city} for ${month}. Return this exact JSON:
+  const marketCondition = realMarketData
+    ? realMarketData.marketTemperature === 'hot' ? "Seller's Market"
+      : realMarketData.marketTemperature === 'cold' ? "Buyer's Market"
+      : "Balanced Market"
+    : null;
+  const realDataBlock = realMarketData
+    ? `\n\nIMPORTANT: Use these REAL market statistics (do not invent numbers):
+- Median Home Price: $${realMarketData.medianPrice.toLocaleString()} (${realMarketData.priceChange > 0 ? '+' : ''}${realMarketData.priceChange}% YoY)
+- Days on Market: ${realMarketData.daysOnMarket} days
+- Active Listings: ${realMarketData.activeListings.toLocaleString()} (${realMarketData.listingsChange > 0 ? '+' : ''}${realMarketData.listingsChange}% YoY)
+- Price per Sq Ft: $${realMarketData.pricePerSqft}
+- Market Temperature: ${realMarketData.marketTemperature} → ${marketCondition}`
+    : '';
+  return `Create a Market Update for ${city} for ${month}.${realDataBlock} Return this exact JSON:
 {
   "title": "${city} Real Estate Market Update",
   "subtitle": "${month} — What Buyers & Sellers Need to Know",
-  "introduction": "2-3 sentence market overview for ${city} this month",
-  "marketCondition": "Buyer's Market | Seller's Market | Balanced Market",
+  "introduction": "2-3 sentence market overview for ${city} this month based on the real data provided",
+  "marketCondition": "${marketCondition || 'Buyer\'s Market | Seller\'s Market | Balanced Market'}",
   "marketConditionExplanation": "1-2 sentences explaining the current condition",
   "keyStats": [
-    { "label": "Median Sale Price", "trend": "up | down | flat", "value": "Estimated value or range", "note": "Brief context" },
-    { "label": "Active Listings", "trend": "up | down | flat", "value": "Estimated value or range", "note": "Brief context" },
-    { "label": "Days on Market", "trend": "up | down | flat", "value": "Estimated value or range", "note": "Brief context" },
-    { "label": "Sale-to-List Ratio", "trend": "up | down | flat", "value": "Estimated percentage", "note": "Brief context" }
+    { "label": "Median Sale Price", "trend": "${realMarketData ? (realMarketData.priceChange > 0 ? 'up' : realMarketData.priceChange < 0 ? 'down' : 'flat') : 'up | down | flat'}", "value": "${realMarketData ? '$' + realMarketData.medianPrice.toLocaleString() : 'Estimated value or range'}", "note": "${realMarketData ? (realMarketData.priceChange > 0 ? '+' : '') + realMarketData.priceChange + '% year over year' : 'Brief context'}" },
+    { "label": "Active Listings", "trend": "${realMarketData ? (realMarketData.listingsChange > 0 ? 'up' : realMarketData.listingsChange < 0 ? 'down' : 'flat') : 'up | down | flat'}", "value": "${realMarketData ? realMarketData.activeListings.toLocaleString() + ' homes' : 'Estimated value or range'}", "note": "${realMarketData ? (realMarketData.listingsChange > 0 ? '+' : '') + realMarketData.listingsChange + '% year over year' : 'Brief context'}" },
+    { "label": "Days on Market", "trend": "${realMarketData ? (realMarketData.daysOnMarket < 30 ? 'up' : 'flat') : 'up | down | flat'}", "value": "${realMarketData ? realMarketData.daysOnMarket + ' days' : 'Estimated value or range'}", "note": "Brief context about what this means for buyers/sellers" },
+    { "label": "Price per Sq Ft", "trend": "up | down | flat", "value": "${realMarketData ? '$' + realMarketData.pricePerSqft + '/sqft' : 'Estimated value'}", "note": "Brief context" }
   ],
-  "buyerAdvice": "2-3 sentences of advice for buyers this month",
-  "sellerAdvice": "2-3 sentences of advice for sellers this month",
+  "buyerAdvice": "2-3 sentences of advice for buyers this month based on the real data",
+  "sellerAdvice": "2-3 sentences of advice for sellers this month based on the real data",
   "outlook": "2-3 sentences on what to expect in the coming months",
   "closingMessage": "2-3 sentence closing from ${agentName}"
 }`;

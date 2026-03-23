@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { blogPosts } from "../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
+import { getMarketData } from "../marketStatsHelper";
 
 const NICHE_LABELS: Record<string, string> = {
   buyers: "First-Time & Move-Up Buyers",
@@ -35,6 +36,21 @@ export const blogBuilderRouter = router({
       const nicheLabel = NICHE_LABELS[input.niche] || "General Real Estate";
       const locationContext = input.city ? `in ${input.city}` : "in the local market";
 
+      // Fetch real market data when a city is provided
+      let realMarketData: any = null;
+      if (input.city) {
+        try {
+          realMarketData = await getMarketData(input.city);
+          console.log(`[BlogBuilder] Fetched real market data for ${input.city}`);
+        } catch (err) {
+          console.warn('[BlogBuilder] Could not fetch real market data:', err);
+        }
+      }
+
+      const marketDataBlock = realMarketData
+        ? `\n\nREAL MARKET DATA for ${input.city} (use these exact numbers — do not invent statistics):\n- Median Home Price: $${realMarketData.medianPrice.toLocaleString()} (${realMarketData.priceChange > 0 ? '+' : ''}${realMarketData.priceChange}% YoY)\n- Days on Market: ${realMarketData.daysOnMarket} days\n- Active Listings: ${realMarketData.activeListings.toLocaleString()} (${realMarketData.listingsChange > 0 ? '+' : ''}${realMarketData.listingsChange}% YoY)\n- Price per Sq Ft: $${realMarketData.pricePerSqft}\n- Market Condition: ${realMarketData.marketTemperature === 'hot' ? "Seller's Market" : realMarketData.marketTemperature === 'cold' ? "Buyer's Market" : "Balanced Market"}`
+        : '';
+
       const systemPrompt = `You are an expert real estate content writer who specializes in SEO-optimized blog posts for real estate agents. 
 You write in a ${input.tone} tone that builds trust and authority. 
 Your posts are hyperlocal, actionable, and designed to rank on Google for local real estate searches.
@@ -45,13 +61,13 @@ Format your response as valid JSON only.`;
 
 Topic: "${input.topic}"
 ${input.agentName ? `Agent Name: ${input.agentName}` : ""}
-${input.brokerage ? `Brokerage: ${input.brokerage}` : ""}
+${input.brokerage ? `Brokerage: ${input.brokerage}` : ""}${marketDataBlock}
 
 Requirements:
 - Write a compelling H1 title (not the same as the topic, more specific and SEO-friendly)
 - Include 3-5 H2 subheadings that break up the content
 - Write naturally, avoid generic filler phrases like "In today's market" or "As a real estate agent"
-- Include 1-2 hyperlocal data points or insights (can be general/typical for the area type)
+- Include 1-2 hyperlocal data points or insights${marketDataBlock ? " using the REAL MARKET DATA provided above" : " (can be general/typical for the area type)"}
 - End with a clear call-to-action paragraph
 - The post should feel like it was written by a real person, not AI
 

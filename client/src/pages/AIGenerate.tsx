@@ -74,6 +74,7 @@ export default function AIGenerate() {
   const [ctaText, setCtaText] = useState("");
   const [showPostingDialog, setShowPostingDialog] = useState(false);
   const [isEditingContent, setIsEditingContent] = useState(false);
+  const [marketLocation, setMarketLocation] = useState("");
 
   // Image generation states
   const [imagePrompt, setImagePrompt] = useState("");
@@ -177,6 +178,7 @@ export default function AIGenerate() {
         description: propertyData.description,
       } : undefined,
       ctaText: includeCTA ? ctaText : undefined,
+      location: contentType === "market_report" && marketLocation.trim() ? marketLocation.trim() : undefined,
     });
   };
 
@@ -473,6 +475,17 @@ export default function AIGenerate() {
                       placeholder="What would you like to write about?"
                       rows={3}
                     />
+                    {contentType === "market_report" && (
+                      <div className="mt-3 space-y-1">
+                        <Label className="text-sm">Location <span className="text-muted-foreground font-normal">(for real market data)</span></Label>
+                        <Input
+                          value={marketLocation}
+                          onChange={(e) => setMarketLocation(e.target.value)}
+                          placeholder="e.g. Conejo Valley, CA or Beverly Hills, CA"
+                        />
+                        <p className="text-xs text-muted-foreground">Enter a city or area to pull real-time stats — median price, days on market, and inventory.</p>
+                      </div>
+                    )}
                   </div>
                 )}
 

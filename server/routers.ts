@@ -412,6 +412,7 @@ export const appRouter = router({
         }).optional(),
         tone: z.enum(["professional", "friendly", "luxury", "casual", "authoritative"]).optional(),
         ctaText: z.string().optional(),
+        location: z.string().optional(), // For market_report: city/area for real data lookup
       }))
       .mutation(async ({ ctx, input }) => {
         // Moderate input content
@@ -422,6 +423,19 @@ export const appRouter = router({
         
         const persona = await db.getPersonaByUserId(ctx.user.id);
         const tone = input.tone || persona?.brandVoice || "professional";
+
+        // Fetch real market data for market_report content type
+        let realMarketData: any = null;
+        if (input.contentType === 'market_report') {
+          const location = input.location || persona?.serviceAreas?.split(',')[0]?.trim() || input.topic;
+          try {
+            const { getMarketData } = await import('./marketStatsHelper');
+            realMarketData = await getMarketData(location);
+            console.log(`[PostBuilder] Fetched real market data for ${location}`);
+          } catch (err) {
+            console.warn('[PostBuilder] Could not fetch real market data, using LLM estimates:', err);
+          }
+        }
         
         // Format-specific system prompts
         let systemPrompt = "";
@@ -535,9 +549,12 @@ ${formatInstructions}`;
             : input.format === "reel_script"
             ? "Create a 45-second market update script with key stats and what they mean for buyers/sellers."
             : "Create 3 caption variations with market insights and actionable advice.";
-          userPrompt = `Create a market report ${input.format === "carousel" ? "carousel" : input.format === "reel_script" ? "reel script" : "post"} about: ${input.topic}
+          const marketDataBlock = realMarketData
+            ? `\n\nIMPORTANT — Use these REAL market statistics (do not invent numbers):\n- Median Home Price: $${realMarketData.medianPrice.toLocaleString()} (${realMarketData.priceChange > 0 ? '+' : ''}${realMarketData.priceChange}% YoY)\n- Days on Market: ${realMarketData.daysOnMarket} days\n- Active Listings: ${realMarketData.activeListings.toLocaleString()} (${realMarketData.listingsChange > 0 ? '+' : ''}${realMarketData.listingsChange}% YoY)\n- Price per Sq Ft: $${realMarketData.pricePerSqft}\n- Market Temperature: ${realMarketData.marketTemperature === 'hot' ? "Seller's Market" : realMarketData.marketTemperature === 'cold' ? "Buyer's Market" : "Balanced Market"}`
+            : '';
+          userPrompt = `Create a market report ${input.format === "carousel" ? "carousel" : input.format === "reel_script" ? "reel script" : "post"} about: ${input.topic}${marketDataBlock}
 ${formatInstructions}
-Include relevant statistics, trends, and actionable insights for buyers and sellers.`;
+Include the real statistics provided above and explain what they mean for buyers and sellers.`;
         } else if (input.contentType === "trending_news") {
           const formatInstructions = input.format === "carousel"
             ? "Create a 5-slide carousel breaking down the news and its real estate impact."

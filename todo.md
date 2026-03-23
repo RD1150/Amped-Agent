@@ -3854,3 +3854,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add retryCount column to cinematic_jobs schema and push migration
 - [x] Increment retryCount on each retry in the retry procedure
 - [x] Block retry and show "Contact support" message when retryCount >= 3 in UI
+
+## Session: Mar 23, 2026 - Real Market Data Integration
+- [x] Wire US Real Estate API into AI Reels market update template
+- [x] Wire US Real Estate API into Lead Magnet Generator (market_update and neighborhood_report types)
+- [x] Wire US Real Estate API into Post Builder (market_report content type) with location input field
+- [x] Wire US Real Estate API into Blog Builder (when city is provided)
