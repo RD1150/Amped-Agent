@@ -115,6 +115,15 @@ export default function AutoReels() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
+  // Market Update mode state
+  const [isMarketUpdateMode, setIsMarketUpdateMode] = useState(false);
+  const [marketLocation, setMarketLocation] = useState("");
+  const [marketData, setMarketData] = useState<any>(null);
+  const [isFetchingMarket, setIsFetchingMarket] = useState(false);
+
+  const getMarketDataMutation = trpc.marketStats.getMarketData.useMutation();
+  const generateMarketVideoMutation = trpc.marketStats.generateMarketVideo.useMutation();
+
   const generateMutation = trpc.autoreels.generate.useMutation();
   const renderVideoMutation = trpc.autoreels.renderVideo.useMutation();
   const generateAvatarIntroMutation = trpc.autoreels.generateAvatarIntro.useMutation();
@@ -289,6 +298,70 @@ export default function AutoReels() {
       console.error(error);
     } finally {
       setIsGeneratingAvatar(false);
+    }
+  };
+
+  const handleFetchMarketData = async () => {
+    if (!marketLocation.trim()) return;
+    setIsFetchingMarket(true);
+    try {
+      const data = await getMarketDataMutation.mutateAsync({ location: marketLocation.trim() });
+      setMarketData(data);
+      toast.success(`Market data loaded for ${marketLocation}`);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to fetch market data. Try a different location format (e.g. 'Austin, TX').");
+    } finally {
+      setIsFetchingMarket(false);
+    }
+  };
+
+  const handleGenerateMarketVideo = async () => {
+    if (!marketData) {
+      toast.error("Please fetch market data first");
+      return;
+    }
+    setIsGenerating(true);
+    setGenerationStep("Generating voiceover and rendering market update video...");
+    try {
+      const result = await generateMarketVideoMutation.mutateAsync({
+        location: marketLocation,
+        medianPrice: marketData.medianPrice,
+        priceChange: marketData.priceChange,
+        daysOnMarket: marketData.daysOnMarket,
+        activeListings: marketData.activeListings,
+        inventoryChange: marketData.inventoryChange ?? 0,
+        pricePerSqft: marketData.pricePerSqft,
+        marketTemperature: marketData.marketTemperature,
+        enableVoiceover,
+        voiceId: enableVoiceover ? voiceId : undefined,
+      });
+      const renderId = result.renderId;
+      if (!renderId) throw new Error('No render ID returned');
+      // Poll for completion
+      const maxAttempts = 72;
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        setGenerationStep(`Rendering market update video... (${Math.floor((attempt + 1) * 5)}s)`);
+        await utils.autoreels.checkRenderStatus.invalidate({ renderId });
+        const status = await utils.autoreels.checkRenderStatus.fetch({ renderId });
+        if (status.status === 'done' && status.url) {
+          setVideoUrl(status.url);
+          setHooks([`${marketLocation} Market Update`]);
+          setSelectedHook(`${marketLocation} Market Update`);
+          setScript(`Market update for ${marketLocation}: Median price $${(marketData.medianPrice / 1000).toFixed(0)}K, ${marketData.daysOnMarket} days on market, ${marketData.activeListings} active listings.`);
+          setCaption(`📊 ${marketLocation} Real Estate Market Update\n\nMedian Price: $${(marketData.medianPrice / 1000).toFixed(0)}K ${marketData.priceChange > 0 ? '↑' : '↓'} ${Math.abs(marketData.priceChange).toFixed(1)}% YoY\nDays on Market: ${marketData.daysOnMarket}\nActive Listings: ${marketData.activeListings?.toLocaleString()}\nPrice/Sq Ft: $${marketData.pricePerSqft}\n\nFollow for weekly market updates! #RealEstate #${marketLocation.replace(/[^a-zA-Z]/g, '')} #MarketUpdate`);
+          toast.success("Market update video is ready!");
+          return;
+        } else if (status.status === 'failed') {
+          throw new Error(status.error || 'Video rendering failed');
+        }
+      }
+      throw new Error('Video rendering timed out. Please try again.');
+    } catch (error: any) {
+      toast.error(error.message || "Failed to generate market update video");
+    } finally {
+      setIsGenerating(false);
+      setGenerationStep("");
     }
   };
 
@@ -723,7 +796,7 @@ export default function AutoReels() {
                 <div className="flex flex-wrap gap-2">
                   {/* Default templates */}
                   {[
-                    { label: "Market Update", prompt: "Create a market update post about current real estate trends in my area" },
+                    { label: "Market Update", prompt: "__MARKET_UPDATE__" },
                     { label: "Listing Promo", prompt: "Create a promotional post for a new luxury listing" },
                     { label: "Buyer Tips", prompt: "Share 3 essential tips for first-time home buyers" },
                     { label: "Seller Advice", prompt: "Explain how to prepare a home for sale to maximize value" },
@@ -737,8 +810,16 @@ export default function AutoReels() {
                       key={template.label}
                       variant="secondary"
                       size="sm"
-                      onClick={() => setInputText(template.prompt)}
-                      className="text-xs"
+                      onClick={() => {
+                        if (template.prompt === "__MARKET_UPDATE__") {
+                          setIsMarketUpdateMode(true);
+                          setEnableVoiceover(true);
+                        } else {
+                          setIsMarketUpdateMode(false);
+                          setInputText(template.prompt);
+                        }
+                      }}
+                      className={`text-xs ${template.prompt === "__MARKET_UPDATE__" ? "border-2 border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300" : ""}`}
                     >
                       {template.label}
                     </Button>
@@ -777,13 +858,66 @@ export default function AutoReels() {
                 </div>
               </div>
               
-              <Textarea
-                id="input-text"
-                placeholder={inputMethodPlaceholders[inputMethod]}
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                className="min-h-[200px] text-base"
-              />
+              {isMarketUpdateMode ? (
+                <div className="space-y-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-amber-700 dark:text-amber-300">📊 Market Update Reel</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">Fetches real MLS data for your market and generates a professional stat-slide video with voiceover.</p>
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setIsMarketUpdateMode(false); setMarketData(null); setMarketLocation(""); }}>
+                      <X className="h-3 w-3 mr-1" /> Cancel
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="e.g. Conejo Valley, CA or Austin, TX"
+                      value={marketLocation}
+                      onChange={(e) => setMarketLocation(e.target.value)}
+                      className="flex-1"
+                      onKeyDown={(e) => { if (e.key === 'Enter' && marketLocation.trim()) handleFetchMarketData(); }}
+                    />
+                    <Button
+                      onClick={handleFetchMarketData}
+                      disabled={!marketLocation.trim() || isFetchingMarket}
+                      className="shrink-0 bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                      {isFetchingMarket ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                      {isFetchingMarket ? "Fetching..." : "Get Data"}
+                    </Button>
+                  </div>
+                  {marketData && (
+                    <div className="grid grid-cols-2 gap-3 pt-2">
+                      {[
+                        { label: "Median Price", value: `$${(marketData.medianPrice / 1000).toFixed(0)}K`, sub: `${marketData.priceChange > 0 ? '↑' : '↓'} ${Math.abs(marketData.priceChange).toFixed(1)}% YoY` },
+                        { label: "Days on Market", value: `${marketData.daysOnMarket}`, sub: "avg. days" },
+                        { label: "Active Listings", value: `${marketData.activeListings?.toLocaleString()}`, sub: "homes for sale" },
+                        { label: "Price / Sq Ft", value: `$${marketData.pricePerSqft}`, sub: "per sq ft" },
+                      ].map((stat) => (
+                        <div key={stat.label} className="rounded-lg bg-background border p-3 text-center">
+                          <p className="text-xs text-muted-foreground">{stat.label}</p>
+                          <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{stat.value}</p>
+                          <p className="text-xs text-muted-foreground">{stat.sub}</p>
+                        </div>
+                      ))}
+                      <div className="col-span-2 rounded-lg bg-background border p-3 text-center">
+                        <p className="text-xs text-muted-foreground">Market Temperature</p>
+                        <p className="text-lg font-bold">
+                          {marketData.marketTemperature === 'hot' ? "🔥 Seller's Market" : marketData.marketTemperature === 'cold' ? "❄️ Buyer's Market" : "⚖️ Balanced Market"}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Textarea
+                  id="input-text"
+                  placeholder={inputMethodPlaceholders[inputMethod]}
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  className="min-h-[200px] text-base"
+                />
+              )}
             </div>
 
             {/* Video Settings */}
@@ -1104,8 +1238,8 @@ export default function AutoReels() {
 
             {/* Generate Button */}
             <Button 
-              onClick={handleGenerate} 
-              disabled={isGenerating || !inputText.trim()}
+              onClick={isMarketUpdateMode ? handleGenerateMarketVideo : handleGenerate} 
+              disabled={isGenerating || (isMarketUpdateMode ? !marketData : !inputText.trim())}
               size="lg"
               className="w-full"
             >
@@ -1113,6 +1247,11 @@ export default function AutoReels() {
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   {generationStep || "Generating..."}
+                </>
+              ) : isMarketUpdateMode ? (
+                <>
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  {marketData ? `Generate ${marketLocation} Market Video` : "Fetch Market Data First"}
                 </>
               ) : (
                 <>

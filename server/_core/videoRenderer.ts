@@ -43,6 +43,18 @@ const DEFAULT_REEL_BACKGROUNDS: Record<string, string[]> = {
   ],
 };
 
+export interface MarketUpdateRenderOptions {
+  location: string;
+  medianPrice: number;
+  priceChange: number;       // YoY %
+  daysOnMarket: number;
+  activeListings: number;
+  pricePerSqft: number;
+  marketTemperature: 'hot' | 'balanced' | 'cold';
+  voiceoverAudioUrl?: string;
+  agentName?: string;
+}
+
 export interface VideoRenderOptions {
   hook: string;
   script: string;
@@ -340,6 +352,165 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       status: 'failed',
       error: error.message || 'Unknown error occurred',
     };
+  }
+}
+
+/**
+ * Render a Market Update reel (9:16) with real stat callouts.
+ * Layout: intro slide → 4 stat slides (price, DOM, inventory, $/sqft) → CTA slide.
+ * Each slide is 4 seconds. Total: 24 seconds.
+ */
+export async function renderMarketUpdateReel(options: MarketUpdateRenderOptions): Promise<RenderResult> {
+  const apiKey = ENV.CREATOMATE_API_KEY;
+  if (!apiKey) {
+    return { renderId: '', status: 'failed', error: 'CREATOMATE_API_KEY is not configured.' };
+  }
+
+  try {
+    const { location, medianPrice, priceChange, daysOnMarket, activeListings, pricePerSqft, marketTemperature, voiceoverAudioUrl, agentName } = options;
+
+    const priceDir = priceChange > 0 ? '↑' : priceChange < 0 ? '↓' : '→';
+    const priceChangeAbs = Math.abs(priceChange).toFixed(1);
+    const tempLabel = marketTemperature === 'hot' ? "🔥 Seller's Market" : marketTemperature === 'cold' ? "❄️ Buyer's Market" : '⚖️ Balanced Market';
+    const tempColor = marketTemperature === 'hot' ? '#ff6b35' : marketTemperature === 'cold' ? '#4fc3f7' : '#66bb6a';
+
+    // 6 slides × 4s each = 24s total
+    const SLIDE_DUR = 4.0;
+    const TOTAL = 6 * SLIDE_DUR;
+
+    const slides = [
+      // Slide 0 — Intro
+      { headline: location, subline: 'Real Estate Market Update', accent: '#d4af37' },
+      // Slide 1 — Median Price
+      { headline: `$${(medianPrice / 1000).toFixed(0)}K`, subline: `Median Home Price  ${priceDir} ${priceChangeAbs}% YoY`, accent: '#d4af37' },
+      // Slide 2 — Days on Market
+      { headline: `${daysOnMarket}`, subline: 'Avg. Days on Market', accent: '#d4af37' },
+      // Slide 3 — Active Listings
+      { headline: `${activeListings.toLocaleString()}`, subline: 'Active Listings', accent: '#d4af37' },
+      // Slide 4 — Price per Sqft
+      { headline: `$${pricePerSqft}`, subline: 'Price per Sq Ft', accent: '#d4af37' },
+      // Slide 5 — Market Temp + CTA
+      { headline: tempLabel, subline: agentName ? `Questions? Contact ${agentName}` : 'Follow for weekly market updates', accent: tempColor },
+    ];
+
+    // Background images — use authoritative/investors pool
+    const bgPool = DEFAULT_REEL_BACKGROUNDS.investors;
+    const elements: any[] = [];
+    let trackNum = 1;
+
+    // ── Background images — one per slide, Ken Burns ──────────────────────────
+    slides.forEach((_, idx) => {
+      const bgUrl = bgPool[idx % bgPool.length];
+      elements.push({
+        type: 'image',
+        track: trackNum,
+        time: idx * SLIDE_DUR,
+        duration: SLIDE_DUR + 0.3,
+        source: bgUrl,
+        x: '50%', y: '50%', width: '100%', height: '100%', fit: 'cover',
+        x_scale: [{ time: 'start', value: '100%' }, { time: 'end', value: '107%' }],
+        y_scale: [{ time: 'start', value: '100%' }, { time: 'end', value: '107%' }],
+        animations: idx > 0 ? [{ time: 'start', duration: 0.35, easing: 'ease-in-out', type: 'fade' }] : [],
+      });
+    });
+    trackNum++;
+
+    // ── Dark scrim ────────────────────────────────────────────────────────────
+    elements.push({ type: 'shape', track: trackNum++, time: 0, duration: TOTAL, x: '50%', y: '50%', width: '100%', height: '100%', fill_color: 'rgba(0,0,0,0.52)' });
+
+    // ── Per-slide content ─────────────────────────────────────────────────────
+    slides.forEach((slide, idx) => {
+      const t = idx * SLIDE_DUR;
+      const isStatSlide = idx >= 1 && idx <= 4;
+
+      // Gold accent bar
+      elements.push({ type: 'shape', track: trackNum, time: t, duration: SLIDE_DUR - 0.1, x: '50%', y: '20%', width: '30%', height: '0.5%', fill_color: slide.accent });
+
+      // Headline — large stat number or title
+      elements.push({
+        type: 'text', track: trackNum + 1, time: t, duration: SLIDE_DUR - 0.1,
+        text: slide.headline,
+        x: '50%', y: isStatSlide ? '44%' : '40%', width: '88%',
+        font_family: 'Montserrat', font_size: isStatSlide ? '22 vmin' : '11 vmin',
+        font_weight: '900', fill_color: '#ffffff', text_align: 'center',
+        shadow_color: 'rgba(0,0,0,0.7)', shadow_blur: '6px', shadow_x: '2px', shadow_y: '3px',
+        animations: [
+          { time: 'start', duration: 0.5, easing: 'ease-out', type: 'text-slide', direction: 'up', scope: 'element' },
+          { time: 'end',   duration: 0.3, easing: 'ease-in',  type: 'fade' },
+        ],
+      });
+
+      // Subline — label / context
+      elements.push({
+        type: 'text', track: trackNum + 2, time: t + 0.3, duration: SLIDE_DUR - 0.4,
+        text: slide.subline,
+        x: '50%', y: isStatSlide ? '62%' : '56%', width: '85%',
+        font_family: 'Open Sans', font_size: '6.5 vmin', font_weight: '600',
+        fill_color: isStatSlide ? '#d4af37' : '#ffffff', text_align: 'center',
+        animations: [
+          { time: 'start', duration: 0.4, easing: 'ease-out', type: 'fade' },
+          { time: 'end',   duration: 0.3, easing: 'ease-in',  type: 'fade' },
+        ],
+      });
+    });
+    trackNum += 3;
+
+    // ── Branding watermark ────────────────────────────────────────────────────
+    elements.push({
+      type: 'text', track: trackNum++, time: 0, duration: TOTAL,
+      text: 'AuthorityContent.co',
+      x: '50%', y: '94%', width: '80%',
+      font_family: 'Open Sans', font_size: '3 vmin', font_weight: '400',
+      fill_color: 'rgba(255,255,255,0.35)', text_align: 'center',
+    });
+
+    // ── Background music (authoritative) ─────────────────────────────────────
+    const musicVolume = voiceoverAudioUrl ? 0.06 : 0.20;
+    elements.push({
+      type: 'audio', track: trackNum++, time: 0, duration: TOTAL,
+      source: 'https://cdn.pixabay.com/audio/2022/08/04/audio_2dde668d05.mp3',
+      volume: musicVolume, audio_fade_in: 0.8, audio_fade_out: 1.2,
+    });
+
+    // ── Voiceover (optional) ─────────────────────────────────────────────────
+    if (voiceoverAudioUrl) {
+      elements.push({
+        type: 'audio', track: trackNum++, time: 0, duration: TOTAL,
+        source: voiceoverAudioUrl, volume: 1.0,
+      });
+    }
+
+    const renderScript = {
+      output_format: 'mp4',
+      width: 1080,
+      height: 1920,
+      frame_rate: 30,
+      duration: TOTAL,
+      elements,
+    };
+
+    console.log('[VideoRenderer] Submitting MarketUpdate render to Creatomate for', location);
+
+    const response = await fetch(`${CREATOMATE_API_URL}/renders`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: renderScript }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Creatomate API error: ${response.status} — ${errorText.substring(0, 300)}`);
+    }
+
+    const result = await response.json();
+    const render = Array.isArray(result) ? result[0] : result;
+    if (!render?.id) throw new Error('Invalid response from Creatomate API — missing render ID');
+
+    console.log('[VideoRenderer] MarketUpdate render queued:', render.id);
+    return { renderId: render.id, status: 'queued' };
+  } catch (error: any) {
+    console.error('[VideoRenderer] MarketUpdate render error:', error);
+    return { renderId: '', status: 'failed', error: error.message || 'Unknown error occurred' };
   }
 }
 

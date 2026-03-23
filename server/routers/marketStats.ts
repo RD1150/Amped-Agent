@@ -132,7 +132,7 @@ Generate a social media post that explains what these numbers mean for buyers an
       const { deductCredits } = await import('../credits');
       const { textToSpeech } = await import('../_core/elevenLabs');
       const { storagePut } = await import('../storage');
-      const { renderAutoReel } = await import('../_core/videoRenderer');
+      const { renderMarketUpdateReel } = await import('../_core/videoRenderer');
 
       const creditCost = 10 + (input.enableVoiceover ? 5 : 0);
       await deductCredits({
@@ -173,25 +173,17 @@ Generate a social media post that explains what these numbers mean for buyers an
         voiceoverAudioUrl = url;
       }
 
-      // Build a simple text-based Shotstack reel for market stats
-      const priceDir = input.priceChange > 0 ? '↑' : input.priceChange < 0 ? '↓' : '→';
-      const slides = [
-        { title: input.location, subtitle: `${input.marketTemperature.charAt(0).toUpperCase() + input.marketTemperature.slice(1)} Market` },
-        { title: `$${(input.medianPrice / 1000).toFixed(0)}K`, subtitle: `Median Price  ${priceDir} ${Math.abs(input.priceChange)}% YoY` },
-        { title: `${input.daysOnMarket} Days`, subtitle: 'Average Days on Market' },
-        { title: `${input.activeListings.toLocaleString()}`, subtitle: 'Active Listings' },
-        { title: `$${input.pricePerSqft}/sqft`, subtitle: 'Price per Square Foot' },
-      ];
-
-      // Build a hook and script from slides for renderAutoReel
-      const hook = `${input.location} Market Update`;
-      const script = slides.map(s => `${s.title} — ${s.subtitle}`).join('. ');
-      const result = await renderAutoReel({
-        hook,
-        script,
-        videoLength: 15,
-        tone: 'authoritative',
+      // Use the dedicated market update renderer with proper stat slide layout
+      const result = await renderMarketUpdateReel({
+        location: input.location,
+        medianPrice: input.medianPrice,
+        priceChange: input.priceChange,
+        daysOnMarket: input.daysOnMarket,
+        activeListings: input.activeListings,
+        pricePerSqft: input.pricePerSqft,
+        marketTemperature: input.marketTemperature,
         voiceoverAudioUrl,
+        agentName: ctx.user.name || undefined,
       });
 
       return { renderId: result.renderId, success: true };
