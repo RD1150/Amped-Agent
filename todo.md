@@ -3872,3 +3872,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update AutoReels UI video length selector to show only 30s and 60s options
 - [x] Update videoLengthEnum in autoreels router to z.enum(["30", "60"])
 - [x] Add reelDuration.test.ts with 9 tests covering minimum duration and subtitle logic
+
+## Session: Mar 23, 2026 - My Content Reel Cards Bug
+- [x] Add saveCompletedReel mutation to autoreels router to persist video URL and status=completed
+- [x] Call saveCompletedReel from AutoReels.tsx after polling returns done+url (all 3 polling paths)
+- [x] Update MyContent.tsx to use shotstackRenderUrl/s3Url/didVideoUrl with fallback chain
+- [x] Add play/pause click handler on reel cards in MyContent.tsx with rendering/failed status overlays
+- [x] Backfill 4 existing completed reels with their Creatomate video URLs via backfill-reels.mjs script

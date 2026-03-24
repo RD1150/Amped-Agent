@@ -126,6 +126,7 @@ export default function AutoReels() {
 
   const generateMutation = trpc.autoreels.generate.useMutation();
   const renderVideoMutation = trpc.autoreels.renderVideo.useMutation();
+  const saveCompletedReelMutation = trpc.autoreels.saveCompletedReel.useMutation();
   const generateAvatarIntroMutation = trpc.autoreels.generateAvatarIntro.useMutation();
   const generateContentMutation = trpc.autoreels.generateContent.useMutation();
   const { data: customTemplates = [] } = trpc.autoreels.getCustomTemplates.useQuery();
@@ -155,6 +156,8 @@ export default function AutoReels() {
             setIsGenerating(false);
             setGenerationStep("");
             toast.success("Your reel is ready!");
+            // Persist the completed video URL to the database
+            saveCompletedReelMutation.mutate({ renderId, videoUrl: status.url });
             return;
           }
           if (status.status === "failed") {
@@ -351,6 +354,8 @@ export default function AutoReels() {
           setScript(`Market update for ${marketLocation}: Median price $${(marketData.medianPrice / 1000).toFixed(0)}K, ${marketData.daysOnMarket} days on market, ${marketData.activeListings} active listings.`);
           setCaption(`📊 ${marketLocation} Real Estate Market Update\n\nMedian Price: $${(marketData.medianPrice / 1000).toFixed(0)}K ${marketData.priceChange > 0 ? '↑' : '↓'} ${Math.abs(marketData.priceChange).toFixed(1)}% YoY\nDays on Market: ${marketData.daysOnMarket}\nActive Listings: ${marketData.activeListings?.toLocaleString()}\nPrice/Sq Ft: $${marketData.pricePerSqft}\n\nFollow for weekly market updates! #RealEstate #${marketLocation.replace(/[^a-zA-Z]/g, '')} #MarketUpdate`);
           toast.success("Market update video is ready!");
+          // Persist the completed video URL to the database so it appears in My Content
+          saveCompletedReelMutation.mutate({ renderId, videoUrl: status.url });
           return;
         } else if (status.status === 'failed') {
           throw new Error(status.error || 'Video rendering failed');
@@ -446,6 +451,8 @@ export default function AutoReels() {
           setVideoUrl(status.url);
           toast.success("Your reel is ready!");
           done = true;
+          // Persist the completed video URL to the database so it appears in My Content
+          saveCompletedReelMutation.mutate({ renderId, videoUrl: status.url });
           break;
         } else if (status.status === 'failed') {
           throw new Error(status.error || 'Video rendering failed');

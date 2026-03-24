@@ -630,6 +630,37 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
     }),
 
   /**
+   * Save a completed reel's video URL and mark it as completed in the database.
+   * Called by the frontend after polling returns status=done with a URL.
+   */
+  saveCompletedReel: protectedProcedure
+    .input(z.object({
+      renderId: z.string().min(1),
+      videoUrl: z.string().url(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { getDb } = await import("../db");
+      const { aiReels } = await import("../../drizzle/schema");
+      const { eq, and } = await import("drizzle-orm");
+      const database = await getDb();
+      if (!database) throw new Error("Database not available");
+      // Only update the reel that belongs to this user and matches the renderId
+      await database
+        .update(aiReels)
+        .set({
+          shotstackRenderUrl: input.videoUrl,
+          status: "completed" as const,
+        })
+        .where(
+          and(
+            eq(aiReels.userId, ctx.user.id),
+            eq(aiReels.shotstackRenderId, input.renderId)
+          )
+        );
+      return { success: true };
+    }),
+
+  /**
    * Get the most recent in-progress reel for job recovery
    * Returns the latest processing reel with a renderId so the frontend can resume polling
    */

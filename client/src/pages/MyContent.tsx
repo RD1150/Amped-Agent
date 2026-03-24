@@ -40,6 +40,9 @@ interface ReelItem {
   id: number;
   title: string | null;
   didVideoUrl: string | null;
+  shotstackRenderUrl: string | null;
+  s3Url: string | null;
+  reelType: string;
   status: string;
   createdAt: Date;
   expiresAt: Date;
@@ -288,13 +291,17 @@ export default function MyContent() {
             reels?.map((reel: ReelItem) => {
               const playKey = `reel-${reel.id}`;
               const isPlaying = playingVideoId === playKey;
+              // Resolve the best available video URL: authority reels use shotstackRenderUrl, D-ID reels use didVideoUrl
+              const reelVideoUrl = reel.shotstackRenderUrl || reel.s3Url || reel.didVideoUrl || null;
+              const isProcessing = reel.status === "processing";
+              const isFailed = reel.status === "failed";
               return (
                 <Card key={playKey} className="overflow-hidden hover:border-primary/50 transition-all group">
                   {/* Vertical video thumbnail */}
                   <div className="relative aspect-[9/16] max-h-[240px] bg-muted/50 overflow-hidden">
-                    {isPlaying && reel.didVideoUrl ? (
+                    {isPlaying && reelVideoUrl ? (
                       <video
-                        src={reel.didVideoUrl}
+                        src={reelVideoUrl}
                         autoPlay
                         controls
                         className="w-full h-full object-cover"
@@ -305,7 +312,19 @@ export default function MyContent() {
                         <Film className="h-10 w-10 text-purple-400/50" />
                       </div>
                     )}
-                    {reel.didVideoUrl && !isPlaying && (
+                    {isProcessing && (
+                      <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2">
+                        <RefreshCw className="h-7 w-7 text-yellow-400 animate-spin" />
+                        <span className="text-yellow-400 text-xs font-medium">Rendering…</span>
+                      </div>
+                    )}
+                    {isFailed && (
+                      <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2">
+                        <VideoOff className="h-7 w-7 text-red-400" />
+                        <span className="text-red-400 text-xs font-medium">Failed</span>
+                      </div>
+                    )}
+                    {reelVideoUrl && !isPlaying && !isProcessing && !isFailed && (
                       <button
                         onClick={() => setPlayingVideoId(playKey)}
                         className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -330,18 +349,22 @@ export default function MyContent() {
                       {new Date(reel.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                     </p>
 
-                    {reel.didVideoUrl && (
+                    {reelVideoUrl && !isProcessing && !isFailed && (
                       <div className="flex gap-2">
                         <a
-                          href={reel.didVideoUrl}
-                          download
+                          href={reelVideoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
                         >
                           <Download className="w-3.5 h-3.5" />
                           Download
                         </a>
-                        <CopyLinkButton url={reel.didVideoUrl} />
+                        <CopyLinkButton url={reelVideoUrl} />
                       </div>
+                    )}
+                    {isProcessing && (
+                      <p className="text-xs text-yellow-600 font-medium">Video is still rendering…</p>
                     )}
                   </CardContent>
                 </Card>
