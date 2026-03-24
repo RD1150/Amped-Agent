@@ -3972,3 +3972,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Falls back to 0% (not a made-up number) if insufficient sold data (<3 homes in either period)
 - [x] Updated MarketStatsData interface comments: priceChange is now MoM not YoY
 - [x] TypeScript clean, 12 marketView tests pass
+
+## Session: Mar 24, 2026 - Data Transparency Features
+- [x] Add data source disclosure to reel captions (e.g., "Data sourced from recent sold homes, Realtor.com")
+- [x] Add "Data as of [Month Year]" timestamp to stat slides in market update reels
