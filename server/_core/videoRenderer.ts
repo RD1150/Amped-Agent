@@ -77,8 +77,16 @@ interface RenderResult {
 }
 
 /**
- * Split script into subtitle chunks.
- * Each chunk is 5-8 words and stays on screen at least 2 seconds.
+ * Split script into subtitle chunks timed to match natural speech pace.
+ *
+ * Strategy: use a realistic speaking rate (130 wpm = ~0.46s per word) to
+ * calculate how long each chunk takes to say, then anchor the first chunk
+ * to `startAt` (the moment the voiceover begins, after the hook).
+ * This keeps subtitles in sync with the narration regardless of video length.
+ *
+ * Each chunk is 5 words — short enough to read in a glance, long enough
+ * to stay on screen for a full breath (~1.7s at 130 wpm).
+ * A minimum display time of 2.5s is enforced so fast speakers don't flash.
  */
 function generateSubtitleTiming(
   script: string,
@@ -86,29 +94,43 @@ function generateSubtitleTiming(
   totalDuration: number
 ): Array<{ text: string; start: number; length: number }> {
   const words = script.split(/\s+/).filter(w => w.length > 0);
+  if (words.length === 0) return [];
+
+  // ── Build chunks of 5 words ───────────────────────────────────────────────
+  const CHUNK_SIZE = 5;
   const chunks: string[] = [];
-  const chunkSize = 5; // 5 words per chunk = easier to read at a glance
-  for (let i = 0; i < words.length; i += chunkSize) {
-    chunks.push(words.slice(i, i + chunkSize).join(' '));
+  for (let i = 0; i < words.length; i += CHUNK_SIZE) {
+    chunks.push(words.slice(i, i + CHUNK_SIZE).join(' '));
   }
 
-  if (chunks.length === 0) return [];
+  // ── Speech-rate timing ────────────────────────────────────────────────────
+  // Professional narrators speak at ~130 wpm. That's 0.462 seconds per word.
+  // Add a small inter-chunk pause (0.15s) to account for natural breath pauses.
+  const SECS_PER_WORD = 60 / 130; // ≈ 0.462s
+  const INTER_CHUNK_PAUSE = 0.15;  // brief pause between subtitle cards
+  const MIN_CHUNK_DURATION = 2.5;  // never flash faster than 2.5s
 
-  const MIN_TIME_PER_CHUNK = 3.5; // minimum 3.5s per chunk so text is readable
-  const availableTime = totalDuration - startAt;
-  const rawTimePerChunk = availableTime / chunks.length;
+  const result: Array<{ text: string; start: number; length: number }> = [];
+  let cursor = startAt;
 
-  // If the script is too long to display at readable speed, truncate chunks
-  // rather than flashing them too fast
-  const timePerChunk = Math.max(MIN_TIME_PER_CHUNK, rawTimePerChunk);
-  const maxChunks = Math.floor(availableTime / MIN_TIME_PER_CHUNK);
-  const displayChunks = chunks.slice(0, maxChunks);
+  for (const chunk of chunks) {
+    const chunkWords = chunk.split(/\s+/).length;
+    const speechDuration = chunkWords * SECS_PER_WORD;
+    const displayDuration = Math.max(MIN_CHUNK_DURATION, speechDuration);
 
-  return displayChunks.map((text, index) => ({
-    text,
-    start: startAt + index * timePerChunk,
-    length: timePerChunk + 0.1, // slight overlap to prevent gap
-  }));
+    // Don't render subtitles past the end of the video
+    if (cursor + displayDuration > totalDuration + 0.5) break;
+
+    result.push({
+      text: chunk,
+      start: cursor,
+      length: displayDuration,
+    });
+
+    cursor += displayDuration + INTER_CHUNK_PAUSE;
+  }
+
+  return result;
 }
 
 /**

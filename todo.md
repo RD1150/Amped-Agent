@@ -3885,3 +3885,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Generated 9 new luxury real estate images: Mediterranean estate, living room hills view, stone home, resort pool, aerial Thousand Oaks, chef's kitchen, agent+clients, master suite, family dining
 - [x] Replaced all 16 old stock images with new luxury Conejo Valley / Thousand Oaks images ($1.2M+ aesthetic)
 - [x] User-uploaded background photos already take priority (existing logic in pickBackgroundImages)
+
+## Session: Mar 24, 2026 - Subtitle Timing & Sync Fix
+- [x] Audited generateSubtitleTiming in both renderers - root cause: even distribution across video duration, no speech-rate model
+- [x] Replaced even-distribution timing with speech-rate-based timing (130 wpm = 0.462s/word)
+- [x] Subtitles now start at t=2.2s (after hook) in creatomateRenderer, t=3.2s in videoRenderer
+- [x] Each chunk duration = max(2.5s, speechDuration) so fast speakers never flash
+- [x] Added 0.15s inter-chunk pause to simulate natural breath between subtitle cards
+- [x] 12 tests pass including 3 new speech-rate timing tests

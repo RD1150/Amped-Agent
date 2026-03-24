@@ -1,10 +1,14 @@
 /**
- * Tests for minimum reel duration enforcement and subtitle logic.
+ * Tests for minimum reel duration enforcement, subtitle logic, and
+ * speech-rate-based subtitle timing.
  *
  * Requirements:
  * 1. All reels must have a minimum duration of 30 seconds.
  * 2. Subtitles are only shown for reels >= 30 seconds.
  * 3. The video length selector in the UI only offers 30s and 60s options.
+ * 4. Subtitle timing is based on speech rate (130 wpm), not video duration.
+ * 5. Subtitles start after the hook (startAt >= 2.2s), never at t=0.
+ * 6. Each subtitle chunk stays on screen at least 2.5 seconds.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
@@ -52,7 +56,6 @@ describe("renderAutoReel minimum duration enforcement", () => {
 
     const [, options] = mockFetch.mock.calls[0];
     const body = JSON.parse(options.body);
-    // The actual render duration in the source should be >= 30
     expect(body.source.duration).toBeGreaterThanOrEqual(30);
   });
 
@@ -131,7 +134,6 @@ describe("renderAutoReel subtitle logic", () => {
     const body = JSON.parse(options.body);
     const elements = body.source.elements;
 
-    // Should have text elements beyond just the hook (i.e., subtitles)
     const textElements = elements.filter((el: any) => el.type === "text");
     // At least hook + 1 subtitle chunk
     expect(textElements.length).toBeGreaterThan(1);
@@ -158,11 +160,110 @@ describe("renderAutoReel subtitle logic", () => {
   });
 });
 
+// ─── Tests: Speech-rate subtitle timing ──────────────────────────────────────
+
+describe("subtitle timing: speech-rate-based (not duration-based)", () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+  });
+
+  it("subtitle chunks start after the hook (>= 3s), never at t=0", async () => {
+    mockFetch.mockResolvedValueOnce(makeRenderResponse("reel-timing-001"));
+
+    const { renderAutoReel } = await import("./_core/videoRenderer");
+
+    await renderAutoReel({
+      hook: "Market update hook",
+      script: "Thousand Oaks home prices rose five percent this year. Buyers are still active in the market. Inventory remains tight across the Conejo Valley.",
+      videoLength: 30,
+      tone: "authoritative",
+    });
+
+    const [, options] = mockFetch.mock.calls[0];
+    const body = JSON.parse(options.body);
+    const elements = body.source.elements;
+
+    // Find subtitle elements (text elements that are NOT the hook or branding)
+    const hookText = "Market update hook";
+    const subtitleEls = elements.filter(
+      (el: any) => el.type === "text" && el.text !== hookText && !el.text.includes("AuthorityContent")
+    );
+
+    expect(subtitleEls.length).toBeGreaterThan(0);
+    // All subtitles must start at or after the hook display period
+    for (const sub of subtitleEls) {
+      expect(sub.time).toBeGreaterThanOrEqual(3.0);
+    }
+  });
+
+  it("each subtitle chunk stays on screen at least 2.5 seconds", async () => {
+    mockFetch.mockResolvedValueOnce(makeRenderResponse("reel-timing-002"));
+
+    const { renderAutoReel } = await import("./_core/videoRenderer");
+
+    await renderAutoReel({
+      hook: "Readable subtitles",
+      script: "Every subtitle chunk must be readable. No flashing text allowed. Each line stays on screen long enough. Viewers need time to read the words.",
+      videoLength: 30,
+      tone: "calm",
+    });
+
+    const [, options] = mockFetch.mock.calls[0];
+    const body = JSON.parse(options.body);
+    const elements = body.source.elements;
+
+    const hookText = "Readable subtitles";
+    const subtitleEls = elements.filter(
+      (el: any) => el.type === "text" && el.text !== hookText && !el.text.includes("AuthorityContent")
+    );
+
+    expect(subtitleEls.length).toBeGreaterThan(0);
+    for (const sub of subtitleEls) {
+      expect(sub.duration).toBeGreaterThanOrEqual(2.5);
+    }
+  });
+
+  it("subtitle timing advances proportionally to word count, not video length", async () => {
+    // A 5-word chunk at 130 wpm takes ~2.31s to speak → displayed for 2.5s (min)
+    // A 30s video and a 60s video with the same script should have the same subtitle durations
+    mockFetch
+      .mockResolvedValueOnce(makeRenderResponse("reel-timing-003a"))
+      .mockResolvedValueOnce(makeRenderResponse("reel-timing-003b"));
+
+    const { renderAutoReel } = await import("./_core/videoRenderer");
+
+    const script = "Conejo Valley market update for this quarter. Prices are up five percent year over year.";
+
+    await renderAutoReel({ hook: "Hook A", script, videoLength: 30, tone: "bold" });
+    await renderAutoReel({ hook: "Hook B", script, videoLength: 60, tone: "bold" });
+
+    const body30 = JSON.parse(mockFetch.mock.calls[0][1].body);
+    const body60 = JSON.parse(mockFetch.mock.calls[1][1].body);
+
+    const hookText30 = "Hook A";
+    const hookText60 = "Hook B";
+
+    const subs30 = body30.source.elements.filter(
+      (el: any) => el.type === "text" && el.text !== hookText30 && !el.text.includes("AuthorityContent")
+    );
+    const subs60 = body60.source.elements.filter(
+      (el: any) => el.type === "text" && el.text !== hookText60 && !el.text.includes("AuthorityContent")
+    );
+
+    // Same script → same number of subtitle chunks regardless of video length
+    expect(subs30.length).toBe(subs60.length);
+
+    // Same script → same duration per chunk regardless of video length
+    if (subs30.length > 0 && subs60.length > 0) {
+      expect(subs30[0].duration).toBeCloseTo(subs60[0].duration, 1);
+    }
+  });
+});
+
 // ─── Tests: VideoLength enum validation ──────────────────────────────────────
 
 describe("videoLength enum validation", () => {
   it("only accepts 30 and 60 as valid video lengths", () => {
-    // This mirrors the z.enum(["30", "60"]) in the autoreels router
     const validLengths = ["30", "60"];
     const invalidLengths = ["7", "15", "45", "90"];
 
@@ -176,7 +277,7 @@ describe("videoLength enum validation", () => {
 
   it("defaults to 30 seconds as the minimum", () => {
     const MIN_DURATION = 30;
-    const inputDuration = 15; // A legacy or invalid input
+    const inputDuration = 15;
     const enforcedDuration = Math.max(MIN_DURATION, inputDuration);
     expect(enforcedDuration).toBe(30);
   });

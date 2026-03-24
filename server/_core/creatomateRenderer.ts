@@ -183,29 +183,46 @@ const BACKGROUND_MUSIC: Record<string, string> = {
   warm: "https://shotstack-assets.s3.amazonaws.com/music/acoustic-warm.mp3",
 };
 
+/**
+ * Speech-rate-based subtitle timing.
+ * Anchors subtitle start to `startAt` (after the hook) and advances each
+ * chunk by the time it takes to speak it at 130 wpm, not by video duration.
+ * This keeps subtitles in sync with the voiceover narration.
+ */
 function generateSubtitleTiming(
   script: string,
-  duration: number
+  totalDuration: number,
+  startAt: number = 0
 ): Array<{ text: string; start: number; length: number }> {
   const words = script.split(/\s+/).filter((w) => w.length > 0);
+  if (words.length === 0) return [];
+
+  const CHUNK_SIZE = 5;
   const chunks: string[] = [];
-  const chunkSize = 5; // 5 words per chunk — readable at a glance
-  for (let i = 0; i < words.length; i += chunkSize) {
-    chunks.push(words.slice(i, i + chunkSize).join(' '));
+  for (let i = 0; i < words.length; i += CHUNK_SIZE) {
+    chunks.push(words.slice(i, i + CHUNK_SIZE).join(' '));
   }
-  if (chunks.length === 0) return [];
 
-  const MIN_TIME_PER_CHUNK = 3.5; // minimum 3.5s so text is readable
-  const rawTimePerChunk = duration / chunks.length;
-  const timePerChunk = Math.max(MIN_TIME_PER_CHUNK, rawTimePerChunk);
-  const maxChunks = Math.floor(duration / MIN_TIME_PER_CHUNK);
-  const displayChunks = chunks.slice(0, maxChunks);
+  // Professional narrators speak at ~130 wpm (≈0.462s per word)
+  const SECS_PER_WORD = 60 / 130;
+  const INTER_CHUNK_PAUSE = 0.15; // natural breath pause between cards
+  const MIN_CHUNK_DURATION = 2.5; // never flash faster than 2.5s
 
-  return displayChunks.map((text, index) => ({
-    text,
-    start: index * timePerChunk,
-    length: timePerChunk + 0.1,
-  }));
+  const result: Array<{ text: string; start: number; length: number }> = [];
+  let cursor = startAt;
+
+  for (const chunk of chunks) {
+    const chunkWords = chunk.split(/\s+/).length;
+    const speechDuration = chunkWords * SECS_PER_WORD;
+    const displayDuration = Math.max(MIN_CHUNK_DURATION, speechDuration);
+
+    if (cursor + displayDuration > totalDuration + 0.5) break;
+
+    result.push({ text: chunk, start: cursor, length: displayDuration });
+    cursor += displayDuration + INTER_CHUNK_PAUSE;
+  }
+
+  return result;
 }
 
 export async function renderAutoReel(options: AutoReelOptions): Promise<RenderResult> {
@@ -262,14 +279,16 @@ export async function renderAutoReel(options: AutoReelOptions): Promise<RenderRe
       ],
     });
 
-    //    // ── Track 4: Script subtitles ─────────────────────────────────────
-    // Only add subtitles if the video is long enough for readable display
-    const subtitles = enableSubtitles ? generateSubtitleTiming(script, videoLength - 2) : [];
+    // ── Track 4: Script subtitles ─────────────────────────────────────────
+    // startAt=2.2 → subtitles begin just after the 2s hook fades out.
+    // Speech-rate timing advances each chunk by how long it takes to speak,
+    // so subtitles stay in sync with the voiceover narration.
+    const subtitles = enableSubtitles ? generateSubtitleTiming(script, videoLength, 2.2) : [];
     subtitles.forEach((sub, _i) => {
       elements.push({
         type: "text",
         track: 4,
-        time: sub.start + 2, // Start after hook
+        time: sub.start, // already offset by startAt inside generateSubtitleTiming
         duration: sub.length,
         text: sub.text,
         font_family: "Open Sans",
