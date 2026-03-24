@@ -12,6 +12,7 @@ import { useLocation } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ImageCropModal } from "@/components/ImageCropModal";
+import { MARKET_VIEW_OPTIONS, DEFAULT_MARKET_VIEW, type MarketView } from "../../../shared/marketView";
 
 type InputMethod = "bullets" | "caption" | "blog" | "listing";
 type VideoLength = "30" | "60";
@@ -120,6 +121,7 @@ export default function AutoReels() {
   const [marketLocation, setMarketLocation] = useState("");
   const [marketData, setMarketData] = useState<any>(null);
   const [isFetchingMarket, setIsFetchingMarket] = useState(false);
+  const [marketView, setMarketView] = useState<MarketView>(DEFAULT_MARKET_VIEW);
 
   const getMarketDataMutation = trpc.marketStats.getMarketData.useMutation();
   const generateMarketVideoMutation = trpc.marketStats.generateMarketVideo.useMutation();
@@ -308,7 +310,7 @@ export default function AutoReels() {
     if (!marketLocation.trim()) return;
     setIsFetchingMarket(true);
     try {
-      const data = await getMarketDataMutation.mutateAsync({ location: marketLocation.trim() });
+      const data = await getMarketDataMutation.mutateAsync({ location: marketLocation.trim(), marketView });
       setMarketData(data);
       toast.success(`Market data loaded for ${marketLocation}`);
     } catch (error: any) {
@@ -337,6 +339,7 @@ export default function AutoReels() {
         marketTemperature: marketData.marketTemperature,
         enableVoiceover,
         voiceId: enableVoiceover ? voiceId : undefined,
+        marketView,
       });
       const renderId = result.renderId;
       if (!renderId) throw new Error('No render ID returned');
@@ -352,7 +355,8 @@ export default function AutoReels() {
           setHooks([`${marketLocation} Market Update`]);
           setSelectedHook(`${marketLocation} Market Update`);
           setScript(`Market update for ${marketLocation}: Median price $${(marketData.medianPrice / 1000).toFixed(0)}K, ${marketData.daysOnMarket} days on market, ${marketData.activeListings} active listings.`);
-          setCaption(`📊 ${marketLocation} Real Estate Market Update\n\nMedian Price: $${(marketData.medianPrice / 1000).toFixed(0)}K ${marketData.priceChange > 0 ? '↑' : '↓'} ${Math.abs(marketData.priceChange).toFixed(1)}% YoY\nDays on Market: ${marketData.daysOnMarket}\nActive Listings: ${marketData.activeListings?.toLocaleString()}\nPrice/Sq Ft: $${marketData.pricePerSqft}\n\nFollow for weekly market updates! #RealEstate #${marketLocation.replace(/[^a-zA-Z]/g, '')} #MarketUpdate`);
+          const mvLabel = MARKET_VIEW_OPTIONS.find(o => o.value === marketView)?.statLabel ?? 'MoM';
+          setCaption(`📊 ${marketLocation} Real Estate Market Update\n\nMedian Price: $${(marketData.medianPrice / 1000).toFixed(0)}K ${marketData.priceChange > 0 ? '↑' : '↓'} ${Math.abs(marketData.priceChange).toFixed(1)}% ${mvLabel}\nDays on Market: ${marketData.daysOnMarket}\nActive Listings: ${marketData.activeListings?.toLocaleString()}\nPrice/Sq Ft: $${marketData.pricePerSqft}\n\nFollow for weekly market updates! #RealEstate #${marketLocation.replace(/[^a-zA-Z]/g, '')} #MarketUpdate`);
           toast.success("Market update video is ready!");
           // Persist the completed video URL to the database so it appears in My Content
           saveCompletedReelMutation.mutate({ renderId, videoUrl: status.url });
@@ -876,6 +880,31 @@ export default function AutoReels() {
                       <X className="h-3 w-3 mr-1" /> Cancel
                     </Button>
                   </div>
+                  {/* Market View selector */}
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-medium text-muted-foreground">Market View</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {MARKET_VIEW_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setMarketView(opt.value)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                            marketView === opt.value
+                              ? 'bg-amber-600 text-white border-amber-600'
+                              : 'bg-background border-border text-muted-foreground hover:border-amber-500/50 hover:text-foreground'
+                          }`}
+                          title={opt.description}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {MARKET_VIEW_OPTIONS.find(o => o.value === marketView)?.description}
+                    </p>
+                  </div>
+
                   <div className="flex gap-2">
                     <Input
                       placeholder="e.g. Conejo Valley, CA or Austin, TX"
@@ -896,7 +925,7 @@ export default function AutoReels() {
                   {marketData && (
                     <div className="grid grid-cols-2 gap-3 pt-2">
                       {[
-                        { label: "Median Price", value: `$${(marketData.medianPrice / 1000).toFixed(0)}K`, sub: `${marketData.priceChange > 0 ? '↑' : '↓'} ${Math.abs(marketData.priceChange).toFixed(1)}% YoY` },
+                        { label: "Median Price", value: `$${(marketData.medianPrice / 1000).toFixed(0)}K`, sub: `${marketData.priceChange > 0 ? '↑' : '↓'} ${Math.abs(marketData.priceChange).toFixed(1)}% ${marketData.statLabel ?? MARKET_VIEW_OPTIONS.find(o => o.value === marketView)?.statLabel ?? 'MoM'}` },
                         { label: "Days on Market", value: `${marketData.daysOnMarket}`, sub: "avg. days" },
                         { label: "Active Listings", value: `${marketData.activeListings?.toLocaleString()}`, sub: "homes for sale" },
                         { label: "Price / Sq Ft", value: `$${marketData.pricePerSqft}`, sub: "per sq ft" },

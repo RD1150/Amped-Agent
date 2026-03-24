@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Search, TrendingUp, Home, DollarSign, Calendar, Sparkles, TrendingDown, Minus, Mic, Video, Loader2 } from "lucide-react";
+import { MARKET_VIEW_OPTIONS, DEFAULT_MARKET_VIEW, type MarketView } from "../../../shared/marketView";
 
 interface MarketData {
   location: string;
@@ -24,6 +25,7 @@ export default function MarketStats() {
   const [location, setLocation] = useState("");
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [marketView, setMarketView] = useState<MarketView>(DEFAULT_MARKET_VIEW);
 
   // Voiceover state
   const [enableVoiceover, setEnableVoiceover] = useState(false);
@@ -61,7 +63,7 @@ export default function MarketStats() {
       return;
     }
 
-    fetchMarketStats.mutate({ location });
+    fetchMarketStats.mutate({ location, marketView });
   };
 
   const handleGeneratePost = async () => {
@@ -78,6 +80,7 @@ export default function MarketStats() {
       pricePerSqft: marketData.pricePerSqft,
       marketTemperature: marketData.marketTemperature,
       insights: marketData.insights,
+      marketView,
     });
   };
 
@@ -98,6 +101,7 @@ export default function MarketStats() {
         insights: marketData.insights,
         enableVoiceover,
         voiceId: enableVoiceover ? (voicePref?.voiceId || "21m00Tcm4TlvDq8ikWAM") : undefined,
+        marketView,
         voiceoverStyle: enableVoiceover ? (voicePref?.voiceoverStyle || "professional") : undefined,
       });
 
@@ -159,7 +163,7 @@ export default function MarketStats() {
         <CardHeader>
           <CardTitle className="text-lg">Search Location</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="flex gap-2">
             <Input
               placeholder="Enter city, state, or zipcode (e.g., Austin, TX or 78701)..."
@@ -172,6 +176,31 @@ export default function MarketStats() {
               <Search className="h-4 w-4 mr-2" />
               {fetchMarketStats.isPending ? "Searching..." : "Search"}
             </Button>
+          </div>
+
+          {/* Market View selector */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Market View</p>
+            <div className="flex flex-wrap gap-2">
+              {MARKET_VIEW_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setMarketView(opt.value)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    marketView === opt.value
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-background border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                  }`}
+                  title={opt.description}
+                >
+                  {opt.label}{opt.value === DEFAULT_MARKET_VIEW ? ' ✓' : ''}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {MARKET_VIEW_OPTIONS.find(o => o.value === marketView)?.description}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -240,7 +269,7 @@ export default function MarketStats() {
                 <div className="flex items-center gap-1 mt-1">
                   {getTrendIcon(marketData.priceChange)}
                   <p className={`text-xs font-medium ${getTrendColor(marketData.priceChange)}`}>
-                    {marketData.priceChange > 0 ? '+' : ''}{marketData.priceChange}% YoY
+                    {marketData.priceChange > 0 ? '+' : ''}{marketData.priceChange}% {MARKET_VIEW_OPTIONS.find(o => o.value === marketView)?.statLabel ?? 'MoM'}
                   </p>
                 </div>
               </CardContent>
@@ -271,7 +300,7 @@ export default function MarketStats() {
                 <div className="flex items-center gap-1 mt-1">
                   {getTrendIcon(marketData.inventoryChange)}
                   <p className={`text-xs font-medium ${getTrendColor(marketData.inventoryChange)}`}>
-                    {marketData.inventoryChange > 0 ? '+' : ''}{marketData.inventoryChange}% YoY
+                    {marketData.inventoryChange > 0 ? '+' : ''}{marketData.inventoryChange}% {MARKET_VIEW_OPTIONS.find(o => o.value === marketView)?.statLabel ?? 'MoM'}
                   </p>
                 </div>
               </CardContent>

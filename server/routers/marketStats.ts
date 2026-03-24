@@ -4,6 +4,15 @@ import { getDb } from '../db';
 import { contentPosts } from '../../drizzle/schema';
 import { invokeLLM } from '../_core/llm';
 import { getMarketData } from '../marketStatsHelper';
+import { type MarketView, getMarketViewOption, DEFAULT_MARKET_VIEW } from '../../shared/marketView';
+
+const marketViewEnum = z.enum([
+  'this_month_vs_last',
+  'month_over_month',
+  'quarter_over_quarter',
+  'year_over_year',
+  'last_30_days',
+]).default(DEFAULT_MARKET_VIEW);
 
 export const marketStatsRouter = router({
   // Get market data for a location (uses RapidAPI Realtor API)
@@ -11,9 +20,12 @@ export const marketStatsRouter = router({
     .input(
       z.object({
         location: z.string(),
+        marketView: marketViewEnum.optional(),
       })
     )
     .mutation(async ({ input }: { input: any }) => {
+      const marketView: MarketView = input.marketView ?? DEFAULT_MARKET_VIEW;
+      const viewOption = getMarketViewOption(marketView);
       try {
         const marketData = await getMarketData(input.location);
         return {
@@ -26,6 +38,10 @@ export const marketStatsRouter = router({
           pricePerSqft: marketData.pricePerSqft,
           marketTemperature: marketData.marketTemperature,
           insights: marketData.insights,
+          // Pass the selected market view back so the UI can display the correct label
+          marketView,
+          statLabel: viewOption.statLabel,
+          narrationPhrase: viewOption.narrationPhrase,
         };
       } catch (error) {
         console.error('Error fetching market data:', error);
@@ -46,9 +62,13 @@ export const marketStatsRouter = router({
         insights: z.array(z.string()).optional(),
         pricePerSqft: z.number(),
         marketTemperature: z.enum(['hot', 'balanced', 'cold']),
+        marketView: marketViewEnum.optional(),
       })
     )
     .mutation(async ({ input, ctx }: { input: any; ctx: any }) => {
+      const marketView: MarketView = input.marketView ?? DEFAULT_MARKET_VIEW;
+      const viewOption = getMarketViewOption(marketView);
+      const comparisonPhrase = viewOption.narrationPhrase; // e.g. "compared to last month"
       const userId = ctx.user.id;
       const agentName = ctx.user.name || 'Real Estate Agent';
 
@@ -67,14 +87,14 @@ Agent name: ${agentName}`;
 
       const userPrompt = `Create a market update post for ${input.location} with the following data:
 
-📊 Market Statistics:
-- Median Home Price: $${input.medianPrice.toLocaleString()} (${input.priceChange > 0 ? '+' : ''}${input.priceChange}% YoY)
+📊 Market Statistics (${viewOption.label}):
+- Median Home Price: $${input.medianPrice.toLocaleString()} (${input.priceChange > 0 ? '+' : ''}${input.priceChange}% ${viewOption.statLabel})
 - Days on Market: ${input.daysOnMarket} days
-- Active Listings: ${input.activeListings.toLocaleString()} (${input.inventoryChange > 0 ? '+' : ''}${input.inventoryChange}% YoY)
+- Active Listings: ${input.activeListings.toLocaleString()} (${input.inventoryChange > 0 ? '+' : ''}${input.inventoryChange}% ${viewOption.statLabel})
 - Price per Sq Ft: $${input.pricePerSqft}
 - Market Temperature: ${input.marketTemperature.charAt(0).toUpperCase() + input.marketTemperature.slice(1)}
 
-Generate a social media post that explains what these numbers mean for buyers and sellers in ${input.location}. Include insights about whether it's a good time to buy or sell based on the data.`;
+Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is the selected view). Generate a social media post that explains what these numbers mean for buyers and sellers in ${input.location}. Include insights about whether it's a good time to buy or sell based on the data.`;
 
       const result = await invokeLLM({
         messages: [
@@ -126,9 +146,12 @@ Generate a social media post that explains what these numbers mean for buyers an
         enableVoiceover: z.boolean().optional(),
         voiceId: z.string().optional(),
         voiceoverStyle: z.enum(['professional', 'warm', 'luxury', 'casual']).optional(),
+        marketView: marketViewEnum.optional(),
       })
     )
     .mutation(async ({ input, ctx }: { input: any; ctx: any }) => {
+      const marketView: MarketView = input.marketView ?? DEFAULT_MARKET_VIEW;
+      const viewOption = getMarketViewOption(marketView);
       const { deductCredits } = await import('../credits');
       const { textToSpeech } = await import('../_core/elevenLabs');
       const { storagePut } = await import('../storage');
@@ -156,8 +179,8 @@ Generate a social media post that explains what these numbers mean for buyers an
 
         const scriptResult = await invokeLLM({
           messages: [
-            { role: 'system', content: `You are a real estate market analyst. Write a 30-second voiceover script (about 75 words) in a ${styleGuide} tone. Be concise and data-focused.` },
-            { role: 'user', content: `Write a voiceover for a market update video about ${input.location}. Median price: $${input.medianPrice.toLocaleString()} (${input.priceChange > 0 ? '+' : ''}${input.priceChange}% YoY). Days on market: ${input.daysOnMarket}. Active listings: ${input.activeListings.toLocaleString()}. Market: ${input.marketTemperature}.` },
+            { role: 'system', content: `You are a real estate market analyst. Write a 30-second voiceover script (about 75 words) in a ${styleGuide} tone. Be concise and data-focused. Frame all statistics as ${viewOption.narrationPhrase} — do NOT say "year over year" unless the selected view is year_over_year.` },
+            { role: 'user', content: `Write a voiceover for a market update video about ${input.location}. Time period: ${viewOption.label}. Median price: $${input.medianPrice.toLocaleString()} (${input.priceChange > 0 ? '+' : ''}${input.priceChange}% ${viewOption.statLabel}). Days on market: ${input.daysOnMarket}. Active listings: ${input.activeListings.toLocaleString()}. Market: ${input.marketTemperature}. Reference the comparison as "${viewOption.narrationPhrase}" in the script.` },
           ],
         });
         const script = scriptResult.choices[0]?.message?.content as string || '';

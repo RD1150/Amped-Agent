@@ -3893,3 +3893,24 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Each chunk duration = max(2.5s, speechDuration) so fast speakers never flash
 - [x] Added 0.15s inter-chunk pause to simulate natural breath between subtitle cards
 - [x] 12 tests pass including 3 new speech-rate timing tests
+
+## Session: Mar 24, 2026 - Market View Time-Period Selector
+- [ ] Audit market data fetch flow in marketInsights router and AI Reels script generation
+- [ ] Define 7 Market View modes: Month-to-Date (default), Month-over-Month, Quarter-over-Quarter, Year-over-Year, Last 6 Months, Last 30 Days, Last 7 Days
+- [ ] Update market data router to accept marketView param and pass date range to data API
+- [ ] Add Market View selector UI to AI Reels page (radio/pill selector with plain-English labels)
+- [ ] Add Market View selector UI to Market Insights page
+- [ ] Update reel script generation prompt to reference the selected Market View in the narration copy
+- [ ] Add helper that maps marketView → human-readable label for use in generated scripts
+- [ ] Write tests for Market View mode mapping and date range calculation
+
+## Session: Mar 24, 2026 - Market View Selector (All 3 Suggestions)
+- [x] Defined MARKET_VIEW_OPTIONS constant with 5 modes and labels in shared/marketView.ts
+- [x] Updated marketStats router getMarketData + generateMarketPost + generateMarketVideo to accept marketView param
+- [x] Updated all LLM prompts to use selected view's narrationPhrase and statLabel (no more hardcoded YoY)
+- [x] Added Market View pill selector UI to AI Reels page (default: this_month_vs_last)
+- [x] Added Market View pill selector UI to Market Insights page (default: this_month_vs_last)
+- [x] Updated stat cards in MarketStats.tsx to show dynamic statLabel (MoM/QoQ/YoY/etc)
+- [x] Updated generated caption in AutoReels.tsx to use dynamic statLabel
+- [x] Updated generateMarketVideo voiceover script prompt to reference the selected Market View
+- [x] 12 tests pass for marketView.test.ts covering all 5 options, defaults, and narration phrases
