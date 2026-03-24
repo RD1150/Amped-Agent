@@ -14,32 +14,36 @@ import { ENV } from './env';
 
 const CREATOMATE_API_URL = 'https://api.creatomate.com/v1';
 
-// Default background images from the template library (manuscripts CDN)
-// These are AI-generated real estate lifestyle images we own
+// Luxury real estate background images — Thousand Oaks / Conejo Valley aesthetic ($1.2M+ properties)
+// AI-generated, owned by Authority Content. All 9:16 vertical for Reels.
 const DEFAULT_REEL_BACKGROUNDS: Record<string, string[]> = {
+  // calm tone → buyers category: welcoming exteriors and interiors
   buyers: [
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/bIBrluRIyfWvdiIL.png',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/mqHrktUlHhZnVQSc.png',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/KbZYPlDNAgRaPCtc.png',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/WjCfdrmFebClPHmg.png',
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-buyers-1-grJnxLAwCzBPkv9nF4Gezq.png',  // Mediterranean estate, golden hour
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-buyers-2-LoaeCgGWjstVA4wtip3x4t.png',  // Open-concept living room, hills view
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-warm-1-QSWa5T3q83LLZUDVoPAPfm.png',     // Master bedroom, Conejo Valley view
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-market-1-SRcyURdL6TVfVhysVKugwM.png',   // Aerial Thousand Oaks neighborhood
   ],
+  // bold tone → sellers category: striking exteriors and curb appeal
   sellers: [
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/AxbwYavTXsvBNXzM.jpg',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/UHVHptFEUfPHbUwO.jpg',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/GRKuKQfMKTkCGEEu.jpg',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/KcABQUZvkFiZmyzW.jpg',
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-sellers-1-QpUjJ2pMpHBNFNDh64rfu5.png',  // Contemporary stone home, Conejo hills
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-sellers-2-GDpNAm28pmgVDzwEGnsUQV.png',  // Resort-style pool, outdoor kitchen
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-buyers-1-grJnxLAwCzBPkv9nF4Gezq.png',  // Mediterranean estate
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-market-1-SRcyURdL6TVfVhysVKugwM.png',   // Aerial neighborhood
   ],
+  // warm tone → luxury category: aspirational interiors and lifestyle
   luxury: [
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/TjrudQDjJgekgJas.png',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/VXvEFFSUgKermTWt.png',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/zPqNaTvVpQhtpDri.png',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/mUGRhdniPYYhZPtV.png',
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-warm-2-m3HL2nmQKNbD9S7geitD7J.png',     // Family dining, oak tree views
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-warm-1-QSWa5T3q83LLZUDVoPAPfm.png',     // Master suite, balcony, hills
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-sellers-2-GDpNAm28pmgVDzwEGnsUQV.png',  // Resort pool at sunset
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-buyers-2-LoaeCgGWjstVA4wtip3x4t.png',  // Living room, floor-to-ceiling windows
   ],
+  // authoritative tone → investors/market category: professional and market-authority visuals
   investors: [
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/TnKhZDZDgGQmXMZZ.png',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/MdDPnpsRfrmQcJPZ.png',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/ptYTDxyqYOZJUuPT.png',
-    'https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/YzPlwfwteovlJJcb.png',
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-market-1-SRcyURdL6TVfVhysVKugwM.png',   // Aerial Thousand Oaks neighborhood
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-authoritative-1-VHWFSp8CKot2n9JJtVEong.png', // Chef's kitchen, Conejo hills view
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-authoritative-2-kaDp9j4vs49dGtWFBmEsR2.png', // Agent with clients, $1.3M listing
+    'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/luxury-sellers-1-QpUjJ2pMpHBNFNDh64rfu5.png',  // Contemporary home, stone facade
   ],
 };
 

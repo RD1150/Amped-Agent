@@ -3879,3 +3879,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update MyContent.tsx to use shotstackRenderUrl/s3Url/didVideoUrl with fallback chain
 - [x] Add play/pause click handler on reel cards in MyContent.tsx with rendering/failed status overlays
 - [x] Backfill 4 existing completed reels with their Creatomate video URLs via backfill-reels.mjs script
+
+## Session: Mar 23, 2026 - Luxury Background Footage for AI Reels
+- [x] Found background image pool in videoRenderer.ts DEFAULT_REEL_BACKGROUNDS (4 categories x 4 images)
+- [x] Generated 9 new luxury real estate images: Mediterranean estate, living room hills view, stone home, resort pool, aerial Thousand Oaks, chef's kitchen, agent+clients, master suite, family dining
+- [x] Replaced all 16 old stock images with new luxury Conejo Valley / Thousand Oaks images ($1.2M+ aesthetic)
+- [x] User-uploaded background photos already take priority (existing logic in pickBackgroundImages)
