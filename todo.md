@@ -3914,3 +3914,39 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Updated generated caption in AutoReels.tsx to use dynamic statLabel
 - [x] Updated generateMarketVideo voiceover script prompt to reference the selected Market View
 - [x] 12 tests pass for marketView.test.ts covering all 5 options, defaults, and narration phrases
+
+## Session: Mar 24, 2026 - Subtitle Word-Level Timestamp Sync
+- [ ] Audit ElevenLabs API - confirm /v1/text-to-speech with timestamps endpoint returns word-level timing
+- [ ] Update voiceover helper to call with_timestamps=true and return alignment data alongside audio URL
+- [ ] Build buildSubtitleTimingsFromAlignment() that groups words into 4-6 word chunks using real start/end times
+- [ ] Update creatomateRenderer.ts to accept and use word timestamps for subtitle timing
+- [ ] Update videoRenderer.ts to accept and use word timestamps for subtitle timing
+- [ ] Update autoreels router renderVideo procedure to pass alignment data through to renderers
+- [ ] Update marketStats router generateMarketVideo to pass alignment data through to renderers
+- [ ] Write tests for buildSubtitleTimingsFromAlignment covering chunking and edge cases
+
+## Session: Mar 24, 2026 - ElevenLabs Word Timestamps for Subtitle Sync
+- [x] Confirmed ElevenLabs /with-timestamps endpoint returns character-level alignment (base64 audio + characters/start/end arrays)
+- [x] Added textToSpeechWithTimestamps() to elevenLabs.ts — converts char-level to word-level WordAlignment[]
+- [x] Updated autoreels router renderVideo to use textToSpeechWithTimestamps and pass voiceAlignment to renderAutoReel
+- [x] Added buildSubtitleTimingsFromAlignment() to videoRenderer.ts — uses real word start/end times + HOOK_DURATION=3.2s offset
+- [x] Added buildSubtitleTimingsFromAlignment() to creatomateRenderer.ts — same logic + HOOK_DURATION=2.2s offset
+- [x] Kept generateSubtitleTiming() as fallback when alignment is unavailable
+- [x] All 12 reelDuration tests pass (43ms)
+
+## Session: Mar 24, 2026 - My Content Delete & Bulk Delete
+- [x] Added bulkDeleteReels to reels.ts router (inArray + ownership check)
+- [x] Added bulkDelete to propertyTours.ts router (inArray + ownership check)
+- [x] Added bulkDeleteLeadMagnets to leadMagnet.ts router (inArray)
+- [x] Added selection checkboxes to each card in MyContent.tsx (video, reel, magnet)
+- [x] Added "Select" toggle button in header; shows selection toolbar with Select All + count
+- [x] Single-item delete: trash icon on each card, opens "Are you sure?" confirmation dialog
+- [x] Bulk delete: red "Delete N items" button in toolbar, opens dialog requiring user to type "bulk delete" before the delete button activates
+- [x] After delete, invalidates all content queries and deselects all items
+- [x] TypeScript clean, no errors
+
+## Session: Mar 24, 2026 - Template Quality Upgrade (Backlog)
+- [ ] Research higher-quality post template options (photo cards, market update posts)
+- [ ] Research higher-quality reel background/overlay templates
+- [ ] Implement upgraded post templates with luxury real estate aesthetic
+- [ ] Implement upgraded reel overlay templates (text placement, fonts, style)

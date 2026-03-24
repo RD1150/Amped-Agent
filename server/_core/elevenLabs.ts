@@ -68,6 +68,104 @@ export async function textToSpeech(
   return Buffer.from(arrayBuffer);
 }
 
+export interface WordAlignment {
+  word: string;
+  start: number; // seconds
+  end: number;   // seconds
+}
+
+export interface TextToSpeechWithTimestampsResult {
+  audioBuffer: Buffer;
+  alignment: WordAlignment[];
+}
+
+/**
+ * Convert text to speech using ElevenLabs API with word-level timestamps.
+ * Uses the /with-timestamps endpoint which returns audio + character alignment.
+ * Alignment is converted to word-level timing for subtitle sync.
+ */
+export async function textToSpeechWithTimestamps(
+  options: TextToSpeechOptions
+): Promise<TextToSpeechWithTimestampsResult> {
+  const {
+    text,
+    voice_id = "21m00Tcm4TlvDq8ikWAM",
+    model_id = "eleven_multilingual_v2",
+    stability = 0.5,
+    similarity_boost = 0.75,
+    style = 0,
+    use_speaker_boost = true,
+  } = options;
+
+  const response = await fetch(
+    `${ELEVENLABS_API_URL}/text-to-speech/${voice_id}/with-timestamps`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "xi-api-key": ENV.ELEVENLABS_API_KEY,
+      },
+      body: JSON.stringify({
+        text,
+        model_id,
+        voice_settings: {
+          stability,
+          similarity_boost,
+          style,
+          use_speaker_boost,
+        },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`ElevenLabs timestamps API error: ${response.status} - ${error}`);
+  }
+
+  const json = await response.json();
+
+  // Decode base64 audio
+  const audioBuffer = Buffer.from(json.audio_base64, "base64");
+
+  // Convert character-level alignment to word-level
+  // ElevenLabs returns: { characters: string[], character_start_times_seconds: number[], character_end_times_seconds: number[] }
+  const alignment: WordAlignment[] = [];
+  if (json.alignment?.characters) {
+    const chars: string[] = json.alignment.characters;
+    const starts: number[] = json.alignment.character_start_times_seconds;
+    const ends: number[] = json.alignment.character_end_times_seconds;
+
+    let wordStart = 0;
+    let wordChars = "";
+    let wordStartTime = starts[0] ?? 0;
+
+    for (let i = 0; i < chars.length; i++) {
+      const ch = chars[i];
+      if (ch === " " || ch === "\n" || i === chars.length - 1) {
+        // Include last char if not space
+        if (ch !== " " && ch !== "\n") wordChars += ch;
+        const trimmed = wordChars.trim().replace(/[.,!?;:"']+$/, "");
+        if (trimmed.length > 0) {
+          alignment.push({
+            word: trimmed,
+            start: wordStartTime,
+            end: ends[i] ?? ends[i - 1] ?? wordStartTime + 0.3,
+          });
+        }
+        wordChars = "";
+        wordStart = i + 1;
+        wordStartTime = starts[i + 1] ?? 0;
+      } else {
+        wordChars += ch;
+      }
+    }
+  }
+
+  trackElevenLabs(null, "tts", text.length);
+  return { audioBuffer, alignment };
+}
+
 /**
  * Get list of available voices
  */

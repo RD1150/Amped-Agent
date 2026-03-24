@@ -6,7 +6,7 @@ import { createContentPost } from "../db";
 import { storagePut } from "../storage";
 import { getDb } from "../db";
 import { leadMagnets } from "../../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray } from "drizzle-orm";
 import PDFDocument from "pdfkit";
 import { notifyOwner } from "../_core/notification";
 import QRCode from "qrcode";
@@ -202,6 +202,22 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
           eq(leadMagnets.id, input.id)
         );
       return { success: true };
+    }),
+
+  /**
+   * Bulk delete multiple lead magnets by ID (must belong to the authenticated user)
+   */
+  bulkDeleteLeadMagnets: protectedProcedure
+    .input(z.object({ ids: z.array(z.number()).min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const database = await getDb();
+      if (!database) throw new Error("Database unavailable");
+      await database
+        .delete(leadMagnets)
+        .where(
+          inArray(leadMagnets.id, input.ids)
+        );
+      return { success: true, deleted: input.ids.length };
     }),
 
   /**

@@ -165,6 +165,7 @@ export interface AutoReelOptions {
   videoLength: number;
   tone: "calm" | "bold" | "authoritative" | "warm";
   voiceoverAudioUrl?: string;
+  voiceAlignment?: Array<{ word: string; start: number; end: number }>; // ElevenLabs word timestamps
 }
 
 /** Stock footage URLs keyed by tone */
@@ -184,10 +185,52 @@ const BACKGROUND_MUSIC: Record<string, string> = {
 };
 
 /**
- * Speech-rate-based subtitle timing.
- * Anchors subtitle start to `startAt` (after the hook) and advances each
- * chunk by the time it takes to speak it at 130 wpm, not by video duration.
- * This keeps subtitles in sync with the voiceover narration.
+ * Build subtitle timing from ElevenLabs word-level alignment data.
+ *
+ * IMPORTANT: The alignment array covers the FULL TTS input (hook + script).
+ * The hook words are spoken first; we skip them so subtitles only show
+ * the script body. We do NOT add any extra offset because the timestamps
+ * already encode the real wall-clock position inside the audio track.
+ *
+ * Each subtitle card stays on screen for at least MIN_CHUNK_DURATION seconds
+ * so fast speakers never produce unreadable flashes.
+ */
+function buildSubtitleTimingsFromAlignment(
+  alignment: Array<{ word: string; start: number; end: number }>,
+  hookWordCount: number,
+  totalDuration: number
+): Array<{ text: string; start: number; length: number }> {
+  if (alignment.length === 0) return [];
+
+  // Skip hook words — they are already displayed as the hook overlay
+  const scriptWords = alignment.slice(hookWordCount);
+  if (scriptWords.length === 0) return [];
+
+  const CHUNK_SIZE = 5;
+  const MIN_CHUNK_DURATION = 3.0; // hard floor: no card disappears in under 3s
+  const result: Array<{ text: string; start: number; length: number }> = [];
+
+  for (let i = 0; i < scriptWords.length; i += CHUNK_SIZE) {
+    const chunk = scriptWords.slice(i, i + CHUNK_SIZE);
+    const text = chunk.map(w => w.word).join(' ');
+    // Timestamps are already in seconds relative to audio start (= video start)
+    const start = chunk[0].start;
+    const naturalEnd = chunk[chunk.length - 1].end;
+    // Extend to the start of the next chunk when the natural duration is short
+    const nextStart = scriptWords[i + CHUNK_SIZE]?.start;
+    const extendedEnd = nextStart ? Math.min(nextStart - 0.05, naturalEnd + 1.5) : naturalEnd + 0.5;
+    const length = Math.max(MIN_CHUNK_DURATION, extendedEnd - start);
+
+    if (start + length > totalDuration + 1.0) break;
+
+    result.push({ text, start, length });
+  }
+
+  return result;
+}
+
+/**
+ * Fallback: speech-rate-based subtitle timing when word timestamps are unavailable.
  */
 function generateSubtitleTiming(
   script: string,
@@ -203,10 +246,9 @@ function generateSubtitleTiming(
     chunks.push(words.slice(i, i + CHUNK_SIZE).join(' '));
   }
 
-  // Professional narrators speak at ~130 wpm (≈0.462s per word)
   const SECS_PER_WORD = 60 / 130;
-  const INTER_CHUNK_PAUSE = 0.15; // natural breath pause between cards
-  const MIN_CHUNK_DURATION = 2.5; // never flash faster than 2.5s
+  const INTER_CHUNK_PAUSE = 0.15;
+  const MIN_CHUNK_DURATION = 2.5;
 
   const result: Array<{ text: string; start: number; length: number }> = [];
   let cursor = startAt;
@@ -279,29 +321,40 @@ export async function renderAutoReel(options: AutoReelOptions): Promise<RenderRe
       ],
     });
 
-    // ── Track 4: Script subtitles ─────────────────────────────────────────
-    // startAt=2.2 → subtitles begin just after the 2s hook fades out.
-    // Speech-rate timing advances each chunk by how long it takes to speak,
-    // so subtitles stay in sync with the voiceover narration.
-    const subtitles = enableSubtitles ? generateSubtitleTiming(script, videoLength, 2.2) : [];
-    subtitles.forEach((sub, _i) => {
+    // ── Track 4: Script subtitles ─────────────────────────────────────────────────
+    // When ElevenLabs word timestamps are available, use them directly.
+    // The TTS input was "hook. script" so we skip the hook word count to
+    // avoid showing hook text as subtitles and to avoid double-offsetting.
+    // Timestamps are already wall-clock seconds from audio start.
+    const HOOK_DURATION = 2.2; // fallback only (no timestamps path)
+    const hookWordCount = hook.split(/\s+/).filter(Boolean).length;
+    const subtitles = enableSubtitles
+      ? (options.voiceAlignment && options.voiceAlignment.length > 0
+          ? buildSubtitleTimingsFromAlignment(options.voiceAlignment, hookWordCount, videoLength)
+          : generateSubtitleTiming(script, videoLength, HOOK_DURATION))
+      : [];
+    subtitles.forEach((sub) => {
       elements.push({
         type: "text",
         track: 4,
-        time: sub.start, // already offset by startAt inside generateSubtitleTiming
+        time: sub.start,
         duration: sub.length,
         text: sub.text,
         font_family: "Open Sans",
-        font_size: "32px",
-        font_weight: "600",
+        font_size: "34px",
+        font_weight: "700",
         fill_color: "#ffffff",
-        background_color: "rgba(0,0,0,0.7)",
-        background_x_padding: "10px",
-        background_y_padding: "6px",
-        border_radius: "5px",
+        shadow_color: "rgba(0,0,0,0.85)",
+        shadow_blur: "4px",
+        shadow_x: "1px",
+        shadow_y: "1px",
+        background_color: "rgba(0,0,0,0.65)",
+        background_x_padding: "14px",
+        background_y_padding: "8px",
+        border_radius: "6px",
         x: "50%",
-        y: "88%",
-        width: "90%",
+        y: "85%",
+        width: "88%",
         x_alignment: "50%",
         y_alignment: "100%",
       });

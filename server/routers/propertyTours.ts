@@ -8,7 +8,7 @@ import { storagePut } from "../storage";
 import { fetchPropertyData } from "../rapidapi";
 import { getDb } from "../db";
 import { users, propertyTours } from "../../drizzle/schema";
-import { eq, and, gte, sql } from "drizzle-orm";
+import { eq, and, gte, sql, inArray } from "drizzle-orm";
 import * as fs from "fs";
 
 function bgLog(msg: string) {
@@ -445,6 +445,28 @@ export const propertyToursRouter = router({
 
       await db.deletePropertyTour(input.tourId);
       return { success: true, creditsRefunded: tour.status === "processing" || tour.status === "failed" };
+    }),
+
+  /**
+   * Bulk delete multiple property tours by ID (must belong to the authenticated user)
+   */
+  bulkDelete: protectedProcedure
+    .input(z.object({ tourIds: z.array(z.number().int().positive()).min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const database = await getDb();
+      if (!database) throw new Error("Database not available");
+
+      // Only delete tours that belong to this user
+      await database
+        .delete(propertyTours)
+        .where(
+          and(
+            inArray(propertyTours.id, input.tourIds),
+            eq(propertyTours.userId, ctx.user.id)
+          )
+        );
+
+      return { success: true, deleted: input.tourIds.length };
     }),
 
   /**

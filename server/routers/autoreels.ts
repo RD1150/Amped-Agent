@@ -437,12 +437,13 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
 
         // Generate voiceover audio if requested
         let voiceoverAudioUrl: string | undefined;
+        let voiceAlignment: import("../_core/elevenLabs").WordAlignment[] | undefined;
         if (enableVoiceover) {
           try {
-            const { textToSpeech } = await import("../_core/elevenLabs");
+            const { textToSpeechWithTimestamps } = await import("../_core/elevenLabs");
             const { storagePut } = await import("../storage");
             const fullScript = `${hook}. ${script}`;
-            const audioBuffer = await textToSpeech({
+            const { audioBuffer, alignment } = await textToSpeechWithTimestamps({
               text: fullScript,
               voice_id: voiceId || "21m00Tcm4TlvDq8ikWAM",
               stability: voiceoverStyle === "professional" ? 0.6 : voiceoverStyle === "luxury" ? 0.7 : 0.5,
@@ -455,7 +456,8 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
             const key = `autoreels/voiceover/${ctx.user.id}-${Date.now()}.mp3`;
             const { url } = await storagePut(key, audioBuffer, "audio/mpeg");
             voiceoverAudioUrl = url;
-            console.log('[renderVideo] Voiceover audio generated:', voiceoverAudioUrl);
+            voiceAlignment = alignment.length > 0 ? alignment : undefined;
+            console.log('[renderVideo] Voiceover audio generated with', alignment.length, 'word timestamps:', voiceoverAudioUrl);
           } catch (voErr: any) {
             console.error('[renderVideo] Voiceover generation failed, continuing without audio:', voErr.message);
             // Non-fatal: render without voiceover rather than failing the whole job
@@ -468,6 +470,7 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
           videoLength: parseInt(videoLength),
           tone,
           voiceoverAudioUrl,
+          voiceAlignment,
           backgroundImages: backgroundImages && backgroundImages.length > 0 ? backgroundImages : undefined,
         });
         

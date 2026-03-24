@@ -4,7 +4,7 @@ import { generateTalkingAvatar } from "../_core/didAi";
 import { getDb } from "../db";
 import { reelUsage, aiReels } from "../../drizzle/schema";
 import { storagePut } from "../storage";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 
 /**
  * Get current month in YYYY-MM format
@@ -237,6 +237,28 @@ export const reelsRouter = router({
       await db.delete(aiReels).where(eq(aiReels.id, input.reelId));
 
       return { success: true };
+    }),
+
+  /**
+   * Bulk delete multiple reels by ID (must belong to the authenticated user)
+   */
+  bulkDeleteReels: protectedProcedure
+    .input(z.object({ reelIds: z.array(z.number()).min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Only delete reels that belong to this user
+      await db
+        .delete(aiReels)
+        .where(
+          and(
+            inArray(aiReels.id, input.reelIds),
+            eq(aiReels.userId, ctx.user.id)
+          )
+        );
+
+      return { success: true, deleted: input.reelIds.length };
     }),
 
   /**
