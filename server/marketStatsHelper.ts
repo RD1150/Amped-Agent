@@ -9,14 +9,27 @@ import { ENV } from './_core/env';
 export interface MarketStatsData {
   location: string;
   medianPrice: number;
-  priceChange: number; // Percentage change YoY
+  priceChange: number; // Percentage change MoM (real, from sold homes)
   daysOnMarket: number;
   activeListings: number;
-  listingsChange: number; // Percentage change YoY
+  listingsChange: number; // Percentage change MoM
   pricePerSqft: number;
   marketTemperature: 'hot' | 'balanced' | 'cold';
   insights: string[];
   lastUpdated: Date;
+}
+
+interface SoldHomesResponse {
+  data: {
+    home_search: {
+      total: number;
+      results: Array<{
+        last_sold_price: number;
+        last_sold_date: string;
+        description: { sqft: number };
+      }>;
+    };
+  };
 }
 
 interface USRealEstateResponse {
@@ -129,9 +142,66 @@ export async function fetchMarketData(location: string): Promise<MarketStatsData
       properties: properties.map(p => ({ flags: p.flags })),
     });
 
-    // Estimate YoY changes based on market temperature
-    const priceChange = marketTemperature === 'hot' ? 8.5 : marketTemperature === 'balanced' ? 3.2 : -2.1;
-    const listingsChange = marketTemperature === 'hot' ? -15.3 : marketTemperature === 'balanced' ? 5.2 : 12.8;
+    // Fetch REAL month-over-month price change from sold homes data
+    let priceChange = 0;
+    let listingsChange = 0;
+    try {
+      const now2 = new Date();
+      // Current month: sold in the last 30 days
+      const thirtyDaysAgo = Math.floor((now2.getTime() - 30 * 24 * 60 * 60 * 1000) / 1000);
+      // Prior month: sold 30-60 days ago
+      const sixtyDaysAgo = Math.floor((now2.getTime() - 60 * 24 * 60 * 60 * 1000) / 1000);
+
+      const soldParams = new URLSearchParams({ city, limit: '200', offset: '0', sort: 'sold_date' });
+      if (state_code) soldParams.set('state_code', state_code);
+
+      const soldResp = await fetch(
+        `https://us-real-estate.p.rapidapi.com/sold-homes?${soldParams.toString()}`,
+        {
+          headers: {
+            'X-RapidAPI-Key': ENV.rapidApiKey,
+            'X-RapidAPI-Host': 'us-real-estate.p.rapidapi.com',
+          },
+        }
+      );
+
+      if (soldResp.ok) {
+        const soldData: SoldHomesResponse = await soldResp.json();
+        const soldResults = soldData.data?.home_search?.results || [];
+
+        // Split into current month (0-30 days ago) and prior month (30-60 days ago)
+        const currentMonthPrices: number[] = [];
+        const priorMonthPrices: number[] = [];
+
+        for (const home of soldResults) {
+          const soldPrice = home.last_sold_price;
+          if (!soldPrice || soldPrice <= 0) continue;
+          const soldTs = new Date(home.last_sold_date).getTime() / 1000;
+          if (soldTs >= thirtyDaysAgo) {
+            currentMonthPrices.push(soldPrice);
+          } else if (soldTs >= sixtyDaysAgo) {
+            priorMonthPrices.push(soldPrice);
+          }
+        }
+
+        if (currentMonthPrices.length >= 3 && priorMonthPrices.length >= 3) {
+          const currentMedian = calculateMedian(currentMonthPrices);
+          const priorMedian = calculateMedian(priorMonthPrices);
+          priceChange = parseFloat(((currentMedian - priorMedian) / priorMedian * 100).toFixed(1));
+          listingsChange = parseFloat(((currentMonthPrices.length - priorMonthPrices.length) / priorMonthPrices.length * 100).toFixed(1));
+          console.log(`[MarketStats] Real MoM priceChange for ${location}: ${priceChange}% (${currentMonthPrices.length} current, ${priorMonthPrices.length} prior month sales)`);
+        } else {
+          // Not enough sold data — fall back to a neutral 0% rather than a made-up number
+          console.warn(`[MarketStats] Insufficient sold homes data for MoM calc (${currentMonthPrices.length} current, ${priorMonthPrices.length} prior). Defaulting to 0%.`);
+          priceChange = 0;
+          listingsChange = 0;
+        }
+      }
+    } catch (soldErr) {
+      console.warn('[MarketStats] Could not fetch sold homes for MoM calc:', soldErr);
+      priceChange = 0;
+      listingsChange = 0;
+    }
 
     return {
       location,

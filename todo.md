@@ -3963,3 +3963,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Session: Mar 24, 2026 - Property Tour Luxury Default Template
 - [x] Set "luxury" as the default intro/outro card template in Property Tours (template state, cardTemplate state, and form reset all default to "luxury")
+
+## Session: Mar 24, 2026 - Market Data Accuracy Fix
+- [x] Identified root cause: priceChange was hardcoded (hot=+8.5%, balanced=+3.2%, cold=-2.1%) - completely fabricated
+- [x] Added SoldHomesResponse interface to marketStatsHelper.ts
+- [x] Replaced hardcoded priceChange with real MoM calculation from /sold-homes API endpoint
+- [x] Fetches last 200 sold homes, splits into current 30 days vs prior 30-60 days, computes real median for each
+- [x] Falls back to 0% (not a made-up number) if insufficient sold data (<3 homes in either period)
+- [x] Updated MarketStatsData interface comments: priceChange is now MoM not YoY
+- [x] TypeScript clean, 12 marketView tests pass
