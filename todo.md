@@ -3960,3 +3960,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Updated branding watermark: Montserrat with gold tint rgba(201,169,98,0.45)
 - [x] Added Cormorant Garamond Google Font to index.html
 - [x] Gold used as accent only (#C9A962), dark charcoal/near-black as primary background
+
+## Session: Mar 24, 2026 - Property Tour Luxury Default Template
+- [x] Set "luxury" as the default intro/outro card template in Property Tours (template state, cardTemplate state, and form reset all default to "luxury")
