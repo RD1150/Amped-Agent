@@ -3950,3 +3950,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Research higher-quality reel background/overlay templates
 - [ ] Implement upgraded post templates with luxury real estate aesthetic
 - [ ] Implement upgraded reel overlay templates (text placement, fonts, style)
+
+## Session: Mar 24, 2026 - Luxury Template Redesign
+- [x] Audited post card template in templateRenderer.ts and reel overlay design in both renderers
+- [x] Rewrote templateRenderer.ts with luxury aesthetic: Cormorant Garamond serif headlines, Montserrat labels, gold (#C9A962) accents, dark gradient overlays, photo framing with border radius and shadow
+- [x] Redesigned reel hook text: Cormorant Garamond 600, dark semi-transparent pill background rgba(8,8,8,0.58), gold hairline accent bar above
+- [x] Redesigned reel subtitle cards: Montserrat 500, warm off-white #F5F0E8, dark pill rgba(8,8,8,0.72), positioned at 87% (both renderers)
+- [x] Redesigned market update stat slides: Cormorant Garamond for stat numbers, Montserrat for labels, gold #C9A962 horizontal rules above and below each stat
+- [x] Updated branding watermark: Montserrat with gold tint rgba(201,169,98,0.45)
+- [x] Added Cormorant Garamond Google Font to index.html
+- [x] Gold used as accent only (#C9A962), dark charcoal/near-black as primary background

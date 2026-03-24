@@ -264,37 +264,40 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       y: '5%',
       width: '25%',
       height: '0.4%',
-      fill_color: '#d4af37',
+      fill_color: '#C9A962',
     });
 
-    // ── Hook text — large, centered, top half of screen ───────────────────────
+    // ── Hook text — luxury serif, dark reduced-opacity band ────────────────
     elements.push({
       type: 'text',
       track: trackNum++,
       time: 0,
-      duration: 3.0,
+      duration: 3.2,
       text: hook,
       x: '50%',
       y: '38%',
-      width: '85%',
-      font_family: 'Montserrat',
+      width: '82%',
+      font_family: 'Cormorant Garamond',
       font_size: '9 vmin',
-      font_weight: '800',
-      fill_color: '#ffffff',
+      font_weight: '600',
+      fill_color: '#FFFFFF',
       text_align: 'center',
-      line_height: '1.25',
-      shadow_color: 'rgba(0,0,0,0.6)',
-      shadow_blur: '4px',
-      shadow_x: '2px',
-      shadow_y: '2px',
+      line_height: '1.3',
+      shadow_color: 'rgba(0,0,0,0.75)',
+      shadow_blur: '8px',
+      shadow_x: '0px',
+      shadow_y: '3px',
+      background_color: 'rgba(8,8,8,0.58)',
+      background_x_padding: '36px',
+      background_y_padding: '20px',
+      border_radius: '4px',
       animations: [
         { time: 'start', duration: 0.6, easing: 'ease-out', type: 'text-slide', direction: 'up', scope: 'word' },
         { time: 'end',   duration: 0.4, easing: 'ease-in',  type: 'fade' },
       ],
     });
 
-    // ── Subtitle chunks — lower third, pill background ────────────────────────
-    // Only add subtitles if the video is long enough for readable display.
+    // ── Subtitle chunks — lower third, luxury Montserrat style ──────────────
     // Prefer real ElevenLabs word timestamps for perfect sync; fall back to
     // estimated speech-rate timing when timestamps are not available.
     const HOOK_DURATION = 3.2; // fallback only (no-timestamps path)
@@ -312,19 +315,21 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
         duration: sub.length,
         text: sub.text,
         x: '50%',
-        y: '80%',
-        width: '88%',
-        font_family: 'Open Sans',
-        font_size: '7 vmin',
-        font_weight: '700',
-        fill_color: '#ffffff',
+        y: '87%',
+        width: '84%',
+        font_family: 'Montserrat',
+        font_size: '6 vmin',
+        font_weight: '500',
+        fill_color: '#F5F0E8',
         text_align: 'center',
-        background_color: 'rgba(0,0,0,0.60)',
-        background_x_padding: '10%',
-        background_y_padding: '8%',
-        background_border_radius: '50%',
-        shadow_color: 'rgba(0,0,0,0.5)',
-        shadow_blur: '3px',
+        background_color: 'rgba(8,8,8,0.72)',
+        background_x_padding: '20px',
+        background_y_padding: '10px',
+        border_radius: '4px',
+        shadow_color: 'rgba(0,0,0,0.9)',
+        shadow_blur: '6px',
+        shadow_x: '0px',
+        shadow_y: '2px',
         animations: [
           { time: 'start', duration: 0.15, easing: 'ease-out', type: 'fade' },
           { time: 'end',   duration: 0.15, easing: 'ease-in',  type: 'fade' },
@@ -333,7 +338,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
     });
     trackNum++;
 
-    // ── Branding watermark (subtle, bottom center) ────────────────────────────
+    // ── Branding watermark (subtle, bottom center) ────────────────────────
     elements.push({
       type: 'text',
       track: trackNum++,
@@ -341,12 +346,12 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       duration: videoLength,
       text: 'AuthorityContent.co',
       x: '50%',
-      y: '94%',
+      y: '95%',
       width: '80%',
-      font_family: 'Open Sans',
-      font_size: '3 vmin',
+      font_family: 'Montserrat',
+      font_size: '2.8 vmin',
       font_weight: '400',
-      fill_color: 'rgba(255,255,255,0.40)',
+      fill_color: 'rgba(201,169,98,0.45)',
       text_align: 'center',
     });
 
@@ -489,53 +494,62 @@ export async function renderMarketUpdateReel(options: MarketUpdateRenderOptions)
     });
     trackNum++;
 
-    // ── Dark scrim ────────────────────────────────────────────────────────────
-    elements.push({ type: 'shape', track: trackNum++, time: 0, duration: TOTAL, x: '50%', y: '50%', width: '100%', height: '100%', fill_color: 'rgba(0,0,0,0.52)' });
+    // ── Dark gradient scrim — heavier at top and bottom for text contrast ──────
+    elements.push({ type: 'shape', track: trackNum++, time: 0, duration: TOTAL, x: '50%', y: '50%', width: '100%', height: '100%', fill_color: 'rgba(0,0,0,0.48)' });
 
     // ── Per-slide content ─────────────────────────────────────────────────────
     slides.forEach((slide, idx) => {
       const t = idx * SLIDE_DUR;
       const isStatSlide = idx >= 1 && idx <= 4;
 
-      // Gold accent bar
-      elements.push({ type: 'shape', track: trackNum, time: t, duration: SLIDE_DUR - 0.1, x: '50%', y: '20%', width: '30%', height: '0.5%', fill_color: slide.accent });
+      // Thin gold horizontal rule — luxury divider
+      elements.push({ type: 'shape', track: trackNum, time: t + 0.2, duration: SLIDE_DUR - 0.3, x: '50%', y: '22%', width: '28%', height: '0.4%', fill_color: '#C9A962' });
 
-      // Headline — large stat number or title
+      // Headline — large stat number (Cormorant Garamond for elegance) or location title
       elements.push({
         type: 'text', track: trackNum + 1, time: t, duration: SLIDE_DUR - 0.1,
         text: slide.headline,
         x: '50%', y: isStatSlide ? '44%' : '40%', width: '88%',
-        font_family: 'Montserrat', font_size: isStatSlide ? '22 vmin' : '11 vmin',
-        font_weight: '900', fill_color: '#ffffff', text_align: 'center',
-        shadow_color: 'rgba(0,0,0,0.7)', shadow_blur: '6px', shadow_x: '2px', shadow_y: '3px',
+        font_family: isStatSlide ? 'Cormorant Garamond' : 'Cormorant Garamond',
+        font_size: isStatSlide ? '24 vmin' : '10 vmin',
+        font_weight: isStatSlide ? '600' : '600',
+        fill_color: '#FFFFFF',
+        text_align: 'center',
+        shadow_color: 'rgba(0,0,0,0.8)', shadow_blur: '8px', shadow_x: '0px', shadow_y: '3px',
         animations: [
-          { time: 'start', duration: 0.5, easing: 'ease-out', type: 'text-slide', direction: 'up', scope: 'element' },
+          { time: 'start', duration: 0.55, easing: 'ease-out', type: 'text-slide', direction: 'up', scope: 'element' },
           { time: 'end',   duration: 0.3, easing: 'ease-in',  type: 'fade' },
         ],
       });
 
-      // Subline — label / context
+      // Subline — label in Montserrat, gold for stat slides
       elements.push({
-        type: 'text', track: trackNum + 2, time: t + 0.3, duration: SLIDE_DUR - 0.4,
+        type: 'text', track: trackNum + 2, time: t + 0.35, duration: SLIDE_DUR - 0.45,
         text: slide.subline,
-        x: '50%', y: isStatSlide ? '62%' : '56%', width: '85%',
-        font_family: 'Open Sans', font_size: '6.5 vmin', font_weight: '600',
-        fill_color: isStatSlide ? '#d4af37' : '#ffffff', text_align: 'center',
+        x: '50%', y: isStatSlide ? '63%' : '56%', width: '82%',
+        font_family: 'Montserrat', font_size: '5.5 vmin', font_weight: '500',
+        fill_color: isStatSlide ? '#C9A962' : '#F5F0E8', text_align: 'center',
+        shadow_color: 'rgba(0,0,0,0.7)', shadow_blur: '4px', shadow_x: '0px', shadow_y: '2px',
         animations: [
           { time: 'start', duration: 0.4, easing: 'ease-out', type: 'fade' },
           { time: 'end',   duration: 0.3, easing: 'ease-in',  type: 'fade' },
         ],
       });
+
+      // Second gold rule below subline on stat slides
+      if (isStatSlide) {
+        elements.push({ type: 'shape', track: trackNum + 3, time: t + 0.4, duration: SLIDE_DUR - 0.5, x: '50%', y: '72%', width: '18%', height: '0.3%', fill_color: '#C9A962' });
+      }
     });
-    trackNum += 3;
+    trackNum += 4;
 
     // ── Branding watermark ────────────────────────────────────────────────────
     elements.push({
       type: 'text', track: trackNum++, time: 0, duration: TOTAL,
       text: 'AuthorityContent.co',
-      x: '50%', y: '94%', width: '80%',
-      font_family: 'Open Sans', font_size: '3 vmin', font_weight: '400',
-      fill_color: 'rgba(255,255,255,0.35)', text_align: 'center',
+      x: '50%', y: '95%', width: '80%',
+      font_family: 'Montserrat', font_size: '2.8 vmin', font_weight: '400',
+      fill_color: 'rgba(201,169,98,0.45)', text_align: 'center',
     });
 
     // ── Background music (authoritative) ─────────────────────────────────────
