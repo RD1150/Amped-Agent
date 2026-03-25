@@ -96,6 +96,8 @@ export const personas = mysqlTable("personas", {
   yearsExperience: int("yearsExperience"), // Years in real estate (from onboarding)
   primaryCity: varchar("primaryCity", { length: 255 }), // Primary market city (from onboarding)
   primaryState: varchar("primaryState", { length: 100 }), // Primary market state (from onboarding)
+  headshotOffsetY: int("headshotOffsetY").default(50), // Vertical position of headshot in circle (0=top, 100=bottom, 50=center)
+  headshotZoom: int("headshotZoom").default(100), // Zoom level of headshot (100=no zoom, 200=2x zoom)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

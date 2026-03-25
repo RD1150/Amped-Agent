@@ -271,6 +271,8 @@ export const appRouter = router({
         bio: z.string().optional(),
         serviceAreas: z.string().optional(),
         brokerage: z.string().optional(),
+        headshotOffsetY: z.number().int().min(0).max(100).optional(),
+        headshotZoom: z.number().int().min(100).max(200).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);

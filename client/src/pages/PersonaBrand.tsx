@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +41,11 @@ export default function PersonaBrand() {
     klingAvatarHeadshotUrl: "",
     klingAvatarVoiceUrl: "",
   });
+  const [headshotOffsetY, setHeadshotOffsetY] = useState(50);
+  const [headshotZoom, setHeadshotZoom] = useState(100);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartY = useRef(0);
+  const dragStartOffset = useRef(50);
   const [isUploadingHeadshot, setIsUploadingHeadshot] = useState(false);
   const [isUploadingAvatarHeadshot, setIsUploadingAvatarHeadshot] = useState(false);
   const [isUploadingAvatarVoice, setIsUploadingAvatarVoice] = useState(false);
@@ -115,6 +120,8 @@ export default function PersonaBrand() {
         klingAvatarVoiceUrl: (persona as any).klingAvatarVoiceUrl || "",
       });
       setVoiceSampleUrl((persona as any).voiceSampleUrl || "");
+      setHeadshotOffsetY((persona as any).headshotOffsetY ?? 50);
+      setHeadshotZoom((persona as any).headshotZoom ?? 100);
     }
   }, [persona]);
 
@@ -157,10 +164,49 @@ export default function PersonaBrand() {
     }
   };
 
+  const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    if (!formData.headshotUrl) return;
+    setIsDragging(true);
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    dragStartY.current = clientY;
+    dragStartOffset.current = headshotOffsetY;
+    e.preventDefault();
+  }, [formData.headshotUrl, headshotOffsetY]);
+
+  const handleDragMove = useCallback((e: MouseEvent | TouchEvent) => {
+    if (!isDragging) return;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const delta = clientY - dragStartY.current;
+    // Dragging down moves the image up (lower offsetY), dragging up moves it down (higher offsetY)
+    const newOffset = Math.max(0, Math.min(100, dragStartOffset.current - (delta / 1.5)));
+    setHeadshotOffsetY(Math.round(newOffset));
+  }, [isDragging]);
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
+      window.addEventListener('touchmove', handleDragMove, { passive: false });
+      window.addEventListener('touchend', handleDragEnd);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+      window.removeEventListener('touchmove', handleDragMove);
+      window.removeEventListener('touchend', handleDragEnd);
+    };
+  }, [isDragging, handleDragMove, handleDragEnd]);
+
   const handleSave = () => {
     // Send all fields — including empty strings — so clearing a value persists to the DB
     upsertPersona.mutate({
       ...formData,
+      headshotOffsetY,
+      headshotZoom,
       isCompleted: true,
     });
   };
@@ -278,23 +324,72 @@ export default function PersonaBrand() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="headshot">Professional Headshot</Label>
-            <div className="flex items-center gap-4">
-              {formData.headshotUrl && (
-                <img 
-                  src={formData.headshotUrl} 
-                  alt="Headshot preview" 
-                  className="w-20 h-20 rounded-full object-cover border-2 border-primary"
-                />
-              )}
-              <div className="flex-1">
-                <Input
-                  id="headshot"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleHeadshotUpload}
-                  className="bg-secondary border-border"
-                />
-                <p className="text-xs text-muted-foreground mt-1">Upload a professional headshot (JPG, PNG, or WebP)</p>
+            <div className="flex items-start gap-6">
+              {/* Drag-to-reposition circle */}
+              <div className="flex flex-col items-center gap-2">
+                <div
+                  className={`w-24 h-24 rounded-full border-2 border-primary overflow-hidden relative flex-shrink-0 ${
+                    formData.headshotUrl ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'bg-secondary'
+                  }`}
+                  onMouseDown={formData.headshotUrl ? handleDragStart : undefined}
+                  onTouchStart={formData.headshotUrl ? handleDragStart : undefined}
+                  title={formData.headshotUrl ? 'Drag up/down to reposition' : ''}
+                >
+                  {formData.headshotUrl ? (
+                    <img
+                      src={formData.headshotUrl}
+                      alt="Headshot preview"
+                      draggable={false}
+                      style={{
+                        width: `${headshotZoom}%`,
+                        height: `${headshotZoom}%`,
+                        objectFit: 'cover',
+                        position: 'absolute',
+                        left: '50%',
+                        top: `${headshotOffsetY}%`,
+                        transform: `translate(-50%, -${headshotOffsetY}%)`,
+                        userSelect: 'none',
+                        pointerEvents: 'none',
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                      <Camera className="w-8 h-8" />
+                    </div>
+                  )}
+                </div>
+                {formData.headshotUrl && (
+                  <p className="text-xs text-muted-foreground text-center">Drag to reposition</p>
+                )}
+              </div>
+              <div className="flex-1 space-y-3">
+                <div>
+                  <Input
+                    id="headshot"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleHeadshotUpload}
+                    className="bg-secondary border-border"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Upload a professional headshot (JPG, PNG, or WebP)</p>
+                </div>
+                {formData.headshotUrl && (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Zoom</Label>
+                      <span className="text-xs text-muted-foreground">{headshotZoom}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={100}
+                      max={200}
+                      step={5}
+                      value={headshotZoom}
+                      onChange={(e) => setHeadshotZoom(Number(e.target.value))}
+                      className="w-full accent-primary"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
