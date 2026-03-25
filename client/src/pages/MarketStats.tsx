@@ -166,7 +166,7 @@ export default function MarketStats() {
         <CardContent className="space-y-4">
           <div className="flex gap-2">
             <Input
-              placeholder="Enter city, state, or zipcode (e.g., Austin, TX or 78701)..."
+              placeholder="Enter city & state (e.g., Westlake Village, CA or Thousand Oaks, CA)"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}

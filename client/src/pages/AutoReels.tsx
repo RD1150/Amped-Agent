@@ -907,7 +907,7 @@ export default function AutoReels() {
 
                   <div className="flex gap-2">
                     <Input
-                      placeholder="e.g. Conejo Valley, CA or Austin, TX"
+                      placeholder="e.g. Westlake Village, CA or Thousand Oaks, CA"
                       value={marketLocation}
                       onChange={(e) => setMarketLocation(e.target.value)}
                       className="flex-1"

@@ -481,7 +481,7 @@ export default function AIGenerate() {
                         <Input
                           value={marketLocation}
                           onChange={(e) => setMarketLocation(e.target.value)}
-                          placeholder="e.g. Conejo Valley, CA or Beverly Hills, CA"
+                          placeholder="e.g. Westlake Village, CA or Thousand Oaks, CA"
                         />
                         <p className="text-xs text-muted-foreground">Enter a city or area to pull real-time stats — median price, days on market, and inventory.</p>
                       </div>
