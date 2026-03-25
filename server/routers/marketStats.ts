@@ -82,7 +82,6 @@ export const marketStatsRouter = router({
 - Include relevant emojis (2-3 maximum)
 - End with a call-to-action
 - Be formatted for social media (short paragraphs, easy to read)
-- End with a data source line: "📊 Data sourced from recent sold homes & active listings via Realtor.com"
 
 Agent name: ${agentName}`;
 
@@ -95,9 +94,7 @@ Agent name: ${agentName}`;
 - Price per Sq Ft: $${input.pricePerSqft}
 - Market Temperature: ${input.marketTemperature.charAt(0).toUpperCase() + input.marketTemperature.slice(1)}
 
-Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is the selected view). Generate a social media post that explains what these numbers mean for buyers and sellers in ${input.location}. Include insights about whether it's a good time to buy or sell based on the data.
-
-IMPORTANT: The final line of the post MUST be exactly: "📊 Data sourced from recent sold homes & active listings via Realtor.com"  — do not paraphrase or omit it.`;
+Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is the selected view). Generate a social media post that explains what these numbers mean for buyers and sellers in ${input.location}. Include insights about whether it's a good time to buy or sell based on the data.`;
 
       const result = await invokeLLM({
         messages: [
@@ -210,7 +207,6 @@ IMPORTANT: The final line of the post MUST be exactly: "📊 Data sourced from r
         marketTemperature: input.marketTemperature,
         voiceoverAudioUrl,
         agentName: ctx.user.name || undefined,
-        statLabel: viewOption.statLabel,  // e.g. "vs last month", "YoY"
       });
 
       return { renderId: result.renderId, success: true };

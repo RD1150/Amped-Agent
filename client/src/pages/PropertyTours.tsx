@@ -88,7 +88,7 @@ export default function PropertyTours() {
   const [sqft, setSqft] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [description, setDescription] = useState("");
-  const [template, setTemplate] = useState<"modern" | "luxury" | "cozy">("luxury");
+  const [template, setTemplate] = useState<"modern" | "luxury" | "cozy">("modern");
   const [duration, setDuration] = useState(30);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
@@ -101,7 +101,7 @@ export default function PropertyTours() {
   const [musicTrack, setMusicTrack] = useState<string | undefined>(undefined);
   const [musicTrackUrl, setMusicTrackUrl] = useState<string | undefined>(undefined);
   const [musicVolume, setMusicVolume] = useState(50);
-  const [cardTemplate, setCardTemplate] = useState<"modern" | "luxury" | "bold" | "classic" | "contemporary">("luxury");
+  const [cardTemplate, setCardTemplate] = useState<"modern" | "luxury" | "bold" | "classic" | "contemporary">("modern");
   const [includeIntroVideo, setIncludeIntroVideo] = useState(false);
 
   const [enableVoiceover, setEnableVoiceover] = useState(false);
@@ -1548,12 +1548,12 @@ export default function PropertyTours() {
                     setDescription("");
                     setUploadedImageUrls([]);
                     setSelectedFiles([]);
-                    setTemplate("luxury");
+                    setTemplate("modern");
                     setDuration(30);
                     setIncludeBranding(true);
                     setAspectRatio("16:9");
                     setMusicTrack(undefined);
-                    setCardTemplate("luxury");
+                    setCardTemplate("modern");
                     setIncludeIntroVideo(false);
                     setEnableVoiceover(false);
                     setShowScriptEditor(false);

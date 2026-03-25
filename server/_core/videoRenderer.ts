@@ -50,14 +50,13 @@ const DEFAULT_REEL_BACKGROUNDS: Record<string, string[]> = {
 export interface MarketUpdateRenderOptions {
   location: string;
   medianPrice: number;
-  priceChange: number;       // Month-over-month % (real, from sold homes API)
+  priceChange: number;       // YoY %
   daysOnMarket: number;
   activeListings: number;
   pricePerSqft: number;
   marketTemperature: 'hot' | 'balanced' | 'cold';
   voiceoverAudioUrl?: string;
   agentName?: string;
-  statLabel?: string;        // e.g. "vs last month", "YoY" — shown on price slide
 }
 
 export interface VideoRenderOptions {
@@ -289,8 +288,8 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       shadow_x: '0px',
       shadow_y: '3px',
       background_color: 'rgba(8,8,8,0.58)',
-      background_x_padding: '36px',
-      background_y_padding: '20px',
+      background_x_padding: '5%',
+      background_y_padding: '3%',
       border_radius: '4px',
       animations: [
         { time: 'start', duration: 0.6, easing: 'ease-out', type: 'text-slide', direction: 'up', scope: 'word' },
@@ -324,8 +323,8 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
         fill_color: '#F5F0E8',
         text_align: 'center',
         background_color: 'rgba(8,8,8,0.72)',
-        background_x_padding: '20px',
-        background_y_padding: '10px',
+        background_x_padding: '4%',
+        background_y_padding: '2%',
         border_radius: '4px',
         shadow_color: 'rgba(0,0,0,0.9)',
         shadow_blur: '6px',
@@ -448,10 +447,6 @@ export async function renderMarketUpdateReel(options: MarketUpdateRenderOptions)
 
   try {
     const { location, medianPrice, priceChange, daysOnMarket, activeListings, pricePerSqft, marketTemperature, voiceoverAudioUrl, agentName } = options;
-    // Use the passed statLabel (e.g. "vs last month") or fall back to a neutral "MoM"
-    const statLabel = options.statLabel || 'MoM';
-    // "Data as of Month YYYY" — shown on the final CTA slide
-    const dataAsOf = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
     const priceDir = priceChange > 0 ? '↑' : priceChange < 0 ? '↓' : '→';
     const priceChangeAbs = Math.abs(priceChange).toFixed(1);
@@ -465,15 +460,15 @@ export async function renderMarketUpdateReel(options: MarketUpdateRenderOptions)
     const slides = [
       // Slide 0 — Intro
       { headline: location, subline: 'Real Estate Market Update', accent: '#d4af37' },
-      // Slide 1 — Median Price (uses real statLabel, not hardcoded YoY)
-      { headline: `$${(medianPrice / 1000).toFixed(0)}K`, subline: `Median Home Price  ${priceDir} ${priceChangeAbs}% ${statLabel}`, accent: '#d4af37' },
+      // Slide 1 — Median Price
+      { headline: `$${(medianPrice / 1000).toFixed(0)}K`, subline: `Median Home Price  ${priceDir} ${priceChangeAbs}% YoY`, accent: '#d4af37' },
       // Slide 2 — Days on Market
       { headline: `${daysOnMarket}`, subline: 'Avg. Days on Market', accent: '#d4af37' },
       // Slide 3 — Active Listings
       { headline: `${activeListings.toLocaleString()}`, subline: 'Active Listings', accent: '#d4af37' },
       // Slide 4 — Price per Sqft
       { headline: `$${pricePerSqft}`, subline: 'Price per Sq Ft', accent: '#d4af37' },
-      // Slide 5 — Market Temp + CTA + data freshness
+      // Slide 5 — Market Temp + CTA
       { headline: tempLabel, subline: agentName ? `Questions? Contact ${agentName}` : 'Follow for weekly market updates', accent: tempColor },
     ];
 
@@ -544,19 +539,6 @@ export async function renderMarketUpdateReel(options: MarketUpdateRenderOptions)
       // Second gold rule below subline on stat slides
       if (isStatSlide) {
         elements.push({ type: 'shape', track: trackNum + 3, time: t + 0.4, duration: SLIDE_DUR - 0.5, x: '50%', y: '72%', width: '18%', height: '0.3%', fill_color: '#C9A962' });
-      }
-
-      // "Data as of [Month Year]" + source attribution on the final CTA slide (idx === 5)
-      if (idx === 5) {
-        elements.push({
-          type: 'text', track: trackNum + 3, time: t + 0.5, duration: SLIDE_DUR - 0.6,
-          text: `Data as of ${dataAsOf}  ·  Source: Realtor.com`,
-          x: '50%', y: '80%', width: '86%',
-          font_family: 'Montserrat', font_size: '3.0 vmin', font_weight: '400',
-          fill_color: 'rgba(245,240,232,0.65)', text_align: 'center',
-          shadow_color: 'rgba(0,0,0,0.6)', shadow_blur: '3px', shadow_x: '0px', shadow_y: '1px',
-          animations: [{ time: 'start', duration: 0.5, easing: 'ease-out', type: 'fade' }],
-        });
       }
     });
     trackNum += 4;
