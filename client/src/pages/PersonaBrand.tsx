@@ -158,13 +158,9 @@ export default function PersonaBrand() {
   };
 
   const handleSave = () => {
-    // Only send fields that have values (filter out empty strings)
-    const dataToSave = Object.fromEntries(
-      Object.entries(formData).filter(([_, value]) => value !== "" && value !== null && value !== undefined)
-    );
-    
+    // Send all fields — including empty strings — so clearing a value persists to the DB
     upsertPersona.mutate({
-      ...dataToSave,
+      ...formData,
       isCompleted: true,
     });
   };

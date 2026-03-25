@@ -177,6 +177,7 @@ export default function AuthorityProfile() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [recordedBlobUrl, setRecordedBlobUrl] = useState<string | null>(null);
   const [voiceName, setVoiceName] = useState("");
   const [postClonePreviewUrl, setPostClonePreviewUrl] = useState<string | null>(null);
   const [isPreviewingClone, setIsPreviewingClone] = useState(false);
@@ -240,6 +241,7 @@ export default function AuthorityProfile() {
       setVoiceFile(null);
       setVoiceUploadUrl("");
       setRecordedBlob(null);
+      setRecordedBlobUrl(null);
       setVoiceName("");
       // Auto-play a short preview of the cloned voice
       setIsPreviewingClone(true);
@@ -330,6 +332,8 @@ export default function AuthorityProfile() {
       mediaRecorder.onstop = () => {
         const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         setRecordedBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setRecordedBlobUrl(url);
         stream.getTracks().forEach((t) => t.stop());
       };
 
@@ -663,41 +667,82 @@ export default function AuthorityProfile() {
             <VoiceScript />
 
             {/* Option 1: Record in browser */}
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Option A — Record in browser</Label>
-              <div className="flex items-center gap-3">
-                {!isRecording ? (
-                  <Button
-                    variant="outline"
-                    onClick={startRecording}
-                    disabled={isCloningVoice || isUploadingVoice}
-                    className="gap-2"
-                  >
-                    <Play className="h-4 w-4 text-red-500" />
-                    Start Recording
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    onClick={stopRecording}
-                    className="gap-2 border-red-500 text-red-500 hover:bg-red-500/10"
-                  >
-                    <Square className="h-4 w-4" />
-                    Stop — {formatSeconds(recordingSeconds)}
-                  </Button>
-                )}
-                {recordedBlob && !isRecording && (
-                  <span className="text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
-                    <CheckCircle className="h-3.5 w-3.5" />
-                    Recording ready ({formatSeconds(recordingSeconds)})
-                  </span>
-                )}
-              </div>
+            <div className="space-y-3">
+              <Label className="text-sm font-medium block">Record your voice sample</Label>
+
+              {/* Idle: show Start Recording */}
+              {!isRecording && !recordedBlob && (
+                <Button
+                  onClick={startRecording}
+                  disabled={isCloningVoice || isUploadingVoice}
+                  className="gap-2 bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <span className="inline-block h-2.5 w-2.5 rounded-full bg-white" />
+                  Start Recording
+                </Button>
+              )}
+
+              {/* Recording in progress */}
               {isRecording && (
-                <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                  <span className="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-                  Recording… speak naturally. Aim for at least 30 seconds.
-                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-end gap-0.5 h-6">
+                      {[0.4,0.7,1,0.6,0.9,0.5,0.8,0.4,0.7,1].map((h, i) => (
+                        <span
+                          key={i}
+                          className="inline-block w-1 rounded-full bg-red-500 animate-pulse"
+                          style={{ height: `${h * 100}%`, animationDelay: `${i * 0.07}s` }}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm font-mono text-red-500 tabular-nums min-w-[3.5rem]">{formatSeconds(recordingSeconds)}</span>
+                    <Button
+                      variant="outline"
+                      onClick={stopRecording}
+                      className="gap-2 border-red-500 text-red-500 hover:bg-red-500/10 ml-auto"
+                    >
+                      <Square className="h-4 w-4" />
+                      Stop Recording
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                    Recording… read the script above naturally. Aim for at least 60 seconds.
+                  </p>
+                </div>
+              )}
+
+              {/* Done: playback preview + re-record */}
+              {!isRecording && recordedBlob && recordedBlobUrl && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                    <span className="font-medium text-green-700 dark:text-green-400">
+                      Recording captured — {formatSeconds(recordingSeconds)}
+                    </span>
+                    {recordingSeconds < 30 && (
+                      <span className="text-xs text-amber-600 dark:text-amber-400">
+                        (too short — aim for 60+ seconds)
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Listen back before cloning:</p>
+                  <audio controls src={recordedBlobUrl} className="w-full h-10 rounded" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setRecordedBlob(null);
+                      setRecordedBlobUrl(null);
+                      setVoiceUploadUrl("");
+                    }}
+                    disabled={isCloningVoice || isUploadingVoice}
+                    className="gap-2 text-muted-foreground"
+                  >
+                    <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
+                    Re-record
+                  </Button>
+                </div>
               )}
             </div>
 

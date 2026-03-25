@@ -268,6 +268,9 @@ export const appRouter = router({
         yearsExperience: z.number().int().min(0).max(60).optional(),
         primaryCity: z.string().max(255).optional(),
         primaryState: z.string().max(100).optional(),
+        bio: z.string().optional(),
+        serviceAreas: z.string().optional(),
+        brokerage: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);
