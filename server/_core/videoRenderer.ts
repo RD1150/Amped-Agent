@@ -107,10 +107,11 @@ function buildSubtitleTimingsFromAlignment(
     // Timestamps are already wall-clock seconds from audio start
     const start = chunk[0].start;
     const naturalEnd = chunk[chunk.length - 1].end;
-    // Extend duration to next chunk start when natural duration is short
+    // Extend duration all the way to the next chunk's start — zero gap between chunks
     const nextStart = scriptWords[i + CHUNK_SIZE]?.start;
-    const extendedEnd = nextStart ? Math.min(nextStart - 0.05, naturalEnd + 1.5) : naturalEnd + 0.5;
-    const length = Math.max(MIN_CHUNK_DURATION, extendedEnd - start);
+    // Hold until next chunk begins (no gap), or hold 1s after last word for final chunk
+    const holdEnd = nextStart ?? (naturalEnd + 1.0);
+    const length = Math.max(MIN_CHUNK_DURATION, holdEnd - start);
 
     if (start + length > totalDuration + 1.0) break;
 
@@ -139,13 +140,14 @@ function generateSubtitleTiming(
   }
 
   const SECS_PER_WORD = 60 / 130; // ≈ 0.462s at 130 wpm
-  const INTER_CHUNK_PAUSE = 0.15;
-  const MIN_CHUNK_DURATION = 2.5;
+  // No inter-chunk pause — chunks are contiguous so there is never a blank frame
+  const MIN_CHUNK_DURATION = 3.0;
 
   const result: Array<{ text: string; start: number; length: number }> = [];
   let cursor = startAt;
 
-  for (const chunk of chunks) {
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
     const chunkWords = chunk.split(/\s+/).length;
     const speechDuration = chunkWords * SECS_PER_WORD;
     const displayDuration = Math.max(MIN_CHUNK_DURATION, speechDuration);
@@ -153,7 +155,8 @@ function generateSubtitleTiming(
     if (cursor + displayDuration > totalDuration + 0.5) break;
 
     result.push({ text: chunk, start: cursor, length: displayDuration });
-    cursor += displayDuration + INTER_CHUNK_PAUSE;
+    // Next chunk starts exactly when this one ends — zero gap
+    cursor += displayDuration;
   }
 
   return result;
@@ -330,10 +333,9 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
         shadow_blur: '6px',
         shadow_x: '0px',
         shadow_y: '2px',
-        animations: [
-          { time: 'start', duration: 0.15, easing: 'ease-out', type: 'fade' },
-          { time: 'end',   duration: 0.15, easing: 'ease-in',  type: 'fade' },
-        ],
+        // No fade-in/fade-out animations — they cause a visible blink between
+        // consecutive subtitle chunks. Text appears and disappears instantly,
+        // which reads as a smooth word-by-word update rather than a flash.
       });
     });
     trackNum++;
