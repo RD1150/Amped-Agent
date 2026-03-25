@@ -17,6 +17,8 @@ import { MARKET_VIEW_OPTIONS, DEFAULT_MARKET_VIEW, type MarketView } from "../..
 type InputMethod = "bullets" | "caption" | "blog" | "listing";
 type VideoLength = "30" | "60";
 type Tone = "calm" | "bold" | "authoritative" | "warm";
+type CaptionSize = "normal" | "large";
+type CaptionStyle = "white" | "yellow" | "gold" | "none";
 
 export default function AutoReels() {
   const [, navigate] = useLocation();
@@ -60,6 +62,11 @@ export default function AutoReels() {
   const [backgroundPhotoFiles, setBackgroundPhotoFiles] = useState<File[]>([]); // local previews
   const [backgroundPhotoPreviews, setBackgroundPhotoPreviews] = useState<string[]>([]);
   const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
+
+  // Caption controls
+  const [captionsEnabled, setCaptionsEnabled] = useState(true);
+  const [captionSize, setCaptionSize] = useState<CaptionSize>("normal");
+  const [captionStyle, setCaptionStyle] = useState<CaptionStyle>("white");
 
   // Voiceover state
   const [enableVoiceover, setEnableVoiceover] = useState(false);
@@ -429,6 +436,9 @@ export default function AutoReels() {
         voiceId: enableVoiceover ? voiceId : undefined,
         voiceoverStyle: enableVoiceover ? voiceoverStyle : undefined,
         backgroundImages: backgroundPhotos.length > 0 ? backgroundPhotos : undefined,
+        captionsEnabled,
+        captionSize,
+        captionStyle,
       });
       
       if (renderResult.status === 'failed') {
@@ -995,6 +1005,78 @@ export default function AutoReels() {
                   </div>
                 </RadioGroup>
               </div>
+            </div>
+
+            {/* Caption Controls */}
+            <div className="border rounded-xl p-5 space-y-5 bg-gradient-to-br from-sky-500/5 to-sky-500/10 border-sky-500/20 mb-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-sky-500/20 flex items-center justify-center">
+                    <span className="text-sky-500 font-bold text-sm">CC</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Caption Settings</h3>
+                    <p className="text-xs text-muted-foreground">Control how subtitles appear on your reel</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="captions-toggle" className="text-sm text-muted-foreground">{captionsEnabled ? 'On' : 'Off'}</Label>
+                  <Switch
+                    id="captions-toggle"
+                    checked={captionsEnabled}
+                    onCheckedChange={setCaptionsEnabled}
+                  />
+                </div>
+              </div>
+
+              {captionsEnabled && (
+                <div className="grid grid-cols-2 gap-5">
+                  {/* Caption Size */}
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Caption Size</Label>
+                    <div className="flex gap-2">
+                      {(['normal', 'large'] as CaptionSize[]).map((sz) => (
+                        <button
+                          key={sz}
+                          onClick={() => setCaptionSize(sz)}
+                          className={`flex-1 py-2 px-3 rounded-lg border text-sm font-medium transition-all ${
+                            captionSize === sz
+                              ? 'border-sky-500 bg-sky-500/15 text-sky-600 dark:text-sky-400'
+                              : 'border-border bg-background text-muted-foreground hover:border-sky-400'
+                          }`}
+                        >
+                          {sz === 'normal' ? 'Normal' : 'Large'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Caption Style */}
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Caption Style</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        { value: 'white', label: 'White', preview: 'bg-black/70 text-white' },
+                        { value: 'yellow', label: 'Yellow', preview: 'bg-black/70 text-yellow-300' },
+                        { value: 'gold', label: 'Gold', preview: 'bg-black/60 text-amber-400' },
+                        { value: 'none', label: 'No BG', preview: 'text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.9)]' },
+                      ] as { value: CaptionStyle; label: string; preview: string }[]).map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => setCaptionStyle(opt.value as CaptionStyle)}
+                          className={`relative py-2 px-2 rounded-lg border text-xs font-medium transition-all overflow-hidden ${
+                            captionStyle === opt.value
+                              ? 'border-sky-500 ring-1 ring-sky-500'
+                              : 'border-border hover:border-sky-400'
+                          }`}
+                        >
+                          <span className={`inline-block px-2 py-0.5 rounded text-xs ${opt.preview}`}>{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Voiceover Add-On */}

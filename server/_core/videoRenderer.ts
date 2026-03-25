@@ -68,6 +68,9 @@ export interface VideoRenderOptions {
   voiceAlignment?: Array<{ word: string; start: number; end: number }>; // ElevenLabs word timestamps
   backgroundImages?: string[]; // agent-uploaded photos (optional)
   backgroundCategory?: string; // 'buyers' | 'sellers' | 'luxury' | 'investors'
+  captionsEnabled?: boolean;   // default true
+  captionSize?: 'normal' | 'large'; // default 'normal'
+  captionStyle?: 'white' | 'yellow' | 'gold' | 'none'; // default 'white'
 }
 
 interface RenderResult {
@@ -193,11 +196,15 @@ function pickBackgroundImages(options: VideoRenderOptions): string[] {
  */
 export async function renderAutoReel(options: VideoRenderOptions): Promise<RenderResult> {
   const { hook, script, tone, voiceoverAudioUrl } = options;
+  // Caption settings
+  const captionsEnabled = options.captionsEnabled !== false; // default true
+  const captionSize = options.captionSize ?? 'normal';
+  const captionStyle = options.captionStyle ?? 'white';
   // Enforce minimum 30-second duration
   const videoLength = Math.max(30, options.videoLength);
   // Only show subtitles for videos at or above the minimum readable duration
   const SUBTITLE_MIN_DURATION = 30;
-  const enableSubtitles = videoLength >= SUBTITLE_MIN_DURATION;
+  const enableSubtitles = captionsEnabled && videoLength >= SUBTITLE_MIN_DURATION;
 
   const apiKey = ENV.CREATOMATE_API_KEY;
   if (!apiKey) {
@@ -321,16 +328,22 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
         y: '87%',
         width: '84%',
         font_family: 'Montserrat',
-        font_size: '6 vmin',
+        font_size: captionSize === 'large' ? '7.5 vmin' : '6 vmin',
         font_weight: '500',
-        fill_color: '#F5F0E8',
+        fill_color: captionStyle === 'yellow' ? '#FBBF24' :
+                    captionStyle === 'gold'   ? '#C9A962' :
+                    '#F5F0E8',
         text_align: 'center',
-        background_color: 'rgba(8,8,8,0.72)',
-        background_x_padding: '4%',
-        background_y_padding: '2%',
-        border_radius: '4px',
+        ...(captionStyle !== 'none' ? {
+          background_color: captionStyle === 'yellow' ? 'rgba(8,8,8,0.72)' :
+                            captionStyle === 'gold'   ? 'rgba(8,8,8,0.60)' :
+                            'rgba(8,8,8,0.72)',
+          background_x_padding: '4%',
+          background_y_padding: '2%',
+          border_radius: '4px',
+        } : {}),
         shadow_color: 'rgba(0,0,0,0.9)',
-        shadow_blur: '6px',
+        shadow_blur: captionStyle === 'none' ? '12px' : '6px',
         shadow_x: '0px',
         shadow_y: '2px',
         // No fade-in/fade-out animations — they cause a visible blink between

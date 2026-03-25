@@ -3960,3 +3960,18 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Updated branding watermark: Montserrat with gold tint rgba(201,169,98,0.45)
 - [x] Added Cormorant Garamond Google Font to index.html
 - [x] Gold used as accent only (#C9A962), dark charcoal/near-black as primary background
+
+## Caption Controls for AI Reels
+- [ ] Add Caption Size toggle (Normal/Large) to AI Reels UI
+- [ ] Add Caption Color/Style picker (white-on-dark, yellow, brand-gold, no background) to AI Reels UI
+- [ ] Add No Captions on/off switch to AI Reels UI
+- [ ] Wire captionSize, captionStyle, captionsEnabled through to videoRenderer
+- [ ] Update videoRenderer to apply caption settings to subtitle elements
+
+## Pre-Launch Fixes (Mar 25, 2026)
+- [x] Fix 1: Wire captionsEnabled/captionSize/captionStyle to handleRenderVideo
+- [x] Fix 2: Move background music files to S3 CDN (all 12 tracks on CloudFront CDN)
+- [x] Fix 3: Fix subscription tier gating in reels router (reads actual subscriptionStatus/Tier)
+- [x] Fix 4: Add trial-ending email notification (notifyOwner on trial_will_end webhook)
+- [x] Fix 5: Write end-to-end Stripe payment flow test (449 tests all passing)
+- [x] Fix 6: Custom domain setup instructions (see result message)

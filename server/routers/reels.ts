@@ -91,10 +91,11 @@ export const reelsRouter = router({
    * Get current reel usage for the authenticated user
    */
   getUsage: protectedProcedure.query(async ({ ctx }) => {
-    // TODO: Get user's actual tier from subscription
-    const tier = "free"; // Hardcoded for now
+    // Derive tier from user's actual subscription status
+    const isActive = ctx.user.subscriptionStatus === 'active' || ctx.user.subscriptionStatus === 'trialing';
+    const tier: 'free' | 'pro' = isActive && ctx.user.subscriptionTier !== 'starter' ? 'pro' : 'free';
     const usage = await getReelUsage(ctx.user.id, tier);
-    const limit = tier === "free" ? 3 : 30;
+    const limit = tier === 'free' ? 3 : 30;
     
     return {
       current: usage.count,
@@ -117,8 +118,9 @@ export const reelsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // TODO: Get user's actual tier from subscription
-      const tier = "free"; // Hardcoded for now
+      // Derive tier from user's actual subscription status
+      const isActive = ctx.user.subscriptionStatus === 'active' || ctx.user.subscriptionStatus === 'trialing';
+      const tier: 'free' | 'pro' = isActive && ctx.user.subscriptionTier !== 'starter' ? 'pro' : 'free';
       
       // Check usage limit
       const limitCheck = await checkReelLimit(ctx.user.id, tier);

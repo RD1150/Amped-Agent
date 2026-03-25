@@ -55,10 +55,28 @@ export const videoRouter = router({
           imagePaths.push(imagePath);
         }
 
-        // Get music file path (system-level directory path, cannot be renamed)
-        // TODO: Move music files to S3 storage for production
-        const musicPath = `/home/ubuntu/luxestate/server/assets/music/${musicId}.mp3`;
-        
+        // Music CDN URLs (uploaded to S3 for production use)
+        const MUSIC_CDN: Record<string, string> = {
+          back_home: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/back_home_85027745.mp3',
+          by_the_river: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/by_the_river_31eb0ad0.mp3',
+          camping_in_the_woods: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/camping_in_the_woods_7262bed6.mp3',
+          dirt_road_dreams: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/dirt_road_dreams_df5a6cf0.mp3',
+          electric_nights: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/electric_nights_90895de3.mp3',
+          good_year: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/good_year_7249503f.mp3',
+          highway_stars: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/highway_stars_a34a5897.mp3',
+          one_more_night: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/one_more_night_64611284.mp3',
+          rock_anthem: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/rock_anthem_4b622bee.mp3',
+          steady_ride: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/steady_ride_acfd8ba3.mp3',
+          summer_vibes: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/summer_vibes_6992237a.mp3',
+          whiskey_sunrise: 'https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/whiskey_sunrise_338bb1e7.mp3',
+        };
+        const musicUrl = MUSIC_CDN[musicId];
+        if (!musicUrl) throw new Error(`Unknown music track: ${musicId}`);
+        // Download music to temp dir so ffmpeg can read it locally
+        const musicPath = path.join(tempDir, 'music.mp3');
+        const musicResponse = await axios.get(musicUrl, { responseType: 'arraybuffer' });
+        await writeFile(musicPath, musicResponse.data);
+
         // Build FFmpeg command for video generation
         const outputPath = path.join(tempDir, 'output.mp4');
         

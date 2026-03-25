@@ -7,6 +7,7 @@ import Stripe from 'stripe';
 import { STRIPE_PRODUCTS, getProductByTier, getTierByPriceId } from '../stripe-products';
 import { getCreditProduct } from '../products';
 import * as credits from '../credits';
+import { notifyOwner } from '../_core/notification';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-12-15.clover',
@@ -330,11 +331,22 @@ export const stripeRouter = router({
         case 'customer.subscription.trial_will_end': {
           const subscription = event.data.object as Stripe.Subscription;
           const customerId = subscription.customer as string;
+          const trialEndDate = subscription.trial_end
+            ? new Date(subscription.trial_end * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+            : 'soon';
 
           const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, customerId)).limit(1);
 
-          // TODO: Send email notification about trial ending
-          console.log(`Trial ending for user ${user?.id}`);
+          if (user) {
+            console.log(`[Stripe] Trial ending for user ${user.id} (${user.email}) on ${trialEndDate}`);
+            // Notify the platform owner so they can follow up if needed
+            await notifyOwner({
+              title: `Trial Ending: ${user.name || user.email}`,
+              content: `User ${user.name || user.email} (ID: ${user.id}) has a trial ending on ${trialEndDate}. Their subscription tier is ${user.subscriptionTier}. Consider reaching out to ensure a smooth conversion.`,
+            }).catch((err) => console.error('[Stripe] Failed to send trial-ending owner notification:', err));
+          } else {
+            console.warn(`[Stripe] trial_will_end: no user found for Stripe customer ${customerId}`);
+          }
           break;
         }
 
