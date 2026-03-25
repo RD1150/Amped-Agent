@@ -359,7 +359,14 @@ export default function PersonaBrand() {
                   )}
                 </div>
                 {formData.headshotUrl && (
-                  <p className="text-xs text-muted-foreground text-center">Drag to reposition</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-muted-foreground text-center">Drag to reposition</p>
+                    <button
+                      type="button"
+                      onClick={() => { setHeadshotOffsetY(50); setHeadshotZoom(100); }}
+                      className="text-xs text-primary hover:underline"
+                    >Reset</button>
+                  </div>
                 )}
               </div>
               <div className="flex-1 space-y-3">
@@ -392,6 +399,48 @@ export default function PersonaBrand() {
                 )}
               </div>
             </div>
+            {/* Live reel preview card */}
+            {formData.headshotUrl && (
+              <div className="mt-4">
+                <Label className="text-xs text-muted-foreground mb-2 block">Reel Watermark Preview</Label>
+                <div className="relative w-36 h-64 rounded-xl overflow-hidden bg-[#0a0a0f] border border-border flex-shrink-0">
+                  {/* Simulated reel background gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a2e] to-[#0a0a0f]" />
+                  {/* Fake text lines to simulate reel content */}
+                  <div className="absolute top-6 left-3 right-3 space-y-1.5">
+                    <div className="h-2 bg-white/20 rounded w-4/5" />
+                    <div className="h-2 bg-white/15 rounded w-3/5" />
+                    <div className="h-2 bg-white/10 rounded w-4/5" />
+                  </div>
+                  {/* Watermark circle — mirrors actual reel watermark position (bottom-left) */}
+                  <div className="absolute bottom-4 left-3 flex items-center gap-1.5">
+                    <div className="w-9 h-9 rounded-full border border-[#C9A962] overflow-hidden relative flex-shrink-0">
+                      <img
+                        src={formData.headshotUrl}
+                        alt="Watermark preview"
+                        draggable={false}
+                        style={{
+                          width: `${headshotZoom}%`,
+                          height: `${headshotZoom}%`,
+                          objectFit: 'cover',
+                          position: 'absolute',
+                          left: '50%',
+                          top: `${headshotOffsetY}%`,
+                          transform: `translate(-50%, -${headshotOffsetY}%)`,
+                          userSelect: 'none',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-[8px] font-semibold text-white leading-tight truncate max-w-[72px]">{formData.agentName || 'Your Name'}</p>
+                      <p className="text-[7px] text-[#C9A962] leading-tight truncate max-w-[72px]">{formData.brokerageName || 'Brokerage'}</p>
+                    </div>
+                  </div>
+                  <p className="absolute top-2 right-2 text-[7px] text-white/40">Preview</p>
+                </div>
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="bio">Bio / About</Label>

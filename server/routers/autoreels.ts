@@ -467,6 +467,9 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
           }
         }
         
+        // Fetch persona for agent branding watermark
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+
         const result = await renderAutoReel({
           hook,
           script,
@@ -478,6 +481,11 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
           captionsEnabled,
           captionSize,
           captionStyle,
+          headshotUrl: persona?.headshotUrl ?? undefined,
+          headshotOffsetY: persona?.headshotOffsetY ?? undefined,
+          headshotZoom: persona?.headshotZoom ?? undefined,
+          agentName: persona?.agentName ?? undefined,
+          brokerageName: persona?.brokerageName ?? undefined,
         });
         
         console.log('[renderVideo] Render initiated successfully:', result);

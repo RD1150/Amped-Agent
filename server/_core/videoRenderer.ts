@@ -57,6 +57,10 @@ export interface MarketUpdateRenderOptions {
   marketTemperature: 'hot' | 'balanced' | 'cold';
   voiceoverAudioUrl?: string;
   agentName?: string;
+  brokerageName?: string;
+  headshotUrl?: string;
+  headshotOffsetY?: number;
+  headshotZoom?: number;
 }
 
 export interface VideoRenderOptions {
@@ -71,6 +75,12 @@ export interface VideoRenderOptions {
   captionsEnabled?: boolean;   // default true
   captionSize?: 'normal' | 'large'; // default 'normal'
   captionStyle?: 'white' | 'yellow' | 'gold' | 'none'; // default 'white'
+  // Agent branding watermark
+  headshotUrl?: string;       // Agent headshot URL for watermark circle
+  headshotOffsetY?: number;   // Vertical position 0-100 (50 = center)
+  headshotZoom?: number;      // Zoom 100-200 (100 = no zoom)
+  agentName?: string;         // Agent display name
+  brokerageName?: string;     // Brokerage name
 }
 
 interface RenderResult {
@@ -370,6 +380,56 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       text_align: 'center',
     });
 
+    // ── Agent headshot watermark circle (bottom-left) ─────────────────────────
+    if (options.headshotUrl) {
+      const offsetY = options.headshotOffsetY ?? 50;  // 0=top, 100=bottom, 50=center
+      const zoom = options.headshotZoom ?? 100;        // 100=fit, 200=2x
+      // Creatomate image element inside a circle clip
+      elements.push({
+        type: 'image',
+        track: trackNum++,
+        time: 0,
+        duration: videoLength,
+        source: options.headshotUrl,
+        x: '12%',
+        y: '91%',
+        width: '14%',
+        height: '7%',
+        fit: 'cover',
+        // object_position maps offsetY (0-100) to CSS-style "50% {offsetY}%"
+        object_position: `50% ${offsetY}%`,
+        x_scale: zoom / 100,
+        y_scale: zoom / 100,
+        border_radius: '50%',
+        border_width: '2px',
+        border_color: '#C9A962',
+      });
+      // Agent name and brokerage text next to the circle
+      if (options.agentName || options.brokerageName) {
+        const nameLines = [options.agentName, options.brokerageName].filter(Boolean).join('\n');
+        elements.push({
+          type: 'text',
+          track: trackNum++,
+          time: 0,
+          duration: videoLength,
+          text: nameLines,
+          x: '38%',
+          y: '91%',
+          width: '48%',
+          font_family: 'Montserrat',
+          font_size: '2.4 vmin',
+          font_weight: '600',
+          fill_color: '#FFFFFF',
+          text_align: 'left',
+          line_height: '1.3',
+          shadow_color: 'rgba(0,0,0,0.8)',
+          shadow_blur: '4px',
+          shadow_x: '0px',
+          shadow_y: '1px',
+        });
+      }
+    }
+
     // ── Background music ──────────────────────────────────────────────────────
     const musicTracks: Record<string, string> = {
       calm:          'https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3',
@@ -558,7 +618,7 @@ export async function renderMarketUpdateReel(options: MarketUpdateRenderOptions)
     });
     trackNum += 4;
 
-    // ── Branding watermark ────────────────────────────────────────────────────
+    // ── Branding watermark ──────────────────────────────────────────────────────
     elements.push({
       type: 'text', track: trackNum++, time: 0, duration: TOTAL,
       text: 'AuthorityContent.co',
@@ -567,7 +627,33 @@ export async function renderMarketUpdateReel(options: MarketUpdateRenderOptions)
       fill_color: 'rgba(201,169,98,0.45)', text_align: 'center',
     });
 
-    // ── Background music (authoritative) ─────────────────────────────────────
+    // ── Agent headshot watermark circle (bottom-left) ─────────────────────────
+    if (options.headshotUrl) {
+      const offsetY = options.headshotOffsetY ?? 50;
+      const zoom = options.headshotZoom ?? 100;
+      elements.push({
+        type: 'image', track: trackNum++, time: 0, duration: TOTAL,
+        source: options.headshotUrl,
+        x: '12%', y: '91%', width: '14%', height: '7%',
+        fit: 'cover',
+        object_position: `50% ${offsetY}%`,
+        x_scale: zoom / 100, y_scale: zoom / 100,
+        border_radius: '50%', border_width: '2px', border_color: '#C9A962',
+      });
+      if (options.agentName || options.brokerageName) {
+        const nameLines = [options.agentName, options.brokerageName].filter(Boolean).join('\n');
+        elements.push({
+          type: 'text', track: trackNum++, time: 0, duration: TOTAL,
+          text: nameLines,
+          x: '38%', y: '91%', width: '48%',
+          font_family: 'Montserrat', font_size: '2.4 vmin', font_weight: '600',
+          fill_color: '#FFFFFF', text_align: 'left', line_height: '1.3',
+          shadow_color: 'rgba(0,0,0,0.8)', shadow_blur: '4px', shadow_x: '0px', shadow_y: '1px',
+        });
+      }
+    }
+
+    // ── Background music (authoritative) ─────────────────────────────────────────────
     const musicVolume = voiceoverAudioUrl ? '6%' : '20%';
     elements.push({
       type: 'audio', track: trackNum++, time: 0, duration: TOTAL,

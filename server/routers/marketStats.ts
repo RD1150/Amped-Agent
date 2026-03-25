@@ -196,6 +196,10 @@ Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is t
         voiceoverAudioUrl = url;
       }
 
+      // Fetch persona for agent branding watermark
+      const { getPersonaByUserId } = await import('../db');
+      const persona = await getPersonaByUserId(ctx.user.id);
+
       // Use the dedicated market update renderer with proper stat slide layout
       const result = await renderMarketUpdateReel({
         location: input.location,
@@ -206,7 +210,11 @@ Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is t
         pricePerSqft: input.pricePerSqft,
         marketTemperature: input.marketTemperature,
         voiceoverAudioUrl,
-        agentName: ctx.user.name || undefined,
+        agentName: persona?.agentName || ctx.user.name || undefined,
+        brokerageName: persona?.brokerageName ?? undefined,
+        headshotUrl: persona?.headshotUrl ?? undefined,
+        headshotOffsetY: persona?.headshotOffsetY ?? undefined,
+        headshotZoom: persona?.headshotZoom ?? undefined,
       });
 
       return { renderId: result.renderId, success: true };
