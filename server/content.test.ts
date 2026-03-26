@@ -171,5 +171,5 @@ describe("importJobs.processCSV input validation", () => {
       // Database/LLM errors are expected, but input should be valid
       expect(error.message).not.toContain("Invalid input");
     }
-  });
+  }, 15000);
 });

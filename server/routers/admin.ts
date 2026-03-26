@@ -236,6 +236,46 @@ export const adminRouter = router({
     }),
 
   /**
+   * Get all registered users with signup date, email, tier, and last active
+   */
+  getAllUsers: adminProcedure
+    .input(z.object({
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).max(100).default(50),
+      search: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const offset = (input.page - 1) * input.limit;
+      const results = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          role: users.role,
+          subscriptionTier: users.subscriptionTier,
+          subscriptionStatus: users.subscriptionStatus,
+          createdAt: users.createdAt,
+          lastSignedIn: users.lastSignedIn,
+          loginMethod: users.loginMethod,
+        })
+        .from(users)
+        .orderBy(sql`${users.createdAt} DESC`)
+        .limit(input.limit)
+        .offset(offset);
+      const [countResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(users);
+      return {
+        users: results,
+        total: countResult?.count ?? 0,
+        page: input.page,
+        limit: input.limit,
+      };
+    }),
+
+  /**
    * Update welcome video URL for onboarding modal
    */
   updateWelcomeVideo: adminProcedure

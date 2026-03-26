@@ -54,7 +54,8 @@ import {
   Shuffle,
   Film,
   BookOpen,
-  Heart
+  Heart,
+  Users
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -163,6 +164,7 @@ const menuSections = [
     items: [
       { icon: BarChart3, label: "Admin Analytics", path: "/admin/analytics", description: "Platform analytics" },
       { icon: BarChart3, label: "AI Spend", path: "/admin/spend", description: "AI cost tracking" },
+      { icon: Users, label: "Users", path: "/admin/users", description: "Registered users" },
     ]
   }
 ];

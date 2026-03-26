@@ -40,6 +40,7 @@ import Credits from "./pages/Credits";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
 import AdminSpend from "./pages/AdminSpend";
+import AdminUsers from "./pages/AdminUsers";
 import Drafts from "./pages/Drafts";
 import ScriptToReel from "./pages/ScriptToReel";
 import MyReels from "./pages/MyReels";
@@ -76,6 +77,7 @@ function Router() {
       <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/spend" component={AdminSpend} />
+      <Route path="/admin/users" component={AdminUsers} />
       <Route path="/landing" component={Landing} />
       <Route path="/terms" component={Terms} />
       <Route path="/terms-of-service" component={TermsOfService} />
