@@ -3975,3 +3975,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix 4: Add trial-ending email notification (notifyOwner on trial_will_end webhook)
 - [x] Fix 5: Write end-to-end Stripe payment flow test (449 tests all passing)
 - [x] Fix 6: Custom domain setup instructions (see result message)
+
+## Admin Users Page Enhancements (Mar 26, 2026)
+- [ ] Impersonate User button on Admin Users page
+- [ ] Export users to CSV from Admin Users page
+- [ ] Manual email blast to all/filtered users from Admin Users page

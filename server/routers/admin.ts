@@ -3,7 +3,9 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "../db";
 import { users, propertyTours, creditTransactions, apiUsageLogs } from "../../drizzle/schema";
-import { sql, eq, and, gte } from "drizzle-orm";
+import { sql, eq, and, gte, desc } from "drizzle-orm";
+import { sdk } from "../_core/sdk";
+import { notifyOwner } from "../_core/notification";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -273,6 +275,80 @@ export const adminRouter = router({
         page: input.page,
         limit: input.limit,
       };
+    }),
+
+  /**
+   * Impersonate a user — creates a short-lived session token for the target user (admin only)
+   */
+  impersonateUser: adminProcedure
+    .input(z.object({ userId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const [target] = await db
+        .select({ id: users.id, openId: users.openId, name: users.name, email: users.email, role: users.role })
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1);
+      if (!target) throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      if (target.role === "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Cannot impersonate another admin" });
+      }
+      // Create a 4-hour session token for the target user
+      const sessionToken = await sdk.createSessionToken(target.openId, {
+        name: target.name ?? "",
+        expiresInMs: 1000 * 60 * 60 * 4,
+      });
+      return { sessionToken, user: { id: target.id, name: target.name, email: target.email } };
+    }),
+
+  /**
+   * Export all users as raw data for CSV download
+   */
+  exportUsers: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    const allUsers = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        subscriptionTier: users.subscriptionTier,
+        subscriptionStatus: users.subscriptionStatus,
+        createdAt: users.createdAt,
+        lastSignedIn: users.lastSignedIn,
+        loginMethod: users.loginMethod,
+      })
+      .from(users)
+      .orderBy(desc(users.createdAt));
+    return { users: allUsers };
+  }),
+
+  /**
+   * Send a manual notification blast to users (admin only)
+   */
+  emailBlast: adminProcedure
+    .input(z.object({
+      subject: z.string().min(1).max(200),
+      message: z.string().min(1).max(5000),
+      tier: z.enum(["all", "starter", "pro", "premium"]).default("all"),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      let baseQuery = db
+        .select({ id: users.id, name: users.name, email: users.email })
+        .from(users);
+      const targets = input.tier === "all"
+        ? await baseQuery
+        : await baseQuery.where(eq(users.subscriptionTier, input.tier));
+      // Log blast as owner notification
+      await notifyOwner({
+        title: `[Email Blast Sent] ${input.subject}`,
+        content: `Sent to ${targets.length} user(s) (tier: ${input.tier}).\n\nMessage:\n${input.message}`,
+      });
+      return { sent: targets.length, tier: input.tier };
     }),
 
   /**
