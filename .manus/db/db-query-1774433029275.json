@@ -1,0 +1,19 @@
+{
+  "query": "SELECT id, userId, type, title, city, agentName, createdAt FROM lead_magnets LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute SELECT id, userId, type, title, city, agentName, createdAt FROM lead_magnets LIMIT 20;",
+  "rows": [
+    {
+      "id": "90001",
+      "userId": "1",
+      "type": "neighborhood_report",
+      "title": "Neighborhood Report — Westlake Village, CA",
+      "city": "Westlake Village, CA",
+      "agentName": "Reena Dutta Dutta",
+      "createdAt": "2026-03-22 07:02:05"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\ttype\ttitle\tcity\tagentName\tcreatedAt\n90001\t1\tneighborhood_report\tNeighborhood Report — Westlake Village, CA\tWestlake Village, CA\tReena Dutta Dutta\t2026-03-22 07:02:05\n",
+  "stderr": "",
+  "execution_time_ms": 357
+}

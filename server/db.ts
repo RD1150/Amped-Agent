@@ -26,11 +26,18 @@ import {
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _dbConnectFailed = false;
 
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  if (!_db) {
+    if (!process.env.DATABASE_URL) {
+      console.warn("[Database] DATABASE_URL is not set");
+      return null;
+    }
+    // Always retry — do not cache a failed connection permanently
     try {
       _db = drizzle(process.env.DATABASE_URL);
+      _dbConnectFailed = false;
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -48,8 +55,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
-    return;
+    throw new Error("[Database] Cannot upsert user: database not available");
   }
 
   try {
