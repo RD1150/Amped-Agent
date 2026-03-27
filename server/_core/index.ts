@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import uploadEndpoint from "../uploadEndpoint";
 import { recoverStuckCinematicJobs } from "../routers/cinematicWalkthrough";
+import { recoverStuckAiReels } from "../routers/autoreels";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -66,7 +67,10 @@ async function startServer() {
     // Run startup recovery after a short delay to ensure DB is ready
     setTimeout(() => {
       recoverStuckCinematicJobs().catch((err) =>
-        console.error("[Startup Recovery] Unexpected error:", err)
+        console.error("[Startup Recovery] Cinematic jobs error:", err)
+      );
+      recoverStuckAiReels().catch((err) =>
+        console.error("[Startup Recovery] AI reels error:", err)
       );
     }, 5000);
   });
