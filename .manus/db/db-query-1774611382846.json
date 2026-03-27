@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE generated_videos ADD COLUMN secondaryVideoUrl TEXT NULL COMMENT 'Luxury dual-output: portrait 9:16 version';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4EPJgiEgR66ZdqB.d6c59bab5a06 --database K9BXxKfRk2PJ2AbRYdraAT --execute ALTER TABLE generated_videos ADD COLUMN secondaryVideoUrl TEXT NULL COMMENT 'Luxury dual-output: portrait 9:16 version';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 587
+}

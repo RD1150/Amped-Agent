@@ -286,14 +286,16 @@ async function assembleCreatomateVideo(opts: {
   propertyAddress: string;
   agentName: string;
   agentBrokerage?: string;
+  agentPhone?: string;
   agentAvatarUrl?: string;
   musicTrackUrl?: string;
   voiceoverUrl?: string;
   aspectRatio: "16:9" | "9:16";
   luxuryMode?: boolean;
+  letterboxMode?: boolean;
   userId?: number | null;
 }): Promise<string> {
-  const { clips, propertyAddress, agentName, agentBrokerage, agentAvatarUrl, musicTrackUrl, voiceoverUrl, aspectRatio, luxuryMode, userId } = opts;
+  const { clips, propertyAddress, agentName, agentBrokerage, agentPhone, agentAvatarUrl, musicTrackUrl, voiceoverUrl, aspectRatio, luxuryMode, letterboxMode, userId } = opts;
 
   const [width, height] = aspectRatio === "16:9" ? [1920, 1080] : [1080, 1920];
 
@@ -393,9 +395,9 @@ async function assembleCreatomateVideo(opts: {
     currentTime += clip.duration - (isLast ? 0 : FADE);
   }
 
-  // Luxury mode: letterbox bars (2.35:1 cinematic crop)
-  // Black bars at top and bottom (12.5% each) on a very high track so they sit above all clips
-  if (luxuryMode && aspectRatio === "16:9") {
+  // Letterbox mode: 2.35:1 cinematic crop — black bars top and bottom
+  // Enabled when luxuryMode is on OR letterboxMode is explicitly set
+  if ((luxuryMode || letterboxMode) && aspectRatio === "16:9") {
     const barHeight = "13.5%";
     // Top bar
     elements.push({
@@ -525,14 +527,30 @@ async function assembleCreatomateVideo(opts: {
     });
   }
 
+  if (agentPhone) {
+    elements.push({
+      type: "text",
+      track: 26,
+      time: outroStart + 0.65,
+      duration: OUTRO_DURATION - 0.65,
+      text: agentPhone,
+      x: outroTextX,
+      y: agentBrokerage ? "71%" : "64%",
+      font_family: "Montserrat",
+      font_size: aspectRatio === "16:9" ? "2 vmin" : "3 vmin",
+      fill_color: "#ffffff",
+      text_align: "center",
+      animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: true }],
+    });
+  }
   elements.push({
     type: "text",
-    track: 26,
+    track: 27,
     time: outroStart + 0.7,
     duration: OUTRO_DURATION - 0.7,
     text: propertyAddress,
     x: outroTextX,
-    y: agentBrokerage ? "72%" : "65%",
+    y: agentBrokerage ? (agentPhone ? "82%" : "72%") : (agentPhone ? "75%" : "65%"),
     font_family: "Georgia",
     font_size: aspectRatio === "16:9" ? "1.8 vmin" : "2.8 vmin",
     fill_color: "#c9a84c",
@@ -710,6 +728,7 @@ export const cinematicWalkthroughRouter = router({
         propertyAddress: z.string().min(1),
         agentName: z.string().optional(),
         agentBrokerage: z.string().optional(),
+        agentPhone: z.string().optional(),
         musicTrackUrl: z.string().url().optional(),
         enableVoiceover: z.boolean().default(false),
         voiceoverScript: z.string().optional(),
@@ -842,6 +861,7 @@ async function runWalkthroughJob(
      propertyAddress: string;
     agentName?: string;
     agentBrokerage?: string;
+    agentPhone?: string;
     musicTrackUrl?: string;
     enableVoiceover?: boolean;
     voiceoverScript?: string;
@@ -935,6 +955,7 @@ async function runWalkthroughJob(
     propertyAddress: input.propertyAddress,
     agentName: agentName!,
     agentBrokerage,
+    agentPhone: input.agentPhone,
     agentAvatarUrl,
     musicTrackUrl: input.musicTrackUrl,
     voiceoverUrl,
@@ -943,19 +964,22 @@ async function runWalkthroughJob(
     userId,
   });
 
+  // Parse dual-output URLs (luxury mode returns "url1|||url2")
+  const [primaryVideoUrl, secondaryVideoUrl] = videoUrl.includes("|||") ? videoUrl.split("|||") : [videoUrl, undefined];
   // Save to My Videos library
   try {
     const database = await getDb();
     await database!.insert(generatedVideos).values({
       userId,
       title: `Cinematic Walkthrough — ${input.propertyAddress}`,
-      videoUrl,
+      videoUrl: primaryVideoUrl,
+      secondaryVideoUrl: secondaryVideoUrl ?? null,
       thumbnailUrl: input.photos[0]?.url,
       type: "property_tour",
       status: "completed",
       hasVoiceover: !!voiceoverUrl,
       creditsCost: input.photos.length * 5,
-      metadata: JSON.stringify({ address: input.propertyAddress, mode: "cinematic_walkthrough" }),
+      metadata: JSON.stringify({ address: input.propertyAddress, mode: "cinematic_walkthrough", luxuryMode: !!input.luxuryMode }),
     });
     log(`Job ${jobId}: Saved to My Videos library ✓`);
   } catch (err: any) {

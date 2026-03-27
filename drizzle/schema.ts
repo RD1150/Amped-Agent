@@ -712,6 +712,7 @@ export const generatedVideos = mysqlTable("generated_videos", {
   durationSeconds: int("durationSeconds"),
   hasVoiceover: boolean("hasVoiceover").default(false).notNull(),
   creditsCost: int("creditsCost").default(0).notNull(),
+  secondaryVideoUrl: text("secondaryVideoUrl"), // Luxury dual-output: portrait 9:16 version
   metadata: text("metadata"), // JSON: address, price, location, etc.
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

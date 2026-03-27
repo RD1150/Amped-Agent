@@ -39,6 +39,7 @@ interface VideoItem {
   title: string;
   type: "property_tour" | "authority_reel" | "market_stats";
   videoUrl: string | null;
+  secondaryVideoUrl?: string | null;
   thumbnailUrl: string | null;
   status: "rendering" | "completed" | "failed";
   durationSeconds: number | null;
@@ -465,17 +466,35 @@ export default function MyContent() {
                     <p className="text-xs text-muted-foreground mb-3">
                       {new Date(video.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                     </p>
+                    {/* Dual output badge for luxury mode */}
+                    {video.secondaryVideoUrl && video.status === "completed" && (
+                      <div className="flex items-center gap-1 mb-2">
+                        <span className="text-xs bg-amber-500/15 text-amber-600 border border-amber-500/30 rounded-full px-2 py-0.5 font-medium">✦ Luxury — 2 formats</span>
+                      </div>
+                    )}
                     <div className="flex gap-2">
                       {video.status === "completed" && video.videoUrl && (
                         <>
                           <a
                             href={video.videoUrl}
                             download
+                            title="Download 16:9 landscape version"
                             className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
                           >
                             <Download className="w-3.5 h-3.5" />
-                            Download
+                            {video.secondaryVideoUrl ? "16:9" : "Download"}
                           </a>
+                          {video.secondaryVideoUrl && (
+                            <a
+                              href={video.secondaryVideoUrl}
+                              download
+                              title="Download 9:16 portrait version for Instagram/TikTok"
+                              className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md bg-amber-500 text-white text-xs font-medium hover:bg-amber-600 transition-colors"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              9:16
+                            </a>
+                          )}
                           <CopyLinkButton url={video.videoUrl} />
                         </>
                       )}

@@ -3999,3 +3999,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Luxury Listing Video mode: ElevenLabs luxury voice style ("deep, measured, unhurried")
 - [x] Luxury Listing Video mode: UI toggle on Cinematic Tour form
 - [x] Fix Creatomate 400 error: track collision between video clips (tracks 2-13) and outro elements (were on tracks 4-5, moved to 20-26)
+- [x] Add phone number field to Cinematic Tour form and outro card
+- [x] Show dual 16:9 + 9:16 video outputs in My Content with labels (Luxury Mode)
+- [x] Wire letterbox (2.35:1) toggle to Luxury Mode UI in Cinematic Tour form
+- [x] Show dual 16:9 + 9:16 outputs in My Content with download labels and Luxury badge
+- [x] Letterbox toggle wired to Luxury Mode UI (2.35:1 cinematic crop via black bar overlays)

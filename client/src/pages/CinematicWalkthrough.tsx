@@ -85,6 +85,7 @@ export default function CinematicWalkthrough() {
   const [voiceoverScript, setVoiceoverScript] = useState("");
   const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
+  const [agentPhone, setAgentPhone] = useState("");
   const [luxuryMode, setLuxuryMode] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -230,6 +231,7 @@ export default function CinematicWalkthrough() {
         propertyAddress: propertyAddress.trim(),
         agentName: agentName.trim() || undefined,
         agentBrokerage: agentBrokerage.trim() || undefined,
+        agentPhone: agentPhone.trim() || undefined,
         musicTrackUrl: musicTrackUrl === "none" ? undefined : musicTrackUrl || undefined,
         enableVoiceover,
         voiceoverScript: enableVoiceover ? voiceoverScript : undefined,
@@ -603,6 +605,14 @@ export default function CinematicWalkthrough() {
               placeholder="Keller Williams, Compass, etc."
               value={agentBrokerage}
               onChange={(e) => setAgentBrokerage(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-sm">Phone Number <span className="text-muted-foreground text-xs">(shown on outro card)</span></Label>
+            <Input
+              placeholder="(818) 555-0100"
+              value={agentPhone}
+              onChange={(e) => setAgentPhone(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
