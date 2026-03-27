@@ -3988,3 +3988,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Cinematic walkthrough: implement true crossfade (overlap clips so no black gap between transitions)
 - [x] Cinematic walkthrough: replace zoom-in with alternating directional pans (L→R, R→L, tilt-up) for a true walkthrough feel
 - [x] Fix music track not playing in cinematic walkthrough video (track collision: moved to track 200/201)
+- [x] Add music preview (play/pause button) to each music track option in Cinematic Tour UI
+- [x] Add voiceover toggle, script field, and voice selector to Cinematic Tour form
+- [ ] Validate full cinematic pipeline with 12 photos (stress test)
+- [x] Validate cinematic walkthrough with 12-photo live Creatomate test render (succeeded, all pan+fade+music)
+- [x] Fix alternating pan animation syntax (type: pan, x_start/x_end/y_start/y_end in % — validated against Creatomate API)

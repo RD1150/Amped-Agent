@@ -282,7 +282,7 @@ async function pollRunwayTask(taskId: string, maxWaitMs = 420000): Promise<strin
 // ============================================================
 
 async function assembleCreatomateVideo(opts: {
-  clips: Array<{ url: string; roomLabel: string; duration: number }>;
+  clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string }>;
   propertyAddress: string;
   agentName: string;
   agentBrokerage?: string;
@@ -331,6 +331,14 @@ async function assembleCreatomateVideo(opts: {
     const isFirst = i === 0;
     const isLast = i === clips.length - 1;
 
+    // Alternating pan direction: even clips pan L→R, odd clips pan R→L
+    // Exterior front gets a tilt-up (driveway → roofline) instead of a horizontal pan
+    const isExteriorFront = clip.roomType === "exterior_front";
+    const panAnim = isExteriorFront
+      ? { type: "pan", time: 0, duration: clip.duration, easing: "linear", y_start: "5%", y_end: "-5%" }
+      : i % 2 === 0
+        ? { type: "pan", time: 0, duration: clip.duration, easing: "linear", x_start: "-5%", x_end: "5%" }
+        : { type: "pan", time: 0, duration: clip.duration, easing: "linear", x_start: "5%", x_end: "-5%" };
     elements.push({
       type: "video",
       source: clip.url,
@@ -338,14 +346,16 @@ async function assembleCreatomateVideo(opts: {
       time: currentTime,
       duration: clip.duration,
       fill_mode: "cover",
+      width: "110%",
+      height: "110%",
       volume: 0,
       animations: [
-        // Only fade in on the very first clip (subsequent clips crossfade from previous)
-        ...(isFirst ? [{ time: 0, duration: FADE, easing: "ease-in-out", type: "fade", fade: true }] : [
-          { time: 0, duration: FADE, easing: "ease-in-out", type: "fade", fade: true },
-        ]),
+        // Fade in on all clips (crossfades from previous for non-first clips)
+        { time: 0, duration: FADE, easing: "ease-in-out", type: "fade", fade: true },
         // Fade out only on the last clip; middle clips let the next clip's fade-in cover the transition
         ...(isLast ? [{ time: clip.duration - FADE, duration: FADE, easing: "ease-in-out", type: "fade", fade: true, reversed: true }] : []),
+        // Pan animation for walkthrough feel (validated against Creatomate API)
+        panAnim,
       ],
     });
 
@@ -786,7 +796,7 @@ async function runWalkthroughJob(
   }
 
   // Generate all Runway clips (sequentially to respect rate limits)
-  const clips: Array<{ url: string; roomLabel: string; duration: number }> = [];
+  const clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string }> = [];
 
   for (let i = 0; i < input.photos.length; i++) {
     const photo = input.photos[i];
@@ -801,7 +811,7 @@ async function runWalkthroughJob(
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(" ");
 
-      clips.push({ url: clipUrl, roomLabel, duration: 5 });
+      clips.push({ url: clipUrl, roomLabel, duration: 5, roomType: photo.roomType });
       await dbUpdateJob(jobId, { completedClips: i + 1 });
       log(`Job ${jobId}: Clip ${i + 1} done ✓`);
     } catch (err: any) {
@@ -816,6 +826,7 @@ async function runWalkthroughJob(
             .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
             .join(" "),
         duration: 5,
+        roomType: photo.roomType,
       });
       await dbUpdateJob(jobId, { completedClips: i + 1 });
     }

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, X, Play, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library } from "lucide-react";
+import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2 } from "lucide-react";
 import { Link } from "wouter";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -42,12 +42,19 @@ const ROOM_TYPE_LABELS: Record<string, string> = {
 };
 
 const MUSIC_OPTIONS = [
-  { value: "none", label: "No music" },
+  { value: "none", label: "No music", desc: "", url: null },
   // Pixabay CDN audio links (direct .mp3 paths, not /download/ redirects)
-  { value: "https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3", label: "Elegant Ambient" },
-  { value: "https://cdn.pixabay.com/audio/2022/01/18/audio_d0c6ff1c23.mp3", label: "Cinematic Bold" },
-  { value: "https://cdn.pixabay.com/audio/2022/08/04/audio_2dde668d05.mp3", label: "Authoritative" },
-  { value: "https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3", label: "Warm & Inviting" },
+  { value: "https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3", label: "Elegant Ambient", desc: "Soft & sophisticated", url: "https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3" },
+  { value: "https://cdn.pixabay.com/audio/2022/01/18/audio_d0c6ff1c23.mp3", label: "Cinematic Bold", desc: "Dramatic & powerful", url: "https://cdn.pixabay.com/audio/2022/01/18/audio_d0c6ff1c23.mp3" },
+  { value: "https://cdn.pixabay.com/audio/2022/08/04/audio_2dde668d05.mp3", label: "Authoritative", desc: "Confident & professional", url: "https://cdn.pixabay.com/audio/2022/08/04/audio_2dde668d05.mp3" },
+  { value: "https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3", label: "Warm & Inviting", desc: "Cozy & welcoming", url: "https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3" },
+];
+
+const VOICE_OPTIONS = [
+  { id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel", desc: "Professional Female", tag: "Popular" },
+  { id: "pNInz6obpgDQGcFmaJgB", name: "Adam",   desc: "Professional Male",   tag: "" },
+  { id: "EXAVITQu4vr4xnSDxMaL", name: "Bella",  desc: "Warm Female",         tag: "" },
+  { id: "TxGEqnHWrfWFTfGW9XjX", name: "Josh",   desc: "Authoritative Male",  tag: "" },
 ];
 
 // ─── Upload helper ────────────────────────────────────────────────────────────
@@ -72,8 +79,11 @@ export default function CinematicWalkthrough() {
   const [agentName, setAgentName] = useState("");
   const [agentBrokerage, setAgentBrokerage] = useState("");
   const [musicTrackUrl, setMusicTrackUrl] = useState("https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3"); // default: Elegant Ambient
+  const [previewingTrack, setPreviewingTrack] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [voiceoverScript, setVoiceoverScript] = useState("");
+  const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -222,6 +232,7 @@ export default function CinematicWalkthrough() {
         musicTrackUrl: musicTrackUrl === "none" ? undefined : musicTrackUrl || undefined,
         enableVoiceover,
         voiceoverScript: enableVoiceover ? voiceoverScript : undefined,
+        voiceId: enableVoiceover ? voiceId : undefined,
         aspectRatio,
       });
 
@@ -623,25 +634,67 @@ export default function CinematicWalkthrough() {
         {showAdvanced && (
           <div className="p-4 border-t border-border space-y-4">
             {/* Music */}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label className="text-sm flex items-center gap-2">
                 <Music className="h-4 w-4 text-muted-foreground" />
                 Background Music
               </Label>
-              <Select value={musicTrackUrl} onValueChange={setMusicTrackUrl}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a music track" />
-                </SelectTrigger>
-                <SelectContent>
-                  {MUSIC_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="grid grid-cols-1 gap-2">
+                {MUSIC_OPTIONS.map((opt) => (
+                  <div
+                    key={opt.value}
+                    onClick={() => setMusicTrackUrl(opt.value)}
+                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${
+                      musicTrackUrl === opt.value
+                        ? "border-amber-500 bg-amber-500/10"
+                        : "border-border hover:border-muted-foreground/50 bg-muted/30"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-3 h-3 rounded-full border-2 flex-shrink-0 ${
+                        musicTrackUrl === opt.value ? "border-amber-500 bg-amber-500" : "border-muted-foreground"
+                      }`} />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">{opt.label}</p>
+                        {opt.desc && <p className="text-xs text-muted-foreground">{opt.desc}</p>}
+                      </div>
+                    </div>
+                    {opt.url && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (previewingTrack === opt.value) {
+                            // Stop preview
+                            audioRef.current?.pause();
+                            if (audioRef.current) audioRef.current.currentTime = 0;
+                            setPreviewingTrack(null);
+                          } else {
+                            // Start preview
+                            if (audioRef.current) {
+                              audioRef.current.pause();
+                              audioRef.current.currentTime = 0;
+                            }
+                            const audio = new Audio(opt.url!);
+                            audio.volume = 0.6;
+                            audio.play().catch(() => {});
+                            audio.addEventListener("ended", () => setPreviewingTrack(null));
+                            audioRef.current = audio;
+                            setPreviewingTrack(opt.value);
+                          }
+                        }}
+                        className="flex-shrink-0 ml-2 p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                        title={previewingTrack === opt.value ? "Stop preview" : "Preview track"}
+                      >
+                        {previewingTrack === opt.value
+                          ? <Pause className="h-3.5 w-3.5" />
+                          : <Volume2 className="h-3.5 w-3.5" />}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-
             {/* Voice-over */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -652,13 +705,37 @@ export default function CinematicWalkthrough() {
                 <Switch checked={enableVoiceover} onCheckedChange={setEnableVoiceover} />
               </div>
               {enableVoiceover && (
-                <Textarea
-                  placeholder="Write your narration script here. Describe each room as the camera moves through it. Example: 'Welcome to this stunning Westlake Village estate. As we enter the grand living room, you'll notice the soaring ceilings and natural light...'"
-                  value={voiceoverScript}
-                  onChange={(e) => setVoiceoverScript(e.target.value)}
-                  rows={5}
-                  className="text-sm"
-                />
+                <div className="space-y-3">
+                  {/* Voice selector */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {VOICE_OPTIONS.map((v) => (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setVoiceId(v.id)}
+                        className={`flex flex-col items-start px-3 py-2 rounded-lg border text-left transition-colors ${
+                          voiceId === v.id
+                            ? "border-amber-500 bg-amber-500/10"
+                            : "border-border hover:border-muted-foreground/50 bg-muted/30"
+                        }`}
+                      >
+                        <span className="text-sm font-medium flex items-center gap-1.5">
+                          {v.name}
+                          {v.tag && <Badge variant="secondary" className="text-[10px] px-1 py-0">{v.tag}</Badge>}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{v.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {/* Script textarea */}
+                  <Textarea
+                    placeholder="Write your narration script here. Describe each room as the camera moves through it. Example: 'Welcome to this stunning Westlake Village estate. As we enter the grand living room, you'll notice the soaring ceilings and natural light...'"
+                    value={voiceoverScript}
+                    onChange={(e) => setVoiceoverScript(e.target.value)}
+                    rows={5}
+                    className="text-sm"
+                  />
+                </div>
               )}
             </div>
           </div>
