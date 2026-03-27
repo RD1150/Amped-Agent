@@ -24,20 +24,13 @@ import AuthorityScore from "@/components/AuthorityScore";
 export default function Dashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const { data: persona, error: personaError, isLoading: personaLoading } = trpc.persona.get.useQuery(
+  const { data: persona, isLoading: personaLoading } = trpc.persona.get.useQuery(
     undefined,
     {
-      retry: 2,
-      retryDelay: 1000,
+      enabled: !!user,
+      retry: false,
     }
   );
-
-  // Log persona fetch errors for debugging
-  useEffect(() => {
-    if (personaError) {
-      console.error("[Dashboard] Failed to load persona:", personaError);
-    }
-  }, [personaError]);
 
   // Auto-start tour for first-time users
   useEffect(() => {

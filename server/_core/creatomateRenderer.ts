@@ -307,16 +307,17 @@ export async function renderAutoReel(options: AutoReelOptions): Promise<RenderRe
       duration: 2.5,
       text: hook,
       font_family: "Cormorant Garamond",
-      font_size: "7 vmin",
+      font_size: "52px",
       font_weight: "600",
       fill_color: "#FFFFFF",
       shadow_color: "rgba(0,0,0,0.7)",
-      shadow_blur: "1%",
-      shadow_x: "0.2%",
-      shadow_y: "0.3%",
+      shadow_blur: "6px",
+      shadow_x: "1px",
+      shadow_y: "2px",
       background_color: "rgba(8,8,8,0.60)",
-      background_x_padding: "5%",
-      background_y_padding: "3%",
+      background_x_padding: "40px",
+      background_y_padding: "22px",
+      border_radius: "4px",
       x: "50%",
       y: "38%",
       width: "82%",
@@ -336,9 +337,9 @@ export async function renderAutoReel(options: AutoReelOptions): Promise<RenderRe
       duration: 2.3,
       fill_color: "#C9A962",
       x: "50%",
-      y: "30%",
+      y: "calc(38% - 52px)",
       width: "40%",
-      height: "0.3%",
+      height: "2px",
       x_alignment: "50%",
       y_alignment: "50%",
     });
@@ -364,16 +365,17 @@ export async function renderAutoReel(options: AutoReelOptions): Promise<RenderRe
         text: sub.text,
         // Luxury subtitle style: Montserrat medium weight, tight dark pill
         font_family: "Montserrat",
-        font_size: "4 vmin",
+        font_size: "30px",
         font_weight: "500",
         fill_color: "#F5F0E8",
         shadow_color: "rgba(0,0,0,0.9)",
-        shadow_blur: "1%",
-        shadow_x: "0%",
-        shadow_y: "0.3%",
+        shadow_blur: "6px",
+        shadow_x: "0px",
+        shadow_y: "2px",
         background_color: "rgba(8,8,8,0.72)",
-        background_x_padding: "4%",
-        background_y_padding: "2%",
+        background_x_padding: "20px",
+        background_y_padding: "10px",
+        border_radius: "4px",
         x: "50%",
         y: "87%",
         width: "84%",
@@ -603,8 +605,8 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
   if (propertyDetails.beds && propertyDetails.baths) detailsParts.push(`${propertyDetails.beds} BD | ${propertyDetails.baths} BA`);
   if (propertyDetails.sqft) detailsParts.push(`${propertyDetails.sqft.toLocaleString()} SQ FT`);
   const detailsText = detailsParts.join(" · ");
-  const addrFontSize = aspectRatio === "9:16" ? "5 vmin" : "5.5 vmin";
-  const detailFontSize = aspectRatio === "9:16" ? "3.5 vmin" : "4 vmin";
+  const addrFontSize = aspectRatio === "9:16" ? "38px" : "42px";
+  const detailFontSize = aspectRatio === "9:16" ? "28px" : "32px";
 
   const overlayHtml = `<div style="width:${width}px;height:${height}px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:${Math.round(height * (aspectRatio === "9:16" ? 0.12 : 0.08))}px;box-sizing:border-box;font-family:'Montserrat',sans-serif;"><div style="background:rgba(0,0,0,0.5);border-radius:8px;padding:12px 24px;text-align:center;"><div style="color:#FFFFFF;font-size:${addrFontSize};font-weight:700;line-height:1.2;">${propertyDetails.address}</div>${detailsText ? `<div style="color:#C9A962;font-size:${detailFontSize};font-weight:500;margin-top:4px;letter-spacing:1px;">${detailsText}</div>` : ""}</div></div>`;
 
@@ -646,18 +648,18 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
   // ── Avatar overlay (Kling) ────────────────────────────────────────────────
   if (avatarVideoUrl) {
     const avatarSize = Math.round(Math.min(width, height) * 0.22);
-    const xPct = avatarOverlayPosition === "bottom-right" ? "82%" : "18%";
-    const yPct = "82%";
+    const xPos = avatarOverlayPosition === "bottom-right" ? `${width - avatarSize - 20}px` : "20px";
+    const yPos = `${height - avatarSize - 40}px`;
     elements.push({
       type: "video",
       source: avatarVideoUrl,
       track: trackIdx++,
       time: introOffset,
       duration: mainDuration,
-      x: xPct,
-      y: yPct,
-      width: "22%",
-      height: "22%",
+      x: xPos,
+      y: yPos,
+      width: `${avatarSize}px`,
+      height: `${avatarSize}px`,
       fit: "cover",
       volume: 0,
       animations: [

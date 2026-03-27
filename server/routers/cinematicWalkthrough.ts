@@ -281,9 +281,9 @@ async function assembleCreatomateVideo(opts: {
       volume: 0,            // mute the clip's own audio (music track handles audio)
       animations: [
         // Fade in from black at start of each clip
-        { time: 0,                    duration: FADE, easing: "ease-in-out", type: "fade", fade: "in" },
+        { time: 0,                    duration: FADE, easing: "ease-in-out", type: "fade", fade: true },
         // Fade out to black at end of each clip (overlaps with next clip's fade-in)
-        { time: clip.duration - FADE, duration: FADE, easing: "ease-in-out", type: "fade", fade: "out" },
+        { time: clip.duration - FADE, duration: FADE, easing: "ease-in-out", type: "fade", fade: true, reversed: true },
       ],
     });
 
@@ -307,10 +307,10 @@ async function assembleCreatomateVideo(opts: {
         background_color: "rgba(0,0,0,0.55)",
         background_x_padding: "6%",
         background_y_padding: "4%",
-        background_border_radius: "2%",
+        background_border_radius: "4px",
         animations: [
-          { time: 0,              duration: 0.3, easing: "ease-out", type: "fade", fade: "in" },
-          { time: labelDuration - 0.3, duration: 0.3, easing: "ease-in",  type: "fade", fade: "out" },
+          { time: 0,              duration: 0.3, easing: "ease-out", type: "fade", fade: true },
+          { time: labelDuration - 0.3, duration: 0.3, easing: "ease-in",  type: "fade", fade: true, reversed: true },
         ],
       });
     }
@@ -331,7 +331,7 @@ async function assembleCreatomateVideo(opts: {
     width: "100%",
     height: "100%",
     fill_color: "#0d1b2a",
-    animations: [{ time: 0, duration: 0.6, easing: "ease-out", type: "fade", fade: "in" }],
+    animations: [{ time: 0, duration: 0.6, easing: "ease-out", type: "fade", fade: true }],
   });
 
   // Gold accent line on outro
@@ -345,7 +345,7 @@ async function assembleCreatomateVideo(opts: {
     width: "30%",
     height: "0.4%",
     fill_color: "#c9a84c",
-    animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" }],
+    animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: true }],
   });
 
   elements.push({
@@ -360,8 +360,8 @@ async function assembleCreatomateVideo(opts: {
     font_size: aspectRatio === "16:9" ? "2.5 vmin" : "3.5 vmin",
     fill_color: "#c9a84c",
     text_align: "center",
-    letter_spacing: "1%",
-    animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" }],
+    letter_spacing: "3px",
+    animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: true }],
   });
 
   elements.push({
@@ -393,7 +393,7 @@ async function assembleCreatomateVideo(opts: {
       font_size: aspectRatio === "16:9" ? "2 vmin" : "3 vmin",
       fill_color: "#aaaaaa",
       text_align: "center",
-      animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" }],
+      animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: true }],
     });
   }
 
@@ -409,8 +409,8 @@ async function assembleCreatomateVideo(opts: {
     font_size: aspectRatio === "16:9" ? "1.8 vmin" : "2.8 vmin",
     fill_color: "#c9a84c",
     text_align: "center",
-    letter_spacing: "0.5%",
-    animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" }],
+    letter_spacing: "1px",
+    animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: true }],
   });
 
   // Audio tracks

@@ -3977,10 +3977,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix 6: Custom domain setup instructions (see result message)
 
 ## Admin Users Page Enhancements (Mar 26, 2026)
-- [ ] Impersonate User button on Admin Users page
-- [ ] Export users to CSV from Admin Users page
-- [ ] Manual email blast to all/filtered users from Admin Users page
+- [x] Impersonate User button on Admin Users page
+- [x] Export users to CSV from Admin Users page
+- [x] Manual email blast to all/filtered users from Admin Users page
 
-- [x] Fix stuck "rendering" AI reels: add dismiss/retry button in My Content for processing reels with no render ID
-- [x] Add startup recovery for stuck AI reels (like cinematic jobs) - poll Creatomate on server start
-- [x] Fix: immediately mark reel as failed if Creatomate render submission throws an error
+## Cinematic Walkthrough \& Dashboard Fixes (Mar 27, 2026)
+- [x] Fix cinematic walkthrough animation syntax (fade: "in"/"out" → fade: true/reversed: true)
+- [x] Fix dashboard tRPC JSON parse error (persona.get now gated on enabled: !!user)

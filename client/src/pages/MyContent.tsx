@@ -168,14 +168,6 @@ export default function MyContent() {
     onError: (e) => toast.error(e.message),
   });
 
-  const dismissStuckReel = trpc.autoreels.dismissStuckReel.useMutation({
-    onSuccess: () => {
-      utils.autoreels.getReels.invalidate();
-      toast.success("Stuck reel dismissed.");
-    },
-    onError: (e) => toast.error(e.message),
-  });
-
   const bulkDeleteTours = trpc.propertyTours.bulkDelete.useMutation({
     onSuccess: () => utils.myVideos.list.invalidate(),
     onError: (e) => toast.error(e.message),
@@ -592,19 +584,7 @@ export default function MyContent() {
                         </>
                       )}
                       {isProcessing && (
-                        <div className="flex items-center gap-2 flex-1">
-                          <p className="text-xs text-yellow-600 font-medium flex-1">Still rendering…</p>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive"
-                            onClick={() => dismissStuckReel.mutate({ reelId: reel.id })}
-                            disabled={dismissStuckReel.isPending}
-                            title="Dismiss this stuck render"
-                          >
-                            Dismiss
-                          </Button>
-                        </div>
+                        <p className="text-xs text-yellow-600 font-medium">Video is still rendering…</p>
                       )}
                       {!selectMode && (
                         <Button
