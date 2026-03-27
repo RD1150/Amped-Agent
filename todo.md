@@ -3985,3 +3985,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix cinematic walkthrough animation syntax (fade: "in"/"out" → fade: true/reversed: true)
 - [x] Fix dashboard tRPC JSON parse error (persona.get now gated on enabled: !!user)
 - [x] Fix Creatomate background_border_radius and letter_spacing px→% (validated against live API)
+- [x] Cinematic walkthrough: implement true crossfade (overlap clips so no black gap between transitions)

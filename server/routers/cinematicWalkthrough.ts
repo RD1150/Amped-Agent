@@ -244,10 +244,11 @@ async function assembleCreatomateVideo(opts: {
   // A solid black background on track 0 ensures no transparent gaps show through.
   const elements: any[] = [];
 
-  // Track 0: Solid black background — always visible, prevents any transparent gaps
-  // This is the safety net: even if a clip has encoding issues, the background is black
-  // rather than undefined/transparent.
-  const clipsDuration = clips.reduce((sum, c) => sum + c.duration, 0);
+  // CROSSFADE: Each clip overlaps the previous by FADE seconds so the fade-out of
+  // one clip and the fade-in of the next happen simultaneously — no black gap.
+  const FADE = 0.5; // crossfade duration in seconds
+  const clipsDuration = clips.reduce((sum, c) => sum + c.duration, 0)
+    - FADE * Math.max(0, clips.length - 1); // subtract overlaps
   const OUTRO_DURATION = 4;
   const totalDuration = clipsDuration + OUTRO_DURATION;
 
@@ -263,36 +264,39 @@ async function assembleCreatomateVideo(opts: {
     fill_color: "#000000",
   });
 
-  // Tracks 2+: Video clips placed sequentially on the SAME track (track 2)
-  // Creatomate places same-track elements back-to-back automatically.
-  // Using fill_mode: "stretch" ensures the clip fills its time slot with no gaps.
+  // Tracks 2+: Each clip is placed on its OWN track so they can overlap in time.
+  // Clip N starts FADE seconds before clip N-1 ends, creating a true crossfade
+  // with no black gap — the fade-out and fade-in happen simultaneously.
   let currentTime = 0;
   for (let i = 0; i < clips.length; i++) {
     const clip = clips[i];
-    const FADE = 0.4; // cross-fade duration in seconds
+    const isFirst = i === 0;
+    const isLast = i === clips.length - 1;
 
     elements.push({
       type: "video",
       source: clip.url,
-      track: 2,
+      track: i + 2, // each clip on its own track so overlaps render correctly
       time: currentTime,
       duration: clip.duration,
-      fill_mode: "cover",   // fill the frame, no letterboxing
-      volume: 0,            // mute the clip's own audio (music track handles audio)
+      fill_mode: "cover",
+      volume: 0,
       animations: [
-        // Fade in from black at start of each clip
-        { time: 0,                    duration: FADE, easing: "ease-in-out", type: "fade", fade: true },
-        // Fade out to black at end of each clip (overlaps with next clip's fade-in)
-        { time: clip.duration - FADE, duration: FADE, easing: "ease-in-out", type: "fade", fade: true, reversed: true },
+        // Only fade in on the very first clip (subsequent clips crossfade from previous)
+        ...(isFirst ? [{ time: 0, duration: FADE, easing: "ease-in-out", type: "fade", fade: true }] : [
+          { time: 0, duration: FADE, easing: "ease-in-out", type: "fade", fade: true },
+        ]),
+        // Fade out only on the last clip; middle clips let the next clip's fade-in cover the transition
+        ...(isLast ? [{ time: clip.duration - FADE, duration: FADE, easing: "ease-in-out", type: "fade", fade: true, reversed: true }] : []),
       ],
     });
 
-    // Room label — appears after fade-in, disappears before fade-out
+    // Room label — appears after fade-in, disappears before next clip starts
     const labelDuration = Math.min(2.5, clip.duration - FADE * 2 - 0.2);
     if (labelDuration > 0.5) {
       elements.push({
         type: "text",
-        track: 3,
+        track: 100 + i, // high track numbers to stay above video tracks
         text: clip.roomLabel,
         time: currentTime + FADE + 0.1,
         duration: labelDuration,
@@ -309,13 +313,14 @@ async function assembleCreatomateVideo(opts: {
         background_y_padding: "4%",
         background_border_radius: "2%",
         animations: [
-          { time: 0,              duration: 0.3, easing: "ease-out", type: "fade", fade: true },
-          { time: labelDuration - 0.3, duration: 0.3, easing: "ease-in",  type: "fade", fade: true, reversed: true },
+          { time: 0, duration: 0.3, easing: "ease-out", type: "fade", fade: true },
+          { time: labelDuration - 0.3, duration: 0.3, easing: "ease-in", type: "fade", fade: true, reversed: true },
         ],
       });
     }
 
-    currentTime += clip.duration;
+    // Advance time by clip duration minus FADE to create the overlap
+    currentTime += clip.duration - (isLast ? 0 : FADE);
   }
 
   // Outro card — solid dark overlay with agent branding
