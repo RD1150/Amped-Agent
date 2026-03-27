@@ -3993,3 +3993,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Validate full cinematic pipeline with 12 photos (stress test)
 - [x] Validate cinematic walkthrough with 12-photo live Creatomate test render (succeeded, all pan+fade+music)
 - [x] Fix alternating pan animation syntax (type: pan, x_start/x_end/y_start/y_end in % — validated against Creatomate API)
+- [x] Luxury Listing Video mode: 2.35:1 letterbox crop with film grain overlay
+- [x] Luxury Listing Video mode: dual output (16:9 cinematic + 9:16 vertical reel) from one generation
+- [x] Luxury Listing Video mode: branded outro with agent headshot, name, brokerage, phone
+- [x] Luxury Listing Video mode: ElevenLabs luxury voice style ("deep, measured, unhurried")
+- [x] Luxury Listing Video mode: UI toggle on Cinematic Tour form

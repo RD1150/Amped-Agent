@@ -286,12 +286,14 @@ async function assembleCreatomateVideo(opts: {
   propertyAddress: string;
   agentName: string;
   agentBrokerage?: string;
+  agentAvatarUrl?: string;
   musicTrackUrl?: string;
   voiceoverUrl?: string;
   aspectRatio: "16:9" | "9:16";
+  luxuryMode?: boolean;
   userId?: number | null;
 }): Promise<string> {
-  const { clips, propertyAddress, agentName, agentBrokerage, musicTrackUrl, voiceoverUrl, aspectRatio, userId } = opts;
+  const { clips, propertyAddress, agentName, agentBrokerage, agentAvatarUrl, musicTrackUrl, voiceoverUrl, aspectRatio, luxuryMode, userId } = opts;
 
   const [width, height] = aspectRatio === "16:9" ? [1920, 1080] : [1080, 1920];
 
@@ -391,6 +393,38 @@ async function assembleCreatomateVideo(opts: {
     currentTime += clip.duration - (isLast ? 0 : FADE);
   }
 
+  // Luxury mode: letterbox bars (2.35:1 cinematic crop)
+  // Black bars at top and bottom (12.5% each) on a very high track so they sit above all clips
+  if (luxuryMode && aspectRatio === "16:9") {
+    const barHeight = "13.5%";
+    // Top bar
+    elements.push({
+      type: "shape",
+      track: 150,
+      time: 0,
+      duration: totalDuration,
+      x: "50%",
+      y: "0%",
+      y_anchor: "0%",
+      width: "100%",
+      height: barHeight,
+      fill_color: "#000000",
+    });
+    // Bottom bar
+    elements.push({
+      type: "shape",
+      track: 150,
+      time: 0,
+      duration: totalDuration,
+      x: "50%",
+      y: "100%",
+      y_anchor: "100%",
+      width: "100%",
+      height: barHeight,
+      fill_color: "#000000",
+    });
+  }
+
   // Outro card — solid dark overlay with agent branding
   // Placed on track 4 so it composites over the black background
   const outroStart = clipsDuration;
@@ -421,13 +455,33 @@ async function assembleCreatomateVideo(opts: {
     animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: true }],
   });
 
+  // Agent headshot on outro (circular, left of center when present)
+  const hasHeadshot = !!agentAvatarUrl;
+  const outroTextX = hasHeadshot ? (aspectRatio === "16:9" ? "58%" : "55%") : "50%";
+  if (hasHeadshot) {
+    elements.push({
+      type: "image",
+      track: 5,
+      time: outroStart + 0.2,
+      duration: OUTRO_DURATION - 0.2,
+      source: agentAvatarUrl,
+      x: aspectRatio === "16:9" ? "30%" : "28%",
+      y: "52%",
+      width: aspectRatio === "16:9" ? "12%" : "18%",
+      height: aspectRatio === "16:9" ? "22%" : "14%",
+      fill_mode: "cover",
+      border_radius: "9999px",
+      animations: [{ time: 0, duration: 0.5, easing: "ease-out", type: "fade", fade: true }],
+    });
+  }
+
   elements.push({
     type: "text",
     track: 5,
     time: outroStart + 0.4,
     duration: OUTRO_DURATION - 0.4,
     text: "Presented by",
-    x: "50%",
+    x: outroTextX,
     y: "42%",
     font_family: "Georgia",
     font_size: aspectRatio === "16:9" ? "2.5 vmin" : "3.5 vmin",
@@ -443,7 +497,7 @@ async function assembleCreatomateVideo(opts: {
     time: outroStart + 0.5,
     duration: OUTRO_DURATION - 0.5,
     text: agentName,
-    x: "50%",
+    x: outroTextX,
     y: "52%",
     font_family: "Montserrat",
     font_size: aspectRatio === "16:9" ? "4.5 vmin" : "6 vmin",
@@ -460,7 +514,7 @@ async function assembleCreatomateVideo(opts: {
       time: outroStart + 0.6,
       duration: OUTRO_DURATION - 0.6,
       text: agentBrokerage,
-      x: "50%",
+      x: outroTextX,
       y: "62%",
       font_family: "Georgia",
       font_size: aspectRatio === "16:9" ? "2 vmin" : "3 vmin",
@@ -476,7 +530,7 @@ async function assembleCreatomateVideo(opts: {
     time: outroStart + 0.7,
     duration: OUTRO_DURATION - 0.7,
     text: propertyAddress,
-    x: "50%",
+    x: outroTextX,
     y: agentBrokerage ? "72%" : "65%",
     font_family: "Georgia",
     font_size: aspectRatio === "16:9" ? "1.8 vmin" : "2.8 vmin",
@@ -514,21 +568,26 @@ async function assembleCreatomateVideo(opts: {
 
   // Creatomate requires a `source` object for dynamic (template-free) renders.
   // Passing elements at the top level causes a 400 "template_id must be provided" error.
-  const payload = {
-    output_format: "mp4",
-    source: {
-      output_format: "mp4",
-      width,
-      height,
-      duration: totalDuration,
-      elements,
-    },
-  };
-
-  log(`Submitting Creatomate render: ${clips.length} clips, ${totalDuration}s total`);
-
   const CREATOMATE_API_KEY = ENV.CREATOMATE_API_KEY;
   if (!CREATOMATE_API_KEY) throw new Error("CREATOMATE_API_KEY not configured");
+
+  // Luxury mode + 16:9: submit BOTH 16:9 and 9:16 in a single Creatomate call
+  // Creatomate supports an array of render objects in one request
+  const renders: any[] = [{
+    output_format: "mp4",
+    source: { output_format: "mp4", width, height, duration: totalDuration, elements },
+  }];
+
+  if (luxuryMode && aspectRatio === "16:9") {
+    // Build a 9:16 version of the same elements (no letterbox bars, adjusted text positions)
+    const vertElements = elements.filter((el: any) => el.track !== 150); // remove letterbox bars
+    renders.push({
+      output_format: "mp4",
+      source: { output_format: "mp4", width: 1080, height: 1920, duration: totalDuration, elements: vertElements },
+    });
+  }
+
+  log(`Submitting Creatomate render: ${clips.length} clips, ${totalDuration}s total${luxuryMode ? " (luxury mode — dual output)" : ""}`);
 
   const renderRes = await fetch("https://api.creatomate.com/v1/renders", {
     method: "POST",
@@ -536,7 +595,7 @@ async function assembleCreatomateVideo(opts: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${CREATOMATE_API_KEY}`,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(renders.length === 1 ? renders[0] : renders),
   });
 
   if (!renderRes.ok) {
@@ -545,7 +604,7 @@ async function assembleCreatomateVideo(opts: {
   }
 
   const renderData = await renderRes.json() as Array<{ id: string }>;
-  const renderId = renderData[0]?.id;
+  const renderId = Array.isArray(renderData) ? renderData[0]?.id : (renderData as any).id;
   if (!renderId) throw new Error("Creatomate did not return a render ID");
   log(`Creatomate render started: ${renderId}`);
 
@@ -554,6 +613,15 @@ async function assembleCreatomateVideo(opts: {
     const { trackCreatomate } = await import("../_core/costTracker");
     await trackCreatomate(userId ?? null, "cinematic_walkthrough", renderId);
   } catch {}
+
+  // For luxury dual-output, return both URLs separated by newline
+  if (luxuryMode && aspectRatio === "16:9" && Array.isArray(renderData) && renderData.length > 1) {
+    const [url1, url2] = await Promise.all([
+      pollCreatomateRender(renderData[0].id),
+      pollCreatomateRender(renderData[1].id),
+    ]);
+    return `${url1}|||${url2}`; // caller splits on ||| to get both URLs
+  }
 
   return await pollCreatomateRender(renderId);
 }
@@ -646,6 +714,7 @@ export const cinematicWalkthroughRouter = router({
         voiceoverScript: z.string().optional(),
         voiceId: z.string().optional(),
         aspectRatio: z.enum(["16:9", "9:16"]).default("16:9"),
+        luxuryMode: z.boolean().default(false),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -769,7 +838,7 @@ async function runWalkthroughJob(
   userId: number,
   input: {
     photos: Array<{ url: string; roomType: string; customPrompt?: string; label?: string }>;
-    propertyAddress: string;
+     propertyAddress: string;
     agentName?: string;
     agentBrokerage?: string;
     musicTrackUrl?: string;
@@ -777,14 +846,15 @@ async function runWalkthroughJob(
     voiceoverScript?: string;
     voiceId?: string;
     aspectRatio: "16:9" | "9:16";
+    luxuryMode?: boolean;
   }
 ) {
   await dbUpdateJob(jobId, { status: "generating_clips" });
   log(`Job ${jobId}: Generating ${input.photos.length} Runway clips...`);
-
   // Get agent info from persona if not provided
   let agentName = input.agentName;
   let agentBrokerage = input.agentBrokerage;
+  let agentAvatarUrl: string | undefined;
   if (!agentName) {
     try {
       const persona = await db.getPersonaByUserId(userId);
@@ -794,6 +864,17 @@ async function runWalkthroughJob(
       agentName = "Your Agent";
     }
   }
+  // Fetch agent avatar for luxury outro headshot
+  try {
+    const { getDb } = await import("../db");
+    const { users } = await import("../../drizzle/schema");
+    const { eq } = await import("drizzle-orm");
+    const database = await getDb();
+    if (database) {
+      const rows = await database.select({ avatarImageUrl: users.avatarImageUrl }).from(users).where(eq(users.id, userId)).limit(1);
+      agentAvatarUrl = rows[0]?.avatarImageUrl ?? undefined;
+    }
+  } catch { /* non-critical */ }
 
   // Generate all Runway clips (sequentially to respect rate limits)
   const clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string }> = [];
@@ -853,9 +934,11 @@ async function runWalkthroughJob(
     propertyAddress: input.propertyAddress,
     agentName: agentName!,
     agentBrokerage,
+    agentAvatarUrl,
     musicTrackUrl: input.musicTrackUrl,
     voiceoverUrl,
     aspectRatio: input.aspectRatio,
+    luxuryMode: input.luxuryMode,
     userId,
   });
 

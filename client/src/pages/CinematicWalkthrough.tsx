@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2 } from "lucide-react";
+import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2, Gem } from "lucide-react";
 import { Link } from "wouter";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -85,6 +85,7 @@ export default function CinematicWalkthrough() {
   const [voiceoverScript, setVoiceoverScript] = useState("");
   const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
+  const [luxuryMode, setLuxuryMode] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Job tracking
@@ -234,6 +235,7 @@ export default function CinematicWalkthrough() {
         voiceoverScript: enableVoiceover ? voiceoverScript : undefined,
         voiceId: enableVoiceover ? voiceId : undefined,
         aspectRatio,
+        luxuryMode,
       });
 
       setJobId(result.jobId);
@@ -615,6 +617,31 @@ export default function CinematicWalkthrough() {
               </SelectContent>
             </Select>
           </div>
+        </div>
+      </div>
+
+      {/* Luxury Mode toggle */}
+      <div
+        onClick={() => setLuxuryMode(!luxuryMode)}
+        className={`flex items-center justify-between px-4 py-3.5 rounded-xl border cursor-pointer transition-all select-none ${
+          luxuryMode
+            ? "border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/30"
+            : "border-border hover:border-amber-500/40 bg-muted/30"
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <Gem className={`h-5 w-5 flex-shrink-0 ${luxuryMode ? "text-amber-500" : "text-muted-foreground"}`} />
+          <div>
+            <p className="text-sm font-semibold">Luxury Listing Mode</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Cinematic letterbox (2.35:1) · Agent headshot on outro · Dual 16:9 + 9:16 output</p>
+          </div>
+        </div>
+        <div className={`w-10 h-5 rounded-full transition-colors flex items-center px-0.5 flex-shrink-0 ${
+          luxuryMode ? "bg-amber-500" : "bg-muted-foreground/30"
+        }`}>
+          <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${
+            luxuryMode ? "translate-x-5" : "translate-x-0"
+          }`} />
         </div>
       </div>
 
