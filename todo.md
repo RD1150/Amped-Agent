@@ -3998,3 +3998,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Luxury Listing Video mode: branded outro with agent headshot, name, brokerage, phone
 - [x] Luxury Listing Video mode: ElevenLabs luxury voice style ("deep, measured, unhurried")
 - [x] Luxury Listing Video mode: UI toggle on Cinematic Tour form
+- [x] Fix Creatomate 400 error: track collision between video clips (tracks 2-13) and outro elements (were on tracks 4-5, moved to 20-26)

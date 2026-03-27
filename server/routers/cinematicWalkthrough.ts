@@ -426,11 +426,12 @@ async function assembleCreatomateVideo(opts: {
   }
 
   // Outro card — solid dark overlay with agent branding
-  // Placed on track 4 so it composites over the black background
+  // TRACK SAFETY: clips use tracks 2...(clips.length+1), max track 13 for 12 photos.
+  // Outro uses tracks 20-26 to never collide with clip tracks.
   const outroStart = clipsDuration;
   elements.push({
     type: "shape",
-    track: 4,
+    track: 20,
     time: outroStart,
     duration: OUTRO_DURATION,
     x: "50%",
@@ -444,7 +445,7 @@ async function assembleCreatomateVideo(opts: {
   // Gold accent line on outro
   elements.push({
     type: "shape",
-    track: 5,
+    track: 21,
     time: outroStart + 0.3,
     duration: OUTRO_DURATION - 0.3,
     x: "50%",
@@ -461,7 +462,7 @@ async function assembleCreatomateVideo(opts: {
   if (hasHeadshot) {
     elements.push({
       type: "image",
-      track: 5,
+      track: 22,
       time: outroStart + 0.2,
       duration: OUTRO_DURATION - 0.2,
       source: agentAvatarUrl,
@@ -477,7 +478,7 @@ async function assembleCreatomateVideo(opts: {
 
   elements.push({
     type: "text",
-    track: 5,
+    track: 23,
     time: outroStart + 0.4,
     duration: OUTRO_DURATION - 0.4,
     text: "Presented by",
@@ -493,7 +494,7 @@ async function assembleCreatomateVideo(opts: {
 
   elements.push({
     type: "text",
-    track: 5,
+    track: 24,
     time: outroStart + 0.5,
     duration: OUTRO_DURATION - 0.5,
     text: agentName,
@@ -510,7 +511,7 @@ async function assembleCreatomateVideo(opts: {
   if (agentBrokerage) {
     elements.push({
       type: "text",
-      track: 5,
+      track: 25,
       time: outroStart + 0.6,
       duration: OUTRO_DURATION - 0.6,
       text: agentBrokerage,
@@ -526,7 +527,7 @@ async function assembleCreatomateVideo(opts: {
 
   elements.push({
     type: "text",
-    track: 5,
+    track: 26,
     time: outroStart + 0.7,
     duration: OUTRO_DURATION - 0.7,
     text: propertyAddress,
