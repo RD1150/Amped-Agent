@@ -21,22 +21,79 @@ function log(msg: string) {
 // camera movement that feels like a physical walkthrough.
 // ============================================================
 
-const ROOM_MOTION_PROMPTS: Record<string, string> = {
-  exterior_front: "Slow cinematic dolly forward approaching the front of the home, smooth and steady, golden hour lighting, slight upward tilt revealing the roofline",
-  exterior_back: "Gentle wide pan left to right across the backyard, smooth tracking shot, lush landscaping in foreground",
-  living_room: "Slow dolly push forward into the living room, revealing the full space, warm natural light from windows, smooth and cinematic",
-  kitchen: "Smooth tracking shot moving left to right along the kitchen island, revealing countertops and appliances, bright and airy",
-  dining_room: "Slow crane-style reveal starting high and tilting down to the dining table, elegant and inviting",
-  master_bedroom: "Gentle dolly forward toward the bed, soft morning light, serene and luxurious atmosphere",
-  bedroom: "Smooth pan from the doorway revealing the bedroom, natural light, calm and inviting",
-  master_bathroom: "Slow tracking shot gliding across the vanity and into the bathroom, spa-like atmosphere, bright and clean",
-  bathroom: "Gentle pan revealing the bathroom fixtures, clean and bright, smooth camera movement",
-  office: "Slow dolly push into the home office, revealing the desk and built-ins, professional and focused",
-  garage: "Wide establishing shot with slow push forward into the garage, clean and spacious",
-  pool: "Smooth low-angle tracking shot along the pool edge, water shimmering in sunlight, resort-style feel",
-  view: "Slow cinematic reveal panning across the panoramic view, wide and breathtaking",
-  other: "Smooth cinematic camera movement through the space, steady and professional, revealing the full room",
+// Base prompts define the room's character. Direction (L→R or R→L) is injected
+// at call time based on clip index so consecutive rooms always pan opposite ways,
+// creating the physical sensation of turning through doorways.
+const ROOM_MOTION_PROMPTS: Record<string, { ltr: string; rtl: string; tilt?: string }> = {
+  exterior_front: {
+    ltr: "Smooth cinematic tilt upward from the front driveway slowly revealing the full facade and roofline, steady and majestic",
+    rtl: "Smooth cinematic tilt upward from the front driveway slowly revealing the full facade and roofline, steady and majestic",
+    tilt: "Smooth cinematic tilt upward from the front driveway slowly revealing the full facade and roofline, steady and majestic",
+  },
+  exterior_back: {
+    ltr: "Wide tracking shot panning steadily left to right across the entire backyard, lush landscaping in foreground, smooth and cinematic",
+    rtl: "Wide tracking shot panning steadily right to left across the entire backyard, lush landscaping in foreground, smooth and cinematic",
+  },
+  living_room: {
+    ltr: "Smooth lateral tracking shot moving left to right across the living room, revealing the full space and windows, warm natural light, steady cinematic movement",
+    rtl: "Smooth lateral tracking shot moving right to left across the living room, revealing the full space and windows, warm natural light, steady cinematic movement",
+  },
+  kitchen: {
+    ltr: "Smooth tracking shot moving left to right along the kitchen island and countertops, bright and airy, revealing appliances and cabinetry",
+    rtl: "Smooth tracking shot moving right to left along the kitchen island and countertops, bright and airy, revealing appliances and cabinetry",
+  },
+  dining_room: {
+    ltr: "Lateral tracking shot panning left to right to reveal the full dining table and room, elegant and inviting, smooth camera movement",
+    rtl: "Lateral tracking shot panning right to left to reveal the full dining table and room, elegant and inviting, smooth camera movement",
+  },
+  master_bedroom: {
+    ltr: "Slow lateral pan left to right across the master bedroom, revealing the bed and windows, soft morning light, serene and luxurious",
+    rtl: "Slow lateral pan right to left across the master bedroom, revealing the bed and windows, soft morning light, serene and luxurious",
+  },
+  bedroom: {
+    ltr: "Smooth pan left to right from the doorway revealing the full bedroom, natural light, calm and inviting",
+    rtl: "Smooth pan right to left from the doorway revealing the full bedroom, natural light, calm and inviting",
+  },
+  master_bathroom: {
+    ltr: "Slow tracking shot panning left to right across the vanity and into the bathroom, spa-like atmosphere, bright and clean",
+    rtl: "Slow tracking shot panning right to left across the vanity and into the bathroom, spa-like atmosphere, bright and clean",
+  },
+  bathroom: {
+    ltr: "Smooth pan left to right revealing the bathroom fixtures, clean and bright, steady camera movement",
+    rtl: "Smooth pan right to left revealing the bathroom fixtures, clean and bright, steady camera movement",
+  },
+  office: {
+    ltr: "Lateral tracking shot panning left to right across the home office, revealing the desk and built-ins, professional and focused",
+    rtl: "Lateral tracking shot panning right to left across the home office, revealing the desk and built-ins, professional and focused",
+  },
+  garage: {
+    ltr: "Wide lateral pan left to right across the garage interior, clean and spacious, smooth cinematic movement",
+    rtl: "Wide lateral pan right to left across the garage interior, clean and spacious, smooth cinematic movement",
+  },
+  pool: {
+    ltr: "Smooth low-angle tracking shot panning left to right along the pool edge, water shimmering in sunlight, resort-style feel",
+    rtl: "Smooth low-angle tracking shot panning right to left along the pool edge, water shimmering in sunlight, resort-style feel",
+  },
+  view: {
+    ltr: "Slow cinematic pan left to right across the panoramic view, wide and breathtaking, steady and majestic",
+    rtl: "Slow cinematic pan right to left across the panoramic view, wide and breathtaking, steady and majestic",
+  },
+  other: {
+    ltr: "Smooth lateral tracking shot panning left to right through the space, steady and professional, revealing the full room",
+    rtl: "Smooth lateral tracking shot panning right to left through the space, steady and professional, revealing the full room",
+  },
 };
+
+// Returns the motion prompt for a given room type and clip index.
+// Even-indexed clips pan L→R, odd-indexed clips pan R→L — alternating
+// direction creates the physical sensation of turning through doorways.
+function getMotionPrompt(roomType: string, clipIndex: number, customPrompt?: string): string {
+  if (customPrompt) return customPrompt;
+  const prompts = ROOM_MOTION_PROMPTS[roomType] ?? ROOM_MOTION_PROMPTS.other;
+  // Exterior front always uses tilt (doesn't benefit from L/R alternation)
+  if (prompts.tilt && roomType === "exterior_front") return prompts.tilt;
+  return clipIndex % 2 === 0 ? prompts.ltr : prompts.rtl;
+}
 
 const ROOM_TYPE_OPTIONS = Object.keys(ROOM_MOTION_PROMPTS) as [string, ...string[]];
 
@@ -120,10 +177,11 @@ export async function recoverStuckCinematicJobs(): Promise<void> {
 async function generateRunwayClip(
   imageUrl: string,
   roomType: string,
+  clipIndex: number,
   customPrompt?: string,
   attempt = 1
 ): Promise<string> {
-  const promptText = customPrompt || ROOM_MOTION_PROMPTS[roomType] || ROOM_MOTION_PROMPTS.other;
+  const promptText = getMotionPrompt(roomType, clipIndex, customPrompt);
 
   log(`Generating Runway clip for room: ${roomType} (attempt ${attempt}), prompt: ${promptText.substring(0, 60)}...`);
 
@@ -154,7 +212,7 @@ async function generateRunwayClip(
       const waitMs = attempt * 15000; // 15s, 30s, 45s
       log(`Runway rate limited (${response.status}), waiting ${waitMs/1000}s before retry ${attempt + 1}...`);
       await new Promise((r) => setTimeout(r, waitMs));
-      return generateRunwayClip(imageUrl, roomType, customPrompt, attempt + 1);
+      return generateRunwayClip(imageUrl, roomType, clipIndex, customPrompt, attempt + 1);
     }
   }
 
@@ -546,7 +604,7 @@ export const cinematicWalkthroughRouter = router({
         .split("_")
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(" "),
-      prompt: ROOM_MOTION_PROMPTS[key],
+      prompt: ROOM_MOTION_PROMPTS[key]?.ltr ?? "",
     }));
   }),
 
@@ -734,7 +792,7 @@ async function runWalkthroughJob(
     log(`Job ${jobId}: Generating clip ${i + 1}/${input.photos.length} (${photo.roomType})`);
 
     try {
-      const clipUrl = await generateRunwayClip(photo.url, photo.roomType, photo.customPrompt);
+      const clipUrl = await generateRunwayClip(photo.url, photo.roomType, i, photo.customPrompt);
       const roomLabel =
         photo.label ||
         photo.roomType
