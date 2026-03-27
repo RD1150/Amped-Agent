@@ -360,7 +360,7 @@ async function assembleCreatomateVideo(opts: {
     font_size: aspectRatio === "16:9" ? "2.5 vmin" : "3.5 vmin",
     fill_color: "#c9a84c",
     text_align: "center",
-    letter_spacing: "3px",
+    letter_spacing: "1%",
     animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" }],
   });
 
@@ -409,7 +409,7 @@ async function assembleCreatomateVideo(opts: {
     font_size: aspectRatio === "16:9" ? "1.8 vmin" : "2.8 vmin",
     fill_color: "#c9a84c",
     text_align: "center",
-    letter_spacing: "1px",
+    letter_spacing: "0.5%",
     animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: "in" }],
   });
 
