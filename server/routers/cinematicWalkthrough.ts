@@ -477,10 +477,12 @@ async function assembleCreatomateVideo(opts: {
   });
 
   // Audio tracks
+  // Audio tracks use high track numbers (200+) to never collide with video clip tracks
+  // (which occupy tracks i+2, i.e. up to track ~14 for 12 photos) or label tracks (100+).
   if (musicTrackUrl) {
     elements.push({
       type: "audio",
-      track: 6,
+      track: 200,
       source: musicTrackUrl,
       time: 0,
       duration: totalDuration,
@@ -489,11 +491,10 @@ async function assembleCreatomateVideo(opts: {
       audio_fade_out: 2.0,
     });
   }
-
   if (voiceoverUrl) {
     elements.push({
       type: "audio",
-      track: 7,
+      track: 201,
       source: voiceoverUrl,
       time: 0,
       duration: totalDuration,
