@@ -1495,6 +1495,18 @@ export default function AutoReels() {
               ) : (
                 <p className="text-sm whitespace-pre-wrap">{script}</p>
               )}
+              {script && (() => {
+                const words = script.trim().split(/\s+/).filter(Boolean).length;
+                const secs = Math.round((words / 130) * 60);
+                const mins = Math.floor(secs / 60);
+                const remSecs = secs % 60;
+                const readTime = mins > 0 ? `~${mins}m ${remSecs}s` : `~${remSecs}s`;
+                return (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {words} words · {readTime} at normal speaking pace
+                  </p>
+                );
+              })()}
             </Card>
           </div>
 

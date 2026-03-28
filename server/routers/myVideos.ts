@@ -1,11 +1,133 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
-import { generatedVideos } from '../../drizzle/schema';
+import { generatedVideos, propertyTours, aiReels, cinematicJobs, fullAvatarVideos } from '../../drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
+export type UnifiedVideo = {
+  id: string;
+  source: 'listing_video' | 'cinematic_tour' | 'ai_reel' | 'avatar_video' | 'authority_reel';
+  title: string;
+  videoUrl: string | null;
+  thumbnailUrl: string | null;
+  status: 'processing' | 'completed' | 'failed' | 'rendering';
+  durationSeconds: number | null;
+  createdAt: Date;
+  metadata?: Record<string, unknown>;
+};
+
 export const myVideosRouter = router({
-  // List all videos for the current user
+  // Unified list across all video tables
+  listAll: protectedProcedure
+    .input(
+      z.object({
+        source: z.enum(['all', 'listing_video', 'cinematic_tour', 'ai_reel', 'avatar_video']).optional().default('all'),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      const userId = ctx.user.id;
+      const src = input?.source ?? 'all';
+      const results: UnifiedVideo[] = [];
+
+      // 1. Listing Videos (property_tours table)
+      if (src === 'all' || src === 'listing_video') {
+        const rows = await db!
+          .select()
+          .from(propertyTours)
+          .where(eq(propertyTours.userId, userId))
+          .orderBy(desc(propertyTours.createdAt));
+        for (const r of rows) {
+          if (!r.videoUrl) continue; // skip if never generated
+          results.push({
+            id: `listing_${r.id}`,
+            source: 'listing_video',
+            title: r.address ?? 'Listing Video',
+            videoUrl: r.videoUrl,
+            thumbnailUrl: (r as any).thumbnailUrl ?? null,
+            status: r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
+            durationSeconds: null,
+            createdAt: r.createdAt,
+          });
+        }
+      }
+
+      // 2. Cinematic Tours (cinematic_jobs table)
+      if (src === 'all' || src === 'cinematic_tour') {
+        const rows = await db!
+          .select()
+          .from(cinematicJobs)
+          .where(eq(cinematicJobs.userId, userId))
+          .orderBy(desc(cinematicJobs.createdAt));
+        for (const r of rows) {
+          if (!r.videoUrl && r.status !== 'done') continue;
+          let snap: Record<string, unknown> = {};
+          try { snap = r.inputSnapshot ? JSON.parse(r.inputSnapshot) : {}; } catch {}
+          results.push({
+            id: `cinematic_${r.id}`,
+            source: 'cinematic_tour',
+            title: (snap.address as string) ?? (snap.propertyAddress as string) ?? 'Cinematic Tour',
+            videoUrl: r.videoUrl ?? null,
+            thumbnailUrl: null,
+            status: r.status === 'done' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
+            durationSeconds: null,
+            createdAt: r.createdAt,
+            metadata: { jobId: r.id },
+          });
+        }
+      }
+
+      // 3. AI Reels (ai_reels table)
+      if (src === 'all' || src === 'ai_reel') {
+        const rows = await db!
+          .select()
+          .from(aiReels)
+          .where(eq(aiReels.userId, userId))
+          .orderBy(desc(aiReels.createdAt));
+        for (const r of rows) {
+          const videoUrl = r.s3Url ?? r.shotstackRenderUrl ?? r.didVideoUrl ?? null;
+          if (!videoUrl) continue;
+          results.push({
+            id: `reel_${r.id}`,
+            source: r.reelType === 'authority_reel' ? 'authority_reel' : 'ai_reel',
+            title: r.title ?? 'AI Reel',
+            videoUrl,
+            thumbnailUrl: null,
+            status: r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
+            durationSeconds: null,
+            createdAt: r.createdAt,
+          });
+        }
+      }
+
+      // 4. Full Avatar Videos (full_avatar_videos table)
+      if (src === 'all' || src === 'avatar_video') {
+        const rows = await db!
+          .select()
+          .from(fullAvatarVideos)
+          .where(eq(fullAvatarVideos.userId, userId))
+          .orderBy(desc(fullAvatarVideos.createdAt));
+        for (const r of rows) {
+          if (!r.videoUrl) continue;
+          results.push({
+            id: `avatar_${r.id}`,
+            source: 'avatar_video',
+            title: r.title ?? 'Avatar Video',
+            videoUrl: r.videoUrl,
+            thumbnailUrl: null,
+            status: r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
+            durationSeconds: r.duration ?? null,
+            createdAt: r.createdAt,
+          });
+        }
+      }
+
+      // Sort all results by createdAt descending
+      results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return results;
+    }),
+
+  // List all videos for the current user (legacy — generatedVideos table only)
   list: protectedProcedure
     .input(
       z.object({

@@ -4039,3 +4039,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Cinematic Walkthrough: Re-generate individual clips on job progress screen (Retry this clip button)
 - [x] Full Avatar Video: HeyGen voice selection dropdown (fetch real voice list from HeyGen API)
 - [x] Nav/UX: Consolidate AI Reels + Post Builder overlap, tidy sidebar groupings
+
+- [ ] My Videos: unified library page showing Listing Videos, Cinematic Tours, AI Reels, Full Avatar Videos in one grid
+- [ ] AI Reels: add word count + estimated read-time to script textarea
+- [ ] Full Avatar Video: verify HeyGen end-to-end flow
