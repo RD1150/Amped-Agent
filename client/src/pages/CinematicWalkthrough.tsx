@@ -8,7 +8,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2, Gem, ArrowRight, ArrowLeft, ArrowUp, Home } from "lucide-react";
+import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2, Gem, ArrowRight, ArrowLeft, ArrowUp, Home, GripVertical, Sparkles, User } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Link } from "wouter";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -76,6 +91,125 @@ function getPanDirection(photos: PhotoEntry[], index: number): "ltr" | "rtl" | "
   return nonExteriorCount % 2 === 0 ? "ltr" : "rtl";
 }
 
+// ─── Sortable photo card ─────────────────────────────────────────────────────
+
+interface SortablePhotoCardProps {
+  photo: PhotoEntry;
+  photos: PhotoEntry[];
+  index: number;
+  onRemove: (id: string) => void;
+  onUpdate: (id: string, updates: Partial<PhotoEntry>) => void;
+}
+
+function SortablePhotoCard({ photo, photos, index, onRemove, onUpdate }: SortablePhotoCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: photo.id });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  const panDir = getPanDirection(photos, index);
+  const PanIcon = panDir === "tilt" ? ArrowUp : panDir === "ltr" ? ArrowRight : ArrowLeft;
+  const panLabel = panDir === "tilt" ? "Tilt up" : panDir === "ltr" ? "Pan left \u2192 right" : "Pan right \u2192 left";
+  const panColor = panDir === "tilt" ? "text-blue-400 border-blue-400/40 bg-blue-400/10" : "text-amber-400 border-amber-400/40 bg-amber-400/10";
+
+  return (
+    <div ref={setNodeRef} style={style} className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="relative aspect-video bg-muted">
+        <img
+          src={photo.previewUrl}
+          alt={`Photo ${index + 1}`}
+          className="w-full h-full object-cover"
+        />
+        {photo.uploading && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <Loader2 className="h-6 w-6 text-white animate-spin" />
+          </div>
+        )}
+        {/* Drag handle — top left */}
+        <button
+          {...attributes}
+          {...listeners}
+          className="absolute top-2 left-2 p-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white cursor-grab active:cursor-grabbing touch-none"
+          title="Drag to reorder"
+        >
+          <GripVertical className="h-3.5 w-3.5" />
+        </button>
+        {/* Remove button — top right */}
+        <button
+          onClick={() => onRemove(photo.id)}
+          className="absolute top-2 right-2 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        {/* Pan direction indicator — bottom left */}
+        <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
+          <Badge variant="secondary" className="text-xs bg-black/60 text-white border-0">
+            {index + 1}
+          </Badge>
+          <span className={`flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded border ${panColor}`}>
+            <PanIcon className="h-2.5 w-2.5" />
+            {panLabel}
+          </span>
+        </div>
+      </div>
+      <div className="p-3 space-y-2">
+        <Select
+          value={photo.roomType}
+          onValueChange={(val) =>
+            onUpdate(photo.id, {
+              roomType: val,
+              label: ROOM_TYPE_LABELS[val] || val,
+              isExterior: val === "exterior_front" || val === "exterior_back" ? true : photo.isExterior,
+            })
+          }
+        >
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue placeholder="Room type" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(ROOM_TYPE_LABELS).map(([value, label]) => (
+              <SelectItem key={value} value={value} className="text-xs">
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Input
+          placeholder="Custom label (optional)"
+          value={photo.label}
+          onChange={(e) => onUpdate(photo.id, { label: e.target.value })}
+          className="h-8 text-xs"
+        />
+        {photo.roomType !== "exterior_front" && photo.roomType !== "exterior_back" && (
+          <button
+            type="button"
+            onClick={() => onUpdate(photo.id, { isExterior: !photo.isExterior })}
+            className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
+              photo.isExterior
+                ? "border-blue-400/50 bg-blue-400/10 text-blue-400"
+                : "border-border bg-muted/30 text-muted-foreground hover:border-blue-400/30 hover:text-blue-300"
+            }`}
+          >
+            <Home className="h-3 w-3 flex-shrink-0" />
+            {photo.isExterior ? "Exterior shot (tilt-up motion)" : "Mark as exterior (tilt-up)"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Upload helper ────────────────────────────────────────────────────────────
 
 async function uploadPhotoToServer(file: File): Promise<string> {
@@ -118,6 +252,55 @@ export default function CinematicWalkthrough() {
   const [failedJobError, setFailedJobError] = useState<string | null>(null);
   const [failedJobRetryCount, setFailedJobRetryCount] = useState<number>(0);
   const MAX_RETRIES = 3;
+
+  // AI script generation state
+  const [isGeneratingScript, setIsGeneratingScript] = useState(false);
+  const generateScriptMutation = trpc.cinematicWalkthrough.generateVoiceoverScript.useMutation();
+
+  const handleGenerateScript = async () => {
+    if (!propertyAddress.trim()) {
+      toast.error("Enter the property address first");
+      return;
+    }
+    const rooms = photos
+      .filter((p) => p.url && !p.uploading)
+      .map((p) => p.label || ROOM_TYPE_LABELS[p.roomType] || p.roomType);
+    if (rooms.length === 0) {
+      toast.error("Add at least one photo first");
+      return;
+    }
+    setIsGeneratingScript(true);
+    try {
+      const result = await generateScriptMutation.mutateAsync({
+        propertyAddress: propertyAddress.trim(),
+        agentName: agentName.trim() || undefined,
+        agentBrokerage: agentBrokerage.trim() || undefined,
+        rooms,
+      });
+      setVoiceoverScript(typeof result.script === "string" ? result.script : String(result.script));
+      toast.success("Script generated!", { description: "Review and edit as needed before generating." });
+    } catch (err: any) {
+      toast.error("Script generation failed", { description: err.message });
+    } finally {
+      setIsGeneratingScript(false);
+    }
+  };
+
+  // Drag-to-reorder sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setPhotos((prev) => {
+        const oldIndex = prev.findIndex((p) => p.id === active.id);
+        const newIndex = prev.findIndex((p) => p.id === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    }
+  };
 
   // tRPC
   const generateMutation = trpc.cinematicWalkthrough.generate.useMutation();
@@ -537,93 +720,30 @@ export default function CinematicWalkthrough() {
           </div>
         )}
 
-        {/* Photo grid */}
+        {/* Photo grid — drag to reorder */}
         {photos.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {photos.map((photo, index) => {
-              const panDir = getPanDirection(photos, index);
-              const PanIcon = panDir === "tilt" ? ArrowUp : panDir === "ltr" ? ArrowRight : ArrowLeft;
-              const panLabel = panDir === "tilt" ? "Tilt up" : panDir === "ltr" ? "Pan left → right" : "Pan right → left";
-              const panColor = panDir === "tilt" ? "text-blue-400 border-blue-400/40 bg-blue-400/10" : "text-amber-400 border-amber-400/40 bg-amber-400/10";
-              return (
-                <div key={photo.id} className="rounded-xl border border-border bg-card overflow-hidden">
-                  <div className="relative aspect-video bg-muted">
-                    <img
-                      src={photo.previewUrl}
-                      alt={`Photo ${index + 1}`}
-                      className="w-full h-full object-cover"
+          <>
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <GripVertical className="h-3 w-3" />
+              Drag cards to reorder — pan direction arrows update automatically
+            </p>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={photos.map((p) => p.id)} strategy={rectSortingStrategy}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {photos.map((photo, index) => (
+                    <SortablePhotoCard
+                      key={photo.id}
+                      photo={photo}
+                      photos={photos}
+                      index={index}
+                      onRemove={removePhoto}
+                      onUpdate={updatePhoto}
                     />
-                    {photo.uploading && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <Loader2 className="h-6 w-6 text-white animate-spin" />
-                      </div>
-                    )}
-                    <button
-                      onClick={() => removePhoto(photo.id)}
-                      className="absolute top-2 right-2 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                    {/* Pan direction indicator — bottom left */}
-                    <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
-                      <Badge variant="secondary" className="text-xs bg-black/60 text-white border-0">
-                        {index + 1}
-                      </Badge>
-                      <span className={`flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded border ${panColor}`}>
-                        <PanIcon className="h-2.5 w-2.5" />
-                        {panLabel}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-3 space-y-2">
-                    <Select
-                      value={photo.roomType}
-                      onValueChange={(val) =>
-                        updatePhoto(photo.id, {
-                          roomType: val,
-                          label: ROOM_TYPE_LABELS[val] || val,
-                          // Auto-set exterior tag when exterior room types are selected
-                          isExterior: val === "exterior_front" || val === "exterior_back" ? true : photo.isExterior,
-                        })
-                      }
-                    >
-                      <SelectTrigger className="h-8 text-xs">
-                        <SelectValue placeholder="Room type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(ROOM_TYPE_LABELS).map(([value, label]) => (
-                          <SelectItem key={value} value={value} className="text-xs">
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      placeholder="Custom label (optional)"
-                      value={photo.label}
-                      onChange={(e) => updatePhoto(photo.id, { label: e.target.value })}
-                      className="h-8 text-xs"
-                    />
-                    {/* Exterior tag toggle — only shown for non-exterior room types */}
-                    {photo.roomType !== "exterior_front" && photo.roomType !== "exterior_back" && (
-                      <button
-                        type="button"
-                        onClick={() => updatePhoto(photo.id, { isExterior: !photo.isExterior })}
-                        className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
-                          photo.isExterior
-                            ? "border-blue-400/50 bg-blue-400/10 text-blue-400"
-                            : "border-border bg-muted/30 text-muted-foreground hover:border-blue-400/30 hover:text-blue-300"
-                        }`}
-                      >
-                        <Home className="h-3 w-3 flex-shrink-0" />
-                        {photo.isExterior ? "Exterior shot (tilt-up motion)" : "Mark as exterior (tilt-up)"}
-                      </button>
-                    )}
-                  </div>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
+              </SortableContext>
+            </DndContext>
+          </>
         )}
       </div>
 
@@ -677,6 +797,56 @@ export default function CinematicWalkthrough() {
           </div>
         </div>
       </div>
+
+      {/* Outro Card Preview */}
+      {(agentName.trim() || agentBrokerage.trim() || agentPhone.trim()) && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-amber-500" />
+            <Label className="text-sm font-semibold">Outro Card Preview</Label>
+            <span className="text-xs text-muted-foreground">(appears at the end of your video)</span>
+          </div>
+          {/* Cinematic widescreen outro mockup */}
+          <div className="relative w-full rounded-xl overflow-hidden border border-amber-500/20 bg-black" style={{ aspectRatio: "16/9" }}>
+            {/* Background: first uploaded photo blurred */}
+            {photos[0]?.previewUrl && (
+              <img
+                src={photos[0].previewUrl}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover opacity-30"
+                style={{ filter: "blur(8px)", transform: "scale(1.05)" }}
+              />
+            )}
+            {/* Dark gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
+            {/* Content */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6">
+              {/* Agent avatar placeholder */}
+              <div className="w-16 h-16 rounded-full border-2 border-amber-500 bg-amber-500/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <User className="h-8 w-8 text-amber-400" />
+              </div>
+              {/* Agent info */}
+              <div className="text-center">
+                {agentName.trim() && (
+                  <p className="text-white font-bold text-lg leading-tight">{agentName.trim()}</p>
+                )}
+                {agentBrokerage.trim() && (
+                  <p className="text-amber-400 text-sm font-medium mt-0.5">{agentBrokerage.trim()}</p>
+                )}
+                {agentPhone.trim() && (
+                  <p className="text-white/70 text-sm mt-1">{agentPhone.trim()}</p>
+                )}
+              </div>
+              {/* Gold divider */}
+              <div className="w-16 h-px bg-amber-500/60" />
+              <p className="text-white/50 text-xs tracking-widest uppercase">Cinematic Property Tour</p>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            In Luxury Mode, your profile headshot replaces the placeholder icon. Upload a headshot in Account settings.
+          </p>
+        </div>
+      )}
 
       {/* Luxury Mode toggle */}
       <div
@@ -812,9 +982,24 @@ export default function CinematicWalkthrough() {
                       </button>
                     ))}
                   </div>
+                  {/* AI script generator button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateScript}
+                    disabled={isGeneratingScript || !propertyAddress.trim()}
+                    className="w-full border-amber-500/40 text-amber-500 hover:bg-amber-500/10 hover:text-amber-400"
+                  >
+                    {isGeneratingScript ? (
+                      <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />Writing script…</>
+                    ) : (
+                      <><Sparkles className="h-3.5 w-3.5 mr-2" />Write script for me</>
+                    )}
+                  </Button>
                   {/* Script textarea */}
                   <Textarea
-                    placeholder="Write your narration script here. Describe each room as the camera moves through it. Example: 'Welcome to this stunning Westlake Village estate. As we enter the grand living room, you'll notice the soaring ceilings and natural light...'"
+                    placeholder="Write your narration script here, or click 'Write script for me' above. Example: Step inside this stunning Westlake Village estate. Soaring ceilings and natural light fill the grand living room..."
                     value={voiceoverScript}
                     onChange={(e) => setVoiceoverScript(e.target.value)}
                     rows={5}

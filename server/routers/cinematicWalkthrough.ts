@@ -711,6 +711,52 @@ export const cinematicWalkthroughRouter = router({
   }),
 
   /**
+   * AI voiceover script generator.
+   * Given property address, agent name, brokerage, and room list, returns a
+   * ready-to-use narration script for the cinematic walkthrough.
+   */
+  generateVoiceoverScript: protectedProcedure
+    .input(
+      z.object({
+        propertyAddress: z.string().min(1),
+        agentName: z.string().optional(),
+        agentBrokerage: z.string().optional(),
+        rooms: z.array(z.string()).min(1).max(12),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { invokeLLM } = await import("../_core/llm");
+      const roomList = input.rooms
+        .map((r, i) => `${i + 1}. ${r}`)
+        .join("\n");
+      const systemPrompt = `You are a professional real estate videographer writing narration scripts for cinematic property tour videos. Write in a warm, authoritative, and aspirational tone. Keep sentences short and punchy — they must sync with 5-second video clips. Do NOT use filler phrases like 'Welcome to' more than once. Do NOT mention the agent's name in the narration body — only in the closing line.`;
+      const userPrompt = `Write a voiceover narration script for a cinematic property tour video.
+
+Property: ${input.propertyAddress}
+Agent: ${input.agentName || "Your Agent"}${input.agentBrokerage ? ` | ${input.agentBrokerage}` : ""}
+
+Rooms shown in order:
+${roomList}
+
+Requirements:
+- One or two sentences per room, timed to a 5-second clip
+- Start with a compelling hook about the property
+- End with a call-to-action and agent name
+- Total length: 60–90 seconds of spoken narration
+- Output ONLY the script text, no scene labels or stage directions`;
+
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      });
+      const script = response.choices?.[0]?.message?.content ?? "";
+      if (!script) throw new Error("Script generation failed — please try again.");
+      return { script };
+    }),
+
+  /**
    * Start a cinematic walkthrough generation job.
    * Returns a jobId immediately; poll getJobProgress for updates.
    * Job state is persisted to DB so it survives server restarts.

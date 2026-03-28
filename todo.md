@@ -4014,3 +4014,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Show read-only directional pan arrows on each photo card (→ ← alternating, ↑ for exterior)
 - [x] Add optional Exterior tag toggle on each photo card (triggers tilt-up motion in Runway)
 - [x] Wire Exterior tag through tRPC schema and backend getMotionPrompt()
+
+## Cinematic Walkthrough - New Features (Mar 2026)
+- [x] Drag-to-reorder photos with live pan direction arrow updates
+- [x] AI voiceover script generator ("Write script for me" button)
+- [x] Preview outro card showing agent headshot, name, brokerage, phone
