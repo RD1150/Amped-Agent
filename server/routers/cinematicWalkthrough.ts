@@ -125,6 +125,7 @@ async function dbUpdateJob(
     videoUrl?: string;
     error?: string;
     inputSnapshot?: string;
+    clipsJson?: string;
   }
 ) {
   const database = await getDb();
@@ -875,6 +876,103 @@ Requirements:
     }),
 
   /**
+   * Retry a single failed/fallback clip within a completed job, then re-assemble
+   */
+  retryClip: protectedProcedure
+    .input(z.object({ jobId: z.string(), clipIndex: z.number().int().min(0) }))
+    .mutation(async ({ ctx, input }) => {
+      const job = await dbGetJob(input.jobId);
+      if (!job || job.userId !== ctx.user.id) throw new Error("Job not found or access denied");
+      if (!job.inputSnapshot) throw new Error("No input snapshot for this job");
+      if (!job.clipsJson) throw new Error("No clip data saved for this job");
+
+      const originalInput = JSON.parse(job.inputSnapshot);
+      const clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }> = JSON.parse(job.clipsJson);
+
+      if (input.clipIndex < 0 || input.clipIndex >= clips.length) {
+        throw new Error("Invalid clip index");
+      }
+
+      const photo = originalInput.photos[input.clipIndex];
+      if (!photo) throw new Error("Photo not found at that index");
+
+      log(`RetryClip job=${input.jobId} index=${input.clipIndex} (${photo.roomType})`);
+
+      // Re-generate just this one clip
+      const newClipUrl = await generateRunwayClip(
+        photo.url,
+        photo.roomType,
+        input.clipIndex,
+        photo.customPrompt,
+        1,
+        photo.isExterior
+      );
+
+      // Patch the clips array
+      clips[input.clipIndex] = {
+        url: newClipUrl,
+        roomLabel: photo.label || photo.roomType.split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+        duration: 5,
+        roomType: photo.roomType,
+        isFallback: false,
+      };
+
+      // Save updated clips
+      await dbUpdateJob(input.jobId, { clipsJson: JSON.stringify(clips) });
+
+      // Re-assemble video
+      await dbUpdateJob(input.jobId, { status: "assembling" });
+
+      // Get agent info
+      let agentName = originalInput.agentName;
+      let agentBrokerage = originalInput.agentBrokerage;
+      let agentAvatarUrl: string | undefined;
+      if (!agentName) {
+        try {
+          const persona = await db.getPersonaByUserId(ctx.user.id);
+          agentName = persona?.agentName || "Your Agent";
+          agentBrokerage = agentBrokerage || persona?.brokerageName || "";
+        } catch { agentName = "Your Agent"; }
+      }
+      try {
+        const database = await getDb();
+        const { users } = await import("../../drizzle/schema");
+        const { eq: eqOp } = await import("drizzle-orm");
+        if (database) {
+          const rows = await database.select({ avatarImageUrl: users.avatarImageUrl }).from(users).where(eqOp(users.id, ctx.user.id)).limit(1);
+          agentAvatarUrl = rows[0]?.avatarImageUrl ?? undefined;
+        }
+      } catch { /* non-critical */ }
+
+      // Re-generate voiceover if needed
+      let voiceoverUrl: string | undefined;
+      if (originalInput.enableVoiceover && originalInput.voiceoverScript && originalInput.voiceId) {
+        try {
+          voiceoverUrl = await generateVoiceover(originalInput.voiceoverScript, originalInput.voiceId);
+        } catch { /* non-critical */ }
+      }
+
+      const newVideoUrl = await assembleCreatomateVideo({
+        clips,
+        propertyAddress: originalInput.propertyAddress,
+        agentName: agentName!,
+        agentBrokerage,
+        agentPhone: originalInput.agentPhone,
+        agentAvatarUrl,
+        musicTrackUrl: originalInput.musicTrackUrl,
+        voiceoverUrl,
+        aspectRatio: originalInput.aspectRatio,
+        luxuryMode: originalInput.luxuryMode,
+        userId: ctx.user.id,
+      });
+
+      await dbUpdateJob(input.jobId, { status: "done", videoUrl: newVideoUrl });
+      log(`RetryClip job=${input.jobId} index=${input.clipIndex} re-assembled ✓`);
+
+      return { videoUrl: newVideoUrl, clipIndex: input.clipIndex };
+    }),
+
+  /**
    * Get the most recent active job for the current user (for job recovery on page load)
    */
   getLatestPendingJob: protectedProcedure
@@ -949,7 +1047,7 @@ async function runWalkthroughJob(
   } catch { /* non-critical */ }
 
   // Generate all Runway clips (sequentially to respect rate limits)
-  const clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string }> = [];
+  const clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }> = [];
 
   for (let i = 0; i < input.photos.length; i++) {
     const photo = input.photos[i];
@@ -964,8 +1062,8 @@ async function runWalkthroughJob(
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(" ");
 
-      clips.push({ url: clipUrl, roomLabel, duration: 5, roomType: photo.roomType });
-      await dbUpdateJob(jobId, { completedClips: i + 1 });
+      clips.push({ url: clipUrl, roomLabel, duration: 5, roomType: photo.roomType, isFallback: false });
+      await dbUpdateJob(jobId, { completedClips: i + 1, clipsJson: JSON.stringify(clips) });
       log(`Job ${jobId}: Clip ${i + 1} done ✓`);
     } catch (err: any) {
       log(`Job ${jobId}: Clip ${i + 1} failed: ${err.message} — using fallback static photo`);
@@ -980,8 +1078,9 @@ async function runWalkthroughJob(
             .join(" "),
         duration: 5,
         roomType: photo.roomType,
+        isFallback: true,
       });
-      await dbUpdateJob(jobId, { completedClips: i + 1 });
+      await dbUpdateJob(jobId, { completedClips: i + 1, clipsJson: JSON.stringify(clips) });
     }
   }
 

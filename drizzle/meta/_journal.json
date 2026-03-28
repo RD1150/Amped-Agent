@@ -470,6 +470,13 @@
       "when": 1774682816597,
       "tag": "0066_loving_gwen_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "5",
+      "when": 1774687828772,
+      "tag": "0067_living_scream",
+      "breakpoints": true
     }
   ]
 }

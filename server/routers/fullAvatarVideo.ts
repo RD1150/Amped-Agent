@@ -22,6 +22,30 @@ function estimateDuration(script: string): number {
 
 export const fullAvatarVideoRouter = router({
   /**
+   * Fetch English voices from HeyGen for the voice picker
+   */
+  getVoices: protectedProcedure
+    .query(async () => {
+      const apiKey = process.env.HEYGEN_API_KEY;
+      if (!apiKey) throw new Error("HeyGen API key not configured");
+      const res = await fetch("https://api.heygen.com/v2/voices", {
+        headers: { "X-Api-Key": apiKey },
+      });
+      if (!res.ok) throw new Error(`HeyGen voices fetch failed: ${res.status}`);
+      const data = await res.json() as { data?: { voices?: Array<{ voice_id: string; name: string; gender: string; language: string; preview_audio?: string }> } };
+      const voices = (data.data?.voices ?? []) as Array<{ voice_id: string; name: string; gender: string; language: string; preview_audio?: string }>;
+      return voices
+        .filter((v) => v.language === "English" && v.name?.trim())
+        .map((v) => ({
+          id: v.voice_id,
+          name: v.name.trim(),
+          gender: v.gender as "male" | "female",
+          previewUrl: v.preview_audio ?? null,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }),
+
+  /**
    * Generate a camera-ready script for a full avatar video using AI
    */
   generateAvatarScript: protectedProcedure

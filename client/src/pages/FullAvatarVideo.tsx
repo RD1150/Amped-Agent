@@ -12,15 +12,7 @@ import {
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 
-// ─── Voice options (Microsoft Neural, same as existing reels) ──────────────
-const VOICE_OPTIONS = [
-  { id: "en-US-JennyNeural", label: "Jenny (Female, Warm)" },
-  { id: "en-US-GuyNeural", label: "Guy (Male, Confident)" },
-  { id: "en-US-AriaNeural", label: "Aria (Female, Expressive)" },
-  { id: "en-US-DavisNeural", label: "Davis (Male, Casual)" },
-  { id: "en-US-AmberNeural", label: "Amber (Female, Friendly)" },
-  { id: "en-US-TonyNeural", label: "Tony (Male, Authoritative)" },
-];
+// Voice options are loaded live from HeyGen API
 
 /** Estimate read time from word count at 130 wpm */
 function estimateReadTime(text: string): { words: number; seconds: number; label: string } {
@@ -59,7 +51,11 @@ export default function FullAvatarVideo() {
   // ── Script ────────────────────────────────────────────────────────────────
   const [script, setScript] = useState("");
   const [title, setTitle] = useState("");
-  const [voiceId, setVoiceId] = useState("en-US-JennyNeural");
+  const [voiceId, setVoiceId] = useState("");
+  const [voiceGenderFilter, setVoiceGenderFilter] = useState<"all" | "male" | "female">("all");
+  const [voiceSearch, setVoiceSearch] = useState("");
+  const [playingPreviewId, setPlayingPreviewId] = useState<string | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // ── Quick Avatar (V2) ─────────────────────────────────────────────────────
   const [avatarImagePreview, setAvatarImagePreview] = useState("");
@@ -99,6 +95,39 @@ export default function FullAvatarVideo() {
   const trainMutation = trpc.fullAvatarVideo.trainCustomAvatar.useMutation();
   const deleteMutation = trpc.fullAvatarVideo.delete.useMutation();
   const generateScriptMutation = trpc.fullAvatarVideo.generateAvatarScript.useMutation();
+  const { data: heygenVoices = [], isLoading: isLoadingVoices } = trpc.fullAvatarVideo.getVoices.useQuery();
+
+  // Auto-select first voice once loaded
+  useEffect(() => {
+    if (heygenVoices.length > 0 && !voiceId) {
+      // Default to a warm female voice if available, else first
+      const jenny = heygenVoices.find((v) => v.name.toLowerCase().includes("jenny") || v.name.toLowerCase().includes("warm"));
+      setVoiceId(jenny?.id ?? heygenVoices[0].id);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [heygenVoices]);
+
+  const filteredVoices = heygenVoices
+    .filter((v) => voiceGenderFilter === "all" || v.gender === voiceGenderFilter)
+    .filter((v) => !voiceSearch.trim() || v.name.toLowerCase().includes(voiceSearch.toLowerCase()));
+
+  const handleVoicePreview = (voice: { id: string; previewUrl: string | null }) => {
+    if (!voice.previewUrl) return;
+    if (playingPreviewId === voice.id) {
+      previewAudioRef.current?.pause();
+      setPlayingPreviewId(null);
+      return;
+    }
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+    }
+    const audio = new Audio(voice.previewUrl);
+    previewAudioRef.current = audio;
+    audio.play();
+    setPlayingPreviewId(voice.id);
+    audio.onended = () => setPlayingPreviewId(null);
+    audio.onerror = () => setPlayingPreviewId(null);
+  };
 
   // Pre-fill avatar from saved profile
   useEffect(() => {
@@ -577,24 +606,87 @@ export default function FullAvatarVideo() {
           className="resize-none text-sm leading-relaxed"
         />
 
-        {/* Voice selector */}
-        <div className="space-y-1.5">
-          <Label className="text-sm">Voice</Label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {VOICE_OPTIONS.map((v) => (
+        {/* Voice selector — live from HeyGen */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Voice</Label>
+            {voiceId && heygenVoices.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {heygenVoices.find((v) => v.id === voiceId)?.name ?? ""}
+              </span>
+            )}
+          </div>
+
+          {/* Gender filter + search */}
+          <div className="flex gap-2">
+            {(["all", "female", "male"] as const).map((g) => (
               <button
-                key={v.id}
-                onClick={() => setVoiceId(v.id)}
-                className={`text-xs px-3 py-2 rounded-lg border transition-all text-left ${
-                  voiceId === v.id
+                key={g}
+                onClick={() => setVoiceGenderFilter(g)}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-all capitalize ${
+                  voiceGenderFilter === g
                     ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
-                    : "border-border hover:border-amber-500/40 text-muted-foreground"
+                    : "border-border hover:border-amber-500/30 text-muted-foreground"
                 }`}
               >
-                {v.label}
+                {g === "all" ? "All" : g === "female" ? "Female" : "Male"}
               </button>
             ))}
+            <Input
+              placeholder="Search voices…"
+              value={voiceSearch}
+              onChange={(e) => setVoiceSearch(e.target.value)}
+              className="h-7 text-xs flex-1"
+            />
           </div>
+
+          {/* Voice list */}
+          {isLoadingVoices ? (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Loading voices…
+            </div>
+          ) : (
+            <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+              {filteredVoices.slice(0, 60).map((v) => (
+                <div
+                  key={v.id}
+                  onClick={() => setVoiceId(v.id)}
+                  className={`flex items-center justify-between px-3 py-2 rounded-lg border cursor-pointer transition-all ${
+                    voiceId === v.id
+                      ? "border-amber-500 bg-amber-500/10"
+                      : "border-border hover:border-amber-500/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className={`text-xs font-medium truncate ${
+                      voiceId === v.id ? "text-amber-700 dark:text-amber-400" : "text-foreground"
+                    }`}>{v.name}</span>
+                    <span className="text-xs text-muted-foreground capitalize shrink-0">{v.gender}</span>
+                  </div>
+                  {v.previewUrl && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleVoicePreview(v); }}
+                      className="ml-2 p-1 rounded-full hover:bg-amber-500/20 transition-colors shrink-0"
+                      title="Preview voice"
+                    >
+                      {playingPreviewId === v.id ? (
+                        <Loader2 className="h-3 w-3 text-amber-500 animate-spin" />
+                      ) : (
+                        <Play className="h-3 w-3 text-muted-foreground hover:text-amber-500" />
+                      )}
+                    </button>
+                  )}
+                </div>
+              ))}
+              {filteredVoices.length === 0 && (
+                <p className="text-xs text-muted-foreground py-2 text-center">No voices match your search</p>
+              )}
+              {filteredVoices.length > 60 && (
+                <p className="text-xs text-muted-foreground text-center py-1">Showing 60 of {filteredVoices.length} — use search to narrow down</p>
+              )}
+            </div>
+          )}
         </div>
 
         <Button

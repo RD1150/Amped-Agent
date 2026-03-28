@@ -4033,3 +4033,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Full Avatar Video: Fix HeyGen API (correct upload + avatar group creation endpoints)
 - [x] Full Avatar Video: Show clear training status banner after submission (spinner, auto-poll, green ready state)
 - [x] Full Avatar Video: Add AI script generator with content-type selector (Market Update, Listing Pitch, Just Sold, Tips, etc.)
+
+## Session: Mar 28, 2026 - Overnight Build
+- [x] Account page: agent headshot upload (saves to S3, persists to user profile, pre-fills Full Avatar Video)
+- [x] Cinematic Walkthrough: Re-generate individual clips on job progress screen (Retry this clip button)
+- [x] Full Avatar Video: HeyGen voice selection dropdown (fetch real voice list from HeyGen API)
+- [x] Nav/UX: Consolidate AI Reels + Post Builder overlap, tidy sidebar groupings

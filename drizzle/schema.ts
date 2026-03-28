@@ -805,6 +805,7 @@ export const cinematicJobs = mysqlTable("cinematic_jobs", {
   videoUrl: text("videoUrl"),
   error: text("error"),
   inputSnapshot: text("inputSnapshot"), // JSON snapshot of input for retry
+  clipsJson: text("clipsJson"), // JSON array of per-clip results [{url, roomLabel, duration, roomType}]
   retryCount: int("retryCount").default(0).notNull(), // number of retries (max 3)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

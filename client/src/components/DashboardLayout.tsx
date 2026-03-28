@@ -108,12 +108,9 @@ const menuSections = [
       { icon: BookOpen, label: "Blog Builder", path: "/blog-builder", description: "Generate SEO-optimized blog posts for your market" },
       { icon: Mail, label: "Newsletter Builder", path: "/newsletter", description: "Design email newsletters", badge: "Premium" },
       { icon: Shuffle, label: "Repurpose Engine", path: "/repurpose", description: "Write once, publish everywhere — 5 formats from 1 idea", badge: "Premium" },
-      { icon: Video, label: "AI Reels", path: "/autoreels", description: "Create talking avatar videos (15-60 sec)" },
-      { icon: UserCircle, label: "Full Avatar Video", path: "/full-avatar-video", description: "HeyGen-powered full talking-head video from your script", badge: "New" },
       { icon: FileText, label: "Lead Magnet Generator", path: "/lead-magnet", description: "Generate branded PDF lead magnets for Facebook Lead Ads", badge: "Premium" },
-      { icon: FileText, label: "My Lead Magnets", path: "/my-lead-magnets", description: "View and download your saved lead magnet PDFs" },
-      { icon: Upload, label: "Bulk Import", path: "/bulk-import", description: "Import content ideas from CSV in bulk" },
       { icon: Heart, label: "Brand Story", path: "/brand-story", description: "Craft your authentic agent brand story" },
+      { icon: Upload, label: "Bulk Import", path: "/bulk-import", description: "Import content ideas from CSV in bulk" },
     ]
   },
   {
@@ -121,7 +118,9 @@ const menuSections = [
     items: [
       { icon: Building2, label: "Listing Video", path: "/property-tours", description: "Quick Ken Burns video for any listing · 1–2 min" },
       { icon: Film, label: "Cinematic Tour", path: "/cinematic-walkthrough", description: "AI-animated cinematic tour for premium listings · 5–10 min", badge: "Premium" },
-      { icon: Sparkles, label: "Compare Video Types", path: "/video-comparison", description: "See the difference between Listing Video and Cinematic Property Tour" },
+      { icon: Video, label: "AI Reels", path: "/autoreels", description: "Short avatar intro clips for social media (15–60 sec)" },
+      { icon: UserCircle, label: "Full Avatar Video", path: "/full-avatar-video", description: "Full talking-head video from your script — HeyGen quality", badge: "New" },
+      { icon: Sparkles, label: "Compare Video Types", path: "/video-comparison", description: "See the difference between Listing Video and Cinematic Tour" },
     ]
   },
   {
@@ -135,6 +134,7 @@ const menuSections = [
     title: "LIBRARY",
     items: [
       { icon: Shuffle, label: "My Content", path: "/my-content", description: "All videos, reels, lead magnets in one place" },
+      { icon: FileText, label: "My Lead Magnets", path: "/my-lead-magnets", description: "View and download your saved lead magnet PDFs" },
       { icon: FileText, label: "Content Templates", path: "/content-templates", description: "Browse pre-made post templates" },
     ]
   },

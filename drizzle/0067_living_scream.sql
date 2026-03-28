@@ -1,0 +1,1 @@
+ALTER TABLE `cinematic_jobs` ADD `clipsJson` text;

@@ -302,6 +302,24 @@ export default function CinematicWalkthrough() {
     }
   };
 
+  // Per-clip retry state
+  const [retryingClipIndex, setRetryingClipIndex] = useState<number | null>(null);
+  const retryClipMutation = trpc.cinematicWalkthrough.retryClip.useMutation();
+
+  const handleRetryClip = async (clipIndex: number) => {
+    if (!jobId) return;
+    setRetryingClipIndex(clipIndex);
+    try {
+      const result = await retryClipMutation.mutateAsync({ jobId, clipIndex });
+      setVideoUrl(result.videoUrl);
+      toast.success(`Clip ${clipIndex + 1} regenerated!`, { description: "Video has been re-assembled with the new clip." });
+    } catch (err: any) {
+      toast.error(`Failed to retry clip ${clipIndex + 1}`, { description: err.message });
+    } finally {
+      setRetryingClipIndex(null);
+    }
+  };
+
   // tRPC
   const generateMutation = trpc.cinematicWalkthrough.generate.useMutation();
   const retryMutation = trpc.cinematicWalkthrough.retry.useMutation();
@@ -583,6 +601,45 @@ export default function CinematicWalkthrough() {
                 </Link>
               </Button>
             </div>
+
+            {/* Per-clip retry — only shown when we have clip data */}
+            {jobId && photos.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Regenerate individual clips</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {photos.map((photo, index) => (
+                    <button
+                      key={photo.id}
+                      onClick={() => handleRetryClip(index)}
+                      disabled={retryingClipIndex !== null}
+                      className="relative group rounded-lg overflow-hidden border border-border hover:border-amber-500/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <img
+                        src={photo.previewUrl}
+                        alt={photo.label || ROOM_TYPE_LABELS[photo.roomType] || `Clip ${index + 1}`}
+                        className="w-full aspect-video object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        {retryingClipIndex === index ? (
+                          <Loader2 className="h-5 w-5 text-amber-400 animate-spin" />
+                        ) : (
+                          <>
+                            <Play className="h-4 w-4 text-amber-400 mb-1" />
+                            <span className="text-xs text-white font-medium">Retry clip</span>
+                          </>
+                        )}
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-1.5 py-0.5">
+                        <span className="text-xs text-white/80 truncate block">
+                          {index + 1}. {photo.label || ROOM_TYPE_LABELS[photo.roomType] || `Clip ${index + 1}`}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">Hover a clip thumbnail and click to regenerate just that clip. The video will be re-assembled automatically.</p>
+              </div>
+            )}
           </div>
         </div>
       )}
