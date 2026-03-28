@@ -131,18 +131,19 @@ export async function createPhotoAvatarFromUrl(
 }
 
 /**
- * Generate a talking photo video from a photo avatar group ID and script.
- * This is the "Quick Avatar" path — no training required.
+ * Generate a video from a HeyGen stock avatar ID and script.
+ * This is the "Quick Avatar" path — uses pre-built professional avatars.
+ * Confirmed working: type "avatar" with avatar_id from /v2/avatars list.
  */
-export async function generateTalkingPhotoVideo(opts: {
-  photoAvatarId: string;
+export async function generateStockAvatarVideo(opts: {
+  avatarId: string;
   script: string;
   voiceId?: string;
   title?: string;
   landscape?: boolean;
 }): Promise<string> {
   const {
-    photoAvatarId,
+    avatarId,
     script,
     voiceId = "1bd001e7e50f421d891986aad5158bc8",
     title,
@@ -156,8 +157,9 @@ export async function generateTalkingPhotoVideo(opts: {
       video_inputs: [
         {
           character: {
-            type: "talking_photo",
-            talking_photo_id: photoAvatarId,
+            type: "avatar",
+            avatar_id: avatarId,
+            avatar_style: "normal",
           },
           voice: {
             type: "text",
@@ -180,8 +182,26 @@ export async function generateTalkingPhotoVideo(opts: {
     throw new Error(`HeyGen video generation failed: ${JSON.stringify(err)}`);
   }
 
-  const data = await res.json() as { data: { video_id: string } };
+  const data = await res.json() as { data: { video_id: string }; error?: { message: string } };
+  if (data.error) throw new Error(`HeyGen video generation failed: ${JSON.stringify(data.error)}`);
   return data.data.video_id;
+}
+
+/** @deprecated Use generateStockAvatarVideo instead */
+export async function generateTalkingPhotoVideo(opts: {
+  photoAvatarId: string;
+  script: string;
+  voiceId?: string;
+  title?: string;
+  landscape?: boolean;
+}): Promise<string> {
+  return generateStockAvatarVideo({
+    avatarId: opts.photoAvatarId,
+    script: opts.script,
+    voiceId: opts.voiceId,
+    title: opts.title,
+    landscape: opts.landscape,
+  });
 }
 
 // ─── Custom Avatar (trained digital twin) ────────────────────────────────────

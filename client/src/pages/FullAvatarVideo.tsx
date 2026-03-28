@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +46,9 @@ const TARGET_LENGTHS = [
 type AvatarMode = "quick" | "custom";
 
 export default function FullAvatarVideo() {
+  const { user, loading: isAuthLoading } = useAuth();
+  const isPremium = user?.subscriptionTier === "premium" || user?.subscriptionTier === "pro";
+
   // ── Mode ──────────────────────────────────────────────────────────────────
   const [mode, setMode] = useState<AvatarMode>("quick");
 
@@ -57,10 +61,11 @@ export default function FullAvatarVideo() {
   const [playingPreviewId, setPlayingPreviewId] = useState<string | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // ── Quick Avatar (V2) ─────────────────────────────────────────────────────
-  const [avatarImagePreview, setAvatarImagePreview] = useState("");
-  const [avatarImageUrl, setAvatarImageUrl] = useState(""); // S3 URL
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  // ── Quick Avatar (V2) — stock avatar picker ──────────────────────────────
+  const [selectedAvatarId, setSelectedAvatarId] = useState("");
+  const [selectedAvatarPreviewUrl, setSelectedAvatarPreviewUrl] = useState("");
+  const [avatarGenderFilter, setAvatarGenderFilter] = useState<"all" | "male" | "female">("all");
+  const [avatarSearch, setAvatarSearch] = useState("");
 
   // ── Script generator state ────────────────────────────────────────────────
   const [showScriptGen, setShowScriptGen] = useState(false);
@@ -82,7 +87,7 @@ export default function FullAvatarVideo() {
   const [isTraining, setIsTraining] = useState(false);
 
   const trainingVideoRef = useRef<HTMLInputElement>(null);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
+
 
   // ── tRPC ──────────────────────────────────────────────────────────────────
   const { data: currentUser } = trpc.auth.me.useQuery();
@@ -91,6 +96,7 @@ export default function FullAvatarVideo() {
   });
   const { data: pastVideos = [], refetch: refetchVideos } = trpc.fullAvatarVideo.list.useQuery();
   const generateV2Mutation = trpc.fullAvatarVideo.generate.useMutation();
+  const { data: stockAvatars = [], isLoading: isLoadingAvatars } = trpc.fullAvatarVideo.getAvatars.useQuery();
   const generateV3Mutation = trpc.fullAvatarVideo.generateWithCustomAvatar.useMutation();
   const trainMutation = trpc.fullAvatarVideo.trainCustomAvatar.useMutation();
   const deleteMutation = trpc.fullAvatarVideo.delete.useMutation();
@@ -129,43 +135,25 @@ export default function FullAvatarVideo() {
     audio.onerror = () => setPlayingPreviewId(null);
   };
 
-  // Pre-fill avatar from saved profile
+  // Auto-select first avatar once loaded
   useEffect(() => {
-    if (currentUser?.avatarImageUrl && !avatarImagePreview) {
-      setAvatarImagePreview(currentUser.avatarImageUrl);
-      setAvatarImageUrl(currentUser.avatarImageUrl);
+    if (stockAvatars.length > 0 && !selectedAvatarId) {
+      // Default to first professional-looking avatar
+      const preferred = stockAvatars.find(a =>
+        a.name.toLowerCase().includes("business") ||
+        a.name.toLowerCase().includes("suit") ||
+        a.name.toLowerCase().includes("office")
+      ) ?? stockAvatars[0];
+      setSelectedAvatarId(preferred.id);
+      setSelectedAvatarPreviewUrl(preferred.previewImageUrl);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser]);
+  }, [stockAvatars]);
 
   const readTime = estimateReadTime(script);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Please upload an image file"); return; }
-    if (file.size > 10 * 1024 * 1024) { toast.error("Image must be under 10MB"); return; }
 
-    const reader = new FileReader();
-    reader.onloadend = () => setAvatarImagePreview(reader.result as string);
-    reader.readAsDataURL(file);
-
-    setIsUploadingAvatar(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
-      const { url } = await res.json();
-      setAvatarImageUrl(url);
-      toast.success("Headshot uploaded!");
-    } catch {
-      toast.error("Failed to upload image. Please try again.");
-    } finally {
-      setIsUploadingAvatar(false);
-    }
-  };
 
   const handleTrainingVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -204,8 +192,8 @@ export default function FullAvatarVideo() {
       return;
     }
 
-    if (mode === "quick" && !avatarImageUrl) {
-      toast.error("Please upload your headshot first");
+    if (mode === "quick" && !selectedAvatarId) {
+      toast.error("Please select an avatar first");
       return;
     }
 
@@ -222,10 +210,11 @@ export default function FullAvatarVideo() {
       let result: { videoUrl: string; duration: number };
 
       if (mode === "quick") {
-        setGenerationStep("Animating your headshot and generating speech…");
+        setGenerationStep("Generating your avatar video with HeyGen…");
         result = await generateV2Mutation.mutateAsync({
           script: script.trim(),
-          avatarUrl: avatarImageUrl,
+          avatarId: selectedAvatarId,
+          avatarPreviewUrl: selectedAvatarPreviewUrl || undefined,
           voiceId,
           title: title.trim() || undefined,
         });
@@ -292,8 +281,54 @@ export default function FullAvatarVideo() {
     a.click();
     document.body.removeChild(a);
   };
+  // ── Render ──────────────────────────────────────────────────────────────────
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // Premium gate — show upgrade prompt for non-premium users
+  if (!isAuthLoading && !isPremium) {
+    return (
+      <div className="container max-w-2xl py-16">
+        <Card className="border-2 border-amber-500/30 bg-amber-500/5">
+          <div className="p-8 text-center space-y-6">
+            <div className="mx-auto h-16 w-16 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <Crown className="h-8 w-8 text-amber-500" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Premium Feature</h2>
+              <p className="text-muted-foreground">
+                Full Avatar Video is available on the <strong>Pro</strong> and <strong>Premium</strong> plans.
+                Generate Captions/Mirage-quality talking-head videos with 1,200+ stock avatars and 2,000+ voices — all without leaving the platform.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+              <div className="rounded-lg border p-4 space-y-1">
+                <Video className="h-5 w-5 text-amber-500" />
+                <p className="font-semibold text-sm">1,200+ Avatars</p>
+                <p className="text-xs text-muted-foreground">Professional stock avatars in business attire</p>
+              </div>
+              <div className="rounded-lg border p-4 space-y-1">
+                <Sparkles className="h-5 w-5 text-amber-500" />
+                <p className="font-semibold text-sm">AI Script Writer</p>
+                <p className="text-xs text-muted-foreground">Generate camera-ready scripts in seconds</p>
+              </div>
+              <div className="rounded-lg border p-4 space-y-1">
+                <Crown className="h-5 w-5 text-amber-500" />
+                <p className="font-semibold text-sm">Custom Digital Twin</p>
+                <p className="text-xs text-muted-foreground">Train your own AI avatar from a 2-min video</p>
+              </div>
+            </div>
+            <Button
+              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-8 h-12"
+              onClick={() => window.location.href = "/subscription"}
+            >
+              <Crown className="h-4 w-4 mr-2" />
+              Upgrade to Premium
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container max-w-4xl py-8 space-y-8">
       {/* Header */}
@@ -356,38 +391,88 @@ export default function FullAvatarVideo() {
         </button>
       </div>
 
-      {/* Quick Avatar: headshot upload */}
+      {/* Quick Avatar: stock avatar picker */}
       {mode === "quick" && (
         <Card className="p-6 space-y-4">
-          <Label className="text-base font-semibold flex items-center gap-2">
-            <Upload className="h-4 w-4 text-amber-500" />
-            Your Headshot
-          </Label>
-          <div className="flex items-center gap-4">
-            <div
-              onClick={() => avatarInputRef.current?.click()}
-              className="relative h-20 w-20 rounded-full border-2 border-dashed border-amber-500/40 hover:border-amber-500 cursor-pointer transition-colors overflow-hidden flex-shrink-0 bg-muted/30 flex items-center justify-center"
-            >
-              {avatarImagePreview ? (
-                <img src={avatarImagePreview} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <User className="h-8 w-8 text-muted-foreground" />
-              )}
-              {isUploadingAvatar && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <Loader2 className="h-5 w-5 text-white animate-spin" />
-                </div>
-              )}
-            </div>
-            <div>
-              <p className="text-sm font-medium">
-                {avatarImagePreview ? "Headshot saved — click to change" : "Click to upload your headshot"}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">Square crop, face centered, well-lit. JPG/PNG under 10MB.</p>
-              {avatarImageUrl && <p className="text-xs text-green-600 mt-1">✓ Ready for generation</p>}
-            </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <User className="h-4 w-4 text-amber-500" />
+              Choose Your Avatar
+            </Label>
+            {selectedAvatarId && (
+              <span className="text-xs text-green-600 flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                {stockAvatars.find(a => a.id === selectedAvatarId)?.name ?? "Selected"}
+              </span>
+            )}
           </div>
-          <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+
+          {/* Gender filter + search */}
+          <div className="flex gap-2">
+            {(["all", "female", "male"] as const).map((g) => (
+              <button
+                key={g}
+                onClick={() => setAvatarGenderFilter(g)}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-all capitalize ${
+                  avatarGenderFilter === g
+                    ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
+                    : "border-border hover:border-amber-500/30 text-muted-foreground"
+                }`}
+              >
+                {g === "all" ? "All" : g === "female" ? "Female" : "Male"}
+              </button>
+            ))}
+            <Input
+              placeholder="Search avatars…"
+              value={avatarSearch}
+              onChange={(e) => setAvatarSearch(e.target.value)}
+              className="h-7 text-xs flex-1"
+            />
+          </div>
+
+          {/* Avatar grid */}
+          {isLoadingAvatars ? (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground py-4">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Loading avatars…
+            </div>
+          ) : (
+            <div className="max-h-64 overflow-y-auto">
+              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pr-1">
+                {stockAvatars
+                  .filter(a => avatarGenderFilter === "all" || a.gender === avatarGenderFilter)
+                  .filter(a => !avatarSearch.trim() || a.name.toLowerCase().includes(avatarSearch.toLowerCase()))
+                  .slice(0, 48)
+                  .map((avatar) => (
+                    <button
+                      key={avatar.id}
+                      onClick={() => { setSelectedAvatarId(avatar.id); setSelectedAvatarPreviewUrl(avatar.previewImageUrl); }}
+                      className={`relative rounded-xl overflow-hidden border-2 transition-all aspect-[3/4] ${
+                        selectedAvatarId === avatar.id
+                          ? "border-amber-500 ring-2 ring-amber-500/30"
+                          : "border-border hover:border-amber-500/50"
+                      }`}
+                      title={avatar.name}
+                    >
+                      <img
+                        src={avatar.previewImageUrl}
+                        alt={avatar.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      {selectedAvatarId === avatar.id && (
+                        <div className="absolute top-1 right-1 bg-amber-500 rounded-full p-0.5">
+                          <CheckCircle2 className="h-3 w-3 text-black" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+              </div>
+              {stockAvatars.filter(a => avatarGenderFilter === "all" || a.gender === avatarGenderFilter).length > 48 && (
+                <p className="text-xs text-muted-foreground text-center mt-2">Showing 48 of {stockAvatars.filter(a => avatarGenderFilter === "all" || a.gender === avatarGenderFilter).length} — use search to narrow down</p>
+              )}
+            </div>
+          )}
         </Card>
       )}
 
@@ -694,7 +779,7 @@ export default function FullAvatarVideo() {
           disabled={
             isGenerating ||
             !script.trim() ||
-            (mode === "quick" && (!avatarImageUrl || isUploadingAvatar)) ||
+            (mode === "quick" && (!selectedAvatarId || isLoadingAvatars)) ||
             (mode === "custom" && twinStatus?.status !== "ready")
           }
           className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold h-12 text-base"

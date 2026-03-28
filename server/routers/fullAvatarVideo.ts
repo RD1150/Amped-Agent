@@ -1,17 +1,18 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { fullAvatarVideos, customAvatarTwins } from "../../drizzle/schema";
+import { fullAvatarVideos, customAvatarTwins, users } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { storagePut } from "../storage";
 import { invokeLLM } from "../_core/llm";
 import {
-  createPhotoAvatarFromUrl,
-  generateTalkingPhotoVideo,
+  generateStockAvatarVideo,
   generateCustomAvatarVideo,
   createCustomAvatar,
   getCustomAvatarStatus,
   waitForHeyGenVideo,
+  listHeyGenVoices,
 } from "../lib/heygen-service";
 
 /** Estimate video duration from word count (avg 130 words/min speaking pace) */
@@ -119,14 +120,41 @@ Requirements:
     }),
 
   /**
-   * Generate a full talking-head video using HeyGen (photo-based, no training)
+   * Fetch stock avatars from HeyGen for the avatar picker
+   */
+  getAvatars: protectedProcedure
+    .query(async () => {
+      const apiKey = process.env.HEYGEN_API_KEY;
+      if (!apiKey) throw new Error("HeyGen API key not configured");
+      const res = await fetch("https://api.heygen.com/v2/avatars", {
+        headers: { "X-Api-Key": apiKey, accept: "application/json" },
+      });
+      if (!res.ok) throw new Error(`HeyGen avatars fetch failed: ${res.status}`);
+      const data = await res.json() as { data?: { avatars?: Array<{ avatar_id: string; avatar_name: string; gender: string; preview_image_url: string; preview_video_url?: string; premium: boolean }> } };
+      const avatars = data.data?.avatars ?? [];
+      // Return only free (non-premium) avatars with business-appropriate names
+      return avatars
+        .filter((a) => !a.premium)
+        .map((a) => ({
+          id: a.avatar_id,
+          name: a.avatar_name,
+          gender: a.gender as "male" | "female",
+          previewImageUrl: a.preview_image_url,
+          previewVideoUrl: a.preview_video_url ?? null,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }),
+
+  /**
+   * Generate a full talking-head video using HeyGen stock avatar
    */
   generate: protectedProcedure
     .input(
       z.object({
         script: z.string().min(20).max(5000),
-        avatarUrl: z.string().url(),
-        voiceId: z.string().optional().default("en-US-JennyNeural"),
+        avatarId: z.string().min(1),           // HeyGen stock avatar_id
+        avatarPreviewUrl: z.string().url().optional(), // for display in DB
+        voiceId: z.string().optional().default("1bd001e7e50f421d891986aad5158bc8"),
         title: z.string().max(255).optional(),
         landscape: z.boolean().optional().default(false),
       })
@@ -134,6 +162,16 @@ Requirements:
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      // ── Premium gate ────────────────────────────────────────────────────────
+      const [userRow] = await db.select({ tier: users.subscriptionTier }).from(users).where(eq(users.id, ctx.user.id));
+      const tier = userRow?.tier ?? "starter";
+      if (tier !== "premium" && tier !== "pro") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Full Avatar Video is a Premium feature. Please upgrade your plan to access this feature.",
+        });
+      }
 
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 90);
@@ -146,7 +184,7 @@ Requirements:
           userId: ctx.user.id,
           title: input.title || null,
           script: input.script,
-          avatarUrl: input.avatarUrl,
+          avatarUrl: input.avatarPreviewUrl || null,
           avatarType: "v2_photo",
           voiceId: input.voiceId,
           duration,
@@ -158,15 +196,13 @@ Requirements:
       const videoId = record.id;
 
       try {
-        // Step 1: Upload photo to HeyGen to get a talking_photo_id
-        const photoAvatarId = await createPhotoAvatarFromUrl(input.avatarUrl);
-
-        // Step 2: Submit video generation job
-        const heygenVideoId = await generateTalkingPhotoVideo({
-          photoAvatarId,
+        // Submit video generation job using stock avatar_id
+        const heygenVideoId = await generateStockAvatarVideo({
+          avatarId: input.avatarId,
           script: input.script,
           voiceId: input.voiceId,
           title: input.title,
+          landscape: input.landscape,
         });
 
         // Save HeyGen video ID for reference
@@ -175,10 +211,10 @@ Requirements:
           .set({ didTalkId: heygenVideoId })
           .where(eq(fullAvatarVideos.id, videoId));
 
-        // Step 3: Poll until complete (up to 10 minutes for long scripts)
+        // Poll until complete (up to 10 minutes for long scripts)
         const heygenVideoUrl = await waitForHeyGenVideo(heygenVideoId, 600_000, 5_000);
 
-        // Step 4: Download and re-host on S3 for permanence
+        // Download and re-host on S3 for permanence
         const videoRes = await fetch(heygenVideoUrl);
         if (!videoRes.ok) throw new Error("Failed to download HeyGen video");
         const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
@@ -358,6 +394,16 @@ Requirements:
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      // ── Premium gate ────────────────────────────────────────────────────────
+      const [userRow2] = await db.select({ tier: users.subscriptionTier }).from(users).where(eq(users.id, ctx.user.id));
+      const tier2 = userRow2?.tier ?? "starter";
+      if (tier2 !== "premium" && tier2 !== "pro") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Full Avatar Video is a Premium feature. Please upgrade your plan to access this feature.",
+        });
+      }
 
       const [twin] = await db
         .select()

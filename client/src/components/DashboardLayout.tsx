@@ -56,7 +56,8 @@ import {
   BookOpen,
   Heart,
   Users,
-  UserCircle
+  UserCircle,
+  FileVideo2
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -121,6 +122,7 @@ const menuSections = [
       { icon: Video, label: "AI Reels", path: "/autoreels", description: "Short avatar intro clips for social media (15–60 sec)" },
       { icon: UserCircle, label: "Full Avatar Video", path: "/full-avatar-video", description: "Full talking-head video from your script — HeyGen quality", badge: "New" },
       { icon: Sparkles, label: "Compare Video Types", path: "/video-comparison", description: "See the difference between Listing Video and Cinematic Tour" },
+      { icon: FileVideo2, label: "My Videos", path: "/my-videos", description: "All your generated videos in one place" },
     ]
   },
   {
