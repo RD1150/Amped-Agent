@@ -871,3 +871,41 @@ export const brandStories = mysqlTable("brand_stories", {
 });
 export type BrandStory = typeof brandStories.$inferSelect;
 export type InsertBrandStory = typeof brandStories.$inferInsert;
+
+// ─── Full Avatar Videos ────────────────────────────────────────────────────────────────────────
+// Stores full talking-head videos generated entirely by D-ID (not just intro clips)
+export const fullAvatarVideos = mysqlTable("full_avatar_videos", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }), // Optional user-provided title
+  script: text("script").notNull(), // Full script delivered by the avatar
+  avatarUrl: text("avatarUrl"), // Headshot URL (V2) or null for V3
+  avatarType: mysqlEnum("avatarType", ["v2_photo", "v3_custom"]).default("v2_photo").notNull(),
+  customAvatarId: varchar("customAvatarId", { length: 255 }), // D-ID V3 avatar ID (if custom twin)
+  voiceId: varchar("voiceId", { length: 100 }).default("en-US-JennyNeural"),
+  didTalkId: varchar("didTalkId", { length: 255 }), // D-ID talk job ID for status polling
+  videoUrl: text("videoUrl"), // Final video URL (S3)
+  s3Key: varchar("s3Key", { length: 500 }),
+  duration: int("duration"), // Estimated duration in seconds
+  status: mysqlEnum("status", ["processing", "completed", "failed"]).default("processing").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(), // 90 days from creation
+});
+export type FullAvatarVideo = typeof fullAvatarVideos.$inferSelect;
+export type InsertFullAvatarVideo = typeof fullAvatarVideos.$inferInsert;
+
+// ─── Custom Avatar Twins (D-ID V3) ────────────────────────────────────────────────────────────
+// Stores trained D-ID V3 digital twins — one per user (can be retrained)
+export const customAvatarTwins = mysqlTable("custom_avatar_twins", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(), // One twin per user
+  didAvatarId: varchar("didAvatarId", { length: 255 }).notNull(), // D-ID V3 avatar ID
+  trainingVideoUrl: text("trainingVideoUrl").notNull(), // S3 URL of the training video clip
+  thumbnailUrl: text("thumbnailUrl"), // Preview thumbnail
+  status: mysqlEnum("status", ["training", "ready", "failed"]).default("training").notNull(),
+  trainedAt: timestamp("trainedAt"), // When training completed
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CustomAvatarTwin = typeof customAvatarTwins.$inferSelect;
+export type InsertCustomAvatarTwin = typeof customAvatarTwins.$inferInsert;

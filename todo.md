@@ -4019,3 +4019,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Drag-to-reorder photos with live pan direction arrow updates
 - [x] AI voiceover script generator ("Write script for me" button)
 - [x] Preview outro card showing agent headshot, name, brokerage, phone
+
+## Full Avatar Video Mode (AI Reels)
+- [ ] Add `fullAvatarVideos` table to schema (userId, script, avatarUrl, avatarType, videoUrl, status, createdAt, expiresAt)
+- [ ] Add `generateFullAvatarVideo` tRPC mutation (V2 photo-based, full script length)
+- [ ] Add `getFullAvatarVideos` tRPC query (list user's full avatar videos)
+- [ ] Add "Full Avatar Video" tab/mode to AI Reels page
+- [ ] Script input with word count + estimated read-time
+- [ ] Quick Avatar (V2) generation flow with progress indicator
+- [ ] V3 Custom Avatar training flow (upload 2-min video clip, poll training, save twin ID)
+- [ ] Full avatar video player and download in results

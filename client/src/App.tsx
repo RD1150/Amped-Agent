@@ -29,6 +29,7 @@ import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import AutoReels from "./pages/AutoReels";
+import FullAvatarVideo from "./pages/FullAvatarVideo";
 import ThumbnailGenerator from "./pages/ThumbnailGenerator";
 import PropertyTours from "./pages/PropertyTours";
 import ContentTemplates from "./pages/ContentTemplates";
@@ -110,6 +111,7 @@ function Router() {
         <Route path="/integrations" component={Integrations} />
         <Route path="/generate" component={AIGenerate} />
         <Route path="/autoreels" component={AutoReels} />
+        <Route path="/full-avatar-video" component={FullAvatarVideo} />
         <Route path="/thumbnails" component={ThumbnailGenerator} />
         <Route path="/property-tours" component={PropertyTours} />
         <Route path="/content-templates" component={ContentTemplates} />

@@ -55,7 +55,8 @@ import {
   Film,
   BookOpen,
   Heart,
-  Users
+  Users,
+  UserCircle
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -108,6 +109,7 @@ const menuSections = [
       { icon: Mail, label: "Newsletter Builder", path: "/newsletter", description: "Design email newsletters", badge: "Premium" },
       { icon: Shuffle, label: "Repurpose Engine", path: "/repurpose", description: "Write once, publish everywhere — 5 formats from 1 idea", badge: "Premium" },
       { icon: Video, label: "AI Reels", path: "/autoreels", description: "Create talking avatar videos (15-60 sec)" },
+      { icon: UserCircle, label: "Full Avatar Video", path: "/full-avatar-video", description: "HeyGen-powered full talking-head video from your script", badge: "New" },
       { icon: FileText, label: "Lead Magnet Generator", path: "/lead-magnet", description: "Generate branded PDF lead magnets for Facebook Lead Ads", badge: "Premium" },
       { icon: FileText, label: "My Lead Magnets", path: "/my-lead-magnets", description: "View and download your saved lead magnet PDFs" },
       { icon: Upload, label: "Bulk Import", path: "/bulk-import", description: "Import content ideas from CSV in bulk" },

@@ -33,6 +33,7 @@ import { cinematicWalkthroughRouter } from "./routers/cinematicWalkthrough";
 import { blogBuilderRouter } from "./routers/blogBuilder";
 import { brandStoryRouter } from "./routers/brandStory";
 import { ghlRouter } from "./routers/ghl";
+import { fullAvatarVideoRouter } from "./routers/fullAvatarVideo";
 
 export const appRouter = router({
   system: systemRouter,
@@ -52,6 +53,7 @@ export const appRouter = router({
   blogBuilder: blogBuilderRouter,
   brandStory: brandStoryRouter,
   ghl: ghlRouter,
+  fullAvatarVideo: fullAvatarVideoRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

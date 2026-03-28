@@ -463,6 +463,13 @@
       "when": 1774611316244,
       "tag": "0065_ordinary_energizer",
       "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "5",
+      "when": 1774682816597,
+      "tag": "0066_loving_gwen_stacy",
+      "breakpoints": true
     }
   ]
 }
