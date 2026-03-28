@@ -87,11 +87,14 @@ const ROOM_MOTION_PROMPTS: Record<string, { ltr: string; rtl: string; tilt?: str
 // Returns the motion prompt for a given room type and clip index.
 // Even-indexed clips pan L→R, odd-indexed clips pan R→L — alternating
 // direction creates the physical sensation of turning through doorways.
-function getMotionPrompt(roomType: string, clipIndex: number, customPrompt?: string): string {
+// isExterior: agent-tagged exterior shots always use tilt-up regardless of room type.
+function getMotionPrompt(roomType: string, clipIndex: number, customPrompt?: string, isExterior?: boolean): string {
   if (customPrompt) return customPrompt;
   const prompts = ROOM_MOTION_PROMPTS[roomType] ?? ROOM_MOTION_PROMPTS.other;
-  // Exterior front always uses tilt (doesn't benefit from L/R alternation)
-  if (prompts.tilt && roomType === "exterior_front") return prompts.tilt;
+  // Exterior front room type OR explicit isExterior tag → always tilt-up
+  if (isExterior || (prompts.tilt && roomType === "exterior_front")) {
+    return prompts.tilt ?? ROOM_MOTION_PROMPTS.exterior_front.tilt!;
+  }
   return clipIndex % 2 === 0 ? prompts.ltr : prompts.rtl;
 }
 
@@ -179,9 +182,10 @@ async function generateRunwayClip(
   roomType: string,
   clipIndex: number,
   customPrompt?: string,
-  attempt = 1
+  attempt = 1,
+  isExterior?: boolean
 ): Promise<string> {
-  const promptText = getMotionPrompt(roomType, clipIndex, customPrompt);
+  const promptText = getMotionPrompt(roomType, clipIndex, customPrompt, isExterior);
 
   log(`Generating Runway clip for room: ${roomType} (attempt ${attempt}), prompt: ${promptText.substring(0, 60)}...`);
 
@@ -721,6 +725,7 @@ export const cinematicWalkthroughRouter = router({
               roomType: z.string().default("other"),
               customPrompt: z.string().optional(),
               label: z.string().optional(),
+              isExterior: z.boolean().optional(), // forces tilt-up motion regardless of room type
             })
           )
           .min(2, "At least 2 photos are required")
@@ -857,7 +862,7 @@ async function runWalkthroughJob(
   jobId: string,
   userId: number,
   input: {
-    photos: Array<{ url: string; roomType: string; customPrompt?: string; label?: string }>;
+    photos: Array<{ url: string; roomType: string; customPrompt?: string; label?: string; isExterior?: boolean }>;
      propertyAddress: string;
     agentName?: string;
     agentBrokerage?: string;
@@ -905,7 +910,7 @@ async function runWalkthroughJob(
     log(`Job ${jobId}: Generating clip ${i + 1}/${input.photos.length} (${photo.roomType})`);
 
     try {
-      const clipUrl = await generateRunwayClip(photo.url, photo.roomType, i, photo.customPrompt);
+      const clipUrl = await generateRunwayClip(photo.url, photo.roomType, i, photo.customPrompt, 1, photo.isExterior);
       const roomLabel =
         photo.label ||
         photo.roomType

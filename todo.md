@@ -4004,3 +4004,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Wire letterbox (2.35:1) toggle to Luxury Mode UI in Cinematic Tour form
 - [x] Show dual 16:9 + 9:16 outputs in My Content with download labels and Luxury badge
 - [x] Letterbox toggle wired to Luxury Mode UI (2.35:1 cinematic crop via black bar overlays)
+
+## Cinematic Walkthrough - Pan Direction Indicators
+- [ ] Show read-only directional pan arrows (→ ← alternating, ↑ for exterior) on each photo card in the upload UI
+- [ ] Add optional "Exterior" tag toggle on each photo card (triggers tilt-up motion in Runway)
+- [x] Wire Exterior tag through tRPC schema and backend getMotionPrompt() so tagged photos always get tilt-up prompt
+
+## Cinematic Walkthrough - Pan Direction Indicators
+- [x] Show read-only directional pan arrows on each photo card (→ ← alternating, ↑ for exterior)
+- [x] Add optional Exterior tag toggle on each photo card (triggers tilt-up motion in Runway)
+- [x] Wire Exterior tag through tRPC schema and backend getMotionPrompt()

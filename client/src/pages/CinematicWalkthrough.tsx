@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2, Gem } from "lucide-react";
+import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2, Gem, ArrowRight, ArrowLeft, ArrowUp, Home } from "lucide-react";
 import { Link } from "wouter";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -22,6 +22,7 @@ interface PhotoEntry {
   label: string;
   customPrompt?: string;
   uploading?: boolean;
+  isExterior?: boolean; // forces tilt-up motion instead of L/R pan
 }
 
 const ROOM_TYPE_LABELS: Record<string, string> = {
@@ -56,6 +57,24 @@ const VOICE_OPTIONS = [
   { id: "EXAVITQu4vr4xnSDxMaL", name: "Bella",  desc: "Warm Female",         tag: "" },
   { id: "TxGEqnHWrfWFTfGW9XjX", name: "Josh",   desc: "Authoritative Male",  tag: "" },
 ];
+
+// ─── Pan direction helpers ───────────────────────────────────────────────────
+
+// Returns the effective pan direction for a photo card based on its position
+// among non-exterior photos. Exterior photos always get a tilt-up (↑).
+// Even non-exterior positions pan L→R (→), odd positions pan R→L (←).
+function getPanDirection(photos: PhotoEntry[], index: number): "ltr" | "rtl" | "tilt" {
+  const photo = photos[index];
+  // Explicit exterior tag OR exterior_front room type → tilt-up
+  if (photo.isExterior || photo.roomType === "exterior_front") return "tilt";
+  // Count how many non-exterior photos precede this one to determine alternation
+  let nonExteriorCount = 0;
+  for (let i = 0; i < index; i++) {
+    const p = photos[i];
+    if (!p.isExterior && p.roomType !== "exterior_front") nonExteriorCount++;
+  }
+  return nonExteriorCount % 2 === 0 ? "ltr" : "rtl";
+}
 
 // ─── Upload helper ────────────────────────────────────────────────────────────
 
@@ -227,6 +246,7 @@ export default function CinematicWalkthrough() {
           roomType: p.roomType,
           label: p.label || ROOM_TYPE_LABELS[p.roomType] || p.roomType,
           customPrompt: p.customPrompt || undefined,
+          isExterior: p.isExterior || undefined,
         })),
         propertyAddress: propertyAddress.trim(),
         agentName: agentName.trim() || undefined,
@@ -520,61 +540,89 @@ export default function CinematicWalkthrough() {
         {/* Photo grid */}
         {photos.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {photos.map((photo, index) => (
-              <div key={photo.id} className="rounded-xl border border-border bg-card overflow-hidden">
-                <div className="relative aspect-video bg-muted">
-                  <img
-                    src={photo.previewUrl}
-                    alt={`Photo ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                  {photo.uploading && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <Loader2 className="h-6 w-6 text-white animate-spin" />
+            {photos.map((photo, index) => {
+              const panDir = getPanDirection(photos, index);
+              const PanIcon = panDir === "tilt" ? ArrowUp : panDir === "ltr" ? ArrowRight : ArrowLeft;
+              const panLabel = panDir === "tilt" ? "Tilt up" : panDir === "ltr" ? "Pan left → right" : "Pan right → left";
+              const panColor = panDir === "tilt" ? "text-blue-400 border-blue-400/40 bg-blue-400/10" : "text-amber-400 border-amber-400/40 bg-amber-400/10";
+              return (
+                <div key={photo.id} className="rounded-xl border border-border bg-card overflow-hidden">
+                  <div className="relative aspect-video bg-muted">
+                    <img
+                      src={photo.previewUrl}
+                      alt={`Photo ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {photo.uploading && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <Loader2 className="h-6 w-6 text-white animate-spin" />
+                      </div>
+                    )}
+                    <button
+                      onClick={() => removePhoto(photo.id)}
+                      className="absolute top-2 right-2 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    {/* Pan direction indicator — bottom left */}
+                    <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
+                      <Badge variant="secondary" className="text-xs bg-black/60 text-white border-0">
+                        {index + 1}
+                      </Badge>
+                      <span className={`flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded border ${panColor}`}>
+                        <PanIcon className="h-2.5 w-2.5" />
+                        {panLabel}
+                      </span>
                     </div>
-                  )}
-                  <button
-                    onClick={() => removePhoto(photo.id)}
-                    className="absolute top-2 right-2 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                  <div className="absolute bottom-2 left-2">
-                    <Badge variant="secondary" className="text-xs bg-black/60 text-white border-0">
-                      {index + 1}
-                    </Badge>
+                  </div>
+                  <div className="p-3 space-y-2">
+                    <Select
+                      value={photo.roomType}
+                      onValueChange={(val) =>
+                        updatePhoto(photo.id, {
+                          roomType: val,
+                          label: ROOM_TYPE_LABELS[val] || val,
+                          // Auto-set exterior tag when exterior room types are selected
+                          isExterior: val === "exterior_front" || val === "exterior_back" ? true : photo.isExterior,
+                        })
+                      }
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue placeholder="Room type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(ROOM_TYPE_LABELS).map(([value, label]) => (
+                          <SelectItem key={value} value={value} className="text-xs">
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      placeholder="Custom label (optional)"
+                      value={photo.label}
+                      onChange={(e) => updatePhoto(photo.id, { label: e.target.value })}
+                      className="h-8 text-xs"
+                    />
+                    {/* Exterior tag toggle — only shown for non-exterior room types */}
+                    {photo.roomType !== "exterior_front" && photo.roomType !== "exterior_back" && (
+                      <button
+                        type="button"
+                        onClick={() => updatePhoto(photo.id, { isExterior: !photo.isExterior })}
+                        className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
+                          photo.isExterior
+                            ? "border-blue-400/50 bg-blue-400/10 text-blue-400"
+                            : "border-border bg-muted/30 text-muted-foreground hover:border-blue-400/30 hover:text-blue-300"
+                        }`}
+                      >
+                        <Home className="h-3 w-3 flex-shrink-0" />
+                        {photo.isExterior ? "Exterior shot (tilt-up motion)" : "Mark as exterior (tilt-up)"}
+                      </button>
+                    )}
                   </div>
                 </div>
-                <div className="p-3 space-y-2">
-                  <Select
-                    value={photo.roomType}
-                    onValueChange={(val) =>
-                      updatePhoto(photo.id, {
-                        roomType: val,
-                        label: ROOM_TYPE_LABELS[val] || val,
-                      })
-                    }
-                  >
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue placeholder="Room type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(ROOM_TYPE_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value} className="text-xs">
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    placeholder="Custom label (optional)"
-                    value={photo.label}
-                    onChange={(e) => updatePhoto(photo.id, { label: e.target.value })}
-                    className="h-8 text-xs"
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
