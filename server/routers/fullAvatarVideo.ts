@@ -4,8 +4,9 @@ import { getDb } from "../db";
 import { fullAvatarVideos, customAvatarTwins } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { storagePut } from "../storage";
+import { invokeLLM } from "../_core/llm";
 import {
-  createInstantAvatarFromPhoto,
+  createPhotoAvatarFromUrl,
   generateTalkingPhotoVideo,
   generateCustomAvatarVideo,
   createCustomAvatar,
@@ -20,6 +21,79 @@ function estimateDuration(script: string): number {
 }
 
 export const fullAvatarVideoRouter = router({
+  /**
+   * Generate a camera-ready script for a full avatar video using AI
+   */
+  generateAvatarScript: protectedProcedure
+    .input(
+      z.object({
+        contentType: z.enum([
+          "market_update",
+          "listing_pitch",
+          "just_sold",
+          "tips_advice",
+          "testimonial_request",
+          "open_house",
+          "custom",
+        ]),
+        keyPoints: z.string().max(1000),
+        agentName: z.string().optional(),
+        targetLength: z.enum(["30s", "60s", "90s", "2min"]).default("60s"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const lengthGuide = {
+        "30s": "65–80 words (30 seconds at camera pace)",
+        "60s": "130–150 words (60 seconds at camera pace)",
+        "90s": "200–220 words (90 seconds at camera pace)",
+        "2min": "260–280 words (2 minutes at camera pace)",
+      }[input.targetLength];
+
+      const contentTypeLabel = {
+        market_update: "Real Estate Market Update",
+        listing_pitch: "New Listing Announcement",
+        just_sold: "Just Sold Announcement",
+        tips_advice: "Real Estate Tips & Advice",
+        testimonial_request: "Client Testimonial Request",
+        open_house: "Open House Invitation",
+        custom: "Custom Video",
+      }[input.contentType];
+
+      const agentName = input.agentName || "your real estate agent";
+
+      const systemPrompt = `You are a professional real estate video scriptwriter. 
+Write camera-ready scripts that sound natural when spoken directly to camera — conversational, warm, and authoritative. 
+No stage directions, no scene descriptions, no [PAUSE] markers. Just the words the agent will speak.
+Write in first person as the agent. Keep sentences short and punchy for video delivery.
+Do NOT start with "Hey guys" or generic openers. Start with something specific and engaging.`;
+
+      const userPrompt = `Write a ${contentTypeLabel} script for a real estate agent named ${agentName}.
+
+Target length: ${lengthGuide}
+
+Key points to cover:
+${input.keyPoints}
+
+Requirements:
+- Direct-to-camera delivery tone (not a voiceover)
+- Conversational but professional
+- End with a clear call to action
+- No hashtags, no emojis, no stage directions
+- Just the spoken words`;
+
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      });
+
+      const script = response.choices?.[0]?.message?.content as string;
+      if (!script) throw new Error("Script generation failed");
+
+      return { script: script.trim() };
+    }),
+
   /**
    * Generate a full talking-head video using HeyGen (photo-based, no training)
    */
@@ -61,7 +135,7 @@ export const fullAvatarVideoRouter = router({
 
       try {
         // Step 1: Upload photo to HeyGen to get a talking_photo_id
-        const photoAvatarId = await createInstantAvatarFromPhoto(input.avatarUrl);
+        const photoAvatarId = await createPhotoAvatarFromUrl(input.avatarUrl);
 
         // Step 2: Submit video generation job
         const heygenVideoId = await generateTalkingPhotoVideo({

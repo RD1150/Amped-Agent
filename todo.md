@@ -4029,3 +4029,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Quick Avatar (V2) generation flow with progress indicator
 - [ ] V3 Custom Avatar training flow (upload 2-min video clip, poll training, save twin ID)
 - [ ] Full avatar video player and download in results
+
+- [x] Full Avatar Video: Fix HeyGen API (correct upload + avatar group creation endpoints)
+- [x] Full Avatar Video: Show clear training status banner after submission (spinner, auto-poll, green ready state)
+- [x] Full Avatar Video: Add AI script generator with content-type selector (Market Update, Listing Pitch, Just Sold, Tips, etc.)

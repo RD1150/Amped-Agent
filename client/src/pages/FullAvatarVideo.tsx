@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Video, Sparkles, Download, Upload, User, Trash2,
-  CheckCircle2, Clock, AlertCircle, Zap, Crown, RefreshCw, Play
+  CheckCircle2, Clock, AlertCircle, Zap, Crown, RefreshCw, Play, Wand2
 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -32,6 +32,24 @@ function estimateReadTime(text: string): { words: number; seconds: number; label
   return { words, seconds, label };
 }
 
+// ─── Script generator content types ─────────────────────────────────────────
+const CONTENT_TYPES = [
+  { id: "market_update", label: "Market Update", emoji: "📊" },
+  { id: "listing_pitch", label: "New Listing", emoji: "🏠" },
+  { id: "just_sold", label: "Just Sold", emoji: "🎉" },
+  { id: "tips_advice", label: "Tips & Advice", emoji: "💡" },
+  { id: "testimonial_request", label: "Ask for Review", emoji: "⭐" },
+  { id: "open_house", label: "Open House", emoji: "🚪" },
+  { id: "custom", label: "Custom", emoji: "✏️" },
+] as const;
+
+const TARGET_LENGTHS = [
+  { id: "30s", label: "30 sec" },
+  { id: "60s", label: "1 min" },
+  { id: "90s", label: "90 sec" },
+  { id: "2min", label: "2 min" },
+] as const;
+
 type AvatarMode = "quick" | "custom";
 
 export default function FullAvatarVideo() {
@@ -47,6 +65,13 @@ export default function FullAvatarVideo() {
   const [avatarImagePreview, setAvatarImagePreview] = useState("");
   const [avatarImageUrl, setAvatarImageUrl] = useState(""); // S3 URL
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  // ── Script generator state ────────────────────────────────────────────────
+  const [showScriptGen, setShowScriptGen] = useState(false);
+  const [scriptContentType, setScriptContentType] = useState<string>("market_update");
+  const [scriptKeyPoints, setScriptKeyPoints] = useState("");
+  const [scriptTargetLength, setScriptTargetLength] = useState<"30s" | "60s" | "90s" | "2min">("60s");
+  const [isGeneratingScript, setIsGeneratingScript] = useState(false);
 
   // ── Generation state ──────────────────────────────────────────────────────
   const [isGenerating, setIsGenerating] = useState(false);
@@ -73,6 +98,7 @@ export default function FullAvatarVideo() {
   const generateV3Mutation = trpc.fullAvatarVideo.generateWithCustomAvatar.useMutation();
   const trainMutation = trpc.fullAvatarVideo.trainCustomAvatar.useMutation();
   const deleteMutation = trpc.fullAvatarVideo.delete.useMutation();
+  const generateScriptMutation = trpc.fullAvatarVideo.generateAvatarScript.useMutation();
 
   // Pre-fill avatar from saved profile
   useEffect(() => {
@@ -161,7 +187,7 @@ export default function FullAvatarVideo() {
 
     setIsGenerating(true);
     setResultVideoUrl("");
-    setGenerationStep("Submitting script to D-ID…");
+    setGenerationStep("Submitting to HeyGen…");
 
     try {
       let result: { videoUrl: string; duration: number };
@@ -192,6 +218,29 @@ export default function FullAvatarVideo() {
     } finally {
       setIsGenerating(false);
       setGenerationStep("");
+    }
+  };
+
+  const handleGenerateScript = async () => {
+    if (!scriptKeyPoints.trim()) {
+      toast.error("Enter at least one key point for the script");
+      return;
+    }
+    setIsGeneratingScript(true);
+    try {
+      const result = await generateScriptMutation.mutateAsync({
+        contentType: scriptContentType as any,
+        keyPoints: scriptKeyPoints,
+        agentName: currentUser?.name || undefined,
+        targetLength: scriptTargetLength,
+      });
+      setScript(result.script);
+      setShowScriptGen(false);
+      toast.success("Script generated! Review and edit before generating your video.");
+    } catch (err: any) {
+      toast.error(err.message || "Script generation failed");
+    } finally {
+      setIsGeneratingScript(false);
     }
   };
 
@@ -408,6 +457,90 @@ export default function FullAvatarVideo() {
         </Card>
       )}
 
+      {/* AI Script Generator */}
+      <Card className="p-6 space-y-4 border-amber-500/20">
+        <button
+          onClick={() => setShowScriptGen((v) => !v)}
+          className="w-full flex items-center justify-between text-left"
+        >
+          <Label className="text-base font-semibold flex items-center gap-2 cursor-pointer">
+            <Wand2 className="h-4 w-4 text-amber-500" />
+            Write Script with AI
+          </Label>
+          <span className="text-xs text-muted-foreground">{showScriptGen ? "Hide" : "Expand"}</span>
+        </button>
+
+        {showScriptGen && (
+          <div className="space-y-4 pt-2">
+            {/* Content type */}
+            <div className="space-y-2">
+              <Label className="text-sm">What kind of video?</Label>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {CONTENT_TYPES.map((ct) => (
+                  <button
+                    key={ct.id}
+                    onClick={() => setScriptContentType(ct.id)}
+                    className={`text-xs px-2 py-2 rounded-lg border transition-all text-center ${
+                      scriptContentType === ct.id
+                        ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
+                        : "border-border hover:border-amber-500/40 text-muted-foreground"
+                    }`}
+                  >
+                    <span className="block text-base mb-0.5">{ct.emoji}</span>
+                    {ct.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Target length */}
+            <div className="space-y-2">
+              <Label className="text-sm">Target length</Label>
+              <div className="flex gap-2">
+                {TARGET_LENGTHS.map((tl) => (
+                  <button
+                    key={tl.id}
+                    onClick={() => setScriptTargetLength(tl.id as any)}
+                    className={`flex-1 text-xs py-2 rounded-lg border transition-all ${
+                      scriptTargetLength === tl.id
+                        ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
+                        : "border-border hover:border-amber-500/40 text-muted-foreground"
+                    }`}
+                  >
+                    {tl.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Key points */}
+            <div className="space-y-2">
+              <Label className="text-sm">Key points to cover</Label>
+              <Textarea
+                placeholder={`e.g.\n- Inventory is down 18% from last year\n- Interest rates stabilizing around 6.5%\n- Great time to list before spring rush`}
+                value={scriptKeyPoints}
+                onChange={(e) => setScriptKeyPoints(e.target.value)}
+                rows={4}
+                className="resize-none text-sm"
+              />
+              <p className="text-xs text-muted-foreground">Jot down 2–4 bullet points. The AI will write the full camera-ready script.</p>
+            </div>
+
+            <Button
+              onClick={handleGenerateScript}
+              disabled={isGeneratingScript || !scriptKeyPoints.trim()}
+              className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+            >
+              {isGeneratingScript ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Writing your script…</>
+              ) : (
+                <><Wand2 className="mr-2 h-4 w-4" />Generate Script</>  
+              )}
+            </Button>
+          </div>
+        )}
+      </Card>
+
       {/* Script input */}
       <Card className="p-6 space-y-4">
         <div className="flex items-center justify-between">
@@ -483,7 +616,7 @@ export default function FullAvatarVideo() {
 
         {isGenerating && (
           <div className="text-center text-xs text-muted-foreground">
-            D-ID is animating your avatar and syncing speech. This takes 1–5 minutes depending on script length.
+    HeyGen is animating your avatar and syncing speech. This takes 1–5 minutes depending on script length.
           </div>
         )}
       </Card>
