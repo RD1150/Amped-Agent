@@ -4046,3 +4046,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Dashboard: Add monthly avatar video usage counter (count + plan limit)
 - [x] Full Avatar Video: Filter Talking Photos out of stock avatar picker (only show true stock avatars)
 - [x] Full Avatar Video: Improve Custom Digital Twin UI with clearer guidance to upload video clip
+- [x] Full Avatar Video: Add high-quality tips section to Custom Digital Twin training card

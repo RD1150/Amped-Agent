@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Video, Sparkles, Download, Upload, User, Trash2,
-  CheckCircle2, Clock, AlertCircle, Zap, Crown, RefreshCw, Play, Wand2
+  CheckCircle2, Clock, AlertCircle, Zap, Crown, RefreshCw, Play, Wand2,
+  Lightbulb, ChevronDown, ChevronUp
 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -81,6 +82,7 @@ export default function FullAvatarVideo() {
   const [resultDuration, setResultDuration] = useState(0);
 
   // ── Custom Avatar training (V3) ───────────────────────────────────────────
+  const [showTwinTips, setShowTwinTips] = useState(false);
   const [trainingVideoFile, setTrainingVideoFile] = useState<File | null>(null);
   const [trainingVideoPreview, setTrainingVideoPreview] = useState("");
   const [isUploadingTraining, setIsUploadingTraining] = useState(false);
@@ -521,6 +523,54 @@ export default function FullAvatarVideo() {
                   <div><span className="font-medium text-foreground">Face:</span> Look directly at camera</div>
                   <div><span className="font-medium text-foreground">Lighting:</span> Even, no harsh shadows</div>
                 </div>
+              </div>
+
+              {/* Tips for recording a high-quality training video */}
+              <div className="rounded-lg border border-border overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowTwinTips((v) => !v)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
+                    Tips for recording a high-quality training video
+                  </span>
+                  {showTwinTips ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                </button>
+                {showTwinTips && (
+                  <div className="px-3 pb-3 pt-1 space-y-3 border-t border-border bg-muted/20">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                      <div className="space-y-1">
+                        <p className="font-semibold text-foreground flex items-center gap-1">📍 Location &amp; Background</p>
+                        <p className="text-muted-foreground leading-relaxed">Choose a clean, uncluttered background — a plain wall, bookshelf, or simple office setting. Avoid busy patterns or moving objects behind you.</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-foreground flex items-center gap-1">💡 Lighting</p>
+                        <p className="text-muted-foreground leading-relaxed">Face a window or use a ring light so your face is evenly lit. Avoid sitting with a bright window behind you — it will silhouette your face.</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-foreground flex items-center gap-1">📷 Camera Position</p>
+                        <p className="text-muted-foreground leading-relaxed">Place your camera at eye level — not looking up from a desk or down from a shelf. Your face should fill roughly the top half of the frame.</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-foreground flex items-center gap-1">🎙️ Audio &amp; Speech</p>
+                        <p className="text-muted-foreground leading-relaxed">Speak at a natural, conversational pace. Vary your tone and expressions — smile, pause, look slightly left and right. This trains the AI to animate you more naturally.</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-foreground flex items-center gap-1">⏱️ Duration &amp; Content</p>
+                        <p className="text-muted-foreground leading-relaxed">Aim for 1.5–2 minutes. You can introduce yourself, describe a property, or just speak freely — the content doesn't matter, only the visual and audio quality does.</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-foreground flex items-center gap-1">🚫 What to Avoid</p>
+                        <p className="text-muted-foreground leading-relaxed">No sunglasses, hats, or masks. Avoid shaky handheld footage — prop your phone against something stable. Don't record in a loud room or outdoors with wind noise.</p>
+                      </div>
+                    </div>
+                    <div className="bg-green-500/10 border border-green-500/20 rounded-md p-2.5 text-xs text-green-700 dark:text-green-400">
+                      <span className="font-semibold">Pro tip:</span> A 90-second selfie video recorded on your phone in good natural light works perfectly. You only need to do this once.
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div
