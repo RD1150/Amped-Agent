@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +33,92 @@ import {
   ChevronDown,
   ChevronUp,
   Volume2,
+  Video,
+  User,
+  ArrowRight,
 } from "lucide-react";
+
+function PhotoAvatarCard() {
+  const { data: twinStatus, isLoading } = trpc.fullAvatarVideo.getCustomAvatarStatus.useQuery();
+
+  if (isLoading) return null;
+
+  return (
+    <Card className="p-6">
+      <h2 className="text-xl font-semibold mb-1 flex items-center gap-2">
+        <Video className="h-5 w-5" />
+        AI Photo Avatar
+        <span className="text-xs font-normal text-muted-foreground ml-1">Full Avatar Video</span>
+      </h2>
+      <p className="text-sm text-muted-foreground mb-4">
+        Your personal AI avatar that speaks your scripts in Full Avatar Videos.
+      </p>
+
+      {twinStatus?.status === "ready" ? (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          {/* Thumbnail */}
+          <div className="relative flex-shrink-0">
+            {twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl ? (
+              <img
+                src={twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl}
+                alt="Your Photo Avatar"
+                className="h-20 w-20 rounded-full object-cover border-2 border-green-500"
+              />
+            ) : (
+              <div className="h-20 w-20 rounded-full bg-green-500/20 flex items-center justify-center border-2 border-green-500">
+                <User className="h-8 w-8 text-green-600" />
+              </div>
+            )}
+            <span className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
+              <CheckCircle className="h-3.5 w-3.5 text-white" />
+            </span>
+          </div>
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm text-green-600 dark:text-green-400">Avatar ready</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.
+              Used automatically when you select "Your Photo Avatar" in Full Avatar Video.
+            </p>
+          </div>
+          {/* Action */}
+          <Link href="/full-avatar-video">
+            <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-black font-semibold whitespace-nowrap flex-shrink-0">
+              <Video className="h-3.5 w-3.5 mr-1.5" />
+              Generate Video
+            </Button>
+          </Link>
+        </div>
+      ) : twinStatus?.status === "training" ? (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+          <Loader2 className="h-6 w-6 text-amber-500 animate-spin flex-shrink-0" />
+          <div>
+            <p className="font-semibold text-sm">Avatar training in progress…</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Usually takes 1–3 minutes. Refresh to check status.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-muted/40 border border-dashed border-border">
+          <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+            <User className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-sm">No avatar set up yet</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Upload a headshot photo in Full Avatar Video to create your personal AI avatar.
+            </p>
+          </div>
+          <Link href="/full-avatar-video">
+            <Button size="sm" variant="outline" className="whitespace-nowrap flex-shrink-0">
+              Set Up Avatar
+              <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+            </Button>
+          </Link>
+        </div>
+      )}
+    </Card>
+  );
+}
 
 const VOICE_CLONE_SCRIPT = `Hi, my name is [Your Name] and I'm a real estate agent serving [Your City and surrounding areas].
 
@@ -449,6 +535,9 @@ export default function AuthorityProfile() {
       </div>
 
       <div className="space-y-6">
+        {/* AI Photo Avatar Status */}
+        <PhotoAvatarCard />
+
         {/* Customer Avatar */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4 flex items-center">

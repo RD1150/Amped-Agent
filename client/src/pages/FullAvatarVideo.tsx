@@ -581,8 +581,13 @@ export default function FullAvatarVideo() {
                 <div>
                   <p className="font-semibold text-sm">Your Photo Avatar is ready!</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.
-                    You can update it anytime by uploading a new headshot below.
+                    Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.{" "}
+                    <button
+                      className="underline text-amber-600 hover:text-amber-500 transition-colors"
+                      onClick={() => trainingPhotoRef.current?.click()}
+                    >
+                      Replace photo
+                    </button>
                   </p>
                 </div>
               </div>

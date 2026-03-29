@@ -4053,3 +4053,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Full Avatar Video: Show user's Photo Avatar at top of picker with "Your Avatar" badge
 - [x] Full Avatar Video: Add "Generate with My Avatar" shortcut button on ready confirmation banner
 - [x] Full Avatar Video: Auto-select Photo Avatar and scroll to script field on shortcut click
+- [x] Full Avatar Video: Add "Replace Photo" link on ready banner
+- [x] Account/Profile page: Show Photo Avatar thumbnail and status card
+- [x] Account/Profile page: Link to Full Avatar Video for setup if no avatar yet
