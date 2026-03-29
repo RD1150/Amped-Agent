@@ -97,6 +97,7 @@ function Router() {
       <Route path="/agent-onboarding" component={AgentOnboarding} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/subscription" component={Subscription} />
+      <Route path="/upgrade" component={Upgrade} />
       
       {/* Dashboard routes */}
       <Route>
@@ -134,7 +135,6 @@ function Router() {
         <Route path="/market-stats" component={MarketStats} />
         <Route path="/hooks" component={Hooks} />
 
-        <Route path="/upgrade" component={Upgrade} />
         <Route path="/analytics" component={Analytics} />
         <Route path="/schedules" component={Schedules} />
         <Route path="/settings" component={Settings} />

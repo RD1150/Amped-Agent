@@ -4056,3 +4056,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Full Avatar Video: Add "Replace Photo" link on ready banner
 - [x] Account/Profile page: Show Photo Avatar thumbnail and status card
 - [x] Account/Profile page: Link to Full Avatar Video for setup if no avatar yet
+- [x] Fix new user onboarding: move /upgrade outside DashboardLayout so unsubscribed users can access it
