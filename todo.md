@@ -4050,3 +4050,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Full Avatar Video: Replace Digital Twin (Enterprise-only) with Photo Avatar flow for Individual Creator plan
 - [ ] Full Avatar Video: Rename tab to "Your Photo Avatar", accept headshot photo upload
 - [ ] Full Avatar Video: Show personal photo avatar in the avatar picker once created
+- [x] Full Avatar Video: Show user's Photo Avatar at top of picker with "Your Avatar" badge
+- [x] Full Avatar Video: Add "Generate with My Avatar" shortcut button on ready confirmation banner
+- [x] Full Avatar Video: Auto-select Photo Avatar and scroll to script field on shortcut click

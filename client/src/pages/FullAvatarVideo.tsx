@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -89,6 +89,7 @@ export default function FullAvatarVideo() {
   const [isTraining, setIsTraining] = useState(false);
 
   const trainingPhotoRef = useRef<HTMLInputElement>(null);
+  const scriptSectionRef = useRef<HTMLDivElement>(null);
 
 
   // ── tRPC ──────────────────────────────────────────────────────────────────
@@ -137,8 +138,22 @@ export default function FullAvatarVideo() {
     audio.onerror = () => setPlayingPreviewId(null);
   };
 
-  // Auto-select first avatar once loaded
+  // Photo Avatar virtual entry — prepended to the picker when ready
+  const photoAvatarEntry = twinStatus?.status === "ready" ? {
+    id: "__photo_avatar__",
+    name: "Your Photo Avatar",
+    gender: "female" as const,
+    previewImageUrl: twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl || "",
+    isPhotoAvatar: true,
+  } : null;
+
+  // Auto-select first avatar once loaded (prefer user's Photo Avatar if ready)
   useEffect(() => {
+    if (twinStatus?.status === "ready" && !selectedAvatarId && mode === "quick") {
+      setSelectedAvatarId("__photo_avatar__");
+      setSelectedAvatarPreviewUrl(twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl || "");
+      return;
+    }
     if (stockAvatars.length > 0 && !selectedAvatarId) {
       // Default to first professional-looking avatar
       const preferred = stockAvatars.find(a =>
@@ -150,7 +165,16 @@ export default function FullAvatarVideo() {
       setSelectedAvatarPreviewUrl(preferred.previewImageUrl);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stockAvatars]);
+  }, [stockAvatars, twinStatus]);
+
+  const handleUseMyAvatar = useCallback(() => {
+    setMode("quick");
+    setSelectedAvatarId("__photo_avatar__");
+    setSelectedAvatarPreviewUrl(twinStatus?.thumbnailUrl || twinStatus?.trainingVideoUrl || "");
+    setTimeout(() => {
+      scriptSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }, [twinStatus]);
 
   const readTime = estimateReadTime(script);
 
@@ -210,7 +234,20 @@ export default function FullAvatarVideo() {
     try {
       let result: { videoUrl: string; duration: number };
 
-      if (mode === "quick") {
+      if (mode === "quick" && selectedAvatarId === "__photo_avatar__") {
+        // User selected their Photo Avatar from the picker — use the custom avatar generation path
+        if (twinStatus?.status !== "ready") {
+          toast.error("Your Photo Avatar is not ready yet.");
+          setIsGenerating(false);
+          return;
+        }
+        setGenerationStep("Generating with your Photo Avatar…");
+        result = await generateV3Mutation.mutateAsync({
+          script: script.trim(),
+          voiceId,
+          title: title.trim() || undefined,
+        });
+      } else if (mode === "quick") {
         setGenerationStep("Generating your avatar video with HeyGen…");
         result = await generateV2Mutation.mutateAsync({
           script: script.trim(),
@@ -440,6 +477,40 @@ export default function FullAvatarVideo() {
           ) : (
             <div className="max-h-64 overflow-y-auto">
               <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pr-1">
+                {/* User's Photo Avatar — always first if ready */}
+                {photoAvatarEntry && (
+                  <button
+                    key="__photo_avatar__"
+                    onClick={() => { setSelectedAvatarId("__photo_avatar__"); setSelectedAvatarPreviewUrl(photoAvatarEntry.previewImageUrl); }}
+                    className={`relative rounded-xl overflow-hidden border-2 transition-all aspect-[3/4] ${
+                      selectedAvatarId === "__photo_avatar__"
+                        ? "border-amber-500 ring-2 ring-amber-500/30"
+                        : "border-green-500 hover:border-amber-500/50"
+                    }`}
+                    title="Your Photo Avatar"
+                  >
+                    {photoAvatarEntry.previewImageUrl ? (
+                      <img
+                        src={photoAvatarEntry.previewImageUrl}
+                        alt="Your Photo Avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-green-500/20 flex items-center justify-center">
+                        <User className="h-6 w-6 text-green-600" />
+                      </div>
+                    )}
+                    {/* Your Avatar badge */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-green-600/90 text-white text-[9px] font-bold text-center py-0.5 leading-tight">
+                      YOUR AVATAR
+                    </div>
+                    {selectedAvatarId === "__photo_avatar__" && (
+                      <div className="absolute top-1 right-1 bg-amber-500 rounded-full p-0.5">
+                        <CheckCircle2 className="h-3 w-3 text-black" />
+                      </div>
+                    )}
+                  </button>
+                )}
                 {stockAvatars
                   .filter(a => avatarGenderFilter === "all" || a.gender === avatarGenderFilter)
                   .filter(a => !avatarSearch.trim() || a.name.toLowerCase().includes(avatarSearch.toLowerCase()))
@@ -496,15 +567,33 @@ export default function FullAvatarVideo() {
           </div>
 
           {twinStatus?.status === "ready" ? (
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
-              <CheckCircle2 className="h-8 w-8 text-green-500 flex-shrink-0" />
-              <div>
-                <p className="font-semibold text-sm">Your Photo Avatar is ready!</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.
-                  You can update it anytime by uploading a new headshot below.
-                </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+              <div className="flex items-center gap-3 flex-1">
+                {twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl ? (
+                  <img
+                    src={twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl}
+                    alt="Your Photo Avatar"
+                    className="h-12 w-12 rounded-full object-cover border-2 border-green-500 flex-shrink-0"
+                  />
+                ) : (
+                  <CheckCircle2 className="h-8 w-8 text-green-500 flex-shrink-0" />
+                )}
+                <div>
+                  <p className="font-semibold text-sm">Your Photo Avatar is ready!</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.
+                    You can update it anytime by uploading a new headshot below.
+                  </p>
+                </div>
               </div>
+              <Button
+                size="sm"
+                className="bg-amber-500 hover:bg-amber-600 text-black font-semibold whitespace-nowrap flex-shrink-0"
+                onClick={handleUseMyAvatar}
+              >
+                <Zap className="h-3.5 w-3.5 mr-1.5" />
+                Generate with My Avatar
+              </Button>
             </div>
           ) : (
             <div className="space-y-3">
@@ -711,7 +800,7 @@ export default function FullAvatarVideo() {
       </Card>
 
       {/* Script input */}
-      <Card className="p-6 space-y-4">
+      <Card className="p-6 space-y-4" ref={scriptSectionRef}>
         <div className="flex items-center justify-between">
           <Label className="text-base font-semibold">Your Script</Label>
           {script.trim() && (
