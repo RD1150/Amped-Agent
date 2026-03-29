@@ -4043,3 +4043,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] My Videos: unified library page showing Listing Videos, Cinematic Tours, AI Reels, Full Avatar Videos in one grid
 - [ ] AI Reels: add word count + estimated read-time to script textarea
 - [ ] Full Avatar Video: verify HeyGen end-to-end flow
+- [x] Dashboard: Add monthly avatar video usage counter (count + plan limit)

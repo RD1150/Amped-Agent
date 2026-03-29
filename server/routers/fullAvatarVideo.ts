@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { fullAvatarVideos, customAvatarTwins, users } from "../../drizzle/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, gte, sql } from "drizzle-orm";
 import { storagePut } from "../storage";
 import { invokeLLM } from "../_core/llm";
 import {
@@ -482,4 +482,41 @@ Requirements:
         );
       }
     }),
+
+  /**
+   * Get this month's Full Avatar Video count and plan limit for the current user
+   */
+  getMonthlyUsage: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // Fetch user tier
+    const [userRow] = await db
+      .select({ tier: users.subscriptionTier })
+      .from(users)
+      .where(eq(users.id, ctx.user.id));
+    const tier = userRow?.tier ?? "starter";
+
+    // Count avatar videos created this month (all statuses except deleted)
+    const [countRow] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(fullAvatarVideos)
+      .where(
+        and(
+          eq(fullAvatarVideos.userId, ctx.user.id),
+          gte(fullAvatarVideos.createdAt, monthStart)
+        )
+      );
+
+    const used = Number(countRow?.count ?? 0);
+    // Premium/Pro = unlimited (-1); Starter = blocked (0 limit)
+    const limit = tier === "premium" || tier === "pro" ? -1 : 0;
+    const tierLabel =
+      tier === "premium" ? "Premium" : tier === "pro" ? "Pro" : "Starter";
+
+    return { used, limit, tier: tierLabel };
+  }),
 });
