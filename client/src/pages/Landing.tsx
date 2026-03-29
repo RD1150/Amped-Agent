@@ -73,13 +73,19 @@ export default function Landing() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button size="lg" className="text-lg px-8" asChild>
+              <Button size="lg" className="text-lg px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg" asChild>
                 <a href={getLoginUrl()}>
-                  Generate a Post I'd Actually Use
+                  Start Your Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </a>
               </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8" asChild>
+                <a href="/pricing">
+                  See Plans &amp; Pricing
+                </a>
+              </Button>
             </div>
+            <p className="text-sm text-muted-foreground">7-day free trial &nbsp;&middot;&nbsp; No credit card required &nbsp;&middot;&nbsp; Cancel anytime</p>
           </div>
         </div>
 
@@ -258,12 +264,20 @@ export default function Landing() {
             <p className="text-xl text-muted-foreground">
               Join real estate professionals who trust Authority Content to consistently produce high-quality, credible content.
             </p>
-            <Button size="lg" className="text-lg px-8" asChild>
-              <a href={getLoginUrl()}>
-                Start Creating Professional Content
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="text-lg px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg" asChild>
+                <a href={getLoginUrl()}>
+                  Start Your Free Trial
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8" asChild>
+                <a href="/pricing">
+                  View Pricing
+                </a>
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">7-day free trial &nbsp;&middot;&nbsp; No credit card required &nbsp;&middot;&nbsp; Cancel anytime</p>
           </div>
         </div>
       </div>
