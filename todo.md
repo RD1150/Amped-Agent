@@ -4044,3 +4044,5 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] AI Reels: add word count + estimated read-time to script textarea
 - [ ] Full Avatar Video: verify HeyGen end-to-end flow
 - [x] Dashboard: Add monthly avatar video usage counter (count + plan limit)
+- [x] Full Avatar Video: Filter Talking Photos out of stock avatar picker (only show true stock avatars)
+- [x] Full Avatar Video: Improve Custom Digital Twin UI with clearer guidance to upload video clip

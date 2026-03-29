@@ -507,14 +507,20 @@ export default function FullAvatarVideo() {
             </div>
           ) : (
             <div className="space-y-3">
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 space-y-1.5">
+                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">Upload a video of YOUR FACE to create your personal AI twin</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Upload a short clip of yourself speaking to camera — for example, a video you made with Captions AI or any selfie-style recording. Once trained, every video you generate here will use your face and voice automatically.
+                </p>
+              </div>
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-                <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-1">Training Video Requirements:</p>
-                <ul className="text-xs text-muted-foreground space-y-0.5">
-                  <li>• <strong>Duration:</strong> 1–3 minutes (2 min ideal)</li>
-                  <li>• <strong>Content:</strong> Look directly at camera, speak naturally, vary expressions</li>
-                  <li>• <strong>Lighting:</strong> Even, well-lit face — no harsh shadows</li>
-                  <li>• <strong>Format:</strong> MP4 or MOV, under 200MB</li>
-                </ul>
+                <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-2">Video Requirements for Best Results:</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <div><span className="font-medium text-foreground">Duration:</span> 1–3 min (2 min ideal)</div>
+                  <div><span className="font-medium text-foreground">Format:</span> MP4 or MOV, under 200MB</div>
+                  <div><span className="font-medium text-foreground">Face:</span> Look directly at camera</div>
+                  <div><span className="font-medium text-foreground">Lighting:</span> Even, no harsh shadows</div>
+                </div>
               </div>
 
               <div

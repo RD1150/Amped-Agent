@@ -130,11 +130,29 @@ Requirements:
         headers: { "X-Api-Key": apiKey, accept: "application/json" },
       });
       if (!res.ok) throw new Error(`HeyGen avatars fetch failed: ${res.status}`);
-      const data = await res.json() as { data?: { avatars?: Array<{ avatar_id: string; avatar_name: string; gender: string; preview_image_url: string; preview_video_url?: string; premium: boolean }> } };
+      // HeyGen /v2/avatars returns two separate arrays:
+      //   data.avatars       → true stock avatars (use type:"avatar" + avatar_id)
+      //   data.talking_photos → photo-based avatars (require image dimensions — NOT supported here)
+      // We ONLY use data.avatars to avoid the "missing image dimensions" error.
+      const data = await res.json() as {
+        data?: {
+          avatars?: Array<{
+            avatar_id: string;
+            avatar_name: string;
+            gender: string;
+            preview_image_url: string;
+            preview_video_url?: string;
+            premium: boolean;
+            type?: string | null;
+          }>;
+          talking_photos?: unknown[];
+        };
+      };
+      // Strictly use data.avatars — never talking_photos
       const avatars = data.data?.avatars ?? [];
-      // Return only free (non-premium) avatars with business-appropriate names
+      // Return only free (non-premium) stock avatars
       return avatars
-        .filter((a) => !a.premium)
+        .filter((a) => !a.premium && a.avatar_id)
         .map((a) => ({
           id: a.avatar_id,
           name: a.avatar_name,
