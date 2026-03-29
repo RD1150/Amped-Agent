@@ -81,14 +81,14 @@ export default function FullAvatarVideo() {
   const [resultVideoUrl, setResultVideoUrl] = useState("");
   const [resultDuration, setResultDuration] = useState(0);
 
-  // ── Custom Avatar training (V3) ───────────────────────────────────────────
+  // ── Custom Photo Avatar ───────────────────────────────────────────
   const [showTwinTips, setShowTwinTips] = useState(false);
-  const [trainingVideoFile, setTrainingVideoFile] = useState<File | null>(null);
-  const [trainingVideoPreview, setTrainingVideoPreview] = useState("");
+  const [trainingPhotoFile, setTrainingPhotoFile] = useState<File | null>(null);
+  const [trainingPhotoPreview, setTrainingPhotoPreview] = useState("");
   const [isUploadingTraining, setIsUploadingTraining] = useState(false);
   const [isTraining, setIsTraining] = useState(false);
 
-  const trainingVideoRef = useRef<HTMLInputElement>(null);
+  const trainingPhotoRef = useRef<HTMLInputElement>(null);
 
 
   // ── tRPC ──────────────────────────────────────────────────────────────────
@@ -157,37 +157,36 @@ export default function FullAvatarVideo() {
   // ── Handlers ──────────────────────────────────────────────────────────────
 
 
-  const handleTrainingVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTrainingPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("video/")) { toast.error("Please upload a video file"); return; }
-    if (file.size > 200 * 1024 * 1024) { toast.error("Video must be under 200MB"); return; }
-    setTrainingVideoFile(file);
-    setTrainingVideoPreview(URL.createObjectURL(file));
+    if (!file.type.startsWith("image/")) { toast.error("Please upload a photo (JPG, PNG, or WEBP)"); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error("Photo must be under 10MB"); return; }
+    setTrainingPhotoFile(file);
+    setTrainingPhotoPreview(URL.createObjectURL(file));
   };
 
   const handleTrainAvatar = async () => {
-    if (!trainingVideoFile) { toast.error("Please select a training video first"); return; }
+    if (!trainingPhotoFile) { toast.error("Please select a headshot photo first"); return; }
     setIsUploadingTraining(true);
     try {
       const formData = new FormData();
-      formData.append("file", trainingVideoFile);
+      formData.append("file", trainingPhotoFile);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       if (!res.ok) throw new Error("Upload failed");
-      const { url: videoUrl } = await res.json();
+      const { url: photoUrl } = await res.json();
 
       setIsTraining(true);
-      await trainMutation.mutateAsync({ trainingVideoUrl: videoUrl });
-      toast.success("Training started! Your digital twin will be ready in a few minutes.");
+      await trainMutation.mutateAsync({ photoUrl });
+      toast.success("Your Photo Avatar is being created! It will be ready in a few minutes.");
       refetchTwin();
     } catch (err: any) {
-      toast.error(err.message || "Training failed. Please try again.");
+      toast.error(err.message || "Photo Avatar creation failed. Please try again.");
     } finally {
       setIsUploadingTraining(false);
       setIsTraining(false);
     }
   };
-
   const handleGenerate = async () => {
     if (!script.trim() || script.trim().split(/\s+/).length < 5) {
       toast.error("Please enter a script of at least 5 words");
@@ -478,13 +477,13 @@ export default function FullAvatarVideo() {
         </Card>
       )}
 
-      {/* Custom Twin: training section */}
+      {/* Custom Photo Avatar section */}
       {mode === "custom" && (
         <Card className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold flex items-center gap-2">
-              <Crown className="h-4 w-4 text-amber-500" />
-              Train Your Digital Twin
+              <User className="h-4 w-4 text-amber-500" />
+              Your Photo Avatar
             </Label>
             {twinStatus && (
               <Badge
@@ -500,27 +499,27 @@ export default function FullAvatarVideo() {
             <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
               <CheckCircle2 className="h-8 w-8 text-green-500 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-sm">Your digital twin is trained and ready!</p>
+                <p className="font-semibold text-sm">Your Photo Avatar is ready!</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Trained {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.
-                  You can retrain anytime by uploading a new video below.
+                  Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.
+                  You can update it anytime by uploading a new headshot below.
                 </p>
               </div>
             </div>
           ) : (
             <div className="space-y-3">
               <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 space-y-1.5">
-                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">Upload a video of YOUR FACE to create your personal AI twin</p>
+                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">📸 Upload a headshot photo of YOUR FACE to create your personal AI avatar</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Upload a short clip of yourself speaking to camera — for example, a video you made with Captions AI or any selfie-style recording. Once trained, every video you generate here will use your face and voice automatically.
+                  Upload a clear, front-facing photo of yourself. The AI will animate your face to speak any script you write — so every video looks like you. Works on your current HeyGen plan.
                 </p>
               </div>
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-                <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-2">Video Requirements for Best Results:</p>
+                <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-2">Photo Requirements for Best Results:</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                  <div><span className="font-medium text-foreground">Duration:</span> 1–3 min (2 min ideal)</div>
-                  <div><span className="font-medium text-foreground">Format:</span> MP4 or MOV, under 200MB</div>
-                  <div><span className="font-medium text-foreground">Face:</span> Look directly at camera</div>
+                  <div><span className="font-medium text-foreground">Format:</span> JPG, PNG, or WEBP — under 10MB</div>
+                  <div><span className="font-medium text-foreground">Framing:</span> Head &amp; shoulders, face centred</div>
+                  <div><span className="font-medium text-foreground">Expression:</span> Neutral or slight smile</div>
                   <div><span className="font-medium text-foreground">Lighting:</span> Even, no harsh shadows</div>
                 </div>
               </div>
@@ -534,7 +533,7 @@ export default function FullAvatarVideo() {
                 >
                   <span className="flex items-center gap-1.5">
                     <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
-                    Tips for recording a high-quality training video
+                    Tips for a high-quality headshot photo
                   </span>
                   {showTwinTips ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                 </button>
@@ -542,75 +541,75 @@ export default function FullAvatarVideo() {
                   <div className="px-3 pb-3 pt-1 space-y-3 border-t border-border bg-muted/20">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                       <div className="space-y-1">
-                        <p className="font-semibold text-foreground flex items-center gap-1">📍 Location &amp; Background</p>
-                        <p className="text-muted-foreground leading-relaxed">Choose a clean, uncluttered background — a plain wall, bookshelf, or simple office setting. Avoid busy patterns or moving objects behind you.</p>
+                        <p className="font-semibold text-foreground flex items-center gap-1">📍 Background</p>
+                        <p className="text-muted-foreground leading-relaxed">Choose a clean, uncluttered background — a plain wall or simple office setting. Avoid busy patterns or distracting objects behind you.</p>
                       </div>
                       <div className="space-y-1">
                         <p className="font-semibold text-foreground flex items-center gap-1">💡 Lighting</p>
                         <p className="text-muted-foreground leading-relaxed">Face a window or use a ring light so your face is evenly lit. Avoid sitting with a bright window behind you — it will silhouette your face.</p>
                       </div>
                       <div className="space-y-1">
-                        <p className="font-semibold text-foreground flex items-center gap-1">📷 Camera Position</p>
-                        <p className="text-muted-foreground leading-relaxed">Place your camera at eye level — not looking up from a desk or down from a shelf. Your face should fill roughly the top half of the frame.</p>
+                        <p className="font-semibold text-foreground flex items-center gap-1">📷 Framing</p>
+                        <p className="text-muted-foreground leading-relaxed">Head and shoulders in frame, face centred. Camera at eye level — not looking up from a desk or down from a shelf.</p>
                       </div>
                       <div className="space-y-1">
-                        <p className="font-semibold text-foreground flex items-center gap-1">🎙️ Audio &amp; Speech</p>
-                        <p className="text-muted-foreground leading-relaxed">Speak at a natural, conversational pace. Vary your tone and expressions — smile, pause, look slightly left and right. This trains the AI to animate you more naturally.</p>
+                        <p className="font-semibold text-foreground flex items-center gap-1">😊 Expression</p>
+                        <p className="text-muted-foreground leading-relaxed">Neutral or slight smile, eyes open and looking directly at the camera. Relaxed jaw. Avoid squinting or over-posing.</p>
                       </div>
                       <div className="space-y-1">
-                        <p className="font-semibold text-foreground flex items-center gap-1">⏱️ Duration &amp; Content</p>
-                        <p className="text-muted-foreground leading-relaxed">Aim for 1.5–2 minutes. You can introduce yourself, describe a property, or just speak freely — the content doesn't matter, only the visual and audio quality does.</p>
+                        <p className="font-semibold text-foreground flex items-center gap-1">🖼️ Photo quality</p>
+                        <p className="text-muted-foreground leading-relaxed">Use a recent photo — a professional headshot or a clear selfie both work. JPG, PNG, or WEBP under 10MB. Avoid blurry or heavily filtered photos.</p>
                       </div>
                       <div className="space-y-1">
                         <p className="font-semibold text-foreground flex items-center gap-1">🚫 What to Avoid</p>
-                        <p className="text-muted-foreground leading-relaxed">No sunglasses, hats, or masks. Avoid shaky handheld footage — prop your phone against something stable. Don't record in a loud room or outdoors with wind noise.</p>
+                        <p className="text-muted-foreground leading-relaxed">No sunglasses, hats, or masks. Avoid group photos — only your face should be in the frame. No heavy filters or extreme colour grading.</p>
                       </div>
                     </div>
                     <div className="bg-green-500/10 border border-green-500/20 rounded-md p-2.5 text-xs text-green-700 dark:text-green-400">
-                      <span className="font-semibold">Pro tip:</span> A 90-second selfie video recorded on your phone in good natural light works perfectly. You only need to do this once.
+                      <span className="font-semibold">Pro tip:</span> A professional headshot or a clear selfie taken in good natural light works perfectly. You only need to do this once — update it whenever you get a new headshot.
                     </div>
                   </div>
                 )}
               </div>
 
               <div
-                onClick={() => trainingVideoRef.current?.click()}
+                onClick={() => trainingPhotoRef.current?.click()}
                 className="border-2 border-dashed border-muted-foreground/30 hover:border-amber-500/50 rounded-xl p-6 cursor-pointer transition-colors text-center"
               >
-                {trainingVideoPreview ? (
+                {trainingPhotoPreview ? (
                   <div className="space-y-2">
-                    <video src={trainingVideoPreview} className="w-full max-h-32 rounded-lg object-contain mx-auto" />
-                    <p className="text-sm text-green-600 font-medium">✓ {trainingVideoFile?.name}</p>
+                    <img src={trainingPhotoPreview} alt="Your headshot" className="w-24 h-24 rounded-full object-cover mx-auto border-2 border-amber-500/40" />
+                    <p className="text-sm text-green-600 font-medium">✓ {trainingPhotoFile?.name}</p>
                     <p className="text-xs text-muted-foreground">Click to change</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <Video className="h-10 w-10 text-muted-foreground mx-auto" />
-                    <p className="text-sm font-medium">Upload your training video</p>
-                    <p className="text-xs text-muted-foreground">MP4, MOV up to 200MB</p>
+                    <User className="h-10 w-10 text-muted-foreground mx-auto" />
+                    <p className="text-sm font-medium">Upload your headshot photo</p>
+                    <p className="text-xs text-muted-foreground">JPG, PNG, or WEBP — under 10MB</p>
                   </div>
                 )}
               </div>
-              <input ref={trainingVideoRef} type="file" accept="video/*" className="hidden" onChange={handleTrainingVideoChange} />
+              <input ref={trainingPhotoRef} type="file" accept="image/*" className="hidden" onChange={handleTrainingPhotoChange} />
 
               <Button
                 onClick={handleTrainAvatar}
-                disabled={!trainingVideoFile || isUploadingTraining || isTraining}
+                disabled={!trainingPhotoFile || isUploadingTraining || isTraining}
                 className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold"
               >
                 {isUploadingTraining ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading video…</>
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading photo…</>
                 ) : isTraining ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Starting training…</>
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating your avatar…</>
                 ) : (
-                  <><Crown className="mr-2 h-4 w-4" />Train My Digital Twin</>
+                  <><User className="mr-2 h-4 w-4" />Create My Photo Avatar</>
                 )}
               </Button>
 
               {twinStatus?.status === "training" && (
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-700 dark:text-amber-400">
                   <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
-                  Training in progress — this usually takes 3–8 minutes. You can leave this page and come back.
+                  Creating your Photo Avatar — this usually takes 1–3 minutes. You can leave this page and come back.
                 </div>
               )}
             </div>
@@ -618,10 +617,10 @@ export default function FullAvatarVideo() {
 
           {twinStatus?.status === "ready" && (
             <button
-              onClick={() => trainingVideoRef.current?.click()}
+              onClick={() => trainingPhotoRef.current?.click()}
               className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
             >
-              Retrain with a new video
+              Update with a new headshot
             </button>
           )}
         </Card>

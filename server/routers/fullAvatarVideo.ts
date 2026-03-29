@@ -9,7 +9,7 @@ import { invokeLLM } from "../_core/llm";
 import {
   generateStockAvatarVideo,
   generateCustomAvatarVideo,
-  createCustomAvatar,
+  createPhotoAvatarFromUrl,
   getCustomAvatarStatus,
   waitForHeyGenVideo,
   listHeyGenVoices,
@@ -309,7 +309,7 @@ Requirements:
   trainCustomAvatar: protectedProcedure
     .input(
       z.object({
-        trainingVideoUrl: z.string().url(),
+        photoUrl: z.string().url(),   // S3 URL of the uploaded headshot photo
         thumbnailUrl: z.string().url().optional(),
       })
     )
@@ -317,10 +317,12 @@ Requirements:
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const { avatarId, status } = await createCustomAvatar({
-        trainingVideoUrl: input.trainingVideoUrl,
-        name: `${ctx.user.name || "Agent"}'s Digital Twin`,
-      });
+      // Photo Avatar flow — works on Individual Creator plan (no Enterprise required)
+      // Downloads the photo from S3, uploads to HeyGen, creates an avatar group
+      const avatarId = await createPhotoAvatarFromUrl(
+        input.photoUrl,
+        `${ctx.user.name || "Agent"}'s Photo Avatar`
+      );
 
       // Upsert the twin record (one per user)
       const existing = await db
@@ -334,8 +336,8 @@ Requirements:
           .update(customAvatarTwins)
           .set({
             didAvatarId: avatarId,
-            trainingVideoUrl: input.trainingVideoUrl,
-            thumbnailUrl: input.thumbnailUrl || null,
+            trainingVideoUrl: input.photoUrl,
+            thumbnailUrl: input.thumbnailUrl || input.photoUrl,
             status: "training",
             trainedAt: null,
           })
@@ -344,13 +346,13 @@ Requirements:
         await db.insert(customAvatarTwins).values({
           userId: ctx.user.id,
           didAvatarId: avatarId,
-          trainingVideoUrl: input.trainingVideoUrl,
-          thumbnailUrl: input.thumbnailUrl || null,
+          trainingVideoUrl: input.photoUrl,
+          thumbnailUrl: input.thumbnailUrl || input.photoUrl,
           status: "training",
         });
       }
 
-      return { avatarId, status };
+      return { avatarId, status: "training" };
     }),
 
   /**
