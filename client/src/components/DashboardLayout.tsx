@@ -82,10 +82,10 @@ function CreditBalanceDisplay() {
   return (
     <button
       onClick={() => setLocation("/credits")}
-      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
+      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition-colors"
     >
-      <CreditCard className="h-4 w-4 text-primary" />
-      <span className="text-sm font-medium text-primary">
+      <CreditCard className="h-4 w-4 text-primary-foreground" />
+      <span className="text-sm font-medium text-primary-foreground">
         {isOwner ? '∞ Unlimited' : credits}
       </span>
       {isLow && (
@@ -625,7 +625,7 @@ function DashboardLayoutContent({
       {/* ── Main content area ─────────────────────────────────────────────── */}
       <SidebarInset>
         {/* Top bar — seamless with sidebar, subtle bottom border for separation */}
-        <div className="flex h-12 items-center justify-between bg-background border-b border-border/50 px-4 sticky top-0 z-40">
+        <div className="flex h-12 items-center justify-between bg-primary px-4 sticky top-0 z-40">
           <div className="flex items-center gap-2">
             {isMobile && (
               <SidebarTrigger className="h-8 w-8 rounded-lg" />
@@ -640,25 +640,25 @@ function DashboardLayoutContent({
             <CreditBalanceDisplay />
             <button
               onClick={() => setLocation("/authority-profile")}
-              className="text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors"
+              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
             >
               Account
             </button>
             <button
               onClick={() => setLocation("/faq")}
-              className="text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors"
+              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
             >
               FAQ
             </button>
             <button
               onClick={() => setLocation("/contact")}
-              className="text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors"
+              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
             >
               Contact
             </button>
             <button
               onClick={() => setLocation("/help")}
-              className="text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors"
+              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
             >
               Help
             </button>
