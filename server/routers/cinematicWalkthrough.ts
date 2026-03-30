@@ -1052,43 +1052,46 @@ async function runWalkthroughJob(
     }
   } catch { /* non-critical */ }
 
-  // Generate all clips via Higgsfield AI (genuine cinematic motion, not Ken Burns)
+  // Generate all clips: Higgsfield AI → Runway ML → static photo (last resort)
+  // Each photo gets real AI image-to-video motion. Static fallback only if both AI engines fail.
   const { generateHiggsfieldClip } = await import("../_core/higgsfieldAi");
   const clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }> = [];
 
   for (let i = 0; i < input.photos.length; i++) {
     const photo = input.photos[i];
-    log(`Job ${jobId}: Generating Higgsfield clip ${i + 1}/${input.photos.length} (${photo.roomType})`);
+    const roomLabel =
+      photo.label ||
+      photo.roomType
+        .split("_")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
 
+    let clipUrl: string | null = null;
+    let clipIsFallback = false;
+
+    // Attempt 1: Higgsfield AI (genuine cinematic motion)
+    log(`Job ${jobId}: Clip ${i + 1}/${input.photos.length} — trying Higgsfield AI (${photo.roomType})`);
     try {
-      const clipUrl = await generateHiggsfieldClip(photo.url, photo.roomType, i, photo.customPrompt, photo.isExterior);
-      const roomLabel =
-        photo.label ||
-        photo.roomType
-          .split("_")
-          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(" ");
+      clipUrl = await generateHiggsfieldClip(photo.url, photo.roomType, i, photo.customPrompt, photo.isExterior);
+      log(`Job ${jobId}: Clip ${i + 1} via Higgsfield ✓`);
+    } catch (higgsfieldErr: any) {
+      log(`Job ${jobId}: Higgsfield failed (${higgsfieldErr.message}) — trying Runway ML...`);
 
-      clips.push({ url: clipUrl, roomLabel, duration: 5, roomType: photo.roomType, isFallback: false });
-      await dbUpdateJob(jobId, { completedClips: i + 1, clipsJson: JSON.stringify(clips) });
-      log(`Job ${jobId}: Clip ${i + 1} done ✓`);
-    } catch (err: any) {
-      log(`Job ${jobId}: Clip ${i + 1} failed: ${err.message} — using fallback static photo`);
-      // Fallback: use the original photo as a static clip
-      clips.push({
-        url: photo.url,
-        roomLabel:
-          photo.label ||
-          photo.roomType
-            .split("_")
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" "),
-        duration: 5,
-        roomType: photo.roomType,
-        isFallback: true,
-      });
-      await dbUpdateJob(jobId, { completedClips: i + 1, clipsJson: JSON.stringify(clips) });
+      // Attempt 2: Runway ML (real image-to-video motion)
+      try {
+        clipUrl = await generateRunwayClip(photo.url, photo.roomType, i, photo.customPrompt, 1, photo.isExterior);
+        log(`Job ${jobId}: Clip ${i + 1} via Runway ML ✓`);
+      } catch (runwayErr: any) {
+        log(`Job ${jobId}: Runway also failed (${runwayErr.message}) — using static photo as last resort`);
+        // Last resort: static photo with Ken Burns in Creatomate
+        clipUrl = photo.url;
+        clipIsFallback = true;
+      }
     }
+
+    clips.push({ url: clipUrl!, roomLabel, duration: 5, roomType: photo.roomType, isFallback: clipIsFallback });
+    await dbUpdateJob(jobId, { completedClips: i + 1, clipsJson: JSON.stringify(clips) });
+    log(`Job ${jobId}: Clip ${i + 1} saved (engine=${clipIsFallback ? 'static-fallback' : 'ai-video'}) ✓`);
   }
 
   // Generate voice-over if requested
