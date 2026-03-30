@@ -1046,15 +1046,16 @@ async function runWalkthroughJob(
     }
   } catch { /* non-critical */ }
 
-  // Generate all Runway clips (sequentially to respect rate limits)
+  // Generate all clips via Higgsfield AI (genuine cinematic motion, not Ken Burns)
+  const { generateHiggsfieldClip } = await import("../_core/higgsfieldAi");
   const clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }> = [];
 
   for (let i = 0; i < input.photos.length; i++) {
     const photo = input.photos[i];
-    log(`Job ${jobId}: Generating clip ${i + 1}/${input.photos.length} (${photo.roomType})`);
+    log(`Job ${jobId}: Generating Higgsfield clip ${i + 1}/${input.photos.length} (${photo.roomType})`);
 
     try {
-      const clipUrl = await generateRunwayClip(photo.url, photo.roomType, i, photo.customPrompt, 1, photo.isExterior);
+      const clipUrl = await generateHiggsfieldClip(photo.url, photo.roomType, i, photo.customPrompt, photo.isExterior);
       const roomLabel =
         photo.label ||
         photo.roomType

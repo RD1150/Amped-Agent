@@ -488,10 +488,10 @@ export default function CinematicWalkthrough() {
       ? "Starting generation…"
       : "Processing…";
 
-  // Estimated time: ~90s per clip (Runway) + 60s assembly
+  // Estimated time: ~60s per clip (Higgsfield AI) + 60s assembly
   const estimatedTotalSec = jobProgress
-    ? jobProgress.totalPhotos * 90 + 60
-    : photos.length * 90 + 60;
+    ? jobProgress.totalPhotos * 60 + 60
+    : photos.length * 60 + 60;
   const elapsedSec = jobProgress?.elapsedMs ? Math.floor(jobProgress.elapsedMs / 1000) : 0;
   const remainingSec = Math.max(0, estimatedTotalSec - elapsedSec);
   const remainingLabel =
@@ -548,7 +548,7 @@ export default function CinematicWalkthrough() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Cinematic Property Tour</h1>
             <p className="text-sm text-muted-foreground">
-              AI-powered property tour video — realistic camera motion through every room
+              Higgsfield AI — genuine cinematic motion through every room, not Ken Burns
             </p>
           </div>
           <Badge className="ml-auto bg-amber-500/10 text-amber-500 border-amber-500/30 text-xs">Premium</Badge>
@@ -556,8 +556,7 @@ export default function CinematicWalkthrough() {
         <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-sm text-muted-foreground">
           <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
           <span>
-            Each photo is animated with a unique cinematic camera movement, then assembled into a
-            seamless walkthrough video. Generation takes <strong>3–8 minutes</strong> depending on the number of photos.
+            Each photo is animated with genuine AI cinematic motion (dolly, crane, fly-through) powered by Higgsfield, then assembled into a seamless walkthrough video. Generation takes <strong>2–5 minutes</strong> depending on the number of photos.
           </span>
         </div>
       </div>

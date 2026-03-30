@@ -30,4 +30,6 @@ export const ENV = {
   NEWSLETTER_SSO_SECRET: process.env.NEWSLETTER_SSO_SECRET ?? "",
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+  HIGGSFIELD_API_KEY: process.env.HIGGSFIELD_API_KEY ?? "",
+  HIGGSFIELD_KEY_ID: process.env.HIGGSFIELD_KEY_ID ?? "",
 };

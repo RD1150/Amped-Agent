@@ -4059,3 +4059,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix new user onboarding: move /upgrade outside DashboardLayout so unsubscribed users can access it
 - [x] Landing page: Add prominent "Start Free Trial" CTA button for new visitors
 - [x] Server: Send welcome owner notification on first login (new user detection)
+- [ ] Full Avatar Video: Add AI script generation button with topic/tone inputs directly on the page
