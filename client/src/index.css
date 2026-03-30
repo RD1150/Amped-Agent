@@ -72,13 +72,13 @@
   --chart-3: oklch(0.42 0.03 255); /* Mid navy */
   --chart-4: oklch(0.78 0.12 75); /* Light gold */
   --chart-5: oklch(0.15 0.04 255); /* Deep navy */
-  --sidebar: oklch(0.22 0.08 255); /* Deep Navy sidebar */
-  --sidebar-foreground: oklch(0.97 0 0); /* White text */
-  --sidebar-primary: oklch(0.68 0.13 75); /* Gold active */
-  --sidebar-primary-foreground: oklch(0.15 0.04 255); /* Dark text on gold */
-  --sidebar-accent: oklch(0.28 0.08 255); /* Lighter navy hover */
-  --sidebar-accent-foreground: oklch(0.97 0 0); /* White text */
-  --sidebar-border: oklch(0.32 0.06 255); /* Subtle navy border */
+  --sidebar: oklch(0.98 0.004 75 / 0.75); /* Frosted warm off-white */
+  --sidebar-foreground: oklch(0.22 0.04 255); /* Deep navy text */
+  --sidebar-primary: oklch(0.22 0.08 255); /* Navy active pill */
+  --sidebar-primary-foreground: oklch(0.97 0 0); /* White text on active */
+  --sidebar-accent: oklch(0.93 0.004 75 / 0.6); /* Subtle warm hover */
+  --sidebar-accent-foreground: oklch(0.22 0.04 255); /* Navy text on hover */
+  --sidebar-border: oklch(0 0 0 / 0.08); /* Barely-visible separator */
   --sidebar-ring: oklch(0.68 0.13 75); /* Gold ring */
 }
 

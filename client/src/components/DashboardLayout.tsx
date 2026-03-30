@@ -383,7 +383,7 @@ function DashboardLayoutContent({
               <div key={section.title} className="mb-4">
                 {/* Section Header */}
                 <div className="px-4 py-2">
-                  <h3 className="text-[11px] font-bold text-sidebar-foreground/80 uppercase tracking-widest">
+                  <h3 className="text-[10px] font-semibold text-sidebar-foreground/40 uppercase tracking-[0.12em]">
                     {section.title}
                   </h3>
                 </div>
@@ -398,12 +398,12 @@ function DashboardLayoutContent({
                           isActive={isActive}
                           onClick={() => setLocation(item.path)}
                           tooltip={item.description || item.label}
-                          className={`h-10 transition-all font-normal ${isActive ? 'bg-sidebar-accent' : ''}`}
+                          className={`h-10 transition-all font-normal ${isActive ? 'bg-primary text-primary-foreground rounded-md shadow-sm' : 'hover:bg-sidebar-accent/60'}`}
                         >
                           <item.icon
-                            className={`h-4 w-4 ${isActive ? "text-primary" : "text-sidebar-foreground/70"}`}
+                            className={`h-4 w-4 ${isActive ? "text-primary-foreground" : "text-sidebar-foreground/55"}`}
                           />
-                          <span className={`${isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/70"} truncate`}>{item.label}</span>
+                          <span className={`${isActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground/75"} truncate`}>{item.label}</span>
                           {('badge' in item) && item.badge && (
                             <Badge variant="secondary" className="ml-auto text-xs">
                               {item.badge}
