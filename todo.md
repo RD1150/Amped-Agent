@@ -4072,3 +4072,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix TypeScript stale cache error in FullAvatarVideo.tsx (tsc --noEmit passes clean)
 - [x] Standardize MusicLibrary mood/tempo badge colors to primary palette
 - [x] Standardize AuthorityScore, WelcomeModal, UsageCounter, OnboardingModal colors
+- [ ] Header search bar for navigation and content discovery

@@ -67,6 +67,7 @@ import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "./ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
+import { HeaderSearch } from "@/components/HeaderSearch";
 
 // Credit Balance Display Component
 function CreditBalanceDisplay() {
@@ -624,18 +625,20 @@ function DashboardLayoutContent({
 
       {/* ── Main content area ─────────────────────────────────────────────── */}
       <SidebarInset>
-        {/* Top bar — seamless with sidebar, subtle bottom border for separation */}
-        <div className="flex h-12 items-center justify-between bg-primary px-4 sticky top-0 z-40">
-          <div className="flex items-center gap-2">
+        {/* Top bar */}
+        <div className="flex h-12 items-center gap-4 bg-primary px-4 sticky top-0 z-40">
+          <div className="flex items-center gap-2 shrink-0">
             {isMobile && (
               <SidebarTrigger className="h-8 w-8 rounded-lg" />
             )}
             {isMobile && (
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm font-medium text-primary-foreground">
                 {activeMenuItem?.label ?? "Menu"}
               </span>
             )}
           </div>
+          {/* Search bar */}
+          <HeaderSearch />
           <div className="flex items-center gap-3">
             <CreditBalanceDisplay />
             <button
