@@ -283,9 +283,9 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        <section className="mt-12 p-6 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 className="text-lg font-semibold text-blue-900 mb-2">📧 Questions About Your Privacy?</h3>
-          <p className="text-blue-800">
+        <section className="mt-12 p-6 bg-primary/5 border border-primary/20 rounded-lg">
+          <h3 className="text-lg font-semibold text-primary mb-2">📧 Questions About Your Privacy?</h3>
+          <p className="text-primary/80">
             We're committed to transparency and protecting your data. If you have any questions about how we handle your information, please don't hesitate to reach out to our privacy team at <strong>privacy@authoritycontent.co</strong>.
           </p>
         </section>

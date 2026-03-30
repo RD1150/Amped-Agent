@@ -96,8 +96,8 @@ const PLATFORM_CONFIG: Record<
     label: "Facebook",
     shortLabel: "Facebook",
     icon: Facebook,
-    color: "text-blue-600",
-    bgColor: "bg-blue-50 dark:bg-blue-950/40",
+    color: "text-primary",
+    bgColor: "bg-primary/10 dark:bg-primary/40",
     borderColor: "border-blue-200 dark:border-blue-800",
     description: "Community-driven conversational post",
   },
@@ -133,7 +133,7 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
   };
   return (
     <Button size="sm" variant="ghost" className="h-7 px-2 gap-1 text-xs shrink-0" onClick={handleCopy}>
-      {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+      {copied ? <Check className="w-3 h-3 text-primary" /> : <Copy className="w-3 h-3" />}
       {copied ? "Copied!" : label}
     </Button>
   );
@@ -429,7 +429,7 @@ export default function RepurposeEngine() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold text-foreground">Repurpose Engine</h1>
-            <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/30 text-xs">Premium</Badge>
+            <Badge className="bg-primary/15 text-primary border-primary/20 text-xs">Premium</Badge>
           </div>
           <p className="text-muted-foreground text-sm">
             Write once. Each platform gets content written in its own native style — not a copy-paste.
@@ -440,7 +440,7 @@ export default function RepurposeEngine() {
             <Button
               variant="default"
               size="sm"
-              className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+              className="gap-2 bg-primary hover:bg-green-700 text-white"
               onClick={() => {
                 navigator.clipboard.writeText(buildCopyAll(result));
                 toast.success("All platforms copied to clipboard!", { icon: "📋" });
@@ -487,7 +487,7 @@ export default function RepurposeEngine() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-7 px-2 gap-1.5 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                      className="h-7 px-2 gap-1.5 text-xs text-primary hover:text-primary hover:bg-muted dark:hover:bg-primary/10"
                       disabled={!topic.trim() || generateBody.isPending}
                       onClick={() => generateBody.mutate({ topic: topic.trim() })}
                     >
@@ -510,7 +510,7 @@ export default function RepurposeEngine() {
                 </div>
 
                 <Button
-                  className="w-full gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold"
+                  className="w-full gap-2 bg-muted0 hover:bg-primary text-white font-semibold"
                   disabled={!topic.trim() || !body.trim() || selectedPlatforms.length === 0 || repurpose.isPending}
                   onClick={handleGenerate}
                 >

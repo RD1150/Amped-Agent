@@ -26,9 +26,9 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  first_time_buyer_guide: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  neighborhood_report: "bg-green-500/10 text-green-400 border-green-500/20",
-  market_update: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  first_time_buyer_guide: "bg-primary/10 text-primary border-primary/20",
+  neighborhood_report: "bg-primary/10 text-green-400 border-primary/20",
+  market_update: "bg-primary/10 text-primary/80 border-primary/20",
 };
 
 const TYPE_ICONS: Record<string, string> = {

@@ -113,14 +113,14 @@ export default function VideoComparison() {
         </Card>
 
         {/* AI Property Film */}
-        <Card className="p-6 border-2 border-amber-500/40 hover:border-amber-500/70 transition-colors relative">
-          <Badge className="absolute top-4 right-4 bg-amber-500/10 text-amber-600 border-amber-500/30">
+        <Card className="p-6 border-2 border-primary/30 hover:border-primary/70 transition-colors relative">
+          <Badge className="absolute top-4 right-4 bg-primary/10 text-primary border-primary/20">
             Premium
           </Badge>
 
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 rounded-lg bg-amber-500/10">
-              <Film className="h-6 w-6 text-amber-500" />
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Film className="h-6 w-6 text-primary" />
             </div>
             <div>
               <h2 className="text-xl font-bold">Cinematic Property Tour</h2>
@@ -129,9 +129,9 @@ export default function VideoComparison() {
           </div>
 
           {/* AI Film demo - coming soon placeholder */}
-          <div className="relative rounded-xl overflow-hidden bg-muted aspect-video mb-5 border border-amber-500/20 flex flex-col items-center justify-center gap-3">
-            <div className="p-4 rounded-full bg-amber-500/10">
-              <Film className="h-10 w-10 text-amber-500" />
+          <div className="relative rounded-xl overflow-hidden bg-muted aspect-video mb-5 border border-primary/20 flex flex-col items-center justify-center gap-3">
+            <div className="p-4 rounded-full bg-primary/10">
+              <Film className="h-10 w-10 text-primary" />
             </div>
             <div className="text-center px-4">
               <p className="font-semibold text-sm">Cinematic Property Tour Demo</p>
@@ -139,7 +139,7 @@ export default function VideoComparison() {
             </div>
             <Button
               size="sm"
-              className="bg-amber-500 hover:bg-amber-600 text-white"
+              className="bg-muted0 hover:bg-primary text-white"
               onClick={() => setLocation("/cinematic-walkthrough")}
             >
               <Sparkles className="h-3 w-3 mr-1" />
@@ -154,14 +154,14 @@ export default function VideoComparison() {
           <ul className="space-y-2 mb-6">
             {AI_FILM_FEATURES.map((f, i) => (
               <li key={i} className="flex items-center gap-2 text-sm">
-                <f.icon className="h-4 w-4 text-amber-500 shrink-0" />
+                <f.icon className="h-4 w-4 text-primary shrink-0" />
                 <span>{f.text}</span>
               </li>
             ))}
           </ul>
 
           <Button
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+            className="w-full bg-muted0 hover:bg-primary text-white"
             onClick={() => setLocation("/cinematic-walkthrough")}
           >
             <Film className="h-4 w-4 mr-2" />
@@ -187,7 +187,7 @@ export default function VideoComparison() {
                 </th>
                 <th className="text-left py-2 font-semibold">
                   <div className="flex items-center gap-2">
-                    <Film className="h-4 w-4 text-amber-500" />
+                    <Film className="h-4 w-4 text-primary" />
                     AI Property Film
                   </div>
                 </th>
@@ -199,7 +199,7 @@ export default function VideoComparison() {
                   <td className="py-3 pr-4 text-muted-foreground">{row.label}</td>
                   <td className="py-3 pr-4">{row.listing}</td>
                   <td className="py-3">
-                    <span className="text-amber-600 font-medium">{row.film}</span>
+                    <span className="text-primary font-medium">{row.film}</span>
                   </td>
                 </tr>
               ))}
@@ -219,7 +219,7 @@ export default function VideoComparison() {
             <Building2 className="h-4 w-4 mr-2" />
             Start with Listing Video
           </Button>
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={() => setLocation("/cinematic-walkthrough")}>
+          <Button className="bg-muted0 hover:bg-primary text-white" onClick={() => setLocation("/cinematic-walkthrough")}>
             <Film className="h-4 w-4 mr-2" />
             Try Cinematic Property Tour
           </Button>

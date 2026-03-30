@@ -87,11 +87,11 @@ export default function Hooks() {
 
   const getCategoryColor = (category: HookCategory) => {
     const colors: Record<HookCategory, string> = {
-      buyer: "bg-blue-500/20 text-blue-500",
-      seller: "bg-green-500/20 text-green-500",
-      investor: "bg-purple-500/20 text-purple-500",
-      local: "bg-orange-500/20 text-orange-500",
-      luxury: "bg-yellow-500/20 text-yellow-500",
+      buyer: "bg-primary/15 text-primary",
+      seller: "bg-primary/15 text-primary",
+      investor: "bg-primary/20 text-primary",
+      local: "bg-primary/20 text-primary",
+      luxury: "bg-primary/10 text-primary",
       relocation: "bg-pink-500/20 text-pink-500",
       general: "bg-gray-500/20 text-gray-500",
     };

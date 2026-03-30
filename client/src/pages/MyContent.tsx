@@ -85,7 +85,7 @@ function CopyLinkButton({ url }: { url: string }) {
         setTimeout(() => setCopied(false), 2000);
       }}
     >
-      {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+      {copied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
       {copied ? "Copied!" : "Copy Link"}
     </Button>
   );
@@ -101,12 +101,12 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  property_tour: "bg-blue-500/15 text-blue-600 border-blue-500/30",
-  authority_reel: "bg-purple-500/15 text-purple-600 border-purple-500/30",
-  market_stats: "bg-green-500/15 text-green-600 border-green-500/30",
+  property_tour: "bg-primary/15 text-primary border-primary/20",
+  authority_reel: "bg-primary/15 text-primary border-primary/20",
+  market_stats: "bg-green-500/15 text-primary border-primary/20",
   first_time_buyer_guide: "bg-sky-500/15 text-sky-600 border-sky-500/30",
   neighborhood_report: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
-  market_update: "bg-amber-500/15 text-amber-600 border-amber-500/30",
+  market_update: "bg-primary/15 text-primary border-primary/20",
 };
 
 export default function MyContent() {
@@ -434,8 +434,8 @@ export default function MyContent() {
                     )}
                     {video.status === "rendering" && (
                       <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2">
-                        <RefreshCw className="h-7 w-7 text-yellow-400 animate-spin" />
-                        <span className="text-yellow-400 text-xs font-medium">Rendering…</span>
+                        <RefreshCw className="h-7 w-7 text-primary/60 animate-spin" />
+                        <span className="text-primary/60 text-xs font-medium">Rendering…</span>
                       </div>
                     )}
                     {video.status === "failed" && (
@@ -469,7 +469,7 @@ export default function MyContent() {
                     {/* Dual output badge for luxury mode */}
                     {video.secondaryVideoUrl && video.status === "completed" && (
                       <div className="flex items-center gap-1 mb-2">
-                        <span className="text-xs bg-amber-500/15 text-amber-600 border border-amber-500/30 rounded-full px-2 py-0.5 font-medium">✦ Luxury — 2 formats</span>
+                        <span className="text-xs bg-primary/15 text-primary border border-primary/20 rounded-full px-2 py-0.5 font-medium">✦ Luxury — 2 formats</span>
                       </div>
                     )}
                     <div className="flex gap-2">
@@ -489,7 +489,7 @@ export default function MyContent() {
                               href={video.secondaryVideoUrl}
                               download
                               title="Download 9:16 portrait version for Instagram/TikTok"
-                              className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md bg-amber-500 text-white text-xs font-medium hover:bg-amber-600 transition-colors"
+                              className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md bg-muted0 text-white text-xs font-medium hover:bg-primary transition-colors"
                             >
                               <Download className="w-3.5 h-3.5" />
                               9:16
@@ -548,13 +548,13 @@ export default function MyContent() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500/10 to-pink-500/10">
-                        <Film className="h-10 w-10 text-purple-400/50" />
+                        <Film className="h-10 w-10 text-primary/50" />
                       </div>
                     )}
                     {isProcessing && (
                       <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2">
-                        <RefreshCw className="h-7 w-7 text-yellow-400 animate-spin" />
-                        <span className="text-yellow-400 text-xs font-medium">Rendering…</span>
+                        <RefreshCw className="h-7 w-7 text-primary/60 animate-spin" />
+                        <span className="text-primary/60 text-xs font-medium">Rendering…</span>
                       </div>
                     )}
                     {isFailed && (
@@ -580,7 +580,7 @@ export default function MyContent() {
                       <p className="text-sm font-semibold text-foreground line-clamp-1">
                         {reel.title || `AI Reel #${reel.id}`}
                       </p>
-                      <Badge variant="outline" className="text-xs shrink-0 bg-purple-500/15 text-purple-600 border-purple-500/30">
+                      <Badge variant="outline" className="text-xs shrink-0 bg-primary/15 text-primary border-primary/20">
                         AI Reel
                       </Badge>
                     </div>
@@ -603,7 +603,7 @@ export default function MyContent() {
                         </>
                       )}
                       {isProcessing && (
-                        <p className="text-xs text-yellow-600 font-medium">Video is still rendering…</p>
+                        <p className="text-xs text-primary/70 font-medium">Video is still rendering…</p>
                       )}
                       {!selectMode && (
                         <Button

@@ -33,10 +33,10 @@ export default function HomePage() {
             <Button asChild variant="ghost" className="text-slate-300 hover:text-white">
               <a href="#faq">FAQ</a>
             </Button>
-            <Button asChild variant="outline" className="border-amber-500/30 text-amber-500 hover:bg-amber-500/10">
+            <Button asChild variant="outline" className="border-primary/20 text-primary hover:bg-primary/10">
               <a href={getLoginUrl()}>Sign In</a>
             </Button>
-            <Button asChild className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
+            <Button asChild className="bg-muted0 hover:bg-primary text-slate-900 font-semibold">
               <a href={getLoginUrl()}>Get Started</a>
             </Button>
           </div>
@@ -48,14 +48,14 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto space-y-8">
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
             Build Authority.
-            <span className="block text-amber-500 mt-2">Generate Demand. Win Listings.</span>
+            <span className="block text-primary mt-2">Generate Demand. Win Listings.</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
             The AI-powered authority operating system that helps real estate agents dominate their local market through strategic content.
           </p>
           
-          <p className="text-lg text-amber-500/80 font-medium mt-4">
+          <p className="text-lg text-primary/80 font-medium mt-4">
             This is your Authority Operating System.
           </p>
 
@@ -71,11 +71,11 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               <div className="flex gap-0.5">
                 {[1,2,3,4,5].map(i => (
-                  <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  <Star key={i} className="h-4 w-4 fill-amber-400 text-primary/80" />
                 ))}
               </div>
               <p className="text-slate-300 font-semibold">
-                Trusted by <span className="text-amber-400 font-bold">8,000+</span> members on the platform
+                Trusted by <span className="text-primary/80 font-bold">8,000+</span> members on the platform
               </p>
             </div>
           </div>
@@ -85,7 +85,7 @@ export default function HomePage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button asChild size="lg" className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold text-lg px-8 py-6">
+            <Button asChild size="lg" className="bg-muted0 hover:bg-primary text-slate-900 font-semibold text-lg px-8 py-6">
               <a href={getLoginUrl()}>
                 <Sparkles className="mr-2 h-5 w-5" />
                 Dominate Your Market
@@ -106,7 +106,7 @@ export default function HomePage() {
               Stop Paying for 3+ Tools
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Authority Content is the <span className="text-amber-500 font-semibold">only all-in-one platform</span> real estate agents need for social media and video content.
+              Authority Content is the <span className="text-primary font-semibold">only all-in-one platform</span> real estate agents need for social media and video content.
             </p>
           </div>
 
@@ -142,40 +142,40 @@ export default function HomePage() {
             </Card>
 
             {/* With Authority Content */}
-            <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/30 relative overflow-hidden">
-              <div className="absolute top-4 right-4 bg-amber-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">
+            <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-primary/20 relative overflow-hidden">
+              <div className="absolute top-4 right-4 bg-muted0 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">
                 BEST VALUE
               </div>
               <CardContent className="p-8 space-y-6">
                 <h3 className="text-2xl font-bold text-white text-center mb-6">With Authority Content</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 pb-3 border-b border-amber-500/20">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                     <span className="text-slate-200">Social Media Content</span>
                   </div>
-                  <div className="flex items-center gap-3 pb-3 border-b border-amber-500/20">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                     <span className="text-slate-200">AI Video Generation</span>
                   </div>
-                  <div className="flex items-center gap-3 pb-3 border-b border-amber-500/20">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                     <span className="text-slate-200">AI Avatar Videos</span>
                   </div>
-                  <div className="flex items-center gap-3 pb-3 border-b border-amber-500/20">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                     <span className="text-slate-200">Content Calendar & Scheduling</span>
                   </div>
-                  <div className="flex items-center gap-3 pb-3 border-b border-amber-500/20">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                     <span className="text-slate-200">Faceless Vertical Videos</span>
                   </div>
-                  <div className="flex justify-between items-center pt-4 border-t-2 border-amber-500/30">
+                  <div className="flex justify-between items-center pt-4 border-t-2 border-primary/20">
                     <span className="text-white font-bold text-lg">Total Monthly Cost</span>
-                    <span className="text-amber-500 font-bold text-2xl">$79-249</span>
+                    <span className="text-primary font-bold text-2xl">$79-249</span>
                   </div>
                 </div>
                 <div className="pt-4">
-                  <Button asChild className="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
+                  <Button asChild className="w-full bg-muted0 hover:bg-primary text-slate-900 font-semibold">
                     <a href="/upgrade">
                       <Zap className="mr-2 h-5 w-5" />
                       Get Started Now
@@ -187,9 +187,9 @@ export default function HomePage() {
           </div>
 
           {/* Savings Highlight */}
-          <div className="text-center bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 border border-amber-500/20 rounded-lg p-8">
+          <div className="text-center bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 border border-primary/20 rounded-lg p-8">
             <p className="text-2xl md:text-3xl font-bold text-white mb-2">
-              Save up to <span className="text-amber-500">$85-$234/month</span>
+              Save up to <span className="text-primary">$85-$234/month</span>
             </p>
             <p className="text-slate-300 text-lg">
               Get everything you need in one platform, at a fraction of the cost
@@ -213,8 +213,8 @@ export default function HomePage() {
         <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
           {/* Benefit 1 */}
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto">
-              <Sparkles className="h-8 w-8 text-amber-500" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <Sparkles className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-2xl font-bold text-white">Content That Sounds Like You</h3>
             <p className="text-slate-300 leading-relaxed">
@@ -224,8 +224,8 @@ export default function HomePage() {
 
           {/* Benefit 2 */}
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto">
-              <Palette className="h-8 w-8 text-amber-500" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <Palette className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-2xl font-bold text-white">Professional Designs Without the Design Skills</h3>
             <p className="text-slate-300 leading-relaxed">
@@ -235,8 +235,8 @@ export default function HomePage() {
 
           {/* Benefit 3 */}
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto">
-              <Calendar className="h-8 w-8 text-amber-500" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <Calendar className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-2xl font-bold text-white">Set It and Forget It Scheduling</h3>
             <p className="text-slate-300 leading-relaxed">
@@ -246,8 +246,8 @@ export default function HomePage() {
 
           {/* Benefit 4 */}
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto">
-              <Video className="h-8 w-8 text-amber-500" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <Video className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-2xl font-bold text-white">AI-Powered Video Creation</h3>
             <p className="text-slate-300 leading-relaxed">
@@ -261,16 +261,16 @@ export default function HomePage() {
       <section id="testimonials" className="container mx-auto px-4 py-20 bg-slate-900/30">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Real Results From Real Agents</h2>
-          <p className="text-xl text-amber-500 font-semibold">Join hundreds of agents who've transformed their social media presence</p>
+          <p className="text-xl text-primary font-semibold">Join hundreds of agents who've transformed their social media presence</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Testimonial 1 */}
-          <Card className="bg-slate-800/50 border-slate-700 hover:border-amber-500/30 transition-colors">
+          <Card className="bg-slate-800/50 border-slate-700 hover:border-primary/20 transition-colors">
             <CardContent className="p-6 space-y-4">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="h-5 w-5 fill-amber-500 text-amber-500" />
+                  <Star key={i} className="h-5 w-5 fill-amber-500 text-primary" />
                 ))}
               </div>
               <p className="text-slate-300 leading-relaxed italic">
@@ -289,11 +289,11 @@ export default function HomePage() {
           </Card>
 
           {/* Testimonial 2 */}
-          <Card className="bg-slate-800/50 border-slate-700 hover:border-amber-500/30 transition-colors">
+          <Card className="bg-slate-800/50 border-slate-700 hover:border-primary/20 transition-colors">
             <CardContent className="p-6 space-y-4">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="h-5 w-5 fill-amber-500 text-amber-500" />
+                  <Star key={i} className="h-5 w-5 fill-amber-500 text-primary" />
                 ))}
               </div>
               <p className="text-slate-300 leading-relaxed italic">
@@ -312,11 +312,11 @@ export default function HomePage() {
           </Card>
 
           {/* Testimonial 3 */}
-          <Card className="bg-slate-800/50 border-slate-700 hover:border-amber-500/30 transition-colors">
+          <Card className="bg-slate-800/50 border-slate-700 hover:border-primary/20 transition-colors">
             <CardContent className="p-6 space-y-4">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="h-5 w-5 fill-amber-500 text-amber-500" />
+                  <Star key={i} className="h-5 w-5 fill-amber-500 text-primary" />
                 ))}
               </div>
               <p className="text-slate-300 leading-relaxed italic">
@@ -337,8 +337,8 @@ export default function HomePage() {
 
         {/* Add Testimonial CTA */}
         <div className="mt-12 text-center space-y-4">
-          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-6 max-w-3xl mx-auto">
-            <p className="text-amber-500 font-semibold mb-2">📝 TODO: Replace with Real Testimonials</p>
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-6 max-w-3xl mx-auto">
+            <p className="text-primary font-semibold mb-2">📝 TODO: Replace with Real Testimonials</p>
             <p className="text-slate-300 text-sm leading-relaxed">
               The testimonials above are examples. Replace them with real customer testimonials once you have beta users or early customers. 
               Collect testimonials by:
@@ -351,7 +351,7 @@ export default function HomePage() {
             </ul>
           </div>
           <p className="text-slate-400 text-sm italic">
-            Want to add your success story? <a href="mailto:hello@authoritycontent.co" className="text-amber-500 hover:underline">Contact us</a>
+            Want to add your success story? <a href="mailto:hello@authoritycontent.co" className="text-primary hover:underline">Contact us</a>
           </p>
         </div>
       </section>
@@ -371,7 +371,7 @@ export default function HomePage() {
           {/* Feature 01 */}
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <div className="text-amber-500 font-bold text-lg">01</div>
+              <div className="text-primary font-bold text-lg">01</div>
               <h3 className="text-3xl font-bold text-white">AI-Assisted Content Generation</h3>
               <p className="text-slate-300 leading-relaxed">
                 Generate posts with one click — no writing blocks, no guesswork. Quickly create market updates, homebuyer tips, and listing promos that sound like you.
@@ -380,30 +380,30 @@ export default function HomePage() {
                 <h4 className="text-white font-semibold">Key Benefits:</h4>
                 <ul className="space-y-2 text-slate-300">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Trending real estate topics tailored to your niche</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Captions written in your personal style</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Instantly create Reels or turn images into video slideshows</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Educational content that positions you as an expert</span>
                   </li>
                 </ul>
               </div>
-              <Button asChild className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
+              <Button asChild className="bg-muted0 hover:bg-primary text-slate-900 font-semibold">
                 <a href={getLoginUrl()}>Start Creating With AI</a>
               </Button>
             </div>
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-8 border border-slate-700">
               <div className="aspect-square flex items-center justify-center">
-                <Sparkles className="h-32 w-32 text-amber-500/30" />
+                <Sparkles className="h-32 w-32 text-primary/30" />
               </div>
             </div>
           </div>
@@ -412,11 +412,11 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-8 border border-slate-700 order-2 md:order-1">
               <div className="aspect-square flex items-center justify-center">
-                <Palette className="h-32 w-32 text-amber-500/30" />
+                <Palette className="h-32 w-32 text-primary/30" />
               </div>
             </div>
             <div className="space-y-6 order-1 md:order-2">
-              <div className="text-amber-500 font-bold text-lg">02</div>
+              <div className="text-primary font-bold text-lg">02</div>
               <h3 className="text-3xl font-bold text-white">Design Tools + Templates</h3>
               <p className="text-slate-300 leading-relaxed">
                 Customize beautiful templates with your branding, headshot, brokerage, and contact information. Make every post instantly recognizable as yours.
@@ -425,20 +425,20 @@ export default function HomePage() {
                 <h4 className="text-white font-semibold">Key Benefits:</h4>
                 <ul className="space-y-2 text-slate-300">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Hundreds of real estate-specific templates</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Easy personalization with your colors and logo</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Save templates for consistent branding across all posts</span>
                   </li>
                 </ul>
               </div>
-              <Button asChild className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
+              <Button asChild className="bg-muted0 hover:bg-primary text-slate-900 font-semibold">
                 <a href={getLoginUrl()}>Explore the Design Tools</a>
               </Button>
             </div>
@@ -447,7 +447,7 @@ export default function HomePage() {
           {/* Feature 03 */}
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <div className="text-amber-500 font-bold text-lg">03</div>
+              <div className="text-primary font-bold text-lg">03</div>
               <h3 className="text-3xl font-bold text-white">Scheduler and Auto Posting</h3>
               <p className="text-slate-300 leading-relaxed">
                 Schedule weeks of content across Facebook, Instagram, LinkedIn, and X in minutes. Autopost at optimal times without logging into multiple platforms.
@@ -456,26 +456,26 @@ export default function HomePage() {
                 <h4 className="text-white font-semibold">Key Benefits:</h4>
                 <ul className="space-y-2 text-slate-300">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Manage all of your social media accounts from one spot</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Schedule up to 60 days of content in advance</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Auto posting means you can set it, and forget it</span>
                   </li>
                 </ul>
               </div>
-              <Button asChild className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
+              <Button asChild className="bg-muted0 hover:bg-primary text-slate-900 font-semibold">
                 <a href={getLoginUrl()}>Start Scheduling</a>
               </Button>
             </div>
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-8 border border-slate-700">
               <div className="aspect-square flex items-center justify-center">
-                <Calendar className="h-32 w-32 text-amber-500/30" />
+                <Calendar className="h-32 w-32 text-primary/30" />
               </div>
             </div>
           </div>
@@ -484,11 +484,11 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-8 border border-slate-700 order-2 md:order-1">
               <div className="aspect-square flex items-center justify-center">
-                <Video className="h-32 w-32 text-amber-500/30" />
+                <Video className="h-32 w-32 text-primary/30" />
               </div>
             </div>
             <div className="space-y-6 order-1 md:order-2">
-              <div className="text-amber-500 font-bold text-lg">04</div>
+              <div className="text-primary font-bold text-lg">04</div>
               <h3 className="text-3xl font-bold text-white">AutoReels - AI Video Generation</h3>
               <p className="text-slate-300 leading-relaxed">
                 Create scroll-stopping vertical videos with AI avatars and faceless reels in under 60 seconds. Perfect for Instagram Reels, TikTok, and YouTube Shorts.
@@ -497,24 +497,24 @@ export default function HomePage() {
                 <h4 className="text-white font-semibold">Key Benefits:</h4>
                 <ul className="space-y-2 text-slate-300">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>AI-powered script generation and video rendering</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>AI avatar intros with your personalized headshot</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>Faceless vertical videos with auto-captions</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span>No video editing skills required</span>
                   </li>
                 </ul>
               </div>
-              <Button asChild className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold">
+              <Button asChild className="bg-muted0 hover:bg-primary text-slate-900 font-semibold">
                 <a href={getLoginUrl()}>Create Your First Reel</a>
               </Button>
             </div>
@@ -594,14 +594,14 @@ export default function HomePage() {
             <p className="text-xl text-slate-300 mb-4">
               Compare video quality across our 3 pricing tiers
             </p>
-            <p className="text-sm text-amber-500/80">
+            <p className="text-sm text-primary/80">
               Same property, different production levels - you decide what's worth it
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Standard Tier (5 credits) */}
-            <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-amber-500/50 transition-all">
+            <Card className="bg-slate-800/50 border-slate-700 overflow-hidden group hover:border-primary/30 transition-all">
               <div className="relative aspect-[9/16] bg-black">
                 <div className="absolute top-2 left-2 z-10 bg-slate-900/90 px-3 py-1 rounded-full">
                   <span className="text-xs font-semibold text-white">5 Credits</span>
@@ -630,8 +630,8 @@ export default function HomePage() {
 
           {/* Instructions for updating */}
           <div className="mt-12 max-w-3xl mx-auto">
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-6">
-              <p className="text-amber-500 font-semibold mb-2">📹 TODO: Replace with Real Sample Videos</p>
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-6">
+              <p className="text-primary font-semibold mb-2">📹 TODO: Replace with Real Sample Videos</p>
               <p className="text-slate-300 text-sm leading-relaxed mb-3">
                 Generate real Authority Reels videos using the Authority Reels Engine, then replace the placeholders above with actual video embeds or thumbnails.
               </p>
@@ -660,14 +660,14 @@ export default function HomePage() {
             {/* Placeholder - Replace the entire div below with iframe when you have a video */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center space-y-4">
-                <Video className="h-24 w-24 text-amber-500/30 mx-auto" />
+                <Video className="h-24 w-24 text-primary/30 mx-auto" />
                 <p className="text-slate-400 text-lg">Demo video coming soon</p>
                 <p className="text-slate-500 text-sm max-w-md mx-auto">
                   Record a 60-second walkthrough and embed it here using an iframe.
                 </p>
                 <div className="bg-slate-800/50 rounded p-4 text-left text-xs font-mono text-slate-400 max-w-lg mx-auto mt-4">
                   <p className="mb-2">Example embed code:</p>
-                  <code className="text-amber-500">
+                  <code className="text-primary">
                     {`<iframe`}<br/>
                     {`  src="https://www.youtube.com/embed/YOUR_VIDEO_ID"`}<br/>
                     {`  className="w-full h-full"`}<br/>
@@ -700,7 +700,7 @@ export default function HomePage() {
             Start your 14-day free trial today. No credit card required.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button asChild size="lg" className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold text-lg px-8 py-6">
+            <Button asChild size="lg" className="bg-muted0 hover:bg-primary text-slate-900 font-semibold text-lg px-8 py-6">
               <a href={getLoginUrl()}>
                 <Sparkles className="mr-2 h-5 w-5" />
                 Start Free Trial

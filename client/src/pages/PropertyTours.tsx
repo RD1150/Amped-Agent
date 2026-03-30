@@ -627,22 +627,22 @@ export default function PropertyTours() {
                 <p className="text-xs text-muted-foreground mb-1">Daily Videos</p>
                 {dailyUsage.isUnlimited ? (
                   <>
-                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    <p className="text-2xl font-bold text-primary">
                       ∞
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">Unlimited</p>
-                    <p className="text-xs text-green-600 dark:text-green-400 mt-2 font-medium">
+                    <p className="text-xs text-primary dark:text-green-400 mt-2 font-medium">
                       Pro Plan
                     </p>
                   </>
                 ) : (
                   <>
-                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    <p className="text-2xl font-bold text-primary">
                       {dailyUsage.remaining}/{dailyUsage.limit}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">remaining today</p>
                     {dailyUsage.remaining <= 2 && dailyUsage.remaining > 0 && (
-                      <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 font-medium">
+                      <p className="text-xs text-primary/70 mt-2 font-medium">
                         Low limit!
                       </p>
                     )}
@@ -1134,7 +1134,7 @@ export default function PropertyTours() {
                   <p className="text-xs text-muted-foreground">Choose to use your saved headshot or upload a different one.</p>
                 )}
                 {!currentUser?.avatarImageUrl && !customAvatarPreview && (
-                  <p className="text-xs text-amber-600">No saved headshot found. Upload one above, or go to AI Reels to save your profile headshot.</p>
+                  <p className="text-xs text-primary">No saved headshot found. Upload one above, or go to AI Reels to save your profile headshot.</p>
                 )}
               </div>
             )}
@@ -1161,7 +1161,7 @@ export default function PropertyTours() {
                 >
                   <div className="text-sm font-semibold mb-1">🎬 Standard</div>
                   <div className="text-xs text-muted-foreground">Smooth Ken Burns zoom &amp; pan effects</div>
-                  <div className="text-xs text-green-600 font-medium mt-1">Fast · 5 credits</div>
+                  <div className="text-xs text-primary font-medium mt-1">Fast · 5 credits</div>
                 </button>
                 <button
                   type="button"
@@ -1174,11 +1174,11 @@ export default function PropertyTours() {
                 >
                   <div className="text-sm font-semibold mb-1">✨ AI Walkthrough</div>
                   <div className="text-xs text-muted-foreground">Real camera movement through rooms</div>
-                  <div className="text-xs text-amber-600 font-medium mt-1">~5 min · 15 credits</div>
+                  <div className="text-xs text-primary font-medium mt-1">~5 min · 15 credits</div>
                 </button>
               </div>
               {videoMode === "ai-enhanced" && (
-                <p className="text-xs text-muted-foreground bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded p-2">
+                <p className="text-xs text-muted-foreground bg-muted dark:bg-primary/10 border border-primary/20 dark:border-primary/50 rounded p-2">
                   🎥 AI Walkthrough uses Kling AI to generate real camera movement (dolly push, arc turns, crane shots) for your best 3–5 photos. Takes ~5 minutes to generate.
                 </p>
               )}
@@ -1277,7 +1277,7 @@ export default function PropertyTours() {
                             <div>
                               <span className="text-xs font-medium">{(personaData as any).elevenlabsVoiceName || "My Voice"}</span>
                               <span className="text-xs text-muted-foreground ml-1.5">Your Cloned Voice</span>
-                              <span className="ml-1.5 text-[10px] bg-green-500/20 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">Cloned</span>
+                              <span className="ml-1.5 text-[10px] bg-primary/15 text-primary dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">Cloned</span>
                             </div>
                           </div>
                           <button
@@ -1937,7 +1937,7 @@ export default function PropertyTours() {
                   }}
                   className="flex items-center justify-center gap-2 h-11 rounded-lg border border-border bg-muted/40 hover:bg-muted font-semibold text-sm transition-colors"
                 >
-                  {copiedLink ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                  {copiedLink ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
                   {copiedLink ? "Copied!" : "Copy Link"}
                 </button>
               </div>
@@ -1949,7 +1949,7 @@ export default function PropertyTours() {
                   });
                   window.location.href = `/repurpose?${params.toString()}`;
                 }}
-                className="w-full flex items-center justify-center gap-2 text-sm text-amber-600 hover:text-amber-700 transition-colors py-2 font-medium"
+                className="w-full flex items-center justify-center gap-2 text-sm text-primary hover:text-primary transition-colors py-2 font-medium"
               >
                 <Repeat2 className="w-4 h-4" />
                 Repurpose Property Story

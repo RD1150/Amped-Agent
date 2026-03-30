@@ -190,7 +190,7 @@ export default function Upgrade() {
                   </div>
                   {billingPeriod === "annual" && (
                     <div className="mt-2 space-y-1">
-                      <Badge variant="secondary" className="bg-green-500/10 text-green-600 hover:bg-green-500/10">
+                      <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/10">
                         Save ${tier.savings}
                       </Badge>
                       <p className="text-sm text-muted-foreground">

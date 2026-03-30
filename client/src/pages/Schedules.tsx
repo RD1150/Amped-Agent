@@ -325,7 +325,7 @@ export default function Schedules() {
                       <CardTitle className="flex items-center gap-2">
                         {schedule.name}
                         {schedule.isActive ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-500">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
                             Active
                           </span>
                         ) : (

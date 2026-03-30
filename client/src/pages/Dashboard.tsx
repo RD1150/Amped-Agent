@@ -59,14 +59,14 @@ export default function Dashboard() {
       description: "View and manage your scheduled posts",
       icon: Calendar,
       href: "/",
-      color: "bg-blue-500/10 text-blue-500"
+      color: "bg-primary/10 text-primary"
     },
     {
       title: "Upload Content",
       description: "Import property listings or images",
       icon: Upload,
       href: "/uploads",
-      color: "bg-green-500/10 text-green-500"
+      color: "bg-primary/10 text-primary"
     }
   ];
 
@@ -103,7 +103,7 @@ export default function Dashboard() {
             <p className="text-muted-foreground">
               Ready to dominate your local market?
             </p>
-            <p className="text-sm text-amber-500/80 font-medium mt-1">
+            <p className="text-sm text-primary/80 font-medium mt-1">
               This is your Authority Operating System.
             </p>
           </div>
@@ -132,19 +132,19 @@ export default function Dashboard() {
             <h3 className="text-lg font-semibold text-white">Market Dominance Tips</h3>
             <ul className="space-y-3 text-sm text-slate-300">
               <li className="flex items-start gap-2">
-                <span className="text-amber-500 font-bold">→</span>
+                <span className="text-primary font-bold">→</span>
                 <span>Post 3x per week to stay top-of-mind</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-amber-500 font-bold">→</span>
+                <span className="text-primary font-bold">→</span>
                 <span>Focus on local market insights</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-amber-500 font-bold">→</span>
+                <span className="text-primary font-bold">→</span>
                 <span>Use video to build trust faster</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-amber-500 font-bold">→</span>
+                <span className="text-primary font-bold">→</span>
                 <span>Share case studies and wins</span>
               </li>
             </ul>
@@ -182,8 +182,8 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-purple-500/10">
-              <FileText className="h-6 w-6 text-purple-500" />
+            <div className="p-3 rounded-lg bg-primary/10">
+              <FileText className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Posts This Month</p>
@@ -194,8 +194,8 @@ export default function Dashboard() {
 
         <Card className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-orange-500/10">
-              <Clock className="h-6 w-6 text-orange-500" />
+            <div className="p-3 rounded-lg bg-primary/10">
+              <Clock className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Scheduled Posts</p>
@@ -206,8 +206,8 @@ export default function Dashboard() {
 
         <Card className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-green-500/10">
-              <TrendingUp className="h-6 w-6 text-green-500" />
+            <div className="p-3 rounded-lg bg-primary/10">
+              <TrendingUp className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Reach</p>
@@ -266,17 +266,17 @@ export default function Dashboard() {
         {/* Grid overlay */}
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         {/* Glow accent */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
         <div className="relative px-8 py-7 flex flex-col md:flex-row md:items-center gap-6">
           {/* Icon */}
-          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-amber-400/15 border border-amber-400/30 shrink-0">
-            <Award className="h-7 w-7 text-amber-400" />
+          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-[oklch(0.68_0.13_75)]/15 border border-[oklch(0.68_0.13_75)]/30 shrink-0">
+            <Award className="h-7 w-7 text-[oklch(0.68_0.13_75)]" />
           </div>
           {/* Text */}
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">Market Dominance Coach</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/15 text-amber-400 border border-amber-400/30">
+              <span className="text-xs font-semibold text-primary/80 uppercase tracking-wider">Market Dominance Coach</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[oklch(0.68_0.13_75)]/15 text-[oklch(0.68_0.13_75)] border border-[oklch(0.68_0.13_75)]/30">
                 <Zap className="h-2.5 w-2.5" />Premium
               </span>
             </div>
@@ -289,7 +289,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 shrink-0">
             <Button
               size="sm"
-              className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold gap-1.5 group-hover:shadow-lg group-hover:shadow-amber-400/20 transition-all"
+              className="bg-[oklch(0.68_0.13_75)] hover:bg-[oklch(0.72_0.13_75)] text-slate-900 font-semibold gap-1.5 group-hover:shadow-lg transition-all"
             >
               Open Coach
               <ChevronRight className="h-4 w-4" />

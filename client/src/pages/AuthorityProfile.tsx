@@ -65,8 +65,8 @@ function PhotoAvatarCard() {
                 className="h-20 w-20 rounded-full object-cover border-2 border-green-500"
               />
             ) : (
-              <div className="h-20 w-20 rounded-full bg-green-500/20 flex items-center justify-center border-2 border-green-500">
-                <User className="h-8 w-8 text-green-600" />
+              <div className="h-20 w-20 rounded-full bg-primary/15 flex items-center justify-center border-2 border-green-500">
+                <User className="h-8 w-8 text-primary" />
               </div>
             )}
             <span className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
@@ -75,7 +75,7 @@ function PhotoAvatarCard() {
           </div>
           {/* Info */}
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm text-green-600 dark:text-green-400">Avatar ready</p>
+            <p className="font-semibold text-sm text-primary dark:text-green-400">Avatar ready</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.
               Used automatically when you select "Your Photo Avatar" in Full Avatar Video.
@@ -83,15 +83,15 @@ function PhotoAvatarCard() {
           </div>
           {/* Action */}
           <Link href="/full-avatar-video">
-            <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-black font-semibold whitespace-nowrap flex-shrink-0">
+            <Button size="sm" className="bg-muted0 hover:bg-primary text-black font-semibold whitespace-nowrap flex-shrink-0">
               <Video className="h-3.5 w-3.5 mr-1.5" />
               Generate Video
             </Button>
           </Link>
         </div>
       ) : twinStatus?.status === "training" ? (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
-          <Loader2 className="h-6 w-6 text-amber-500 animate-spin flex-shrink-0" />
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
+          <Loader2 className="h-6 w-6 text-primary animate-spin flex-shrink-0" />
           <div>
             <p className="font-semibold text-sm">Avatar training in progress…</p>
             <p className="text-xs text-muted-foreground mt-0.5">Usually takes 1–3 minutes. Refresh to check status.</p>
@@ -220,7 +220,7 @@ function VoiceScript() {
           className="gap-1.5 shrink-0 ml-3"
         >
           {copied ? (
-            <><Check className="h-3.5 w-3.5 text-green-500" /> Copied!</>
+            <><Check className="h-3.5 w-3.5 text-primary" /> Copied!</>
           ) : (
             <><Copy className="h-3.5 w-3.5" /> Copy Script</>
           )}
@@ -724,8 +724,8 @@ export default function AuthorityProfile() {
 
           {/* Existing cloned voice status */}
           {hasClonedVoice && (
-            <div className="flex items-center justify-between bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3 mb-5">
-              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+            <div className="flex items-center justify-between bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 mb-5">
+              <div className="flex items-center gap-2 text-primary dark:text-green-400">
                 <CheckCircle className="h-4 w-4 shrink-0" />
                 <div>
                   <p className="text-sm font-medium">Voice clone active: <span className="font-semibold">{clonedVoiceName}</span></p>
@@ -805,12 +805,12 @@ export default function AuthorityProfile() {
               {!isRecording && recordedBlob && recordedBlobUrl && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-primary shrink-0" />
                     <span className="font-medium text-green-700 dark:text-green-400">
                       Recording captured — {formatSeconds(recordingSeconds)}
                     </span>
                     {recordingSeconds < 30 && (
-                      <span className="text-xs text-amber-600 dark:text-amber-400">
+                      <span className="text-xs text-primary dark:text-primary/80">
                         (too short — aim for 60+ seconds)
                       </span>
                     )}
@@ -865,7 +865,7 @@ export default function AuthorityProfile() {
                   onChange={handleVoiceFileSelect}
                 />
                 {voiceFile && (
-                  <span className="text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
+                  <span className="text-sm text-primary dark:text-green-400 flex items-center gap-1">
                     <CheckCircle className="h-3.5 w-3.5" />
                     {voiceFile.name} ({(voiceFile.size / 1024 / 1024).toFixed(1)}MB)
                   </span>
@@ -899,8 +899,8 @@ export default function AuthorityProfile() {
 
             {/* Post-clone preview */}
             {postClonePreviewUrl && (
-              <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3">
-                <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+              <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 rounded-lg px-4 py-3">
+                <CheckCircle className="h-4 w-4 text-primary shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-green-700 dark:text-green-400">Voice cloned! Here's how it sounds:</p>
                   <audio controls src={postClonePreviewUrl} className="mt-1.5 w-full h-8" />

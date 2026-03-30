@@ -58,9 +58,9 @@ export function MusicLibrary({
 
   const getPaceBadgeColor = (pace: string) => {
     switch (pace) {
-      case 'slow': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      case 'slow': return 'bg-primary/10 text-primary border-primary/30';
       case 'medium': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'fast': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+      case 'fast': return 'bg-primary/15 text-primary border-primary/30';
       case 'upbeat': return 'bg-pink-500/20 text-pink-400 border-pink-500/30';
       default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
     }
@@ -68,12 +68,12 @@ export function MusicLibrary({
 
   const getMoodBadgeColor = (mood: string) => {
     switch (mood) {
-      case 'calm': return 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30';
-      case 'dramatic': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-      case 'uplifting': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'calm': return 'bg-primary/10 text-primary/70 border-primary/20';
+      case 'dramatic': return 'bg-primary/10 text-primary/80 border-primary/20';
+      case 'uplifting': return 'bg-primary/10 text-primary border-primary/20';
       case 'professional': return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
       case 'energetic': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      case 'luxurious': return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+      case 'luxurious': return 'bg-primary/10 text-primary border-primary/20';
       default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
     }
   };
@@ -82,7 +82,7 @@ export function MusicLibrary({
     <Card className="bg-slate-800/50 border-slate-700">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-white">
-          <Music className="h-5 w-5 text-amber-500" />
+          <Music className="h-5 w-5 text-primary" />
           Music Library
         </CardTitle>
         <p className="text-sm text-slate-400">
@@ -118,10 +118,10 @@ export function MusicLibrary({
         {/* Filter Tabs */}
         <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | 'recommended')} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-slate-900/50">
-            <TabsTrigger value="recommended" className="data-[state=active]:bg-amber-500 data-[state=active]:text-slate-900">
+            <TabsTrigger value="recommended" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               Recommended
             </TabsTrigger>
-            <TabsTrigger value="all" className="data-[state=active]:bg-amber-500 data-[state=active]:text-slate-900">
+            <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               All Tracks ({allTracks.length})
             </TabsTrigger>
           </TabsList>
@@ -135,9 +135,9 @@ export function MusicLibrary({
             displayTracks.map((track) => (
               <Card
                 key={track.id}
-                className={`bg-slate-900/50 border transition-all cursor-pointer hover:border-amber-500/50 ${
+                className={`bg-slate-900/50 border transition-all cursor-pointer hover:border-primary/50 ${
                   selectedTrackId === track.id
-                    ? 'border-amber-500 ring-2 ring-amber-500/30'
+                    ? 'border-primary ring-2 ring-primary/30'
                     : 'border-slate-700'
                 }`}
                 onClick={() => onSelectTrack(track.id, track.url)}
@@ -148,7 +148,7 @@ export function MusicLibrary({
                     <Button
                       size="sm"
                       variant="outline"
-                      className="shrink-0 border-slate-600 hover:bg-amber-500 hover:text-slate-900 hover:border-amber-500"
+                      className="shrink-0 border-slate-600 hover:bg-primary hover:text-primary-foreground hover:border-primary"
                       onClick={(e) => {
                         e.stopPropagation();
                         handlePlayPause(track.id, track.url);
@@ -195,7 +195,7 @@ export function MusicLibrary({
                     {/* Selected Indicator */}
                     {selectedTrackId === track.id && (
                       <div className="shrink-0">
-                        <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                       </div>
                     )}
                   </div>

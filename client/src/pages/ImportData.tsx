@@ -165,7 +165,7 @@ export default function ImportData() {
       case "failed":
         return <XCircle className="h-4 w-4 text-red-400" />;
       case "processing":
-        return <Loader2 className="h-4 w-4 text-blue-400 animate-spin" />;
+        return <Loader2 className="h-4 w-4 text-primary animate-spin" />;
       default:
         return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
@@ -174,11 +174,11 @@ export default function ImportData() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-500/20 text-green-400">Completed</Badge>;
+        return <Badge className="bg-primary/15 text-green-400">Completed</Badge>;
       case "failed":
         return <Badge className="bg-red-500/20 text-red-400">Failed</Badge>;
       case "processing":
-        return <Badge className="bg-blue-500/20 text-blue-400">Processing</Badge>;
+        return <Badge className="bg-primary/10 text-primary">Processing</Badge>;
       default:
         return <Badge variant="secondary">Pending</Badge>;
     }
@@ -226,7 +226,7 @@ export default function ImportData() {
             </div>
 
             {csvData.length > 0 && (
-              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
                 <p className="text-sm text-green-400">
                   ✓ Loaded {csvData.length} properties ready for import
                 </p>

@@ -151,8 +151,8 @@ export default function AdminSpend() {
 
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-amber-500/10 rounded-lg">
-              <Zap className="w-5 h-5 text-amber-500" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Zap className="w-5 h-5 text-primary" />
             </div>
             <span className="text-sm text-muted-foreground font-medium">
               Top Service
@@ -175,8 +175,8 @@ export default function AdminSpend() {
 
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-green-500/10 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-green-500" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <TrendingUp className="w-5 h-5 text-primary" />
             </div>
             <span className="text-sm text-muted-foreground font-medium">
               Avg Monthly Spend

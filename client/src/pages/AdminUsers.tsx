@@ -16,14 +16,14 @@ import { COOKIE_NAME } from "@shared/const";
 
 const TIER_COLORS: Record<string, string> = {
   starter: "bg-gray-100 text-gray-700",
-  pro: "bg-blue-100 text-blue-700",
-  agency: "bg-purple-100 text-purple-700",
-  premium: "bg-amber-100 text-amber-700",
+  pro: "bg-primary/10 text-primary",
+  agency: "bg-primary/10 text-primary",
+  premium: "bg-primary/10 text-primary",
 };
 
 const STATUS_COLORS: Record<string, string> = {
   active: "bg-green-100 text-green-700",
-  trialing: "bg-yellow-100 text-yellow-700",
+  trialing: "bg-primary/10 text-primary/80",
   past_due: "bg-red-100 text-red-700",
   canceled: "bg-gray-100 text-gray-500",
   inactive: "bg-gray-100 text-gray-500",
@@ -207,9 +207,9 @@ export default function AdminUsers() {
         <div className="grid grid-cols-4 gap-4">
           {[
             { label: "Total", value: data?.total ?? 0, color: "text-foreground" },
-            { label: "Active Subs", value: (data?.users ?? []).filter(u => u.subscriptionStatus === "active").length, color: "text-green-600" },
-            { label: "Trialing", value: (data?.users ?? []).filter(u => u.subscriptionStatus === "trialing").length, color: "text-yellow-600" },
-            { label: "Admins", value: (data?.users ?? []).filter(u => u.role === "admin").length, color: "text-purple-600" },
+            { label: "Active Subs", value: (data?.users ?? []).filter(u => u.subscriptionStatus === "active").length, color: "text-primary" },
+            { label: "Trialing", value: (data?.users ?? []).filter(u => u.subscriptionStatus === "trialing").length, color: "text-primary/70" },
+            { label: "Admins", value: (data?.users ?? []).filter(u => u.role === "admin").length, color: "text-primary" },
           ].map((stat) => (
             <Card key={stat.label} className="border border-border/50">
               <CardContent className="pt-4 pb-4">
@@ -260,7 +260,7 @@ export default function AdminUsers() {
                             </div>
                             <span>{u.name ?? "—"}</span>
                             {u.role === "admin" && (
-                              <Badge className="text-xs bg-purple-100 text-purple-700 border-0 py-0">admin</Badge>
+                              <Badge className="text-xs bg-primary/10 text-primary border-0 py-0">admin</Badge>
                             )}
                           </div>
                         </td>
@@ -323,7 +323,7 @@ export default function AdminUsers() {
       <Dialog open={impersonateConfirmOpen} onOpenChange={setImpersonateConfirmOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-amber-600">
+            <DialogTitle className="flex items-center gap-2 text-primary">
               <AlertTriangle className="h-5 w-5" />
               Impersonate User
             </DialogTitle>
@@ -346,7 +346,7 @@ export default function AdminUsers() {
             </Button>
             <Button
               variant="default"
-              className="bg-amber-600 hover:bg-amber-700"
+              className="bg-primary hover:bg-primary"
               disabled={impersonateMutation.isPending}
               onClick={() => impersonateTarget && impersonateMutation.mutate({ userId: impersonateTarget.id })}
             >

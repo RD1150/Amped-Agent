@@ -88,13 +88,13 @@ export default function UsageCounter() {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
-                <UserCircle2 className="w-4 h-4 text-amber-500" />
+              <div className="w-8 h-8 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center">
+                <UserCircle2 className="w-4 h-4 text-primary" />
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-sm font-medium">Full Avatar Videos</span>
                 {isPremiumOrPro && (
-                  <span className="text-[10px] font-semibold uppercase tracking-wide bg-amber-500/15 text-amber-500 px-1.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide bg-primary/15 text-primary px-1.5 py-0.5 rounded-full">
                     Premium
                   </span>
                 )}
@@ -108,7 +108,7 @@ export default function UsageCounter() {
                   <span><span className="font-semibold text-foreground">{avatarUsed}</span> generated</span>
                 )
               ) : (
-                <span className="text-amber-500 font-medium">Upgrade required</span>
+                <span className="text-primary font-medium">Upgrade required</span>
               )}
             </span>
           </div>

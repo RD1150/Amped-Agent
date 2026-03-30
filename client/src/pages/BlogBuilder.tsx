@@ -312,7 +312,7 @@ export default function BlogBuilder() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-2 text-amber-600 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                          className="gap-2 text-primary border-primary/30 hover:bg-muted dark:hover:bg-primary/10"
                           onClick={() => {
                             const params = new URLSearchParams({
                               topic: post.title,

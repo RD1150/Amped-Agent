@@ -229,12 +229,12 @@ export default function BulkImport() {
 
       {/* Generate All Posts CTA — shown when there are pending templates */}
       {pendingTotal > 0 && !isJobRunning && (
-        <Card className="border border-amber-500/30 bg-amber-500/5">
+        <Card className="border border-primary/20 bg-primary/5">
           <CardContent className="p-4">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
-                  <LayoutGrid className="w-5 h-5 text-amber-500" />
+                <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                  <LayoutGrid className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <p className="font-semibold text-foreground text-sm">
@@ -295,7 +295,7 @@ export default function BulkImport() {
         <Card className="border border-border bg-card">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-amber-500" />
+              <Zap className="w-4 h-4 text-primary" />
               <CardTitle className="text-sm font-semibold">Native Format</CardTitle>
               <Badge variant="outline" className="text-xs">Full control</Badge>
             </div>
@@ -347,15 +347,15 @@ export default function BulkImport() {
                   <div className="flex items-center gap-1.5 justify-center mt-2">
                     {detectedFormat === "carousel" ? (
                       <>
-                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                        <span className="text-xs text-amber-600 font-medium">
+                        <Sparkles className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-xs text-primary font-medium">
                           Carousel format detected — AI will generate hooks automatically
                         </span>
                       </>
                     ) : (
                       <>
-                        <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                        <span className="text-xs text-green-600 font-medium">
+                        <CheckCircle className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-xs text-primary font-medium">
                           Native format detected — hooks will be imported as-is
                         </span>
                       </>
@@ -364,8 +364,8 @@ export default function BulkImport() {
                 )}
                 {detectedFormat === null && (
                   <div className="flex items-center gap-1.5 justify-center mt-2">
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                    <span className="text-xs text-amber-600">
+                    <AlertCircle className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-xs text-primary">
                       Could not detect format — ensure CSV has a 'Topic' or 'Hook' column
                     </span>
                   </div>
@@ -413,7 +413,7 @@ export default function BulkImport() {
 
       {/* AI Hook Note */}
       {detectedFormat === "carousel" && (
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-700 dark:text-amber-400">
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20 text-sm text-primary dark:text-primary/80">
           <Info className="w-4 h-4 mt-0.5 shrink-0" />
           <span>
             AI will generate a scroll-stopping hook for each row using the Topic and Description. This may take 10–20 seconds for large files.
@@ -432,7 +432,7 @@ export default function BulkImport() {
                 className="flex items-center justify-between p-3 rounded-lg border border-border bg-card gap-3 flex-wrap"
               >
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-primary shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-foreground">
                       {batch.count} templates imported
@@ -440,10 +440,10 @@ export default function BulkImport() {
                     <p className="text-xs text-muted-foreground">
                       Batch {batch.importBatchId.slice(0, 8)}… · {new Date(batch.importedAt).toLocaleDateString()}
                       {batch.generatedCount > 0 && (
-                        <span className="ml-2 text-green-600">· {batch.generatedCount} generated</span>
+                        <span className="ml-2 text-primary">· {batch.generatedCount} generated</span>
                       )}
                       {batch.pendingCount > 0 && (
-                        <span className="ml-2 text-amber-600">· {batch.pendingCount} pending</span>
+                        <span className="ml-2 text-primary">· {batch.pendingCount} pending</span>
                       )}
                     </p>
                   </div>

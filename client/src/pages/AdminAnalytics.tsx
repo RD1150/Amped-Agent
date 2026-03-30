@@ -49,14 +49,14 @@ export default function AdminAnalytics() {
         {/* Total Users */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-              <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="w-12 h-12 bg-primary/10 dark:bg-primary/10 rounded-full flex items-center justify-center">
+              <Users className="w-6 h-6 text-primary dark:text-primary" />
             </div>
-            <TrendingUp className="w-5 h-5 text-green-600" />
+            <TrendingUp className="w-5 h-5 text-primary" />
           </div>
           <h3 className="text-2xl font-bold">{analytics.totalUsers}</h3>
           <p className="text-sm text-muted-foreground">Total Users</p>
-          <p className="text-xs text-green-600 mt-2">
+          <p className="text-xs text-primary mt-2">
             +{analytics.newUsersToday} today
           </p>
         </Card>
@@ -65,7 +65,7 @@ export default function AdminAnalytics() {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-              <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
+              <Users className="w-6 h-6 text-primary dark:text-green-400" />
             </div>
           </div>
           <h3 className="text-2xl font-bold">{analytics.dailyActiveUsers}</h3>
@@ -78,8 +78,8 @@ export default function AdminAnalytics() {
         {/* Credit Purchases */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-              <CreditCard className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="w-12 h-12 bg-primary/10 dark:bg-primary/10 rounded-full flex items-center justify-center">
+              <CreditCard className="w-6 h-6 text-primary dark:text-primary" />
             </div>
           </div>
           <h3 className="text-2xl font-bold">${analytics.totalRevenue.toLocaleString()}</h3>
@@ -92,8 +92,8 @@ export default function AdminAnalytics() {
         {/* Videos Generated */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-full flex items-center justify-center">
-              <Video className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+            <div className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center">
+              <Video className="w-6 h-6 text-primary dark:text-primary/80" />
             </div>
           </div>
           <h3 className="text-2xl font-bold">{analytics.totalVideos}</h3>
@@ -116,7 +116,7 @@ export default function AdminAnalytics() {
               </div>
               <div className="w-full bg-muted rounded-full h-2">
                 <div 
-                  className="bg-blue-600 h-2 rounded-full" 
+                  className="bg-primary h-2 rounded-full" 
                   style={{ width: `${(analytics.standardVideos / analytics.totalVideos) * 100}%` }}
                 ></div>
               </div>
@@ -128,7 +128,7 @@ export default function AdminAnalytics() {
               </div>
               <div className="w-full bg-muted rounded-full h-2">
                 <div 
-                  className="bg-purple-600 h-2 rounded-full" 
+                  className="bg-primary h-2 rounded-full" 
                   style={{ width: `${(analytics.aiEnhancedVideos / analytics.totalVideos) * 100}%` }}
                 ></div>
               </div>
@@ -140,7 +140,7 @@ export default function AdminAnalytics() {
               </div>
               <div className="w-full bg-muted rounded-full h-2">
                 <div 
-                  className="bg-amber-600 h-2 rounded-full" 
+                  className="bg-primary h-2 rounded-full" 
                   style={{ width: `${(analytics.fullAiVideos / analytics.totalVideos) * 100}%` }}
                 ></div>
               </div>
@@ -152,8 +152,8 @@ export default function AdminAnalytics() {
           <h3 className="text-xl font-semibold mb-4">Rate Limit Insights</h3>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center flex-shrink-0">
-                <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+              <div className="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <Clock className="w-5 h-5 text-primary dark:text-primary" />
               </div>
               <div className="flex-1">
                 <p className="font-medium">{analytics.rateLimitHits} Users Hit Limit</p>
@@ -164,7 +164,7 @@ export default function AdminAnalytics() {
             </div>
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <TrendingUp className="w-5 h-5 text-primary dark:text-green-400" />
               </div>
               <div className="flex-1">
                 <p className="font-medium">Conversion Opportunity</p>
@@ -194,12 +194,12 @@ export default function AdminAnalytics() {
             <p className="text-sm text-muted-foreground">Agency ($399)</p>
           </div>
         </div>
-        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+        <div className="mt-4 p-4 bg-primary/10 dark:bg-primary/10 rounded-lg">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-primary dark:text-primary flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-blue-900 dark:text-blue-100">Conversion Rate</p>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
+              <p className="font-medium text-primary dark:text-primary">Conversion Rate</p>
+              <p className="text-sm text-primary dark:text-primary">
                 {((analytics.proUsers + analytics.premiumUsers) / analytics.totalUsers * 100).toFixed(1)}% of users have upgraded to paid plans
               </p>
             </div>

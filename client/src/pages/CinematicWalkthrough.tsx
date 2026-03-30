@@ -121,7 +121,7 @@ function SortablePhotoCard({ photo, photos, index, onRemove, onUpdate }: Sortabl
   const panDir = getPanDirection(photos, index);
   const PanIcon = panDir === "tilt" ? ArrowUp : panDir === "ltr" ? ArrowRight : ArrowLeft;
   const panLabel = panDir === "tilt" ? "Tilt up" : panDir === "ltr" ? "Pan left \u2192 right" : "Pan right \u2192 left";
-  const panColor = panDir === "tilt" ? "text-blue-400 border-blue-400/40 bg-blue-400/10" : "text-amber-400 border-amber-400/40 bg-amber-400/10";
+  const panColor = panDir === "tilt" ? "text-primary border-primary/40 bg-primary/10" : "text-primary/80 border-primary/40 bg-primary/10";
 
   return (
     <div ref={setNodeRef} style={style} className="rounded-xl border border-border bg-card overflow-hidden">
@@ -197,8 +197,8 @@ function SortablePhotoCard({ photo, photos, index, onRemove, onUpdate }: Sortabl
             onClick={() => onUpdate(photo.id, { isExterior: !photo.isExterior })}
             className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
               photo.isExterior
-                ? "border-blue-400/50 bg-blue-400/10 text-blue-400"
-                : "border-border bg-muted/30 text-muted-foreground hover:border-blue-400/30 hover:text-blue-300"
+                ? "border-primary/50 bg-primary/10 text-primary"
+                : "border-border bg-muted/30 text-muted-foreground hover:border-primary/30 hover:text-primary"
             }`}
           >
             <Home className="h-3 w-3 flex-shrink-0" />
@@ -542,8 +542,8 @@ export default function CinematicWalkthrough() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-            <Film className="h-6 w-6 text-amber-500" />
+          <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+            <Film className="h-6 w-6 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Cinematic Property Tour</h1>
@@ -551,10 +551,10 @@ export default function CinematicWalkthrough() {
               Higgsfield AI — genuine cinematic motion through every room, not Ken Burns
             </p>
           </div>
-          <Badge className="ml-auto bg-amber-500/10 text-amber-500 border-amber-500/30 text-xs">Premium</Badge>
+          <Badge className="ml-auto bg-primary/10 text-primary border-primary/20 text-xs">Premium</Badge>
         </div>
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-sm text-muted-foreground">
-          <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm text-muted-foreground">
+          <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <span>
             Each photo is animated with genuine AI cinematic motion (dolly, crane, fly-through) powered by Higgsfield, then assembled into a seamless walkthrough video. Generation takes <strong>2–5 minutes</strong> depending on the number of photos.
           </span>
@@ -563,9 +563,9 @@ export default function CinematicWalkthrough() {
 
       {/* Video Result */}
       {videoUrl && (
-        <div className="rounded-xl overflow-hidden border border-amber-500/30 bg-card">
+        <div className="rounded-xl overflow-hidden border border-primary/20 bg-card">
           <div className="p-4 border-b border-border flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-500" />
+            <CheckCircle className="h-5 w-5 text-primary" />
             <span className="font-semibold text-foreground">Your Cinematic Property Tour is Ready!</span>
           </div>
           <div className="p-4">
@@ -577,7 +577,7 @@ export default function CinematicWalkthrough() {
             />
             <div className="flex flex-col gap-3 mt-4">
               <div className="flex gap-3">
-                <Button asChild className="flex-1 bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+                <Button asChild className="flex-1 bg-muted0 hover:bg-primary text-black font-semibold">
                   <a href={videoUrl} download="cinematic-walkthrough.mp4">
                     Download Video
                   </a>
@@ -593,7 +593,7 @@ export default function CinematicWalkthrough() {
                   Copy Link
                 </Button>
               </div>
-              <Button asChild variant="outline" className="w-full border-amber-500/40 text-amber-500 hover:bg-amber-500/10">
+              <Button asChild variant="outline" className="w-full border-primary/30 text-primary hover:bg-primary/10">
                 <Link href="/my-content">
                   <Library className="h-4 w-4 mr-2" />
                   View in My Content
@@ -611,7 +611,7 @@ export default function CinematicWalkthrough() {
                       key={photo.id}
                       onClick={() => handleRetryClip(index)}
                       disabled={retryingClipIndex !== null}
-                      className="relative group rounded-lg overflow-hidden border border-border hover:border-amber-500/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative group rounded-lg overflow-hidden border border-border hover:border-primary/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <img
                         src={photo.previewUrl}
@@ -620,10 +620,10 @@ export default function CinematicWalkthrough() {
                       />
                       <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         {retryingClipIndex === index ? (
-                          <Loader2 className="h-5 w-5 text-amber-400 animate-spin" />
+                          <Loader2 className="h-5 w-5 text-primary/80 animate-spin" />
                         ) : (
                           <>
-                            <Play className="h-4 w-4 text-amber-400 mb-1" />
+                            <Play className="h-4 w-4 text-primary/80 mb-1" />
                             <span className="text-xs text-white font-medium">Retry clip</span>
                           </>
                         )}
@@ -703,7 +703,7 @@ export default function CinematicWalkthrough() {
                 <Button
                   onClick={handleRetry}
                   disabled={retryMutation.isPending}
-                  className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+                  className="bg-muted0 hover:bg-primary text-black font-semibold"
                 >
                   {retryMutation.isPending ? (
                     <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Retrying…</>
@@ -728,16 +728,16 @@ export default function CinematicWalkthrough() {
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Loader2 className="h-5 w-5 text-amber-500 animate-spin" />
+              <Loader2 className="h-5 w-5 text-primary animate-spin" />
               <span className="font-semibold text-foreground">{progressLabel}</span>
             </div>
-            <span className="text-xs font-medium text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-full">
+            <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-1 rounded-full">
               {remainingLabel}
             </span>
           </div>
           <div className="w-full bg-muted rounded-full h-2.5">
             <div
-              className="bg-amber-500 h-2.5 rounded-full transition-all duration-1000"
+              className="bg-muted0 h-2.5 rounded-full transition-all duration-1000"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -757,7 +757,7 @@ export default function CinematicWalkthrough() {
         {/* Drop zone */}
         {photos.length < 12 && (
           <div
-            className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-amber-500/50 hover:bg-amber-500/5 transition-colors"
+            className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-colors"
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
             onClick={() => fileInputRef.current?.click()}
@@ -858,12 +858,12 @@ export default function CinematicWalkthrough() {
       {(agentName.trim() || agentBrokerage.trim() || agentPhone.trim()) && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-amber-500" />
+            <User className="h-4 w-4 text-primary" />
             <Label className="text-sm font-semibold">Outro Card Preview</Label>
             <span className="text-xs text-muted-foreground">(appears at the end of your video)</span>
           </div>
           {/* Cinematic widescreen outro mockup */}
-          <div className="relative w-full rounded-xl overflow-hidden border border-amber-500/20 bg-black" style={{ aspectRatio: "16/9" }}>
+          <div className="relative w-full rounded-xl overflow-hidden border border-primary/20 bg-black" style={{ aspectRatio: "16/9" }}>
             {/* Background: first uploaded photo blurred */}
             {photos[0]?.previewUrl && (
               <img
@@ -878,8 +878,8 @@ export default function CinematicWalkthrough() {
             {/* Content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6">
               {/* Agent avatar placeholder */}
-              <div className="w-16 h-16 rounded-full border-2 border-amber-500 bg-amber-500/20 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <User className="h-8 w-8 text-amber-400" />
+              <div className="w-16 h-16 rounded-full border-2 border-primary bg-primary/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <User className="h-8 w-8 text-primary/80" />
               </div>
               {/* Agent info */}
               <div className="text-center">
@@ -887,14 +887,14 @@ export default function CinematicWalkthrough() {
                   <p className="text-white font-bold text-lg leading-tight">{agentName.trim()}</p>
                 )}
                 {agentBrokerage.trim() && (
-                  <p className="text-amber-400 text-sm font-medium mt-0.5">{agentBrokerage.trim()}</p>
+                  <p className="text-primary/80 text-sm font-medium mt-0.5">{agentBrokerage.trim()}</p>
                 )}
                 {agentPhone.trim() && (
                   <p className="text-white/70 text-sm mt-1">{agentPhone.trim()}</p>
                 )}
               </div>
               {/* Gold divider */}
-              <div className="w-16 h-px bg-amber-500/60" />
+              <div className="w-16 h-px bg-muted0/60" />
               <p className="text-white/50 text-xs tracking-widest uppercase">Cinematic Property Tour</p>
             </div>
           </div>
@@ -909,19 +909,19 @@ export default function CinematicWalkthrough() {
         onClick={() => setLuxuryMode(!luxuryMode)}
         className={`flex items-center justify-between px-4 py-3.5 rounded-xl border cursor-pointer transition-all select-none ${
           luxuryMode
-            ? "border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/30"
-            : "border-border hover:border-amber-500/40 bg-muted/30"
+            ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+            : "border-border hover:border-primary/30 bg-muted/30"
         }`}
       >
         <div className="flex items-center gap-3">
-          <Gem className={`h-5 w-5 flex-shrink-0 ${luxuryMode ? "text-amber-500" : "text-muted-foreground"}`} />
+          <Gem className={`h-5 w-5 flex-shrink-0 ${luxuryMode ? "text-primary" : "text-muted-foreground"}`} />
           <div>
             <p className="text-sm font-semibold">Luxury Listing Mode</p>
             <p className="text-xs text-muted-foreground mt-0.5">Cinematic letterbox (2.35:1) · Agent headshot on outro · Dual 16:9 + 9:16 output</p>
           </div>
         </div>
         <div className={`w-10 h-5 rounded-full transition-colors flex items-center px-0.5 flex-shrink-0 ${
-          luxuryMode ? "bg-amber-500" : "bg-muted-foreground/30"
+          luxuryMode ? "bg-muted0" : "bg-muted-foreground/30"
         }`}>
           <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${
             luxuryMode ? "translate-x-5" : "translate-x-0"
@@ -936,7 +936,7 @@ export default function CinematicWalkthrough() {
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
           <span className="flex items-center gap-2">
-            <Wand2 className="h-4 w-4 text-amber-500" />
+            <Wand2 className="h-4 w-4 text-primary" />
             Advanced Options (Music &amp; Voice-over)
           </span>
           {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -957,13 +957,13 @@ export default function CinematicWalkthrough() {
                     onClick={() => setMusicTrackUrl(opt.value)}
                     className={`flex items-center justify-between px-3 py-2.5 rounded-lg border cursor-pointer transition-colors ${
                       musicTrackUrl === opt.value
-                        ? "border-amber-500 bg-amber-500/10"
+                        ? "border-primary bg-primary/10"
                         : "border-border hover:border-muted-foreground/50 bg-muted/30"
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className={`w-3 h-3 rounded-full border-2 flex-shrink-0 ${
-                        musicTrackUrl === opt.value ? "border-amber-500 bg-amber-500" : "border-muted-foreground"
+                        musicTrackUrl === opt.value ? "border-primary bg-muted" : "border-muted-foreground"
                       }`} />
                       <div className="min-w-0">
                         <p className="text-sm font-medium">{opt.label}</p>
@@ -1026,7 +1026,7 @@ export default function CinematicWalkthrough() {
                         onClick={() => setVoiceId(v.id)}
                         className={`flex flex-col items-start px-3 py-2 rounded-lg border text-left transition-colors ${
                           voiceId === v.id
-                            ? "border-amber-500 bg-amber-500/10"
+                            ? "border-primary bg-primary/10"
                             : "border-border hover:border-muted-foreground/50 bg-muted/30"
                         }`}
                       >
@@ -1045,7 +1045,7 @@ export default function CinematicWalkthrough() {
                     size="sm"
                     onClick={handleGenerateScript}
                     disabled={isGeneratingScript || !propertyAddress.trim()}
-                    className="w-full border-amber-500/40 text-amber-500 hover:bg-amber-500/10 hover:text-amber-400"
+                    className="w-full border-primary/30 text-primary hover:bg-primary/10 hover:text-primary/80"
                   >
                     {isGeneratingScript ? (
                       <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />Writing script…</>
@@ -1072,7 +1072,7 @@ export default function CinematicWalkthrough() {
       <Button
         onClick={handleGenerate}
         disabled={isGenerating || photos.length < 2 || !propertyAddress.trim()}
-        className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-black font-semibold text-base disabled:opacity-50"
+        className="w-full h-12 bg-muted0 hover:bg-primary text-black font-semibold text-base disabled:opacity-50"
         size="lg"
       >
         {isGenerating ? (

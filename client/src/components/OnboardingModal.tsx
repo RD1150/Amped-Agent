@@ -68,8 +68,8 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
       <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-amber-700" />
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <Building2 className="w-4 h-4 text-primary" />
             </div>
             <DialogTitle className="text-xl">Welcome to Authority Content</DialogTitle>
           </div>

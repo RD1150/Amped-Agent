@@ -35,13 +35,13 @@ const SOURCE_CONFIG: Record<VideoSource, { label: string; icon: React.ElementTyp
   listing_video: {
     label: "Listing Video",
     icon: Building2,
-    color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    color: "bg-primary/15 text-primary border-primary/20",
     path: "/property-tours",
   },
   cinematic_tour: {
     label: "Cinematic Tour",
     icon: Film,
-    color: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+    color: "bg-primary/20 text-primary border-primary/20",
     path: "/cinematic-walkthrough",
   },
   ai_reel: {
@@ -59,14 +59,14 @@ const SOURCE_CONFIG: Record<VideoSource, { label: string; icon: React.ElementTyp
   avatar_video: {
     label: "Avatar Video",
     icon: UserCircle,
-    color: "bg-amber-500/20 text-amber-500 border-amber-500/30",
+    color: "bg-primary/20 text-primary border-primary/20",
     path: "/full-avatar-video",
   },
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  processing: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  rendering: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+  processing: "bg-primary/10 text-primary/60 border-primary/30",
+  rendering: "bg-primary/10 text-primary/60 border-primary/30",
   completed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
   failed: "bg-red-500/20 text-red-400 border-red-500/30",
 };
@@ -136,7 +136,7 @@ export default function MyVideos() {
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Video className="h-8 w-8 text-amber-500" />
+            <Video className="h-8 w-8 text-primary" />
             My Videos
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -147,7 +147,7 @@ export default function MyVideos() {
           {processingCount > 0 && (
             <Badge
               variant="outline"
-              className="bg-yellow-500/10 text-yellow-400 border-yellow-500/30 gap-1"
+              className="bg-primary/10 text-primary/60 border-primary/30 gap-1"
             >
               <Loader2 className="h-3 w-3 animate-spin" />
               {processingCount} processing
@@ -170,7 +170,7 @@ export default function MyVideos() {
             onClick={() => setSourceFilter(value)}
             className={
               sourceFilter === value
-                ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500 gap-2"
+                ? "bg-muted0 hover:bg-primary text-primary-foreground border-primary gap-2"
                 : "gap-2"
             }
           >
@@ -203,7 +203,7 @@ export default function MyVideos() {
             return (
               <Card
                 key={video.id}
-                className="bg-card border-border hover:border-amber-500/40 transition-all overflow-hidden group"
+                className="bg-card border-border hover:border-primary/30 transition-all overflow-hidden group"
               >
                 {/* Thumbnail / Video Player */}
                 <div className="relative aspect-video bg-muted/50 overflow-hidden">
@@ -242,8 +242,8 @@ export default function MyVideos() {
                   {/* Processing status overlay */}
                   {(video.status === "processing" || video.status === "rendering") && (
                     <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2">
-                      <Loader2 className="h-8 w-8 text-amber-400 animate-spin" />
-                      <span className="text-amber-400 text-sm font-medium">Processing…</span>
+                      <Loader2 className="h-8 w-8 text-primary/80 animate-spin" />
+                      <span className="text-primary/80 text-sm font-medium">Processing…</span>
                     </div>
                   )}
 
@@ -290,7 +290,7 @@ export default function MyVideos() {
                     {video.videoUrl && video.status === "completed" && (
                       <Button
                         size="sm"
-                        className="flex-1 bg-amber-500 hover:bg-amber-600 text-black font-semibold h-8 text-xs"
+                        className="flex-1 bg-muted0 hover:bg-primary text-black font-semibold h-8 text-xs"
                         onClick={() => downloadVideo(video.videoUrl!, video.title)}
                       >
                         <Download className="h-3 w-3 mr-1" />

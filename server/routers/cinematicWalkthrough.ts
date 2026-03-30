@@ -287,7 +287,7 @@ async function pollRunwayTask(taskId: string, maxWaitMs = 420000): Promise<strin
 // ============================================================
 
 async function assembleCreatomateVideo(opts: {
-  clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string }>;
+  clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }>;
   propertyAddress: string;
   agentName: string;
   agentBrokerage?: string;
@@ -348,8 +348,12 @@ async function assembleCreatomateVideo(opts: {
       : i % 2 === 0
         ? { type: "pan", time: 0, duration: clip.duration, easing: "linear", x_start: "-5%", x_end: "5%" }
         : { type: "pan", time: 0, duration: clip.duration, easing: "linear", x_start: "5%", x_end: "-5%" };
-    elements.push({
-      type: "video",
+    // Use 'image' type for fallback static photos (Higgsfield unavailable),
+    // 'video' type for actual AI-animated clips from Higgsfield.
+    // Creatomate cannot animate a static image as type 'video' — it must be 'image'.
+    const elementType = clip.isFallback ? "image" : "video";
+    const baseElement: any = {
+      type: elementType,
       source: clip.url,
       track: i + 2, // each clip on its own track so overlaps render correctly
       time: currentTime,
@@ -357,7 +361,6 @@ async function assembleCreatomateVideo(opts: {
       fill_mode: "cover",
       width: "110%",
       height: "110%",
-      volume: 0,
       animations: [
         // Fade in on all clips (crossfades from previous for non-first clips)
         { time: 0, duration: FADE, easing: "ease-in-out", type: "fade", fade: true },
@@ -366,7 +369,10 @@ async function assembleCreatomateVideo(opts: {
         // Pan animation for walkthrough feel (validated against Creatomate API)
         panAnim,
       ],
-    });
+    };
+    // Only set volume: 0 for video clips (images have no audio track)
+    if (elementType === "video") baseElement.volume = 0;
+    elements.push(baseElement);
 
     // Room label — appears after fade-in, disappears before next clip starts
     const labelDuration = Math.min(2.5, clip.duration - FADE * 2 - 0.2);

@@ -130,21 +130,21 @@ export default function MarketStats() {
   };
 
   const getTrendIcon = (change: number) => {
-    if (change > 0) return <TrendingUp className="h-4 w-4 text-green-500" />;
+    if (change > 0) return <TrendingUp className="h-4 w-4 text-primary" />;
     if (change < 0) return <TrendingDown className="h-4 w-4 text-red-500" />;
     return <Minus className="h-4 w-4 text-gray-500" />;
   };
 
   const getTrendColor = (change: number) => {
-    if (change > 0) return "text-green-500";
+    if (change > 0) return "text-primary";
     if (change < 0) return "text-red-500";
     return "text-gray-500";
   };
 
   const getMarketTempColor = (temp: string) => {
     if (temp === 'hot') return "bg-red-500/20 text-red-500";
-    if (temp === 'cold') return "bg-blue-500/20 text-blue-500";
-    return "bg-yellow-500/20 text-yellow-500";
+    if (temp === 'cold') return "bg-primary/15 text-primary";
+    return "bg-primary/10 text-primary/70";
   };
 
   return (

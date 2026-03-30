@@ -625,7 +625,7 @@ export default function AIGenerate() {
                           setLocation(`/repurpose?${params.toString()}`);
                         }}
                         variant="outline"
-                        className="flex-1 gap-2 text-amber-600 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                        className="flex-1 gap-2 text-primary border-primary/30 hover:bg-muted dark:hover:bg-primary/10"
                       >
                         <Repeat2 className="h-4 w-4" />
                         Repurpose This

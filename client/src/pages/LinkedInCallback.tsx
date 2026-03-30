@@ -84,7 +84,7 @@ export default function LinkedInCallback() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {status === "loading" && <Loader2 className="h-5 w-5 animate-spin" />}
-            {status === "success" && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+            {status === "success" && <CheckCircle2 className="h-5 w-5 text-primary" />}
             {status === "error" && <XCircle className="h-5 w-5 text-red-500" />}
             {status === "loading" && "Connecting LinkedIn..."}
             {status === "success" && "LinkedIn Connected!"}
@@ -105,8 +105,8 @@ export default function LinkedInCallback() {
 
           {status === "success" && (
             <div className="space-y-4">
-              <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                <p className="text-sm text-green-600 dark:text-green-400">
+              <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                <p className="text-sm text-primary dark:text-green-400">
                   You can now post directly to your LinkedIn profile from Authority Content!
                 </p>
               </div>

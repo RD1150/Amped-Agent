@@ -347,9 +347,9 @@ export default function ContentCalendar() {
       case "draft":
         return <Badge variant="secondary" className="text-xs">Draft</Badge>;
       case "scheduled":
-        return <Badge className="bg-blue-500/20 text-blue-400 text-xs">Scheduled</Badge>;
+        return <Badge className="bg-primary/10 text-primary text-xs">Scheduled</Badge>;
       case "published":
-        return <Badge className="bg-green-500/20 text-green-400 text-xs">Published</Badge>;
+        return <Badge className="bg-primary/15 text-green-400 text-xs">Published</Badge>;
       case "expired":
         return <Badge className="bg-red-500/20 text-red-400 text-xs">Expired</Badge>;
       default:

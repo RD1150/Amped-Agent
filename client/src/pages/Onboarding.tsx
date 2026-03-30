@@ -480,8 +480,8 @@ export default function Onboarding() {
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                    <FileText className="h-6 w-6 text-blue-500" />
+                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-6 w-6 text-primary" />
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">Authority Post</h3>
@@ -501,8 +501,8 @@ export default function Onboarding() {
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
-                    <Video className="h-6 w-6 text-purple-500" />
+                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Video className="h-6 w-6 text-primary" />
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">Authority Reel</h3>
@@ -522,8 +522,8 @@ export default function Onboarding() {
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                    <Building2 className="h-6 w-6 text-amber-500" />
+                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Building2 className="h-6 w-6 text-primary" />
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">Property Tour</h3>
@@ -591,8 +591,8 @@ export default function Onboarding() {
         {currentStep === 5 && (
           <div className="space-y-6 text-center py-8">
             <div className="flex justify-center mb-6">
-              <div className="h-20 w-20 rounded-full bg-green-500/10 flex items-center justify-center">
-                <CheckCircle2 className="h-10 w-10 text-green-500" />
+              <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle2 className="h-10 w-10 text-primary" />
               </div>
             </div>
 
@@ -695,8 +695,8 @@ export default function Onboarding() {
                 </div>
               </div>
 
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                <p className="text-sm text-blue-600 dark:text-blue-400">
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+                <p className="text-sm text-primary">
                   ℹ️ Your image will be automatically resized to 512×512px for optimal AI video quality.
                 </p>
               </div>

@@ -553,11 +553,11 @@ export default function AutoReels() {
         /* Input Form */
         <div className="space-y-6">
           {/* Avatar Upload Section */}
-          <Card className="p-6 bg-gradient-to-br from-amber-500/5 to-amber-500/10 border-amber-500/20">
+          <Card className="p-6 bg-gradient-to-br from-amber-500/5 to-amber-500/10 border-primary/20">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
-                <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <User className="h-6 w-6 text-amber-500" />
+                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <User className="h-6 w-6 text-primary" />
                 </div>
               </div>
               <div className="flex-1">
@@ -565,8 +565,8 @@ export default function AutoReels() {
                 <p className="text-sm text-muted-foreground mb-2">
                   Upload your headshot to create a personalized AI avatar that introduces your reels. Your avatar will speak the hook at the beginning of your video.
                 </p>
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-4">
-                  <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-1">Recommended Headshot Specs:</p>
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 mb-4">
+                  <p className="text-xs font-medium text-primary dark:text-primary/80 mb-1">Recommended Headshot Specs:</p>
                   <ul className="text-xs text-muted-foreground space-y-0.5">
                     <li>• <strong>Size:</strong> 512×512px (square, 1:1 ratio)</li>
                     <li>• <strong>Format:</strong> JPG or PNG, under 5MB</li>
@@ -589,7 +589,7 @@ export default function AutoReels() {
                             />
                             <div className="flex-1">
                               <p className="text-sm font-medium">Avatar image saved</p>
-                              <p className="text-xs text-green-600">✓ Saved to your profile</p>
+                              <p className="text-xs text-primary">✓ Saved to your profile</p>
                               <p className="text-xs text-muted-foreground">Click to change</p>
                             </div>
                           </div>
@@ -632,7 +632,7 @@ export default function AutoReels() {
                         )}
                       </Button>
                       {avatarVideoUrl && (
-                        <p className="text-xs text-green-600 mt-2 text-center">✓ Avatar intro ready!</p>
+                        <p className="text-xs text-primary mt-2 text-center">✓ Avatar intro ready!</p>
                       )}
                     </div>
                   )}
@@ -658,13 +658,13 @@ export default function AutoReels() {
                         </div>
                       );
                       if (ageDays >= 75) return (
-                        <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-600">
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/10 border border-primary/20 text-xs text-primary">
                           <span className="font-medium">⚠ Expires in {90 - ageDays} days.</span>
                           <span>Consider regenerating your avatar intro soon.</span>
                         </div>
                       );
                       return (
-                        <p className="text-xs text-green-600">✓ Valid for {90 - ageDays} more days</p>
+                        <p className="text-xs text-primary">✓ Valid for {90 - ageDays} more days</p>
                       );
                     })()}
                   </div>
@@ -840,7 +840,7 @@ export default function AutoReels() {
                           setInputText(template.prompt);
                         }
                       }}
-                      className={`text-xs ${template.prompt === "__MARKET_UPDATE__" ? "border-2 border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300" : ""}`}
+                      className={`text-xs ${template.prompt === "__MARKET_UPDATE__" ? "border-2 border-primary/30 bg-primary/10 text-primary dark:text-primary-foreground" : ""}`}
                     >
                       {template.label}
                     </Button>
@@ -880,10 +880,10 @@ export default function AutoReels() {
               </div>
               
               {isMarketUpdateMode ? (
-                <div className="space-y-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5">
+                <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-amber-700 dark:text-amber-300">📊 Market Update Reel</h3>
+                      <h3 className="font-semibold text-primary dark:text-primary-foreground">📊 Market Update Reel</h3>
                       <p className="text-xs text-muted-foreground mt-0.5">Fetches real MLS data for your market and generates a professional stat-slide video with voiceover.</p>
                     </div>
                     <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setIsMarketUpdateMode(false); setMarketData(null); setMarketLocation(""); }}>
@@ -901,8 +901,8 @@ export default function AutoReels() {
                           onClick={() => setMarketView(opt.value)}
                           className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                             marketView === opt.value
-                              ? 'bg-amber-600 text-white border-amber-600'
-                              : 'bg-background border-border text-muted-foreground hover:border-amber-500/50 hover:text-foreground'
+                              ? 'bg-primary text-white border-primary'
+                              : 'bg-background border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'
                           }`}
                           title={opt.description}
                         >
@@ -926,7 +926,7 @@ export default function AutoReels() {
                     <Button
                       onClick={handleFetchMarketData}
                       disabled={!marketLocation.trim() || isFetchingMarket}
-                      className="shrink-0 bg-amber-600 hover:bg-amber-700 text-white"
+                      className="shrink-0 bg-primary hover:bg-primary text-white"
                     >
                       {isFetchingMarket ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                       {isFetchingMarket ? "Fetching..." : "Get Data"}
@@ -942,7 +942,7 @@ export default function AutoReels() {
                       ].map((stat) => (
                         <div key={stat.label} className="rounded-lg bg-background border p-3 text-center">
                           <p className="text-xs text-muted-foreground">{stat.label}</p>
-                          <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{stat.value}</p>
+                          <p className="text-xl font-bold text-primary dark:text-primary/80">{stat.value}</p>
                           <p className="text-xs text-muted-foreground">{stat.sub}</p>
                         </div>
                       ))}
@@ -1058,7 +1058,7 @@ export default function AutoReels() {
                       {([
                         { value: 'white', label: 'White', preview: 'bg-black/70 text-white' },
                         { value: 'yellow', label: 'Yellow', preview: 'bg-black/70 text-yellow-300' },
-                        { value: 'gold', label: 'Gold', preview: 'bg-black/60 text-amber-400' },
+                        { value: 'gold', label: 'Gold', preview: 'bg-black/60 text-primary/80' },
                         { value: 'none', label: 'No BG', preview: 'text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.9)]' },
                       ] as { value: CaptionStyle; label: string; preview: string }[]).map((opt) => (
                         <button
@@ -1122,7 +1122,7 @@ export default function AutoReels() {
                               <p className="text-xs text-muted-foreground">Your Cloned Voice</p>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] bg-green-500/20 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">Cloned</span>
+                              <span className="text-[10px] bg-primary/15 text-primary dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">Cloned</span>
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -1278,11 +1278,11 @@ export default function AutoReels() {
             </div>
 
             {/* Background Photos Uploader */}
-            <div className="border rounded-xl p-5 space-y-4 bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20 mb-6">
+            <div className="border rounded-xl p-5 space-y-4 bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-primary/20 mb-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                    <Upload className="h-5 w-5 text-blue-500" />
+                  <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center">
+                    <Upload className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-semibold">Background Photos (Optional)</h3>
@@ -1298,7 +1298,7 @@ export default function AutoReels() {
                       <img
                         src={preview}
                         alt={`Background ${idx + 1}`}
-                        className="h-20 w-20 object-cover rounded-lg border-2 border-blue-500/30"
+                        className="h-20 w-20 object-cover rounded-lg border-2 border-primary/20"
                       />
                       <button
                         type="button"
@@ -1311,8 +1311,8 @@ export default function AutoReels() {
                   ))}
                   {backgroundPhotoPreviews.length < 4 && (
                     <Label htmlFor="bg-photo-upload" className="cursor-pointer">
-                      <div className="h-20 w-20 border-2 border-dashed border-blue-500/30 rounded-lg flex flex-col items-center justify-center hover:border-blue-500/60 transition-colors">
-                        <Plus className="h-5 w-5 text-blue-500" />
+                      <div className="h-20 w-20 border-2 border-dashed border-primary/20 rounded-lg flex flex-col items-center justify-center hover:border-blue-500/60 transition-colors">
+                        <Plus className="h-5 w-5 text-primary" />
                         <span className="text-xs text-muted-foreground mt-1">Add more</span>
                       </div>
                     </Label>
@@ -1322,15 +1322,15 @@ export default function AutoReels() {
 
               {backgroundPhotoPreviews.length === 0 && (
                 <Label htmlFor="bg-photo-upload" className="cursor-pointer block">
-                  <div className="border-2 border-dashed border-blue-500/20 rounded-lg p-6 hover:border-blue-500/50 transition-colors text-center">
+                  <div className="border-2 border-dashed border-primary/20 rounded-lg p-6 hover:border-blue-500/50 transition-colors text-center">
                     {isUploadingPhotos ? (
                       <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
                         <p className="text-sm text-muted-foreground">Uploading photos...</p>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center gap-2">
-                        <Upload className="h-8 w-8 text-blue-500/60" />
+                        <Upload className="h-8 w-8 text-primary/60" />
                         <p className="text-sm font-medium">Upload listing photos (up to 4)</p>
                         <p className="text-xs text-muted-foreground">JPG, PNG — or leave empty to use our real estate backgrounds</p>
                       </div>
@@ -1574,7 +1574,7 @@ export default function AutoReels() {
           <div className="flex gap-4 flex-wrap">
             <Button
               variant="outline"
-              className="gap-2 text-amber-600 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+              className="gap-2 text-primary border-primary/30 hover:bg-muted dark:hover:bg-primary/10"
               onClick={() => {
                 const params = new URLSearchParams({
                   topic: inputText.slice(0, 100) || "AI Reel",

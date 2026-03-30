@@ -188,12 +188,12 @@ export default function Integrations() {
       </div>
 
       {/* Facebook Card */}
-      <Card className="border-2 border-blue-500/20">
+      <Card className="border-2 border-primary/20">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Facebook className="h-6 w-6 text-blue-500" />
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Facebook className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <CardTitle>Facebook</CardTitle>
@@ -201,7 +201,7 @@ export default function Integrations() {
               </div>
             </div>
             {facebookConnection?.isConnected ? (
-              <Badge variant="default" className="bg-green-500/20 text-green-400 border-green-500/30">
+              <Badge variant="default" className="bg-primary/15 text-green-400 border-primary/20">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 Connected
               </Badge>
@@ -233,8 +233,8 @@ export default function Integrations() {
                 </Button>
               </div>
               {facebookConnection.isExpired && (
-                <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                  <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <p className="text-sm text-primary/70 dark:text-primary/60">
                     Your Facebook token has expired. Please reconnect to continue posting.
                   </p>
                 </div>
@@ -253,7 +253,7 @@ export default function Integrations() {
               <Button
                 onClick={handleConnectFacebook}
                 disabled={isConnecting || getAuthUrlMutation.isPending}
-                className="w-full bg-blue-500 hover:bg-blue-600"
+                className="w-full bg-primary/10 hover:bg-primary"
               >
                 <Facebook className="h-4 w-4 mr-2" />
                 {isConnecting ? "Connecting..." : "Connect Facebook"}
@@ -277,7 +277,7 @@ export default function Integrations() {
               </div>
             </div>
             {instagramConnection?.isConnected ? (
-              <Badge variant="default" className="bg-green-500/20 text-green-400 border-green-500/30">
+              <Badge variant="default" className="bg-primary/15 text-green-400 border-primary/20">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 Connected
               </Badge>
@@ -336,12 +336,12 @@ export default function Integrations() {
       </Card>
 
       {/* LinkedIn Card */}
-      <Card className="border-2 border-blue-600/20">
+      <Card className="border-2 border-primary/20">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-lg bg-blue-600/10 flex items-center justify-center">
-                <Linkedin className="h-6 w-6 text-blue-600" />
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Linkedin className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <CardTitle>LinkedIn</CardTitle>
@@ -349,7 +349,7 @@ export default function Integrations() {
               </div>
             </div>
             {linkedinConnection?.isConnected ? (
-              <Badge variant="default" className="bg-green-500/20 text-green-400 border-green-500/30">
+              <Badge variant="default" className="bg-primary/15 text-green-400 border-primary/20">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 Connected
               </Badge>
@@ -381,8 +381,8 @@ export default function Integrations() {
                 </Button>
               </div>
               {linkedinConnection.isExpired && (
-                <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                  <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <p className="text-sm text-primary/70 dark:text-primary/60">
                     Your LinkedIn token has expired. Please reconnect to continue posting.
                   </p>
                 </div>
@@ -401,7 +401,7 @@ export default function Integrations() {
               <Button
                 onClick={handleConnectLinkedIn}
                 disabled={isConnecting || getLinkedInAuthUrlMutation.isPending}
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-primary hover:bg-primary/10"
               >
                 <Linkedin className="h-4 w-4 mr-2" />
                 {isConnecting ? "Connecting..." : "Connect LinkedIn"}
@@ -425,7 +425,7 @@ export default function Integrations() {
               </div>
             </div>
             {gbpStatus?.isConnected && gbpStatus?.locationId ? (
-              <Badge variant="default" className="bg-green-500/20 text-green-400 border-green-500/30">
+              <Badge variant="default" className="bg-primary/15 text-green-400 border-primary/20">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 Connected
               </Badge>
@@ -527,7 +527,7 @@ export default function Integrations() {
               </div>
             </div>
             {youtubeConnection?.connected ? (
-              <Badge variant="default" className="bg-green-500/20 text-green-400 border-green-500/30">
+              <Badge variant="default" className="bg-primary/15 text-green-400 border-primary/20">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 Connected
               </Badge>

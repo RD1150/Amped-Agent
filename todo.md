@@ -4060,3 +4060,15 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Landing page: Add prominent "Start Free Trial" CTA button for new visitors
 - [x] Server: Send welcome owner notification on first login (new user detection)
 - [ ] Full Avatar Video: Add AI script generation button with topic/tone inputs directly on the page
+
+## Color Standardization (Session: Mar 30, 2026)
+- [x] Audit all pages and components for inconsistent color usage
+- [x] Replace random bg-blue/purple/teal/cyan/indigo with bg-primary/10 text-primary
+- [x] Replace decorative bg-orange/text-orange with bg-primary/10 text-primary
+- [x] Standardize amber/yellow to use primary palette (navy) throughout
+- [x] Keep semantic colors: bg-green for success, bg-red for errors
+- [x] Fix L-border artifact in sidebar (sidebar bg now matches page bg)
+- [x] Fix Cinematic Tour Creatomate error (use 'image' type for fallback static photos)
+- [x] Fix TypeScript stale cache error in FullAvatarVideo.tsx (tsc --noEmit passes clean)
+- [x] Standardize MusicLibrary mood/tempo badge colors to primary palette
+- [x] Standardize AuthorityScore, WelcomeModal, UsageCounter, OnboardingModal colors

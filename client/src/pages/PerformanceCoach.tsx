@@ -153,8 +153,8 @@ export default function PerformanceCoach() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-yellow-600";
+    if (score >= 80) return "text-primary";
+    if (score >= 60) return "text-primary/70";
     return "text-red-600";
   };
 
@@ -166,7 +166,7 @@ export default function PerformanceCoach() {
 
   const getScoreBg = (score: number) => {
     if (score >= 80) return "bg-green-50 border-green-200";
-    if (score >= 60) return "bg-yellow-50 border-yellow-200";
+    if (score >= 60) return "bg-primary/5 border-primary/20";
     return "bg-red-50 border-red-200";
   };
 
@@ -178,7 +178,7 @@ export default function PerformanceCoach() {
         <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-center gap-6">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-400/15 text-amber-400 border border-amber-400/30">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/30">
                 <Award className="h-3.5 w-3.5" />
                 Premium Feature
               </span>
@@ -186,7 +186,7 @@ export default function PerformanceCoach() {
             <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
               Market Dominance Coach
             </h1>
-            <p className="text-lg text-indigo-200 font-medium mb-1">
+            <p className="text-lg text-primary font-medium mb-1">
               Your unfair advantage in any market.
             </p>
             <p className="text-sm text-slate-400 max-w-xl">
@@ -194,7 +194,7 @@ export default function PerformanceCoach() {
             </p>
           </div>
           <div className="hidden md:flex flex-col items-center justify-center w-36 h-36 rounded-2xl bg-white/5 border border-white/10 shrink-0">
-            <Award className="h-14 w-14 text-amber-400 mb-2" />
+            <Award className="h-14 w-14 text-primary/80 mb-2" />
             <span className="text-xs text-slate-400 text-center leading-tight">AI Strategy<br/>Scoring</span>
           </div>
         </div>
@@ -276,14 +276,14 @@ export default function PerformanceCoach() {
                   </div>
                   {feedback.strengths.length > 0 && (
                     <div>
-                      <h3 className="font-semibold text-sm mb-2 flex items-center text-green-600"><CheckCircle2 className="h-4 w-4 mr-1" />Strengths</h3>
-                      <ul className="space-y-1 text-sm">{feedback.strengths.map((s, i) => <li key={i} className="flex items-start"><span className="text-green-600 mr-2">•</span><span>{s}</span></li>)}</ul>
+                      <h3 className="font-semibold text-sm mb-2 flex items-center text-primary"><CheckCircle2 className="h-4 w-4 mr-1" />Strengths</h3>
+                      <ul className="space-y-1 text-sm">{feedback.strengths.map((s, i) => <li key={i} className="flex items-start"><span className="text-primary mr-2">•</span><span>{s}</span></li>)}</ul>
                     </div>
                   )}
                   {feedback.improvements.length > 0 && (
                     <div>
-                      <h3 className="font-semibold text-sm mb-2 flex items-center text-yellow-600"><Target className="h-4 w-4 mr-1" />Suggested Improvements</h3>
-                      <ul className="space-y-1 text-sm">{feedback.improvements.map((imp, i) => <li key={i} className="flex items-start"><span className="text-yellow-600 mr-2">•</span><span>{imp}</span></li>)}</ul>
+                      <h3 className="font-semibold text-sm mb-2 flex items-center text-primary/70"><Target className="h-4 w-4 mr-1" />Suggested Improvements</h3>
+                      <ul className="space-y-1 text-sm">{feedback.improvements.map((imp, i) => <li key={i} className="flex items-start"><span className="text-primary/70 mr-2">•</span><span>{imp}</span></li>)}</ul>
                     </div>
                   )}
                   <Button onClick={() => { setFeedback(null); setPostContent(""); }} variant="outline" className="w-full">Analyze Another Post</Button>
@@ -420,12 +420,12 @@ export default function PerformanceCoach() {
                   </div>
 
                   {/* Priority Action */}
-                  <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
+                  <div className="rounded-lg bg-muted border border-primary/20 p-3">
                     <div className="flex items-start gap-2">
-                      <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                      <AlertCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                       <div>
-                        <p className="text-xs font-semibold text-amber-700 mb-0.5">Priority Action</p>
-                        <p className="text-sm text-amber-800">{visualFeedback.priorityAction}</p>
+                        <p className="text-xs font-semibold text-primary mb-0.5">Priority Action</p>
+                        <p className="text-sm text-primary/80">{visualFeedback.priorityAction}</p>
                       </div>
                     </div>
                   </div>
@@ -433,13 +433,13 @@ export default function PerformanceCoach() {
                   {/* Strengths */}
                   {visualFeedback.strengths.length > 0 && (
                     <div>
-                      <h3 className="font-semibold text-sm mb-2 flex items-center text-green-600">
+                      <h3 className="font-semibold text-sm mb-2 flex items-center text-primary">
                         <CheckCircle2 className="h-4 w-4 mr-1" />What's Working
                       </h3>
                       <ul className="space-y-1.5 text-sm">
                         {visualFeedback.strengths.map((s, i) => (
                           <li key={i} className="flex items-start gap-2">
-                            <span className="text-green-500 mt-0.5">✓</span>
+                            <span className="text-primary mt-0.5">✓</span>
                             <span>{s}</span>
                           </li>
                         ))}
@@ -450,7 +450,7 @@ export default function PerformanceCoach() {
                   {/* Improvements */}
                   {visualFeedback.improvements.length > 0 && (
                     <div>
-                      <h3 className="font-semibold text-sm mb-2 flex items-center text-yellow-600">
+                      <h3 className="font-semibold text-sm mb-2 flex items-center text-primary/70">
                         <Target className="h-4 w-4 mr-1" />How to Improve
                       </h3>
                       <ul className="space-y-2 text-sm">

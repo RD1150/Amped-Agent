@@ -81,7 +81,7 @@ export default function GoogleCallback() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {status === "loading" && <Loader2 className="h-5 w-5 animate-spin" />}
-            {status === "success" && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+            {status === "success" && <CheckCircle2 className="h-5 w-5 text-primary" />}
             {status === "error" && <XCircle className="h-5 w-5 text-red-500" />}
             {status === "loading" && "Connecting Google Business Profile..."}
             {status === "success" && "Google Account Connected!"}

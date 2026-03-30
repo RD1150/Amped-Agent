@@ -358,9 +358,9 @@ export default function Settings() {
         <CardContent className="space-y-4">
           {/* Existing cloned voice status */}
           {clonedVoice?.clonedVoiceId && (
-            <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-primary" />
                 <div>
                   <p className="text-sm font-medium">{clonedVoice.clonedVoiceName}</p>
                   <p className="text-xs text-muted-foreground">Active cloned voice · auto-selected in all videos</p>
@@ -407,7 +407,7 @@ export default function Settings() {
             ) : (
               <div className="w-full space-y-3">
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
-                  <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                  <CheckCircle className="h-4 w-4 text-primary shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">Recording complete ({recordingSeconds}s)</p>
                     <audio src={recordedUrl} controls className="w-full mt-1 h-8" />
@@ -436,7 +436,7 @@ export default function Settings() {
                   </Button>
                 </div>
                 {recordingSeconds < 15 && (
-                  <p className="text-xs text-amber-500 flex items-center gap-1">
+                  <p className="text-xs text-primary flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" /> Need at least 15 seconds for voice cloning.
                   </p>
                 )}
@@ -570,7 +570,7 @@ export default function Settings() {
                 {currentUser?.avatarImageUrl ? 'Avatar headshot saved' : 'No avatar headshot uploaded'}
               </p>
               {currentUser?.avatarImageUrl && (
-                <p className="text-xs text-green-600">✓ Saved to your profile — used in AI Reels</p>
+                <p className="text-xs text-primary">✓ Saved to your profile — used in AI Reels</p>
               )}
               <div className="flex gap-2 mt-2">
                 <Button
@@ -611,12 +611,12 @@ export default function Settings() {
                 </span>
               )}
               {!avatarVideoExpired && avatarVideoExpiringSoon && (
-                <span className="flex items-center gap-1 text-xs text-amber-500 font-medium">
+                <span className="flex items-center gap-1 text-xs text-primary font-medium">
                   <AlertTriangle className="h-3 w-3" /> Expires in {90 - (avatarVideoAgeDays ?? 0)} days
                 </span>
               )}
               {!avatarVideoExpired && !avatarVideoExpiringSoon && avatarVideoAgeDays !== null && (
-                <span className="text-xs text-green-600">{90 - avatarVideoAgeDays} days remaining</span>
+                <span className="text-xs text-primary">{90 - avatarVideoAgeDays} days remaining</span>
               )}
             </div>
             {currentUser?.avatarVideoUrl ? (
@@ -634,7 +634,7 @@ export default function Settings() {
               <div className={`flex items-start gap-2 p-3 rounded-lg border text-sm ${
                 avatarVideoExpired
                   ? 'bg-red-500/10 border-red-500/20 text-red-600'
-                  : 'bg-amber-500/10 border-amber-500/20 text-amber-600'
+                  : 'bg-primary/10 border-primary/20 text-primary'
               }`}>
                 <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <div>

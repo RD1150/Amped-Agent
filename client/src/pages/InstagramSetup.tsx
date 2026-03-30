@@ -84,14 +84,14 @@ export default function InstagramSetup() {
         </CardHeader>
         <CardContent className="space-y-4">
           {pagesWithInstagram.length === 0 && (
-            <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg space-y-3">
+            <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg space-y-3">
               <div className="flex items-start gap-2">
-                <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+                <AlertCircle className="h-5 w-5 text-primary/70 dark:text-primary/60 mt-0.5" />
                 <div className="space-y-2 flex-1">
-                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+                  <p className="text-sm font-medium text-primary/70 dark:text-primary/60">
                     No Instagram Accounts Found
                   </p>
-                  <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                  <p className="text-sm text-primary/70 dark:text-primary/60">
                     None of your Facebook Pages have an Instagram Business or Creator Account connected.
                   </p>
                 </div>

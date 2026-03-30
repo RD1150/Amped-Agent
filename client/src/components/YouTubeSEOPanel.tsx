@@ -251,7 +251,7 @@ export default function YouTubeSEOPanel({ tourId, videoUrl, initialData }: YouTu
               <div className="flex items-center gap-1.5 text-sm font-medium">
                 <FileText className="h-3.5 w-3.5 text-muted-foreground" />
                 Video Title
-                <span className={`text-xs ml-1 ${((isEditing ? editData?.title : seoData.title)?.length ?? 0) > 90 ? "text-yellow-500" : "text-muted-foreground"}`}>
+                <span className={`text-xs ml-1 ${((isEditing ? editData?.title : seoData.title)?.length ?? 0) > 90 ? "text-primary/70" : "text-muted-foreground"}`}>
                   ({(isEditing ? editData?.title : seoData.title)?.length || 0}/100)
                 </span>
               </div>

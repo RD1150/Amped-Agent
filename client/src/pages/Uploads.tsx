@@ -59,9 +59,9 @@ export default function Uploads() {
       case "image":
         return <Image className="h-5 w-5 text-green-400" />;
       case "document":
-        return <FileText className="h-5 w-5 text-blue-400" />;
+        return <FileText className="h-5 w-5 text-primary/70" />;
       case "csv":
-        return <FileSpreadsheet className="h-5 w-5 text-orange-400" />;
+        return <FileSpreadsheet className="h-5 w-5 text-primary/70" />;
       default:
         return <File className="h-5 w-5 text-muted-foreground" />;
     }
@@ -70,11 +70,11 @@ export default function Uploads() {
   const getCategoryBadge = (category: string) => {
     switch (category) {
       case "image":
-        return <Badge className="bg-green-500/20 text-green-400">Image</Badge>;
+        return <Badge className="bg-primary/15 text-green-400">Image</Badge>;
       case "document":
-        return <Badge className="bg-blue-500/20 text-blue-400">Document</Badge>;
+        return <Badge className="bg-primary/15 text-primary/70">Document</Badge>;
       case "csv":
-        return <Badge className="bg-orange-500/20 text-orange-400">CSV</Badge>;
+        return <Badge className="bg-primary/10 text-primary/70">CSV</Badge>;
       default:
         return <Badge variant="secondary">Other</Badge>;
     }

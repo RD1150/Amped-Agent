@@ -138,7 +138,7 @@ export default function VideoPreviewGallery() {
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Clapperboard className="w-4 h-4 text-amber-600" />
+                <Clapperboard className="w-4 h-4 text-primary" />
                 <span className="font-medium">Cinematic (10 credits)</span>
               </div>
               <ul className="space-y-1 text-muted-foreground">

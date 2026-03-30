@@ -58,7 +58,7 @@ export default function DataDeletion() {
         <Card className="bg-card border-border">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-8 h-8 text-green-500" />
+              <CheckCircle2 className="w-8 h-8 text-primary" />
               <div>
                 <CardTitle>Request Submitted</CardTitle>
                 <CardDescription>Your data deletion request has been received</CardDescription>
@@ -66,7 +66,7 @@ export default function DataDeletion() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Alert className="bg-green-500/10 border-green-500/30">
+            <Alert className="bg-primary/10 border-primary/20">
               <AlertDescription className="text-muted-foreground">
                 We have received your data deletion request for <strong className="text-foreground">{formData.email}</strong>.
               </AlertDescription>
@@ -110,8 +110,8 @@ export default function DataDeletion() {
         </p>
       </div>
 
-      <Alert className="bg-yellow-500/10 border-yellow-500/30">
-        <AlertCircle className="h-4 w-4 text-yellow-500" />
+      <Alert className="bg-primary/5 border-primary/30">
+        <AlertCircle className="h-4 w-4 text-primary/70" />
         <AlertDescription className="text-muted-foreground">
           <strong className="text-foreground">Warning:</strong> This action is permanent and cannot be undone. 
           All your content, settings, and integrations will be permanently deleted.

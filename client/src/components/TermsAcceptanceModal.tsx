@@ -72,8 +72,8 @@ export default function TermsAcceptanceModal({ open, onAccept }: TermsAcceptance
               </p>
             </section>
 
-            <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-sm text-amber-900">
+            <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+              <p className="text-sm text-primary">
                 <strong>Important:</strong> By accepting these terms, you acknowledge that you have read, understood, and agree to be bound by our Terms of Service. You are solely responsible for all content you generate and publish using Authority Content.
               </p>
             </div>

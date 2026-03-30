@@ -121,10 +121,10 @@ export function WelcomeModal() {
               </div>
 
               {/* Quick Start Guide */}
-              <Card className="p-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 border-amber-200 dark:border-amber-800">
+              <Card className="p-6 bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 border-primary/20 dark:border-primary/30">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Video className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <div className="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Video className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-semibold text-lg mb-2">Quick Start: Create Your First Video</h4>

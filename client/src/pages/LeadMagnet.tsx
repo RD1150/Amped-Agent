@@ -61,9 +61,9 @@ const MAGNET_TYPES: MagnetTypeConfig[] = [
     icon: BookOpen,
     label: "First-Time Buyer Guide",
     description: "A comprehensive step-by-step guide for first-time buyers in your market. Perfect for Facebook Lead Ads.",
-    color: "text-blue-500",
+    color: "text-primary",
     defaultAccent: "#2563eb",
-    bgColor: "bg-blue-50 dark:bg-blue-950/30",
+    bgColor: "bg-primary/10 dark:bg-primary/30",
     previewLines: ["Step 1: Get Pre-Approved", "Step 2: Find Your Home", "Step 3: Make an Offer", "Step 4: Close the Deal"],
     extraFields: [],
   },
@@ -72,7 +72,7 @@ const MAGNET_TYPES: MagnetTypeConfig[] = [
     icon: MapPin,
     label: "Neighborhood Report",
     description: "An in-depth look at a specific neighborhood — schools, amenities, market data, and lifestyle.",
-    color: "text-green-500",
+    color: "text-primary",
     defaultAccent: "#16a34a",
     bgColor: "bg-green-50 dark:bg-green-950/30",
     previewLines: ["Schools & Education", "Local Amenities", "Market Trends", "Lifestyle & Community"],
@@ -83,9 +83,9 @@ const MAGNET_TYPES: MagnetTypeConfig[] = [
     icon: BarChart3,
     label: "Market Update",
     description: "A monthly market snapshot with key stats, buyer/seller advice, and market outlook.",
-    color: "text-amber-500",
+    color: "text-primary",
     defaultAccent: "#d97706",
-    bgColor: "bg-amber-50 dark:bg-amber-950/30",
+    bgColor: "bg-muted dark:bg-primary/10",
     previewLines: ["Median Home Price", "Days on Market", "Buyer vs Seller Market", "Market Outlook"],
     extraFields: ["month"],
   },
@@ -417,7 +417,7 @@ export default function LeadMagnet() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold text-foreground">Lead Magnet Generator</h1>
-            <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/30 text-xs">Premium</Badge>
+            <Badge className="bg-primary/15 text-primary border-primary/20 text-xs">Premium</Badge>
           </div>
           <p className="text-muted-foreground text-sm">
             Generate branded PDF lead magnets for Facebook Lead Ads, email opt-ins, and open house follow-ups.
@@ -452,11 +452,11 @@ export default function LeadMagnet() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Actions */}
           <div className="space-y-4">
-            <Card className="border border-green-500/30 bg-green-500/5">
+            <Card className="border border-primary/20 bg-green-500/5">
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-green-500/15 flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <CheckCircle className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{result.label} Ready!</p>
@@ -484,7 +484,7 @@ export default function LeadMagnet() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full gap-2 text-blue-600 border-blue-500/40 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                    className="w-full gap-2 text-primary border-primary/40 hover:bg-primary/10 dark:hover:bg-primary/30"
                     onClick={() => setEmailDialogOpen(true)}
                   >
                     <Mail className="w-4 h-4" />
@@ -492,7 +492,7 @@ export default function LeadMagnet() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full gap-2 text-amber-600 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                    className="w-full gap-2 text-primary border-primary/30 hover:bg-muted dark:hover:bg-primary/10"
                     onClick={handleRepurpose}
                   >
                     <Repeat2 className="w-4 h-4" />
@@ -731,7 +731,7 @@ export default function LeadMagnet() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Mail className="w-5 h-5 text-blue-500" />
+              <Mail className="w-5 h-5 text-primary" />
               Send Lead Magnet via Email
             </DialogTitle>
             <DialogDescription>

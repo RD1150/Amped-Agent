@@ -24,25 +24,25 @@ export default function AuthorityScore() {
       label: "Market Niche Clarity",
       value: 65,
       icon: Target,
-      color: "text-blue-500"
+      color: "text-primary"
     },
     {
       label: "Video Presence",
       value: 70,
       icon: Video,
-      color: "text-purple-500"
+      color: "text-primary/70"
     },
     {
       label: "Local Market Mentions",
       value: 75,
       icon: MapPin,
-      color: "text-amber-500"
+      color: "text-primary"
     }
   ];
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-green-500";
-    if (score >= 60) return "text-amber-500";
+    if (score >= 60) return "text-primary";
     return "text-red-500";
   };
 
@@ -53,7 +53,7 @@ export default function AuthorityScore() {
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-amber-500/5 to-amber-600/5 border-amber-500/20">
+    <Card className="p-6 bg-gradient-to-br from-amber-500/5 to-amber-600/5 border-primary/20">
       <div className="space-y-6">
         {/* Authority Score Header */}
         <div className="flex items-center justify-between">
@@ -68,7 +68,7 @@ export default function AuthorityScore() {
               {authorityScore}
               <span className="text-2xl text-muted-foreground">/100</span>
             </div>
-            <p className="text-sm font-medium text-amber-500">
+            <p className="text-sm font-medium text-primary">
               {getScoreLabel(authorityScore)}
             </p>
           </div>
@@ -107,7 +107,7 @@ export default function AuthorityScore() {
         {/* Call to Action */}
         <div className="pt-4 border-t">
           <p className="text-sm text-center text-muted-foreground">
-            <span className="font-semibold text-amber-500">Pro Tip:</span> Post 3x per week to reach 80+ score
+            <span className="font-semibold text-primary">Pro Tip:</span> Post 3x per week to reach 80+ score
           </p>
         </div>
       </div>

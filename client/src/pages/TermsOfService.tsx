@@ -170,9 +170,9 @@ export default function TermsOfService() {
           </p>
         </section>
 
-        <section className="mt-12 p-6 bg-amber-50 border border-amber-200 rounded-lg">
-          <h3 className="text-lg font-semibold text-amber-900 mb-2">⚠️ Important Notice</h3>
-          <p className="text-amber-800">
+        <section className="mt-12 p-6 bg-muted border border-primary/20 rounded-lg">
+          <h3 className="text-lg font-semibold text-primary mb-2">⚠️ Important Notice</h3>
+          <p className="text-primary/80">
             By using Authority Content, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. You further acknowledge that you are solely responsible for all content you generate and publish using the Service, and that Authority Content is not liable for any consequences resulting from your use of Generated Content.
           </p>
         </section>

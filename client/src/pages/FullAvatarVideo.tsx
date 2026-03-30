@@ -325,10 +325,10 @@ export default function FullAvatarVideo() {
   if (!isAuthLoading && !isPremium) {
     return (
       <div className="container max-w-2xl py-16">
-        <Card className="border-2 border-amber-500/30 bg-amber-500/5">
+        <Card className="border-2 border-primary/20 bg-primary/5">
           <div className="p-8 text-center space-y-6">
-            <div className="mx-auto h-16 w-16 rounded-full bg-amber-500/20 flex items-center justify-center">
-              <Crown className="h-8 w-8 text-amber-500" />
+            <div className="mx-auto h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center">
+              <Crown className="h-8 w-8 text-primary" />
             </div>
             <div>
               <h2 className="text-2xl font-bold mb-2">Premium Feature</h2>
@@ -339,23 +339,23 @@ export default function FullAvatarVideo() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
               <div className="rounded-lg border p-4 space-y-1">
-                <Video className="h-5 w-5 text-amber-500" />
+                <Video className="h-5 w-5 text-primary" />
                 <p className="font-semibold text-sm">1,200+ Avatars</p>
                 <p className="text-xs text-muted-foreground">Professional stock avatars in business attire</p>
               </div>
               <div className="rounded-lg border p-4 space-y-1">
-                <Sparkles className="h-5 w-5 text-amber-500" />
+                <Sparkles className="h-5 w-5 text-primary" />
                 <p className="font-semibold text-sm">AI Script Writer</p>
                 <p className="text-xs text-muted-foreground">Generate camera-ready scripts in seconds</p>
               </div>
               <div className="rounded-lg border p-4 space-y-1">
-                <Crown className="h-5 w-5 text-amber-500" />
+                <Crown className="h-5 w-5 text-primary" />
                 <p className="font-semibold text-sm">Custom Digital Twin</p>
                 <p className="text-xs text-muted-foreground">Train your own AI avatar from a 2-min video</p>
               </div>
             </div>
             <Button
-              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-8 h-12"
+              className="bg-muted0 hover:bg-primary text-black font-semibold px-8 h-12"
               onClick={() => window.location.href = "/subscription"}
             >
               <Crown className="h-4 w-4 mr-2" />
@@ -372,8 +372,8 @@ export default function FullAvatarVideo() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-            <User className="h-5 w-5 text-amber-500" />
+          <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+            <User className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h1 className="text-3xl font-bold">Full Avatar Video</h1>
@@ -388,12 +388,12 @@ export default function FullAvatarVideo() {
           onClick={() => setMode("quick")}
           className={`relative p-5 rounded-xl border-2 text-left transition-all ${
             mode === "quick"
-              ? "border-amber-500 bg-amber-500/10"
-              : "border-border hover:border-amber-500/40 bg-muted/20"
+              ? "border-primary bg-primary/10"
+              : "border-border hover:border-primary/30 bg-muted/20"
           }`}
         >
           <div className="flex items-center gap-2 mb-2">
-            <Zap className={`h-5 w-5 ${mode === "quick" ? "text-amber-500" : "text-muted-foreground"}`} />
+            <Zap className={`h-5 w-5 ${mode === "quick" ? "text-primary" : "text-muted-foreground"}`} />
             <span className="font-semibold">Quick Avatar</span>
             <Badge variant="secondary" className="text-xs">V2 · No setup</Badge>
           </div>
@@ -404,24 +404,24 @@ export default function FullAvatarVideo() {
           onClick={() => setMode("custom")}
           className={`relative p-5 rounded-xl border-2 text-left transition-all ${
             mode === "custom"
-              ? "border-amber-500 bg-amber-500/10"
-              : "border-border hover:border-amber-500/40 bg-muted/20"
+              ? "border-primary bg-primary/10"
+              : "border-border hover:border-primary/30 bg-muted/20"
           }`}
         >
           <div className="flex items-center gap-2 mb-2">
-            <Crown className={`h-5 w-5 ${mode === "custom" ? "text-amber-500" : "text-muted-foreground"}`} />
+            <Crown className={`h-5 w-5 ${mode === "custom" ? "text-primary" : "text-muted-foreground"}`} />
             <span className="font-semibold">Custom Digital Twin</span>
-            <Badge className="text-xs bg-amber-500 text-black">V3 · Premium</Badge>
+            <Badge className="text-xs bg-muted0 text-black">V3 · Premium</Badge>
           </div>
           <p className="text-xs text-muted-foreground">Train once with a 2-min video clip. Natural motion, any length, unlimited videos.</p>
           {twinStatus?.status === "ready" && (
-            <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
+            <div className="mt-2 flex items-center gap-1 text-xs text-primary">
               <CheckCircle2 className="h-3 w-3" />
               Twin ready
             </div>
           )}
           {twinStatus?.status === "training" && (
-            <div className="mt-2 flex items-center gap-1 text-xs text-amber-600">
+            <div className="mt-2 flex items-center gap-1 text-xs text-primary">
               <Loader2 className="h-3 w-3 animate-spin" />
               Training in progress…
             </div>
@@ -434,11 +434,11 @@ export default function FullAvatarVideo() {
         <Card className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold flex items-center gap-2">
-              <User className="h-4 w-4 text-amber-500" />
+              <User className="h-4 w-4 text-primary" />
               Choose Your Avatar
             </Label>
             {selectedAvatarId && (
-              <span className="text-xs text-green-600 flex items-center gap-1">
+              <span className="text-xs text-primary flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" />
                 {stockAvatars.find(a => a.id === selectedAvatarId)?.name ?? "Selected"}
               </span>
@@ -453,8 +453,8 @@ export default function FullAvatarVideo() {
                 onClick={() => setAvatarGenderFilter(g)}
                 className={`text-xs px-3 py-1.5 rounded-full border transition-all capitalize ${
                   avatarGenderFilter === g
-                    ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
-                    : "border-border hover:border-amber-500/30 text-muted-foreground"
+                    ? "border-primary bg-primary/10 text-primary dark:text-primary/80 font-medium"
+                    : "border-border hover:border-primary/20 text-muted-foreground"
                 }`}
               >
                 {g === "all" ? "All" : g === "female" ? "Female" : "Male"}
@@ -484,8 +484,8 @@ export default function FullAvatarVideo() {
                     onClick={() => { setSelectedAvatarId("__photo_avatar__"); setSelectedAvatarPreviewUrl(photoAvatarEntry.previewImageUrl); }}
                     className={`relative rounded-xl overflow-hidden border-2 transition-all aspect-[3/4] ${
                       selectedAvatarId === "__photo_avatar__"
-                        ? "border-amber-500 ring-2 ring-amber-500/30"
-                        : "border-green-500 hover:border-amber-500/50"
+                        ? "border-primary ring-2 ring-primary/30"
+                        : "border-green-500 hover:border-primary/30"
                     }`}
                     title="Your Photo Avatar"
                   >
@@ -496,16 +496,16 @@ export default function FullAvatarVideo() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-green-500/20 flex items-center justify-center">
-                        <User className="h-6 w-6 text-green-600" />
+                      <div className="w-full h-full bg-primary/15 flex items-center justify-center">
+                        <User className="h-6 w-6 text-primary" />
                       </div>
                     )}
                     {/* Your Avatar badge */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-green-600/90 text-white text-[9px] font-bold text-center py-0.5 leading-tight">
+                    <div className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white text-[9px] font-bold text-center py-0.5 leading-tight">
                       YOUR AVATAR
                     </div>
                     {selectedAvatarId === "__photo_avatar__" && (
-                      <div className="absolute top-1 right-1 bg-amber-500 rounded-full p-0.5">
+                      <div className="absolute top-1 right-1 bg-muted0 rounded-full p-0.5">
                         <CheckCircle2 className="h-3 w-3 text-black" />
                       </div>
                     )}
@@ -521,8 +521,8 @@ export default function FullAvatarVideo() {
                       onClick={() => { setSelectedAvatarId(avatar.id); setSelectedAvatarPreviewUrl(avatar.previewImageUrl); }}
                       className={`relative rounded-xl overflow-hidden border-2 transition-all aspect-[3/4] ${
                         selectedAvatarId === avatar.id
-                          ? "border-amber-500 ring-2 ring-amber-500/30"
-                          : "border-border hover:border-amber-500/50"
+                          ? "border-primary ring-2 ring-primary/30"
+                          : "border-border hover:border-primary/30"
                       }`}
                       title={avatar.name}
                     >
@@ -533,7 +533,7 @@ export default function FullAvatarVideo() {
                         loading="lazy"
                       />
                       {selectedAvatarId === avatar.id && (
-                        <div className="absolute top-1 right-1 bg-amber-500 rounded-full p-0.5">
+                        <div className="absolute top-1 right-1 bg-muted0 rounded-full p-0.5">
                           <CheckCircle2 className="h-3 w-3 text-black" />
                         </div>
                       )}
@@ -553,7 +553,7 @@ export default function FullAvatarVideo() {
         <Card className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold flex items-center gap-2">
-              <User className="h-4 w-4 text-amber-500" />
+              <User className="h-4 w-4 text-primary" />
               Your Photo Avatar
             </Label>
             {twinStatus && (
@@ -567,7 +567,7 @@ export default function FullAvatarVideo() {
           </div>
 
           {twinStatus?.status === "ready" ? (
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
               <div className="flex items-center gap-3 flex-1">
                 {twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl ? (
                   <img
@@ -576,14 +576,14 @@ export default function FullAvatarVideo() {
                     className="h-12 w-12 rounded-full object-cover border-2 border-green-500 flex-shrink-0"
                   />
                 ) : (
-                  <CheckCircle2 className="h-8 w-8 text-green-500 flex-shrink-0" />
+                  <CheckCircle2 className="h-8 w-8 text-primary flex-shrink-0" />
                 )}
                 <div>
                   <p className="font-semibold text-sm">Your Photo Avatar is ready!</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.{" "}
                     <button
-                      className="underline text-amber-600 hover:text-amber-500 transition-colors"
+                      className="underline text-primary hover:text-primary transition-colors"
                       onClick={() => trainingPhotoRef.current?.click()}
                     >
                       Replace photo
@@ -593,7 +593,7 @@ export default function FullAvatarVideo() {
               </div>
               <Button
                 size="sm"
-                className="bg-amber-500 hover:bg-amber-600 text-black font-semibold whitespace-nowrap flex-shrink-0"
+                className="bg-muted0 hover:bg-primary text-black font-semibold whitespace-nowrap flex-shrink-0"
                 onClick={handleUseMyAvatar}
               >
                 <Zap className="h-3.5 w-3.5 mr-1.5" />
@@ -602,14 +602,14 @@ export default function FullAvatarVideo() {
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 space-y-1.5">
-                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">📸 Upload a headshot photo of YOUR FACE to create your personal AI avatar</p>
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 space-y-1.5">
+                <p className="text-xs font-semibold text-primary dark:text-primary">📸 Upload a headshot photo of YOUR FACE to create your personal AI avatar</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Upload a clear, front-facing photo of yourself. The AI will animate your face to speak any script you write — so every video looks like you. Works on your current HeyGen plan.
                 </p>
               </div>
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-                <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-2">Photo Requirements for Best Results:</p>
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+                <p className="text-xs font-medium text-primary dark:text-primary/80 mb-2">Photo Requirements for Best Results:</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
                   <div><span className="font-medium text-foreground">Format:</span> JPG, PNG, or WEBP — under 10MB</div>
                   <div><span className="font-medium text-foreground">Framing:</span> Head &amp; shoulders, face centred</div>
@@ -626,7 +626,7 @@ export default function FullAvatarVideo() {
                   className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
                 >
                   <span className="flex items-center gap-1.5">
-                    <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
+                    <Lightbulb className="h-3.5 w-3.5 text-primary" />
                     Tips for a high-quality headshot photo
                   </span>
                   {showTwinTips ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -659,7 +659,7 @@ export default function FullAvatarVideo() {
                         <p className="text-muted-foreground leading-relaxed">No sunglasses, hats, or masks. Avoid group photos — only your face should be in the frame. No heavy filters or extreme colour grading.</p>
                       </div>
                     </div>
-                    <div className="bg-green-500/10 border border-green-500/20 rounded-md p-2.5 text-xs text-green-700 dark:text-green-400">
+                    <div className="bg-primary/10 border border-primary/20 rounded-md p-2.5 text-xs text-green-700 dark:text-green-400">
                       <span className="font-semibold">Pro tip:</span> A professional headshot or a clear selfie taken in good natural light works perfectly. You only need to do this once — update it whenever you get a new headshot.
                     </div>
                   </div>
@@ -668,12 +668,12 @@ export default function FullAvatarVideo() {
 
               <div
                 onClick={() => trainingPhotoRef.current?.click()}
-                className="border-2 border-dashed border-muted-foreground/30 hover:border-amber-500/50 rounded-xl p-6 cursor-pointer transition-colors text-center"
+                className="border-2 border-dashed border-muted-foreground/30 hover:border-primary/30 rounded-xl p-6 cursor-pointer transition-colors text-center"
               >
                 {trainingPhotoPreview ? (
                   <div className="space-y-2">
-                    <img src={trainingPhotoPreview} alt="Your headshot" className="w-24 h-24 rounded-full object-cover mx-auto border-2 border-amber-500/40" />
-                    <p className="text-sm text-green-600 font-medium">✓ {trainingPhotoFile?.name}</p>
+                    <img src={trainingPhotoPreview} alt="Your headshot" className="w-24 h-24 rounded-full object-cover mx-auto border-2 border-primary/30" />
+                    <p className="text-sm text-primary font-medium">✓ {trainingPhotoFile?.name}</p>
                     <p className="text-xs text-muted-foreground">Click to change</p>
                   </div>
                 ) : (
@@ -689,7 +689,7 @@ export default function FullAvatarVideo() {
               <Button
                 onClick={handleTrainAvatar}
                 disabled={!trainingPhotoFile || isUploadingTraining || isTraining}
-                className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+                className="w-full bg-muted0 hover:bg-primary text-black font-semibold"
               >
                 {isUploadingTraining ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Uploading photo…</>
@@ -701,7 +701,7 @@ export default function FullAvatarVideo() {
               </Button>
 
               {twinStatus?.status === "training" && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-700 dark:text-amber-400">
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20 text-sm text-primary dark:text-primary/80">
                   <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
                   Creating your Photo Avatar — this usually takes 1–3 minutes. You can leave this page and come back.
                 </div>
@@ -721,13 +721,13 @@ export default function FullAvatarVideo() {
       )}
 
       {/* AI Script Generator */}
-      <Card className="p-6 space-y-4 border-amber-500/20">
+      <Card className="p-6 space-y-4 border-primary/20">
         <button
           onClick={() => setShowScriptGen((v) => !v)}
           className="w-full flex items-center justify-between text-left"
         >
           <Label className="text-base font-semibold flex items-center gap-2 cursor-pointer">
-            <Wand2 className="h-4 w-4 text-amber-500" />
+            <Wand2 className="h-4 w-4 text-primary" />
             Write Script with AI
           </Label>
           <span className="text-xs text-muted-foreground">{showScriptGen ? "Hide" : "Expand"}</span>
@@ -745,8 +745,8 @@ export default function FullAvatarVideo() {
                     onClick={() => setScriptContentType(ct.id)}
                     className={`text-xs px-2 py-2 rounded-lg border transition-all text-center ${
                       scriptContentType === ct.id
-                        ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
-                        : "border-border hover:border-amber-500/40 text-muted-foreground"
+                        ? "border-primary bg-primary/10 text-primary dark:text-primary/80 font-medium"
+                        : "border-border hover:border-primary/30 text-muted-foreground"
                     }`}
                   >
                     <span className="block text-base mb-0.5">{ct.emoji}</span>
@@ -766,8 +766,8 @@ export default function FullAvatarVideo() {
                     onClick={() => setScriptTargetLength(tl.id as any)}
                     className={`flex-1 text-xs py-2 rounded-lg border transition-all ${
                       scriptTargetLength === tl.id
-                        ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
-                        : "border-border hover:border-amber-500/40 text-muted-foreground"
+                        ? "border-primary bg-primary/10 text-primary dark:text-primary/80 font-medium"
+                        : "border-border hover:border-primary/30 text-muted-foreground"
                     }`}
                   >
                     {tl.label}
@@ -792,7 +792,7 @@ export default function FullAvatarVideo() {
             <Button
               onClick={handleGenerateScript}
               disabled={isGeneratingScript || !scriptKeyPoints.trim()}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+              className="w-full bg-muted0 hover:bg-primary text-black font-semibold"
             >
               {isGeneratingScript ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Writing your script…</>
@@ -816,7 +816,7 @@ export default function FullAvatarVideo() {
                 {readTime.label} read time
               </span>
               {readTime.seconds > 180 && (
-                <span className="text-amber-600 flex items-center gap-1">
+                <span className="text-primary flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
                   Long script — may take 3–5 min to generate
                 </span>
@@ -859,8 +859,8 @@ export default function FullAvatarVideo() {
                 onClick={() => setVoiceGenderFilter(g)}
                 className={`text-xs px-3 py-1.5 rounded-full border transition-all capitalize ${
                   voiceGenderFilter === g
-                    ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
-                    : "border-border hover:border-amber-500/30 text-muted-foreground"
+                    ? "border-primary bg-primary/10 text-primary dark:text-primary/80 font-medium"
+                    : "border-border hover:border-primary/20 text-muted-foreground"
                 }`}
               >
                 {g === "all" ? "All" : g === "female" ? "Female" : "Male"}
@@ -888,26 +888,26 @@ export default function FullAvatarVideo() {
                   onClick={() => setVoiceId(v.id)}
                   className={`flex items-center justify-between px-3 py-2 rounded-lg border cursor-pointer transition-all ${
                     voiceId === v.id
-                      ? "border-amber-500 bg-amber-500/10"
-                      : "border-border hover:border-amber-500/30"
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/20"
                   }`}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span className={`text-xs font-medium truncate ${
-                      voiceId === v.id ? "text-amber-700 dark:text-amber-400" : "text-foreground"
+                      voiceId === v.id ? "text-primary dark:text-primary/80" : "text-foreground"
                     }`}>{v.name}</span>
                     <span className="text-xs text-muted-foreground capitalize shrink-0">{v.gender}</span>
                   </div>
                   {v.previewUrl && (
                     <button
                       onClick={(e) => { e.stopPropagation(); handleVoicePreview(v); }}
-                      className="ml-2 p-1 rounded-full hover:bg-amber-500/20 transition-colors shrink-0"
+                      className="ml-2 p-1 rounded-full hover:bg-primary/20 transition-colors shrink-0"
                       title="Preview voice"
                     >
                       {playingPreviewId === v.id ? (
-                        <Loader2 className="h-3 w-3 text-amber-500 animate-spin" />
+                        <Loader2 className="h-3 w-3 text-primary animate-spin" />
                       ) : (
-                        <Play className="h-3 w-3 text-muted-foreground hover:text-amber-500" />
+                        <Play className="h-3 w-3 text-muted-foreground hover:text-primary" />
                       )}
                     </button>
                   )}
@@ -931,7 +931,7 @@ export default function FullAvatarVideo() {
             (mode === "quick" && (!selectedAvatarId || isLoadingAvatars)) ||
             (mode === "custom" && twinStatus?.status !== "ready")
           }
-          className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold h-12 text-base"
+          className="w-full bg-muted0 hover:bg-primary text-black font-semibold h-12 text-base"
         >
           {isGenerating ? (
             <><Loader2 className="mr-2 h-5 w-5 animate-spin" />{generationStep || "Generating…"}</>
@@ -949,10 +949,10 @@ export default function FullAvatarVideo() {
 
       {/* Result */}
       {resultVideoUrl && (
-        <Card className="p-6 space-y-4 border-amber-500/30 bg-amber-500/5">
+        <Card className="p-6 space-y-4 border-primary/20 bg-primary/5">
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              <CheckCircle2 className="h-5 w-5 text-primary" />
               Your Avatar Video is Ready!
             </Label>
             <Badge variant="secondary">{resultDuration}s</Badge>
@@ -966,7 +966,7 @@ export default function FullAvatarVideo() {
           <div className="flex gap-3">
             <Button
               onClick={() => handleDownload(resultVideoUrl, title)}
-              className="flex-1 bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+              className="flex-1 bg-muted0 hover:bg-primary text-black font-semibold"
             >
               <Download className="mr-2 h-4 w-4" />
               Download MP4

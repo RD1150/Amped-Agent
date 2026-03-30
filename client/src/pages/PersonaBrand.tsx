@@ -237,7 +237,7 @@ export default function PersonaBrand() {
           </p>
         </div>
         {persona?.isCompleted && (
-          <Badge className="bg-green-500/20 text-green-400">
+          <Badge className="bg-primary/15 text-green-400">
             <Check className="h-3 w-3 mr-1" />
             Completed
           </Badge>
@@ -710,7 +710,7 @@ export default function PersonaBrand() {
                 </p>
               </div>
               {(persona as any)?.elevenlabsVoiceId && (
-                <Badge variant="outline" className="text-green-600 border-green-600 flex items-center gap-1 shrink-0">
+                <Badge variant="outline" className="text-primary border-green-600 flex items-center gap-1 shrink-0">
                   <CheckCircle2 className="h-3 w-3" /> Voice Cloned
                 </Badge>
               )}
