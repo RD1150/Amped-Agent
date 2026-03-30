@@ -195,21 +195,31 @@ async function generateRunwayClip(
     await new Promise((r) => setTimeout(r, 3000));
   }
 
-  const response = await fetch("https://api.dev.runwayml.com/v1/image_to_video", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${ENV.RUNWAY_API_KEY}`,
-      "X-Runway-Version": "2024-11-06",
-    },
-    body: JSON.stringify({
-      model: "gen4_turbo",
-      promptImage: imageUrl,
-      promptText,
-      duration: 5,
-      ratio: "1280:720",
-    }),
-  });
+  const createAbort = new AbortController();
+  const createTimer = setTimeout(() => createAbort.abort(), 30000); // 30s hard timeout
+  let response: Response;
+  try {
+    response = await fetch("https://api.dev.runwayml.com/v1/image_to_video", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${ENV.RUNWAY_API_KEY}`,
+        "X-Runway-Version": "2024-11-06",
+      },
+      body: JSON.stringify({
+        model: "gen4_turbo",
+        promptImage: imageUrl,
+        promptText,
+        duration: 5,
+        ratio: "1280:720",
+      }),
+      signal: createAbort.signal,
+    });
+  } catch (fetchErr: any) {
+    clearTimeout(createTimer);
+    throw new Error(`Runway task creation failed or timed out: ${fetchErr.message}`);
+  }
+  clearTimeout(createTimer);
 
   // Handle rate limiting with exponential backoff
   if (response.status === 429 || response.status === 503) {
@@ -240,12 +250,23 @@ async function pollRunwayTask(taskId: string, maxWaitMs = 420000): Promise<strin
   while (Date.now() - start < maxWaitMs) {
     await new Promise((r) => setTimeout(r, interval));
 
-    const res = await fetch(`https://api.dev.runwayml.com/v1/tasks/${taskId}`, {
-      headers: {
-        Authorization: `Bearer ${ENV.RUNWAY_API_KEY}`,
-        "X-Runway-Version": "2024-11-06",
-      },
-    });
+    const pollAbort = new AbortController();
+    const pollTimer = setTimeout(() => pollAbort.abort(), 30000); // 30s per poll request
+    let res: Response;
+    try {
+      res = await fetch(`https://api.dev.runwayml.com/v1/tasks/${taskId}`, {
+        headers: {
+          Authorization: `Bearer ${ENV.RUNWAY_API_KEY}`,
+          "X-Runway-Version": "2024-11-06",
+        },
+        signal: pollAbort.signal,
+      });
+    } catch {
+      clearTimeout(pollTimer);
+      log(`Runway poll timed out, retrying...`);
+      continue;
+    }
+    clearTimeout(pollTimer);
 
     if (!res.ok) {
       log(`Runway poll error ${res.status}`);

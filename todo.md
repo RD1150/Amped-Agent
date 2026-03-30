@@ -4078,3 +4078,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Cinematic Tour: fix fallback chain (Higgsfield → Runway ML → static photo last resort)
 - [x] Cinematic Tour: replaced Pixabay music with same curated Kevin MacLeod library used by Listing Video
 - [x] Replace cinematic example video on app site with user-provided Cinematic(2).mp4
+- [x] Cinematic Tour: fixed 45% stall - added 30s AbortController timeout to Runway fetch calls
