@@ -496,7 +496,7 @@ function DashboardLayoutContent({
                   <img
                     src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/iBVTqXsNrcunoEnF.png"
                     alt="Authority Content"
-                    className="h-8 w-auto object-contain"
+                    className="h-32 w-auto object-contain"
                   />
                 </div>
               )}
@@ -538,21 +538,21 @@ function DashboardLayoutContent({
                             tooltip={item.description || item.label}
                             className={`h-9 transition-all font-normal ${
                               isActive
-                                ? "bg-primary text-primary-foreground rounded-md shadow-sm"
+                                ? "bg-primary/15 text-primary rounded-md shadow-sm"
                                 : "hover:bg-sidebar-accent/70"
                             }`}
                           >
                             <item.icon
                               className={`h-4 w-4 shrink-0 ${
                                 isActive
-                                  ? "text-primary-foreground"
+                                  ? "text-primary"
                                   : "text-sidebar-foreground/55"
                               }`}
                             />
                             <span
                               className={`truncate text-sm ${
                                 isActive
-                                  ? "text-primary-foreground font-medium"
+                                  ? "text-primary font-medium"
                                   : "text-sidebar-foreground/80"
                               }`}
                             >
