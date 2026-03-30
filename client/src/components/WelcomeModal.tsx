@@ -88,8 +88,8 @@ export function WelcomeModal() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Free Credits */}
                 <Card className="p-6 text-center hover:shadow-lg transition-shadow">
-                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CreditCard className="w-6 h-6 text-green-600 dark:text-green-400" />
+                  <div className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CreditCard className="w-6 h-6 text-primary" />
                   </div>
                   <h4 className="font-semibold text-lg mb-2">50 Free Credits</h4>
                   <p className="text-sm text-muted-foreground">

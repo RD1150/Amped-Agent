@@ -66,14 +66,14 @@ export default function UsageCounter() {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center">
-                <Video className="w-4 h-4 text-blue-500" />
+              <div className="w-8 h-8 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center">
+                <Video className="w-4 h-4 text-primary" />
               </div>
               <span className="text-sm font-medium">Property Tour Videos</span>
             </div>
             <span className="text-sm text-muted-foreground">
               {isUnlimited ? (
-                <span className="font-medium text-green-500">∞ Unlimited</span>
+                <span className="font-medium text-primary">∞ Unlimited</span>
               ) : (
                 <span><span className="font-semibold text-foreground">{standardUsed}</span>/{standardLimit} used</span>
               )}
@@ -103,7 +103,7 @@ export default function UsageCounter() {
             <span className="text-sm text-muted-foreground">
               {isPremiumOrPro ? (
                 avatarUnlimited ? (
-                  <span className="font-medium text-green-500">∞ Unlimited</span>
+                  <span className="font-medium text-primary">∞ Unlimited</span>
                 ) : (
                   <span><span className="font-semibold text-foreground">{avatarUsed}</span> generated</span>
                 )
