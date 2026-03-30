@@ -57,13 +57,18 @@ const ROOM_TYPE_LABELS: Record<string, string> = {
   other: "Other",
 };
 
+// Same curated Kevin MacLeod library used by the Listing Video (Ken Burns)
+const _CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT";
 const MUSIC_OPTIONS = [
   { value: "none", label: "No music", desc: "", url: null },
-  // Pixabay CDN audio links (direct .mp3 paths, not /download/ redirects)
-  { value: "https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3", label: "Elegant Ambient", desc: "Soft & sophisticated", url: "https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3" },
-  { value: "https://cdn.pixabay.com/audio/2022/01/18/audio_d0c6ff1c23.mp3", label: "Cinematic Bold", desc: "Dramatic & powerful", url: "https://cdn.pixabay.com/audio/2022/01/18/audio_d0c6ff1c23.mp3" },
-  { value: "https://cdn.pixabay.com/audio/2022/08/04/audio_2dde668d05.mp3", label: "Authoritative", desc: "Confident & professional", url: "https://cdn.pixabay.com/audio/2022/08/04/audio_2dde668d05.mp3" },
-  { value: "https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3", label: "Warm & Inviting", desc: "Cozy & welcoming", url: "https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3" },
+  { value: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/cXsmEzjyOvKzItgo.mp3", label: "Carefree", desc: "Calm & peaceful", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/cXsmEzjyOvKzItgo.mp3" },
+  { value: `${_CDN}/ethereal-relaxation_78cbbc28.mp3`, label: "Ethereal Relaxation", desc: "Soft & ambient", url: `${_CDN}/ethereal-relaxation_78cbbc28.mp3` },
+  { value: `${_CDN}/carpe-diem_12549400.mp3`, label: "Carpe Diem", desc: "Luxury lounge", url: `${_CDN}/carpe-diem_12549400.mp3` },
+  { value: `${_CDN}/floating-cities_6c2e6c80.mp3`, label: "Floating Cities", desc: "Elegant classical", url: `${_CDN}/floating-cities_6c2e6c80.mp3` },
+  { value: `${_CDN}/valse-gymnopedie_1eae2cf2.mp3`, label: "Valse Gymnopedie", desc: "Sophisticated piano", url: `${_CDN}/valse-gymnopedie_1eae2cf2.mp3` },
+  { value: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/VHyCURecgIOORXWo.mp3", label: "Inspired", desc: "Dramatic & cinematic", url: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/VHyCURecgIOORXWo.mp3" },
+  { value: `${_CDN}/angel-share_8f5d4635.mp3`, label: "Angel Share", desc: "Uplifting acoustic", url: `${_CDN}/angel-share_8f5d4635.mp3` },
+  { value: `${_CDN}/lobby-time_04628d71.mp3`, label: "Lobby Time", desc: "Peaceful & professional", url: `${_CDN}/lobby-time_04628d71.mp3` },
 ];
 
 const VOICE_OPTIONS = [
@@ -231,7 +236,7 @@ export default function CinematicWalkthrough() {
   const [propertyAddress, setPropertyAddress] = useState("");
   const [agentName, setAgentName] = useState("");
   const [agentBrokerage, setAgentBrokerage] = useState("");
-  const [musicTrackUrl, setMusicTrackUrl] = useState("https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3"); // default: Elegant Ambient
+  const [musicTrackUrl, setMusicTrackUrl] = useState("https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/cXsmEzjyOvKzItgo.mp3"); // default: Carefree (Kevin MacLeod)
   const [previewingTrack, setPreviewingTrack] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [enableVoiceover, setEnableVoiceover] = useState(false);

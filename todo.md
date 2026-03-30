@@ -4076,3 +4076,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Music library: add audio preview (play/pause per track) so users can hear before selecting
 - [x] Music library: fix selected track not being passed through to video generation
 - [x] Cinematic Tour: fix fallback chain (Higgsfield → Runway ML → static photo last resort)
+- [x] Cinematic Tour: replaced Pixabay music with same curated Kevin MacLeod library used by Listing Video
