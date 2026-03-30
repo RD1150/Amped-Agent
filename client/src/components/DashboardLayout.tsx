@@ -479,15 +479,15 @@ function DashboardLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar collapsible="icon" disableTransition={isResizing}>
           {/* ── Logo / Header ─────────────────────────────────────────── */}
-          <SidebarHeader className="px-3 py-4">
+          <SidebarHeader className="px-3 py-4 bg-primary">
             <div className="flex items-center gap-2">
               {/* Collapse toggle */}
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-sidebar-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
+                className="h-8 w-8 flex items-center justify-center hover:bg-white/15 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
                 aria-label="Toggle navigation"
               >
-                <PanelLeft className="h-4 w-4 text-sidebar-foreground/50" />
+                <PanelLeft className="h-4 w-4 text-primary-foreground/70" />
               </button>
 
               {/* Logo — only visible when expanded */}
@@ -503,8 +503,8 @@ function DashboardLayoutContent({
 
               {/* Collapsed state — monogram */}
               {isCollapsed && (
-                <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary">AC</span>
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <span className="text-xs font-bold text-primary-foreground">AC</span>
                 </div>
               )}
             </div>
