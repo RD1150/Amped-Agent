@@ -44,42 +44,42 @@
   --color-gold: oklch(0.68 0.15 75);
 }
 
-/* Authority Content Light Theme - Charcoal + Muted Gold */
-/* Brand Colors: Slate Charcoal #1E293B, Soft Charcoal #374151, Muted Gold #C8A24D, Deep Slate #0F172A */
+/* Authority Content Light Theme - Warm Off-White + Navy + Gold */
+/* Base: Warm Off-White #FAF8F5 | Navy: #0D1F3C | Gold: #C9A84C */
 :root {
   --radius: 0.5rem;
-  --background: oklch(1 0 0); /* Pure White #FFFFFF */
-  --foreground: oklch(0.25 0.02 250); /* Slate Charcoal #1E293B */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.25 0.02 250);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.25 0.02 250);
-  --primary: oklch(0.25 0.08 250); /* Navy Blue */
+  --background: oklch(0.98 0.004 75); /* Warm Off-White #FAF8F5 */
+  --foreground: oklch(0.22 0.04 255); /* Deep Navy #0D1F3C */
+  --card: oklch(0.995 0.002 75); /* Slightly warmer white for cards */
+  --card-foreground: oklch(0.22 0.04 255);
+  --popover: oklch(0.995 0.002 75);
+  --popover-foreground: oklch(0.22 0.04 255);
+  --primary: oklch(0.22 0.08 255); /* Deep Navy #0D1F3C */
   --primary-foreground: oklch(0.98 0 0); /* White text */
-  --secondary: oklch(0.92 0 0);
-  --secondary-foreground: oklch(0.25 0.02 250);
-  --muted: oklch(0.94 0 0);
-  --muted-foreground: oklch(0.35 0.02 250); /* Soft Charcoal #374151 */
-  --accent: oklch(0.65 0.12 75); /* Muted Gold #C8A24D */
-  --accent-foreground: oklch(0.1 0.02 250);
+  --secondary: oklch(0.93 0.004 75); /* Warm light gray */
+  --secondary-foreground: oklch(0.22 0.04 255);
+  --muted: oklch(0.94 0.004 75); /* Warm muted bg */
+  --muted-foreground: oklch(0.42 0.03 255); /* Softer navy-gray */
+  --accent: oklch(0.68 0.13 75); /* Gold #C9A84C */
+  --accent-foreground: oklch(0.15 0.04 255);
   --destructive: oklch(0.6 0.2 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.88 0 0);
-  --input: oklch(0.88 0 0);
-  --ring: oklch(0.65 0.12 75); /* Muted Gold */
-  --chart-1: oklch(0.25 0.02 250); /* Slate Charcoal */
-  --chart-2: oklch(0.65 0.12 75); /* Muted Gold */
-  --chart-3: oklch(0.35 0.02 250); /* Soft Charcoal */
-  --chart-4: oklch(0.75 0.12 75);
-  --chart-5: oklch(0.1 0.02 250); /* Deep Slate */
-  --sidebar: oklch(0.25 0.08 250); /* Navy Blue */
-  --sidebar-foreground: oklch(0.98 0 0); /* White text */
-  --sidebar-primary: oklch(0.68 0.15 75); /* Gold accent */
-  --sidebar-primary-foreground: oklch(0.98 0 0); /* White text */
-  --sidebar-accent: oklch(0.3 0.08 250); /* Lighter navy for hover */
-  --sidebar-accent-foreground: oklch(0.98 0 0); /* White text */
-  --sidebar-border: oklch(0.68 0.15 75); /* Gold border accent */
-  --sidebar-ring: oklch(0.65 0.12 75);
+  --border: oklch(0.89 0.005 75); /* Warm border */
+  --input: oklch(0.89 0.005 75);
+  --ring: oklch(0.68 0.13 75); /* Gold focus ring */
+  --chart-1: oklch(0.22 0.04 255); /* Navy */
+  --chart-2: oklch(0.68 0.13 75); /* Gold */
+  --chart-3: oklch(0.42 0.03 255); /* Mid navy */
+  --chart-4: oklch(0.78 0.12 75); /* Light gold */
+  --chart-5: oklch(0.15 0.04 255); /* Deep navy */
+  --sidebar: oklch(0.22 0.08 255); /* Deep Navy sidebar */
+  --sidebar-foreground: oklch(0.97 0 0); /* White text */
+  --sidebar-primary: oklch(0.68 0.13 75); /* Gold active */
+  --sidebar-primary-foreground: oklch(0.15 0.04 255); /* Dark text on gold */
+  --sidebar-accent: oklch(0.28 0.08 255); /* Lighter navy hover */
+  --sidebar-accent-foreground: oklch(0.97 0 0); /* White text */
+  --sidebar-border: oklch(0.32 0.06 255); /* Subtle navy border */
+  --sidebar-ring: oklch(0.68 0.13 75); /* Gold ring */
 }
 
 /* Authority Content Dark Theme */
@@ -181,16 +181,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: oklch(0.92 0 0);
+  background: oklch(0.93 0.004 75); /* Warm off-white track */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.7 0 0);
+  background: oklch(0.55 0.05 255); /* Navy-tinted thumb */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.6 0 0);
+  background: oklch(0.38 0.07 255); /* Deeper navy on hover */
 }
 
 /* Gold gradient text utility */
@@ -216,17 +216,17 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 1px;
-  background: oklch(0.88 0 0);
+  background: oklch(0.89 0.005 75); /* Warm border */
 }
 
 .calendar-cell {
-  background: oklch(1 0 0);
+  background: oklch(0.995 0.002 75); /* Warm card white */
   min-height: 120px;
   padding: 0.5rem;
 }
 
 .calendar-cell:hover {
-  background: oklch(0.96 0 0);
+  background: oklch(0.96 0.004 75); /* Warm hover */
 }
 
 .calendar-cell.today {
