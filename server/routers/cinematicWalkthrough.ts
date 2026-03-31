@@ -5,6 +5,7 @@ import * as db from "../db";
 import { getDb } from "../db";
 import { generatedVideos, cinematicJobs } from "../../drizzle/schema";
 import { ENV } from "../_core/env";
+import * as rateLimit from "../rateLimit";
 import * as fs from "fs";
 
 function log(msg: string) {
@@ -396,8 +397,9 @@ async function assembleCreatomateVideo(opts: {
     elements.push(baseElement);
 
     // Room label — appears after fade-in, disappears before next clip starts
+    // Skip if label is empty or unset (no "Other" shown for unlabeled photos)
     const labelDuration = Math.min(2.5, clip.duration - FADE * 2 - 0.2);
-    if (labelDuration > 0.5) {
+    if (labelDuration > 0.5 && clip.roomLabel && clip.roomLabel.trim() !== "" && clip.roomLabel.toLowerCase() !== "other") {
       elements.push({
         type: "text",
         track: 100 + i, // high track numbers to stay above video tracks
@@ -854,6 +856,18 @@ Requirements:
       const nextRetryCount = (failedJob.retryCount ?? 0) + 1;
       if (nextRetryCount > MAX_RETRIES) {
         throw new Error(`RETRY_LIMIT_REACHED:${MAX_RETRIES}`);
+      }
+      // Check grace regenerations — if available, skip daily quota check
+      const graceStatus = await rateLimit.checkGraceRegen(ctx.user.id, "cinematic");
+      if (graceStatus.hasGrace) {
+        await rateLimit.consumeGraceRegen(ctx.user.id, "cinematic");
+        log(`Grace regen used for user ${ctx.user.id} (cinematic). Remaining: ${graceStatus.remaining - 1}`);
+      } else {
+        // No grace — apply normal daily rate limit
+        const rateLimitStatus = await rateLimit.checkDailyVideoLimit(ctx.user.id);
+        if (!rateLimitStatus.allowed) {
+          throw new Error(`Daily video limit reached. Try again after ${rateLimitStatus.resetTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC.`);
+        }
       }
       const originalInput = JSON.parse(failedJob.inputSnapshot);
       const newJobId = generateJobId();

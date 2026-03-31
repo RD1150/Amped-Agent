@@ -477,6 +477,13 @@
       "when": 1774687828772,
       "tag": "0067_living_scream",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "5",
+      "when": 1774930961628,
+      "tag": "0068_normal_lady_vermin",
+      "breakpoints": true
     }
   ]
 }

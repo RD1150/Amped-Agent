@@ -83,7 +83,14 @@ type KenBurnsPreset =
  * Build Creatomate `animations` array for a Ken Burns effect on an image element.
  * Combines scale + x/y position keyframes for smooth cinematic motion.
  */
-function kenBurnsAnimations(preset: KenBurnsPreset, duration: number): object[] {
+function kenBurnsAnimations(preset: KenBurnsPreset, _duration: number): object[] {
+  // NOTE: Creatomate valid animation types: fade, scale, slide, rotate-slide, pan, wipe,
+  // color-wipe, circular-wipe, film-roll, squash, spin, stripe, flip, shake, bounce, wiggle,
+  // shift, text-appear, text-scale, text-slide, text-reveal, text-fly, text-spin, text-wave,
+  // text-counter, text-typewriter
+  // For pan: use type="pan" with direction in degrees (0°=right, 90°=down, 180°=left, 270°=up)
+  // For scale/zoom: use type="scale" with scope="element", start_scale, end_scale
+  // x-position and y-position are NOT valid types — use pan instead
   const anims: object[] = [];
 
   switch (preset) {
@@ -95,32 +102,32 @@ function kenBurnsAnimations(preset: KenBurnsPreset, duration: number): object[] 
       break;
     case "pan-right":
       anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "115%", end_scale: "115%", fade: false });
-      anims.push({ easing: "linear", type: "x-position", start_x: "-5%", end_x: "5%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "0deg", fade: false });
       break;
     case "pan-left":
       anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "115%", end_scale: "115%", fade: false });
-      anims.push({ easing: "linear", type: "x-position", start_x: "5%", end_x: "-5%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "180deg", fade: false });
       break;
     case "pan-up":
       anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "115%", end_scale: "115%", fade: false });
-      anims.push({ easing: "linear", type: "y-position", start_y: "5%", end_y: "-5%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "270deg", fade: false });
       break;
     case "pan-down":
       anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "115%", end_scale: "115%", fade: false });
-      anims.push({ easing: "linear", type: "y-position", start_y: "-5%", end_y: "5%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "90deg", fade: false });
       break;
     case "zoom-in-pan-right":
       anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "105%", end_scale: "125%", fade: false });
-      anims.push({ easing: "linear", type: "x-position", start_x: "-4%", end_x: "4%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "0deg", fade: false });
       break;
     case "zoom-out-pan-left":
       anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "125%", end_scale: "105%", fade: false });
-      anims.push({ easing: "linear", type: "x-position", start_x: "4%", end_x: "-4%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "180deg", fade: false });
       break;
     case "diagonal":
+      // diagonal: zoom in + pan right+up (use pan at ~315deg = up-right)
       anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "110%", end_scale: "125%", fade: false });
-      anims.push({ easing: "linear", type: "x-position", start_x: "-4%", end_x: "4%", fade: false });
-      anims.push({ easing: "linear", type: "y-position", start_y: "3%", end_y: "-3%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "315deg", fade: false });
       break;
     default:
       anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "100%", end_scale: "115%", fade: false });
@@ -522,17 +529,122 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
     });
   }
 
-  // ── Intro card ────────────────────────────────────────────────────────────
-  const introCardHtml = buildIntroCardHtml(cardTemplate, propertyDetails.address, propertyDetails.price, agentName, width, height);
+  // ── Intro card (background + text layers) ───────────────────────────────
+  // Creatomate does not support 'html' type — use shape + text elements instead
+  const introCardTrack = trackIdx++;
+  const introBgColor = cardTemplate === "luxury" ? "#0a0a0a" :
+    cardTemplate === "bold" ? "#FF6B35" :
+    cardTemplate === "classic" ? "#FFFFFF" :
+    cardTemplate === "contemporary" ? "#667eea" :
+    "#0D1F3C"; // modern/default = navy
+  const introTextColor = cardTemplate === "classic" ? "#2C3E50" :
+    cardTemplate === "bold" ? "#FFFFFF" :
+    cardTemplate === "contemporary" ? "#2D3748" :
+    "#C9A84C"; // luxury/modern = gold
+  const introPriceColor = cardTemplate === "classic" ? "#34495E" :
+    cardTemplate === "bold" ? "#1a1a1a" :
+    cardTemplate === "contemporary" ? "#4A5568" :
+    "#FFFFFF";
+  const introAgentColor = cardTemplate === "luxury" ? "#D4AF37" :
+    cardTemplate === "bold" ? "#FFFFFF" :
+    cardTemplate === "classic" ? "#7F8C8D" :
+    cardTemplate === "contemporary" ? "#667eea" :
+    "#C9A962";
+  const introFontFamily = cardTemplate === "luxury" ? "Playfair Display" :
+    cardTemplate === "bold" ? "Montserrat" :
+    cardTemplate === "classic" ? "Georgia" :
+    cardTemplate === "contemporary" ? "Poppins" :
+    "Montserrat";
+  const introAddrSize = aspectRatio === "9:16" ? "44px" : "52px";
+  const introPriceSize = aspectRatio === "9:16" ? "32px" : "38px";
+  const introAgentSize = aspectRatio === "9:16" ? "20px" : "24px";
+  // Background
   elements.push({
-    type: "html",
-    source: introCardHtml,
-    track: trackIdx++,
+    type: "shape",
+    shape: "rectangle",
+    fill_color: introBgColor,
+    track: introCardTrack,
     time: introVideoLength,
     duration: introCardLength,
-    width,
-    height,
+    width: "100%",
+    height: "100%",
+    x: "50%",
+    y: "50%",
+    x_alignment: "50%",
+    y_alignment: "50%",
   });
+  // Gold accent bar (luxury/modern)
+  if (cardTemplate === "luxury" || cardTemplate === "modern" || cardTemplate === "classic") {
+    elements.push({
+      type: "shape",
+      shape: "rectangle",
+      fill_color: cardTemplate === "classic" ? "#C9A962" : "#C9A84C",
+      track: introCardTrack,
+      time: introVideoLength,
+      duration: introCardLength,
+      width: "80px",
+      height: "2px",
+      x: "50%",
+      y: "56%",
+      x_alignment: "50%",
+      y_alignment: "50%",
+    });
+  }
+  // Address text
+  elements.push({
+    type: "text",
+    text: propertyDetails.address,
+    font_family: introFontFamily,
+    font_size: introAddrSize,
+    font_weight: cardTemplate === "bold" ? "900" : cardTemplate === "luxury" ? "300" : "700",
+    fill_color: introTextColor,
+    track: introCardTrack,
+    time: introVideoLength,
+    duration: introCardLength,
+    x: "50%",
+    y: "42%",
+    width: "85%",
+    x_alignment: "50%",
+    y_alignment: "50%",
+  });
+  // Price text (if provided)
+  if (propertyDetails.price) {
+    elements.push({
+      type: "text",
+      text: propertyDetails.price,
+      font_family: introFontFamily,
+      font_size: introPriceSize,
+      font_weight: cardTemplate === "bold" ? "800" : "400",
+      fill_color: introPriceColor,
+      track: introCardTrack,
+      time: introVideoLength,
+      duration: introCardLength,
+      x: "50%",
+      y: "62%",
+      width: "85%",
+      x_alignment: "50%",
+      y_alignment: "50%",
+    });
+  }
+  // Agent name (if provided)
+  if (agentName) {
+    elements.push({
+      type: "text",
+      text: agentName,
+      font_family: introFontFamily,
+      font_size: introAgentSize,
+      font_weight: "500",
+      fill_color: introAgentColor,
+      track: introCardTrack,
+      time: introVideoLength,
+      duration: introCardLength,
+      x: "50%",
+      y: "75%",
+      width: "85%",
+      x_alignment: "50%",
+      y_alignment: "50%",
+    });
+  }
 
   // ── Main photo/video clips with Ken Burns ─────────────────────────────────
   const photoTrack = trackIdx++;
@@ -584,19 +696,91 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
     }
   });
 
-  // ── Outro card ────────────────────────────────────────────────────────────
+  // ── Outro card (background + text layers) ────────────────────────────────
   const outroStart = introOffset + mainDuration;
   const contactLines = [agentPhone, agentEmail, agentWebsite].filter(Boolean) as string[];
-  const outroCardHtml = buildOutroCardHtml(cardTemplate, agentName, contactLines, width, height);
+  const outroCardTrack = trackIdx++;
+  // Background
   elements.push({
-    type: "html",
-    source: outroCardHtml,
-    track: trackIdx++,
+    type: "shape",
+    shape: "rectangle",
+    fill_color: introBgColor,
+    track: outroCardTrack,
     time: outroStart,
     duration: 3,
-    width,
-    height,
+    width: "100%",
+    height: "100%",
+    x: "50%",
+    y: "50%",
+    x_alignment: "50%",
+    y_alignment: "50%",
     animations: [{ type: "fade", duration: 0.5, fade: true }],
+  });
+  // CTA headline
+  const ctaText = cardTemplate === "bold" ? "LET'S TALK!" :
+    cardTemplate === "luxury" ? "Schedule Your Private Tour" :
+    cardTemplate === "classic" ? "Contact Me Today" :
+    cardTemplate === "contemporary" ? "Let's Connect" :
+    "Ready to Schedule a Showing?";
+  const outroCTASize = aspectRatio === "9:16" ? "38px" : "44px";
+  const outroNameSize = aspectRatio === "9:16" ? "28px" : "32px";
+  const outroContactSize = aspectRatio === "9:16" ? "20px" : "24px";
+  elements.push({
+    type: "text",
+    text: ctaText,
+    font_family: introFontFamily,
+    font_size: outroCTASize,
+    font_weight: cardTemplate === "bold" ? "900" : cardTemplate === "luxury" ? "300" : "700",
+    fill_color: introTextColor,
+    track: outroCardTrack,
+    time: outroStart,
+    duration: 3,
+    x: "50%",
+    y: agentName ? "35%" : "50%",
+    width: "85%",
+    x_alignment: "50%",
+    y_alignment: "50%",
+    animations: [{ type: "fade", duration: 0.5, fade: true }],
+  });
+  // Agent name
+  if (agentName) {
+    elements.push({
+      type: "text",
+      text: agentName,
+      font_family: introFontFamily,
+      font_size: outroNameSize,
+      font_weight: "600",
+      fill_color: introAgentColor,
+      track: outroCardTrack,
+      time: outroStart,
+      duration: 3,
+      x: "50%",
+      y: "52%",
+      width: "85%",
+      x_alignment: "50%",
+      y_alignment: "50%",
+      animations: [{ type: "fade", duration: 0.5, fade: true }],
+    });
+  }
+  // Contact lines
+  contactLines.forEach((line, i) => {
+    elements.push({
+      type: "text",
+      text: line,
+      font_family: introFontFamily,
+      font_size: outroContactSize,
+      font_weight: "400",
+      fill_color: cardTemplate === "classic" ? "#7F8C8D" : "#FFFFFF",
+      track: outroCardTrack,
+      time: outroStart,
+      duration: 3,
+      x: "50%",
+      y: `${64 + i * 10}%`,
+      width: "85%",
+      x_alignment: "50%",
+      y_alignment: "50%",
+      animations: [{ type: "fade", duration: 0.5, fade: true }],
+    });
   });
 
   // ── Property address + details overlay ───────────────────────────────────
@@ -607,18 +791,61 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
   const detailsText = detailsParts.join(" · ");
   const addrFontSize = aspectRatio === "9:16" ? "38px" : "42px";
   const detailFontSize = aspectRatio === "9:16" ? "28px" : "32px";
-
-  const overlayHtml = `<div style="width:${width}px;height:${height}px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:${Math.round(height * (aspectRatio === "9:16" ? 0.12 : 0.08))}px;box-sizing:border-box;font-family:'Montserrat',sans-serif;"><div style="background:rgba(0,0,0,0.5);border-radius:8px;padding:12px 24px;text-align:center;"><div style="color:#FFFFFF;font-size:${addrFontSize};font-weight:700;line-height:1.2;">${propertyDetails.address}</div>${detailsText ? `<div style="color:#C9A962;font-size:${detailFontSize};font-weight:500;margin-top:4px;letter-spacing:1px;">${detailsText}</div>` : ""}</div></div>`;
-
+  const overlayYBase = aspectRatio === "9:16" ? "84%" : "87%";
+  const overlayDetailsY = aspectRatio === "9:16" ? "91%" : "93%";
+  const overlayTrack = trackIdx++;
+  // Semi-transparent background pill behind address
   elements.push({
-    type: "html",
-    source: overlayHtml,
-    track: trackIdx++,
+    type: "shape",
+    shape: "rectangle",
+    fill_color: "rgba(0,0,0,0.55)",
+    border_radius: "8px",
+    track: overlayTrack,
     time: introOffset,
     duration: mainDuration,
-    width,
-    height,
+    width: detailsText ? "75%" : "65%",
+    height: detailsText ? "14%" : "9%",
+    x: "50%",
+    y: detailsText ? "88%" : "88%",
+    x_alignment: "50%",
+    y_alignment: "50%",
   });
+  // Address text
+  elements.push({
+    type: "text",
+    text: propertyDetails.address,
+    font_family: "Montserrat",
+    font_size: addrFontSize,
+    font_weight: "700",
+    fill_color: "#FFFFFF",
+    track: overlayTrack,
+    time: introOffset,
+    duration: mainDuration,
+    x: "50%",
+    y: detailsText ? "85%" : "88%",
+    width: "80%",
+    x_alignment: "50%",
+    y_alignment: "50%",
+  });
+  // Details text (price, beds, baths, sqft)
+  if (detailsText) {
+    elements.push({
+      type: "text",
+      text: detailsText,
+      font_family: "Montserrat",
+      font_size: detailFontSize,
+      font_weight: "500",
+      fill_color: "#C9A962",
+      track: overlayTrack,
+      time: introOffset,
+      duration: mainDuration,
+      x: "50%",
+      y: overlayDetailsY,
+      width: "80%",
+      x_alignment: "50%",
+      y_alignment: "50%",
+    });
+  }
 
   // ── Background music ──────────────────────────────────────────────────────
   if (musicTrackUrl) {

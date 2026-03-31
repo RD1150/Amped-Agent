@@ -40,7 +40,7 @@ const sampleVideos: VideoSample[] = [
     id: "2",
     title: "Luxury Residence — Cinematic Mode",
     thumbnail: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/prop2_living_f2b1e396.jpg",
-    videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/Cinematic(2)_c6d50728.mp4",
+    videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/Cinematic(2)_8292fc69.mp4",
     description: "Dramatic diagonal pans with cinematic typography and slower pacing",
     credits: 10,
     badge: "Cinematic",

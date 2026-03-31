@@ -715,9 +715,23 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-700/50 bg-slate-900/50 py-12">
-        <div className="container mx-auto px-4 text-center text-slate-400">
-          <p>&copy; 2026 AuthorityContent.co. All rights reserved.</p>
-          <p className="mt-2 text-sm">The all-in-one content platform for real estate professionals.</p>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Left: copyright */}
+            <div className="text-slate-400 text-center md:text-left">
+              <p>&copy; 2026 AuthorityContent.co. All rights reserved.</p>
+              <p className="mt-1 text-sm">The all-in-one content platform for real estate professionals.</p>
+            </div>
+            {/* Right: QR code */}
+            <div className="flex flex-col items-center gap-2">
+              <img
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/homebuyerfair_qrcode_7f4e3667.png"
+                alt="Scan to visit HomeBuyerFair.org"
+                className="w-24 h-24 rounded-lg border border-slate-600 bg-white p-1"
+              />
+              <p className="text-xs text-slate-500">HomeBuyerFair.org</p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

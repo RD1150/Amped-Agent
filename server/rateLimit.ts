@@ -156,3 +156,97 @@ export async function getDailyVideoUsage(userId: number): Promise<{
     isUnlimited: status.remaining === -1,
   };
 }
+
+export type GraceVideoType = "kenBurns" | "cinematic" | "authorityReel";
+
+/**
+ * Check if a user has grace regenerations remaining for a video type.
+ * Grace regenerations allow users to re-generate a buggy/failed video
+ * without consuming their quota.
+ */
+export async function checkGraceRegen(
+  userId: number,
+  videoType: GraceVideoType
+): Promise<{ hasGrace: boolean; remaining: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [user] = await db
+    .select({
+      graceKenBurnsRemaining: users.graceKenBurnsRemaining,
+      graceCinematicRemaining: users.graceCinematicRemaining,
+      graceAuthorityReelRemaining: users.graceAuthorityReelRemaining,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!user) throw new Error("User not found");
+
+  const remaining =
+    videoType === "kenBurns"
+      ? user.graceKenBurnsRemaining
+      : videoType === "cinematic"
+      ? user.graceCinematicRemaining
+      : user.graceAuthorityReelRemaining;
+
+  return { hasGrace: remaining > 0, remaining };
+}
+
+/**
+ * Consume one grace regeneration for a video type.
+ * Returns the new remaining count, or throws if none left.
+ */
+export async function consumeGraceRegen(
+  userId: number,
+  videoType: GraceVideoType
+): Promise<{ remaining: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { hasGrace, remaining } = await checkGraceRegen(userId, videoType);
+  if (!hasGrace) {
+    throw new Error(`No grace regenerations remaining for ${videoType}`);
+  }
+
+  const newRemaining = remaining - 1;
+  const field =
+    videoType === "kenBurns"
+      ? { graceKenBurnsRemaining: newRemaining }
+      : videoType === "cinematic"
+      ? { graceCinematicRemaining: newRemaining }
+      : { graceAuthorityReelRemaining: newRemaining };
+
+  await db.update(users).set(field).where(eq(users.id, userId));
+  return { remaining: newRemaining };
+}
+
+/**
+ * Get all grace regeneration counts for a user.
+ */
+export async function getGraceRegenStatus(userId: number): Promise<{
+  kenBurns: number;
+  cinematic: number;
+  authorityReel: number;
+}> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [user] = await db
+    .select({
+      graceKenBurnsRemaining: users.graceKenBurnsRemaining,
+      graceCinematicRemaining: users.graceCinematicRemaining,
+      graceAuthorityReelRemaining: users.graceAuthorityReelRemaining,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!user) throw new Error("User not found");
+
+  return {
+    kenBurns: user.graceKenBurnsRemaining,
+    cinematic: user.graceCinematicRemaining,
+    authorityReel: user.graceAuthorityReelRemaining,
+  };
+}

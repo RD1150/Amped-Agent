@@ -4079,3 +4079,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Cinematic Tour: replaced Pixabay music with same curated Kevin MacLeod library used by Listing Video
 - [x] Replace cinematic example video on app site with user-provided Cinematic(2).mp4
 - [x] Cinematic Tour: fixed 45% stall - added 30s AbortController timeout to Runway fetch calls
+- [ ] Ken Burns (Listing Video): Creatomate error "element has no valid type" - fix source builder
+
+## Grace Regenerations & Room Label Bug (New)
+- [x] Add 2 grace regenerations per video type (users can re-generate without consuming quota when result is buggy)
+- [ ] Fix "Other" room label bug - rooms auto-assigned "Other" label in video overlay instead of correct room type
+- [x] Add homebuyerfair.org QR code to landing page footer
+- [ ] Fix CSMAR logo blank square in footer

@@ -387,7 +387,7 @@ export default function CinematicWalkthrough() {
         url: "",
         file,
         previewUrl: URL.createObjectURL(file),
-        roomType: "other",
+        roomType: "",
         label: "",
         uploading: true,
       }));
@@ -449,8 +449,8 @@ export default function CinematicWalkthrough() {
       const result = await generateMutation.mutateAsync({
         photos: readyPhotos.map((p) => ({
           url: p.url,
-          roomType: p.roomType,
-          label: p.label || ROOM_TYPE_LABELS[p.roomType] || p.roomType,
+          roomType: p.roomType || "other",
+          label: p.label || (p.roomType ? ROOM_TYPE_LABELS[p.roomType] : "") || "",
           customPrompt: p.customPrompt || undefined,
           isExterior: p.isExterior || undefined,
         })),
