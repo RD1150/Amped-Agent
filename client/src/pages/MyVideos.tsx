@@ -4,6 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
   Video,
   Download,
   Play,
@@ -14,8 +23,10 @@ import {
   Loader2,
   VideoOff,
   ExternalLink,
+  Trash2,
 } from "lucide-react";
 import { useLocation } from "wouter";
+import { toast } from "sonner";
 
 type VideoSource = 'listing_video' | 'cinematic_tour' | 'ai_reel' | 'avatar_video' | 'authority_reel';
 
@@ -114,6 +125,21 @@ export default function MyVideos() {
   const [, setLocation] = useLocation();
   const [sourceFilter, setSourceFilter] = useState<FilterSource>("all");
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<UnifiedVideo | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+
+  const utils = trpc.useUtils();
+  const deleteMutation = trpc.myVideos.deleteUnified.useMutation({
+    onSuccess: () => {
+      utils.myVideos.listAll.invalidate();
+      setDeleteTarget(null);
+      setDeleteConfirmText("");
+      toast.success("Video deleted", { description: "The video has been permanently removed." });
+    },
+    onError: (err) => {
+      toast.error("Delete failed", { description: err.message });
+    },
+  });
 
   const { data: videos, isLoading } = trpc.myVideos.listAll.useQuery({
     source: "all",
@@ -306,6 +332,15 @@ export default function MyVideos() {
                     >
                       <ExternalLink className="h-3 w-3" />
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs px-3 text-red-500 hover:text-red-600 hover:border-red-400 hover:bg-red-500/10"
+                      onClick={() => { setDeleteTarget(video); setDeleteConfirmText(""); }}
+                      title="Delete video"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -313,6 +348,66 @@ export default function MyVideos() {
           })}
         </div>
       ) : (
+        /* Empty state — intentional fall-through */
+        // (rendered below)
+        undefined
+      )}
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setDeleteConfirmText(""); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-500">
+              <Trash2 className="h-5 w-5" />
+              Delete Video
+            </DialogTitle>
+            <DialogDescription className="pt-1">
+              This will permanently delete{" "}
+              <span className="font-semibold text-foreground">"{deleteTarget?.title}"</span>.
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              Type <span className="font-mono font-bold text-foreground">delete</span> to confirm.
+            </p>
+            <Input
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="Type delete here"
+              className="font-mono"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && deleteConfirmText === "delete" && deleteTarget) {
+                  deleteMutation.mutate({ compositeId: deleteTarget.id });
+                }
+              }}
+            />
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => { setDeleteTarget(null); setDeleteConfirmText(""); }}
+              disabled={deleteMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleteConfirmText !== "delete" || deleteMutation.isPending}
+              onClick={() => deleteTarget && deleteMutation.mutate({ compositeId: deleteTarget.id })}
+            >
+              {deleteMutation.isPending ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Deleting…</>
+              ) : (
+                <><Trash2 className="h-4 w-4 mr-2" /> Delete Permanently</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {filteredVideos.length === 0 && !isLoading && (
         /* Empty state */
         <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
           <div className="h-20 w-20 rounded-full bg-muted/50 flex items-center justify-center">

@@ -4086,3 +4086,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Fix "Other" room label bug - rooms auto-assigned "Other" label in video overlay instead of correct room type
 - [x] Add homebuyerfair.org QR code to landing page footer
 - [ ] Fix CSMAR logo blank square in footer
+- [x] Add delete video feature to My Videos page with 'type delete' confirmation dialog

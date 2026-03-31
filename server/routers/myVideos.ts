@@ -231,4 +231,42 @@ export const myVideosRouter = router({
         );
       return { success: true };
     }),
+
+  // Delete a unified video by composite ID (e.g. "listing_42", "cinematic_abc", "reel_7", "avatar_3")
+  deleteUnified: protectedProcedure
+    .input(z.object({ compositeId: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      const userId = ctx.user.id;
+      const { compositeId } = input;
+
+      if (compositeId.startsWith('listing_')) {
+        const numId = parseInt(compositeId.replace('listing_', ''), 10);
+        if (isNaN(numId)) throw new Error('Invalid video ID');
+        await db!
+          .delete(propertyTours)
+          .where(and(eq(propertyTours.id, numId), eq(propertyTours.userId, userId)));
+      } else if (compositeId.startsWith('cinematic_')) {
+        const jobId = compositeId.replace('cinematic_', '');
+        await db!
+          .delete(cinematicJobs)
+          .where(and(eq(cinematicJobs.id, jobId), eq(cinematicJobs.userId, userId)));
+      } else if (compositeId.startsWith('reel_')) {
+        const numId = parseInt(compositeId.replace('reel_', ''), 10);
+        if (isNaN(numId)) throw new Error('Invalid video ID');
+        await db!
+          .delete(aiReels)
+          .where(and(eq(aiReels.id, numId), eq(aiReels.userId, userId)));
+      } else if (compositeId.startsWith('avatar_')) {
+        const numId = parseInt(compositeId.replace('avatar_', ''), 10);
+        if (isNaN(numId)) throw new Error('Invalid video ID');
+        await db!
+          .delete(fullAvatarVideos)
+          .where(and(eq(fullAvatarVideos.id, numId), eq(fullAvatarVideos.userId, userId)));
+      } else {
+        throw new Error('Unknown video type');
+      }
+
+      return { success: true };
+    }),
 });
