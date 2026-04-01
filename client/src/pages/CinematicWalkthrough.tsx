@@ -576,11 +576,6 @@ export default function CinematicWalkthrough() {
       toast.error("Retry limit reached", { description: "Please contact support for assistance." });
       return;
     }
-    // Show grace credit info toast before retrying
-    const graceLeft = (dailyUsage as any)?.graceCredits?.cinematic ?? 0;
-    if (graceLeft > 0) {
-      toast.info(`Using 1 of ${graceLeft} free ${graceLeft === 1 ? 'retry' : 'retries'} — no quota deducted`);
-    }
     const currentFailedJobId = failedJobId;
     const currentFailedJobError = failedJobError;
     setFailedJobId(null);
@@ -632,17 +627,7 @@ export default function CinematicWalkthrough() {
             Each photo is animated with genuine AI cinematic motion (dolly, crane, fly-through), then assembled into a seamless walkthrough video. Generation takes <strong>2–5 minutes</strong> depending on the number of photos.
           </span>
         </div>
-        {/* Grace credit badge */}
-        {dailyUsage && (dailyUsage as any).graceCredits && (
-          <div className="flex items-center gap-2 p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-sm">
-            <span className="text-amber-600 dark:text-amber-400 font-semibold">
-              {(dailyUsage as any).graceCredits.cinematic}/2 free retries remaining
-            </span>
-            <span className="text-amber-700 dark:text-amber-300 text-xs">
-              — Re-generate a buggy video without using your quota
-            </span>
-          </div>
-        )}
+
       </div>
 
       {/* Video Result */}

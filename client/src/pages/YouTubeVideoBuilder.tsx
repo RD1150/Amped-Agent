@@ -1,875 +1,750 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-
-import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import {
   Youtube,
   Sparkles,
-  FileText,
-  Video,
-  Scissors,
-  Download,
-  Copy,
-  ChevronRight,
-  ChevronLeft,
-  Clock,
-  Mic,
-  Tag,
-  Share2,
-  CheckCircle2,
-  AlertCircle,
   Loader2,
+  Play,
+  Download,
+  ExternalLink,
+  Copy,
+  Check,
+  ChevronRight,
+  Video,
+  FileText,
+  Tag,
+  Clock,
+  Scissors,
+  Upload,
+  RefreshCw,
   Info,
+  CheckCircle2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-// ─── Topic options ─────────────────────────────────────────────────────────────
-const YOUTUBE_TOPICS = [
-  { id: "market_update", label: "Monthly Market Update", emoji: "📊", description: "Local stats, trends, and what it means for buyers/sellers" },
-  { id: "buyer_guide", label: "Buyer's Guide", emoji: "🏠", description: "Step-by-step guide for first-time or repeat buyers" },
-  { id: "seller_guide", label: "Seller's Guide", emoji: "💰", description: "How to prep, price, and sell for top dollar" },
-  { id: "neighborhood_spotlight", label: "Neighborhood Spotlight", emoji: "📍", description: "Deep dive into a specific city or neighborhood" },
-  { id: "investment_tips", label: "Investment Tips", emoji: "📈", description: "Real estate investing strategies for your market" },
-  { id: "mortgage_explainer", label: "Mortgage Explainer", emoji: "🏦", description: "Rates, types, and how to qualify — explained simply" },
-  { id: "faq", label: "Real Estate FAQ", emoji: "❓", description: "Answer the top 10 questions clients always ask" },
-  { id: "year_in_review", label: "Year in Review", emoji: "🗓️", description: "Annual market recap and what to expect next year" },
-  { id: "custom", label: "Custom Topic", emoji: "✏️", description: "Write your own topic and key points" },
-];
-
-const DURATION_OPTIONS = [
-  { id: "5min", label: "5 min", words: "~700 words", credits: 20 },
-  { id: "8min", label: "8 min", words: "~1,100 words", credits: 30 },
-  { id: "10min", label: "10 min", words: "~1,400 words", credits: 40 },
-  { id: "15min", label: "15 min", words: "~2,100 words", credits: 55 },
-];
-
-const TONE_OPTIONS = [
-  { id: "conversational", label: "Conversational", desc: "Warm & approachable" },
-  { id: "professional", label: "Professional", desc: "Polished & authoritative" },
-  { id: "educational", label: "Educational", desc: "Informative & clear" },
-  { id: "energetic", label: "Energetic", desc: "High-energy & motivating" },
-];
-
-// ─── Step indicator ────────────────────────────────────────────────────────────
+// ─── Step indicator ───────────────────────────────────────────────────────────
 const STEPS = [
-  { id: 1, label: "Topic", icon: FileText },
-  { id: 2, label: "Script", icon: Sparkles },
-  { id: 3, label: "SEO", icon: Tag },
-  { id: 4, label: "Generate", icon: Video },
-  { id: 5, label: "Redistribute", icon: Share2 },
+  { id: 1, label: "Topic" },
+  { id: 2, label: "Script" },
+  { id: 3, label: "SEO" },
+  { id: 4, label: "Video" },
+  { id: 5, label: "Distribute" },
 ];
 
 function StepIndicator({ current }: { current: number }) {
   return (
     <div className="flex items-center gap-1 mb-8">
-      {STEPS.map((step, i) => {
-        const Icon = step.icon;
-        const done = current > step.id;
-        const active = current === step.id;
-        return (
-          <div key={step.id} className="flex items-center gap-1">
-            <div
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
-                done && "bg-green-100 text-green-700",
-                active && "bg-navy-900 text-white bg-[#0a1628]",
-                !done && !active && "bg-muted text-muted-foreground"
-              )}
-            >
-              {done ? (
-                <CheckCircle2 className="w-3.5 h-3.5" />
-              ) : (
-                <Icon className="w-3.5 h-3.5" />
-              )}
-              <span className="hidden sm:inline">{step.label}</span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-            )}
+      {STEPS.map((step, i) => (
+        <div key={step.id} className="flex items-center gap-1">
+          <div
+            className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-all ${
+              step.id < current
+                ? "bg-primary text-primary-foreground"
+                : step.id === current
+                ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-background"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {step.id < current ? <CheckCircle2 className="h-4 w-4" /> : step.id}
           </div>
-        );
-      })}
+          <span
+            className={`text-xs hidden sm:block ${
+              step.id === current ? "text-foreground font-medium" : "text-muted-foreground"
+            }`}
+          >
+            {step.label}
+          </span>
+          {i < STEPS.length - 1 && (
+            <ChevronRight className="h-3 w-3 text-muted-foreground mx-1" />
+          )}
+        </div>
+      ))}
     </div>
   );
 }
 
-// ─── Word count badge ──────────────────────────────────────────────────────────
-function WordCountBadge({ script }: { script: string }) {
-  const words = script.trim() ? script.trim().split(/\s+/).length : 0;
-  const mins = Math.round((words / 140) * 60 / 60);
-  const secs = Math.round((words / 140) * 60 % 60);
-  const label = mins > 0 ? `~${mins}m ${secs}s` : `~${secs}s`;
+// ─── Copy button ──────────────────────────────────────────────────────────────
+function CopyBtn({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
   return (
-    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-      <span>{words.toLocaleString()} words</span>
-      <span>·</span>
-      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{label} on camera</span>
-    </div>
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-7 px-2 text-xs"
+      onClick={async () => {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        toast.success("Copied to clipboard");
+        setTimeout(() => setCopied(false), 2000);
+      }}
+    >
+      {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+    </Button>
   );
 }
 
-// ─── Main component ────────────────────────────────────────────────────────────
+// ─── Main page ────────────────────────────────────────────────────────────────
 export default function YouTubeVideoBuilder() {
   const { user } = useAuth();
-  const isPremium = user?.subscriptionTier === "premium" || user?.subscriptionTier === "pro";
+  const [, navigate] = useLocation();
+  const utils = trpc.useUtils();
 
-  // ── Step state ────────────────────────────────────────────────────────────
   const [step, setStep] = useState(1);
 
-  // ── Step 1: Topic setup ───────────────────────────────────────────────────
-  const [selectedTopic, setSelectedTopic] = useState("");
+  // Step 1 — Topic
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [customTopic, setCustomTopic] = useState("");
-  const [city, setCity] = useState("");
+  const [outline, setOutline] = useState("");
+  const [targetDuration, setTargetDuration] = useState<"5min" | "8min" | "12min" | "15min">("8min");
+  const [tone, setTone] = useState<"professional" | "conversational" | "authoritative" | "warm">("professional");
   const [agentName, setAgentName] = useState(user?.name || "");
-  const [keyPoints, setKeyPoints] = useState("");
-  const [targetDuration, setTargetDuration] = useState("8min");
-  const [tone, setTone] = useState("conversational");
+  const [city, setCity] = useState("");
 
-  // ── Step 2: Script ────────────────────────────────────────────────────────
+  // Step 2 — Script
   const [script, setScript] = useState("");
-  const [isGeneratingScript, setIsGeneratingScript] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
+  const [estimatedMinutes, setEstimatedMinutes] = useState(0);
 
-  // ── Step 3: SEO ───────────────────────────────────────────────────────────
+  // Step 3 — SEO
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
   const [seoTags, setSeoTags] = useState<string[]>([]);
-  const [chapters, setChapters] = useState<Array<{ time: string; title: string }>>([]);
-  const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
+  const [seoChapters, setSeoChapters] = useState<{ time: string; title: string }[]>([]);
 
-  // ── Step 4: Video generation ──────────────────────────────────────────────
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStep, setGenerationStep] = useState("");
-  const [resultVideoUrl, setResultVideoUrl] = useState("");
-  const [resultDuration, setResultDuration] = useState(0);
+  // Step 4 — Video
+  const [videoId, setVideoId] = useState<number | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [voiceId, setVoiceId] = useState("");
+  const [privacyStatus, setPrivacyStatus] = useState<"public" | "private" | "unlisted">("public");
+  const [youtubeVideoUrl, setYoutubeVideoUrl] = useState<string | null>(null);
 
-  // ── Step 5: Clips ─────────────────────────────────────────────────────────
-  const [clips, setClips] = useState<Array<{ openingSentence: string; title: string; reason: string; positionPercent: number }>>([]);
-  const [isGeneratingClips, setIsGeneratingClips] = useState(false);
+  // Step 5 — Clips
+  const [clips, setClips] = useState<{
+    title: string;
+    hook: string;
+    scriptExcerpt: string;
+    estimatedSeconds: number;
+    suggestedCaption: string;
+  }[]>([]);
 
-  // ── tRPC mutations ────────────────────────────────────────────────────────
-  const generateScriptMutation = trpc.youtubeVideoBuilder.generateScript.useMutation();
-  const generateSEOMutation = trpc.youtubeVideoBuilder.generateSEO.useMutation();
-  const generateClipsMutation = trpc.youtubeVideoBuilder.generateClipTimestamps.useMutation();
-  const generateVideoMutation = trpc.youtubeVideoBuilder.generateVideo.useMutation();
-  const { data: twinStatus } = trpc.fullAvatarVideo.getCustomAvatarStatus.useQuery();
+  // ─── Queries ────────────────────────────────────────────────────────────────
+  const { data: templates = [] } = trpc.youtubeVideoBuilder.getTopicTemplates.useQuery();
+  const { data: twinStatus } = trpc.fullAvatarVideo.getCustomAvatarStatus.useQuery(undefined, {
+    retry: false,
+  });
+  const { data: heygenVoices = [] } = trpc.fullAvatarVideo.getVoices.useQuery();
+  const { data: youtubeConnection } = trpc.youtube.getConnection.useQuery();
 
-  const topicLabel = selectedTopic === "custom"
-    ? customTopic
-    : YOUTUBE_TOPICS.find(t => t.id === selectedTopic)?.label || "";
-
-  // ── Handlers ──────────────────────────────────────────────────────────────
-  async function handleGenerateScript() {
-    if (!selectedTopic) {
-      toast.error("Select a topic first");
-      return;
+  useEffect(() => {
+    if (heygenVoices.length > 0 && !voiceId) {
+      setVoiceId(heygenVoices[0].id);
     }
-    const topic = selectedTopic === "custom" ? customTopic : topicLabel;
-    if (!topic) {
-      toast.error("Enter your custom topic");
-      return;
+  }, [heygenVoices, voiceId]);
+
+  const { data: videoStatus } = trpc.youtubeVideoBuilder.getVideoStatus.useQuery(
+    { videoId: videoId! },
+    {
+      enabled: !!videoId && !videoUrl,
+      refetchInterval: (query) => {
+        const data = query.state.data;
+        if (data?.status === "completed" || data?.status === "failed") return false;
+        return 8000;
+      },
     }
-    setIsGeneratingScript(true);
-    try {
-      const result = await generateScriptMutation.mutateAsync({
-        topic,
-        city: city || undefined,
-        keyPoints: keyPoints || undefined,
-        agentName: agentName || undefined,
-        targetDuration: targetDuration as "5min" | "8min" | "10min" | "15min",
-        tone: tone as "professional" | "conversational" | "educational" | "energetic",
-      });
-      setScript(result.script);
+  );
+
+  useEffect(() => {
+    if (videoStatus?.status === "completed" && videoStatus.videoUrl) {
+      setVideoUrl(videoStatus.videoUrl);
+      toast.success("Your YouTube video is ready!");
+    } else if (videoStatus?.status === "failed") {
+      toast.error("Video generation failed. Please try again.");
+    }
+  }, [videoStatus]);
+
+  // ─── Mutations ───────────────────────────────────────────────────────────────
+  const generateScriptMutation = trpc.youtubeVideoBuilder.generateScript.useMutation({
+    onSuccess: (data) => {
+      setScript(data.script);
+      setWordCount(data.wordCount);
+      setEstimatedMinutes(data.estimatedMinutes);
       setStep(2);
-      toast.success(`Script generated! ${result.wordCount.toLocaleString()} words · ${result.estimatedLabel}`);
-    } catch (err: any) {
-      toast.error(`Script generation failed: ${err.message}`);
-    } finally {
-      setIsGeneratingScript(false);
-    }
-  }
+      toast.success(`Script generated — ~${data.estimatedMinutes} min (${data.wordCount} words)`);
+    },
+    onError: (err) => toast.error(err.message),
+  });
 
-  async function handleGenerateSEO() {
-    if (!script) return;
-    setIsGeneratingSEO(true);
-    try {
-      const result = await generateSEOMutation.mutateAsync({
-        script,
-        city: city || undefined,
-        topic: topicLabel,
-      });
-      setSeoTitle(result.title);
-      setSeoDescription(result.description);
-      setSeoTags(result.tags);
-      setChapters(result.chapters);
+  const generateSEOMutation = trpc.youtubeVideoBuilder.generateSEO.useMutation({
+    onSuccess: (data) => {
+      setSeoTitle(data.title);
+      setSeoDescription(data.description);
+      setSeoTags(data.tags);
+      setSeoChapters(data.chapters);
       setStep(3);
-      toast.success("SEO metadata generated!");
-    } catch (err: any) {
-      toast.error(`SEO generation failed: ${err.message}`);
-    } finally {
-      setIsGeneratingSEO(false);
-    }
-  }
+      toast.success("SEO metadata generated");
+    },
+    onError: (err) => toast.error(err.message),
+  });
 
-  async function handleGenerateVideo() {
-    if (!script) return;
-    if (!twinStatus || twinStatus?.status !== "ready") {
-      toast.error("Custom avatar required. Please train your digital twin in the Full Avatar Video section first.");
+  const generateVideoMutation = trpc.youtubeVideoBuilder.generateVideo.useMutation({
+    onSuccess: (data) => {
+      setVideoId(data.videoId);
+      setStep(4);
+      toast.success("Video generation started — this takes 5–20 minutes for long-form content");
+      utils.rateLimit.getDailyUsage.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const generateClipsMutation = trpc.youtubeVideoBuilder.generateClipTimestamps.useMutation({
+    onSuccess: (data) => {
+      setClips(data.clips);
+      toast.success(`${data.clips.length} clip moments identified`);
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const uploadToYoutubeMutation = trpc.youtube.uploadVideo.useMutation({
+    onSuccess: (data) => {
+      setYoutubeVideoUrl(data.videoUrl);
+      toast.success("Published to YouTube!");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  // ─── Handlers ────────────────────────────────────────────────────────────────
+  const handleTemplateSelect = (key: string) => {
+    setSelectedTemplate(key);
+    const t = templates.find((t) => t.key === key);
+    if (t) {
+      setCustomTopic(t.title);
+      setOutline(t.outline);
+    }
+  };
+
+  const handleGenerateScript = () => {
+    const topic = customTopic.trim();
+    if (!topic) return toast.error("Please enter a topic");
+    if (!outline.trim()) return toast.error("Please add an outline");
+    generateScriptMutation.mutate({ topic, outline, agentName, city, targetDuration, tone });
+  };
+
+  const handleGenerateSEO = () => {
+    generateSEOMutation.mutate({ topic: customTopic, script, city, agentName });
+  };
+
+  const handleGenerateVideo = () => {
+    if (!twinStatus || twinStatus.status !== "ready") {
+      toast.error("Please train your digital twin in Full Avatar Video first");
+      navigate("/full-avatar-video");
       return;
     }
-    setIsGenerating(true);
-    setGenerationStep("Submitting to HeyGen...");
-    try {
-      setGenerationStep("Generating your avatar video (this takes 5–20 min for long-form)...");
-      const result = await generateVideoMutation.mutateAsync({
-        script,
-        title: seoTitle || topicLabel,
-      });
-      setResultVideoUrl(result.videoUrl || "");
-      setResultDuration(result.duration || 0);
-      setStep(4);
-      toast.success("Video ready! Your YouTube video has been generated.");
-    } catch (err: any) {
-      toast.error(`Video generation failed: ${err.message}`);
-    } finally {
-      setIsGenerating(false);
-      setGenerationStep("");
-    }
-  }
+    generateVideoMutation.mutate({ script, voiceId, title: seoTitle || customTopic });
+  };
 
-  async function handleGenerateClips() {
-    if (!script) return;
-    setIsGeneratingClips(true);
-    try {
-      const words = script.trim().split(/\s+/).length;
-      const estimatedSeconds = Math.round((words / 140) * 60);
-      const result = await generateClipsMutation.mutateAsync({ script, estimatedSeconds });
-      setClips(result);
-      setStep(5);
-      toast.success(`${result.length} clip ideas identified! Review and extract your Reels/Shorts below.`);
-    } catch (err: any) {
-      toast.error(`Clip analysis failed: ${err.message}`);
-    } finally {
-      setIsGeneratingClips(false);
-    }
-  }
+  const handlePublishToYoutube = () => {
+    if (!videoUrl) return toast.error("Video not ready yet");
+    uploadToYoutubeMutation.mutate({
+      videoUrl,
+      title: seoTitle || customTopic,
+      description: seoDescription,
+      tags: seoTags,
+      privacyStatus,
+    });
+  };
 
-  function copyToClipboard(text: string, label: string) {
-    navigator.clipboard.writeText(text);
-    toast.success(`${label} copied!`);
-  }
+  const handleSendClipToReels = (clip: typeof clips[0]) => {
+    const encoded = encodeURIComponent(clip.scriptExcerpt);
+    navigate(`/auto-reels?script=${encoded}`);
+  };
 
-  // ─── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
-      <div className="mb-8">
+      <div>
         <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-red-50 rounded-lg">
-            <Youtube className="w-6 h-6 text-red-600" />
+          <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20">
+            <Youtube className="h-6 w-6 text-red-500" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">YouTube Video Builder</h1>
             <p className="text-sm text-muted-foreground">
-              AI writes your script → your avatar delivers it → redistribute as Reels & Shorts
+              Long-form avatar videos for YouTube — up to 15 minutes, ready to redistribute as Reels
             </p>
           </div>
-          <Badge variant="secondary" className="ml-auto bg-red-50 text-red-700 border-red-200">
-            Premium
-          </Badge>
+          <Badge className="ml-auto bg-red-500/10 text-red-500 border-red-500/20 text-xs">New</Badge>
         </div>
-
-        {!isPremium && (
-          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-amber-800">Premium feature</p>
-              <p className="text-xs text-amber-700 mt-0.5">
-                YouTube Video Builder requires a Premium or Pro plan. Upgrade to unlock long-form avatar videos.
-              </p>
-            </div>
-          </div>
-        )}
-
-          {isPremium && (!twinStatus || twinStatus?.status !== "ready") && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
-            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-blue-800">Custom avatar required</p>
-              <p className="text-xs text-blue-700 mt-0.5">
-                You'll need to train your digital twin before generating the video. You can still write your script and SEO metadata now.
-                <a href="/full-avatar-video" className="underline ml-1 font-medium">Train your avatar →</a>
-              </p>
-            </div>
-          </div>
-        )}
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/5 border border-red-500/20 text-sm text-muted-foreground">
+          <Info className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+          <span>
+            Requires your trained digital twin. Each video costs <strong>20 credits</strong> and takes 5–20 minutes to generate depending on length.
+          </span>
+        </div>
       </div>
 
       <StepIndicator current={step} />
 
-      {/* ─── Step 1: Topic Setup ─────────────────────────────────────────────── */}
+      {/* ── Step 1: Topic & Outline ─────────────────────────────────────────── */}
       {step === 1 && (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Choose Your Topic
-              </CardTitle>
-              <CardDescription>What do you want to teach your audience today?</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {YOUTUBE_TOPICS.map((topic) => (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Choose a Topic</CardTitle>
+            <CardDescription>Select a template or write your own topic and outline</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Quick Templates</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {templates.map((t) => (
                   <button
-                    key={topic.id}
-                    onClick={() => setSelectedTopic(topic.id)}
-                    className={cn(
-                      "text-left p-3 rounded-lg border-2 transition-all hover:border-[#0a1628] hover:bg-slate-50",
-                      selectedTopic === topic.id
-                        ? "border-[#0a1628] bg-slate-50"
-                        : "border-border"
-                    )}
+                    key={t.key}
+                    onClick={() => handleTemplateSelect(t.key)}
+                    className={`text-left p-3 rounded-lg border text-sm transition-all ${
+                      selectedTemplate === t.key
+                        ? "border-red-500 bg-red-500/10 text-foreground"
+                        : "border-border bg-card hover:border-red-500/50 text-muted-foreground hover:text-foreground"
+                    }`}
                   >
-                    <div className="text-xl mb-1">{topic.emoji}</div>
-                    <div className="text-sm font-medium">{topic.label}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{topic.description}</div>
+                    <div className="font-medium text-xs leading-tight">{t.title}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{t.duration}</div>
                   </button>
                 ))}
               </div>
+            </div>
 
-              {selectedTopic === "custom" && (
-                <div className="mt-4">
-                  <Label htmlFor="customTopic">Your Topic</Label>
-                  <Input
-                    id="customTopic"
-                    placeholder="e.g. Why now is the best time to buy in Austin"
-                    value={customTopic}
-                    onChange={(e) => setCustomTopic(e.target.value)}
-                    className="mt-1.5"
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            <Separator />
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Mic className="w-4 h-4" />
-                Video Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="city">Your City / Market</Label>
-                  <Input
-                    id="city"
-                    placeholder="e.g. Austin, TX"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="mt-1.5"
-                  />
-                </div>
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="topic">Topic / Title</Label>
+                <Input
+                  id="topic"
+                  value={customTopic}
+                  onChange={(e) => setCustomTopic(e.target.value)}
+                  placeholder="e.g. Why Now is the Best Time to Buy in Austin"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="outline">Video Outline</Label>
+                <Textarea
+                  id="outline"
+                  value={outline}
+                  onChange={(e) => setOutline(e.target.value)}
+                  placeholder={"1. Hook: ...\n2. Main point...\n3. CTA: ..."}
+                  className="mt-1 font-mono text-sm min-h-[140px]"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="agentName">Your Name</Label>
                   <Input
                     id="agentName"
-                    placeholder="e.g. Sarah Johnson"
                     value={agentName}
                     onChange={(e) => setAgentName(e.target.value)}
-                    className="mt-1.5"
+                    placeholder="Jane Smith"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="city">City / Market</Label>
+                  <Input
+                    id="city"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="Austin, TX"
+                    className="mt-1"
                   />
                 </div>
               </div>
-
-              <div>
-                <Label htmlFor="keyPoints">Key Points to Cover <span className="text-muted-foreground font-normal">(optional)</span></Label>
-                <Textarea
-                  id="keyPoints"
-                  placeholder="e.g. Inventory is down 15%, prices holding steady, interest rates at 6.8%, best neighborhoods for first-time buyers..."
-                  value={keyPoints}
-                  onChange={(e) => setKeyPoints(e.target.value)}
-                  rows={3}
-                  className="mt-1.5"
-                />
-              </div>
-
-              <div>
-                <Label className="mb-2 block">Target Duration</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {DURATION_OPTIONS.map((d) => (
-                    <button
-                      key={d.id}
-                      onClick={() => setTargetDuration(d.id)}
-                      className={cn(
-                        "p-3 rounded-lg border-2 text-center transition-all",
-                        targetDuration === d.id
-                          ? "border-[#0a1628] bg-slate-50"
-                          : "border-border hover:border-[#0a1628]"
-                      )}
-                    >
-                      <div className="text-sm font-semibold">{d.label}</div>
-                      <div className="text-xs text-muted-foreground">{d.words}</div>
-                      <div className="text-xs text-amber-600 mt-0.5">{d.credits} credits</div>
-                    </button>
-                  ))}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Target Duration</Label>
+                  <Select value={targetDuration} onValueChange={(v) => setTargetDuration(v as typeof targetDuration)}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5min">~5 minutes (750 words)</SelectItem>
+                      <SelectItem value="8min">~8 minutes (1,200 words)</SelectItem>
+                      <SelectItem value="12min">~12 minutes (1,800 words)</SelectItem>
+                      <SelectItem value="15min">~15 minutes (2,250 words)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Tone</Label>
+                  <Select value={tone} onValueChange={(v) => setTone(v as typeof tone)}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="professional">Professional</SelectItem>
+                      <SelectItem value="conversational">Conversational</SelectItem>
+                      <SelectItem value="authoritative">Authoritative</SelectItem>
+                      <SelectItem value="warm">Warm &amp; Friendly</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
+            </div>
 
-              <div>
-                <Label className="mb-2 block">Tone</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {TONE_OPTIONS.map((t) => (
-                    <button
-                      key={t.id}
-                      onClick={() => setTone(t.id)}
-                      className={cn(
-                        "p-2.5 rounded-lg border-2 text-center transition-all",
-                        tone === t.id
-                          ? "border-[#0a1628] bg-slate-50"
-                          : "border-border hover:border-[#0a1628]"
-                      )}
-                    >
-                      <div className="text-xs font-medium">{t.label}</div>
-                      <div className="text-xs text-muted-foreground">{t.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex justify-end">
             <Button
               onClick={handleGenerateScript}
-              disabled={!selectedTopic || isGeneratingScript || !isPremium}
-              className="bg-[#0a1628] hover:bg-[#0a1628]/90 text-white gap-2"
-              size="lg"
+              disabled={generateScriptMutation.isPending || !customTopic.trim() || !outline.trim()}
+              className="w-full bg-red-600 hover:bg-red-700 text-white gap-2"
             >
-              {isGeneratingScript ? (
-                <><Loader2 className="w-4 h-4 animate-spin" />Writing script...</>
+              {generateScriptMutation.isPending ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Generating Script...</>
               ) : (
-                <><Sparkles className="w-4 h-4" />Generate Script</>
+                <><Sparkles className="h-4 w-4" /> Generate Script</>
               )}
             </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* ─── Step 2: Script Editor ───────────────────────────────────────────── */}
+      {/* ── Step 2: Script Editor ───────────────────────────────────────────── */}
       {step === 2 && (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    Your Script — {topicLabel}
-                  </CardTitle>
-                  <CardDescription className="mt-1">
-                    Review and edit before generating your video. Every word will be spoken by your avatar.
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyToClipboard(script, "Script")}
-                  className="gap-1.5 flex-shrink-0"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  Copy
-                </Button>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-red-500" /> Script Editor
+                </CardTitle>
+                <CardDescription>
+                  {wordCount.toLocaleString()} words · ~{estimatedMinutes} min · Review and edit before generating
+                </CardDescription>
               </div>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={script}
-                onChange={(e) => setScript(e.target.value)}
-                rows={20}
-                className="font-mono text-sm leading-relaxed resize-none"
-                placeholder="Your script will appear here..."
-              />
-              <div className="mt-2 flex items-center justify-between">
-                <WordCountBadge script={script} />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleGenerateScript}
-                  disabled={isGeneratingScript}
-                  className="text-xs gap-1.5"
-                >
-                  {isGeneratingScript ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                  Regenerate
-                </Button>
+              <div className="flex gap-2">
+                <CopyBtn text={script} />
+                <Button variant="outline" size="sm" onClick={() => setStep(1)} className="text-xs">← Back</Button>
               </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={() => setStep(1)} className="gap-1.5">
-              <ChevronLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <Button
-              onClick={handleGenerateSEO}
-              disabled={!script || isGeneratingSEO}
-              className="bg-[#0a1628] hover:bg-[#0a1628]/90 text-white gap-2"
-              size="lg"
-            >
-              {isGeneratingSEO ? (
-                <><Loader2 className="w-4 h-4 animate-spin" />Generating SEO...</>
-              ) : (
-                <><Tag className="w-4 h-4" />Generate SEO Metadata</>
-              )}
-            </Button>
-          </div>
-        </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-700 dark:text-amber-400">
+              <Info className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>
+                <strong>[B-ROLL: ...]</strong> and <strong>[PAUSE]</strong> markers are for your reference only.
+                Remove them before generating if you don't want them read aloud by the avatar.
+              </span>
+            </div>
+            <Textarea
+              value={script}
+              onChange={(e) => {
+                setScript(e.target.value);
+                const wc = e.target.value.split(/\s+/).filter(Boolean).length;
+                setWordCount(wc);
+                setEstimatedMinutes(Math.round(wc / 150));
+              }}
+              className="font-mono text-sm min-h-[500px] leading-relaxed"
+            />
+            <div className="flex gap-3">
+              <Button
+                onClick={handleGenerateSEO}
+                disabled={generateSEOMutation.isPending || !script.trim()}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white gap-2"
+              >
+                {generateSEOMutation.isPending ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Generating SEO...</>
+                ) : (
+                  <><Tag className="h-4 w-4" /> Generate SEO Metadata</>
+                )}
+              </Button>
+              <Button variant="outline" onClick={() => setStep(3)} disabled={!script.trim()} className="gap-2">
+                Skip SEO <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* ─── Step 3: SEO Metadata ────────────────────────────────────────────── */}
+      {/* ── Step 3: SEO Metadata ────────────────────────────────────────────── */}
       {step === 3 && (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Tag className="w-4 h-4" />
-                  YouTube SEO Metadata
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Tag className="h-5 w-5 text-red-500" /> YouTube SEO
                 </CardTitle>
-                <Badge variant="outline" className="text-green-700 border-green-300 bg-green-50">
-                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                  Ready to copy
-                </Badge>
+                <CardDescription>Review and edit your title, description, tags, and chapters</CardDescription>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              {/* Title */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <Label>Video Title</Label>
-                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(seoTitle, "Title")} className="h-7 text-xs gap-1">
-                    <Copy className="w-3 h-3" />Copy
-                  </Button>
-                </div>
-                <Input value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} className="font-medium" />
-                <p className="text-xs text-muted-foreground mt-1">{seoTitle.length}/70 characters</p>
+              <Button variant="outline" size="sm" onClick={() => setStep(2)} className="text-xs">← Back</Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <Label>Title</Label>
+                <span className={`text-xs ${seoTitle.length > 60 ? "text-destructive" : "text-muted-foreground"}`}>
+                  {seoTitle.length}/60
+                </span>
               </div>
-
-              {/* Description */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <Label>Description</Label>
-                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(seoDescription, "Description")} className="h-7 text-xs gap-1">
-                    <Copy className="w-3 h-3" />Copy
-                  </Button>
-                </div>
-                <Textarea
-                  value={seoDescription}
-                  onChange={(e) => setSeoDescription(e.target.value)}
-                  rows={8}
-                  className="text-sm"
-                />
+              <Input value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <Label>Description</Label>
+                <CopyBtn text={seoDescription} />
               </div>
-
-              {/* Tags */}
+              <Textarea value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} className="min-h-[160px] text-sm" />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <Label>Tags ({seoTags.length})</Label>
+                <CopyBtn text={seoTags.join(", ")} />
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {seoTags.map((tag, i) => (
+                  <Badge key={i} variant="secondary" className="text-xs cursor-pointer hover:bg-destructive/20" onClick={() => setSeoTags(seoTags.filter((_, j) => j !== i))}>
+                    {tag} ×
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            {seoChapters.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <Label>Tags</Label>
-                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(seoTags.join(", "), "Tags")} className="h-7 text-xs gap-1">
-                    <Copy className="w-3 h-3" />Copy
-                  </Button>
+                <div className="flex items-center justify-between mb-1">
+                  <Label className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /> Chapter Timestamps</Label>
+                  <CopyBtn text={seoChapters.map((c) => `${c.time} ${c.title}`).join("\n")} />
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {seoTags.map((tag, i) => (
-                    <Badge key={i} variant="secondary" className="text-xs">{tag}</Badge>
+                <div className="space-y-1 text-sm font-mono">
+                  {seoChapters.map((c, i) => (
+                    <div key={i} className="flex gap-3 text-muted-foreground">
+                      <span className="w-12 text-right">{c.time}</span>
+                      <span>{c.title}</span>
+                    </div>
                   ))}
                 </div>
               </div>
-
-              {/* Chapters */}
-              {chapters.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <Label>Chapter Markers</Label>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyToClipboard(chapters.map(c => `${c.time} ${c.title}`).join("\n"), "Chapters")}
-                      className="h-7 text-xs gap-1"
-                    >
-                      <Copy className="w-3 h-3" />Copy
-                    </Button>
-                  </div>
-                  <div className="space-y-1.5">
-                    {chapters.map((ch, i) => (
-                      <div key={i} className="flex items-center gap-3 text-sm">
-                        <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded text-muted-foreground w-12 text-center">{ch.time}</span>
-                        <span>{ch.title}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={() => setStep(2)} className="gap-1.5">
-              <ChevronLeft className="w-4 h-4" />
-              Back to Script
+            )}
+            {!seoTitle && (
+              <Button onClick={handleGenerateSEO} disabled={generateSEOMutation.isPending} variant="outline" className="w-full gap-2">
+                {generateSEOMutation.isPending ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating...</> : <><Sparkles className="h-4 w-4" /> Generate SEO Metadata</>}
+              </Button>
+            )}
+            <Button onClick={() => setStep(4)} className="w-full bg-red-600 hover:bg-red-700 text-white gap-2">
+              <Video className="h-4 w-4" /> Continue to Video Generation
             </Button>
-            <Button
-              onClick={() => setStep(4)}
-              className="bg-[#0a1628] hover:bg-[#0a1628]/90 text-white gap-2"
-              size="lg"
-            >
-              <Video className="w-4 h-4" />
-              Continue to Video
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* ─── Step 4: Generate Video ──────────────────────────────────────────── */}
-      {step === 4 && !resultVideoUrl && (
-        <div className="space-y-6">
+      {/* ── Step 4: Video Generation ────────────────────────────────────────── */}
+      {step === 4 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Video className="h-5 w-5 text-red-500" /> Generate Avatar Video
+                </CardTitle>
+                <CardDescription>Your avatar delivers the full script in 16:9 landscape format</CardDescription>
+              </div>
+              {!videoId && <Button variant="outline" size="sm" onClick={() => setStep(3)} className="text-xs">← Back</Button>}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {twinStatus?.status !== "ready" ? (
+              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm">
+                <p className="font-medium text-amber-700 dark:text-amber-400 mb-2">Digital twin not ready</p>
+                <p className="text-muted-foreground mb-3">Train your digital twin in Full Avatar Video first.</p>
+                <Button variant="outline" size="sm" onClick={() => navigate("/full-avatar-video")}>Go to Full Avatar Video →</Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                <span className="text-green-700 dark:text-green-400">Digital twin ready</span>
+              </div>
+            )}
+
+            {heygenVoices.length > 0 && (
+              <div>
+                <Label>Voice</Label>
+                <Select value={voiceId} onValueChange={setVoiceId}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select a voice..." /></SelectTrigger>
+                  <SelectContent>
+                    {heygenVoices.map((v) => (
+                      <SelectItem key={v.id} value={v.id}>{v.name} ({v.gender})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="p-3 rounded-lg bg-muted/50 text-sm space-y-1">
+              <div className="flex justify-between text-muted-foreground">
+                <span>Script length</span><span>{wordCount.toLocaleString()} words · ~{estimatedMinutes} min</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Format</span><span>16:9 Landscape (YouTube)</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Cost</span><span>20 credits</span>
+              </div>
+            </div>
+
+            {videoId && !videoUrl && (
+              <div className="flex flex-col items-center gap-3 py-8 text-center">
+                <Loader2 className="h-8 w-8 animate-spin text-red-500" />
+                <div>
+                  <p className="font-medium">Generating your YouTube video...</p>
+                  <p className="text-sm text-muted-foreground mt-1">This takes 5–20 minutes. You can leave this page and come back.</p>
+                </div>
+                <Badge variant="outline" className="text-xs">Status: {videoStatus?.status ?? "processing"}</Badge>
+              </div>
+            )}
+
+            {videoUrl && (
+              <div className="space-y-3">
+                <video src={videoUrl} controls className="w-full rounded-lg border border-border aspect-video" />
+                <div className="flex gap-2">
+                  <a href={videoUrl} download className="flex-1">
+                    <Button variant="outline" className="w-full gap-2"><Download className="h-4 w-4" /> Download MP4</Button>
+                  </a>
+                  <Button onClick={() => setStep(5)} className="flex-1 bg-red-600 hover:bg-red-700 text-white gap-2">
+                    <Scissors className="h-4 w-4" /> Distribute &amp; Clip
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {!videoId && (
+              <Button
+                onClick={handleGenerateVideo}
+                disabled={generateVideoMutation.isPending || !twinStatus || twinStatus.status !== "ready"}
+                className="w-full bg-red-600 hover:bg-red-700 text-white gap-2"
+              >
+                {generateVideoMutation.isPending ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Starting Generation...</>
+                ) : (
+                  <><Play className="h-4 w-4" /> Generate Video (20 credits)</>
+                )}
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Step 5: Distribute ──────────────────────────────────────────────── */}
+      {step === 5 && (
+        <div className="space-y-4">
+          {/* Publish to YouTube */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Video className="w-4 h-4" />
-                Generate Your YouTube Video
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Youtube className="h-5 w-5 text-red-500" /> Publish to YouTube
               </CardTitle>
-              <CardDescription>
-                Your avatar will deliver the full script in landscape (16:9) format, ready for YouTube upload.
-              </CardDescription>
+              <CardDescription>Upload directly to your connected YouTube channel</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Summary */}
-              <div className="bg-slate-50 rounded-lg p-4 space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Topic</span>
-                  <span className="font-medium">{topicLabel}</span>
+              {!youtubeConnection?.connected ? (
+                <div className="text-center py-4 space-y-3">
+                  <p className="text-sm text-muted-foreground">Connect your YouTube channel to publish directly from here.</p>
+                  <Button variant="outline" onClick={() => navigate("/integrations")} className="gap-2">
+                    <ExternalLink className="h-4 w-4" /> Connect YouTube in Integrations
+                  </Button>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Script length</span>
-                  <WordCountBadge script={script} />
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Format</span>
-                  <span className="font-medium">16:9 Landscape (YouTube)</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Avatar</span>
-                  <span className={cn("font-medium", twinStatus?.status === "ready" ? "text-green-700" : "text-amber-700")}>
-                    {twinStatus?.status === "ready" ? "✓ Custom avatar ready" : "⚠ Avatar not ready - train first"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-xs text-amber-800 flex items-start gap-2">
-                  <Clock className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                  Long-form videos take <strong className="mx-1">5–20 minutes</strong> to generate. You can leave this page — we'll save the video when it's ready.
-                </p>
-              </div>
-
-              {isGenerating && (
-                <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <Loader2 className="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" />
+              ) : youtubeVideoUrl ? (
+                <a href={youtubeVideoUrl} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-md bg-green-600/10 border border-green-500/30 text-green-600 dark:text-green-400 font-medium hover:bg-green-600/20 transition-colors">
+                  <ExternalLink className="h-4 w-4" /> View on YouTube
+                </a>
+              ) : (
+                <div className="space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-blue-800">Generating your video...</p>
-                    <p className="text-xs text-blue-600 mt-0.5">{generationStep}</p>
+                    <Label>Privacy</Label>
+                    <Select value={privacyStatus} onValueChange={(v) => setPrivacyStatus(v as typeof privacyStatus)}>
+                      <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="public">Public</SelectItem>
+                        <SelectItem value="unlisted">Unlisted</SelectItem>
+                        <SelectItem value="private">Private</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
+                  <Button
+                    onClick={handlePublishToYoutube}
+                    disabled={uploadToYoutubeMutation.isPending || !videoUrl}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white gap-2"
+                  >
+                    {uploadToYoutubeMutation.isPending ? (
+                      <><Loader2 className="h-4 w-4 animate-spin" /> Uploading to YouTube...</>
+                    ) : (
+                      <><Upload className="h-4 w-4" /> Publish to YouTube</>
+                    )}
+                  </Button>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={() => setStep(3)} className="gap-1.5" disabled={isGenerating}>
-              <ChevronLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <Button
-              onClick={handleGenerateVideo}
-              disabled={isGenerating || !isPremium || !twinStatus || twinStatus?.status !== "ready"}
-              className="bg-red-600 hover:bg-red-700 text-white gap-2"
-              size="lg"
-            >
-              {isGenerating ? (
-                <><Loader2 className="w-4 h-4 animate-spin" />Generating...</>
-              ) : (
-                <><Youtube className="w-4 h-4" />Generate YouTube Video</>
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Step 4 result: Video ready ──────────────────────────────────────── */}
-      {step === 4 && resultVideoUrl && (
-        <div className="space-y-6">
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3 mb-4">
-                <CheckCircle2 className="w-6 h-6 text-green-600" />
-                <div>
-                  <p className="font-semibold text-green-800">Your YouTube video is ready!</p>
-                  <p className="text-sm text-green-700">Download it and upload directly to YouTube with the SEO metadata from Step 3.</p>
-                </div>
-              </div>
-              <video
-                src={resultVideoUrl}
-                controls
-                className="w-full rounded-lg aspect-video bg-black"
-              />
-              <div className="flex gap-3 mt-4">
-                <a href={resultVideoUrl} download className="flex-1">
-                  <Button className="w-full gap-2 bg-[#0a1628] hover:bg-[#0a1628]/90 text-white">
-                    <Download className="w-4 h-4" />
-                    Download MP4
-                  </Button>
-                </a>
+          {/* Clip extraction */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Scissors className="h-5 w-5 text-red-500" /> Extract Reels &amp; Shorts
+              </CardTitle>
+              <CardDescription>AI identifies the best 30–60 second moments for social redistribution</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {clips.length === 0 ? (
                 <Button
+                  onClick={() => generateClipsMutation.mutate({ script, estimatedMinutes })}
+                  disabled={generateClipsMutation.isPending}
                   variant="outline"
-                  onClick={handleGenerateClips}
-                  disabled={isGeneratingClips}
-                  className="flex-1 gap-2"
+                  className="w-full gap-2"
                 >
-                  {isGeneratingClips ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" />Analyzing...</>
+                  {generateClipsMutation.isPending ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Identifying clips...</>
                   ) : (
-                    <><Scissors className="w-4 h-4" />Find Clip Moments</>
+                    <><Sparkles className="h-4 w-4" /> Identify Clip Moments</>
                   )}
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex justify-end">
-            <Button
-              onClick={handleGenerateClips}
-              disabled={isGeneratingClips}
-              className="bg-[#0a1628] hover:bg-[#0a1628]/90 text-white gap-2"
-              size="lg"
-            >
-              {isGeneratingClips ? (
-                <><Loader2 className="w-4 h-4 animate-spin" />Analyzing clips...</>
               ) : (
-                <><Scissors className="w-4 h-4" />Identify Reels & Shorts Moments<ChevronRight className="w-4 h-4" /></>
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Step 5: Redistribute ────────────────────────────────────────────── */}
-      {step === 5 && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Share2 className="w-5 h-5 text-[#0a1628]" />
-            <div>
-              <h2 className="text-lg font-semibold">Redistribute as Short-Form Content</h2>
-              <p className="text-sm text-muted-foreground">
-                These moments from your video work great as standalone Reels, TikToks, and YouTube Shorts.
-              </p>
-            </div>
-          </div>
-
-          {/* Video player */}
-          {resultVideoUrl && (
-            <Card>
-              <CardContent className="pt-4">
-                <video src={resultVideoUrl} controls className="w-full rounded-lg aspect-video bg-black" />
-                <div className="flex gap-3 mt-3">
-                  <a href={resultVideoUrl} download className="flex-1">
-                    <Button variant="outline" className="w-full gap-2">
-                      <Download className="w-4 h-4" />
-                      Download Full Video
-                    </Button>
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Clip suggestions */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              {clips.length} Clip Moments Identified
-            </h3>
-            {clips.map((clip, i) => (
-              <Card key={i} className="border-border hover:border-[#0a1628] transition-colors">
-                <CardContent className="pt-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <Badge variant="secondary" className="text-xs">Clip {i + 1}</Badge>
-                        <span className="text-xs text-muted-foreground">
-                          ~{Math.round(clip.positionPercent)}% into video
-                        </span>
+                <div className="space-y-3">
+                  {clips.map((clip, i) => (
+                    <div key={i} className="p-4 rounded-lg border border-border bg-card space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="font-medium text-sm">{clip.title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">~{clip.estimatedSeconds}s</p>
+                        </div>
+                        <Button size="sm" variant="outline" className="shrink-0 gap-1.5 text-xs" onClick={() => handleSendClipToReels(clip)}>
+                          <Play className="h-3 w-3" /> Make Reel
+                        </Button>
                       </div>
-                      <p className="font-medium text-sm">{clip.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1 italic">
-                        Starts: "{clip.openingSentence.slice(0, 80)}..."
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1.5">{clip.reason}</p>
+                      <p className="text-xs text-muted-foreground italic">"{clip.hook}"</p>
+                      <div className="p-2 rounded bg-muted/50 text-xs font-mono text-muted-foreground leading-relaxed">
+                        {clip.scriptExcerpt}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground truncate mr-2">{clip.suggestedCaption.substring(0, 60)}...</p>
+                        <CopyBtn text={clip.suggestedCaption} />
+                      </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => copyToClipboard(clip.title, "Clip title")}
-                      className="flex-shrink-0 gap-1"
-                    >
-                      <Copy className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <Card className="bg-slate-50 border-dashed">
-            <CardContent className="pt-4">
-              <p className="text-sm text-muted-foreground text-center">
-                <strong className="text-foreground">Pro tip:</strong> Use a tool like CapCut, Descript, or Adobe Premiere to trim these moments from your downloaded video. Then post each clip to Instagram Reels, TikTok, and YouTube Shorts with the clip title as the caption.
-              </p>
+                  ))}
+                  <Button
+                    variant="ghost" size="sm"
+                    onClick={() => generateClipsMutation.mutate({ script, estimatedMinutes })}
+                    disabled={generateClipsMutation.isPending}
+                    className="w-full gap-2 text-xs"
+                  >
+                    <RefreshCw className="h-3 w-3" /> Regenerate Clips
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
-
-          <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={() => setStep(4)} className="gap-1.5">
-              <ChevronLeft className="w-4 h-4" />
-              Back to Video
-            </Button>
-            <Button
-              onClick={() => {
-                setStep(1);
-                setScript("");
-                setSeoTitle("");
-                setSeoDescription("");
-                setSeoTags([]);
-                setChapters([]);
-                setClips([]);
-                setResultVideoUrl("");
-                setSelectedTopic("");
-              }}
-              className="bg-[#0a1628] hover:bg-[#0a1628]/90 text-white gap-2"
-            >
-              <Youtube className="w-4 h-4" />
-              Create Another Video
-            </Button>
-          </div>
         </div>
       )}
     </div>

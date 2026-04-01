@@ -50,11 +50,6 @@ export const users = mysqlTable("users", {
   // Cloned voice (ElevenLabs Instant Voice Clone from agent recording)
   clonedVoiceId: varchar("clonedVoiceId", { length: 64 }),
   clonedVoiceName: varchar("clonedVoiceName", { length: 128 }),
-  // Grace regenerations — 2 free re-generates per video type (for buggy/failed outputs)
-  graceKenBurnsRemaining: int("graceKenBurnsRemaining").default(2).notNull(),
-  graceCinematicRemaining: int("graceCinematicRemaining").default(2).notNull(),
-  graceAuthorityReelRemaining: int("graceAuthorityReelRemaining").default(2).notNull(),
-  graceLastReset: timestamp("graceLastReset").defaultNow().notNull(), // Track when grace credits were last reset (monthly)
 });
 
 export type User = typeof users.$inferSelect;

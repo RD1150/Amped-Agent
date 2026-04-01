@@ -27,6 +27,7 @@ import { musicLibraryRouter } from "./routers/musicLibrary";
 import { myVideosRouter } from "./routers/myVideos";
 import { gbpRouter } from "./routers/gbp";
 import { youtubeRouter } from "./routers/youtube";
+import { youtubeVideoBuilderRouter } from "./routers/youtubeVideoBuilder";
 import { repurposeRouter } from "./routers/repurpose";
 import { leadMagnetRouter } from "./routers/leadMagnet";
 import { cinematicWalkthroughRouter } from "./routers/cinematicWalkthrough";
@@ -35,7 +36,6 @@ import { brandStoryRouter } from "./routers/brandStory";
 import { ghlRouter } from "./routers/ghl";
 import { fullAvatarVideoRouter } from "./routers/fullAvatarVideo";
 import { liveTourRouter } from "./routers/liveTour";
-import { youtubeVideoBuilderRouter } from "./routers/youtubeVideoBuilder";
 
 export const appRouter = router({
   system: systemRouter,
@@ -49,6 +49,7 @@ export const appRouter = router({
   myVideos: myVideosRouter,
   gbp: gbpRouter,
   youtube: youtubeRouter,
+  youtubeVideoBuilder: youtubeVideoBuilderRouter,
   repurpose: repurposeRouter,
   leadMagnet: leadMagnetRouter,
   cinematicWalkthrough: cinematicWalkthroughRouter,
@@ -57,7 +58,6 @@ export const appRouter = router({
   ghl: ghlRouter,
   fullAvatarVideo: fullAvatarVideoRouter,
   liveTour: liveTourRouter,
-  youtubeVideoBuilder: youtubeVideoBuilderRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

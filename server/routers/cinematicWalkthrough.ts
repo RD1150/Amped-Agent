@@ -878,17 +878,10 @@ Requirements:
       if (nextRetryCount > MAX_RETRIES) {
         throw new Error(`RETRY_LIMIT_REACHED:${MAX_RETRIES}`);
       }
-      // Check grace regenerations — if available, skip daily quota check
-      const graceStatus = await rateLimit.checkGraceRegen(ctx.user.id, "cinematic");
-      if (graceStatus.hasGrace) {
-        await rateLimit.consumeGraceRegen(ctx.user.id, "cinematic");
-        log(`Grace regen used for user ${ctx.user.id} (cinematic). Remaining: ${graceStatus.remaining - 1}`);
-      } else {
-        // No grace — apply normal daily rate limit
-        const rateLimitStatus = await rateLimit.checkDailyVideoLimit(ctx.user.id);
-        if (!rateLimitStatus.allowed) {
-          throw new Error(`Daily video limit reached. Try again after ${rateLimitStatus.resetTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC.`);
-        }
+      // Apply normal daily rate limit
+      const rateLimitStatus = await rateLimit.checkDailyVideoLimit(ctx.user.id);
+      if (!rateLimitStatus.allowed) {
+        throw new Error(`Daily video limit reached. Try again after ${rateLimitStatus.resetTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC.`);
       }
       const originalInput = JSON.parse(failedJob.inputSnapshot);
       const newJobId = generateJobId();

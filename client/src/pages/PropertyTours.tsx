@@ -656,20 +656,7 @@ export default function PropertyTours() {
                   )}
                 </div>
               </Card>
-              {(dailyUsage as any).graceCredits && (
-                <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900 border-amber-200 dark:border-amber-800">
-                  <div className="p-3 text-center">
-                    <p className="text-xs text-muted-foreground mb-1">Free Retries</p>
-                    <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
-                      {(dailyUsage as any).graceCredits.kenBurns}/2
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">remaining</p>
-                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-1 leading-tight">
-                      Re-generate buggy videos free
-                    </p>
-                  </div>
-                </Card>
-              )}
+
             </div>
           )}
         </div>
@@ -1739,10 +1726,6 @@ export default function PropertyTours() {
                                 variant="outline"
                                 className="h-7 px-2 text-xs"
                                 onClick={async () => {
-                                  const graceLeft = (dailyUsage as any)?.graceCredits?.kenBurns ?? 0;
-                                  if (graceLeft > 0) {
-                                    toast.info(`Using 1 of ${graceLeft} free ${graceLeft === 1 ? 'retry' : 'retries'} — no quota deducted`);
-                                  }
                                   try {
                                     await retryVideo.mutateAsync({ tourId: tour.id });
                                     toast.success("Retrying video generation...");
@@ -1758,7 +1741,7 @@ export default function PropertyTours() {
                                 disabled={retryVideo.isPending}
                               >
                                 {retryVideo.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3 mr-1" />}
-                                Retry {(dailyUsage as any)?.graceCredits?.kenBurns > 0 ? `(✨ ${(dailyUsage as any).graceCredits.kenBurns} free)` : ''}
+                                Retry
                               </Button>
                             </div>
                             {expandedErrorTourId === tour.id && tour.errorMessage && (

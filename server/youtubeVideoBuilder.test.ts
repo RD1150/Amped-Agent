@@ -1,167 +1,152 @@
-/**
- * YouTube Video Builder router tests
- * Tests script generation, SEO generation, and clip timestamp generation
- */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 
-// Mock the LLM helper
-vi.mock("./_core/llm", () => ({
-  invokeLLM: vi.fn(),
-}));
+// ─── Topic template structure ─────────────────────────────────────────────────
+describe("YouTube Video Builder – topic templates", () => {
+  const templates = [
+    { key: "market-update", title: "Monthly Market Update", duration: "~8 min", outline: "1. Hook\n2. Stats\n3. CTA" },
+    { key: "buyer-guide", title: "First-Time Buyer Guide", duration: "~12 min", outline: "1. Hook\n2. Steps\n3. CTA" },
+    { key: "seller-tips", title: "How to Sell for Top Dollar", duration: "~10 min", outline: "1. Hook\n2. Tips\n3. CTA" },
+    { key: "neighborhood", title: "Neighborhood Spotlight", duration: "~8 min", outline: "1. Hook\n2. Features\n3. CTA" },
+    { key: "investment", title: "Real Estate Investment 101", duration: "~12 min", outline: "1. Hook\n2. Basics\n3. CTA" },
+    { key: "mortgage", title: "Understanding Mortgage Rates", duration: "~8 min", outline: "1. Hook\n2. Rates\n3. CTA" },
+  ];
 
-// Mock DB
-vi.mock("../drizzle/schema", () => ({
-  users: {},
-  fullAvatarVideos: {},
-  customAvatarTwins: {},
-}));
-
-vi.mock("./db", () => ({
-  getDb: vi.fn().mockResolvedValue(null),
-}));
-
-vi.mock("./lib/heygen-service", () => ({
-  generateCustomAvatarVideo: vi.fn(),
-  waitForHeyGenVideo: vi.fn(),
-}));
-
-vi.mock("./storage", () => ({
-  storagePut: vi.fn(),
-}));
-
-import { invokeLLM } from "./_core/llm";
-
-describe("YouTube Video Builder – script generation", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+  it("should have at least 6 topic templates", () => {
+    expect(templates.length).toBeGreaterThanOrEqual(6);
   });
 
-  it("should generate a script with correct word count estimation", () => {
-    const script = "Hello world. ".repeat(100); // 200 words
-    const words = script.trim().split(/\s+/).length;
-    const estimatedSeconds = Math.round((words / 140) * 60);
-    expect(words).toBeGreaterThan(100);
-    expect(estimatedSeconds).toBeGreaterThan(0);
+  it("each template should have key, title, duration, and outline", () => {
+    for (const t of templates) {
+      expect(t.key.length).toBeGreaterThan(0);
+      expect(t.title.length).toBeGreaterThan(0);
+      expect(t.duration.length).toBeGreaterThan(0);
+      expect(t.outline.length).toBeGreaterThan(0);
+    }
   });
 
-  it("should map duration targets to correct word counts", () => {
-    const DURATION_TARGETS = {
-      "5min": { words: 700, seconds: 300 },
-      "8min": { words: 1100, seconds: 480 },
-      "10min": { words: 1400, seconds: 600 },
-      "15min": { words: 2100, seconds: 900 },
-    };
-    expect(DURATION_TARGETS["5min"].words).toBe(700);
-    expect(DURATION_TARGETS["15min"].words).toBe(2100);
-    expect(DURATION_TARGETS["8min"].seconds).toBe(480);
-  });
-
-  it("should handle LLM response for script generation", async () => {
-    const mockScript = "Welcome to this month's market update for Austin, Texas. " +
-      "I'm Sarah Johnson, your local real estate expert. ".repeat(50);
-
-    (invokeLLM as any).mockResolvedValueOnce({
-      choices: [{ message: { content: mockScript } }],
-    });
-
-    const result = await (invokeLLM as any)({
-      messages: [
-        { role: "system", content: "You are a scriptwriter." },
-        { role: "user", content: "Write a market update script." },
-      ],
-    });
-
-    expect(result.choices[0].message.content).toBe(mockScript);
-    expect(invokeLLM).toHaveBeenCalledOnce();
-  });
-
-  it("should handle LLM response for SEO generation", async () => {
-    const mockSEO = JSON.stringify({
-      title: "Austin Real Estate Market Update April 2026",
-      description: "In this video, we cover the latest Austin market trends...",
-      tags: ["austin real estate", "market update", "home buying"],
-      chapters: [
-        { time: "0:00", title: "Introduction" },
-        { time: "1:30", title: "Market Overview" },
-      ],
-    });
-
-    (invokeLLM as any).mockResolvedValueOnce({
-      choices: [{ message: { content: mockSEO } }],
-    });
-
-    const result = await (invokeLLM as any)({
-      messages: [{ role: "user", content: "Generate SEO metadata." }],
-    });
-
-    const parsed = JSON.parse(result.choices[0].message.content);
-    expect(parsed.title).toContain("Austin");
-    expect(parsed.tags).toHaveLength(3);
-    expect(parsed.chapters).toHaveLength(2);
-  });
-
-  it("should handle LLM response for clip timestamp generation", async () => {
-    const mockClips = JSON.stringify({
-      clips: [
-        {
-          openingSentence: "Here's the one thing most buyers get wrong...",
-          title: "The #1 Buyer Mistake in Austin",
-          reason: "High engagement hook with specific value",
-          positionPercent: 25,
-        },
-        {
-          openingSentence: "Interest rates are actually working in your favor right now...",
-          title: "Why High Rates Are Actually Good for Buyers",
-          reason: "Counterintuitive take that drives shares",
-          positionPercent: 55,
-        },
-      ],
-    });
-
-    (invokeLLM as any).mockResolvedValueOnce({
-      choices: [{ message: { content: mockClips } }],
-    });
-
-    const result = await (invokeLLM as any)({
-      messages: [{ role: "user", content: "Identify clip moments." }],
-    });
-
-    const parsed = JSON.parse(result.choices[0].message.content);
-    expect(parsed.clips).toHaveLength(2);
-    expect(parsed.clips[0].positionPercent).toBe(25);
-    expect(parsed.clips[1].title).toContain("Rates");
-  });
-
-  it("should throw when LLM returns empty content", async () => {
-    (invokeLLM as any).mockResolvedValueOnce({
-      choices: [{ message: { content: null } }],
-    });
-
-    const result = await (invokeLLM as any)({ messages: [] });
-    const content = result.choices?.[0]?.message?.content as string;
-    expect(content).toBeNull();
-    // In the router, this would throw: "Script generation failed"
+  it("template keys should be unique", () => {
+    const keys = templates.map((t) => t.key);
+    const unique = new Set(keys);
+    expect(unique.size).toBe(keys.length);
   });
 });
 
-describe("YouTube Video Builder – topic validation", () => {
-  const VALID_TOPICS = [
-    "market_update", "buyer_guide", "seller_guide", "neighborhood_spotlight",
-    "investment_tips", "mortgage_explainer", "faq", "year_in_review", "custom",
-  ];
-
-  it("should have all expected topic IDs", () => {
-    expect(VALID_TOPICS).toContain("market_update");
-    expect(VALID_TOPICS).toContain("buyer_guide");
-    expect(VALID_TOPICS).toContain("custom");
-    expect(VALID_TOPICS).toHaveLength(9);
+// ─── Script generation helpers ────────────────────────────────────────────────
+describe("YouTube Video Builder – script generation helpers", () => {
+  it("should calculate word count correctly", () => {
+    const script = "Hello world this is a test script with eleven words here.";
+    const wordCount = script.split(/\s+/).filter(Boolean).length;
+    expect(wordCount).toBe(11);
   });
 
-  it("should require non-empty topic for custom", () => {
-    const selectedTopic = "custom";
-    const customTopic = "";
-    const topic = selectedTopic === "custom" ? customTopic : selectedTopic;
-    expect(topic).toBe("");
-    // Frontend would show error: "Enter your custom topic"
+  it("should estimate minutes from word count at 150 wpm", () => {
+    const wordCount = 1200;
+    const estimatedMinutes = Math.round(wordCount / 150);
+    expect(estimatedMinutes).toBe(8);
+  });
+
+  it("should estimate 15 minutes for 2250 words", () => {
+    const wordCount = 2250;
+    const estimatedMinutes = Math.round(wordCount / 150);
+    expect(estimatedMinutes).toBe(15);
+  });
+
+  it("should map targetDuration to correct word count targets", () => {
+    const durationMap: Record<string, number> = {
+      "5min": 750,
+      "8min": 1200,
+      "12min": 1800,
+      "15min": 2250,
+    };
+    expect(durationMap["5min"]).toBe(750);
+    expect(durationMap["8min"]).toBe(1200);
+    expect(durationMap["12min"]).toBe(1800);
+    expect(durationMap["15min"]).toBe(2250);
+  });
+});
+
+// ─── SEO metadata validation ──────────────────────────────────────────────────
+describe("YouTube Video Builder – SEO metadata", () => {
+  it("should validate YouTube title max length (100 chars)", () => {
+    const validTitle = "5 Reasons Now is the Best Time to Buy a Home in Austin TX";
+    const tooLongTitle = "A".repeat(101);
+    expect(validTitle.length).toBeLessThanOrEqual(100);
+    expect(tooLongTitle.length).toBeGreaterThan(100);
+  });
+
+  it("should validate chapter timestamp format mm:ss", () => {
+    const chapters = [
+      { time: "0:00", title: "Introduction" },
+      { time: "1:30", title: "Main Point" },
+      { time: "5:45", title: "Conclusion" },
+    ];
+    const timeRegex = /^\d+:\d{2}$/;
+    for (const ch of chapters) {
+      expect(timeRegex.test(ch.time)).toBe(true);
+    }
+  });
+
+  it("should keep tags array non-empty", () => {
+    const tags = ["real estate", "austin homes", "buyer tips", "market update", "realtor"];
+    expect(tags.length).toBeGreaterThan(0);
+    expect(tags.join(",").length).toBeLessThan(500);
+  });
+});
+
+// ─── Clip extraction ──────────────────────────────────────────────────────────
+describe("YouTube Video Builder – clip extraction", () => {
+  it("should validate clip duration range (15–90 seconds)", () => {
+    const clips = [
+      { estimatedSeconds: 30 },
+      { estimatedSeconds: 45 },
+      { estimatedSeconds: 60 },
+    ];
+    for (const clip of clips) {
+      expect(clip.estimatedSeconds).toBeGreaterThanOrEqual(15);
+      expect(clip.estimatedSeconds).toBeLessThanOrEqual(90);
+    }
+  });
+
+  it("should require all clip fields", () => {
+    const clip = {
+      title: "Why buyers are rushing to Austin",
+      hook: "Here's what most agents won't tell you...",
+      scriptExcerpt: "The truth is, inventory has dropped 23% year over year...",
+      estimatedSeconds: 45,
+      suggestedCaption: "Austin real estate secret! #realestate",
+    };
+    expect(clip.title).toBeTruthy();
+    expect(clip.hook).toBeTruthy();
+    expect(clip.scriptExcerpt).toBeTruthy();
+    expect(clip.estimatedSeconds).toBeGreaterThan(0);
+    expect(clip.suggestedCaption).toBeTruthy();
+  });
+
+  it("should identify 3–6 clips from a 10-minute script", () => {
+    const estimatedMinutes = 10;
+    const clipCount = Math.min(6, Math.max(3, Math.floor(estimatedMinutes / 2)));
+    expect(clipCount).toBeGreaterThanOrEqual(3);
+    expect(clipCount).toBeLessThanOrEqual(6);
+  });
+});
+
+// ─── YouTube upload ───────────────────────────────────────────────────────────
+describe("YouTube Video Builder – YouTube upload", () => {
+  it("should build correct YouTube watch URL from video ID", () => {
+    const videoId = "dQw4w9WgXcQ";
+    const url = `https://www.youtube.com/watch?v=${videoId}`;
+    expect(url).toBe("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+  });
+
+  it("should accept valid privacy status values", () => {
+    const validStatuses = ["public", "private", "unlisted"];
+    for (const status of validStatuses) {
+      expect(["public", "private", "unlisted"]).toContain(status);
+    }
+  });
+
+  it("should reject invalid privacy status", () => {
+    const invalidStatus = "draft";
+    expect(["public", "private", "unlisted"]).not.toContain(invalidStatus);
   });
 });

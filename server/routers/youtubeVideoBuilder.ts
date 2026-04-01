@@ -1,151 +1,190 @@
-/**
- * YouTube Video Builder Router
- * Generates long-form (5–15 min) avatar videos for YouTube distribution,
- * then auto-clips them into short-form Reels/Shorts segments.
- */
 import { z } from "zod";
-import { protectedProcedure, router } from "../_core/trpc";
-import { TRPCError } from "@trpc/server";
-import { getDb } from "../db";
-import { users, fullAvatarVideos, customAvatarTwins } from "../../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { router, protectedProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
-import {
-  generateCustomAvatarVideo,
-  waitForHeyGenVideo,
-} from "../lib/heygen-service";
+import * as credits from "../credits";
+import * as rateLimit from "../rateLimit";
+import { getDb } from "../db";
+import { fullAvatarVideos, customAvatarTwins } from "../../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
+import { generateCustomAvatarVideo, waitForHeyGenVideo } from "../lib/heygen-service";
 import { storagePut } from "../storage";
 
-// ─── Topic categories for YouTube content ────────────────────────────────────
-export const YOUTUBE_TOPICS = [
-  { id: "market_update", label: "Monthly Market Update", emoji: "📊", description: "Local market stats, trends, and what it means for buyers/sellers" },
-  { id: "buyer_guide", label: "Buyer's Guide", emoji: "🏠", description: "Step-by-step guide for first-time or repeat buyers" },
-  { id: "seller_guide", label: "Seller's Guide", emoji: "💰", description: "How to prep, price, and sell your home for top dollar" },
-  { id: "neighborhood_spotlight", label: "Neighborhood Spotlight", emoji: "📍", description: "Deep dive into a specific city or neighborhood" },
-  { id: "investment_tips", label: "Investment Tips", emoji: "📈", description: "Real estate investing strategies for your local market" },
-  { id: "mortgage_explainer", label: "Mortgage Explainer", emoji: "🏦", description: "Rates, types, and how to qualify — explained simply" },
-  { id: "faq", label: "Real Estate FAQ", emoji: "❓", description: "Answer the top 10 questions clients always ask you" },
-  { id: "year_in_review", label: "Year in Review", emoji: "🗓️", description: "Annual market recap and what to expect next year" },
-  { id: "custom", label: "Custom Topic", emoji: "✏️", description: "Write your own topic and key points" },
-] as const;
+// ─── Topic templates ──────────────────────────────────────────────────────────
+export const TOPIC_TEMPLATES: Record<
+  string,
+  { title: string; outline: string; duration: string }
+> = {
+  market_update: {
+    title: "Monthly Market Update",
+    outline:
+      "1. Hook: surprising stat about your local market\n2. Current inventory levels & what it means for buyers/sellers\n3. Average days on market trend\n4. Median price movement (3-month comparison)\n5. Interest rate impact on affordability\n6. My prediction for next 30-60 days\n7. CTA: free home valuation or buyer consultation",
+    duration: "8-10 min",
+  },
+  buyer_tips: {
+    title: "First-Time Buyer's Complete Guide",
+    outline:
+      "1. Hook: biggest mistake first-time buyers make\n2. Step 1: Get pre-approved (what docs you need)\n3. Step 2: Define your must-haves vs nice-to-haves\n4. Step 3: Understanding the offer process\n5. Step 4: Inspection — what to look for\n6. Step 5: Closing costs breakdown\n7. Q&A: top 5 questions I get from buyers\n8. CTA: free buyer consultation",
+    duration: "12-15 min",
+  },
+  seller_tips: {
+    title: "How to Sell Your Home for Top Dollar",
+    outline:
+      "1. Hook: how much money sellers leave on the table\n2. Pricing strategy: the danger of overpricing\n3. Staging tips that actually move the needle\n4. Photography & video — why it matters\n5. Marketing your home beyond the MLS\n6. Negotiation: how to evaluate offers\n7. Timeline: what to expect from list to close\n8. CTA: free home valuation",
+    duration: "12-15 min",
+  },
+  neighborhood_spotlight: {
+    title: "Neighborhood Spotlight",
+    outline:
+      "1. Hook: why this neighborhood is underrated/trending\n2. Location & commute overview\n3. Schools & ratings\n4. Restaurants, coffee shops & lifestyle\n5. Parks, trails & outdoor amenities\n6. Current home prices & what you get for your money\n7. My honest take: who this neighborhood is perfect for\n8. CTA: schedule a tour",
+    duration: "8-10 min",
+  },
+  investment_tips: {
+    title: "Real Estate Investing 101",
+    outline:
+      "1. Hook: why real estate beats the stock market long-term\n2. Types of investment properties (SFR, multi-family, short-term)\n3. The BRRRR strategy explained simply\n4. How to calculate cash flow & cap rate\n5. Financing options for investors\n6. Common mistakes new investors make\n7. My top 3 markets to watch right now\n8. CTA: free investor consultation",
+    duration: "12-15 min",
+  },
+  agent_story: {
+    title: "My Story: Why I Became a Real Estate Agent",
+    outline:
+      "1. Hook: the moment that changed everything\n2. My background before real estate\n3. Why I chose this market/city\n4. My philosophy: what I believe about buying/selling\n5. A client story that meant the most to me\n6. What I do differently than other agents\n7. My commitment to you\n8. CTA: let's connect",
+    duration: "8-10 min",
+  },
+  faq: {
+    title: "Top 10 Real Estate Questions Answered",
+    outline:
+      "1. Hook: the question I get asked every single week\n2. Q: How long does it take to buy a home?\n3. Q: How much do I need for a down payment?\n4. Q: Should I buy or rent right now?\n5. Q: What's the best time of year to sell?\n6. Q: Do I need a real estate agent?\n7. Q: What is earnest money?\n8. Q: How do I know if a home is priced right?\n9. Q: What happens if the inspection finds problems?\n10. Q: How do you get paid?\n11. CTA: submit your question",
+    duration: "12-15 min",
+  },
+  luxury_market: {
+    title: "Luxury Real Estate: What You Need to Know",
+    outline:
+      "1. Hook: what separates luxury from premium\n2. How the luxury market behaves differently\n3. What luxury buyers are looking for in [city]\n4. The importance of off-market listings\n5. Luxury staging & presentation standards\n6. Negotiation dynamics at the high end\n7. My luxury portfolio & track record\n8. CTA: private consultation for luxury buyers/sellers",
+    duration: "10-12 min",
+  },
+  downsizing: {
+    title: "The Smart Downsizer's Guide",
+    outline:
+      "1. Hook: the emotional side of downsizing nobody talks about\n2. When is the right time to downsize?\n3. What to do with the stuff (practical tips)\n4. Financial benefits of downsizing in today's market\n5. What to look for in a smaller home\n6. 55+ communities vs. traditional neighborhoods\n7. How to time the sale of your current home\n8. CTA: free downsizing consultation",
+    duration: "10-12 min",
+  },
+};
 
-export type YouTubeTopic = typeof YOUTUBE_TOPICS[number]["id"];
+const YOUTUBE_VIDEO_CREDITS = 20;
 
-// ─── Duration targets ─────────────────────────────────────────────────────────
-const DURATION_TARGETS = {
-  "5min": { label: "5 min", words: 700, seconds: 300 },
-  "8min": { label: "8 min", words: 1100, seconds: 480 },
-  "10min": { label: "10 min", words: 1400, seconds: 600 },
-  "15min": { label: "15 min", words: 2100, seconds: 900 },
-} as const;
-
-type DurationTarget = keyof typeof DURATION_TARGETS;
-
-function estimateDuration(script: string): number {
-  const words = script.trim().split(/\s+/).length;
-  return Math.round((words / 140) * 60); // ~140 wpm for on-camera delivery
-}
-
+// ─── Router ───────────────────────────────────────────────────────────────────
 export const youtubeVideoBuilderRouter = router({
   /**
-   * Generate a long-form YouTube script using AI
+   * Get all available topic templates
+   */
+  getTopicTemplates: protectedProcedure.query(() => {
+    return Object.entries(TOPIC_TEMPLATES).map(([key, val]) => ({
+      key,
+      title: val.title,
+      outline: val.outline,
+      duration: val.duration,
+    }));
+  }),
+
+  /**
+   * Generate a full long-form YouTube script from a topic + outline
    */
   generateScript: protectedProcedure
     .input(
       z.object({
-        topic: z.string(),
-        city: z.string().max(100).optional(),
-        keyPoints: z.string().max(2000).optional(),
-        agentName: z.string().max(100).optional(),
-        targetDuration: z.enum(["5min", "8min", "10min", "15min"]).default("8min"),
-        tone: z.enum(["professional", "conversational", "educational", "energetic"]).default("conversational"),
+        topic: z.string().min(1),
+        outline: z.string().min(1),
+        agentName: z.string().optional(),
+        city: z.string().optional(),
+        targetDuration: z.enum(["5min", "8min", "12min", "15min"]).default("8min"),
+        tone: z.enum(["professional", "conversational", "authoritative", "warm"]).default("professional"),
       })
     )
     .mutation(async ({ input }) => {
-      const target = DURATION_TARGETS[input.targetDuration as DurationTarget];
-      const cityContext = input.city ? ` in ${input.city}` : "";
-      const agentName = input.agentName || "your local real estate expert";
-
-      const systemPrompt = `You are a professional real estate YouTube scriptwriter specializing in long-form educational content.
-Write scripts that are engaging, informative, and optimized for YouTube watch time.
-The script should be delivered directly to camera by a real estate agent — conversational, warm, authoritative, and hyperlocal.
-Structure the content with a strong hook (first 30 seconds), clear sections, and a compelling CTA at the end.
-Do NOT include stage directions, scene descriptions, [PAUSE] markers, or section headers in the script.
-Write ONLY the spoken words. Keep sentences short and natural for on-camera delivery.
-The agent will be speaking directly to their audience — write in first person as the agent.`;
-
-      const userPrompt = `Write a YouTube video script for a real estate agent named ${agentName}${cityContext}.
-
-Topic: ${input.topic}
-Target length: approximately ${target.words} words (${target.label} at on-camera delivery pace)
-Tone: ${input.tone}
-${input.keyPoints ? `Key points to cover:\n${input.keyPoints}` : ""}
-
-Requirements:
-- Open with a strong hook that grabs attention in the first 15 seconds (tease the value, not a generic greeting)
-- Cover the topic thoroughly with specific, actionable insights${input.city ? ` for the ${input.city} market` : ""}
-- Use natural transitions between points — no numbered lists, just flowing speech
-- Include 2–3 moments where you directly address viewer pain points or questions
-- End with a clear call to action (subscribe, comment, book a call, etc.)
-- No hashtags, emojis, or stage directions — just the spoken words
-- Write approximately ${target.words} words`;
-
-      const response = await invokeLLM({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      });
-
-      const script = response.choices?.[0]?.message?.content as string;
-      if (!script) throw new Error("Script generation failed");
-
-      const trimmed = script.trim();
-      const wordCount = trimmed.split(/\s+/).length;
-      const estimatedSeconds = estimateDuration(trimmed);
-
-      return {
-        script: trimmed,
-        wordCount,
-        estimatedSeconds,
-        estimatedLabel: `~${Math.round(estimatedSeconds / 60)} min`,
+      const wordTargets: Record<string, number> = {
+        "5min": 750,
+        "8min": 1200,
+        "12min": 1800,
+        "15min": 2250,
       };
-    }),
-
-  /**
-   * Generate SEO metadata (title, description, tags) for the YouTube video
-   */
-  generateSEO: protectedProcedure
-    .input(
-      z.object({
-        script: z.string().min(100),
-        city: z.string().max(100).optional(),
-        topic: z.string(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const cityContext = input.city ? ` in ${input.city}` : "";
+      const wordTarget = wordTargets[input.targetDuration] ?? 1200;
 
       const response = await invokeLLM({
         messages: [
           {
             role: "system",
-            content: "You are a YouTube SEO expert specializing in real estate content. Generate optimized metadata that maximizes discoverability.",
+            content: `You are a professional real estate content creator specializing in long-form YouTube scripts for real estate agents. 
+Write scripts that feel natural when spoken aloud — conversational but authoritative. 
+Use short sentences. Vary sentence length. Include natural pauses marked with [PAUSE].
+Add [B-ROLL: description] cues where relevant visuals would help.
+Format: plain paragraphs with section headers in ALL CAPS. No bullet points in the script itself.
+Target approximately ${wordTarget} words (spoken at ~150 wpm = ${Math.round(wordTarget / 150)} minutes).`,
           },
           {
             role: "user",
-            content: `Generate YouTube SEO metadata for this real estate video${cityContext} about: ${input.topic}
+            content: `Write a complete YouTube script for a real estate agent.
+
+Agent name: ${input.agentName || "your agent"}
+City/market: ${input.city || "your local market"}
+Topic: ${input.topic}
+Tone: ${input.tone}
+Target length: ~${wordTarget} words
+
+Follow this outline:
+${input.outline}
+
+Write the full script now. Start with a strong hook. End with a clear CTA. Include [B-ROLL] cues and [PAUSE] markers throughout.`,
+          },
+        ],
+      });
+
+      const script = (response.choices[0]?.message?.content as string) ?? "";
+      const wordCount = script.split(/\s+/).length;
+      const estimatedMinutes = Math.round(wordCount / 150);
+
+      return { script, wordCount, estimatedMinutes };
+    }),
+
+  /**
+   * Generate SEO metadata for the YouTube video
+   */
+  generateSEO: protectedProcedure
+    .input(
+      z.object({
+        topic: z.string(),
+        script: z.string(),
+        city: z.string().optional(),
+        agentName: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const response = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: "You are a YouTube SEO expert for real estate content. Return JSON only.",
+          },
+          {
+            role: "user",
+            content: `Generate YouTube SEO metadata for this real estate video.
+
+Topic: ${input.topic}
+Agent: ${input.agentName || "real estate agent"}
+City: ${input.city || "local market"}
 
 Script excerpt (first 500 chars):
-${input.script.slice(0, 500)}
+${input.script.substring(0, 500)}
 
 Return JSON with:
-- title: compelling YouTube title (max 70 chars, include city if provided)
-- description: full YouTube description (300-500 words, include timestamps placeholder, links section, and hashtags at end)
-- tags: array of 15 relevant tags (mix of broad and specific)
-- chapters: array of {time: "0:00", title: "..."} for 4-6 chapter markers
-
-Return ONLY valid JSON, no markdown.`,
+{
+  "title": "compelling YouTube title under 60 chars",
+  "description": "full YouTube description 200-300 words with keywords, timestamps placeholder, and CTA",
+  "tags": ["array", "of", "15-20", "relevant", "tags"],
+  "chapters": [
+    {"time": "0:00", "title": "Introduction"},
+    {"time": "1:30", "title": "Section title"}
+  ]
+}`,
           },
         ],
         response_format: {
@@ -179,24 +218,170 @@ Return ONLY valid JSON, no markdown.`,
         },
       });
 
-      const content = response.choices?.[0]?.message?.content as string;
-      if (!content) throw new Error("SEO generation failed");
-
-      try {
-        return JSON.parse(content);
-      } catch {
-        throw new Error("Failed to parse SEO metadata");
-      }
+      const raw = (response.choices[0]?.message?.content as string) ?? "{}";
+      return JSON.parse(raw) as {
+        title: string;
+        description: string;
+        tags: string[];
+        chapters: { time: string; title: string }[];
+      };
     }),
 
   /**
-   * Generate auto-clip timestamps for short-form redistribution
+   * Generate a HeyGen avatar video from the script (long-form, landscape 16:9)
+   */
+  generateVideo: protectedProcedure
+    .input(
+      z.object({
+        script: z.string().min(50),
+        voiceId: z.string().optional(),
+        title: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Rate limit check
+      const rateLimitStatus = await rateLimit.checkDailyVideoLimit(ctx.user.id);
+      if (!rateLimitStatus.allowed) {
+        throw new Error(
+          `Daily video limit reached. Resets at ${rateLimitStatus.resetTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} UTC.`
+        );
+      }
+
+      // Credit check
+      const hasEnough = await credits.hasCredits(ctx.user.id, YOUTUBE_VIDEO_CREDITS);
+      if (!hasEnough) {
+        const balance = await credits.getCreditBalance(ctx.user.id);
+        throw new Error(
+          `Insufficient credits. YouTube videos cost ${YOUTUBE_VIDEO_CREDITS} credits. You have ${balance}.`
+        );
+      }
+
+      // Get user's custom avatar twin
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const twins = await db
+        .select()
+        .from(customAvatarTwins)
+        .where(eq(customAvatarTwins.userId, ctx.user.id))
+        .orderBy(desc(customAvatarTwins.createdAt))
+        .limit(1);
+
+      if (!twins.length || twins[0].status !== "ready") {
+        throw new Error(
+          "No trained digital twin found. Please train your avatar in Full Avatar Video first."
+        );
+      }
+
+      const twin = twins[0];
+
+      // Deduct credits
+      await credits.deductCredits({
+        userId: ctx.user.id,
+        amount: YOUTUBE_VIDEO_CREDITS,
+        usageType: "youtube_video",
+        description: "YouTube Video Builder — long-form avatar video",
+      });
+
+      // Save record
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 90);
+
+      const wordCount = input.script.split(/\s+/).length;
+      const duration = Math.ceil((wordCount / 130) * 60);
+
+      const [record] = await db
+        .insert(fullAvatarVideos)
+        .values({
+          userId: ctx.user.id,
+          title: input.title || "YouTube Video",
+          script: input.script,
+          avatarType: "v3_custom",
+          customAvatarId: twin.didAvatarId,
+          voiceId: input.voiceId ?? "en-US-JennyNeural",
+          duration,
+          status: "processing",
+          expiresAt,
+        })
+        .$returningId();
+
+      const videoId = record.id;
+
+      // Fire and forget — HeyGen generation
+      setImmediate(async () => {
+        try {
+          const heygenVideoId = await generateCustomAvatarVideo({
+            avatarId: twin.didAvatarId,
+            script: input.script,
+            voiceId: input.voiceId,
+            title: input.title,
+            landscape: true, // 16:9 for YouTube
+          });
+
+          await db
+            .update(fullAvatarVideos)
+            .set({ didTalkId: heygenVideoId })
+            .where(eq(fullAvatarVideos.id, videoId));
+
+          const heygenVideoUrl = await waitForHeyGenVideo(heygenVideoId, 30 * 60 * 1000, 10_000);
+
+          // Download and re-host on S3
+          const videoRes = await fetch(heygenVideoUrl);
+          if (!videoRes.ok) throw new Error("Failed to download HeyGen video");
+          const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
+          const s3Key = `youtube-videos/${ctx.user.id}/${videoId}-${Date.now()}.mp4`;
+          const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
+
+          await db
+            .update(fullAvatarVideos)
+            .set({ videoUrl: s3Url, s3Key, status: "completed" })
+            .where(eq(fullAvatarVideos.id, videoId));
+        } catch (err: any) {
+          await db
+            .update(fullAvatarVideos)
+            .set({ status: "failed" })
+            .where(eq(fullAvatarVideos.id, videoId));
+        }
+      });
+
+      return { videoId };
+    }),
+
+  /**
+   * Poll video generation status
+   */
+  getVideoStatus: protectedProcedure
+    .input(z.object({ videoId: z.number().int().positive() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const rows = await db
+        .select()
+        .from(fullAvatarVideos)
+        .where(eq(fullAvatarVideos.id, input.videoId))
+        .limit(1);
+
+      if (!rows.length || rows[0].userId !== ctx.user.id) {
+        throw new Error("Video not found");
+      }
+
+      const v = rows[0];
+      return {
+        status: v.status,
+        videoUrl: v.videoUrl ?? null,
+        errorMessage: null as string | null,
+      };
+    }),
+
+  /**
+   * Identify clip moments for Reels/Shorts redistribution
    */
   generateClipTimestamps: protectedProcedure
     .input(
       z.object({
-        script: z.string().min(200),
-        estimatedSeconds: z.number(),
+        script: z.string().min(50),
+        estimatedMinutes: z.number().int().min(1).max(30),
       })
     )
     .mutation(async ({ input }) => {
@@ -204,22 +389,30 @@ Return ONLY valid JSON, no markdown.`,
         messages: [
           {
             role: "system",
-            content: "You are a video editor specializing in repurposing long-form content into short viral clips for social media.",
+            content:
+              "You are a social media content strategist specializing in repurposing long-form video into short clips. Return JSON only.",
           },
           {
             role: "user",
-            content: `Analyze this ${Math.round(input.estimatedSeconds / 60)}-minute real estate YouTube script and identify 4-5 segments that would make great standalone short-form clips (30–60 seconds each) for Instagram Reels, TikTok, and YouTube Shorts.
+            content: `Analyze this YouTube script and identify the 4-5 best moments to extract as 30-60 second Reels/Shorts clips.
 
-Script:
-${input.script}
+Script (${input.estimatedMinutes} min total):
+${input.script.substring(0, 3000)}
 
-For each clip, identify:
-- The exact opening sentence (so we can find it in the script)
-- A compelling short-form title/hook
-- Why it works as a standalone clip
-- Estimated position in the video (as a percentage 0-100)
+For each clip, identify the most shareable, standalone moments with a strong hook or surprising fact.
 
-Return JSON array of clips. Return ONLY valid JSON.`,
+Return JSON:
+{
+  "clips": [
+    {
+      "title": "Short clip title for Reels",
+      "hook": "First sentence / hook for the clip",
+      "scriptExcerpt": "The exact 3-5 sentences from the script to use",
+      "estimatedSeconds": 45,
+      "suggestedCaption": "Instagram/TikTok caption with hashtags"
+    }
+  ]
+}`,
           },
         ],
         response_format: {
@@ -235,12 +428,19 @@ Return JSON array of clips. Return ONLY valid JSON.`,
                   items: {
                     type: "object",
                     properties: {
-                      openingSentence: { type: "string" },
                       title: { type: "string" },
-                      reason: { type: "string" },
-                      positionPercent: { type: "number" },
+                      hook: { type: "string" },
+                      scriptExcerpt: { type: "string" },
+                      estimatedSeconds: { type: "number" },
+                      suggestedCaption: { type: "string" },
                     },
-                    required: ["openingSentence", "title", "reason", "positionPercent"],
+                    required: [
+                      "title",
+                      "hook",
+                      "scriptExcerpt",
+                      "estimatedSeconds",
+                      "suggestedCaption",
+                    ],
                     additionalProperties: false,
                   },
                 },
@@ -252,157 +452,15 @@ Return JSON array of clips. Return ONLY valid JSON.`,
         },
       });
 
-      const content = response.choices?.[0]?.message?.content as string;
-      if (!content) throw new Error("Clip analysis failed");
-
-      try {
-        const parsed = JSON.parse(content);
-        return parsed.clips as Array<{
-          openingSentence: string;
+      const raw = (response.choices[0]?.message?.content as string) ?? '{"clips":[]}';
+      return JSON.parse(raw) as {
+        clips: {
           title: string;
-          reason: string;
-          positionPercent: number;
-        }>;
-      } catch {
-        throw new Error("Failed to parse clip timestamps");
-      }
+          hook: string;
+          scriptExcerpt: string;
+          estimatedSeconds: number;
+          suggestedCaption: string;
+        }[];
+      };
     }),
-
-  /**
-   * Generate the full YouTube avatar video using HeyGen
-   */
-  generateVideo: protectedProcedure
-    .input(
-      z.object({
-        script: z.string().min(100).max(15000),
-        title: z.string().max(255).optional(),
-        voiceId: z.string().optional().default("en-US-JennyNeural"),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database not available");
-
-      // Premium gate
-      const [userRow] = await db.select({ tier: users.subscriptionTier }).from(users).where(eq(users.id, ctx.user.id));
-      const tier = userRow?.tier ?? "starter";
-      if (tier !== "premium" && tier !== "pro") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "YouTube Video Builder is a Premium feature. Please upgrade to access this feature.",
-        });
-      }
-
-      // Require trained custom avatar
-      const [twin] = await db
-        .select()
-        .from(customAvatarTwins)
-        .where(eq(customAvatarTwins.userId, ctx.user.id))
-        .limit(1);
-
-      if (!twin || twin.status !== "ready") {
-        throw new TRPCError({
-          code: "PRECONDITION_FAILED",
-          message: twin
-            ? twin.status === "training"
-              ? "Your custom avatar is still training. Please wait a few minutes and try again."
-              : "Your custom avatar training failed. Please retrain your digital twin."
-            : "No custom avatar found. Please train your digital twin first in the Full Avatar Video section.",
-        });
-      }
-
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 90);
-      const duration = estimateDuration(input.script);
-
-      // Store record
-      const [record] = await db
-        .insert(fullAvatarVideos)
-        .values({
-          userId: ctx.user.id,
-          title: input.title || "YouTube Video",
-          script: input.script,
-          avatarType: "v3_custom",
-          customAvatarId: twin.didAvatarId,
-          voiceId: input.voiceId,
-          duration,
-          status: "processing",
-          expiresAt,
-        })
-        .$returningId();
-
-      const videoId = record.id;
-
-      try {
-        // Generate using HeyGen — landscape for YouTube
-        const heygenVideoId = await generateCustomAvatarVideo({
-          avatarId: twin.didAvatarId,
-          script: input.script,
-          voiceId: input.voiceId,
-          title: input.title,
-          landscape: true, // Always landscape for YouTube
-        });
-
-        await db
-          .update(fullAvatarVideos)
-          .set({ didTalkId: heygenVideoId })
-          .where(eq(fullAvatarVideos.id, videoId));
-
-        // Long timeout for long-form videos (30 min max)
-        const heygenVideoUrl = await waitForHeyGenVideo(heygenVideoId, 1_800_000, 10_000);
-
-        // Download and re-host on S3
-        const videoRes = await fetch(heygenVideoUrl);
-        if (!videoRes.ok) throw new Error("Failed to download HeyGen video");
-        const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
-        const s3Key = `youtube-videos/${ctx.user.id}/${videoId}-${Date.now()}.mp4`;
-        const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
-
-        await db
-          .update(fullAvatarVideos)
-          .set({ videoUrl: s3Url, s3Key, status: "completed" })
-          .where(eq(fullAvatarVideos.id, videoId));
-
-        return {
-          videoId,
-          videoUrl: s3Url,
-          duration,
-          expiresAt: expiresAt.toISOString(),
-        };
-      } catch (err) {
-        await db
-          .update(fullAvatarVideos)
-          .set({ status: "failed" })
-          .where(eq(fullAvatarVideos.id, videoId));
-        throw new Error(
-          `YouTube video generation failed: ${err instanceof Error ? err.message : "Unknown error"}`
-        );
-      }
-    }),
-
-  /**
-   * List past YouTube videos for the current user
-   */
-  list: protectedProcedure.query(async ({ ctx }) => {
-    const db = await getDb();
-    if (!db) return [];
-    const rows = await db
-      .select()
-      .from(fullAvatarVideos)
-      .where(eq(fullAvatarVideos.userId, ctx.user.id))
-      .orderBy(desc(fullAvatarVideos.createdAt))
-      .limit(20);
-    // Filter to YouTube videos (landscape, longer duration)
-    return rows
-      .filter((r) => r.duration && r.duration > 240) // > 4 min = YouTube
-      .map((r) => ({
-        id: r.id,
-        title: r.title,
-        videoUrl: r.videoUrl,
-        duration: r.duration,
-        status: r.status,
-        createdAt: r.createdAt,
-        expiresAt: r.expiresAt,
-      }));
-  }),
 });

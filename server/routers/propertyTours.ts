@@ -679,43 +679,30 @@ export const propertyToursRouter = router({
       if (tour.userId !== ctx.user.id) throw new Error("Unauthorized");
       if (tour.status !== "failed") throw new Error("Only failed tours can be retried");
 
-      // Check grace regenerations first — if available, skip quota/credit deduction
-      const graceStatus = await rateLimit.checkGraceRegen(ctx.user.id, "kenBurns");
-      const usingGrace = graceStatus.hasGrace;
-
-      if (!usingGrace) {
-        // No grace credits — apply normal daily rate limit
-        const rateLimitStatus = await rateLimit.checkDailyVideoLimit(ctx.user.id);
-        if (!rateLimitStatus.allowed) {
-          throw new Error(`Daily video limit reached. Try again after ${rateLimitStatus.resetTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC.`);
-        }
+      // Apply normal daily rate limit
+      const rateLimitStatus = await rateLimit.checkDailyVideoLimit(ctx.user.id);
+      if (!rateLimitStatus.allowed) {
+        throw new Error(`Daily video limit reached. Try again after ${rateLimitStatus.resetTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC.`);
       }
 
-      // Check credits (always required, but grace uses 0 credits)
+      // Check and deduct credits
       const costBreakdown = credits.calculateVideoCost({
         videoMode: "standard",
         enableVoiceover: tour.enableVoiceover || false,
       });
-      if (!usingGrace) {
-        const hasEnoughCredits = await credits.hasCredits(ctx.user.id, costBreakdown.totalCredits);
-        if (!hasEnoughCredits) {
-          const currentBalance = await credits.getCreditBalance(ctx.user.id);
-          throw new Error(`Insufficient credits. Need ${costBreakdown.totalCredits} but have ${currentBalance}.`);
-        }
-        // Deduct credits (only when not using grace)
-        await credits.deductCredits({
-          userId: ctx.user.id,
-          amount: costBreakdown.totalCredits,
-          usageType: `${tour.videoMode}_video_retry`,
-          description: `Retried ${tour.videoMode} video for "${tour.address}"`,
-          relatedResourceId: input.tourId,
-          relatedResourceType: "property_tour",
-        });
-      } else {
-        // Consume one grace regeneration
-        await rateLimit.consumeGraceRegen(ctx.user.id, "kenBurns");
-        bgLog(`[PropertyTours] Grace regen used for user ${ctx.user.id}. Remaining: ${graceStatus.remaining - 1}`);
+      const hasEnoughCredits = await credits.hasCredits(ctx.user.id, costBreakdown.totalCredits);
+      if (!hasEnoughCredits) {
+        const currentBalance = await credits.getCreditBalance(ctx.user.id);
+        throw new Error(`Insufficient credits. Need ${costBreakdown.totalCredits} but have ${currentBalance}.`);
       }
+      await credits.deductCredits({
+        userId: ctx.user.id,
+        amount: costBreakdown.totalCredits,
+        usageType: `${tour.videoMode}_video_retry`,
+        description: `Retried ${tour.videoMode} video for "${tour.address}"`,
+        relatedResourceId: input.tourId,
+        relatedResourceType: "property_tour",
+      });
 
       // Reset tour status
       await db.updatePropertyTour(input.tourId, {

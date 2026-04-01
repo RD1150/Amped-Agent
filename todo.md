@@ -4094,12 +4094,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add Live Tour videos to My Videos page
 - [ ] Add 15-second auto-stop countdown to Live Tour recorder
 - [ ] Add teleprompter mode to Live Tour recorder
-
-## YouTube Video Builder (New)
-- [x] YouTube Video Builder: AI long-form script generation (5-15 min, 9 topic types, 4 duration targets, 4 tone options)
-- [x] YouTube Video Builder: SEO metadata generation (title, description, tags, chapter markers)
-- [x] YouTube Video Builder: HeyGen avatar video generation in landscape 16:9 for YouTube
-- [x] YouTube Video Builder: Auto-clip identification (4-5 Reels/Shorts moments from long-form video)
-- [x] YouTube Video Builder: 5-step wizard UI (Topic → Script → SEO → Generate → Redistribute)
-- [x] YouTube Video Builder: Nav item with hover info card in LISTINGS section
-- [x] YouTube Video Builder: Vitest tests (8 passing)
+- [x] YouTube Video Builder: Publish to YouTube button in Step 5
+- [x] YouTube Video Builder: Script outline templates by topic (6 templates)
+- [x] YouTube Video Builder: Clip-to-Reels handoff (auto-clip → AI Reels builder)
+- [x] Remove all grace credit / free retry logic from backend and frontend
+- [x] Remove grace credit columns from DB schema (migration applied)
