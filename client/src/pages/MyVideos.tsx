@@ -44,13 +44,13 @@ interface UnifiedVideo {
 
 const SOURCE_CONFIG: Record<VideoSource, { label: string; icon: React.ElementType; color: string; path: string }> = {
   listing_video: {
-    label: "Listing Video",
+    label: "Property Slideshow",
     icon: Building2,
     color: "bg-primary/15 text-primary border-primary/20",
     path: "/property-tours",
   },
   cinematic_tour: {
-    label: "Cinematic Tour",
+    label: "AI Motion Tour",
     icon: Film,
     color: "bg-primary/20 text-primary border-primary/20",
     path: "/cinematic-walkthrough",
@@ -115,8 +115,8 @@ type FilterSource = VideoSource | "all";
 
 const FILTER_TABS: Array<{ value: FilterSource; label: string; icon: React.ElementType }> = [
   { value: "all", label: "All Videos", icon: Video },
-  { value: "listing_video", label: "Listing Videos", icon: Building2 },
-  { value: "cinematic_tour", label: "Cinematic Tours", icon: Film },
+  { value: "listing_video", label: "Property Slideshows", icon: Building2 },
+  { value: "cinematic_tour", label: "AI Motion Tours", icon: Film },
   { value: "ai_reel", label: "AI Reels", icon: Clapperboard },
   { value: "avatar_video", label: "Avatar Videos", icon: UserCircle },
 ];
@@ -166,7 +166,7 @@ export default function MyVideos() {
             My Videos
           </h1>
           <p className="text-muted-foreground mt-1">
-            All your generated videos — Listing, Cinematic Tours, AI Reels, and Avatar Videos
+            All your generated videos — Listing, AI Motion Tours, AI Reels, and Avatar Videos
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -417,7 +417,7 @@ export default function MyVideos() {
             <h3 className="text-lg font-semibold">No videos yet</h3>
             <p className="text-muted-foreground text-sm mt-1 max-w-xs">
               {sourceFilter === "all"
-                ? "Generate your first video using Listing Video, Cinematic Tour, AI Reels, or Full Avatar Video."
+                ? "Generate your first video using Property Slideshow, AI Motion Tour, AI Reels, or Full Avatar Video."
                 : `You haven't created any ${
                     FILTER_TABS.find((t) => t.value === sourceFilter)?.label ?? "videos"
                   } yet.`}
@@ -430,7 +430,7 @@ export default function MyVideos() {
               className="gap-2"
             >
               <Building2 className="h-4 w-4" />
-              Listing Video
+              Property Slideshow
             </Button>
             <Button
               size="sm"
@@ -439,7 +439,7 @@ export default function MyVideos() {
               className="gap-2"
             >
               <Film className="h-4 w-4" />
-              Cinematic Tour
+              AI Motion Tour
             </Button>
             <Button
               size="sm"

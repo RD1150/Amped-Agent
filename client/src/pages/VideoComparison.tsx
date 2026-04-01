@@ -59,33 +59,33 @@ export default function VideoComparison() {
 
       {/* Side-by-side cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        {/* Listing Video */}
+        {/* Property Slideshow */}
         <Card className="p-6 border-2 border-border hover:border-primary/40 transition-colors">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 rounded-lg bg-primary/10">
               <Building2 className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">Listing Video</h2>
+              <h2 className="text-xl font-bold">Property Slideshow</h2>
               <p className="text-sm text-muted-foreground">Quick · 1–2 min to generate</p>
             </div>
           </div>
 
-          {/* Listing Video demo placeholder */}
+          {/* Property Slideshow demo placeholder */}
           <div className="relative rounded-xl overflow-hidden bg-muted aspect-video mb-5 border border-border flex flex-col items-center justify-center gap-3">
             <div className="p-4 rounded-full bg-primary/10">
               <Building2 className="h-10 w-10 text-primary" />
             </div>
             <div className="text-center px-4">
-              <p className="font-semibold text-sm">Listing Video Demo</p>
-              <p className="text-xs text-muted-foreground mt-1">Generate your first Listing Video to see the Ken Burns effect in action — smooth panning and zooming across your listing photos.</p>
+              <p className="font-semibold text-sm">Property Slideshow Demo</p>
+              <p className="text-xs text-muted-foreground mt-1">Generate your first Property Slideshow to see the Ken Burns effect in action — smooth panning and zooming across your listing photos.</p>
             </div>
             <Button
               size="sm"
               onClick={() => setLocation("/property-tours")}
             >
               <Play className="h-3 w-3 mr-1" />
-              Create a Listing Video
+              Create a Property Slideshow
             </Button>
           </div>
 
@@ -107,7 +107,7 @@ export default function VideoComparison() {
             onClick={() => setLocation("/property-tours")}
           >
             <Building2 className="h-4 w-4 mr-2" />
-            Create a Listing Video
+            Create a Property Slideshow
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </Card>
@@ -123,7 +123,7 @@ export default function VideoComparison() {
               <Film className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">Cinematic Property Tour</h2>
+              <h2 className="text-xl font-bold">AI Motion Tour</h2>
               <p className="text-sm text-muted-foreground">Cinematic · 5–10 min to generate</p>
             </div>
           </div>
@@ -134,8 +134,8 @@ export default function VideoComparison() {
               <Film className="h-10 w-10 text-primary" />
             </div>
             <div className="text-center px-4">
-              <p className="font-semibold text-sm">Cinematic Property Tour Demo</p>
-              <p className="text-xs text-muted-foreground mt-1">Generate your first Cinematic Property Tour to see the difference — each photo comes to life with real camera movement through the space.</p>
+              <p className="font-semibold text-sm">AI Motion Tour Demo</p>
+              <p className="text-xs text-muted-foreground mt-1">Generate your first AI Motion Tour to see the difference — each photo comes to life with real camera movement through the space.</p>
             </div>
             <Button
               size="sm"
@@ -165,7 +165,7 @@ export default function VideoComparison() {
             onClick={() => setLocation("/cinematic-walkthrough")}
           >
             <Film className="h-4 w-4 mr-2" />
-            Create a Cinematic Property Tour
+            Create a AI Motion Tour
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </Card>
@@ -182,7 +182,7 @@ export default function VideoComparison() {
                 <th className="text-left py-2 pr-4 font-semibold">
                   <div className="flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-primary" />
-                    Listing Video
+                    Property Slideshow
                   </div>
                 </th>
                 <th className="text-left py-2 font-semibold">
@@ -212,16 +212,16 @@ export default function VideoComparison() {
       <div className="rounded-xl bg-primary/5 border border-primary/20 p-6 text-center">
         <h3 className="text-lg font-semibold mb-2">Not sure which to use?</h3>
         <p className="text-muted-foreground text-sm max-w-xl mx-auto mb-4">
-          Use <strong>Listing Video</strong> for everyday listings and social content — it's fast and professional. Save <strong>Cinematic Property Tour</strong> for your best listings where you want to truly impress buyers and stand out from other agents.
+          Use <strong>Property Slideshow</strong> for everyday listings and social content — it's fast and professional. Save <strong>AI Motion Tour</strong> for your best listings where you want to truly impress buyers and stand out from other agents.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button variant="outline" onClick={() => setLocation("/property-tours")}>
             <Building2 className="h-4 w-4 mr-2" />
-            Start with Listing Video
+            Start with Property Slideshow
           </Button>
           <Button className="bg-muted0 hover:bg-primary text-white" onClick={() => setLocation("/cinematic-walkthrough")}>
             <Film className="h-4 w-4 mr-2" />
-            Try Cinematic Property Tour
+            Try AI Motion Tour
           </Button>
         </div>
       </div>

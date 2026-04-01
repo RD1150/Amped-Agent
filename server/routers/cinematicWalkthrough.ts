@@ -25,15 +25,31 @@ function log(msg: string) {
 // Base prompts define the room's character. Direction (L→R or R→L) is injected
 // at call time based on clip index so consecutive rooms always pan opposite ways,
 // creating the physical sensation of turning through doorways.
-const ROOM_MOTION_PROMPTS: Record<string, { ltr: string; rtl: string; tilt?: string }> = {
+// Motion prompts for explicit direction overrides
+const DIRECTION_PROMPTS: Record<string, string> = {
+  drone_pullback: "Cinematic drone shot slowly pulling back and rising to reveal the full property from above, smooth aerial movement, golden hour lighting",
+  drone_pushforward: "Cinematic drone shot pushing forward and descending toward the property entrance, smooth aerial approach, dramatic perspective",
+  orbit_left: "Smooth orbital camera movement circling left around the subject, revealing depth and dimension, steady cinematic arc",
+  orbit_right: "Smooth orbital camera movement circling right around the subject, revealing depth and dimension, steady cinematic arc",
+  tilt_up: "Smooth cinematic tilt upward slowly revealing the full facade and roofline, steady and majestic",
+  push_in: "Smooth dolly push-in toward the subject, gradually revealing depth and detail, cinematic forward motion",
+  crane_up: "Smooth crane shot rising upward to reveal the full space from a higher vantage point, elegant vertical movement",
+  crane_down: "Smooth crane shot descending from above to reveal the subject at eye level, cinematic downward reveal",
+  ltr: "Smooth lateral tracking shot moving left to right, steady and professional, revealing the full space",
+  rtl: "Smooth lateral tracking shot moving right to left, steady and professional, revealing the full space",
+};
+
+const ROOM_MOTION_PROMPTS: Record<string, { ltr: string; rtl: string; tilt?: string; drone?: string }> = {
   exterior_front: {
     ltr: "Smooth cinematic tilt upward from the front driveway slowly revealing the full facade and roofline, steady and majestic",
     rtl: "Smooth cinematic tilt upward from the front driveway slowly revealing the full facade and roofline, steady and majestic",
     tilt: "Smooth cinematic tilt upward from the front driveway slowly revealing the full facade and roofline, steady and majestic",
+    drone: "Cinematic drone shot slowly pulling back and rising to reveal the full front exterior from above, smooth aerial movement, golden hour lighting",
   },
   exterior_back: {
     ltr: "Wide tracking shot panning steadily left to right across the entire backyard, lush landscaping in foreground, smooth and cinematic",
     rtl: "Wide tracking shot panning steadily right to left across the entire backyard, lush landscaping in foreground, smooth and cinematic",
+    drone: "Cinematic drone shot slowly pulling back and rising to reveal the full backyard from above, pool and landscaping visible, smooth aerial movement",
   },
   living_room: {
     ltr: "Smooth lateral tracking shot moving left to right across the living room, revealing the full space and windows, warm natural light, steady cinematic movement",
@@ -86,15 +102,18 @@ const ROOM_MOTION_PROMPTS: Record<string, { ltr: string; rtl: string; tilt?: str
 };
 
 // Returns the motion prompt for a given room type and clip index.
-// Even-indexed clips pan L→R, odd-indexed clips pan R→L — alternating
-// direction creates the physical sensation of turning through doorways.
-// isExterior: agent-tagged exterior shots always use tilt-up regardless of room type.
-function getMotionPrompt(roomType: string, clipIndex: number, customPrompt?: string, isExterior?: boolean): string {
+// Respects user-selected motionDirection override if provided.
+// Exterior shots default to drone pull-back (not tilt-up).
+function getMotionPrompt(roomType: string, clipIndex: number, customPrompt?: string, isExterior?: boolean, motionDirection?: string): string {
   if (customPrompt) return customPrompt;
+  // User explicitly chose a motion direction
+  if (motionDirection && motionDirection !== "auto") {
+    if (DIRECTION_PROMPTS[motionDirection]) return DIRECTION_PROMPTS[motionDirection];
+  }
   const prompts = ROOM_MOTION_PROMPTS[roomType] ?? ROOM_MOTION_PROMPTS.other;
-  // Exterior front room type OR explicit isExterior tag → always tilt-up
-  if (isExterior || (prompts.tilt && roomType === "exterior_front")) {
-    return prompts.tilt ?? ROOM_MOTION_PROMPTS.exterior_front.tilt!;
+  // Exterior shots default to drone pull-back
+  if (isExterior || roomType === "exterior_front" || roomType === "exterior_back") {
+    return (prompts as any).drone ?? DIRECTION_PROMPTS.drone_pullback;
   }
   return clipIndex % 2 === 0 ? prompts.ltr : prompts.rtl;
 }
@@ -185,9 +204,10 @@ async function generateRunwayClip(
   clipIndex: number,
   customPrompt?: string,
   attempt = 1,
-  isExterior?: boolean
+  isExterior?: boolean,
+  motionDirection?: string
 ): Promise<string> {
-  const promptText = getMotionPrompt(roomType, clipIndex, customPrompt, isExterior);
+  const promptText = getMotionPrompt(roomType, clipIndex, customPrompt, isExterior, motionDirection);
 
   log(`Generating Runway clip for room: ${roomType} (attempt ${attempt}), prompt: ${promptText.substring(0, 60)}...`);
 
@@ -801,7 +821,8 @@ Requirements:
               roomType: z.string().default("other"),
               customPrompt: z.string().optional(),
               label: z.string().optional(),
-              isExterior: z.boolean().optional(), // forces tilt-up motion regardless of room type
+              isExterior: z.boolean().optional(), // forces exterior motion
+              motionDirection: z.string().optional(), // user-selected camera motion override
             })
           )
           .min(2, "At least 2 photos are required")
@@ -946,7 +967,8 @@ Requirements:
         input.clipIndex,
         photo.customPrompt,
         1,
-        photo.isExterior
+        photo.isExterior,
+        photo.motionDirection
       );
 
       // Patch the clips array
@@ -1047,7 +1069,7 @@ async function runWalkthroughJob(
   jobId: string,
   userId: number,
   input: {
-    photos: Array<{ url: string; roomType: string; customPrompt?: string; label?: string; isExterior?: boolean }>;
+    photos: Array<{ url: string; roomType: string; customPrompt?: string; label?: string; isExterior?: boolean; motionDirection?: string }>;
      propertyAddress: string;
     agentName?: string;
     agentBrokerage?: string;
@@ -1107,14 +1129,14 @@ async function runWalkthroughJob(
     // Attempt 1: Higgsfield AI (genuine cinematic motion)
     log(`Job ${jobId}: Clip ${i + 1}/${input.photos.length} — trying Higgsfield AI (${photo.roomType})`);
     try {
-      clipUrl = await generateHiggsfieldClip(photo.url, photo.roomType, i, photo.customPrompt, photo.isExterior);
+      clipUrl = await generateHiggsfieldClip(photo.url, photo.roomType, i, photo.customPrompt, photo.isExterior, photo.motionDirection);
       log(`Job ${jobId}: Clip ${i + 1} via Higgsfield ✓`);
     } catch (higgsfieldErr: any) {
       log(`Job ${jobId}: Higgsfield failed (${higgsfieldErr.message}) — trying Runway ML...`);
 
       // Attempt 2: Runway ML (real image-to-video motion)
       try {
-        clipUrl = await generateRunwayClip(photo.url, photo.roomType, i, photo.customPrompt, 1, photo.isExterior);
+        clipUrl = await generateRunwayClip(photo.url, photo.roomType, i, photo.customPrompt, 1, photo.isExterior, photo.motionDirection);
         log(`Job ${jobId}: Clip ${i + 1} via Runway ML ✓`);
       } catch (runwayErr: any) {
         log(`Job ${jobId}: Runway also failed (${runwayErr.message}) — using static photo as last resort`);

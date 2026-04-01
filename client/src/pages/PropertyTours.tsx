@@ -1944,7 +1944,7 @@ export default function PropertyTours() {
               <button
                 onClick={() => {
                   const params = new URLSearchParams({
-                    topic: address ? `Property Tour: ${address}` : "Cinematic Property Tour",
+                    topic: address ? `Property Tour: ${address}` : "AI Motion Tour",
                     body: description || `A stunning property tour featuring ${beds ? beds + ' bed' : ''} ${baths ? baths + ' bath' : ''} ${address || 'property'}. ${description || ''}`.trim(),
                   });
                   window.location.href = `/repurpose?${params.toString()}`;

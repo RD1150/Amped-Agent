@@ -176,15 +176,15 @@ const menuSections = [
     items: [
       {
         icon: Building2,
-        label: "Listing Video",
+        label: "Property Slideshow",
         path: "/property-tours",
         description: "Quick Ken Burns video for any listing · 5 credits",
       },
       {
         icon: Film,
-        label: "Cinematic Tour",
+        label: "AI Motion Tour",
         path: "/cinematic-walkthrough",
-        description: "AI-animated cinematic tour for premium listings",
+        description: "AI-animated AI motion tour for premium listings",
         badge: "Premium",
       },
       {

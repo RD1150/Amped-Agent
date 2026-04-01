@@ -38,6 +38,7 @@ interface PhotoEntry {
   customPrompt?: string;
   uploading?: boolean;
   isExterior?: boolean; // forces tilt-up motion instead of L/R pan
+  motionDirection?: string; // user-selected camera motion override
 }
 
 const ROOM_TYPE_LABELS: Record<string, string> = {
@@ -57,7 +58,7 @@ const ROOM_TYPE_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-// Same curated Kevin MacLeod library used by the Listing Video (Ken Burns)
+// Same curated Kevin MacLeod library used by the Property Slideshow (Ken Burns)
 const _CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT";
 const MUSIC_OPTIONS = [
   { value: "none", label: "No music", desc: "", url: null },
@@ -78,15 +79,55 @@ const VOICE_OPTIONS = [
   { id: "TxGEqnHWrfWFTfGW9XjX", name: "Josh",   desc: "Authoritative Male",  tag: "" },
 ];
 
+// ─── Motion options per room category ───────────────────────────────────────
+
+const EXTERIOR_MOTIONS = [
+  { value: "drone_pullback", label: "🚁 Drone Pull-Back" },
+  { value: "drone_pushforward", label: "🚁 Drone Push Forward" },
+  { value: "orbit_left", label: "↺ Orbit Left" },
+  { value: "orbit_right", label: "↻ Orbit Right" },
+  { value: "tilt_up", label: "↑ Tilt Up" },
+  { value: "push_in", label: "→ Push In" },
+];
+
+const INTERIOR_MOTIONS = [
+  { value: "auto", label: "Auto (alternating)" },
+  { value: "ltr", label: "→ Pan Left to Right" },
+  { value: "rtl", label: "← Pan Right to Left" },
+  { value: "push_in", label: "⟶ Dolly / Push In" },
+  { value: "crane_up", label: "↑ Crane Up" },
+  { value: "crane_down", label: "↓ Crane Down" },
+];
+
+function getMotionsForRoomType(roomType: string) {
+  if (roomType === "exterior_front" || roomType === "exterior_back") return EXTERIOR_MOTIONS;
+  return INTERIOR_MOTIONS;
+}
+
+function getDefaultMotionForRoomType(roomType: string): string {
+  if (roomType === "exterior_front" || roomType === "exterior_back") return "drone_pullback";
+  return "auto";
+}
+
 // ─── Pan direction helpers ───────────────────────────────────────────────────
 
 // Returns the effective pan direction for a photo card based on its position
 // among non-exterior photos. Exterior photos always get a tilt-up (↑).
 // Even non-exterior positions pan L→R (→), odd positions pan R→L (←).
-function getPanDirection(photos: PhotoEntry[], index: number): "ltr" | "rtl" | "tilt" {
+function getPanDirection(photos: PhotoEntry[], index: number): "ltr" | "rtl" | "tilt" | "drone" | "orbit" | "push" | "crane" {
   const photo = photos[index];
-  // Explicit exterior tag OR exterior_front room type → tilt-up
-  if (photo.isExterior || photo.roomType === "exterior_front") return "tilt";
+  // If user explicitly selected a motion, reflect it in the badge
+  if (photo.motionDirection && photo.motionDirection !== "auto") {
+    if (photo.motionDirection === "drone_pullback" || photo.motionDirection === "drone_pushforward") return "drone";
+    if (photo.motionDirection === "orbit_left" || photo.motionDirection === "orbit_right") return "orbit";
+    if (photo.motionDirection === "push_in") return "push";
+    if (photo.motionDirection === "crane_up" || photo.motionDirection === "crane_down") return "crane";
+    if (photo.motionDirection === "ltr") return "ltr";
+    if (photo.motionDirection === "rtl") return "rtl";
+    if (photo.motionDirection === "tilt_up") return "tilt";
+  }
+  // Explicit exterior tag OR exterior_front room type → drone pull-back by default
+  if (photo.isExterior || photo.roomType === "exterior_front" || photo.roomType === "exterior_back") return "drone";
   // Count how many non-exterior photos precede this one to determine alternation
   let nonExteriorCount = 0;
   for (let i = 0; i < index; i++) {
@@ -124,9 +165,9 @@ function SortablePhotoCard({ photo, photos, index, onRemove, onUpdate }: Sortabl
   };
 
   const panDir = getPanDirection(photos, index);
-  const PanIcon = panDir === "tilt" ? ArrowUp : panDir === "ltr" ? ArrowRight : ArrowLeft;
-  const panLabel = panDir === "tilt" ? "Tilt up" : panDir === "ltr" ? "Pan left \u2192 right" : "Pan right \u2192 left";
-  const panColor = panDir === "tilt" ? "text-primary border-primary/40 bg-primary/10" : "text-primary/80 border-primary/40 bg-primary/10";
+  const PanIcon = panDir === "drone" ? ArrowUp : panDir === "orbit" ? ArrowLeft : panDir === "push" ? ArrowRight : panDir === "crane" ? ArrowUp : panDir === "tilt" ? ArrowUp : panDir === "ltr" ? ArrowRight : ArrowLeft;
+  const panLabel = panDir === "drone" ? "Drone" : panDir === "orbit" ? "Orbit" : panDir === "push" ? "Push In" : panDir === "crane" ? "Crane" : panDir === "tilt" ? "Tilt Up" : panDir === "ltr" ? "Pan \u2192" : "Pan \u2190";
+  const panColor = (panDir === "drone" || panDir === "orbit") ? "text-blue-400 border-blue-400/40 bg-blue-400/10" : "text-primary/80 border-primary/40 bg-primary/10";
 
   return (
     <div ref={setNodeRef} style={style} className="rounded-xl border border-border bg-card overflow-hidden">
@@ -176,6 +217,8 @@ function SortablePhotoCard({ photo, photos, index, onRemove, onUpdate }: Sortabl
               roomType: val,
               label: ROOM_TYPE_LABELS[val] || val,
               isExterior: val === "exterior_front" || val === "exterior_back" ? true : photo.isExterior,
+              // Reset motion to default for new room type
+              motionDirection: getDefaultMotionForRoomType(val),
             })
           }
         >
@@ -190,26 +233,28 @@ function SortablePhotoCard({ photo, photos, index, onRemove, onUpdate }: Sortabl
             ))}
           </SelectContent>
         </Select>
+        {/* Camera motion selector */}
+        <Select
+          value={photo.motionDirection || getDefaultMotionForRoomType(photo.roomType)}
+          onValueChange={(val) => onUpdate(photo.id, { motionDirection: val })}
+        >
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue placeholder="Camera motion" />
+          </SelectTrigger>
+          <SelectContent>
+            {getMotionsForRoomType(photo.roomType).map((m) => (
+              <SelectItem key={m.value} value={m.value} className="text-xs">
+                {m.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Input
           placeholder="Custom label (optional)"
           value={photo.label}
           onChange={(e) => onUpdate(photo.id, { label: e.target.value })}
           className="h-8 text-xs"
         />
-        {photo.roomType !== "exterior_front" && photo.roomType !== "exterior_back" && (
-          <button
-            type="button"
-            onClick={() => onUpdate(photo.id, { isExterior: !photo.isExterior })}
-            className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
-              photo.isExterior
-                ? "border-primary/50 bg-primary/10 text-primary"
-                : "border-border bg-muted/30 text-muted-foreground hover:border-primary/30 hover:text-primary"
-            }`}
-          >
-            <Home className="h-3 w-3 flex-shrink-0" />
-            {photo.isExterior ? "Exterior shot (tilt-up motion)" : "Mark as exterior (tilt-up)"}
-          </button>
-        )}
       </div>
     </div>
   );
@@ -347,7 +392,7 @@ export default function CinematicWalkthrough() {
     // Resume polling for the in-progress job
     setJobId(pendingJob.jobId);
     setIsGenerating(true);
-    toast.info("Resuming your Cinematic Property Tour — checking status…");
+    toast.info("Resuming your AI Motion Tour — checking status…");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingJob]);
 
@@ -358,7 +403,7 @@ export default function CinematicWalkthrough() {
       setIsGenerating(false);
       setVideoUrl(jobProgress.videoUrl);
       setJobId(null);
-      toast.success("Your AI Cinematic Tour is ready!");
+      toast.success("Your AI AI Motion Tour is ready!");
     } else if (jobProgress.status === "failed") {
       setIsGenerating(false);
       setFailedJobId(jobId);
@@ -452,7 +497,8 @@ export default function CinematicWalkthrough() {
           roomType: p.roomType || "other",
           label: p.label || (p.roomType ? ROOM_TYPE_LABELS[p.roomType] : "") || "",
           customPrompt: p.customPrompt || undefined,
-          isExterior: p.isExterior || undefined,
+          isExterior: p.isExterior || (p.roomType === "exterior_front" || p.roomType === "exterior_back") || undefined,
+          motionDirection: p.motionDirection || getDefaultMotionForRoomType(p.roomType || "other"),
         })),
         propertyAddress: propertyAddress.trim(),
         agentName: agentName.trim() || undefined,
@@ -551,9 +597,9 @@ export default function CinematicWalkthrough() {
             <Film className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Cinematic Property Tour</h1>
+            <h1 className="text-2xl font-bold text-foreground">AI Motion Tour</h1>
             <p className="text-sm text-muted-foreground">
-              Higgsfield AI — genuine cinematic motion through every room, not Ken Burns
+              Genuine cinematic motion through every room, not Ken Burns
             </p>
           </div>
           <Badge className="ml-auto bg-primary/10 text-primary border-primary/20 text-xs">Premium</Badge>
@@ -561,7 +607,7 @@ export default function CinematicWalkthrough() {
         <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm text-muted-foreground">
           <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <span>
-            Each photo is animated with genuine AI cinematic motion (dolly, crane, fly-through) powered by Higgsfield, then assembled into a seamless walkthrough video. Generation takes <strong>2–5 minutes</strong> depending on the number of photos.
+            Each photo is animated with genuine AI cinematic motion (dolly, crane, fly-through), then assembled into a seamless walkthrough video. Generation takes <strong>2–5 minutes</strong> depending on the number of photos.
           </span>
         </div>
       </div>
@@ -571,7 +617,7 @@ export default function CinematicWalkthrough() {
         <div className="rounded-xl overflow-hidden border border-primary/20 bg-card">
           <div className="p-4 border-b border-border flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-foreground">Your Cinematic Property Tour is Ready!</span>
+            <span className="font-semibold text-foreground">Your AI Motion Tour is Ready!</span>
           </div>
           <div className="p-4">
             <video
@@ -900,7 +946,7 @@ export default function CinematicWalkthrough() {
               </div>
               {/* Gold divider */}
               <div className="w-16 h-px bg-muted0/60" />
-              <p className="text-white/50 text-xs tracking-widest uppercase">Cinematic Property Tour</p>
+              <p className="text-white/50 text-xs tracking-widest uppercase">AI Motion Tour</p>
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
@@ -1083,12 +1129,12 @@ export default function CinematicWalkthrough() {
         {isGenerating ? (
           <>
             <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-            Generating Cinematic Property Tour…
+            Generating AI Motion Tour…
           </>
         ) : (
           <>
             <Play className="h-5 w-5 mr-2" />
-            Generate Cinematic Property Tour
+            Generate AI Motion Tour
           </>
         )}
       </Button>

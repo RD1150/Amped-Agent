@@ -104,14 +104,37 @@ const ROOM_MOTION_PROMPTS: Record<string, { primary: string; secondary: string }
   },
 };
 
+// Direction prompts for user-selected motion overrides
+const DIRECTION_PROMPTS: Record<string, string> = {
+  drone_pullback: "Cinematic drone shot slowly pulling back and rising to reveal the full property from above, smooth aerial movement, golden hour lighting",
+  drone_pushforward: "Cinematic drone shot pushing forward and descending toward the property entrance, smooth aerial approach, dramatic perspective",
+  orbit_left: "Smooth orbital camera movement circling left around the subject, revealing depth and dimension, steady cinematic arc",
+  orbit_right: "Smooth orbital camera movement circling right around the subject, revealing depth and dimension, steady cinematic arc",
+  tilt_up: "Smooth cinematic tilt upward slowly revealing the full facade and roofline, steady and majestic",
+  push_in: "Smooth dolly push-in toward the subject, gradually revealing depth and detail, cinematic forward motion",
+  crane_up: "Smooth crane shot rising upward to reveal the full space from a higher vantage point, elegant vertical movement",
+  crane_down: "Smooth crane shot descending from above to reveal the subject at eye level, cinematic downward reveal",
+  ltr: "Smooth lateral tracking shot moving left to right, steady and professional, revealing the full space",
+  rtl: "Smooth lateral tracking shot moving right to left, steady and professional, revealing the full space",
+};
+
 export function getHiggsfieldMotionPrompt(
   roomType: string,
   clipIndex: number,
   customPrompt?: string,
-  isExterior?: boolean
+  isExterior?: boolean,
+  motionDirection?: string
 ): string {
   if (customPrompt) return customPrompt;
-  const key = isExterior ? "exterior_front" : (ROOM_MOTION_PROMPTS[roomType] ? roomType : "other");
+  // User-selected motion direction override
+  if (motionDirection && motionDirection !== "auto" && DIRECTION_PROMPTS[motionDirection]) {
+    return DIRECTION_PROMPTS[motionDirection];
+  }
+  // Exterior shots default to drone pull-back
+  if (isExterior || roomType === "exterior_front" || roomType === "exterior_back") {
+    return DIRECTION_PROMPTS.drone_pullback;
+  }
+  const key = ROOM_MOTION_PROMPTS[roomType] ? roomType : "other";
   const prompts = ROOM_MOTION_PROMPTS[key];
   return clipIndex % 2 === 0 ? prompts.primary : prompts.secondary;
 }
@@ -218,9 +241,10 @@ export async function generateHiggsfieldClip(
   roomType: string,
   clipIndex: number,
   customPrompt?: string,
-  isExterior?: boolean
+  isExterior?: boolean,
+  motionDirection?: string
 ): Promise<string> {
-  const prompt = getHiggsfieldMotionPrompt(roomType, clipIndex, customPrompt, isExterior);
+  const prompt = getHiggsfieldMotionPrompt(roomType, clipIndex, customPrompt, isExterior, motionDirection);
   console.log(`[Higgsfield] Generating clip for ${roomType} (index ${clipIndex}): ${prompt.substring(0, 80)}...`);
 
   // Small stagger between clips to avoid burst rate limits

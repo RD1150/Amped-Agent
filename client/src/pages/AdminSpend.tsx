@@ -45,7 +45,7 @@ const FEATURE_LABELS: Record<string, string> = {
   ai_clip: "AI Clip",
   tts: "Text-to-Speech",
   llm: "LLM Generation",
-  cinematic_walkthrough: "Cinematic Property Tour",
+  cinematic_walkthrough: "AI Motion Tour",
   avatar: "Agent Avatar",
 };
 
