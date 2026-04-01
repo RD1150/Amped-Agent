@@ -69,6 +69,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "./ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
 import { HeaderSearch } from "@/components/HeaderSearch";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 // Credit Balance Display Component
 function CreditBalanceDisplay() {
@@ -180,6 +185,16 @@ const menuSections = [
         label: "Property Slideshow",
         path: "/property-tours",
         description: "Quick Ken Burns video for any listing · 5 credits",
+        hoverInfo: {
+          tagline: "Turn listing photos into a polished video in under 2 minutes.",
+          details: [
+            { label: "Style", value: "Ken Burns zoom & pan on your photos" },
+            { label: "Best for", value: "Every listing — quick, professional, shareable" },
+            { label: "Music", value: "Choose from 8 curated background tracks" },
+            { label: "Credits", value: "5 credits per video" },
+            { label: "Time", value: "~2 minutes to generate" },
+          ],
+        },
       },
       {
         icon: Film,
@@ -187,6 +202,16 @@ const menuSections = [
         path: "/cinematic-walkthrough",
         description: "AI-animated AI motion tour for premium listings",
         badge: "Premium",
+        hoverInfo: {
+          tagline: "AI generates real camera movement on each photo — drone pull-backs, orbits, dollies.",
+          details: [
+            { label: "Style", value: "Per-photo AI motion: drone, orbit, dolly, crane, pan" },
+            { label: "Best for", value: "Luxury & premium listings that deserve cinematic quality" },
+            { label: "Music", value: "8 curated tracks with custom volume control" },
+            { label: "Credits", value: "10 credits per video" },
+            { label: "Time", value: "5–10 minutes (AI generation per clip)" },
+          ],
+        },
       },
       {
         icon: Smartphone,
@@ -194,12 +219,32 @@ const menuSections = [
         path: "/live-tour",
         description: "Record a guided room-by-room walkthrough from your phone",
         badge: "New",
+        hoverInfo: {
+          tagline: "Walk through the property room by room and record directly in your browser.",
+          details: [
+            { label: "Style", value: "Live video capture with guided narration prompts" },
+            { label: "Best for", value: "Open houses, same-day listings, authentic walkthroughs" },
+            { label: "Teleprompter", value: "Optional scrolling script for each room" },
+            { label: "Auto-stop", value: "Each room clip auto-stops at 15 seconds" },
+            { label: "Credits", value: "8 credits per assembled tour" },
+          ],
+        },
       },
       {
         icon: Video,
         label: "AI Reels",
         path: "/autoreels",
         description: "Short avatar intro clips for social media (15–60 sec)",
+        hoverInfo: {
+          tagline: "Vertical short-form videos with your AI avatar for Instagram, TikTok, and Facebook Reels.",
+          details: [
+            { label: "Style", value: "Vertical 9:16 with talking-head avatar overlay" },
+            { label: "Best for", value: "Social media reels, market updates, quick tips" },
+            { label: "Length", value: "15–60 seconds" },
+            { label: "Credits", value: "5 credits per reel" },
+            { label: "Time", value: "~3 minutes to generate" },
+          ],
+        },
       },
       {
         icon: UserCircle,
@@ -207,6 +252,16 @@ const menuSections = [
         path: "/full-avatar-video",
         description: "Full talking-head video from your script",
         badge: "New",
+        hoverInfo: {
+          tagline: "A full-length talking-head video where your AI avatar delivers your custom script.",
+          details: [
+            { label: "Style", value: "Landscape talking-head with branded lower-third" },
+            { label: "Best for", value: "Market reports, testimonials, long-form content" },
+            { label: "Length", value: "Up to 3 minutes" },
+            { label: "Credits", value: "15 credits per video" },
+            { label: "Time", value: "~5 minutes to generate" },
+          ],
+        },
       },
       {
         icon: FileVideo2,
@@ -539,43 +594,94 @@ function DashboardLayoutContent({
                   <SidebarMenu className="px-2">
                     {section.items.map((item) => {
                       const isActive = location === item.path;
-                      return (
-                        <SidebarMenuItem key={item.path}>
-                          <SidebarMenuButton
-                            isActive={isActive}
-                            onClick={() => setLocation(item.path)}
-                            tooltip={item.description || item.label}
-                            className={`h-9 transition-all font-normal ${
+                      const hi = "hoverInfo" in item ? item.hoverInfo : null;
+
+                      const menuBtn = (
+                        <SidebarMenuButton
+                          isActive={isActive}
+                          onClick={() => setLocation(item.path)}
+                          tooltip={item.description || item.label}
+                          className={`h-9 transition-all font-normal ${
+                            isActive
+                              ? "bg-primary/15 text-primary rounded-md shadow-sm"
+                              : "hover:bg-sidebar-accent/70"
+                          }`}
+                        >
+                          <item.icon
+                            className={`h-4 w-4 shrink-0 ${
                               isActive
-                                ? "bg-primary/15 text-primary rounded-md shadow-sm"
-                                : "hover:bg-sidebar-accent/70"
+                                ? "text-primary"
+                                : "text-sidebar-foreground/55"
+                            }`}
+                          />
+                          <span
+                            className={`truncate text-sm ${
+                              isActive
+                                ? "text-primary font-medium"
+                                : "text-sidebar-foreground/80"
                             }`}
                           >
-                            <item.icon
-                              className={`h-4 w-4 shrink-0 ${
-                                isActive
-                                  ? "text-primary"
-                                  : "text-sidebar-foreground/55"
-                              }`}
-                            />
-                            <span
-                              className={`truncate text-sm ${
-                                isActive
-                                  ? "text-primary font-medium"
-                                  : "text-sidebar-foreground/80"
-                              }`}
+                            {item.label}
+                          </span>
+                          {"badge" in item && item.badge && (
+                            <Badge
+                              variant="secondary"
+                              className="ml-auto text-[10px] px-1.5 py-0 h-4"
                             >
-                              {item.label}
-                            </span>
-                            {"badge" in item && item.badge && (
-                              <Badge
-                                variant="secondary"
-                                className="ml-auto text-[10px] px-1.5 py-0 h-4"
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </SidebarMenuButton>
+                      );
+
+                      return (
+                        <SidebarMenuItem key={item.path}>
+                          {hi && !isCollapsed ? (
+                            <HoverCard openDelay={300} closeDelay={100}>
+                              <HoverCardTrigger asChild>
+                                {menuBtn}
+                              </HoverCardTrigger>
+                              <HoverCardContent
+                                side="right"
+                                align="start"
+                                sideOffset={8}
+                                className="w-72 p-0 shadow-xl border border-border/60 rounded-xl overflow-hidden"
                               >
-                                {item.badge}
-                              </Badge>
-                            )}
-                          </SidebarMenuButton>
+                                {/* Header */}
+                                <div className="bg-primary px-4 py-3 flex items-center gap-2">
+                                  <item.icon className="h-4 w-4 text-primary-foreground/80 shrink-0" />
+                                  <span className="text-sm font-semibold text-primary-foreground">{item.label}</span>
+                                  {"badge" in item && item.badge && (
+                                    <Badge className="ml-auto text-[10px] px-1.5 py-0 h-4 bg-white/20 text-white border-0">
+                                      {item.badge}
+                                    </Badge>
+                                  )}
+                                </div>
+                                {/* Body */}
+                                <div className="px-4 py-3 space-y-3">
+                                  <p className="text-xs text-muted-foreground leading-relaxed">
+                                    {hi.tagline}
+                                  </p>
+                                  <div className="space-y-1.5">
+                                    {hi.details.map((d) => (
+                                      <div key={d.label} className="flex items-start gap-2 text-xs">
+                                        <span className="text-muted-foreground/70 shrink-0 w-20 font-medium">{d.label}</span>
+                                        <span className="text-foreground/80">{d.value}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <button
+                                    onClick={() => setLocation(item.path)}
+                                    className="w-full mt-1 text-xs font-medium text-primary hover:underline text-left"
+                                  >
+                                    Open {item.label} →
+                                  </button>
+                                </div>
+                              </HoverCardContent>
+                            </HoverCard>
+                          ) : (
+                            menuBtn
+                          )}
                         </SidebarMenuItem>
                       );
                     })}

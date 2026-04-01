@@ -33,8 +33,30 @@ import {
   Mic,
   MicOff,
   RotateCcw,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
+
+// ─── Max recording duration ─────────────────────────────────────────────────
+const MAX_RECORDING_SECONDS = 15;
+
+// ─── Teleprompter scripts per room type ──────────────────────────────────────
+const TELEPROMPTER_SCRIPTS: Record<string, string> = {
+  "Exterior / Front": "Welcome! Here's the stunning exterior of this beautiful property. Notice the curb appeal, the landscaping, and the architectural details that make this home truly special.",
+  "Living Room": "Step into this gorgeous living room — the perfect space for entertaining or relaxing. Take in the natural light, the open layout, and the premium finishes throughout.",
+  "Kitchen": "This chef's kitchen is a dream come true. From the high-end appliances to the beautiful countertops and ample storage, every detail has been thoughtfully designed.",
+  "Primary Bedroom": "Retreat to this spacious primary bedroom — your personal sanctuary. The generous proportions, natural light, and elegant finishes create the perfect escape.",
+  "Primary Bathroom": "This spa-like primary bathroom features premium fixtures, beautiful tilework, and all the luxury touches you'd expect in a home of this caliber.",
+  "Backyard / Outdoor": "Step outside to this incredible outdoor living space — perfect for entertaining, relaxing, or enjoying the beautiful weather year-round.",
+  "Dining Room": "This elegant dining room is perfect for hosting dinner parties or family gatherings, with plenty of space and beautiful natural light.",
+  "Office": "This dedicated home office provides the perfect work-from-home environment — quiet, private, and beautifully appointed.",
+  "Garage": "The spacious garage offers ample room for vehicles, storage, and more — a practical and well-finished space.",
+  "default": "Take a look at this beautiful space. Every detail has been carefully considered to create a home that's both functional and stunning.",
+};
+
+function getTeleprompterScript(roomName: string): string {
+  return TELEPROMPTER_SCRIPTS[roomName] ?? TELEPROMPTER_SCRIPTS["default"];
+}
 
 // ─── Default room list ────────────────────────────────────────────────────────
 const DEFAULT_ROOMS = [
@@ -76,6 +98,9 @@ export default function LiveTour() {
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [hasCamera, setHasCamera] = useState(true);
   const [hasMic, setHasMic] = useState(true);
+
+  // ── Teleprompter ──
+  const [teleprompterEnabled, setTeleprompterEnabled] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const previewRef = useRef<HTMLVideoElement>(null);
@@ -337,6 +362,13 @@ export default function LiveTour() {
       return next;
     });
   };
+
+  // ── Auto-stop at MAX_RECORDING_SECONDS ──
+  useEffect(() => {
+    if (recordingState === "recording" && recordingSeconds >= MAX_RECORDING_SECONDS) {
+      stopRecording();
+    }
+  }, [recordingSeconds, recordingState]);
 
   // ── Cleanup on unmount ──
   useEffect(() => {
@@ -614,11 +646,27 @@ export default function LiveTour() {
           </div>
         )}
 
-        {/* Recording indicator */}
+        {/* Recording indicator with countdown ring */}
         {recordingState === "recording" && (
-          <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold">
-            <Circle className="w-3 h-3 fill-white animate-pulse" />
-            REC {recordingSeconds}s
+          <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold">
+              <Circle className="w-3 h-3 fill-white animate-pulse" />
+              REC {recordingSeconds}s
+            </div>
+            {/* Time remaining bar */}
+            <div className="flex items-center gap-2 bg-black/60 text-white px-3 py-1.5 rounded-full text-xs">
+              <div className="w-20 h-1.5 bg-white/30 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    recordingSeconds >= MAX_RECORDING_SECONDS - 3 ? "bg-red-400" : "bg-white"
+                  }`}
+                  style={{ width: `${(recordingSeconds / MAX_RECORDING_SECONDS) * 100}%` }}
+                />
+              </div>
+              <span className={recordingSeconds >= MAX_RECORDING_SECONDS - 3 ? "text-red-300 font-bold" : ""}>
+                {MAX_RECORDING_SECONDS - recordingSeconds}s left
+              </span>
+            </div>
           </div>
         )}
 
@@ -627,8 +675,17 @@ export default function LiveTour() {
           <div className="absolute bottom-4 left-4 right-4">
             <div className="bg-black/60 text-white px-4 py-2 rounded-lg text-sm">
               <p className="font-semibold text-amber-400">{currentRoom}</p>
-              <p className="text-xs text-white/70">Walk slowly across the room, 8–15 seconds</p>
+              <p className="text-xs text-white/70">Walk slowly across the room — auto-stops at 15s</p>
             </div>
+          </div>
+        )}
+
+        {/* Teleprompter overlay */}
+        {teleprompterEnabled && recordingState === "recording" && (
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent px-4 pt-8 pb-4">
+            <p className="text-white text-sm leading-relaxed animate-[scroll_8s_linear_infinite] line-clamp-3">
+              {getTeleprompterScript(currentRoom)}
+            </p>
           </div>
         )}
 

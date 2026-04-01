@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
-import { generatedVideos, propertyTours, aiReels, cinematicJobs, fullAvatarVideos } from '../../drizzle/schema';
+import { generatedVideos, propertyTours, aiReels, cinematicJobs, fullAvatarVideos, liveTourJobs } from '../../drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
 export type UnifiedVideo = {
   id: string;
-  source: 'listing_video' | 'cinematic_tour' | 'ai_reel' | 'avatar_video' | 'authority_reel';
+  source: 'listing_video' | 'cinematic_tour' | 'ai_reel' | 'avatar_video' | 'authority_reel' | 'live_tour';
   title: string;
   videoUrl: string | null;
   thumbnailUrl: string | null;
@@ -21,7 +21,7 @@ export const myVideosRouter = router({
   listAll: protectedProcedure
     .input(
       z.object({
-        source: z.enum(['all', 'listing_video', 'cinematic_tour', 'ai_reel', 'avatar_video']).optional().default('all'),
+        source: z.enum(['all', 'listing_video', 'cinematic_tour', 'ai_reel', 'avatar_video', 'live_tour']).optional().default('all'),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -117,6 +117,28 @@ export const myVideosRouter = router({
             thumbnailUrl: null,
             status: r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
             durationSeconds: r.duration ?? null,
+            createdAt: r.createdAt,
+          });
+        }
+      }
+
+      // 5. Live Tour Jobs
+      if (src === 'all' || src === 'live_tour') {
+        const rows = await db!
+          .select()
+          .from(liveTourJobs)
+          .where(eq(liveTourJobs.userId, userId))
+          .orderBy(desc(liveTourJobs.createdAt));
+        for (const r of rows) {
+          if (!r.videoUrl && r.status !== 'completed') continue;
+          results.push({
+            id: `livetour_${r.id}`,
+            source: 'live_tour',
+            title: r.propertyAddress ?? 'Live Tour',
+            videoUrl: r.videoUrl ?? null,
+            thumbnailUrl: r.thumbnailUrl ?? null,
+            status: r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
+            durationSeconds: null,
             createdAt: r.createdAt,
           });
         }
@@ -263,6 +285,11 @@ export const myVideosRouter = router({
         await db!
           .delete(fullAvatarVideos)
           .where(and(eq(fullAvatarVideos.id, numId), eq(fullAvatarVideos.userId, userId)));
+      } else if (compositeId.startsWith('livetour_')) {
+        const jobId = compositeId.replace('livetour_', '');
+        await db!
+          .delete(liveTourJobs)
+          .where(and(eq(liveTourJobs.id, jobId), eq(liveTourJobs.userId, userId)));
       } else {
         throw new Error('Unknown video type');
       }

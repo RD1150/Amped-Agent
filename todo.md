@@ -4091,3 +4091,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Show grace credit count on retry button ("Using 1 of 2 free retries")
 - [ ] Motion preview GIFs in camera motion selector dropdown
 - [ ] Live Tour feature: in-browser guided room-by-room video recorder (like Momenzo)
+- [ ] Add Live Tour videos to My Videos page
+- [ ] Add 15-second auto-stop countdown to Live Tour recorder
+- [ ] Add teleprompter mode to Live Tour recorder

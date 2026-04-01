@@ -24,11 +24,12 @@ import {
   VideoOff,
   ExternalLink,
   Trash2,
+  Smartphone,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 
-type VideoSource = 'listing_video' | 'cinematic_tour' | 'ai_reel' | 'avatar_video' | 'authority_reel';
+type VideoSource = 'listing_video' | 'cinematic_tour' | 'ai_reel' | 'avatar_video' | 'authority_reel' | 'live_tour';
 
 interface UnifiedVideo {
   id: string;
@@ -72,6 +73,12 @@ const SOURCE_CONFIG: Record<VideoSource, { label: string; icon: React.ElementTyp
     icon: UserCircle,
     color: "bg-primary/20 text-primary border-primary/20",
     path: "/full-avatar-video",
+  },
+  live_tour: {
+    label: "Live Tour",
+    icon: Smartphone,
+    color: "bg-teal-500/20 text-teal-600 border-teal-500/30",
+    path: "/live-tour",
   },
 };
 
@@ -119,6 +126,7 @@ const FILTER_TABS: Array<{ value: FilterSource; label: string; icon: React.Eleme
   { value: "cinematic_tour", label: "AI Motion Tours", icon: Film },
   { value: "ai_reel", label: "AI Reels", icon: Clapperboard },
   { value: "avatar_video", label: "Avatar Videos", icon: UserCircle },
+  { value: "live_tour", label: "Live Tours", icon: Smartphone },
 ];
 
 export default function MyVideos() {
