@@ -264,6 +264,25 @@ const menuSections = [
         },
       },
       {
+        icon: Youtube,
+        label: "YouTube Builder",
+        path: "/youtube-video-builder",
+        description: "Long-form avatar video for YouTube (5–15 min)",
+        badge: "New",
+        hoverInfo: {
+          tagline: "Write a long-form script, have your avatar deliver it, then auto-clip into Reels & Shorts.",
+          details: [
+            { label: "Style", value: "16:9 Landscape talking-head for YouTube" },
+            { label: "Best for", value: "Market updates, buyer/seller guides, neighborhood spotlights" },
+            { label: "Length", value: "5–15 minutes" },
+            { label: "Auto-clips", value: "AI identifies 4–5 Reels/Shorts moments" },
+            { label: "SEO", value: "AI generates title, description, tags & chapters" },
+            { label: "Credits", value: "20–55 credits depending on length" },
+            { label: "Time", value: "5–20 minutes to generate" },
+          ],
+        },
+      },
+      {
         icon: FileVideo2,
         label: "My Videos",
         path: "/my-videos",
