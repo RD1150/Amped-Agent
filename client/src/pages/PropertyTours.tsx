@@ -622,39 +622,55 @@ export default function PropertyTours() {
             </p>
           </div>
           {dailyUsage && (
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
-              <div className="p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Daily Videos</p>
-                {dailyUsage.isUnlimited ? (
-                  <>
-                    <p className="text-2xl font-bold text-primary">
-                      ∞
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Unlimited</p>
-                    <p className="text-xs text-primary dark:text-green-400 mt-2 font-medium">
-                      Pro Plan
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-2xl font-bold text-primary">
-                      {dailyUsage.remaining}/{dailyUsage.limit}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">remaining today</p>
-                    {dailyUsage.remaining <= 2 && dailyUsage.remaining > 0 && (
-                      <p className="text-xs text-primary/70 mt-2 font-medium">
-                        Low limit!
+            <div className="flex flex-col gap-2">
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
+                <div className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Daily Videos</p>
+                  {dailyUsage.isUnlimited ? (
+                    <>
+                      <p className="text-2xl font-bold text-primary">
+                        ∞
                       </p>
-                    )}
-                    {dailyUsage.remaining === 0 && (
-                      <p className="text-xs text-destructive mt-2 font-medium">
-                        Limit reached
+                      <p className="text-xs text-muted-foreground mt-1">Unlimited</p>
+                      <p className="text-xs text-primary dark:text-green-400 mt-2 font-medium">
+                        Pro Plan
                       </p>
-                    )}
-                  </>
-                )}
-              </div>
-            </Card>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-2xl font-bold text-primary">
+                        {dailyUsage.remaining}/{dailyUsage.limit}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">remaining today</p>
+                      {dailyUsage.remaining <= 2 && dailyUsage.remaining > 0 && (
+                        <p className="text-xs text-primary/70 mt-2 font-medium">
+                          Low limit!
+                        </p>
+                      )}
+                      {dailyUsage.remaining === 0 && (
+                        <p className="text-xs text-destructive mt-2 font-medium">
+                          Limit reached
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              </Card>
+              {(dailyUsage as any).graceCredits && (
+                <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900 border-amber-200 dark:border-amber-800">
+                  <div className="p-3 text-center">
+                    <p className="text-xs text-muted-foreground mb-1">Free Retries</p>
+                    <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                      {(dailyUsage as any).graceCredits.kenBurns}/2
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">remaining</p>
+                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-1 leading-tight">
+                      Re-generate buggy videos free
+                    </p>
+                  </div>
+                </Card>
+              )}
+            </div>
           )}
         </div>
       </div>

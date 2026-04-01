@@ -145,8 +145,21 @@ export async function getDailyVideoUsage(userId: number): Promise<{
   remaining: number;
   resetTime: Date;
   isUnlimited: boolean;
+  graceCredits: { kenBurns: number; cinematic: number; authorityReel: number };
 }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const status = await checkDailyVideoLimit(userId);
+  // Fetch grace credits alongside usage
+  const [userRow] = await db
+    .select({
+      graceKenBurnsRemaining: users.graceKenBurnsRemaining,
+      graceCinematicRemaining: users.graceCinematicRemaining,
+      graceAuthorityReelRemaining: users.graceAuthorityReelRemaining,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
 
   return {
     used: status.current,
@@ -154,6 +167,11 @@ export async function getDailyVideoUsage(userId: number): Promise<{
     remaining: status.remaining,
     resetTime: status.resetTime,
     isUnlimited: status.remaining === -1,
+    graceCredits: {
+      kenBurns: userRow?.graceKenBurnsRemaining ?? 2,
+      cinematic: userRow?.graceCinematicRemaining ?? 2,
+      authorityReel: userRow?.graceAuthorityReelRemaining ?? 2,
+    },
   };
 }
 

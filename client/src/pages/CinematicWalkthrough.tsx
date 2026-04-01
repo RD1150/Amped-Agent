@@ -82,21 +82,21 @@ const VOICE_OPTIONS = [
 // ─── Motion options per room category ───────────────────────────────────────
 
 const EXTERIOR_MOTIONS = [
-  { value: "drone_pullback", label: "🚁 Drone Pull-Back" },
-  { value: "drone_pushforward", label: "🚁 Drone Push Forward" },
-  { value: "orbit_left", label: "↺ Orbit Left" },
-  { value: "orbit_right", label: "↻ Orbit Right" },
-  { value: "tilt_up", label: "↑ Tilt Up" },
-  { value: "push_in", label: "→ Push In" },
+  { value: "drone_pullback", label: "🚁 Drone Pull-Back", tip: "Camera pulls back & rises to reveal the full property from above" },
+  { value: "drone_pushforward", label: "🚁 Drone Push Forward", tip: "Camera descends toward the entrance for a dramatic approach" },
+  { value: "orbit_left", label: "↺ Orbit Left", tip: "Camera circles left around the property, revealing depth & dimension" },
+  { value: "orbit_right", label: "↻ Orbit Right", tip: "Camera circles right around the property, revealing depth & dimension" },
+  { value: "tilt_up", label: "↑ Tilt Up", tip: "Camera tilts upward to slowly reveal the full facade and roofline" },
+  { value: "push_in", label: "→ Push In", tip: "Camera moves forward toward the subject, revealing detail" },
 ];
 
 const INTERIOR_MOTIONS = [
-  { value: "auto", label: "Auto (alternating)" },
-  { value: "ltr", label: "→ Pan Left to Right" },
-  { value: "rtl", label: "← Pan Right to Left" },
-  { value: "push_in", label: "⟶ Dolly / Push In" },
-  { value: "crane_up", label: "↑ Crane Up" },
-  { value: "crane_down", label: "↓ Crane Down" },
+  { value: "auto", label: "Auto (alternating)", tip: "Alternates left and right pans automatically across photos" },
+  { value: "ltr", label: "→ Pan Left to Right", tip: "Camera sweeps left to right, revealing the full space" },
+  { value: "rtl", label: "← Pan Right to Left", tip: "Camera sweeps right to left, revealing the full space" },
+  { value: "push_in", label: "⟶ Dolly / Push In", tip: "Camera moves forward into the room for an immersive feel" },
+  { value: "crane_up", label: "↑ Crane Up", tip: "Camera rises upward to reveal the full room from a higher vantage" },
+  { value: "crane_down", label: "↓ Crane Down", tip: "Camera descends from above to reveal the room at eye level" },
 ];
 
 function getMotionsForRoomType(roomType: string) {
@@ -244,7 +244,10 @@ function SortablePhotoCard({ photo, photos, index, onRemove, onUpdate }: Sortabl
           <SelectContent>
             {getMotionsForRoomType(photo.roomType).map((m) => (
               <SelectItem key={m.value} value={m.value} className="text-xs">
-                {m.label}
+                <div className="flex flex-col">
+                  <span>{m.label}</span>
+                  {m.tip && <span className="text-muted-foreground text-[10px] leading-tight mt-0.5">{m.tip}</span>}
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
@@ -371,6 +374,7 @@ export default function CinematicWalkthrough() {
   };
 
   // tRPC
+  const { data: dailyUsage } = trpc.rateLimit.getDailyUsage.useQuery();
   const generateMutation = trpc.cinematicWalkthrough.generate.useMutation();
   const retryMutation = trpc.cinematicWalkthrough.retry.useMutation();
   const { data: jobProgress } = trpc.cinematicWalkthrough.getJobProgress.useQuery(
@@ -599,7 +603,7 @@ export default function CinematicWalkthrough() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">AI Motion Tour</h1>
             <p className="text-sm text-muted-foreground">
-              Genuine cinematic motion through every room, not Ken Burns
+              AI-generated camera movement per room — dolly, crane, drone, orbit
             </p>
           </div>
           <Badge className="ml-auto bg-primary/10 text-primary border-primary/20 text-xs">Premium</Badge>
@@ -610,6 +614,17 @@ export default function CinematicWalkthrough() {
             Each photo is animated with genuine AI cinematic motion (dolly, crane, fly-through), then assembled into a seamless walkthrough video. Generation takes <strong>2–5 minutes</strong> depending on the number of photos.
           </span>
         </div>
+        {/* Grace credit badge */}
+        {dailyUsage && (dailyUsage as any).graceCredits && (
+          <div className="flex items-center gap-2 p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-sm">
+            <span className="text-amber-600 dark:text-amber-400 font-semibold">
+              {(dailyUsage as any).graceCredits.cinematic}/2 free retries remaining
+            </span>
+            <span className="text-amber-700 dark:text-amber-300 text-xs">
+              — Re-generate a buggy video without using your quota
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Video Result */}
