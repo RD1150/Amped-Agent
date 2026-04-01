@@ -129,6 +129,29 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
+// Live Tour clip upload endpoint
+router.post("/live-tour/upload", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+    const file = req.file;
+    const mimeType = file.mimetype || "video/webm";
+    if (!mimeType.startsWith("video/") && !file.originalname?.match(/\.(mp4|webm|mov|avi)$/i)) {
+      return res.status(400).json({ error: "Only video files are accepted" });
+    }
+    const randomSuffix = randomBytes(8).toString("hex");
+    const ext = file.originalname?.split(".").pop()?.toLowerCase() || "webm";
+    const filename = `live-tours/${Date.now()}-${randomSuffix}.${ext}`;
+    const { url } = await storagePut(filename, file.buffer, mimeType);
+    console.log(`\u2705 Live tour clip uploaded: ${filename} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+    res.json({ url });
+  } catch (error) {
+    console.error("Live tour upload error:", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : "Upload failed" });
+  }
+});
+
 // Audio/voice sample upload endpoint (for ElevenLabs voice cloning)
 router.post("/upload-audio", upload.single("audio"), async (req, res) => {
   try {

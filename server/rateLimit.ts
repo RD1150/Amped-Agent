@@ -156,10 +156,37 @@ export async function getDailyVideoUsage(userId: number): Promise<{
       graceKenBurnsRemaining: users.graceKenBurnsRemaining,
       graceCinematicRemaining: users.graceCinematicRemaining,
       graceAuthorityReelRemaining: users.graceAuthorityReelRemaining,
+      graceLastReset: users.graceLastReset,
     })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
+
+  // Monthly grace credit reset: if it's been 30+ days since last reset, restore all to 2
+  let graceKenBurns = userRow?.graceKenBurnsRemaining ?? 2;
+  let graceCinematic = userRow?.graceCinematicRemaining ?? 2;
+  let graceAuthorityReel = userRow?.graceAuthorityReelRemaining ?? 2;
+
+  if (userRow?.graceLastReset) {
+    const daysSinceGraceReset = Math.floor(
+      (Date.now() - new Date(userRow.graceLastReset).getTime()) / (1000 * 60 * 60 * 24)
+    );
+    if (daysSinceGraceReset >= 30) {
+      // Reset all grace credits back to 2
+      await db
+        .update(users)
+        .set({
+          graceKenBurnsRemaining: 2,
+          graceCinematicRemaining: 2,
+          graceAuthorityReelRemaining: 2,
+          graceLastReset: new Date(),
+        })
+        .where(eq(users.id, userId));
+      graceKenBurns = 2;
+      graceCinematic = 2;
+      graceAuthorityReel = 2;
+    }
+  }
 
   return {
     used: status.current,
@@ -168,9 +195,9 @@ export async function getDailyVideoUsage(userId: number): Promise<{
     resetTime: status.resetTime,
     isUnlimited: status.remaining === -1,
     graceCredits: {
-      kenBurns: userRow?.graceKenBurnsRemaining ?? 2,
-      cinematic: userRow?.graceCinematicRemaining ?? 2,
-      authorityReel: userRow?.graceAuthorityReelRemaining ?? 2,
+      kenBurns: graceKenBurns,
+      cinematic: graceCinematic,
+      authorityReel: graceAuthorityReel,
     },
   };
 }

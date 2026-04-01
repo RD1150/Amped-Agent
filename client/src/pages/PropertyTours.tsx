@@ -1739,10 +1739,15 @@ export default function PropertyTours() {
                                 variant="outline"
                                 className="h-7 px-2 text-xs"
                                 onClick={async () => {
+                                  const graceLeft = (dailyUsage as any)?.graceCredits?.kenBurns ?? 0;
+                                  if (graceLeft > 0) {
+                                    toast.info(`Using 1 of ${graceLeft} free ${graceLeft === 1 ? 'retry' : 'retries'} — no quota deducted`);
+                                  }
                                   try {
                                     await retryVideo.mutateAsync({ tourId: tour.id });
                                     toast.success("Retrying video generation...");
                                     utils.propertyTours.list.invalidate();
+                                    utils.rateLimit.getDailyUsage.invalidate();
                                     setGeneratingTourId(tour.id);
                                     setGenerationProgress(5);
                                     setGenerationStatus("Retrying...");
@@ -1753,7 +1758,7 @@ export default function PropertyTours() {
                                 disabled={retryVideo.isPending}
                               >
                                 {retryVideo.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3 mr-1" />}
-                                Retry
+                                Retry {(dailyUsage as any)?.graceCredits?.kenBurns > 0 ? `(✨ ${(dailyUsage as any).graceCredits.kenBurns} free)` : ''}
                               </Button>
                             </div>
                             {expandedErrorTourId === tour.id && tour.errorMessage && (

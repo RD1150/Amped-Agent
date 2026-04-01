@@ -4087,3 +4087,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add homebuyerfair.org QR code to landing page footer
 - [ ] Fix CSMAR logo blank square in footer
 - [x] Add delete video feature to My Videos page with 'type delete' confirmation dialog
+- [ ] Monthly grace credit reset (reset graceKenBurns and graceCinematic to 2 each month)
+- [x] Show grace credit count on retry button ("Using 1 of 2 free retries")
+- [ ] Motion preview GIFs in camera motion selector dropdown
+- [ ] Live Tour feature: in-browser guided room-by-room video recorder (like Momenzo)

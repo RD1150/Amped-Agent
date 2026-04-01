@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `graceLastReset` timestamp DEFAULT (now()) NOT NULL;

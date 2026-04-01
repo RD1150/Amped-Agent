@@ -54,6 +54,7 @@ export const users = mysqlTable("users", {
   graceKenBurnsRemaining: int("graceKenBurnsRemaining").default(2).notNull(),
   graceCinematicRemaining: int("graceCinematicRemaining").default(2).notNull(),
   graceAuthorityReelRemaining: int("graceAuthorityReelRemaining").default(2).notNull(),
+  graceLastReset: timestamp("graceLastReset").defaultNow().notNull(), // Track when grace credits were last reset (monthly)
 });
 
 export type User = typeof users.$inferSelect;
@@ -914,3 +915,25 @@ export const customAvatarTwins = mysqlTable("custom_avatar_twins", {
 });
 export type CustomAvatarTwin = typeof customAvatarTwins.$inferSelect;
 export type InsertCustomAvatarTwin = typeof customAvatarTwins.$inferInsert;
+
+// ─── Live Tour (in-browser guided room recorder) ─────────────────────────────
+// Each row represents one guided recording session
+export const liveTourJobs = mysqlTable("live_tour_jobs", {
+  id: varchar("id", { length: 36 }).primaryKey(), // UUID
+  userId: int("userId").notNull(),
+  propertyAddress: varchar("propertyAddress", { length: 500 }).notNull().default(""),
+  agentName: varchar("agentName", { length: 255 }).notNull().default(""),
+  agentPhone: varchar("agentPhone", { length: 50 }).notNull().default(""),
+  agentLogoUrl: varchar("agentLogoUrl", { length: 1000 }).notNull().default(""),
+  // JSON array of { roomName, clipUrl, duration } objects
+  clips: text("clips").notNull().default("[]"),
+  // recording | processing | completed | failed
+  status: varchar("status", { length: 50 }).notNull().default("recording"),
+  videoUrl: varchar("videoUrl", { length: 1000 }).notNull().default(""),
+  thumbnailUrl: varchar("thumbnailUrl", { length: 1000 }).notNull().default(""),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type LiveTourJob = typeof liveTourJobs.$inferSelect;
+export type InsertLiveTourJob = typeof liveTourJobs.$inferInsert;

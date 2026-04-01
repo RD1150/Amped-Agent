@@ -60,6 +60,7 @@ import {
   ListVideo,
   Share2,
   BarChart2,
+  Smartphone,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -186,6 +187,13 @@ const menuSections = [
         path: "/cinematic-walkthrough",
         description: "AI-animated AI motion tour for premium listings",
         badge: "Premium",
+      },
+      {
+        icon: Smartphone,
+        label: "Live Tour",
+        path: "/live-tour",
+        description: "Record a guided room-by-room walkthrough from your phone",
+        badge: "New",
       },
       {
         icon: Video,

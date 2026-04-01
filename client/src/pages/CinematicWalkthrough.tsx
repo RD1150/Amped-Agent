@@ -81,22 +81,24 @@ const VOICE_OPTIONS = [
 
 // ─── Motion options per room category ───────────────────────────────────────
 
+const _CDN_MOTION = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT";
+
 const EXTERIOR_MOTIONS = [
-  { value: "drone_pullback", label: "🚁 Drone Pull-Back", tip: "Camera pulls back & rises to reveal the full property from above" },
-  { value: "drone_pushforward", label: "🚁 Drone Push Forward", tip: "Camera descends toward the entrance for a dramatic approach" },
-  { value: "orbit_left", label: "↺ Orbit Left", tip: "Camera circles left around the property, revealing depth & dimension" },
-  { value: "orbit_right", label: "↻ Orbit Right", tip: "Camera circles right around the property, revealing depth & dimension" },
-  { value: "tilt_up", label: "↑ Tilt Up", tip: "Camera tilts upward to slowly reveal the full facade and roofline" },
-  { value: "push_in", label: "→ Push In", tip: "Camera moves forward toward the subject, revealing detail" },
+  { value: "drone_pullback", label: "🚁 Drone Pull-Back", tip: "Camera pulls back & rises to reveal the full property from above", gif: `${_CDN_MOTION}/drone_pullback_877bea74.gif` },
+  { value: "drone_pushforward", label: "🚁 Drone Push Forward", tip: "Camera descends toward the entrance for a dramatic approach", gif: `${_CDN_MOTION}/drone_pushforward_7cb45930.gif` },
+  { value: "orbit_left", label: "↺ Orbit Left", tip: "Camera circles left around the property, revealing depth & dimension", gif: `${_CDN_MOTION}/orbit_left_3ec0f779.gif` },
+  { value: "orbit_right", label: "↻ Orbit Right", tip: "Camera circles right around the property, revealing depth & dimension", gif: `${_CDN_MOTION}/orbit_right_f5dca932.gif` },
+  { value: "tilt_up", label: "↑ Tilt Up", tip: "Camera tilts upward to slowly reveal the full facade and roofline", gif: `${_CDN_MOTION}/tilt_up_8757291b.gif` },
+  { value: "push_in", label: "→ Push In", tip: "Camera moves forward toward the subject, revealing detail", gif: `${_CDN_MOTION}/push_in_aafef307.gif` },
 ];
 
 const INTERIOR_MOTIONS = [
-  { value: "auto", label: "Auto (alternating)", tip: "Alternates left and right pans automatically across photos" },
-  { value: "ltr", label: "→ Pan Left to Right", tip: "Camera sweeps left to right, revealing the full space" },
-  { value: "rtl", label: "← Pan Right to Left", tip: "Camera sweeps right to left, revealing the full space" },
-  { value: "push_in", label: "⟶ Dolly / Push In", tip: "Camera moves forward into the room for an immersive feel" },
-  { value: "crane_up", label: "↑ Crane Up", tip: "Camera rises upward to reveal the full room from a higher vantage" },
-  { value: "crane_down", label: "↓ Crane Down", tip: "Camera descends from above to reveal the room at eye level" },
+  { value: "auto", label: "Auto (alternating)", tip: "Alternates left and right pans automatically across photos", gif: `${_CDN_MOTION}/auto_e3c75603.gif` },
+  { value: "ltr", label: "→ Pan Left to Right", tip: "Camera sweeps left to right, revealing the full space", gif: `${_CDN_MOTION}/pan_ltr_2b198cc5.gif` },
+  { value: "rtl", label: "← Pan Right to Left", tip: "Camera sweeps right to left, revealing the full space", gif: `${_CDN_MOTION}/pan_rtl_59254aab.gif` },
+  { value: "push_in", label: "⟶ Dolly / Push In", tip: "Camera moves forward into the room for an immersive feel", gif: `${_CDN_MOTION}/push_in_aafef307.gif` },
+  { value: "crane_up", label: "↑ Crane Up", tip: "Camera rises upward to reveal the full room from a higher vantage", gif: `${_CDN_MOTION}/crane_up_06a73c45.gif` },
+  { value: "crane_down", label: "↓ Crane Down", tip: "Camera descends from above to reveal the room at eye level", gif: `${_CDN_MOTION}/crane_down_683b9945.gif` },
 ];
 
 function getMotionsForRoomType(roomType: string) {
@@ -241,12 +243,21 @@ function SortablePhotoCard({ photo, photos, index, onRemove, onUpdate }: Sortabl
           <SelectTrigger className="h-8 text-xs">
             <SelectValue placeholder="Camera motion" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="w-64">
             {getMotionsForRoomType(photo.roomType).map((m) => (
-              <SelectItem key={m.value} value={m.value} className="text-xs">
-                <div className="flex flex-col">
-                  <span>{m.label}</span>
-                  {m.tip && <span className="text-muted-foreground text-[10px] leading-tight mt-0.5">{m.tip}</span>}
+              <SelectItem key={m.value} value={m.value} className="text-xs py-1.5">
+                <div className="flex items-center gap-2.5">
+                  {m.gif && (
+                    <img
+                      src={m.gif}
+                      alt={m.label}
+                      className="w-16 h-11 rounded object-cover flex-shrink-0 border border-border/50"
+                    />
+                  )}
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-medium">{m.label}</span>
+                    {m.tip && <span className="text-muted-foreground text-[10px] leading-tight mt-0.5 whitespace-normal">{m.tip}</span>}
+                  </div>
                 </div>
               </SelectItem>
             ))}
@@ -277,6 +288,7 @@ async function uploadPhotoToServer(file: File): Promise<string> {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CinematicWalkthrough() {
+  const utils = trpc.useUtils();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
@@ -564,6 +576,11 @@ export default function CinematicWalkthrough() {
       toast.error("Retry limit reached", { description: "Please contact support for assistance." });
       return;
     }
+    // Show grace credit info toast before retrying
+    const graceLeft = (dailyUsage as any)?.graceCredits?.cinematic ?? 0;
+    if (graceLeft > 0) {
+      toast.info(`Using 1 of ${graceLeft} free ${graceLeft === 1 ? 'retry' : 'retries'} — no quota deducted`);
+    }
     const currentFailedJobId = failedJobId;
     const currentFailedJobError = failedJobError;
     setFailedJobId(null);
@@ -574,6 +591,7 @@ export default function CinematicWalkthrough() {
       const result = await retryMutation.mutateAsync({ failedJobId: currentFailedJobId });
       setJobId(result.jobId);
       setFailedJobRetryCount(result.retryCount ?? 0);
+      utils.rateLimit.getDailyUsage.invalidate();
       toast.success("Retrying generation", {
         description: `Attempt ${result.retryCount} of ${result.maxRetries}. Restarting ${result.totalPhotos} clips.`,
       });
