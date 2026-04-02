@@ -14,7 +14,13 @@ import {
   HelpCircle,
   Award,
   ChevronRight,
-  Zap
+  Zap,
+  Youtube,
+  Eye,
+  Users,
+  Video,
+  ExternalLink,
+  Link2,
 } from "lucide-react";
 import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 import UsageCounter from "@/components/UsageCounter";
@@ -312,8 +318,113 @@ export default function Dashboard() {
         </div>
       </Card>
 
+      {/* YouTube Channel Analytics */}
+      <YouTubeAnalyticsWidget />
+
       {/* Video Preview Gallery */}
       <VideoPreviewGallery />
     </div>
+  );
+}
+
+function YouTubeAnalyticsWidget() {
+  const [, setLocation] = useLocation();
+  const { data: analytics, isLoading } = trpc.youtube.getChannelAnalytics.useQuery(undefined, {
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  if (isLoading) return null;
+
+  if (!analytics) {
+    return (
+      <Card className="p-6 border-dashed border-2 border-muted">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-red-500/10">
+              <Youtube className="h-5 w-5 text-red-500" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">YouTube Channel</p>
+              <p className="text-xs text-muted-foreground">Connect your channel to see analytics</p>
+            </div>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => setLocation("/integrations")} className="gap-1.5">
+            <Link2 className="h-3.5 w-3.5" />
+            Connect
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
+  const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `${(n / 1_000).toFixed(1)}K` : String(n);
+
+  return (
+    <Card className="p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-red-500/10">
+            <Youtube className="h-5 w-5 text-red-500" />
+          </div>
+          <div>
+            <p className="font-semibold">{analytics.channelTitle}</p>
+            <p className="text-xs text-muted-foreground">YouTube Channel</p>
+          </div>
+        </div>
+        <Button size="sm" variant="ghost" className="gap-1.5 text-xs"
+          onClick={() => window.open(`https://studio.youtube.com`, "_blank")}>
+          <ExternalLink className="h-3 w-3" /> Studio
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div className="text-center p-3 rounded-lg bg-muted/50">
+          <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
+            <Eye className="h-3.5 w-3.5" />
+            <span className="text-xs">Views</span>
+          </div>
+          <p className="text-xl font-bold">{fmt(analytics.stats.views)}</p>
+        </div>
+        <div className="text-center p-3 rounded-lg bg-muted/50">
+          <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
+            <Users className="h-3.5 w-3.5" />
+            <span className="text-xs">Subscribers</span>
+          </div>
+          <p className="text-xl font-bold">{fmt(analytics.stats.subscribers)}</p>
+        </div>
+        <div className="text-center p-3 rounded-lg bg-muted/50">
+          <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
+            <Video className="h-3.5 w-3.5" />
+            <span className="text-xs">Videos</span>
+          </div>
+          <p className="text-xl font-bold">{fmt(analytics.stats.videos)}</p>
+        </div>
+      </div>
+
+      {analytics.recentVideos.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recent Videos</p>
+          <div className="space-y-2">
+            {analytics.recentVideos.slice(0, 3).map((v) => (
+              <div key={v.id}
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer transition-colors"
+                onClick={() => window.open(`https://www.youtube.com/watch?v=${v.id}`, "_blank")}>
+                {v.thumbnail && <img src={v.thumbnail} alt={v.title} className="w-16 h-9 rounded object-cover shrink-0" />}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{v.title}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(v.publishedAt).toLocaleDateString()}</p>
+                </div>
+                <ExternalLink className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Button size="sm" className="w-full" variant="outline" onClick={() => setLocation("/youtube-video-builder")}>
+        <Youtube className="h-3.5 w-3.5 mr-1.5" /> Create YouTube Video
+      </Button>
+    </Card>
   );
 }

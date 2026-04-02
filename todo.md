@@ -4099,3 +4099,17 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] YouTube Video Builder: Clip-to-Reels handoff (auto-clip → AI Reels builder)
 - [x] Remove all grace credit / free retry logic from backend and frontend
 - [x] Remove grace credit columns from DB schema (migration applied)
+
+## April 2026 Sprint
+- [ ] Image Upload Library: schema, S3 upload, management UI with AI hook overlay
+- [ ] Listing Presentation Builder: Gamma API integration, wizard page, PPTX/PDF download
+- [ ] YouTube Channel Analytics widget on Dashboard
+- [ ] Script-to-Reel auto-queue: batch clip generation from YouTube Builder
+
+## Features Added (April 2026 Sprint 2)
+- [x] Image Upload Library: S3 upload, grid view, tagging, filtering
+- [x] Listing Presentation Builder: Gamma API integration, 12-slide deck generation, PPTX/PDF export
+- [x] YouTube Channel Analytics widget on Dashboard (views, subscribers, videos, recent uploads)
+- [x] Script-to-Reel batch queue: "Queue All Clips as Reels" button in YouTube Builder
+- [x] Grace credits fully removed from backend and frontend (PropertyTours, CinematicWalkthrough)
+- [x] Grace credit columns dropped from database schema

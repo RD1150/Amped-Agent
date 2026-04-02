@@ -28,6 +28,8 @@ import { myVideosRouter } from "./routers/myVideos";
 import { gbpRouter } from "./routers/gbp";
 import { youtubeRouter } from "./routers/youtube";
 import { youtubeVideoBuilderRouter } from "./routers/youtubeVideoBuilder";
+import { imageLibraryRouter } from "./routers/imageLibrary";
+import { listingPresentationRouter } from "./routers/listingPresentation";
 import { repurposeRouter } from "./routers/repurpose";
 import { leadMagnetRouter } from "./routers/leadMagnet";
 import { cinematicWalkthroughRouter } from "./routers/cinematicWalkthrough";
@@ -50,6 +52,8 @@ export const appRouter = router({
   gbp: gbpRouter,
   youtube: youtubeRouter,
   youtubeVideoBuilder: youtubeVideoBuilderRouter,
+  imageLibrary: imageLibraryRouter,
+  listingPresentation: listingPresentationRouter,
   repurpose: repurposeRouter,
   leadMagnet: leadMagnetRouter,
   cinematicWalkthrough: cinematicWalkthroughRouter,

@@ -733,14 +733,31 @@ export default function YouTubeVideoBuilder() {
                       </div>
                     </div>
                   ))}
-                  <Button
-                    variant="ghost" size="sm"
-                    onClick={() => generateClipsMutation.mutate({ script, estimatedMinutes })}
-                    disabled={generateClipsMutation.isPending}
-                    className="w-full gap-2 text-xs"
-                  >
-                    <RefreshCw className="h-3 w-3" /> Regenerate Clips
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      className="flex-1 gap-2 text-xs bg-red-500 hover:bg-red-600 text-white"
+                      onClick={() => {
+                        clips.forEach((clip, i) => {
+                          setTimeout(() => {
+                            const encoded = encodeURIComponent(clip.scriptExcerpt);
+                            window.open(`/auto-reels?script=${encoded}`, `_blank`);
+                          }, i * 400);
+                        });
+                        toast.success(`Opening ${clips.length} clips in AutoReels — generate each Reel individually`);
+                      }}
+                    >
+                      <Play className="h-3 w-3" /> Queue All {clips.length} Clips as Reels
+                    </Button>
+                    <Button
+                      variant="ghost" size="sm"
+                      onClick={() => generateClipsMutation.mutate({ script, estimatedMinutes })}
+                      disabled={generateClipsMutation.isPending}
+                      className="gap-2 text-xs"
+                    >
+                      <RefreshCw className="h-3 w-3" /> Regenerate
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>

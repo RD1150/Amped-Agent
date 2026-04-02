@@ -310,4 +310,69 @@ export const youtubeRouter = router({
         videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
       };
     }),
+
+  /**
+   * Fetch channel analytics: stats + recent videos
+   */
+  getChannelAnalytics: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    const rows = await db!
+      .select()
+      .from(youtubeConnections)
+      .where(and(eq(youtubeConnections.userId, ctx.user.id), eq(youtubeConnections.isConnected, true)))
+      .limit(1);
+    if (!rows.length) return null;
+
+    const conn = rows[0];
+    const accessToken = await getValidToken(conn);
+
+    // Fetch channel stats
+    const channelRes = await fetch(
+      `${YOUTUBE_API_BASE}/channels?part=statistics,snippet&mine=true`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    if (!channelRes.ok) return null;
+    const channelData = await channelRes.json() as {
+      items?: Array<{
+        statistics: { viewCount?: string; subscriberCount?: string; videoCount?: string };
+        snippet: { title: string; thumbnails?: { default?: { url: string } } };
+      }>;
+    };
+    const channel = channelData.items?.[0];
+    if (!channel) return null;
+
+    // Fetch recent videos
+    let recentVideos: Array<{ id: string; title: string; thumbnail: string; publishedAt: string }> = [];
+    try {
+      const videosRes = await fetch(
+        `${YOUTUBE_API_BASE}/search?part=snippet&forMine=true&type=video&order=date&maxResults=5`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      if (videosRes.ok) {
+        const videosData = await videosRes.json() as {
+          items?: Array<{
+            id: { videoId: string };
+            snippet: { title: string; thumbnails: { medium?: { url: string } }; publishedAt: string };
+          }>;
+        };
+        recentVideos = (videosData.items ?? []).map((v) => ({
+          id: v.id.videoId,
+          title: v.snippet.title,
+          thumbnail: v.snippet.thumbnails.medium?.url ?? "",
+          publishedAt: v.snippet.publishedAt,
+        }));
+      }
+    } catch { /* ignore video fetch errors */ }
+
+    return {
+      channelTitle: channel.snippet.title,
+      channelThumbnail: channel.snippet.thumbnails?.default?.url ?? "",
+      stats: {
+        views: parseInt(channel.statistics.viewCount ?? "0", 10),
+        subscribers: parseInt(channel.statistics.subscriberCount ?? "0", 10),
+        videos: parseInt(channel.statistics.videoCount ?? "0", 10),
+      },
+      recentVideos,
+    };
+  }),
 });

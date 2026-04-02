@@ -61,6 +61,8 @@ import {
   Share2,
   BarChart2,
   Smartphone,
+  Images,
+  Presentation,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -174,6 +176,22 @@ const menuSections = [
         description: "AI coaching for positioning and market leadership",
         badge: "Premium",
       },
+      {
+        icon: Presentation,
+        label: "Listing Presentation",
+        path: "/listing-presentation",
+        description: "AI-generated 10-slide listing appointment deck",
+        badge: "New",
+        hoverInfo: {
+          tagline: "Generate a polished listing appointment presentation in minutes — powered by Gamma AI.",
+          details: [
+            { label: "Best for", value: "Listing appointments, seller consultations" },
+            { label: "Output", value: "10-slide deck: property, comps, agent bio, marketing plan" },
+            { label: "Export", value: "Download as PPTX or PDF" },
+            { label: "Time", value: "1–3 minutes to generate" },
+          ],
+        },
+      },
     ],
   },
   {
@@ -278,6 +296,21 @@ const menuSections = [
             { label: "Credits", value: "20 credits per video" },
             { label: "Time", value: "5–20 minutes to generate" },
             { label: "Includes", value: "Script templates, SEO metadata, Reels clips, Publish to YouTube" },
+          ],
+        },
+      },
+      {
+        icon: Images,
+        label: "Photo Library",
+        path: "/image-library",
+        description: "Upload and manage property photos with AI hooks",
+        hoverInfo: {
+          tagline: "Upload property photos, tag by room, and generate AI hook text for social posts — all in one place.",
+          details: [
+            { label: "Best for", value: "Organizing listing photos, creating social post assets" },
+            { label: "AI Hook", value: "Generates a punchy 12-word caption for each photo" },
+            { label: "Formats", value: "JPG, PNG, WEBP — drag-and-drop multi-upload" },
+            { label: "Features", value: "Room tagging, property address, tag filtering" },
           ],
         },
       },

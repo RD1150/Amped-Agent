@@ -505,6 +505,13 @@
       "when": 1775086522008,
       "tag": "0071_long_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "5",
+      "when": 1775103576863,
+      "tag": "0072_complete_felicia_hardy",
+      "breakpoints": true
     }
   ]
 }

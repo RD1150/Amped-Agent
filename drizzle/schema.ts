@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, tinyint } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -932,3 +932,42 @@ export const liveTourJobs = mysqlTable("live_tour_jobs", {
 });
 export type LiveTourJob = typeof liveTourJobs.$inferSelect;
 export type InsertLiveTourJob = typeof liveTourJobs.$inferInsert;
+
+// ─── Image Library ────────────────────────────────────────────────────────────
+// Stores property photos uploaded by agents, with optional AI-generated hooks
+export const imageLibrary = mysqlTable("image_library", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  filename: varchar("filename", { length: 500 }).notNull(),
+  s3Key: varchar("s3Key", { length: 500 }).notNull(),
+  url: text("url").notNull(),
+  mimeType: varchar("mimeType", { length: 100 }).notNull().default("image/jpeg"),
+  sizeBytes: int("sizeBytes"),
+  width: int("width"),
+  height: int("height"),
+  hookText: text("hookText"), // AI-generated hook text for overlay
+  hookGenerated: tinyint("hookGenerated").default(0).notNull(),
+  tags: text("tags").default("[]").notNull(), // JSON array of strings
+  propertyAddress: varchar("propertyAddress", { length: 500 }),
+  roomType: varchar("roomType", { length: 100 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ImageLibraryItem = typeof imageLibrary.$inferSelect;
+export type InsertImageLibraryItem = typeof imageLibrary.$inferInsert;
+
+// ─── Listing Presentations (Gamma API) ───────────────────────────────────────
+export const listingPresentations = mysqlTable("listing_presentations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  propertyAddress: varchar("propertyAddress", { length: 500 }),
+  gammaId: varchar("gammaId", { length: 255 }),
+  gammaUrl: text("gammaUrl"),
+  exportUrl: text("exportUrl"),
+  exportFormat: mysqlEnum("exportFormat", ["pdf", "pptx"]).default("pdf"),
+  status: mysqlEnum("status", ["generating", "completed", "failed"]).default("generating").notNull(),
+  inputData: text("inputData"), // JSON blob of form inputs
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ListingPresentation = typeof listingPresentations.$inferSelect;
+export type InsertListingPresentation = typeof listingPresentations.$inferInsert;

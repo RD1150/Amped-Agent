@@ -31,6 +31,8 @@ import Dashboard from "./pages/Dashboard";
 import AutoReels from "./pages/AutoReels";
 import FullAvatarVideo from "./pages/FullAvatarVideo";
 import YouTubeVideoBuilder from "./pages/YouTubeVideoBuilder";
+import ImageLibraryPage from "./pages/ImageLibrary";
+import ListingPresentationPage from "./pages/ListingPresentation";
 import ThumbnailGenerator from "./pages/ThumbnailGenerator";
 import PropertyTours from "./pages/PropertyTours";
 import ContentTemplates from "./pages/ContentTemplates";
@@ -116,6 +118,8 @@ function Router() {
         <Route path="/autoreels" component={AutoReels} />
         <Route path="/full-avatar-video" component={FullAvatarVideo} />
         <Route path="/youtube-video-builder" component={YouTubeVideoBuilder} />
+        <Route path="/image-library" component={ImageLibraryPage} />
+        <Route path="/listing-presentation" component={ListingPresentationPage} />
         <Route path="/thumbnails" component={ThumbnailGenerator} />
         <Route path="/property-tours" component={PropertyTours} />
         <Route path="/content-templates" component={ContentTemplates} />
