@@ -4113,3 +4113,19 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Script-to-Reel batch queue: "Queue All Clips as Reels" button in YouTube Builder
 - [x] Grace credits fully removed from backend and frontend (PropertyTours, CinematicWalkthrough)
 - [x] Grace credit columns dropped from database schema
+
+## Image Library Integration (Sprint 3)
+- [ ] Build ImageLibraryPicker modal component (single + multi-select modes)
+- [ ] Integrate ImageLibraryPicker into Post Builder (Browse Image Library button)
+- [ ] Integrate ImageLibraryPicker into Carousel Builder (Browse Image Library button, multi-select)
+- [ ] Add "Use My Images" checkbox to AI Reels that pulls random images from library as background footage
+- [ ] Add "Save as Default Theme" button to Listing Presentation Gamma theme selector
+
+## Image Library Integration (Sprint 3)
+- [x] Shared ImageLibraryPicker modal component (multi-select + single-select, tag filtering, search)
+- [x] Post Builder (AIGenerate) - Browse My Library button to select image from library
+- [x] AI Reels - Browse My Library button in background photos section
+- [x] Listing Presentation - Save as Default Theme button for Gamma theme
+- [x] Listing Presentation - Auto-load saved Gamma theme from persona on mount
+- [x] PropertyTours - reads ?libraryImages= URL param to pre-populate uploaded images
+- [x] CinematicWalkthrough - reads ?libraryImages= URL param to pre-populate photos

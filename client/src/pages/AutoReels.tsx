@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import ImageLibraryPicker from "@/components/ImageLibraryPicker";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save, Mic, Play, Square, Repeat2 } from "lucide-react";
+import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save, Mic, Play, Square, Repeat2, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
@@ -62,6 +63,7 @@ export default function AutoReels() {
   const [backgroundPhotoFiles, setBackgroundPhotoFiles] = useState<File[]>([]); // local previews
   const [backgroundPhotoPreviews, setBackgroundPhotoPreviews] = useState<string[]>([]);
   const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
+  const [showLibraryPickerForBg, setShowLibraryPickerForBg] = useState(false);
 
   // Caption controls
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
@@ -1339,6 +1341,19 @@ export default function AutoReels() {
                 </Label>
               )}
 
+              <div className="flex gap-2 mt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowLibraryPickerForBg(true)}
+                  disabled={backgroundPhotoPreviews.length >= 4}
+                  className="flex-1 text-xs"
+                >
+                  <ImageIcon className="mr-1.5 h-3.5 w-3.5" />
+                  Browse My Library
+                </Button>
+              </div>
               <input
                 id="bg-photo-upload"
                 type="file"
@@ -1658,6 +1673,21 @@ export default function AutoReels() {
             // Non-blocking — avatar still works for this session
           }
         }}
+      />
+
+      {/* Image Library Picker for background photos */}
+      <ImageLibraryPicker
+        open={showLibraryPickerForBg}
+        onClose={() => setShowLibraryPickerForBg(false)}
+        onSelect={(urls) => {
+          const remaining = 4 - backgroundPhotos.length;
+          const toAdd = urls.slice(0, remaining);
+          setBackgroundPhotos(prev => [...prev, ...toAdd].slice(0, 4));
+          setBackgroundPhotoPreviews(prev => [...prev, ...toAdd].slice(0, 4));
+          toast.success(`${toAdd.length} image${toAdd.length > 1 ? 's' : ''} added from library!`);
+        }}
+        multiSelect={true}
+        title="Select Background Images from Library"
       />
     </div>
   );

@@ -13,6 +13,8 @@ import {
   FileText, CheckCircle2, AlertCircle, Clock,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useEffect } from "react";
+import { BookmarkCheck } from "lucide-react";
 
 const STEP_LABELS = ["Property Details", "Agent Info", "Market Data", "Export Settings"];
 
@@ -60,6 +62,19 @@ export default function ListingPresentationPage() {
   const utils = trpc.useUtils();
   const { data: presentations = [] } = trpc.listingPresentation.list.useQuery();
   const { data: themes = [] } = trpc.listingPresentation.getThemes.useQuery();
+  const { data: persona } = trpc.persona.get.useQuery();
+
+  // Auto-load saved default theme on mount
+  useEffect(() => {
+    if (persona?.gammaThemeId) {
+      setForm((f) => ({ ...f, themeId: persona.gammaThemeId! }));
+    }
+  }, [persona?.gammaThemeId]);
+
+  const saveGammaThemeMutation = trpc.persona.saveGammaThemeId.useMutation({
+    onSuccess: () => toast.success("Default theme saved — will auto-apply to future presentations."),
+    onError: (err) => toast.error(err.message),
+  });
 
   const generateMutation = trpc.listingPresentation.generate.useMutation({
     onSuccess: (data) => {
@@ -269,7 +284,22 @@ export default function ListingPresentationPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-white/30 text-xs mt-1">Apply your branded Gamma workspace theme for consistent styling.</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <p className="text-white/30 text-xs flex-1">Apply your branded Gamma workspace theme for consistent styling.</p>
+                    {form.themeId && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="text-xs border-amber-400/30 text-amber-400 hover:bg-amber-400/10 shrink-0"
+                        onClick={() => saveGammaThemeMutation.mutate({ themeId: form.themeId })}
+                        disabled={saveGammaThemeMutation.isPending}
+                      >
+                        <BookmarkCheck size={12} className="mr-1" />
+                        {saveGammaThemeMutation.isPending ? "Saving..." : "Save as Default"}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               )}
 

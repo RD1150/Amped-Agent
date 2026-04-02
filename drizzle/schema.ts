@@ -98,6 +98,7 @@ export const personas = mysqlTable("personas", {
   primaryState: varchar("primaryState", { length: 100 }), // Primary market state (from onboarding)
   headshotOffsetY: int("headshotOffsetY").default(50), // Vertical position of headshot in circle (0=top, 100=bottom, 50=center)
   headshotZoom: int("headshotZoom").default(100), // Zoom level of headshot (100=no zoom, 200=2x zoom)
+  gammaThemeId: varchar("gammaThemeId", { length: 255 }), // Default Gamma workspace theme ID for Listing Presentations
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -158,6 +158,26 @@ export default function PropertyTours() {
     }
   }, [voicePref, personaData]);
 
+  // Pre-populate images from Photo Library via URL param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const libraryImagesParam = params.get("libraryImages");
+    if (libraryImagesParam) {
+      try {
+        const urls: string[] = JSON.parse(decodeURIComponent(libraryImagesParam));
+        if (Array.isArray(urls) && urls.length > 0) {
+          setUploadedImageUrls(urls);
+          toast.success(`${urls.length} photo${urls.length !== 1 ? "s" : ""} loaded from Photo Library`);
+          setTimeout(() => {
+            const el = document.getElementById("image-upload-section");
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 400);
+        }
+      } catch { /* ignore parse errors */ }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Mutations
   const uploadImages = trpc.propertyTours.uploadImages.useMutation();
   const createTour = trpc.propertyTours.create.useMutation();

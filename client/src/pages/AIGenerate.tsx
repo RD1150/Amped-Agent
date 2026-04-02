@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import ImageLibraryPicker from "@/components/ImageLibraryPicker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -83,6 +84,7 @@ export default function AIGenerate() {
   const [stockQuery, setStockQuery] = useState("");
   const [stockCategory, setStockCategory] = useState<StockCategory>("property");
   const [stockImages, setStockImages] = useState<Array<{ url: string; index: number }>>([]);
+  const [showLibraryPicker, setShowLibraryPicker] = useState(false);
 
   // Property listing fields
   const [propertyData, setPropertyData] = useState({
@@ -704,24 +706,36 @@ export default function AIGenerate() {
                   </Select>
                 </div>
 
-                <Button 
-                  onClick={handleGenerateImage} 
-                  disabled={generateImage.isPending}
-                  className="w-full"
-                  size="lg"
-                >
-                  {generateImage.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating Image...
-                    </>
-                  ) : (
-                    <>
-                      <ImageIcon className="mr-2 h-4 w-4" />
-                      Generate Image
-                    </>
-                  )}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowLibraryPicker(true)}
+                    className="flex-1"
+                    size="lg"
+                  >
+                    <ImageIcon className="mr-2 h-4 w-4" />
+                    Browse Library
+                  </Button>
+                  <Button 
+                    onClick={handleGenerateImage} 
+                    disabled={generateImage.isPending}
+                    className="flex-1"
+                    size="lg"
+                  >
+                    {generateImage.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Generate Image
+                      </>
+                    )}
+                  </Button>
+                </div>
 
                 {generatedImage && (
                   <div className="space-y-4">
@@ -961,6 +975,19 @@ export default function AIGenerate() {
         onSuccess={() => {
           toast.success("Content posted successfully!");
         }}
+      />
+
+      <ImageLibraryPicker
+        open={showLibraryPicker}
+        onClose={() => setShowLibraryPicker(false)}
+        onSelect={(urls) => {
+          if (urls.length > 0) {
+            setGeneratedImage(urls[0]);
+            toast.success("Image selected from library");
+          }
+        }}
+        multiSelect={false}
+        title="Select Image from Library"
       />
     </>
   );

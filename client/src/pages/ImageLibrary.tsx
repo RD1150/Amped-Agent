@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Upload, Images, Sparkles, Trash2, Tag, Search, Filter, X, Loader2, ImageIcon, Plus,
+  CheckSquare, Video, Square,
 } from "lucide-react";
 
 type LibraryImage = {
@@ -102,16 +104,33 @@ function UploadZone({ onFilesSelected, uploading }: { onFilesSelected: (files: F
 }
 
 function ImageCard({
-  image, onDelete, onGenerateHook, onSelect, isGeneratingHook,
+  image, onDelete, onGenerateHook, onSelect, isGeneratingHook, isSelected, onToggleSelect,
 }: {
   image: LibraryImage;
   onDelete: (id: number) => void;
   onGenerateHook: (id: number, url: string, roomType?: string | null) => void;
   onSelect: (image: LibraryImage) => void;
   isGeneratingHook: boolean;
+  isSelected: boolean;
+  onToggleSelect: (id: number) => void;
 }) {
   return (
-    <div className="group relative rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-amber-400/40 transition-all">
+    <div className={`group relative rounded-xl overflow-hidden bg-white/5 border transition-all ${
+      isSelected ? "border-amber-400 ring-2 ring-amber-400/40" : "border-white/10 hover:border-amber-400/40"
+    }`}>
+      {/* Select toggle — always visible when selected, hover-visible otherwise */}
+      <button
+        className={`absolute top-2 right-2 z-10 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+          isSelected
+            ? "bg-amber-400 border-amber-400 opacity-100"
+            : "bg-black/50 border-white/50 opacity-0 group-hover:opacity-100"
+        }`}
+        onClick={(e) => { e.stopPropagation(); onToggleSelect(image.id); }}
+        title={isSelected ? "Deselect" : "Select for batch action"}
+      >
+        {isSelected ? <X size={12} className="text-black" /> : <Square size={10} className="text-white" />}
+      </button>
+
       <div className="relative aspect-[4/3] cursor-pointer overflow-hidden" onClick={() => onSelect(image)}>
         <img src={image.url} alt={image.filename} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         {image.hookText && <HookOverlay hookText={image.hookText} />}
@@ -159,12 +178,14 @@ function ImageCard({
 }
 
 export default function ImageLibraryPage() {
+  const [, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterRoom, setFilterRoom] = useState<string>("all");
   const [selectedImage, setSelectedImage] = useState<LibraryImage | null>(null);
   const [generatingHookFor, setGeneratingHookFor] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
   const [tagInput, setTagInput] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   const utils = trpc.useUtils();
   const { data: images = [], isLoading } = trpc.imageLibrary.list.useQuery({});
@@ -182,7 +203,6 @@ export default function ImageLibraryPage() {
       toast.success("AI hook generated!");
       utils.imageLibrary.list.invalidate();
       setGeneratingHookFor(null);
-      // Refresh selected image
       if (selectedImage) {
         utils.imageLibrary.list.fetch({}).then((imgs) => {
           const updated = imgs.find((i) => i.id === selectedImage.id);
@@ -219,6 +239,44 @@ export default function ImageLibraryPage() {
     } catch { /* handled in mutation */ } finally { setUploading(false); }
   }, [uploadMutation]);
 
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === filtered.length) {
+      clearSelection();
+    } else {
+      setSelectedIds(new Set(filtered.map(img => img.id)));
+    }
+  };
+
+  const handleUseInPropertyTour = () => {
+    const selectedUrls = images
+      .filter(img => selectedIds.has(img.id))
+      .map(img => img.url);
+    if (selectedUrls.length === 0) return;
+    const encoded = encodeURIComponent(JSON.stringify(selectedUrls));
+    navigate(`/property-tours?libraryImages=${encoded}`);
+    toast.success(`Sending ${selectedUrls.length} photos to Property Tour`);
+  };
+
+  const handleUseInCinematicTour = () => {
+    const selectedUrls = images
+      .filter(img => selectedIds.has(img.id))
+      .map(img => img.url);
+    if (selectedUrls.length === 0) return;
+    const encoded = encodeURIComponent(JSON.stringify(selectedUrls));
+    navigate(`/cinematic-walkthrough?libraryImages=${encoded}`);
+    toast.success(`Sending ${selectedUrls.length} photos to AI Motion Tour`);
+  };
+
   const filtered = images.filter((img) => {
     const matchesSearch = !searchQuery ||
       img.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -249,9 +307,9 @@ export default function ImageLibraryPage() {
       {/* Upload Zone */}
       <UploadZone onFilesSelected={handleFilesSelected} uploading={uploading} />
 
-      {/* Filters */}
+      {/* Filters + Select All */}
       {images.length > 0 && (
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-3 flex-wrap items-center">
           <div className="relative flex-1 min-w-[200px]">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
             <Input
@@ -271,12 +329,58 @@ export default function ImageLibraryPage() {
               {ROOM_TYPES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-white/20 text-white/60 bg-transparent gap-1.5"
+            onClick={handleSelectAll}
+          >
+            <CheckSquare size={14} />
+            {selectedIds.size === filtered.length && filtered.length > 0 ? "Deselect All" : "Select All"}
+          </Button>
           {(searchQuery || filterRoom !== "all") && (
             <Button variant="outline" size="sm" className="border-white/20 text-white/60 bg-transparent"
               onClick={() => { setSearchQuery(""); setFilterRoom("all"); }}>
               <X size={14} className="mr-1" /> Clear
             </Button>
           )}
+        </div>
+      )}
+
+      {/* Batch Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="sticky top-4 z-20 flex items-center gap-3 p-4 rounded-xl bg-[#1a1a2e] border border-amber-400/30 shadow-lg shadow-amber-400/10">
+          <div className="flex items-center gap-2 flex-1">
+            <div className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-black text-xs font-bold">
+              {selectedIds.size}
+            </div>
+            <span className="text-white font-medium text-sm">
+              {selectedIds.size} photo{selectedIds.size !== 1 ? "s" : ""} selected
+            </span>
+          </div>
+          <Button
+            size="sm"
+            className="gap-2 bg-amber-400 hover:bg-amber-500 text-black font-semibold"
+            onClick={handleUseInPropertyTour}
+          >
+            <Video size={14} /> Use in Property Slideshow
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-2 border-amber-400/40 text-amber-400 bg-transparent hover:bg-amber-400/10"
+            onClick={handleUseInCinematicTour}
+          >
+            <Video size={14} /> Use in AI Motion Tour
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-white/40 hover:text-white"
+            onClick={clearSelection}
+          >
+            <X size={14} />
+          </Button>
         </div>
       )}
 
@@ -306,6 +410,8 @@ export default function ImageLibraryPage() {
               }}
               onSelect={setSelectedImage}
               isGeneratingHook={generatingHookFor === img.id}
+              isSelected={selectedIds.has(img.id)}
+              onToggleSelect={toggleSelect}
             />
           ))}
         </div>
@@ -324,6 +430,33 @@ export default function ImageLibraryPage() {
                 <DialogHeader>
                   <DialogTitle className="text-white text-lg">{selectedImage.filename}</DialogTitle>
                 </DialogHeader>
+
+                {/* Quick actions */}
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    className="gap-2 bg-amber-400 hover:bg-amber-500 text-black font-semibold text-xs"
+                    onClick={() => {
+                      const encoded = encodeURIComponent(JSON.stringify([selectedImage.url]));
+                      navigate(`/property-tours?libraryImages=${encoded}`);
+                      setSelectedImage(null);
+                    }}
+                  >
+                    <Video size={12} /> Use in Property Slideshow
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-2 border-amber-400/40 text-amber-400 bg-transparent hover:bg-amber-400/10 text-xs"
+                    onClick={() => {
+                      const encoded = encodeURIComponent(JSON.stringify([selectedImage.url]));
+                      navigate(`/cinematic-walkthrough?libraryImages=${encoded}`);
+                      setSelectedImage(null);
+                    }}
+                  >
+                    <Video size={12} /> Use in AI Motion Tour
+                  </Button>
+                </div>
 
                 {/* Hook */}
                 {selectedImage.hookText ? (

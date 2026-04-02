@@ -353,6 +353,15 @@ export const appRouter = router({
       }
       return { success: true };
     }),
+    /**
+     * Save the user's default Gamma theme ID for Listing Presentations
+     */
+    saveGammaThemeId: protectedProcedure
+      .input(z.object({ themeId: z.string().nullable() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.upsertPersona(ctx.user.id, { gammaThemeId: input.themeId ?? undefined });
+        return { success: true };
+      }),
   }),
 
   content: router({

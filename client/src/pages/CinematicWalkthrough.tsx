@@ -397,6 +397,29 @@ export default function CinematicWalkthrough() {
     }
   );
 
+  // Pre-populate photos from Photo Library via URL param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const libraryImagesParam = params.get("libraryImages");
+    if (libraryImagesParam) {
+      try {
+        const urls: string[] = JSON.parse(decodeURIComponent(libraryImagesParam));
+        if (Array.isArray(urls) && urls.length > 0) {
+          const newPhotos: PhotoEntry[] = urls.map((url, i) => ({
+            id: `lib-${i}-${Date.now()}`,
+            url,
+            previewUrl: url,
+            roomType: "",
+            label: "",
+          }));
+          setPhotos(newPhotos);
+          toast.success(`${urls.length} photo${urls.length !== 1 ? "s" : ""} loaded from Photo Library`);
+        }
+      } catch { /* ignore parse errors */ }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Job recovery: check for any in-progress job on page load
   const { data: pendingJob } = trpc.cinematicWalkthrough.getLatestPendingJob.useQuery(undefined, {
     staleTime: Infinity,

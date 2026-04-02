@@ -1,0 +1,1 @@
+ALTER TABLE `personas` ADD `gammaThemeId` varchar(255);
