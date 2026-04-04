@@ -21,6 +21,10 @@ import {
   Video,
   ExternalLink,
   Link2,
+  Building2,
+  Film,
+  Smartphone,
+  UserCircle,
 } from "lucide-react";
 import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 import UsageCounter from "@/components/UsageCounter";
@@ -318,9 +322,119 @@ export default function Dashboard() {
         </div>
       </Card>
 
+       {/* Video Tools */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold">Create a Video</h2>
+          <p className="text-sm text-muted-foreground">Choose the right tool for your goal</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <Card
+            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+            onClick={() => setLocation("/property-tours")}
+          >
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="p-2 rounded-lg bg-blue-500/10">
+                  <Building2 className="h-5 w-5 text-blue-600" />
+                </div>
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Listing</span>
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Property Slideshow</p>
+                <p className="text-xs text-muted-foreground">Ken Burns video · 5 credits</p>
+              </div>
+            </div>
+          </Card>
+          <Card
+            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+            onClick={() => setLocation("/cinematic-walkthrough")}
+          >
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="p-2 rounded-lg bg-purple-500/10">
+                  <Film className="h-5 w-5 text-purple-600" />
+                </div>
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">Premium</span>
+              </div>
+              <div>
+                <p className="font-semibold text-sm">AI Motion Tour</p>
+                <p className="text-xs text-muted-foreground">Cinematic AI camera · 10 credits</p>
+              </div>
+            </div>
+          </Card>
+          <Card
+            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+            onClick={() => setLocation("/live-tour")}
+          >
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="p-2 rounded-lg bg-red-500/10">
+                  <Smartphone className="h-5 w-5 text-red-500" />
+                </div>
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-green-700 bg-green-50 px-1.5 py-0.5 rounded">New</span>
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Live Tour</p>
+                <p className="text-xs text-muted-foreground">Record room-by-room · 8 credits</p>
+              </div>
+            </div>
+          </Card>
+          <Card
+            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+            onClick={() => setLocation("/autoreels")}
+          >
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="p-2 rounded-lg bg-pink-500/10">
+                  <Video className="h-5 w-5 text-pink-600" />
+                </div>
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Social</span>
+              </div>
+              <div>
+                <p className="font-semibold text-sm">AI Reels</p>
+                <p className="text-xs text-muted-foreground">Short avatar clips · 5 credits</p>
+              </div>
+            </div>
+          </Card>
+          <Card
+            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+            onClick={() => setLocation("/full-avatar-video")}
+          >
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="p-2 rounded-lg bg-indigo-500/10">
+                  <UserCircle className="h-5 w-5 text-indigo-600" />
+                </div>
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Social</span>
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Full Avatar Video</p>
+                <p className="text-xs text-muted-foreground">Talking-head from script · 15 credits</p>
+              </div>
+            </div>
+          </Card>
+          <Card
+            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+            onClick={() => setLocation("/youtube-video-builder")}
+          >
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="p-2 rounded-lg bg-red-500/10">
+                  <Youtube className="h-5 w-5 text-red-600" />
+                </div>
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Social</span>
+              </div>
+              <div>
+                <p className="font-semibold text-sm">YouTube Builder</p>
+                <p className="text-xs text-muted-foreground">Long-form avatar video · 20 credits</p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
       {/* YouTube Channel Analytics */}
       <YouTubeAnalyticsWidget />
-
       {/* Video Preview Gallery */}
       <VideoPreviewGallery />
     </div>

@@ -4139,6 +4139,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add "Post to Social" button to AI Reels (AIReels.tsx) after reel is ready
 - [x] Add "Post to Social" button to Full Avatar Video (FullAvatarVideo.tsx) after video is ready
 - [ ] Add "Post to Social" button to Live Tour (LiveTour.tsx) after recording is done
+- [x] Add Live Tour quick-launch card to dashboard home page Create a Video section
 - [x] Add "Post to Social" button to YouTube Video Builder (YouTubeVideoBuilder.tsx) after render
 - [x] Add "Post to Social" button to My Videos page for each video card
 
