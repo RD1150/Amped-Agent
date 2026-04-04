@@ -1,13 +1,15 @@
 /**
  * Social Media Posting Module
  * Handles posting to Facebook, LinkedIn, and Instagram via their APIs
+ * Supports both image posts and video posts
  */
 
 import axios from 'axios';
 
-interface PostContent {
+export interface PostContent {
   text: string;
   imageUrl?: string;
+  videoUrl?: string;  // For video posts (MP4 URL)
 }
 
 interface PostResult {
@@ -18,7 +20,7 @@ interface PostResult {
 }
 
 /**
- * Post to Facebook Page
+ * Post to Facebook Page — supports text, image, or video
  */
 export async function postToFacebook(
   pageAccessToken: string,
@@ -26,24 +28,48 @@ export async function postToFacebook(
   content: PostContent
 ): Promise<PostResult> {
   try {
-    const url = `https://graph.facebook.com/v18.0/${pageId}/photos`;
-    
-    const params: any = {
-      access_token: pageAccessToken,
-      caption: content.text,
-    };
-
-    if (content.imageUrl) {
-      params.url = content.imageUrl;
+    if (content.videoUrl) {
+      // Video post: use the /videos endpoint
+      const url = `https://graph.facebook.com/v18.0/${pageId}/videos`;
+      const params: any = {
+        access_token: pageAccessToken,
+        description: content.text,
+        file_url: content.videoUrl,
+      };
+      const response = await axios.post(url, null, { params });
+      return {
+        success: true,
+        platform: 'facebook',
+        postId: response.data.id,
+      };
+    } else if (content.imageUrl) {
+      // Image post
+      const url = `https://graph.facebook.com/v18.0/${pageId}/photos`;
+      const params: any = {
+        access_token: pageAccessToken,
+        caption: content.text,
+        url: content.imageUrl,
+      };
+      const response = await axios.post(url, null, { params });
+      return {
+        success: true,
+        platform: 'facebook',
+        postId: response.data.id,
+      };
+    } else {
+      // Text-only post
+      const url = `https://graph.facebook.com/v18.0/${pageId}/feed`;
+      const params: any = {
+        access_token: pageAccessToken,
+        message: content.text,
+      };
+      const response = await axios.post(url, null, { params });
+      return {
+        success: true,
+        platform: 'facebook',
+        postId: response.data.id,
+      };
     }
-
-    const response = await axios.post(url, null, { params });
-
-    return {
-      success: true,
-      platform: 'facebook',
-      postId: response.data.id,
-    };
   } catch (error: any) {
     console.error('[Facebook Post Error]', error.response?.data || error.message);
     return {
@@ -56,6 +82,7 @@ export async function postToFacebook(
 
 /**
  * Post to Instagram Business Account (via Facebook Graph API)
+ * Supports both image and video (Reel) posts
  */
 export async function postToInstagram(
   pageAccessToken: string,
@@ -63,25 +90,59 @@ export async function postToInstagram(
   content: PostContent
 ): Promise<PostResult> {
   try {
-    if (!content.imageUrl) {
+    if (!content.imageUrl && !content.videoUrl) {
       return {
         success: false,
         platform: 'instagram',
-        error: 'Instagram posts require an image',
+        error: 'Instagram posts require an image or video',
       };
     }
 
-    // Step 1: Create media container
     const containerUrl = `https://graph.facebook.com/v18.0/${instagramBusinessAccountId}/media`;
+
+    let containerParams: any = {
+      caption: content.text,
+      access_token: pageAccessToken,
+    };
+
+    if (content.videoUrl) {
+      // Video / Reel post
+      containerParams.video_url = content.videoUrl;
+      containerParams.media_type = 'REELS';
+    } else {
+      // Image post
+      containerParams.image_url = content.imageUrl;
+    }
+
+    // Step 1: Create media container
     const containerResponse = await axios.post(containerUrl, null, {
-      params: {
-        image_url: content.imageUrl,
-        caption: content.text,
-        access_token: pageAccessToken,
-      },
+      params: containerParams,
     });
 
     const creationId = containerResponse.data.id;
+
+    // For video, we need to wait for processing before publishing
+    if (content.videoUrl) {
+      // Poll for video processing status (up to 60 seconds)
+      let attempts = 0;
+      while (attempts < 12) {
+        await new Promise((r) => setTimeout(r, 5000));
+        const statusRes = await axios.get(
+          `https://graph.facebook.com/v18.0/${creationId}`,
+          {
+            params: {
+              fields: 'status_code',
+              access_token: pageAccessToken,
+            },
+          }
+        );
+        if (statusRes.data.status_code === 'FINISHED') break;
+        if (statusRes.data.status_code === 'ERROR') {
+          throw new Error('Instagram video processing failed');
+        }
+        attempts++;
+      }
+    }
 
     // Step 2: Publish the container
     const publishUrl = `https://graph.facebook.com/v18.0/${instagramBusinessAccountId}/media_publish`;
@@ -109,6 +170,7 @@ export async function postToInstagram(
 
 /**
  * Post to LinkedIn Profile or Company Page
+ * Supports text, image, and video posts
  */
 export async function postToLinkedIn(
   accessToken: string,
@@ -118,40 +180,45 @@ export async function postToLinkedIn(
   try {
     const url = 'https://api.linkedin.com/v2/ugcPosts';
 
+    let shareMediaCategory = 'NONE';
+    let media: any[] = [];
+
+    if (content.videoUrl) {
+      shareMediaCategory = 'VIDEO';
+      media = [
+        {
+          status: 'READY',
+          description: { text: 'Real estate video' },
+          media: content.videoUrl,
+          title: { text: 'Property Video' },
+        },
+      ];
+    } else if (content.imageUrl) {
+      shareMediaCategory = 'IMAGE';
+      media = [
+        {
+          status: 'READY',
+          description: { text: 'Real estate content' },
+          media: content.imageUrl,
+          title: { text: 'Post Image' },
+        },
+      ];
+    }
+
     const postData: any = {
       author: authorUrn,
       lifecycleState: 'PUBLISHED',
       specificContent: {
         'com.linkedin.ugc.ShareContent': {
-          shareCommentary: {
-            text: content.text,
-          },
-          shareMediaCategory: content.imageUrl ? 'IMAGE' : 'NONE',
+          shareCommentary: { text: content.text },
+          shareMediaCategory,
+          ...(media.length > 0 ? { media } : {}),
         },
       },
       visibility: {
         'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC',
       },
     };
-
-    // Add image if provided
-    if (content.imageUrl) {
-      // Note: LinkedIn requires images to be uploaded first via their asset upload API
-      // For now, we'll skip image support and focus on text posts
-      // Full implementation would require multi-step upload process
-      postData.specificContent['com.linkedin.ugc.ShareContent'].media = [
-        {
-          status: 'READY',
-          description: {
-            text: 'Real estate content',
-          },
-          media: content.imageUrl,
-          title: {
-            text: 'Post Image',
-          },
-        },
-      ];
-    }
 
     const response = await axios.post(url, postData, {
       headers: {

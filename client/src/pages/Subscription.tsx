@@ -14,8 +14,8 @@ export default function Subscription() {
   const tierInfo = {
     essential: {
       name: "Essential",
-      price: "$39/mo",
-      yearlyPrice: "$390/yr",
+      price: "$59/mo",
+      yearlyPrice: "$590/yr",
       limits: { posts: 25, videos: 10, images: 50 },
       features: [
         "25 posts per month",
@@ -27,8 +27,8 @@ export default function Subscription() {
     },
     professional: {
       name: "Professional",
-      price: "$79/mo",
-      yearlyPrice: "$790/yr",
+      price: "$99/mo",
+      yearlyPrice: "$990/yr",
       limits: { posts: 100, videos: 50, images: 200 },
       features: [
         "100 posts per month",

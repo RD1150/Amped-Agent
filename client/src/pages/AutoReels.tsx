@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save, Mic, Play, Square, Repeat2, Image as ImageIcon } from "lucide-react";
+import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
@@ -42,6 +43,7 @@ export default function AutoReels() {
   const [script, setScript] = useState("");
   const [caption, setCaption] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
+  const [showVideoShare, setShowVideoShare] = useState(false);
   
   // Edit states for generated content
   const [isEditingHook, setIsEditingHook] = useState(false);
@@ -1441,10 +1443,8 @@ export default function AutoReels() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="gap-2"
-                    onClick={() => {
-                      toast.info("Social posting coming soon! For now, download and post manually.");
-                    }}
+                    className="gap-2 text-primary hover:text-primary"
+                    onClick={() => setShowVideoShare(true)}
                   >
                     <Share2 className="h-4 w-4" />
                     Post to Social
@@ -1689,6 +1689,17 @@ export default function AutoReels() {
         multiSelect={true}
         title="Select Background Images from Library"
       />
+
+      {/* Video Posting Dialog */}
+      {showVideoShare && videoUrl && (
+        <VideoPostingDialog
+          open={showVideoShare}
+          onOpenChange={setShowVideoShare}
+          videoUrl={videoUrl}
+          videoTitle="AI Reel"
+          defaultCaption={caption || `🎯 ${selectedHook || "Check out this reel!"} 🏡 #RealEstate #Reels #AuthorityContent`}
+        />
+      )}
     </div>
   );
 }

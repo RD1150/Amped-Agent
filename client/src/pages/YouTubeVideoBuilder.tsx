@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
+import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ import {
   ChevronRight,
   Video,
   FileText,
+  Share2,
   Tag,
   Clock,
   Scissors,
@@ -124,6 +126,7 @@ export default function YouTubeVideoBuilder() {
   // Step 4 — Video
   const [videoId, setVideoId] = useState<number | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [showVideoShare, setShowVideoShare] = useState(false);
   const [voiceId, setVoiceId] = useState("");
   const [privacyStatus, setPrivacyStatus] = useState<"public" | "private" | "unlisted">("public");
   const [youtubeVideoUrl, setYoutubeVideoUrl] = useState<string | null>(null);
@@ -607,14 +610,32 @@ export default function YouTubeVideoBuilder() {
             {videoUrl && (
               <div className="space-y-3">
                 <video src={videoUrl} controls className="w-full rounded-lg border border-border aspect-video" />
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <a href={videoUrl} download className="flex-1">
                     <Button variant="outline" className="w-full gap-2"><Download className="h-4 w-4" /> Download MP4</Button>
                   </a>
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-primary/30 text-primary hover:bg-primary/10 gap-2"
+                    onClick={() => setShowVideoShare(true)}
+                  >
+                    <Share2 className="h-4 w-4" /> Post to Social
+                  </Button>
                   <Button onClick={() => setStep(5)} className="flex-1 bg-red-600 hover:bg-red-700 text-white gap-2">
                     <Scissors className="h-4 w-4" /> Distribute &amp; Clip
                   </Button>
                 </div>
+
+                {/* Video Posting Dialog */}
+                {showVideoShare && videoUrl && (
+                  <VideoPostingDialog
+                    open={showVideoShare}
+                    onOpenChange={setShowVideoShare}
+                    videoUrl={videoUrl}
+                    videoTitle={seoTitle || customTopic || "YouTube Video"}
+                    defaultCaption={`🎥 ${seoTitle || customTopic || "New video!"} 🏡 #RealEstate #YouTube #AuthorityContent`}
+                  />
+                )}
               </div>
             )}
 

@@ -25,9 +25,11 @@ import {
   ExternalLink,
   Trash2,
   Smartphone,
+  Share2,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
+import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 
 type VideoSource = 'listing_video' | 'cinematic_tour' | 'ai_reel' | 'avatar_video' | 'authority_reel' | 'live_tour';
 
@@ -135,6 +137,7 @@ export default function MyVideos() {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UnifiedVideo | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [shareVideo, setShareVideo] = useState<UnifiedVideo | null>(null);
 
   const utils = trpc.useUtils();
   const deleteMutation = trpc.myVideos.deleteUnified.useMutation({
@@ -322,14 +325,25 @@ export default function MyVideos() {
                   {/* Actions */}
                   <div className="flex gap-2">
                     {video.videoUrl && video.status === "completed" && (
-                      <Button
-                        size="sm"
-                        className="flex-1 bg-muted0 hover:bg-primary text-black font-semibold h-8 text-xs"
-                        onClick={() => downloadVideo(video.videoUrl!, video.title)}
-                      >
-                        <Download className="h-3 w-3 mr-1" />
-                        Download
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          className="flex-1 bg-muted0 hover:bg-primary text-black font-semibold h-8 text-xs"
+                          onClick={() => downloadVideo(video.videoUrl!, video.title)}
+                        >
+                          <Download className="h-3 w-3 mr-1" />
+                          Download
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-xs px-3 text-primary hover:text-primary hover:border-primary/50"
+                          onClick={() => setShareVideo(video)}
+                          title="Post to Social Media"
+                        >
+                          <Share2 className="h-3 w-3" />
+                        </Button>
+                      </>
                     )}
                     <Button
                       size="sm"
@@ -469,6 +483,18 @@ export default function MyVideos() {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Video Posting Dialog */}
+      {shareVideo && shareVideo.videoUrl && (
+        <VideoPostingDialog
+          open={!!shareVideo}
+          onOpenChange={(open) => { if (!open) setShareVideo(null); }}
+          videoUrl={shareVideo.videoUrl}
+          videoTitle={shareVideo.title}
+          defaultCaption={`Check out this ${SOURCE_CONFIG[shareVideo.source]?.label ?? "video"}! 🏡 #RealEstate #AuthorityContent`}
+          onSuccess={() => setShareVideo(null)}
+        />
       )}
     </div>
   );

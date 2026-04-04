@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   Loader2, Video, Sparkles, Download, Upload, User, Trash2,
   CheckCircle2, Clock, AlertCircle, Zap, Crown, RefreshCw, Play, Wand2,
-  Lightbulb, ChevronDown, ChevronUp
+  Lightbulb, ChevronDown, ChevronUp, Share2
 } from "lucide-react";
 import { toast } from "sonner";
+import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { trpc } from "@/lib/trpc";
 
 // Voice options are loaded live from HeyGen API
@@ -79,6 +80,7 @@ export default function FullAvatarVideo() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState("");
   const [resultVideoUrl, setResultVideoUrl] = useState("");
+  const [showVideoShare, setShowVideoShare] = useState(false);
   const [resultDuration, setResultDuration] = useState(0);
 
   // ── Custom Photo Avatar ───────────────────────────────────────────
@@ -963,13 +965,21 @@ export default function FullAvatarVideo() {
             className="w-full rounded-xl border border-border"
             style={{ maxHeight: "480px" }}
           />
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <Button
               onClick={() => handleDownload(resultVideoUrl, title)}
               className="flex-1 bg-muted0 hover:bg-primary text-black font-semibold"
             >
               <Download className="mr-2 h-4 w-4" />
               Download MP4
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 border-primary/30 text-primary hover:bg-primary/10"
+              onClick={() => setShowVideoShare(true)}
+            >
+              <Share2 className="mr-2 h-4 w-4" />
+              Post to Social
             </Button>
             <Button
               variant="outline"
@@ -980,6 +990,17 @@ export default function FullAvatarVideo() {
             </Button>
           </div>
         </Card>
+      )}
+
+      {/* Video Posting Dialog */}
+      {showVideoShare && resultVideoUrl && (
+        <VideoPostingDialog
+          open={showVideoShare}
+          onOpenChange={setShowVideoShare}
+          videoUrl={resultVideoUrl}
+          videoTitle={title || "Avatar Video"}
+          defaultCaption={`🌟 ${title || "Check out my latest video!"} 🏡 #RealEstate #AIAvatar #AuthorityContent`}
+        />
       )}
 
       {/* Past videos */}

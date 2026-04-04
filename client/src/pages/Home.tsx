@@ -171,7 +171,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex justify-between items-center pt-4 border-t-2 border-primary/20">
                     <span className="text-white font-bold text-lg">Total Monthly Cost</span>
-                    <span className="text-primary font-bold text-2xl">$79-249</span>
+                    <span className="text-primary font-bold text-2xl">$59-149</span>
                   </div>
                 </div>
                 <div className="pt-4">
@@ -189,7 +189,7 @@ export default function HomePage() {
           {/* Savings Highlight */}
           <div className="text-center bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 border border-primary/20 rounded-lg p-8">
             <p className="text-2xl md:text-3xl font-bold text-white mb-2">
-              Save up to <span className="text-primary">$85-$234/month</span>
+              Save up to <span className="text-primary">$105-$164/month</span>
             </p>
             <p className="text-slate-300 text-lg">
               Get everything you need in one platform, at a fraction of the cost
@@ -536,7 +536,7 @@ export default function HomePage() {
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-white mb-3">How does Authority Content compare to other tools?</h3>
                 <p className="text-slate-300 leading-relaxed">
-                  Authority Content is the only all-in-one platform that combines social media content generation, AI video creation with avatars, faceless vertical videos, and content scheduling. Instead of paying $164-313/month for 3+ separate tools, you get everything in one platform for $79-249/month.
+                  Authority Content is the only all-in-one platform that combines social media content generation, AI video creation with avatars, faceless vertical videos, and content scheduling. Instead of paying $164-313/month for 3+ separate tools, you get everything in one platform for $59-149/month.
                 </p>
               </CardContent>
             </Card>

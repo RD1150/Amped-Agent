@@ -12,7 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X, Repeat2, UserCircle2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X, Repeat2, UserCircle2, AlertCircle, ChevronDown, ChevronUp, Share2 } from "lucide-react";
+import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
@@ -129,6 +130,7 @@ export default function PropertyTours() {
 
   // Video-ready celebration modal
   const [readyVideoUrl, setReadyVideoUrl] = useState<string | null>(null);
+  const [showVideoShare, setShowVideoShare] = useState(false);
   const [readyVideoAddress, setReadyVideoAddress] = useState<string>("");
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -1979,6 +1981,13 @@ export default function PropertyTours() {
                 Repurpose Property Story
               </button>
               <button
+                onClick={() => setShowVideoShare(true)}
+                className="w-full flex items-center justify-center gap-2 h-11 rounded-lg border border-primary/30 text-primary hover:bg-primary/10 font-semibold text-sm transition-colors"
+              >
+                <Share2 className="w-4 h-4" />
+                Post to Social Media
+              </button>
+              <button
                 onClick={() => setReadyVideoUrl(null)}
                 className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
               >
@@ -1987,6 +1996,16 @@ export default function PropertyTours() {
             </div>
           </div>
         </div>
+      )}
+      {/* Video Posting Dialog */}
+      {showVideoShare && readyVideoUrl && (
+        <VideoPostingDialog
+          open={showVideoShare}
+          onOpenChange={setShowVideoShare}
+          videoUrl={readyVideoUrl}
+          videoTitle={readyVideoAddress ? `Property Tour: ${readyVideoAddress}` : "Property Tour"}
+          defaultCaption={`Just listed! Check out this property tour${readyVideoAddress ? ` at ${readyVideoAddress}` : ""}. 🏡 #RealEstate #JustListed #PropertyTour`}
+        />
       )}
 
       {/* Image Crop Modal */}

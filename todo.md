@@ -4129,3 +4129,15 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Listing Presentation - Auto-load saved Gamma theme from persona on mount
 - [x] PropertyTours - reads ?libraryImages= URL param to pre-populate uploaded images
 - [x] CinematicWalkthrough - reads ?libraryImages= URL param to pre-populate photos
+
+## Social Video Publishing
+- [x] Build VideoPostingDialog component supporting video URL posting (Facebook, Instagram, LinkedIn)
+- [x] Upgrade backend social-posting.ts to handle video uploads for Facebook and Instagram
+- [x] Add socialPosting.postVideo procedure to backend router
+- [x] Add "Post to Social" button to Property Slideshow (PropertyTours.tsx) after video is ready
+- [x] Add "Post to Social" button to AI Motion Tour (CinematicWalkthrough.tsx) after video is ready
+- [x] Add "Post to Social" button to AI Reels (AIReels.tsx) after reel is ready
+- [x] Add "Post to Social" button to Full Avatar Video (FullAvatarVideo.tsx) after video is ready
+- [ ] Add "Post to Social" button to Live Tour (LiveTour.tsx) after recording is done
+- [x] Add "Post to Social" button to YouTube Video Builder (YouTubeVideoBuilder.tsx) after render
+- [x] Add "Post to Social" button to My Videos page for each video card

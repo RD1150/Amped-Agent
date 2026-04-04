@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2, Gem, ArrowRight, ArrowLeft, ArrowUp, Home, GripVertical, Sparkles, User } from "lucide-react";
+import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2, Gem, ArrowRight, ArrowLeft, ArrowUp, Home, GripVertical, Sparkles, User, Share2 } from "lucide-react";
+import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import {
   DndContext,
   closestCenter,
@@ -311,6 +312,7 @@ export default function CinematicWalkthrough() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [showVideoShare, setShowVideoShare] = useState(false);
 
   // Failed job state for retry
   const [failedJobId, setFailedJobId] = useState<string | null>(null);
@@ -685,7 +687,15 @@ export default function CinematicWalkthrough() {
                   Copy Link
                 </Button>
               </div>
-              <Button asChild variant="outline" className="w-full border-primary/30 text-primary hover:bg-primary/10">
+              <Button
+                variant="outline"
+                className="w-full border-primary/30 text-primary hover:bg-primary/10"
+                onClick={() => setShowVideoShare(true)}
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Post to Social Media
+              </Button>
+              <Button asChild variant="outline" className="w-full">
                 <Link href="/my-content">
                   <Library className="h-4 w-4 mr-2" />
                   View in My Content
@@ -1182,6 +1192,17 @@ export default function CinematicWalkthrough() {
 
       {photos.length < 2 && (
         <p className="text-center text-xs text-muted-foreground">Add at least 2 property photos to generate</p>
+      )}
+
+      {/* Video Posting Dialog */}
+      {showVideoShare && videoUrl && (
+        <VideoPostingDialog
+          open={showVideoShare}
+          onOpenChange={setShowVideoShare}
+          videoUrl={videoUrl}
+          videoTitle="AI Motion Tour"
+          defaultCaption={`🎥 Check out this cinematic property tour! AI-powered motion video. 🏡 #RealEstate #AIMotionTour #PropertyTour`}
+        />
       )}
     </div>
   );

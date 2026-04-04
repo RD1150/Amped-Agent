@@ -24,8 +24,8 @@ const pricingTiers: PricingTier[] = [
   {
     name: "Essential",
     tier: "essential",
-    priceMonthly: 39,
-    priceAnnual: 390,
+    priceMonthly: 59,
+    priceAnnual: 590,
     savings: 158,
     description: "Get started with AI content generation",
     icon: Sparkles,
@@ -46,8 +46,8 @@ const pricingTiers: PricingTier[] = [
   {
     name: "Professional",
     tier: "professional",
-    priceMonthly: 79,
-    priceAnnual: 790,
+    priceMonthly: 99,
+    priceAnnual: 990,
     savings: 158,
     description: "The complete AI video marketing solution",
     icon: Zap,

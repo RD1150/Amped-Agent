@@ -26,8 +26,8 @@ export const PRICING_TIERS: Record<SubscriptionTier, PricingTier> = {
     id: 'essential',
     name: 'Essential',
     description: 'Perfect for agents getting started with content marketing',
-    monthlyPrice: 39,
-    yearlyPrice: 390,
+    monthlyPrice: 59,
+    yearlyPrice: 590,
     features: [
       '25 AI-generated posts per month',
       'Property tour videos',
@@ -47,8 +47,8 @@ export const PRICING_TIERS: Record<SubscriptionTier, PricingTier> = {
     id: 'professional',
     name: 'Professional',
     description: 'For active agents who post consistently',
-    monthlyPrice: 79,
-    yearlyPrice: 790,
+    monthlyPrice: 99,
+    yearlyPrice: 990,
     popular: true,
     features: [
       '100 AI-generated posts per month',
