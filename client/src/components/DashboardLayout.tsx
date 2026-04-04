@@ -195,8 +195,8 @@ const menuSections = [
     ],
   },
   {
-    // Stage 3 — Showcase listings with premium video
-    title: "LISTINGS",
+    // Stage 3a — Listing Videos
+    title: "LISTING VIDEOS",
     items: [
       {
         icon: Building2,
@@ -218,7 +218,7 @@ const menuSections = [
         icon: Film,
         label: "AI Motion Tour",
         path: "/cinematic-walkthrough",
-        description: "AI-animated AI motion tour for premium listings",
+        description: "AI-animated cinematic tour for premium listings",
         badge: "Premium",
         hoverInfo: {
           tagline: "AI generates real camera movement on each photo — drone pull-backs, orbits, dollies.",
@@ -249,10 +249,31 @@ const menuSections = [
         },
       },
       {
+        icon: Images,
+        label: "Photo Library",
+        path: "/image-library",
+        description: "Upload and manage property photos with AI hooks",
+        hoverInfo: {
+          tagline: "Upload property photos, tag by room, and generate AI hook text for social posts — all in one place.",
+          details: [
+            { label: "Best for", value: "Organizing listing photos, creating social post assets" },
+            { label: "AI Hook", value: "Generates a punchy 12-word caption for each photo" },
+            { label: "Formats", value: "JPG, PNG, WEBP — drag-and-drop multi-upload" },
+            { label: "Features", value: "Room tagging, property address, tag filtering" },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    // Stage 3b — Social Videos
+    title: "SOCIAL VIDEOS",
+    items: [
+      {
         icon: Video,
         label: "AI Reels",
         path: "/autoreels",
-        description: "Short avatar intro clips for social media (15–60 sec)",
+        description: "Short avatar clips for Instagram, TikTok & Reels (15–60 sec)",
         hoverInfo: {
           tagline: "Vertical short-form videos with your AI avatar for Instagram, TikTok, and Facebook Reels.",
           details: [
@@ -296,21 +317,6 @@ const menuSections = [
             { label: "Credits", value: "20 credits per video" },
             { label: "Time", value: "5–20 minutes to generate" },
             { label: "Includes", value: "Script templates, SEO metadata, Reels clips, Publish to YouTube" },
-          ],
-        },
-      },
-      {
-        icon: Images,
-        label: "Photo Library",
-        path: "/image-library",
-        description: "Upload and manage property photos with AI hooks",
-        hoverInfo: {
-          tagline: "Upload property photos, tag by room, and generate AI hook text for social posts — all in one place.",
-          details: [
-            { label: "Best for", value: "Organizing listing photos, creating social post assets" },
-            { label: "AI Hook", value: "Generates a punchy 12-word caption for each photo" },
-            { label: "Formats", value: "JPG, PNG, WEBP — drag-and-drop multi-upload" },
-            { label: "Features", value: "Room tagging, property address, tag filtering" },
           ],
         },
       },

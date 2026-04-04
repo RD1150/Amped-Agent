@@ -4141,3 +4141,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add "Post to Social" button to Live Tour (LiveTour.tsx) after recording is done
 - [x] Add "Post to Social" button to YouTube Video Builder (YouTubeVideoBuilder.tsx) after render
 - [x] Add "Post to Social" button to My Videos page for each video card
+
+## Sidebar Navigation Restructure
+- [x] Split LISTINGS section into "LISTING VIDEOS" and "SOCIAL VIDEOS" sub-sections
+- [x] LISTING VIDEOS: Property Slideshow, AI Motion Tour, Live Tour, Photo Library
+- [x] SOCIAL VIDEOS: AI Reels, Full Avatar Video, YouTube Builder, My Videos
