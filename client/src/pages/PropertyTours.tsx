@@ -115,7 +115,7 @@ export default function PropertyTours() {
   const [customScript, setCustomScript] = useState("");
   const [perPhotoMovements, setPerPhotoMovements] = useState<string[]>([]);
   const [movementSpeed, setMovementSpeed] = useState<"slow" | "fast">("fast");
-  const [videoMode, setVideoMode] = useState<"standard" | "ai-enhanced">("standard");
+  const [videoMode, setVideoMode] = useState<"standard" | "ai-enhanced" | "cinematic">("standard");
 
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropImageIndex, setCropImageIndex] = useState<number | null>(null);
@@ -1174,7 +1174,7 @@ export default function PropertyTours() {
                   <p className="text-xs text-muted-foreground mt-0.5">Choose how your property tour is animated</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setVideoMode("standard")}
@@ -1190,6 +1190,19 @@ export default function PropertyTours() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setVideoMode("cinematic")}
+                  className={`p-3 rounded-lg border-2 text-left transition-all ${
+                    videoMode === "cinematic"
+                      ? "border-amber-500 bg-amber-500/10"
+                      : "border-border bg-background hover:border-amber-500/50"
+                  }`}
+                >
+                  <div className="text-sm font-semibold mb-1">🎞️ Cinematic</div>
+                  <div className="text-xs text-muted-foreground">Fast cuts, vignette &amp; letterbox bars</div>
+                  <div className="text-xs text-amber-500 font-medium mt-1">Fast · 7 credits</div>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setVideoMode("ai-enhanced")}
                   className={`p-3 rounded-lg border-2 text-left transition-all ${
                     videoMode === "ai-enhanced"
@@ -1202,6 +1215,11 @@ export default function PropertyTours() {
                   <div className="text-xs text-primary font-medium mt-1">~5 min · 15 credits</div>
                 </button>
               </div>
+              {videoMode === "cinematic" && (
+                <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded p-2">
+                  🎞️ Cinematic mode uses aggressive diagonal pans, hard cuts, dark vignette edges, and 2.39:1 letterbox bars for a true film look. Renders in ~2 minutes.
+                </p>
+              )}
               {videoMode === "ai-enhanced" && (
                 <p className="text-xs text-muted-foreground bg-muted dark:bg-primary/10 border border-primary/20 dark:border-primary/50 rounded p-2">
                   🎥 AI Walkthrough uses Kling AI to generate real camera movement (dolly push, arc turns, crane shots) for your best 3–5 photos. Takes ~5 minutes to generate.

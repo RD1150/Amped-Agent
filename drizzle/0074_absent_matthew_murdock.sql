@@ -1,0 +1,1 @@
+ALTER TABLE `property_tours` MODIFY COLUMN `videoMode` enum('standard','ai-enhanced','full-ai','cinematic') DEFAULT 'standard';

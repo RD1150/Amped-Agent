@@ -40,7 +40,7 @@ export const propertyToursRouter = router({
         musicTrack: z.string().optional(),
         cardTemplate: z.enum(["modern", "luxury", "bold", "classic", "contemporary"]).default("modern"),
         includeIntroVideo: z.boolean().default(false),
-        videoMode: z.enum(["standard", "ai-enhanced"]).default("standard"),
+        videoMode: z.enum(["standard", "ai-enhanced", "cinematic"]).default("standard"),
         enableVoiceover: z.boolean().default(false),
         voiceId: z.string().optional(),
         customCameraPrompt: z.string().optional(),
@@ -152,7 +152,7 @@ export const propertyToursRouter = router({
 
       // Calculate credit cost
       const costBreakdown = credits.calculateVideoCost({
-        videoMode: (tour.videoMode as "standard" | "ai-enhanced") || "standard",
+        videoMode: (tour.videoMode as "standard" | "ai-enhanced" | "cinematic") || "standard",
         enableVoiceover: tour.enableVoiceover || false,
       });
 
@@ -238,7 +238,7 @@ export const propertyToursRouter = router({
             musicTrack: tour.musicTrack || undefined,
             cardTemplate: (tour.cardTemplate as "modern" | "luxury" | "bold" | "classic" | "contemporary") || "modern",
             includeIntroVideo: tour.includeIntroVideo ?? false,
-            videoMode: (tour.videoMode as "standard" | "ai-enhanced") || "standard",
+            videoMode: (tour.videoMode as "standard" | "ai-enhanced" | "cinematic") || "standard",
             enableVoiceover: tour.enableVoiceover || false,
             customCameraPrompt: tour.customCameraPrompt || undefined,
             voiceoverScript: tour.voiceoverScript || undefined,

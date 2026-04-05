@@ -32,7 +32,7 @@ export interface VideoGenerationOptions {
   aspectRatio?: "16:9" | "9:16" | "1:1"; // Video aspect ratio
   cardTemplate?: "modern" | "luxury" | "bold" | "classic" | "contemporary"; // Intro/outro card style
   includeIntroVideo?: boolean; // Prepend user's intro video
-  videoMode?: "standard" | "ai-enhanced" | "full-ai"; // Video generation mode
+  videoMode?: "standard" | "ai-enhanced" | "full-ai" | "cinematic"; // Video generation mode
   enableVoiceover?: boolean; // Enable AI voiceover narration
   voiceId?: string; // ElevenLabs voice ID
   voiceoverScript?: string; // Custom script (if not provided, will auto-generate)

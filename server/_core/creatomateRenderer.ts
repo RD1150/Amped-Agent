@@ -136,6 +136,78 @@ function kenBurnsAnimations(preset: KenBurnsPreset, _duration: number): object[]
   return anims;
 }
 
+// ─── Cinematic Animation Helpers ────────────────────────────────────────────
+
+type CinematicPreset =
+  | "punch-in-right"
+  | "pull-back-left"
+  | "diagonal-up-right"
+  | "diagonal-down-left"
+  | "hard-zoom-in"
+  | "hard-zoom-out"
+  | "sweep-left"
+  | "sweep-right";
+
+/**
+ * Build Creatomate animations for a true cinematic effect:
+ * - Aggressive scale (100%→145% or 145%→100%)
+ * - Fast diagonal pans
+ * - No fade overlap — hard cuts between clips
+ */
+function cinematicAnimations(preset: CinematicPreset): object[] {
+  const anims: object[] = [];
+  switch (preset) {
+    case "punch-in-right":
+      anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "100%", end_scale: "145%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "0deg", fade: false });
+      break;
+    case "pull-back-left":
+      anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "145%", end_scale: "100%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "180deg", fade: false });
+      break;
+    case "diagonal-up-right":
+      anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "105%", end_scale: "145%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "315deg", fade: false });
+      break;
+    case "diagonal-down-left":
+      anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "145%", end_scale: "105%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "135deg", fade: false });
+      break;
+    case "hard-zoom-in":
+      anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "100%", end_scale: "150%", fade: false });
+      break;
+    case "hard-zoom-out":
+      anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "150%", end_scale: "100%", fade: false });
+      break;
+    case "sweep-left":
+      anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "130%", end_scale: "130%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "180deg", fade: false });
+      break;
+    case "sweep-right":
+      anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "130%", end_scale: "130%", fade: false });
+      anims.push({ easing: "linear", type: "pan", direction: "0deg", fade: false });
+      break;
+    default:
+      anims.push({ easing: "linear", type: "scale", scope: "element", start_scale: "100%", end_scale: "145%", fade: false });
+  }
+  return anims;
+}
+
+const CINEMATIC_CYCLE: CinematicPreset[] = [
+  "punch-in-right",
+  "pull-back-left",
+  "diagonal-up-right",
+  "hard-zoom-in",
+  "diagonal-down-left",
+  "sweep-left",
+  "hard-zoom-out",
+  "sweep-right",
+];
+
+function getCinematicPreset(index: number): CinematicPreset {
+  return CINEMATIC_CYCLE[index % CINEMATIC_CYCLE.length];
+}
+
 const KEN_BURNS_CYCLE: KenBurnsPreset[] = [
   "zoom-in",
   "zoom-out-pan-left",
@@ -443,7 +515,7 @@ export interface PropertyTourOptions {
   includeBranding?: boolean;
   aspectRatio?: "16:9" | "9:16" | "1:1";
   cardTemplate?: "modern" | "luxury" | "bold" | "classic" | "contemporary";
-  videoMode?: "standard" | "ai-enhanced" | "full-ai";
+  videoMode?: "standard" | "ai-enhanced" | "full-ai" | "cinematic";
   enableVoiceover?: boolean;
   voiceoverUrl?: string;
   perPhotoMovements?: string[];
@@ -492,10 +564,14 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
     [1920, 1080];
 
   const isCinematic = videoMode === "full-ai";
+  const isNewCinematic = videoMode === "cinematic"; // New proper cinematic pipeline
   const speedMultiplier = movementSpeed === "fast" ? 0.6 : 1.0;
   const cinematicMultiplier = isCinematic ? 1.4 : 1.0;
   const baseDurationPerImage = duration / imageUrls.length;
-  const durationPerImage = baseDurationPerImage * speedMultiplier * cinematicMultiplier;
+  // New Cinematic: fast 2.5s per photo (beat-synced feel), ignores movementSpeed
+  const durationPerImage = isNewCinematic
+    ? 2.5
+    : baseDurationPerImage * speedMultiplier * cinematicMultiplier;
   const AI_CLIP_DURATION = 5;
 
   // ── Calculate cumulative start times ─────────────────────────────────────
@@ -677,6 +753,22 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
         volume: 0,
         animations: index > 0 ? [{ type: "fade", duration: 0.5, fade: true }] : [],
       });
+    } else if (isNewCinematic) {
+      // New Cinematic: aggressive motion, hard cuts (no crossfade overlap)
+      const cinePreset = getCinematicPreset(index);
+      const cineAnims = cinematicAnimations(cinePreset);
+      // Hard cut: very short fade-in (0.1s) — looks like a sharp cut
+      const cutAnim = index > 0 ? [{ type: "fade", duration: 0.1, fade: true }] : [];
+      elements.push({
+        type: "image",
+        source: url,
+        track: photoTrack,
+        time: clipStart, // No overlap — hard cuts
+        duration: clipLength,
+        fit: "cover",
+        clip: true,
+        animations: [...cutAnim, ...cineAnims],
+      });
     } else {
       // Static image with Ken Burns
       const preset = getKenBurnsPreset(index, perPhotoMovements?.[index]);
@@ -847,6 +939,75 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
     });
   }
 
+  // ── Cinematic overlays: vignette + letterbox ─────────────────────────────
+  if (isNewCinematic) {
+    const vignetteTrack = trackIdx++;
+    // Dark vignette: 4 semi-transparent rectangles on edges (top, bottom, left, right)
+    // Top vignette
+    elements.push({
+      type: "shape", shape: "rectangle",
+      fill_color: "rgba(0,0,0,0.45)",
+      track: vignetteTrack,
+      time: introOffset, duration: mainDuration,
+      width: "100%", height: "30%",
+      x: "50%", y: "0%",
+      x_alignment: "50%", y_alignment: "0%",
+    });
+    // Bottom vignette
+    elements.push({
+      type: "shape", shape: "rectangle",
+      fill_color: "rgba(0,0,0,0.45)",
+      track: vignetteTrack,
+      time: introOffset, duration: mainDuration,
+      width: "100%", height: "30%",
+      x: "50%", y: "100%",
+      x_alignment: "50%", y_alignment: "100%",
+    });
+    // Left vignette
+    elements.push({
+      type: "shape", shape: "rectangle",
+      fill_color: "rgba(0,0,0,0.25)",
+      track: vignetteTrack,
+      time: introOffset, duration: mainDuration,
+      width: "15%", height: "100%",
+      x: "0%", y: "50%",
+      x_alignment: "0%", y_alignment: "50%",
+    });
+    // Right vignette
+    elements.push({
+      type: "shape", shape: "rectangle",
+      fill_color: "rgba(0,0,0,0.25)",
+      track: vignetteTrack,
+      time: introOffset, duration: mainDuration,
+      width: "15%", height: "100%",
+      x: "100%", y: "50%",
+      x_alignment: "100%", y_alignment: "50%",
+    });
+    // Cinematic letterbox bars (2.39:1 aspect ratio) — only for 16:9 output
+    if (aspectRatio === "16:9") {
+      const letterboxTrack = trackIdx++;
+      const barHeight = Math.round(height * 0.105); // ~105px on 1080p = 2.39:1 crop
+      elements.push({
+        type: "shape", shape: "rectangle",
+        fill_color: "#000000",
+        track: letterboxTrack,
+        time: introOffset, duration: mainDuration,
+        width: "100%", height: `${barHeight}px`,
+        x: "50%", y: "0%",
+        x_alignment: "50%", y_alignment: "0%",
+      });
+      elements.push({
+        type: "shape", shape: "rectangle",
+        fill_color: "#000000",
+        track: letterboxTrack,
+        time: introOffset, duration: mainDuration,
+        width: "100%", height: `${barHeight}px`,
+        x: "50%", y: "100%",
+        x_alignment: "50%", y_alignment: "100%",
+      });
+    }
+  }
+
   // ── Background music ──────────────────────────────────────────────────────
   if (musicTrackUrl) {
     elements.push({
@@ -900,7 +1061,7 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
     output_format: "mp4",
     width,
     height,
-    frame_rate: isCinematic ? 30 : 25,
+    frame_rate: (isCinematic || isNewCinematic) ? 30 : 25,
     snapshot_time: Math.min(introOffset + mainDuration * 0.25, totalDuration - 0.5),
     elements,
   };

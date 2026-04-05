@@ -4147,3 +4147,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Split LISTINGS section into "LISTING VIDEOS" and "SOCIAL VIDEOS" sub-sections
 - [x] LISTING VIDEOS: Property Slideshow, AI Motion Tour, Live Tour, Photo Library
 - [x] SOCIAL VIDEOS: AI Reels, Full Avatar Video, YouTube Builder, My Videos
+
+## Cinematic Pipeline Upgrade
+- [x] Build cinematicPipeline.ts with aggressive diagonal pans, hard cuts, vignette, letterbox
+- [x] Add cinematic animations to creatomateRenderer.ts (faster scale 100%→145%, diagonal pans, 0.1s cuts)
+- [x] Add cinematic videoMode to videoGenerator.ts type
+- [x] Add cinematic to propertyTours router enum validation
+- [x] Add cinematic to credits.ts calculateVideoCost (7 credits)
+- [x] Add cinematic to credits router calculateCost enum
+- [x] Add Cinematic option to PropertyTours.tsx video style selector (3-column grid: Standard / Cinematic / AI Walkthrough)
+- [x] Add cinematic info tooltip in PropertyTours UI

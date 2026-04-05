@@ -197,7 +197,7 @@ export async function getCreditHistory(userId: number, limit: number = 50) {
  * Calculate credit cost for a property tour video
  */
 export function calculateVideoCost(params: {
-  videoMode: "standard" | "ai-enhanced" | "full-ai";
+  videoMode: "standard" | "ai-enhanced" | "full-ai" | "cinematic";
   enableVoiceover: boolean;
 }): { totalCredits: number; breakdown: { item: string; credits: number }[] } {
   const { videoMode, enableVoiceover } = params;
@@ -213,6 +213,9 @@ export function calculateVideoCost(params: {
   } else if (videoMode === "full-ai") {
     videoCredits = CREDIT_COSTS.full_ai_video;
     videoLabel = "Property Tour Video (Full AI Cinematic)";
+  } else if (videoMode === "cinematic") {
+    videoCredits = 7; // Cinematic: between standard (5) and AI-enhanced (15)
+    videoLabel = "Property Tour Video (Cinematic)";
   } else {
     videoCredits = CREDIT_COSTS.standard_video;
     videoLabel = "Property Tour Video (Ken Burns)";
