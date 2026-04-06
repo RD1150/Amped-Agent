@@ -5,6 +5,11 @@
  * - Motion prompt selection logic (room type + clip index)
  * - API credential availability
  * - Correct endpoint and auth header construction
+ *
+ * Correct Higgsfield API:
+ *   POST /v1/generate   (not /v1/generations)
+ *   GET  /v1/status/{id}
+ *   Response: { success, generation_id, ... }  (not { id })
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -59,6 +64,15 @@ describe("getHiggsfieldMotionPrompt", () => {
     const other = getHiggsfieldMotionPrompt("other", 0);
     expect(unknown).toBe(other);
   });
+
+  it("respects motionDirection override (e.g. push_in)", () => {
+    const pushIn = getHiggsfieldMotionPrompt("living_room", 0, undefined, false, "push_in");
+    const auto = getHiggsfieldMotionPrompt("living_room", 0, undefined, false, "auto");
+    // push_in should return the DIRECTION_PROMPTS.push_in string
+    expect(pushIn).toContain("dolly push-in");
+    // auto should fall through to room-type default
+    expect(pushIn).not.toBe(auto);
+  });
 });
 
 // ── API credential availability ───────────────────────────────────────────────
@@ -84,11 +98,12 @@ describe("submitHiggsfieldGeneration (mocked)", () => {
     vi.stubGlobal("fetch", vi.fn());
   });
 
-  it("calls the correct Higgsfield endpoint with Bearer auth", async () => {
+  it("calls the correct Higgsfield endpoint /v1/generate with Bearer auth", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 202,
-      json: async () => ({ id: "test-gen-id-123" }),
+      // Correct API response uses generation_id (not id)
+      json: async () => ({ success: true, generation_id: "test-gen-id-123" }),
     });
     vi.stubGlobal("fetch", mockFetch);
 
@@ -100,7 +115,8 @@ describe("submitHiggsfieldGeneration (mocked)", () => {
 
     expect(id).toBe("test-gen-id-123");
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://api.higgsfield.ai/v1/generations",
+      // Correct endpoint: /v1/generate (not /v1/generations)
+      "https://api.higgsfield.ai/v1/generate",
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({
@@ -109,6 +125,29 @@ describe("submitHiggsfieldGeneration (mocked)", () => {
         }),
       })
     );
+
+    // Verify payload uses image_url (not input_image) and no model field
+    const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(callBody.image_url).toBe("https://example.com/listing-photo.jpg");
+    expect(callBody.prompt).toBe("Slow cinematic dolly push-in");
+    expect(callBody.model).toBeUndefined(); // no model field in Higgsfield API
+    expect(callBody.camera_fixed).toBe(false); // allow camera movement
+  });
+
+  it("falls back to id field if generation_id is missing", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 202,
+      json: async () => ({ id: "fallback-id-456" }),
+    });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const { submitHiggsfieldGeneration } = await import("./_core/higgsfieldAi");
+    const id = await submitHiggsfieldGeneration(
+      "https://example.com/photo.jpg",
+      "test prompt"
+    );
+    expect(id).toBe("fallback-id-456");
   });
 
   it("throws on non-OK response", async () => {

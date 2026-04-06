@@ -4182,3 +4182,18 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Remove puppeteer from onlyBuiltDependencies in package.json
 - [x] Update leadMagnet.test.ts mock from html-pdf-node to puppeteer-core
 - [x] All 511 tests pass after migration
+
+## Bug: Motion Type Selection Not Applied in Video Generation
+- [ ] Trace how motion type is passed from UI to backend in PropertyTours page
+- [ ] Check how motion type is used in videoGenerator / creatomateRenderer
+- [ ] Fix motion type not being applied to video clips
+
+## Bug Fix: Motion Type Selection Not Working (Apr 6 2026)
+- [x] Root cause found: Higgsfield API was being called with WRONG endpoint /v1/generations (correct: /v1/generate)
+- [x] Wrong payload field: input_image → image_url
+- [x] Wrong response field: id → generation_id
+- [x] Wrong poll endpoint: /v1/generations/{id} → /v1/status/{id}
+- [x] Removed invalid "model" field from payload (Higgsfield API has no model field)
+- [x] Fixed missing z import in youtube.ts (was causing persistent esbuild error at line 388)
+- [x] Updated Higgsfield integration tests to validate correct endpoint/payload
+- [x] All 513 tests pass

@@ -1,12 +1,20 @@
 /**
  * Higgsfield Cloud API — Image-to-Video generation
- * Base URL: https://api.higgsfield.ai/v1/generations
+ * Base URL: https://api.higgsfield.ai/v1
+ * Generate: POST /v1/generate
+ * Status:   GET  /v1/status/{generation_id}
  * Auth: Bearer token (HIGGSFIELD_API_KEY)
- * Polling: GET /v1/generations/{id}
  *
- * Used to replace Runway for Cinematic Walkthrough clip generation.
- * Higgsfield produces genuine AI motion (parallax, fly-through, camera movement)
- * rather than Ken Burns pan/zoom on stills.
+ * API parameters (image-to-video mode):
+ *   prompt       string   - motion description (max 1000 chars)
+ *   image_url    string   - source image URL
+ *   duration     integer  - 5 or 10 seconds
+ *   resolution   string   - "480p" | "720p" | "1080p"
+ *   camera_fixed boolean  - true = no camera movement
+ *   seed         integer  - optional, -1 for random
+ *
+ * NOTE: There is NO "model" field in the Higgsfield API.
+ * The prompt drives the camera motion — be specific about direction.
  */
 
 import { ENV } from "./env";
@@ -138,12 +146,26 @@ export function getHiggsfieldMotionPrompt(
   const prompts = ROOM_MOTION_PROMPTS[key];
   return clipIndex % 2 === 0 ? prompts.primary : prompts.secondary;
 }
-
-// ── API types ─────────────────────────────────────────────────────────────────
+// ── API types ──────────────────────────────────────────────────────────────────────────────────
+// POST /v1/generate response
 interface HiggsfieldGenerationResponse {
-  id: string;
+  success?: boolean;
+  generation_id?: string; // actual field name from API
+  id?: string;            // fallback in case API changes
+  status?: "pending" | "processing" | "completed" | "failed";
+  output?: string;
+  error?: string;
+  message?: string;
+  status_url?: string;    // e.g. "/v1/status/{generation_id}"
+}
+
+// GET /v1/status/{id} response
+interface HiggsfieldStatusResponse {
+  generation_id?: string;
+  id?: string;
   status: "pending" | "processing" | "completed" | "failed";
   output?: string;
+  video_url?: string;     // some API versions use video_url
   error?: string;
 }
 
@@ -153,17 +175,16 @@ export async function submitHiggsfieldGeneration(
   prompt: string,
   attempt = 1
 ): Promise<string> {
+  // Correct Higgsfield API payload — no "model" field, uses image_url (not input_image)
   const payload = {
-    task: "image-to-video",
-    model: "default-video-model",
-    input_image: imageUrl,
-    duration: 5,
-    fps: 24,
-    motion_intensity: "medium",
     prompt,
+    image_url: imageUrl,
+    duration: 5,
+    resolution: "720p",
+    camera_fixed: false, // allow camera movement driven by prompt
   };
 
-  const response = await fetch(`${HIGGSFIELD_BASE}/generations`, {
+  const response = await fetch(`${HIGGSFIELD_BASE}/generate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -186,15 +207,17 @@ export async function submitHiggsfieldGeneration(
   }
 
   const data = (await response.json()) as HiggsfieldGenerationResponse;
-  if (!data.id) {
-    throw new Error("Higgsfield did not return a generation ID");
+  // API returns generation_id (not id)
+  const generationId = data.generation_id ?? data.id;
+  if (!generationId) {
+    throw new Error(`Higgsfield did not return a generation ID. Response: ${JSON.stringify(data)}`);
   }
 
-  console.log(`[Higgsfield] Generation submitted: ${data.id}`);
-  return data.id;
+  console.log(`[Higgsfield] Generation submitted: ${generationId}`);
+  return generationId;
 }
 
-// ── Poll until complete and return video URL ──────────────────────────────────
+// ── Poll until complete and return video URL ──────────────────────────────────────────
 export async function pollHiggsfieldGeneration(
   generationId: string,
   maxWaitMs = 300000
@@ -205,7 +228,8 @@ export async function pollHiggsfieldGeneration(
   while (Date.now() - start < maxWaitMs) {
     await new Promise((r) => setTimeout(r, interval));
 
-    const res = await fetch(`${HIGGSFIELD_BASE}/generations/${generationId}`, {
+    // Correct endpoint: /v1/status/{generation_id}
+    const res = await fetch(`${HIGGSFIELD_BASE}/status/${generationId}`, {
       headers: {
         Authorization: `Bearer ${ENV.HIGGSFIELD_API_KEY}`,
       },
@@ -216,15 +240,17 @@ export async function pollHiggsfieldGeneration(
       continue;
     }
 
-    const data = (await res.json()) as HiggsfieldGenerationResponse;
+    const data = (await res.json()) as HiggsfieldStatusResponse;
     console.log(`[Higgsfield] ${generationId} status: ${data.status}`);
 
     if (data.status === "completed") {
-      if (!data.output) {
-        throw new Error("Higgsfield completed but returned no output URL");
+      // API may return video URL as output or video_url
+      const videoUrl = data.output ?? data.video_url;
+      if (!videoUrl) {
+        throw new Error("Higgsfield completed but returned no video URL");
       }
-      console.log(`[Higgsfield] ✓ Clip ready: ${data.output}`);
-      return data.output;
+      console.log(`[Higgsfield] ✓ Clip ready: ${videoUrl}`);
+      return videoUrl;
     }
 
     if (data.status === "failed") {
@@ -235,7 +261,7 @@ export async function pollHiggsfieldGeneration(
   throw new Error(`Higgsfield generation timed out after ${maxWaitMs / 1000}s`);
 }
 
-// ── Convenience: submit + poll in one call ────────────────────────────────────
+// ── Convenience: submit + poll in one call ──────────────────────────────────────────
 export async function generateHiggsfieldClip(
   imageUrl: string,
   roomType: string,
