@@ -623,7 +623,7 @@ async function assembleCreatomateVideo(opts: {
       source: musicTrackUrl,
       time: 0,
       duration: totalDuration,
-      volume: voiceoverUrl ? 0.2 : 0.5,
+      volume: voiceoverUrl ? 0.5 : 1.0,
       audio_fade_in: 1.0,
       audio_fade_out: 2.0,
     });

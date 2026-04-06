@@ -375,7 +375,7 @@ export async function renderAutoReel(options: AutoReelOptions): Promise<RenderRe
       track: 2,
       time: 0,
       duration: videoLength,
-      volume: voiceoverAudioUrl ? '10%' : '30%',
+      volume: voiceoverAudioUrl ? '40%' : '80%',
     });
     // ── Track 3: Hook text (first 2.5 seconds) — luxury serif style ──────────────
     // Dark band spans only the text width; gold hairlines above and below.
@@ -1016,7 +1016,7 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
       track: trackIdx++,
       time: 0,
       duration: totalDuration,
-      volume: enableVoiceover ? '30%' : '60%',
+      volume: enableVoiceover ? '50%' : '100%',
     });
   }
 

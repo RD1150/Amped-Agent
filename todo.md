@@ -4169,3 +4169,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update VideoPreviewGallery to use cleaned demo videos (no personal branding)
 - [x] Update VideoPreviewGallery "What's Included" section to reflect correct video modes (Ken Burns 5cr, Cinematic 7cr, AI Motion 15cr)
 - [x] Add Photo Tips tooltip (Camera icon) to AI Motion Tour property photos section - explains best photo composition for dolly/crane/orbit effects
+
+## Bug: Music Volume Too Low / Silent in Generated Videos
+- [x] Investigate music volume setting in Shotstack payload (Ken Burns / Cinematic pipeline)
+- [x] Investigate music volume in AI Motion Tour (Kling + FFmpeg assembly pipeline)
+- [x] Fix music volume to be clearly audible in all video types - raised to 100% (no voiceover) and 50% (with voiceover) across all pipelines
+- [ ] Test with a real video generation to confirm fix
