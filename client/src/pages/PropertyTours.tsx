@@ -1184,8 +1184,8 @@ export default function PropertyTours() {
                       : "border-border bg-background hover:border-primary/50"
                   }`}
                 >
-                  <div className="text-sm font-semibold mb-1">🎬 Standard</div>
-                  <div className="text-xs text-muted-foreground">Smooth Ken Burns zoom &amp; pan effects</div>
+                  <div className="text-sm font-semibold mb-1">🎬 Ken Burns</div>
+                  <div className="text-xs text-muted-foreground">Classic slow zoom &amp; pan on photos</div>
                   <div className="text-xs text-primary font-medium mt-1">Fast · 5 credits</div>
                 </button>
                 <button
@@ -1210,8 +1210,8 @@ export default function PropertyTours() {
                       : "border-border bg-background hover:border-primary/50"
                   }`}
                 >
-                  <div className="text-sm font-semibold mb-1">✨ AI Walkthrough</div>
-                  <div className="text-xs text-muted-foreground">Real camera movement through rooms</div>
+                  <div className="text-sm font-semibold mb-1">✨ AI Motion</div>
+                  <div className="text-xs text-muted-foreground">Kling AI generates real camera movement</div>
                   <div className="text-xs text-primary font-medium mt-1">~5 min · 15 credits</div>
                 </button>
               </div>
@@ -1222,7 +1222,7 @@ export default function PropertyTours() {
               )}
               {videoMode === "ai-enhanced" && (
                 <p className="text-xs text-muted-foreground bg-muted dark:bg-primary/10 border border-primary/20 dark:border-primary/50 rounded p-2">
-                  🎥 AI Walkthrough uses Kling AI to generate real camera movement (dolly push, arc turns, crane shots) for your best 3–5 photos. Takes ~5 minutes to generate.
+                  🤖 AI Motion uses Kling AI to generate real camera movement (dolly push, arc turns, crane shots) for your best 3–5 photos. Takes ~5 minutes to generate.
                 </p>
               )}
             </div>

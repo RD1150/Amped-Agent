@@ -342,7 +342,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="font-semibold text-sm">Property Slideshow</p>
-                <p className="text-xs text-muted-foreground">Ken Burns video · 5 credits</p>
+                <p className="text-xs text-muted-foreground">Ken Burns / Cinematic / AI Motion</p>
               </div>
             </div>
           </Card>
