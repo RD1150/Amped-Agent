@@ -28,23 +28,23 @@ interface VideoSample {
 const sampleVideos: VideoSample[] = [
   {
     id: "1",
-    title: "Bel Air Estate — Ken Burns Tour",
+    title: "Luxury Estate — Cinematic Tour",
     thumbnail: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/prop1_exterior_de4423f4.jpg",
-    videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/ken_burns_tour_bff80cb9.mp4",
-    description: "Smooth Ken Burns pan/zoom with crossfade transitions and text overlays",
-    credits: 5,
-    badge: "Standard",
-    badgeColor: "secondary",
+    videoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/lBdDdFxODeKkouVu.mp4",
+    description: "Dramatic diagonal pans, hard cuts, letterbox bars, and warm color grade",
+    credits: 7,
+    badge: "Cinematic",
+    badgeColor: "default",
   },
   {
     id: "2",
-    title: "Luxury Residence — Cinematic Mode",
+    title: "Modern Home — AI Motion Tour",
     thumbnail: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/prop2_living_f2b1e396.jpg",
-    videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/CinematicExample_Fixed_10037983.mp4",
-    description: "Dramatic diagonal pans with cinematic typography and slower pacing",
-    credits: 10,
-    badge: "Cinematic",
-    badgeColor: "default",
+    videoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/QBiKMspQTQCRQeGf.mp4",
+    description: "AI-generated real camera movement — dolly, crane, orbit — per room",
+    credits: 15,
+    badge: "AI Motion",
+    badgeColor: "outline",
   },
   {
     id: "3",
@@ -53,8 +53,8 @@ const sampleVideos: VideoSample[] = [
     videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/autoreel_b17928e4.mp4",
     description: "Vertical 9:16 format with hook text, property details, and CTA overlay",
     credits: 8,
-    badge: "AutoReel",
-    badgeColor: "outline",
+    badge: "AI Reels",
+    badgeColor: "secondary",
     isVertical: true,
   },
 ];
@@ -122,15 +122,15 @@ export default function VideoPreviewGallery() {
         </div>
 
         <div className="mt-8 p-6 bg-muted rounded-lg">
-          <h4 className="font-semibold mb-3">What's Included in Every Video</h4>
+          <h4 className="font-semibold mb-3">Three Ways to Showcase a Property</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Play className="w-4 h-4 text-blue-600" />
-                <span className="font-medium">Standard (5 credits)</span>
+                <span className="font-medium">Ken Burns (5 credits)</span>
               </div>
               <ul className="space-y-1 text-muted-foreground">
-                <li>• Ken Burns pan/zoom effects</li>
+                <li>• Slow pan &amp; zoom effects</li>
                 <li>• Smooth crossfade transitions</li>
                 <li>• Professional background music</li>
                 <li>• Property text overlays</li>
@@ -139,25 +139,25 @@ export default function VideoPreviewGallery() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Clapperboard className="w-4 h-4 text-primary" />
-                <span className="font-medium">Cinematic (10 credits)</span>
+                <span className="font-medium">Cinematic (7 credits)</span>
               </div>
               <ul className="space-y-1 text-muted-foreground">
-                <li>• Dramatic diagonal pans</li>
-                <li>• Cinematic typography</li>
-                <li>• Slower, more impactful pacing</li>
+                <li>• Diagonal pans &amp; hard cuts</li>
+                <li>• 2.39:1 letterbox bars</li>
+                <li>• Dark vignette &amp; warm grade</li>
                 <li>• Luxury brand aesthetic</li>
               </ul>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Mic className="w-4 h-4 text-purple-600" />
-                <span className="font-medium">With Voiceover (+5 credits)</span>
+                <span className="font-medium">AI Motion (15 credits)</span>
               </div>
               <ul className="space-y-1 text-muted-foreground">
-                <li>• AI voiceover narration</li>
-                <li>• Multiple voice styles</li>
-                <li>• Auto-generated script</li>
-                <li>• Available on all video types</li>
+                <li>• Real AI camera movement</li>
+                <li>• Dolly, crane, orbit, drone</li>
+                <li>• Per-room motion selection</li>
+                <li>• Powered by Kling AI</li>
               </ul>
             </div>
           </div>

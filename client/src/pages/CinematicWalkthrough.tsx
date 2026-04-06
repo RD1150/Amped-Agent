@@ -8,7 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2, Gem, ArrowRight, ArrowLeft, ArrowUp, Home, GripVertical, Sparkles, User, Share2 } from "lucide-react";
+import { Upload, X, Play, Pause, Loader2, CheckCircle, Film, Wand2, Music, Mic, ChevronDown, ChevronUp, Info, Library, Volume2, Gem, ArrowRight, ArrowLeft, ArrowUp, Home, GripVertical, Sparkles, User, Share2, Camera } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import {
   DndContext,
@@ -852,7 +858,30 @@ export default function CinematicWalkthrough() {
       {/* Photo Upload */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <Label className="text-base font-semibold">Property Photos</Label>
+          <div className="flex items-center gap-2">
+            <Label className="text-base font-semibold">Property Photos</Label>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className="text-muted-foreground hover:text-foreground transition-colors">
+                    <Camera className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="max-w-xs p-4">
+                  <p className="font-semibold text-sm mb-2">📸 Photo Tips for Best AI Motion</p>
+                  <ul className="text-xs space-y-1.5 text-muted-foreground">
+                    <li><span className="text-green-500 font-medium">✓ Best:</span> Wide-angle shots of full rooms — shows dolly &amp; crane movement clearly</li>
+                    <li><span className="text-green-500 font-medium">✓ Best:</span> Exterior shots — great for drone pullback &amp; orbit effects</li>
+                    <li><span className="text-green-500 font-medium">✓ Best:</span> Open-plan living areas — camera can sweep across the full space</li>
+                    <li><span className="text-yellow-500 font-medium">~ OK:</span> Standard room photos — motion will be subtle but visible</li>
+                    <li><span className="text-red-400 font-medium">✗ Avoid:</span> Close-up detail shots (fixtures, countertops) — no room for camera to move</li>
+                    <li><span className="text-red-400 font-medium">✗ Avoid:</span> Vertical/portrait photos — AI works best with landscape orientation</li>
+                  </ul>
+                  <p className="text-xs text-muted-foreground mt-2 pt-2 border-t border-border">Tip: 3–5 wide-angle photos produce the most cinematic result.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <span className="text-xs text-muted-foreground">{photos.length}/12 photos</span>
         </div>
 

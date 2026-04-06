@@ -25,7 +25,17 @@ queryClient.getQueryCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.query.state.error;
     redirectToLoginIfUnauthorized(error);
-    console.error("[API Query Error]", error);
+    // Only log unexpected errors — suppress known non-critical failures
+    // (e.g. YouTube/social not connected, optional analytics widgets)
+    if (error instanceof TRPCClientError) {
+      const code = error.data?.code;
+      // UNAUTHORIZED is handled by redirect; other 4xx are expected app states
+      if (code !== 'UNAUTHORIZED' && code !== 'NOT_FOUND' && code !== 'FORBIDDEN') {
+        console.error("[API Query Error]", error);
+      }
+    } else if (error) {
+      console.error("[API Query Error]", error);
+    }
   }
 });
 

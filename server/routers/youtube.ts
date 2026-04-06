@@ -324,13 +324,23 @@ export const youtubeRouter = router({
     if (!rows.length) return null;
 
     const conn = rows[0];
-    const accessToken = await getValidToken(conn);
+    let accessToken: string;
+    try {
+      accessToken = await getValidToken(conn);
+    } catch {
+      return null;
+    }
 
     // Fetch channel stats
-    const channelRes = await fetch(
-      `${YOUTUBE_API_BASE}/channels?part=statistics,snippet&mine=true`,
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
+    let channelRes: Response;
+    try {
+      channelRes = await fetch(
+        `${YOUTUBE_API_BASE}/channels?part=statistics,snippet&mine=true`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+    } catch {
+      return null;
+    }
     if (!channelRes.ok) return null;
     const channelData = await channelRes.json() as {
       items?: Array<{

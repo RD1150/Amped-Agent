@@ -4161,3 +4161,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Live Tour & Blog Builder Updates
 - [x] Add "Post to Social" button to Live Tour page (VideoPostingDialog on done phase)
 - [x] Build "Publish to Lofty" button in Blog Builder (copy to clipboard + open Lofty in new tab)
+
+## Session Apr 6 2026 - Bug Fixes & Improvements
+- [x] Fix dashboard tRPC "Failed to fetch" error - wrapped getChannelAnalytics in try-catch, individual fetch calls now return null on failure instead of throwing
+- [x] Suppress non-critical query errors in global error handler (main.tsx) - UNAUTHORIZED/NOT_FOUND/FORBIDDEN no longer logged as errors
+- [x] Upload cleaned demo videos to CDN (Cinematic_cleaned.mp4, AI_Motion_Tour_cleaned.mp4)
+- [x] Update VideoPreviewGallery to use cleaned demo videos (no personal branding)
+- [x] Update VideoPreviewGallery "What's Included" section to reflect correct video modes (Ken Burns 5cr, Cinematic 7cr, AI Motion 15cr)
+- [x] Add Photo Tips tooltip (Camera icon) to AI Motion Tour property photos section - explains best photo composition for dolly/crane/orbit effects
