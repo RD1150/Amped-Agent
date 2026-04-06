@@ -867,25 +867,66 @@ function buildPdfHtml(opts: {
 
 // ============ PDF RENDERER ============
 
-async function renderHtmlToPdf(html: string): Promise<Buffer> {
-  // Dynamically import html-pdf-node to avoid issues if not installed
-  let htmlPdf: any;
-  try {
-    htmlPdf = await import("html-pdf-node");
-  } catch {
-    throw new Error("PDF generation library not available. Please contact support.");
+/**
+ * Render HTML to PDF using puppeteer-core.
+ * puppeteer-core does NOT bundle Chromium — it uses the system browser,
+ * which avoids the large Chromium download that broke Cloud Run deployments.
+ *
+ * Chromium lookup order:
+ *   1. PUPPETEER_EXECUTABLE_PATH env var (set in production)
+ *   2. Common Cloud Run / Linux paths
+ *   3. macOS path (local dev)
+ */
+function findChromiumExecutable(): string {
+  const candidates = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium-browser",
+    "/usr/bin/chromium",
+    "/snap/bin/chromium",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  ].filter(Boolean) as string[];
+
+  const fs = require("fs");
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return p;
+    } catch {
+      // ignore
+    }
   }
+  // Fall back to first candidate and let puppeteer surface a clear error
+  return candidates[0] ?? "/usr/bin/chromium-browser";
+}
 
-  const options = {
-    format: "A4",
-    margin: { top: "0mm", right: "0mm", bottom: "0mm", left: "0mm" },
-    printBackground: true,
-    // Use system Chromium in sandbox environment
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-  };
+async function renderHtmlToPdf(html: string): Promise<Buffer> {
+  const puppeteer = await import("puppeteer-core");
 
-  const file = { content: html };
-  const buffer = await htmlPdf.generatePdf(file, options);
-  return buffer;
+  const executablePath = findChromiumExecutable();
+  console.log(`[LeadMagnet] PDF render using Chromium at: ${executablePath}`);
+
+  const browser = await puppeteer.launch({
+    executablePath,
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+    ],
+  });
+
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      margin: { top: "0mm", right: "0mm", bottom: "0mm", left: "0mm" },
+      printBackground: true,
+    });
+    return Buffer.from(pdfBuffer);
+  } finally {
+    await browser.close();
+  }
 }

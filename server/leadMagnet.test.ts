@@ -48,12 +48,24 @@ vi.mock("./storage", () => ({
   storagePut: vi.fn().mockResolvedValue({ url: "https://s3.example.com/lead-magnets/1/buyer_guide-abc123.pdf", key: "lead-magnets/1/buyer_guide-abc123.pdf" }),
 }));
 
-// Mock html-pdf-node to avoid needing Chromium in tests
-vi.mock("html-pdf-node", () => ({
+// Mock puppeteer-core to avoid needing Chromium in tests
+vi.mock("puppeteer-core", () => ({
   default: {
-    generatePdf: vi.fn().mockResolvedValue(Buffer.from("fake-pdf-content")),
+    launch: vi.fn().mockResolvedValue({
+      newPage: vi.fn().mockResolvedValue({
+        setContent: vi.fn().mockResolvedValue(undefined),
+        pdf: vi.fn().mockResolvedValue(Buffer.from("fake-pdf-content")),
+      }),
+      close: vi.fn().mockResolvedValue(undefined),
+    }),
   },
-  generatePdf: vi.fn().mockResolvedValue(Buffer.from("fake-pdf-content")),
+  launch: vi.fn().mockResolvedValue({
+    newPage: vi.fn().mockResolvedValue({
+      setContent: vi.fn().mockResolvedValue(undefined),
+      pdf: vi.fn().mockResolvedValue(Buffer.from("fake-pdf-content")),
+    }),
+    close: vi.fn().mockResolvedValue(undefined),
+  }),
 }));
 
 function makeCtx(userId = 1): TrpcContext {

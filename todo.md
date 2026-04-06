@@ -4175,3 +4175,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Investigate music volume in AI Motion Tour (Kling + FFmpeg assembly pipeline)
 - [x] Fix music volume to be clearly audible in all video types - raised to 100% (no voiceover) and 50% (with voiceover) across all pipelines
 - [ ] Test with a real video generation to confirm fix
+
+## Bug: Deployment Failure - Puppeteer Chromium Download
+- [x] Find where puppeteer is used in the codebase - html-pdf-node (lead magnet PDF generation) pulled in puppeteer@10.4.0
+- [x] Replace html-pdf-node with puppeteer-core (no bundled Chromium) - direct puppeteer-core API, uses system Chromium
+- [x] Remove puppeteer from onlyBuiltDependencies in package.json
+- [x] Update leadMagnet.test.ts mock from html-pdf-node to puppeteer-core
+- [x] All 511 tests pass after migration
