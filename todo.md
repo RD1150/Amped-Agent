@@ -4157,3 +4157,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add cinematic to credits router calculateCost enum
 - [x] Add Cinematic option to PropertyTours.tsx video style selector (3-column grid: Standard / Cinematic / AI Walkthrough)
 - [x] Add cinematic info tooltip in PropertyTours UI
+
+## Live Tour & Blog Builder Updates
+- [x] Add "Post to Social" button to Live Tour page (VideoPostingDialog on done phase)
+- [x] Build "Publish to Lofty" button in Blog Builder (copy to clipboard + open Lofty in new tab)

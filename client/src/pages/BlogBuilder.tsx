@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
-import { Loader2, FileText, Copy, Trash2, ChevronDown, ChevronUp, Sparkles, Search, Repeat2 } from "lucide-react";
+import { Loader2, FileText, Copy, Trash2, ChevronDown, ChevronUp, Sparkles, Search, Repeat2, ExternalLink } from "lucide-react";
 
 const TOPIC_SUGGESTIONS = [
   "5 Things First-Time Buyers Wish They Knew Before Buying",
@@ -309,21 +309,46 @@ export default function BlogBuilder() {
                         <div className="bg-muted/40 rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap leading-relaxed max-h-[500px] overflow-y-auto font-mono text-xs">
                           {post.content}
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-2 text-primary border-primary/30 hover:bg-muted dark:hover:bg-primary/10"
-                          onClick={() => {
-                            const params = new URLSearchParams({
-                              topic: post.title,
-                              body: post.content.slice(0, 600),
-                            });
-                            navigate(`/repurpose?${params.toString()}`);
-                          }}
-                        >
-                          <Repeat2 className="h-3.5 w-3.5" />
-                          Repurpose This Post
-                        </Button>
+                        <div className="flex gap-2 flex-wrap">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2 text-primary border-primary/30 hover:bg-muted dark:hover:bg-primary/10"
+                            onClick={() => {
+                              const params = new URLSearchParams({
+                                topic: post.title,
+                                body: post.content.slice(0, 600),
+                              });
+                              navigate(`/repurpose?${params.toString()}`);
+                            }}
+                          >
+                            <Repeat2 className="h-3.5 w-3.5" />
+                            Repurpose This Post
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2 text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+                            onClick={() => {
+                              const formatted = `${post.title}\n\n${post.content}${post.metaDescription ? `\n\n---\nSEO Meta Description: ${post.metaDescription}` : ''}`;
+                              navigator.clipboard.writeText(formatted).then(() => {
+                                toast.success(
+                                  "Blog post copied to clipboard!",
+                                  { description: "Opening Lofty — paste the content into your blog editor and click Publish." }
+                                );
+                                setTimeout(() => {
+                                  window.open("https://app.lofty.com", "_blank");
+                                }, 800);
+                              }).catch(() => {
+                                toast.error("Could not copy to clipboard. Please copy the post manually.");
+                                window.open("https://app.lofty.com", "_blank");
+                              });
+                            }}
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                            Publish to Lofty
+                          </Button>
+                        </div>
                         {post.metaDescription && (
                           <div className="space-y-1">
                             <div className="flex items-center justify-between">

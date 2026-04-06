@@ -34,7 +34,9 @@ import {
   MicOff,
   RotateCcw,
   FileText,
+  Share2,
 } from "lucide-react";
+import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { toast } from "sonner";
 
 // ─── Max recording duration ─────────────────────────────────────────────────
@@ -86,6 +88,9 @@ export default function LiveTour() {
   const [propertyAddress, setPropertyAddress] = useState("");
   const [rooms, setRooms] = useState<string[]>([...DEFAULT_ROOMS]);
   const [newRoom, setNewRoom] = useState("");
+
+  // ── Social sharing ──
+  const [showVideoShare, setShowVideoShare] = useState(false);
 
   // ── Session ──
   const [jobId, setJobId] = useState<string | null>(null);
@@ -554,6 +559,13 @@ export default function LiveTour() {
           </Button>
           <Button
             variant="outline"
+            className="flex-1"
+            onClick={() => setShowVideoShare(true)}
+          >
+            <Share2 className="w-4 h-4 mr-2" /> Post to Social
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => {
               setPhase("setup");
               setJobId(null);
@@ -565,6 +577,14 @@ export default function LiveTour() {
             Record Another Tour
           </Button>
         </div>
+
+        <VideoPostingDialog
+          open={showVideoShare}
+          onOpenChange={setShowVideoShare}
+          videoUrl={jobStatus.videoUrl}
+          videoTitle={`Live Tour — ${propertyAddress}`}
+          defaultCaption={`🏡 Live property tour of ${propertyAddress}. Walk through every room and see what makes this home special. #RealEstate #PropertyTour #HomeTour`}
+        />
       </div>
     );
   }
