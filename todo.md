@@ -4242,3 +4242,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Clean up top navbar to black background
 - [x] Remove section labels (HOME, ATTRACT, CONVERT) or style them subtly
 - [x] Make nav items cleaner with orange active state
+
+## Brand Polish - Three Tasks
+- [x] Rename "Authority Score" to "Market Dominance Score" across all files
+- [x] Rewrite pricing page with AmpedAgent plans, 7-day trial, no free tier, annual option (2 months free)
+- [x] Add AmpedAgent favicon (orange lightning bolt A, 32x32)

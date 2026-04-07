@@ -42,7 +42,7 @@ export default function Pricing() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
           <p className="text-xl text-muted-foreground mb-8">
-            Start your {TRIAL_DAYS}-day free trial. No credit card required.
+            Start your {TRIAL_DAYS}-day trial — then auto-billed. Cancel anytime.
           </p>
 
           {/* Billing Toggle */}
@@ -95,6 +95,9 @@ export default function Pricing() {
 
               <CardHeader className="text-center pb-8">
                 <CardTitle className="text-2xl mb-2">{tier.name}</CardTitle>
+                {tier.tagline && (
+                  <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">{tier.tagline}</p>
+                )}
                 <CardDescription className="text-sm">
                   {tier.description}
                 </CardDescription>
@@ -143,10 +146,9 @@ export default function Pricing() {
 
         {/* FAQ / Trust Signals */}
         <div className="mt-16 text-center text-sm text-muted-foreground space-y-2">
-          <p>✓ {TRIAL_DAYS}-day free trial • ✓ No credit card required • ✓ Cancel anytime</p>
+          <p>✓ {TRIAL_DAYS}-day trial, then auto-billed • ✓ Cancel anytime • ✓ Annual billing saves 2 months</p>
           <p className="max-w-2xl mx-auto">
-            All plans include access to AI-powered content generation, property tour videos, 
-            social media scheduling, and analytics. Upgrade or downgrade at any time.
+            All plans include AI-powered content generation, property tour videos, social media scheduling, and analytics. Built exclusively for real estate agents who want to dominate their local market.
           </p>
         </div>
       </div>

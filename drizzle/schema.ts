@@ -16,7 +16,7 @@ export const users = mysqlTable("users", {
   // Stripe subscription fields
   stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
   stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
-  subscriptionTier: mysqlEnum("subscriptionTier", ["starter", "pro", "premium"]).default("starter"),
+  subscriptionTier: mysqlEnum("subscriptionTier", ["starter", "pro", "agency"]).default("starter"),
   subscriptionStatus: mysqlEnum("subscriptionStatus", ["active", "trialing", "past_due", "canceled", "incomplete", "incomplete_expired", "unpaid", "inactive"]).default("inactive"),
   subscriptionEndDate: timestamp("subscriptionEndDate"),
   cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").default(false),

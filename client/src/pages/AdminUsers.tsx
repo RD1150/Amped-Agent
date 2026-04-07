@@ -68,7 +68,7 @@ export default function AdminUsers() {
   const [blastOpen, setBlastOpen] = useState(false);
   const [blastSubject, setBlastSubject] = useState("");
   const [blastMessage, setBlastMessage] = useState("");
-  const [blastTier, setBlastTier] = useState<"all" | "starter" | "pro" | "premium">("all");
+  const [blastTier, setBlastTier] = useState<"all" | "starter" | "pro" | "agency">("all");
 
   // Redirect if not admin
   if (user && user.role !== "admin") {
@@ -376,7 +376,7 @@ export default function AdminUsers() {
                   <SelectItem value="all">All Users</SelectItem>
                   <SelectItem value="starter">Starter tier only</SelectItem>
                   <SelectItem value="pro">Pro tier only</SelectItem>
-                  <SelectItem value="premium">Premium tier only</SelectItem>
+                  <SelectItem value="agency">Agency tier only</SelectItem>
                 </SelectContent>
               </Select>
             </div>

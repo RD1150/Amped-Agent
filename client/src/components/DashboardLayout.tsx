@@ -617,7 +617,7 @@ function DashboardLayoutContent({
                   <img
                     src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/WrKjCObcqVApGxOe.png"
                     alt="AmpedAgent"
-                    className="h-12 w-auto object-contain brightness-0 invert"
+                    className="h-48 w-auto object-contain brightness-0 invert"
                   />
                 </div>
               )}

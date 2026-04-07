@@ -437,7 +437,7 @@ async function assembleCreatomateVideo(opts: {
         background_color: "rgba(0,0,0,0.55)",
         background_x_padding: "6%",
         background_y_padding: "4%",
-        background_border_radius: "2%",
+        background_border_radius: "4px",
         animations: [
           { time: 0, duration: 0.3, easing: "ease-out", type: "fade", fade: true },
           { time: labelDuration - 0.3, duration: 0.3, easing: "ease-in", type: "fade", fade: true, reversed: true },

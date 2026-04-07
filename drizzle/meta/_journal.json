@@ -526,6 +526,13 @@
       "when": 1775378018146,
       "tag": "0074_absent_matthew_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "5",
+      "when": 1775554286317,
+      "tag": "0075_solid_james_howlett",
+      "breakpoints": true
     }
   ]
 }

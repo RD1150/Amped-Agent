@@ -31,7 +31,7 @@ export default function Credits() {
   const handlePurchase = (packageKey: string) => {
     setPurchasing(packageKey);
     createCheckout.mutate({
-      packageKey: packageKey as "starter" | "professional" | "agency",
+      packageKey: packageKey as "starter" | "pro" | "agency",
       successUrl: `${window.location.origin}/credits?success=true`,
       cancelUrl: `${window.location.origin}/credits?canceled=true`,
     });

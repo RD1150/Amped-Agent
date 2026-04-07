@@ -11,7 +11,7 @@ export default function NewsletterBuilder() {
   const { data: ssoLink, isLoading, error } = trpc.newsletter.getSsoLink.useQuery();
 
   // Check if user has Premium tier access
-  const hasPremiumAccess = user?.subscriptionTier === "premium";
+  const hasPremiumAccess = user?.subscriptionTier === "agency";
 
   // Removed auto-redirect to prevent error loop
   // User must click button to open Newsletter Builder
@@ -74,7 +74,7 @@ export default function NewsletterBuilder() {
             <Alert>
               <Crown className="h-4 w-4" />
               <AlertDescription>
-                Upgrade to Premium ($149/month) to unlock Newsletter Builder and all premium features
+                Upgrade to Agency ($149/month) to unlock Newsletter Builder and all premium features
               </AlertDescription>
             </Alert>
 
@@ -82,7 +82,7 @@ export default function NewsletterBuilder() {
               <Button asChild className="flex-1">
                 <a href="/upgrade">
                   <Crown className="mr-2 h-4 w-4" />
-                  Upgrade to Premium
+                  Upgrade to Agency
                 </a>
               </Button>
               <Button variant="outline" asChild>

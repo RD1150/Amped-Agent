@@ -6,7 +6,7 @@ import { TRPCError } from "@trpc/server";
  * Controls access to features based on subscription tier and trial status
  */
 
-export type SubscriptionTier = "starter" | "pro" | "premium";
+export type SubscriptionTier = "starter" | "pro" | "agency";
 
 export interface TierFeatures {
   // Content features
@@ -64,7 +64,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     apiAccess: false,
     support: "email-24hr",
   },
-  premium: {
+  agency: {
     contentGeneration: true,
     templates: 100,
     scheduling: true,
@@ -192,7 +192,7 @@ function getRequiredTier(feature: keyof TierFeatures): string {
   if (TIER_FEATURES.pro[feature] && !TIER_FEATURES.starter[feature]) {
     return "Pro";
   }
-  if (TIER_FEATURES.premium[feature] && !TIER_FEATURES.pro[feature]) {
+  if (TIER_FEATURES.agency[feature] && !TIER_FEATURES.pro[feature]) {
     return "Premium";
   }
   return "Starter";

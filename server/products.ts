@@ -23,7 +23,7 @@ export const CREDIT_PRODUCTS = {
     priceDisplay: "$49",
     stripePriceId: process.env.STRIPE_PRICE_STARTER_CREDITS || "",
   },
-  professional: {
+  pro: {
     name: "Professional Credit Package",
     description: "350 credits + 50 bonus credits (400 total)",
     credits: 350,

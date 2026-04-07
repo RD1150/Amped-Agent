@@ -132,7 +132,7 @@ export default function Dashboard() {
       {/* Usage Counter */}
       <UsageCounter />
 
-      {/* Authority Score */}
+      {/* Market Dominance Score */}
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <AuthorityScore />
@@ -292,7 +292,7 @@ export default function Dashboard() {
             </div>
             <h3 className="text-xl font-bold text-white mb-1">This Week's Challenge</h3>
             <p className="text-sm text-slate-300 max-w-xl">
-              Write a post that positions you as the go-to expert in your city. Lead with a bold market stat, share your take, and end with a call to action. Then run it through the Coach to see your Authority Score.
+              Write a post that positions you as the go-to expert in your city. Lead with a bold market stat, share your take, and end with a call to action. Then run it through the Coach to see your Market Dominance Score.
             </p>
           </div>
           {/* CTA */}

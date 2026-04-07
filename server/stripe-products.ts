@@ -6,7 +6,7 @@
 export interface StripeProduct {
   name: string;
   description: string;
-  tier: "essential" | "professional" | "premium";
+  tier: "starter" | "pro" | "agency";
   priceMonthly: number; // in cents
   priceYearly: number; // in cents (with 20% discount)
   priceIdMonthly?: string; // Will be set after creating in Stripe
@@ -33,9 +33,9 @@ export interface StripeProduct {
 
 export const STRIPE_PRODUCTS: StripeProduct[] = [
   {
-    name: "AmpedAgent Essential",
+    name: "AmpedAgent Starter",
     description: "Perfect for agents getting started with content marketing",
-    tier: "essential",
+    tier: "starter",
     priceMonthly: 3900, // $39/month
     priceYearly: 39000, // $32.50/month ($390/year - 2 months free)
     priceIdMonthly: "price_1SwEkxIg7t2mT914l2lYhLh7",
@@ -71,9 +71,9 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     ],
   },
   {
-    name: "AmpedAgent Professional",
+    name: "AmpedAgent Pro",
     description: "For active agents who post consistently",
-    tier: "professional",
+    tier: "pro",
     priceMonthly: 7900, // $79/month
     priceYearly: 79000, // $65.83/month ($790/year - 2 months free)
     priceIdMonthly: "price_1SwEkzIg7t2mT914CiNdZgkd",
@@ -109,9 +109,9 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     ],
   },
   {
-    name: "AmpedAgent Enterprise",
-    description: "For top producers and teams",
-    tier: "premium",
+    name: "AmpedAgent Agency",
+    description: "The complete authority marketing suite for top producers and teams",
+    tier: "agency",
     priceMonthly: 14900, // $149/month
     priceYearly: 149000, // $124.17/month ($1,490/year - 2 months free)
     priceIdMonthly: "price_1SwEl1Ig7t2mT914iDGqGZ40",
@@ -155,14 +155,14 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
 /**
  * Get product by tier
  */
-export function getProductByTier(tier: "essential" | "professional" | "premium"): StripeProduct | undefined {
+export function getProductByTier(tier: "starter" | "pro" | "agency"): StripeProduct | undefined {
   return STRIPE_PRODUCTS.find((p) => p.tier === tier);
 }
 
 /**
  * Get tier by price ID
  */
-export function getTierByPriceId(priceId: string): "essential" | "professional" | "premium" | undefined {
+export function getTierByPriceId(priceId: string): "starter" | "pro" | "agency" | undefined {
   const product = STRIPE_PRODUCTS.find(
     (p) => p.priceIdMonthly === priceId || p.priceIdYearly === priceId
   );
@@ -173,7 +173,7 @@ export function getTierByPriceId(priceId: string): "essential" | "professional" 
  * Check if user has access to a feature based on their tier
  */
 export function hasFeatureAccess(
-  userTier: "essential" | "professional" | "premium",
+  userTier: "starter" | "pro" | "agency",
   feature: keyof StripeProduct["features"]
 ): boolean {
   const product = getProductByTier(userTier);
@@ -184,7 +184,7 @@ export function hasFeatureAccess(
 /**
  * Get video limit for a tier
  */
-export function getVideoLimit(tier: "essential" | "professional" | "premium"): number {
+export function getVideoLimit(tier: "starter" | "pro" | "agency"): number {
   const product = getProductByTier(tier);
   if (!product) return 0;
   return product.features.aiVideos;

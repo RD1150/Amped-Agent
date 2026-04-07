@@ -147,11 +147,11 @@ export const adminRouter = router({
       .where(eq(users.subscriptionTier, "pro"));
     const proUsers = proUsersResult?.count || 0;
 
-    const [premiumUsersResult] = await db
+    const [agencyUsersResult] = await db
       .select({ count: sql<number>`count(*)` })
       .from(users)
-      .where(eq(users.subscriptionTier, "premium"));
-    const premiumUsers = premiumUsersResult?.count || 0;
+      .where(eq(users.subscriptionTier, "agency"));
+    const premiumUsers = agencyUsersResult?.count || 0;
 
     return {
       totalUsers,
@@ -332,7 +332,7 @@ export const adminRouter = router({
     .input(z.object({
       subject: z.string().min(1).max(200),
       message: z.string().min(1).max(5000),
-      tier: z.enum(["all", "starter", "pro", "premium"]).default("all"),
+      tier: z.enum(["all", "starter", "pro", "agency"]).default("all"),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();

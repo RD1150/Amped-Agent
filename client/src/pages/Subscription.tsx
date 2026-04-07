@@ -39,8 +39,8 @@ export default function Subscription() {
         "Advanced analytics",
       ],
     },
-    enterprise: {
-      name: "Enterprise",
+    agency: {
+      name: "Agency",
       price: "$149/mo",
       yearlyPrice: "$1,490/yr",
       limits: { posts: Infinity, videos: Infinity, images: Infinity },
@@ -57,13 +57,13 @@ export default function Subscription() {
     },
   };
 
-  const currentTier = user?.subscriptionTier || "essential";
+  const currentTier = user?.subscriptionTier || "starter";
   const currentTierInfo = tierInfo[currentTier as keyof typeof tierInfo];
 
   const handleUpgrade = async (tier: string, billingPeriod: "monthly" | "annual") => {
     try {
       const { url } = await createCheckoutSession.mutateAsync({
-        tier: tier as "essential" | "professional" | "premium",
+        tier: tier as "starter" | "pro" | "agency",
         billingPeriod,
         successUrl: window.location.origin + "/subscription?success=true",
         cancelUrl: window.location.origin + "/subscription?canceled=true",
@@ -100,7 +100,7 @@ export default function Subscription() {
             </div>
             <p className="text-muted-foreground">
               {user?.subscriptionStatus === "trialing"
-                ? "14-day free trial active"
+                ? "7-day trial active"
                 : user?.subscriptionStatus === "active"
                 ? "Active subscription"
                 : "No active subscription"}
@@ -254,7 +254,7 @@ export default function Subscription() {
             <div className="flex-1">
               <h3 className="font-semibold mb-1">Free Trial Active</h3>
               <p className="text-sm text-muted-foreground">
-                Your 14-day free trial is active. You won't be charged until{" "}
+                Your 7-day trial is active. You'll be auto-billed when it ends.{" "}
                 {user?.subscriptionEndDate
                   ? new Date(user.subscriptionEndDate).toLocaleDateString()
                   : "the trial ends"}

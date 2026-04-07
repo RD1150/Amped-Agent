@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-type Tier = "essential" | "professional" | "premium";
+type Tier = "starter" | "pro" | "agency";
 type BillingPeriod = "monthly" | "annual";
 
 interface PricingTier {
@@ -22,8 +22,8 @@ interface PricingTier {
 
 const pricingTiers: PricingTier[] = [
   {
-    name: "Essential",
-    tier: "essential",
+    name: "Starter",
+    tier: "starter",
     priceMonthly: 59,
     priceAnnual: 590,
     savings: 158,
@@ -44,8 +44,8 @@ const pricingTiers: PricingTier[] = [
     ],
   },
   {
-    name: "Professional",
-    tier: "professional",
+    name: "Pro",
+    tier: "pro",
     priceMonthly: 99,
     priceAnnual: 990,
     savings: 158,
@@ -66,8 +66,8 @@ const pricingTiers: PricingTier[] = [
     ],
   },
   {
-    name: "Premium",
-    tier: "premium",
+    name: "Agency",
+    tier: "agency",
     priceMonthly: 149,
     priceAnnual: 1490,
     savings: 298,
@@ -120,7 +120,7 @@ export default function Upgrade() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          Start with a 14-day free trial. Cancel anytime.
+          Start with a 7-day free trial. Cancel anytime.
         </p>
 
         {/* Billing Period Toggle */}

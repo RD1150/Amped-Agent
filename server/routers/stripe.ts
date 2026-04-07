@@ -18,7 +18,7 @@ export const stripeRouter = router({
   createCreditCheckout: authOnlyProcedure
     .input(
       z.object({
-        packageKey: z.enum(['starter', 'professional', 'agency']),
+        packageKey: z.enum(['starter', 'pro', 'agency']),
         successUrl: z.string(),
         cancelUrl: z.string(),
       })
@@ -80,7 +80,7 @@ export const stripeRouter = router({
   createCheckoutSession: authOnlyProcedure
     .input(
       z.object({
-        tier: z.enum(['essential', 'professional', 'premium']),
+        tier: z.enum(['starter', 'pro', 'agency']),
         billingPeriod: z.enum(['monthly', 'annual']).default('monthly'),
         successUrl: z.string(),
         cancelUrl: z.string(),
@@ -262,7 +262,7 @@ export const stripeRouter = router({
           }
 
           // Handle subscription purchase
-          const tier = session.metadata?.tier as 'essential' | 'professional' | 'premium' | undefined;
+          const tier = session.metadata?.tier as 'starter' | 'pro' | 'agency' | undefined;
           const customerId = session.customer as string;
           const subscriptionId = session.subscription as string;
 
@@ -284,7 +284,7 @@ export const stripeRouter = router({
         case 'customer.subscription.updated': {
           const subscription = event.data.object as Stripe.Subscription;
           const customerId = subscription.customer as string;
-          const tier = subscription.metadata?.tier as 'essential' | 'professional' | 'premium' | undefined;
+          const tier = subscription.metadata?.tier as 'starter' | 'pro' | 'agency' | undefined;
 
           // Find user by customer ID
           const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, customerId)).limit(1);

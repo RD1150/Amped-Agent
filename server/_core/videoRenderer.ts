@@ -400,7 +400,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
         object_position: `50% ${offsetY}%`,
         x_scale: zoom / 100,
         y_scale: zoom / 100,
-        border_radius: '50%',
+        border_radius: '500px',
         border_width: '2px',
         border_color: '#C9A962',
       });
@@ -638,7 +638,7 @@ export async function renderMarketUpdateReel(options: MarketUpdateRenderOptions)
         fit: 'cover',
         object_position: `50% ${offsetY}%`,
         x_scale: zoom / 100, y_scale: zoom / 100,
-        border_radius: '50%', border_width: '2px', border_color: '#C9A962',
+        border_radius: '500px', border_width: '2px', border_color: '#C9A962',
       });
       if (options.agentName || options.brokerageName) {
         const nameLines = [options.agentName, options.brokerageName].filter(Boolean).join('\n');

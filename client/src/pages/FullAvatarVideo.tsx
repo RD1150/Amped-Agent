@@ -49,7 +49,7 @@ type AvatarMode = "quick" | "custom";
 
 export default function FullAvatarVideo() {
   const { user, loading: isAuthLoading } = useAuth();
-  const isPremium = user?.subscriptionTier === "premium" || user?.subscriptionTier === "pro";
+  const isPremium = user?.subscriptionTier === "agency" || user?.subscriptionTier === "pro";
 
   // ── Mode ──────────────────────────────────────────────────────────────────
   const [mode, setMode] = useState<AvatarMode>("quick");

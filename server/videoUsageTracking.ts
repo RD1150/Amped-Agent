@@ -16,7 +16,7 @@ export const VIDEO_LIMITS = {
     aiEnhanced: 10,
     fullAi: 3,
   },
-  premium: {
+  agency: {
     standard: 999, // Effectively unlimited
     aiEnhanced: 25,
     fullAi: 10,
@@ -24,7 +24,7 @@ export const VIDEO_LIMITS = {
 } as const;
 
 export type VideoMode = "standard" | "ai-enhanced" | "full-ai";
-export type SubscriptionTier = "starter" | "pro" | "premium";
+export type SubscriptionTier = "starter" | "pro" | "agency";
 
 /**
  * Check if user has reached their monthly video limit for a specific mode
