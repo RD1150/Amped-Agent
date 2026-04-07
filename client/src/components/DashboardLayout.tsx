@@ -93,8 +93,8 @@ function CreditBalanceDisplay() {
       onClick={() => setLocation("/credits")}
       className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition-colors"
     >
-      <CreditCard className="h-4 w-4 text-primary-foreground" />
-      <span className="text-sm font-medium text-primary-foreground">
+      <CreditCard className="h-4 w-4 text-white" />
+      <span className="text-sm font-medium text-white">
         {isOwner ? '∞ Unlimited' : credits}
       </span>
       {isLow && (
@@ -499,8 +499,8 @@ export default function DashboardLayout({
         <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
           <div className="flex flex-col items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                <span className="text-xl font-bold text-primary">AC</span>
+              <div className="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center">
+                <span className="text-xl font-bold text-white">A</span>
               </div>
               <span className="text-2xl font-bold text-gold-gradient">
                 AmpedAgent
@@ -600,15 +600,15 @@ function DashboardLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar collapsible="icon" disableTransition={isResizing}>
           {/* ── Logo / Header ─────────────────────────────────────────── */}
-          <SidebarHeader className="px-3 py-4 bg-primary">
+          <SidebarHeader className="px-3 py-5 bg-[#0F0F0F] border-b border-white/10">
             <div className="flex items-center gap-2">
               {/* Collapse toggle */}
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-white/15 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
+                className="h-8 w-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 shrink-0"
                 aria-label="Toggle navigation"
               >
-                <PanelLeft className="h-4 w-4 text-primary-foreground/70" />
+                <PanelLeft className="h-4 w-4 text-white/60" />
               </button>
 
               {/* Logo — only visible when expanded */}
@@ -617,15 +617,15 @@ function DashboardLayoutContent({
                   <img
                     src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/WrKjCObcqVApGxOe.png"
                     alt="AmpedAgent"
-                    className="h-32 w-auto object-contain"
+                    className="h-12 w-auto object-contain brightness-0 invert"
                   />
                 </div>
               )}
 
-              {/* Collapsed state — monogram */}
+              {/* Collapsed state — lightning bolt */}
               {isCollapsed && (
-                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary-foreground">AA</span>
+                <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
+                  <span className="text-xs font-bold text-white">A</span>
                 </div>
               )}
             </div>
@@ -660,21 +660,21 @@ function DashboardLayoutContent({
                           tooltip={item.description || item.label}
                           className={`h-9 transition-all font-normal ${
                             isActive
-                              ? "bg-primary/15 text-primary rounded-md shadow-sm"
+                              ? "bg-orange-500/15 text-orange-500 rounded-md"
                               : "hover:bg-sidebar-accent/70"
                           }`}
                         >
                           <item.icon
                             className={`h-4 w-4 shrink-0 ${
                               isActive
-                                ? "text-primary"
+                                ? "text-orange-500"
                                 : "text-sidebar-foreground/55"
                             }`}
                           />
                           <span
                             className={`truncate text-sm ${
                               isActive
-                                ? "text-primary font-medium"
+                                ? "text-orange-500 font-medium"
                                 : "text-sidebar-foreground/80"
                             }`}
                           >
@@ -705,9 +705,9 @@ function DashboardLayoutContent({
                                 className="w-72 p-0 shadow-xl border border-border/60 rounded-xl overflow-hidden"
                               >
                                 {/* Header */}
-                                <div className="bg-primary px-4 py-3 flex items-center gap-2">
-                                  <item.icon className="h-4 w-4 text-primary-foreground/80 shrink-0" />
-                                  <span className="text-sm font-semibold text-primary-foreground">{item.label}</span>
+                                <div className="bg-[#0F0F0F] px-4 py-3 flex items-center gap-2">
+                                  <item.icon className="h-4 w-4 text-orange-400 shrink-0" />
+                                  <span className="text-sm font-semibold text-white">{item.label}</span>
                                   {"badge" in item && item.badge && (
                                     <Badge className="ml-auto text-[10px] px-1.5 py-0 h-4 bg-white/20 text-white border-0">
                                       {item.badge}
@@ -753,7 +753,7 @@ function DashboardLayoutContent({
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1.5 hover:bg-sidebar-accent transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Avatar className="h-8 w-8 border border-border shrink-0">
-                    <AvatarFallback className="text-xs font-medium bg-primary/15 text-primary">
+                    <AvatarFallback className="text-xs font-medium bg-orange-500/20 text-orange-400">
                       {user?.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -783,7 +783,7 @@ function DashboardLayoutContent({
 
         {/* Resize handle */}
         <div
-          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/20 transition-colors ${
+          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-orange-500/30 transition-colors ${
             isCollapsed ? "hidden" : ""
           }`}
           onMouseDown={() => {
@@ -797,13 +797,13 @@ function DashboardLayoutContent({
       {/* ── Main content area ─────────────────────────────────────────────── */}
       <SidebarInset>
         {/* Top bar */}
-        <div className="flex h-12 items-center gap-4 bg-primary px-4 sticky top-0 z-40">
+        <div className="flex h-12 items-center gap-4 bg-[#0F0F0F] px-4 sticky top-0 z-40 border-b border-white/10">
           <div className="flex items-center gap-2 shrink-0">
             {isMobile && (
               <SidebarTrigger className="h-8 w-8 rounded-lg" />
             )}
             {isMobile && (
-              <span className="text-sm font-medium text-primary-foreground">
+              <span className="text-sm font-medium text-white">
                 {activeMenuItem?.label ?? "Menu"}
               </span>
             )}
@@ -814,25 +814,25 @@ function DashboardLayoutContent({
             <CreditBalanceDisplay />
             <button
               onClick={() => setLocation("/authority-profile")}
-              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+              className="text-sm text-white/60 hover:text-white transition-colors"
             >
               Account
             </button>
             <button
               onClick={() => setLocation("/faq")}
-              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+              className="text-sm text-white/60 hover:text-white transition-colors"
             >
               FAQ
             </button>
             <button
               onClick={() => setLocation("/contact")}
-              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+              className="text-sm text-white/60 hover:text-white transition-colors"
             >
               Contact
             </button>
             <button
               onClick={() => setLocation("/help")}
-              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+              className="text-sm text-white/60 hover:text-white transition-colors"
             >
               Help
             </button>

@@ -120,7 +120,7 @@ export function HeaderSearch() {
     <div ref={containerRef} className="relative flex-1 max-w-sm">
       {/* Input */}
       <div className="flex items-center gap-2 bg-white/15 hover:bg-white/20 focus-within:bg-white/25 rounded-lg px-3 h-8 transition-colors">
-        <Search className="h-3.5 w-3.5 text-primary-foreground/60 shrink-0" />
+        <Search className="h-3.5 w-3.5 text-white/60 shrink-0" />
         <input
           ref={inputRef}
           type="text"
@@ -131,18 +131,18 @@ export function HeaderSearch() {
           }}
           onFocus={() => setIsOpen(true)}
           placeholder="Search pages… (⌘K)"
-          className="flex-1 bg-transparent text-sm text-primary-foreground placeholder:text-primary-foreground/50 outline-none min-w-0"
+          className="flex-1 bg-transparent text-sm text-white placeholder:text-white/50 outline-none min-w-0"
         />
         {query && (
           <button
             onClick={() => { setQuery(""); inputRef.current?.focus(); }}
-            className="text-primary-foreground/50 hover:text-primary-foreground transition-colors"
+            className="text-white/50 hover:text-white transition-colors"
           >
             <X className="h-3.5 w-3.5" />
           </button>
         )}
         {!query && (
-          <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] text-primary-foreground/40 font-mono">
+          <kbd className="hidden sm:inline-flex items-center gap-0.5 text-[10px] text-white/40 font-mono">
             ⌘K
           </kbd>
         )}

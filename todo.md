@@ -4227,3 +4227,18 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Remove old luxestate-icon-small.png from public/ directory (356KB, old branding)
 - [x] Add server/assets/music/ and public/*.png to .gitignore
 - [x] TypeScript clean (0 errors), 511/513 tests passing (2 network timeouts unrelated to changes)
+
+## Color Retheme - Black/Cream/Orange
+- [ ] Update global CSS theme variables: primary = orange (#F97316), background = cream (#FAFAF7), sidebar = black (#0F0F0F)
+- [ ] Update sidebar header and nav to black background with orange accents
+- [ ] Update top navbar to black background
+- [ ] Update progress bars, badges, and accent elements to orange
+- [ ] Ensure logo is visible on black sidebar background
+- [ ] Ensure text contrast is correct on all backgrounds
+
+## UI Cleanup - Black/Cream/Orange + Logo Fix
+- [x] Fix sidebar header: remove hardcoded bg-primary (navy), use true black (#0F0F0F)
+- [x] Make logo visible on black sidebar (use white/light version or add contrast)
+- [x] Clean up top navbar to black background
+- [x] Remove section labels (HOME, ATTRACT, CONVERT) or style them subtly
+- [x] Make nav items cleaner with orange active state
