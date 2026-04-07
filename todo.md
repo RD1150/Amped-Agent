@@ -4258,3 +4258,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Logo Fix - Orange Lightning Bolt
 - [ ] Update AmpedAgent logo: lightning bolt on the A should be orange, rest of logo white
+
+## April 7 2026 Fixes
+- [x] Fix Agency tier showing "Upgrade required" for Full Avatar Videos on dashboard
+- [x] Update "Premium" sidebar badges to "Agency"
+- [x] Remove black gap between sidebar logo and top navbar; make search bar white

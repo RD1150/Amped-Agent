@@ -31,7 +31,7 @@ export default function UsageCounter() {
   // Avatar video stats
   const avatarUsed = avatarUsage?.used ?? 0;
   const avatarUnlimited = (avatarUsage?.limit ?? 0) === -1;
-  const isPremiumOrPro = avatarUsage?.tier === "Premium" || avatarUsage?.tier === "Pro";
+  const isPremiumOrPro = avatarUsage?.tier === "Agency" || avatarUsage?.tier === "Pro" || avatarUsage?.tier === "Premium";
 
   // Month name for the header
   const monthName = new Date().toLocaleString("default", { month: "long" });
@@ -95,7 +95,7 @@ export default function UsageCounter() {
                 <span className="text-sm font-medium">Full Avatar Videos</span>
                 {isPremiumOrPro && (
                   <span className="text-[10px] font-semibold uppercase tracking-wide bg-primary/15 text-primary px-1.5 py-0.5 rounded-full">
-                    Premium
+                    {avatarUsage?.tier === "Agency" ? "Agency" : "Pro"}
                   </span>
                 )}
               </div>

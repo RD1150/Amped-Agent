@@ -160,21 +160,21 @@ const menuSections = [
         label: "Lead Magnet",
         path: "/lead-magnet",
         description: "Branded PDF lead magnets for Facebook Lead Ads",
-        badge: "Premium",
+        badge: "Agency",
       },
       {
         icon: Mail,
         label: "Newsletter",
         path: "/newsletter",
         description: "Email newsletters that nurture your list",
-        badge: "Premium",
+        badge: "Agency",
       },
       {
         icon: Award,
         label: "Market Dominance Coach",
         path: "/coach",
         description: "AI coaching for positioning and market leadership",
-        badge: "Premium",
+        badge: "Agency",
       },
       {
         icon: Presentation,
@@ -219,7 +219,7 @@ const menuSections = [
         label: "AI Motion Tour",
         path: "/cinematic-walkthrough",
         description: "AI-animated cinematic tour for premium listings",
-        badge: "Premium",
+        badge: "Agency",
         hoverInfo: {
           tagline: "AI generates real camera movement on each photo — drone pull-backs, orbits, dollies.",
           details: [
@@ -361,7 +361,7 @@ const menuSections = [
         label: "Repurpose Engine",
         path: "/repurpose",
         description: "Write once, publish everywhere — 5 formats from 1 idea",
-        badge: "Premium",
+        badge: "Agency",
       },
       {
         icon: Heart,
@@ -601,17 +601,17 @@ function DashboardLayoutContent({
         <Sidebar collapsible="icon" disableTransition={isResizing}>
           {/* ── Logo / Header ─────────────────────────────────────────── */}
           <SidebarHeader className="p-0 bg-[#0F0F0F] border-b border-white/10">
-            {/* Expanded: full-width logo with toggle overlaid */}
+            {/* Expanded: full-width logo — height matches h-12 top navbar */}
             {!isCollapsed ? (
-              <div className="relative w-full">
+              <div className="relative w-full h-12 flex items-center">
                 <img
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/qseOVyhBAogPpalp.png"
                   alt="AmpedAgent"
-                  className="w-full h-auto object-contain px-4 py-4"
+                  className="h-9 w-auto object-contain ml-3"
                 />
                 <button
                   onClick={toggleSidebar}
-                  className="absolute top-2 right-2 h-7 w-7 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  className="absolute right-2 h-7 w-7 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
                   aria-label="Toggle navigation"
                 >
                   <PanelLeft className="h-4 w-4 text-white/40" />
