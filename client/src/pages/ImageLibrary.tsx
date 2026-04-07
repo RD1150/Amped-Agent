@@ -287,7 +287,7 @@ export default function ImageLibraryPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white p-6 space-y-6">
+    <div className="min-h-screen bg-[#0F0F0F] text-white p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -324,7 +324,7 @@ export default function ImageLibraryPage() {
               <Filter size={14} className="mr-2 text-white/40" />
               <SelectValue placeholder="All rooms" />
             </SelectTrigger>
-            <SelectContent className="bg-[#1a1a2e] border-white/20 text-white">
+            <SelectContent className="bg-[#1A1A1A] border-white/20 text-white">
               <SelectItem value="all">All rooms</SelectItem>
               {ROOM_TYPES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
             </SelectContent>
@@ -349,7 +349,7 @@ export default function ImageLibraryPage() {
 
       {/* Batch Action Bar */}
       {selectedIds.size > 0 && (
-        <div className="sticky top-4 z-20 flex items-center gap-3 p-4 rounded-xl bg-[#1a1a2e] border border-amber-400/30 shadow-lg shadow-amber-400/10">
+        <div className="sticky top-4 z-20 flex items-center gap-3 p-4 rounded-xl bg-[#1A1A1A] border border-amber-400/30 shadow-lg shadow-amber-400/10">
           <div className="flex items-center gap-2 flex-1">
             <div className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-black text-xs font-bold">
               {selectedIds.size}
@@ -419,7 +419,7 @@ export default function ImageLibraryPage() {
 
       {/* Lightbox Dialog */}
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className="max-w-3xl bg-[#0f0f1a] border-white/20 text-white p-0 overflow-hidden">
+        <DialogContent className="max-w-3xl bg-[#0F0F0F] border-white/20 text-white p-0 overflow-hidden">
           {selectedImage && (
             <>
               <div className="relative">
@@ -501,7 +501,7 @@ export default function ImageLibraryPage() {
                       <SelectTrigger className="bg-white/5 border-white/20 text-white h-8 text-sm">
                         <SelectValue placeholder="Select room type" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a2e] border-white/20 text-white">
+                      <SelectContent className="bg-[#1A1A1A] border-white/20 text-white">
                         {ROOM_TYPES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                       </SelectContent>
                     </Select>

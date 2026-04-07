@@ -123,7 +123,7 @@ export default function ListingPresentationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white p-6 space-y-6">
+    <div className="min-h-screen bg-[#0F0F0F] text-white p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -264,7 +264,7 @@ export default function ListingPresentationPage() {
                   <SelectTrigger className="mt-1 bg-white/5 border-white/20 text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a2e] border-white/20 text-white">
+                  <SelectContent className="bg-[#1A1A1A] border-white/20 text-white">
                     <SelectItem value="pptx">PowerPoint (.pptx) — Editable in Keynote or PowerPoint</SelectItem>
                     <SelectItem value="pdf">PDF — Best for printing or emailing</SelectItem>
                   </SelectContent>
@@ -277,7 +277,7 @@ export default function ListingPresentationPage() {
                     <SelectTrigger className="mt-1 bg-white/5 border-white/20 text-white">
                       <SelectValue placeholder="Default theme" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1a1a2e] border-white/20 text-white">
+                    <SelectContent className="bg-[#1A1A1A] border-white/20 text-white">
                       <SelectItem value="">Default theme</SelectItem>
                       {themes.map((t) => (
                         <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
@@ -347,7 +347,7 @@ export default function ListingPresentationPage() {
 
       {/* History Dialog */}
       <Dialog open={showHistory} onOpenChange={setShowHistory}>
-        <DialogContent className="max-w-2xl bg-[#0f0f1a] border-white/20 text-white">
+        <DialogContent className="max-w-2xl bg-[#0F0F0F] border-white/20 text-white">
           <DialogHeader>
             <DialogTitle className="text-white">My Presentations</DialogTitle>
           </DialogHeader>

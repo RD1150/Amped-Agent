@@ -137,7 +137,7 @@ export default function Dashboard() {
         <div className="md:col-span-2">
           <AuthorityScore />
         </div>
-        <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700">
+        <Card className="p-6 bg-[#0F0F0F] border-primary/20">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white">Market Dominance Tips</h3>
             <ul className="space-y-3 text-sm text-slate-300">
@@ -272,7 +272,7 @@ export default function Dashboard() {
         onClick={() => setLocation("/coach")}
       >
         {/* Dark gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]" />
+        <div className="absolute inset-0 bg-[#0F0F0F]" />
         {/* Grid overlay */}
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         {/* Glow accent */}

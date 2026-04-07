@@ -4247,3 +4247,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Rename "Authority Score" to "Market Dominance Score" across all files
 - [x] Rewrite pricing page with AmpedAgent plans, 7-day trial, no free tier, annual option (2 months free)
 - [x] Add AmpedAgent favicon (orange lightning bolt A, 32x32)
+
+## Onboarding Modal - Video Replacement
+- [ ] Find current intro video URL in onboarding modal (says "Authority Content")
+- [ ] Replace with new AmpedAgent-branded intro video
+
+## UI Fix - Navy/Blue Hero Banners
+- [x] Fix Market Dominance Coach hero banner (navy → black with orange accent)
+- [x] Audit all feature pages for remaining navy/blue hero banners and fix them (Dashboard, PerformanceCoach, ImageLibrary, ListingPresentation)

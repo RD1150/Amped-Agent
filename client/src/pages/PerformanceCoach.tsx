@@ -173,7 +173,7 @@ export default function PerformanceCoach() {
   return (
     <div className="container max-w-6xl py-8">
       {/* Hero Banner */}
-      <div className="relative mb-10 rounded-2xl overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] border border-primary/20 shadow-xl">
+      <div className="relative mb-10 rounded-2xl overflow-hidden bg-[#0F0F0F] border border-primary/30 shadow-xl">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-center gap-6">
           <div className="flex-1">
@@ -189,11 +189,11 @@ export default function PerformanceCoach() {
             <p className="text-lg text-primary font-medium mb-1">
               Your unfair advantage in any market.
             </p>
-            <p className="text-sm text-slate-400 max-w-xl">
+            <p className="text-sm text-white/60 max-w-xl">
               Analyze your posts, headshots, listing photos, and videos. Get AI-powered strategic feedback scored on authority, engagement, and market impact.
             </p>
           </div>
-          <div className="hidden md:flex flex-col items-center justify-center w-36 h-36 rounded-2xl bg-white/5 border border-white/10 shrink-0">
+          <div className="hidden md:flex flex-col items-center justify-center w-36 h-36 rounded-2xl bg-primary/10 border border-primary/30 shrink-0">
             <Award className="h-14 w-14 text-primary/80 mb-2" />
             <span className="text-xs text-slate-400 text-center leading-tight">AI Strategy<br/>Scoring</span>
           </div>
