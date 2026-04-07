@@ -600,21 +600,21 @@ function DashboardLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar collapsible="icon" disableTransition={isResizing}>
           {/* ── Logo / Header ─────────────────────────────────────────── */}
-          <SidebarHeader className="p-0 bg-[#0F0F0F] border-b border-white/10">
-            {/* Expanded: full-width logo — height matches h-12 top navbar */}
+          <SidebarHeader className="p-0 gap-0 border-b border-white/10">
+            {/* Expanded: full-width logo — white bg to match logo, height exactly matches h-12 top navbar */}
             {!isCollapsed ? (
-              <div className="relative w-full h-12 flex items-center">
+              <div className="relative w-full h-12 flex items-center bg-white overflow-hidden">
                 <img
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/qseOVyhBAogPpalp.png"
                   alt="AmpedAgent"
-                  className="h-9 w-auto object-contain ml-3"
+                  className="h-10 w-auto object-contain ml-3"
                 />
                 <button
                   onClick={toggleSidebar}
-                  className="absolute right-2 h-7 w-7 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  className="absolute right-2 h-7 w-7 flex items-center justify-center hover:bg-black/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
                   aria-label="Toggle navigation"
                 >
-                  <PanelLeft className="h-4 w-4 text-white/40" />
+                  <PanelLeft className="h-4 w-4 text-black/30" />
                 </button>
               </div>
             ) : (
