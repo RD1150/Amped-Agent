@@ -4255,3 +4255,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## UI Fix - Navy/Blue Hero Banners
 - [x] Fix Market Dominance Coach hero banner (navy → black with orange accent)
 - [x] Audit all feature pages for remaining navy/blue hero banners and fix them (Dashboard, PerformanceCoach, ImageLibrary, ListingPresentation)
+
+## Logo Fix - Orange Lightning Bolt
+- [ ] Update AmpedAgent logo: lightning bolt on the A should be orange, rest of logo white

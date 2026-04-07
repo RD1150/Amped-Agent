@@ -615,9 +615,9 @@ function DashboardLayoutContent({
               {!isCollapsed && (
                 <div className="flex items-center min-w-0 overflow-hidden">
                   <img
-                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/WrKjCObcqVApGxOe.png"
+                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/qseOVyhBAogPpalp.png"
                     alt="AmpedAgent"
-                    className="h-48 w-auto object-contain brightness-0 invert"
+                    className="h-12 w-auto object-contain"
                   />
                 </div>
               )}
