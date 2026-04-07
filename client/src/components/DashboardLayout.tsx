@@ -600,35 +600,38 @@ function DashboardLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar collapsible="icon" disableTransition={isResizing}>
           {/* ── Logo / Header ─────────────────────────────────────────── */}
-          <SidebarHeader className="px-3 py-5 bg-[#0F0F0F] border-b border-white/10">
-            <div className="flex items-center gap-2">
-              {/* Collapse toggle */}
-              <button
-                onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 shrink-0"
-                aria-label="Toggle navigation"
-              >
-                <PanelLeft className="h-4 w-4 text-white/60" />
-              </button>
-
-              {/* Logo — only visible when expanded */}
-              {!isCollapsed && (
-                <div className="flex items-center min-w-0 overflow-hidden">
-                  <img
-                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/qseOVyhBAogPpalp.png"
-                    alt="AmpedAgent"
-                    className="h-12 w-auto object-contain"
-                  />
-                </div>
-              )}
-
-              {/* Collapsed state — lightning bolt */}
-              {isCollapsed && (
+          <SidebarHeader className="p-0 bg-[#0F0F0F] border-b border-white/10">
+            {/* Expanded: full-width logo with toggle overlaid */}
+            {!isCollapsed ? (
+              <div className="relative w-full">
+                <img
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/qseOVyhBAogPpalp.png"
+                  alt="AmpedAgent"
+                  className="w-full h-auto object-contain px-4 py-4"
+                />
+                <button
+                  onClick={toggleSidebar}
+                  className="absolute top-2 right-2 h-7 w-7 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  aria-label="Toggle navigation"
+                >
+                  <PanelLeft className="h-4 w-4 text-white/40" />
+                </button>
+              </div>
+            ) : (
+              /* Collapsed: icon + toggle stacked */
+              <div className="flex flex-col items-center gap-2 py-3">
+                <button
+                  onClick={toggleSidebar}
+                  className="h-8 w-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  aria-label="Toggle navigation"
+                >
+                  <PanelLeft className="h-4 w-4 text-white/60" />
+                </button>
                 <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
                   <span className="text-xs font-bold text-white">A</span>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </SidebarHeader>
 
           {/* ── Nav Items ─────────────────────────────────────────────── */}
