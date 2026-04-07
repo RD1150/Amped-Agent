@@ -288,10 +288,16 @@ export async function createCustomAvatar(opts: {
 export async function getCustomAvatarStatus(avatarGroupId: string): Promise<{
   status: "processing" | "completed" | "failed";
   previewImageUrl?: string;
+  invalidGroup?: boolean;
 }> {
   const res = await fetch(`${HEYGEN_API}/v2/photo_avatar/avatar_group/${avatarGroupId}`, {
     headers: heygenHeaders(),
   });
+
+  if (res.status === 404) {
+    // Group doesn't exist on HeyGen — was never created or was deleted
+    return { status: "failed", invalidGroup: true };
+  }
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));

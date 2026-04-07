@@ -374,8 +374,15 @@ Requirements:
     // If still training, poll HeyGen for latest status
     if (twin.status === "training") {
       try {
-        const { status, previewImageUrl } = await getCustomAvatarStatus(twin.didAvatarId);
-        if (status === "completed") {
+        const { status, previewImageUrl, invalidGroup } = await getCustomAvatarStatus(twin.didAvatarId);
+        if (invalidGroup || status === "failed") {
+          // Group doesn't exist on HeyGen (404) or failed — mark as failed so UI shows delete/retry
+          await db
+            .update(customAvatarTwins)
+            .set({ status: "failed" })
+            .where(eq(customAvatarTwins.userId, ctx.user.id));
+          return { ...twin, status: "failed" as const, invalidGroup: true };
+        } else if (status === "completed") {
           await db
             .update(customAvatarTwins)
             .set({
@@ -385,12 +392,6 @@ Requirements:
             })
             .where(eq(customAvatarTwins.userId, ctx.user.id));
           return { ...twin, status: "ready" as const, trainedAt: new Date() };
-        } else if (status === "failed") {
-          await db
-            .update(customAvatarTwins)
-            .set({ status: "failed" })
-            .where(eq(customAvatarTwins.userId, ctx.user.id));
-          return { ...twin, status: "failed" as const };
         }
       } catch {
         // Non-blocking — return cached status

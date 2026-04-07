@@ -117,6 +117,19 @@ function PhotoAvatarCard() {
             </Button>
           </div>
         </div>
+      ) : twinStatus?.status === "failed" ? (
+        <div className="space-y-3">
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/10 border border-destructive/20">
+            <span className="text-xl leading-none mt-0.5">⚠️</span>
+            <div>
+              <p className="font-semibold text-sm text-destructive">Avatar creation failed</p>
+              <p className="text-xs text-muted-foreground mt-0.5">The upload didn’t complete on HeyGen’s side. No credits were charged. Please delete and try again from Full Avatar Video.</p>
+            </div>
+          </div>
+          <Button size="sm" variant="destructive" onClick={() => deleteAvatarMutation.mutate()} disabled={deleteAvatarMutation.isPending} className="text-xs w-full">
+            {deleteAvatarMutation.isPending ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Clearing…</> : "🗑️ Delete & Start Over"}
+          </Button>
+        </div>
       ) : (
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-muted/40 border border-dashed border-border">
           <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0">

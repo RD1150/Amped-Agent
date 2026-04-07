@@ -738,6 +738,27 @@ export default function FullAvatarVideo() {
                   </div>
                 </div>
               )}
+
+              {twinStatus?.status === "failed" && (
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
+                    <span className="text-base leading-none mt-0.5">⚠️</span>
+                    <div>
+                      <p className="font-medium">Avatar creation failed</p>
+                      <p className="text-xs mt-0.5 text-destructive/80">The upload didn’t complete on HeyGen’s side. Please delete this attempt and upload your headshot again — no credits were charged.</p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => deleteAvatarMutation.mutate()}
+                    disabled={deleteAvatarMutation.isPending}
+                    className="text-xs w-full"
+                  >
+                    {deleteAvatarMutation.isPending ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Clearing…</> : "🗑️ Delete & Upload Again"}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 
