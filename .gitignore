@@ -105,3 +105,11 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+# Local music assets (served from CDN)
+server/assets/music/
+server/assets/create-placeholder-music.sh
+
+# Old branding assets
+public/*.png
+public/*.jpg

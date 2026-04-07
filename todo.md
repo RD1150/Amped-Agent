@@ -4207,3 +4207,16 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Replace all "Authority Content" / "LuxEstate" / "Realty Content Agent" text references in the codebase
 - [x] Update index.html title to AmpedAgent
 - [x] Update package.json name to ampedagent
+
+## Feature: Pricing Page Update
+- [ ] Read current pricing page structure and plan tiers
+- [ ] Rewrite with AmpedAgent branding, correct plan names, features, and messaging
+- [ ] Ensure annual billing option with 2 months free is shown
+- [ ] No free tier - 7-day trial with auto-billing
+
+## Deployment Fix - Remove Large Files from Git
+- [x] Remove 12 local MP3 files from server/assets/music/ (tracked in git, causing deployment timeout)
+- [x] Update ConvertToVideoModal.tsx to use CDN URLs for music preview instead of local /music/ paths
+- [x] Remove old luxestate-icon-small.png from public/ directory (356KB, old branding)
+- [x] Add server/assets/music/ and public/*.png to .gitignore
+- [x] TypeScript clean (0 errors), 511/513 tests passing (2 network timeouts unrelated to changes)

@@ -27,19 +27,21 @@ const TRANSITIONS = [
 
 const MUSIC_GENRES = ["All", "Pop", "Country", "Rock", "Dance", "Trendy"];
 
+const MUSIC_CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT";
+
 const MUSIC_LIBRARY = [
-  { id: "steady_ride", title: "Steady Ride", duration: "2:14", genre: "Country", url: "/music/steady_ride.mp3" },
-  { id: "whiskey_sunrise", title: "Whiskey Sunrise", duration: "2:12", genre: "Country", url: "/music/whiskey_sunrise.mp3" },
-  { id: "dirt_road_dreams", title: "Dirt Road Dreams", duration: "2:54", genre: "Country", url: "/music/dirt_road_dreams.mp3" },
-  { id: "one_more_night", title: "One More Night", duration: "2:34", genre: "Pop", url: "/music/one_more_night.mp3" },
-  { id: "highway_stars", title: "Highway Stars", duration: "2:32", genre: "Rock", url: "/music/highway_stars.mp3" },
-  { id: "back_home", title: "Back Home", duration: "2:36", genre: "Country", url: "/music/back_home.mp3" },
-  { id: "by_the_river", title: "By The River", duration: "2:09", genre: "Country", url: "/music/by_the_river.mp3" },
-  { id: "camping_in_the_woods", title: "Camping in the Woods", duration: "2:15", genre: "Country", url: "/music/camping_in_the_woods.mp3" },
-  { id: "good_year", title: "Good Year", duration: "2:46", genre: "Pop", url: "/music/good_year.mp3" },
-  { id: "electric_nights", title: "Electric Nights", duration: "2:28", genre: "Dance", url: "/music/electric_nights.mp3" },
-  { id: "summer_vibes", title: "Summer Vibes", duration: "2:45", genre: "Trendy", url: "/music/summer_vibes.mp3" },
-  { id: "rock_anthem", title: "Rock Anthem", duration: "3:02", genre: "Rock", url: "/music/rock_anthem.mp3" },
+  { id: "steady_ride", title: "Steady Ride", duration: "2:14", genre: "Country", url: `${MUSIC_CDN}/steady_ride_acfd8ba3.mp3` },
+  { id: "whiskey_sunrise", title: "Whiskey Sunrise", duration: "2:12", genre: "Country", url: `${MUSIC_CDN}/whiskey_sunrise_338bb1e7.mp3` },
+  { id: "dirt_road_dreams", title: "Dirt Road Dreams", duration: "2:54", genre: "Country", url: `${MUSIC_CDN}/dirt_road_dreams_df5a6cf0.mp3` },
+  { id: "one_more_night", title: "One More Night", duration: "2:34", genre: "Pop", url: `${MUSIC_CDN}/one_more_night_64611284.mp3` },
+  { id: "highway_stars", title: "Highway Stars", duration: "2:32", genre: "Rock", url: `${MUSIC_CDN}/highway_stars_a34a5897.mp3` },
+  { id: "back_home", title: "Back Home", duration: "2:36", genre: "Country", url: `${MUSIC_CDN}/back_home_85027745.mp3` },
+  { id: "by_the_river", title: "By The River", duration: "2:09", genre: "Country", url: `${MUSIC_CDN}/by_the_river_31eb0ad0.mp3` },
+  { id: "camping_in_the_woods", title: "Camping in the Woods", duration: "2:15", genre: "Country", url: `${MUSIC_CDN}/camping_in_the_woods_7262bed6.mp3` },
+  { id: "good_year", title: "Good Year", duration: "2:46", genre: "Pop", url: `${MUSIC_CDN}/good_year_7249503f.mp3` },
+  { id: "electric_nights", title: "Electric Nights", duration: "2:28", genre: "Dance", url: `${MUSIC_CDN}/electric_nights_90895de3.mp3` },
+  { id: "summer_vibes", title: "Summer Vibes", duration: "2:45", genre: "Trendy", url: `${MUSIC_CDN}/summer_vibes_6992237a.mp3` },
+  { id: "rock_anthem", title: "Rock Anthem", duration: "3:02", genre: "Rock", url: `${MUSIC_CDN}/rock_anthem_4b622bee.mp3` },
 ];
 
 export default function ConvertToVideoModal({
