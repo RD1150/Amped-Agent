@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 const ALL_PAGES = [
-  { icon: Home,        label: "Dashboard",              path: "/dashboard",            section: "HOME",    description: "Your authority operating system" },
+  { icon: Home,        label: "Dashboard",              path: "/dashboard",            section: "HOME",    description: "Your AmpedAgent command center" },
   { icon: Sparkles,    label: "Post Builder",            path: "/generate",             section: "ATTRACT", description: "AI-generated social posts" },
   { icon: BookOpen,    label: "Blog Builder",            path: "/blog-builder",         section: "ATTRACT", description: "SEO blog posts that rank" },
   { icon: TrendingUp,  label: "Market Insights",         path: "/market-stats",         section: "ATTRACT", description: "Real estate market data and trends" },

@@ -139,7 +139,7 @@ export default function AdminUsers() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `authority-content-users-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `ampedagent-users-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success(`Exported ${result.users.length} users.`);

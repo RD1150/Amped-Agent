@@ -4214,6 +4214,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Ensure annual billing option with 2 months free is shown
 - [ ] No free tier - 7-day trial with auto-billing
 
+## Branding Fix - Logo and App Title Update
+- [x] Update DashboardLayout logo from old AuthorityContent URL to AmpedAgent transparent logo
+- [x] Update collapsed sidebar monogram from "AC" to "AA"
+- [x] Update dashboard welcome text from "Authority Operating System" to "AmpedAgent command center"
+- [x] Update Home.tsx hero and description text to remove "authority operating system" language
+- [x] Update AdminUsers.tsx CSV export filename to ampedagent-users
+
 ## Deployment Fix - Remove Large Files from Git
 - [x] Remove 12 local MP3 files from server/assets/music/ (tracked in git, causing deployment timeout)
 - [x] Update ConvertToVideoModal.tsx to use CDN URLs for music preview instead of local /music/ paths

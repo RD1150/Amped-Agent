@@ -117,7 +117,7 @@ const menuSections = [
         icon: Home,
         label: "Dashboard",
         path: "/dashboard",
-        description: "Your authority operating system",
+        description: "Your AmpedAgent command center",
       },
     ],
   },
@@ -615,7 +615,7 @@ function DashboardLayoutContent({
               {!isCollapsed && (
                 <div className="flex items-center min-w-0 overflow-hidden">
                   <img
-                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/iBVTqXsNrcunoEnF.png"
+                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/WrKjCObcqVApGxOe.png"
                     alt="AmpedAgent"
                     className="h-32 w-auto object-contain"
                   />
@@ -625,7 +625,7 @@ function DashboardLayoutContent({
               {/* Collapsed state — monogram */}
               {isCollapsed && (
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary-foreground">AC</span>
+                  <span className="text-xs font-bold text-primary-foreground">AA</span>
                 </div>
               )}
             </div>

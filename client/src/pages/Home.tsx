@@ -52,11 +52,11 @@ export default function HomePage() {
           </h1>
           
           <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            The AI-powered authority operating system that helps real estate agents dominate their local market through strategic content.
+            The AI-powered marketing platform that turns real estate agents into market-dominant brands through cinematic video and strategic content.
           </p>
           
           <p className="text-lg text-primary/80 font-medium mt-4">
-            This is your Authority Operating System.
+            This is your AmpedAgent command center.
           </p>
 
           {/* Social Proof - 8000+ Users */}
@@ -203,7 +203,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold text-white">What is AmpedAgent.co?</h2>
           <p className="text-xl text-slate-300 leading-relaxed">
-            AmpedAgent.co is the AI-powered authority operating system that engineers local market dominance. We don't just generate posts—we build positioning power that converts content into closings.
+            AmpedAgent is the AI-powered marketing platform built exclusively for real estate agents. We don't just generate posts — we create cinematic property videos, authority content, and a digital presence that makes you the obvious choice in your market.
           </p>
         </div>
       </section>

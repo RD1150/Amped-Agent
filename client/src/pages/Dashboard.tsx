@@ -114,7 +114,7 @@ export default function Dashboard() {
               Ready to dominate your local market?
             </p>
             <p className="text-sm text-primary/80 font-medium mt-1">
-              This is your Authority Operating System.
+              This is your AmpedAgent command center.
             </p>
           </div>
           <Button
