@@ -46,7 +46,7 @@ export function WelcomeModal() {
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold text-center">
-            Welcome to Authority Content! 🎉
+            Welcome to AmpedAgent! 🎉
           </DialogTitle>
         </DialogHeader>
 

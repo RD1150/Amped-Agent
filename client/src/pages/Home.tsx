@@ -21,7 +21,7 @@ export default function HomePage() {
       <header className="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/fsjGKfiVhGcAEGxr.png" alt="Authority Content" className="h-16 object-contain" />
+            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/fsjGKfiVhGcAEGxr.png" alt="AmpedAgent" className="h-16 object-contain" />
           </div>
           <div className="flex items-center gap-4">
             <Button asChild variant="ghost" className="text-slate-300 hover:text-white">
@@ -106,16 +106,16 @@ export default function HomePage() {
               Stop Paying for 3+ Tools
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Authority Content is the <span className="text-primary font-semibold">only all-in-one platform</span> real estate agents need for social media and video content.
+              AmpedAgent is the <span className="text-primary font-semibold">only all-in-one platform</span> real estate agents need for social media and video content.
             </p>
           </div>
 
           {/* Comparison Grid */}
           <div className="grid md:grid-cols-2 gap-8 mb-12">
-            {/* Without Authority Content */}
+            {/* Without AmpedAgent */}
             <Card className="bg-slate-800/30 border-slate-700">
               <CardContent className="p-8 space-y-6">
-                <h3 className="text-2xl font-bold text-white text-center mb-6">Without Authority Content</h3>
+                <h3 className="text-2xl font-bold text-white text-center mb-6">Without AmpedAgent</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-3 border-b border-slate-700">
                     <span className="text-slate-300">Social Media Content</span>
@@ -141,13 +141,13 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* With Authority Content */}
+            {/* With AmpedAgent */}
             <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-primary/20 relative overflow-hidden">
               <div className="absolute top-4 right-4 bg-muted0 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">
                 BEST VALUE
               </div>
               <CardContent className="p-8 space-y-6">
-                <h3 className="text-2xl font-bold text-white text-center mb-6">With Authority Content</h3>
+                <h3 className="text-2xl font-bold text-white text-center mb-6">With AmpedAgent</h3>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
                     <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
@@ -201,9 +201,9 @@ export default function HomePage() {
       {/* What Is It Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-white">What is AuthorityContent.co?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-white">What is AmpedAgent.co?</h2>
           <p className="text-xl text-slate-300 leading-relaxed">
-            AuthorityContent.co is the AI-powered authority operating system that engineers local market dominance. We don't just generate posts—we build positioning power that converts content into closings.
+            AmpedAgent.co is the AI-powered authority operating system that engineers local market dominance. We don't just generate posts—we build positioning power that converts content into closings.
           </p>
         </div>
       </section>
@@ -274,7 +274,7 @@ export default function HomePage() {
                 ))}
               </div>
               <p className="text-slate-300 leading-relaxed italic">
-                "My experience with AuthorityContent.co has been amazing. I don't have a ton of time to create social media content, to have relevant topics generated for me has helped me stand out in my niche."
+                "My experience with AmpedAgent.co has been amazing. I don't have a ton of time to create social media content, to have relevant topics generated for me has helped me stand out in my niche."
               </p>
               <div className="flex items-center gap-3 pt-4 border-t border-slate-700">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/30 to-slate-700 flex items-center justify-center text-white font-semibold">
@@ -297,7 +297,7 @@ export default function HomePage() {
                 ))}
               </div>
               <p className="text-slate-300 leading-relaxed italic">
-                "I would definitely recommend AuthorityContent.co to agents looking to create and maintain an online presence, without spending a ton of extra time on social media."
+                "I would definitely recommend AmpedAgent.co to agents looking to create and maintain an online presence, without spending a ton of extra time on social media."
               </p>
               <div className="flex items-center gap-3 pt-4 border-t border-slate-700">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/30 to-slate-700 flex items-center justify-center text-white font-semibold">
@@ -320,7 +320,7 @@ export default function HomePage() {
                 ))}
               </div>
               <p className="text-slate-300 leading-relaxed italic">
-                "We are loving using AuthorityContent.co. Social media used to be a huge headache for us. We've been able to save time and 5x our output with the content calendar."
+                "We are loving using AmpedAgent.co. Social media used to be a huge headache for us. We've been able to save time and 5x our output with the content calendar."
               </p>
               <div className="flex items-center gap-3 pt-4 border-t border-slate-700">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/30 to-slate-700 flex items-center justify-center text-white font-semibold">
@@ -527,16 +527,16 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h2>
-            <p className="text-xl text-slate-400">Everything you need to know about Authority Content</p>
+            <p className="text-xl text-slate-400">Everything you need to know about AmpedAgent</p>
           </div>
 
           <div className="space-y-6">
             {/* FAQ 1 */}
             <Card className="bg-slate-800/50 border-slate-700">
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-white mb-3">How does Authority Content compare to other tools?</h3>
+                <h3 className="text-xl font-bold text-white mb-3">How does AmpedAgent compare to other tools?</h3>
                 <p className="text-slate-300 leading-relaxed">
-                  Authority Content is the only all-in-one platform that combines social media content generation, AI video creation with avatars, faceless vertical videos, and content scheduling. Instead of paying $164-313/month for 3+ separate tools, you get everything in one platform for $59-149/month.
+                  AmpedAgent is the only all-in-one platform that combines social media content generation, AI video creation with avatars, faceless vertical videos, and content scheduling. Instead of paying $164-313/month for 3+ separate tools, you get everything in one platform for $59-149/month.
                 </p>
               </CardContent>
             </Card>
@@ -566,7 +566,7 @@ export default function HomePage() {
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-white mb-3">Do I still need my CRM?</h3>
                 <p className="text-slate-300 leading-relaxed">
-                  Yes. Authority Content focuses on content creation and distribution, while your CRM handles lead management and client relationships. We integrate seamlessly with your existing workflow—you don't need to replace your CRM.
+                  Yes. AmpedAgent focuses on content creation and distribution, while your CRM handles lead management and client relationships. We integrate seamlessly with your existing workflow—you don't need to replace your CRM.
                 </p>
               </CardContent>
             </Card>
@@ -646,7 +646,7 @@ export default function HomePage() {
       {/* Demo Video Section */}
       <section className="container mx-auto px-4 py-20 bg-slate-900/30">
         <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">See Authority Content in Action</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">See AmpedAgent in Action</h2>
           <p className="text-xl text-slate-300 mb-12">
             Watch how easy it is to create professional content in under 60 seconds
           </p>
@@ -719,7 +719,7 @@ export default function HomePage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             {/* Left: copyright */}
             <div className="text-slate-400 text-center md:text-left">
-              <p>&copy; 2026 AuthorityContent.co. All rights reserved.</p>
+              <p>&copy; 2026 AmpedAgent.co. All rights reserved.</p>
               <p className="mt-1 text-sm">The all-in-one content platform for real estate professionals.</p>
             </div>
             {/* Right: QR code */}

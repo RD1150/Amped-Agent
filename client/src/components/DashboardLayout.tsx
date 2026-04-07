@@ -503,7 +503,7 @@ export default function DashboardLayout({
                 <span className="text-xl font-bold text-primary">AC</span>
               </div>
               <span className="text-2xl font-bold text-gold-gradient">
-                Authority Content
+                AmpedAgent
               </span>
             </div>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
@@ -518,7 +518,7 @@ export default function DashboardLayout({
             size="lg"
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all"
           >
-            Sign in to Authority Content
+            Sign in to AmpedAgent
           </Button>
         </div>
       </div>
@@ -616,7 +616,7 @@ function DashboardLayoutContent({
                 <div className="flex items-center min-w-0 overflow-hidden">
                   <img
                     src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/iBVTqXsNrcunoEnF.png"
-                    alt="Authority Content"
+                    alt="AmpedAgent"
                     className="h-32 w-auto object-contain"
                   />
                 </div>

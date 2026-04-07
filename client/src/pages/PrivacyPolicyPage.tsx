@@ -11,10 +11,10 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">1. Introduction</h2>
           <p>
-            Authority Content ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered content generation platform for real estate professionals.
+            AmpedAgent ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered content generation platform for real estate professionals.
           </p>
           <p>
-            By using Authority Content, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with our policies and practices, please do not use our Service.
+            By using AmpedAgent, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with our policies and practices, please do not use our Service.
           </p>
         </section>
 
@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
           </ul>
 
           <h3 className="text-xl font-semibold mt-6 mb-3">2.3 Information from Third Parties</h3>
-          <p>We may receive information from third-party services you connect to Authority Content:</p>
+          <p>We may receive information from third-party services you connect to AmpedAgent:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li><strong>Social Media Platforms:</strong> When you connect Instagram, Facebook, or LinkedIn accounts</li>
             <li><strong>OAuth Providers:</strong> Authentication data from login providers</li>
@@ -98,7 +98,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">4. Third-Party Services</h2>
           <p>
-            Authority Content integrates with several third-party services to provide our features. These services have their own privacy policies and may collect data independently:
+            AmpedAgent integrates with several third-party services to provide our features. These services have their own privacy policies and may collect data independently:
           </p>
 
           <h3 className="text-xl font-semibold mt-6 mb-3">4.1 AI and Media Services</h3>
@@ -217,14 +217,14 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">9. Children's Privacy</h2>
           <p>
-            Authority Content is not intended for users under 18 years of age. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately at <strong>privacy@authoritycontent.co</strong>.
+            AmpedAgent is not intended for users under 18 years of age. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately at <strong>privacy@authoritycontent.co</strong>.
           </p>
         </section>
 
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">10. International Data Transfers</h2>
           <p>
-            Your information may be transferred to and processed in countries other than your country of residence. These countries may have different data protection laws. By using Authority Content, you consent to the transfer of your information to the United States and other countries where we operate.
+            Your information may be transferred to and processed in countries other than your country of residence. These countries may have different data protection laws. By using AmpedAgent, you consent to the transfer of your information to the United States and other countries where we operate.
           </p>
         </section>
 
@@ -266,7 +266,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">13. Changes to This Privacy Policy</h2>
           <p>
-            We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. We will notify you of material changes via email or through the Service. Your continued use of Authority Content after such changes constitutes acceptance of the updated Privacy Policy.
+            We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. We will notify you of material changes via email or through the Service. Your continued use of AmpedAgent after such changes constitutes acceptance of the updated Privacy Policy.
           </p>
         </section>
 
@@ -276,7 +276,7 @@ export default function PrivacyPolicyPage() {
             If you have questions, concerns, or requests regarding this Privacy Policy or our privacy practices, please contact us:
           </p>
           <p className="mt-2">
-            <strong>Authority Content</strong><br />
+            <strong>AmpedAgent</strong><br />
             Email: privacy@authoritycontent.co<br />
             Support: support@authoritycontent.co<br />
             Website: https://authoritycontent.co

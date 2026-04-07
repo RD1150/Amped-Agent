@@ -53,7 +53,7 @@ export default function VideoComparison() {
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold mb-3">Which video is right for you?</h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Authority Content offers two types of property videos. Here's exactly what makes them different — and when to use each one.
+          AmpedAgent offers two types of property videos. Here's exactly what makes them different — and when to use each one.
         </p>
       </div>
 

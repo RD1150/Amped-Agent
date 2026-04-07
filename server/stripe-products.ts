@@ -1,5 +1,5 @@
 /**
- * Stripe Product Configuration for Authority Content
+ * Stripe Product Configuration for AmpedAgent
  * Defines the 3 subscription tiers with pricing and features
  */
 
@@ -33,7 +33,7 @@ export interface StripeProduct {
 
 export const STRIPE_PRODUCTS: StripeProduct[] = [
   {
-    name: "Authority Content Essential",
+    name: "AmpedAgent Essential",
     description: "Perfect for agents getting started with content marketing",
     tier: "essential",
     priceMonthly: 3900, // $39/month
@@ -71,7 +71,7 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     ],
   },
   {
-    name: "Authority Content Professional",
+    name: "AmpedAgent Professional",
     description: "For active agents who post consistently",
     tier: "professional",
     priceMonthly: 7900, // $79/month
@@ -109,7 +109,7 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     ],
   },
   {
-    name: "Authority Content Enterprise",
+    name: "AmpedAgent Enterprise",
     description: "For top producers and teams",
     tier: "premium",
     priceMonthly: 14900, // $149/month

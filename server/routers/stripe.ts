@@ -49,7 +49,7 @@ export const stripeRouter = router({
                 currency: 'usd',
                 product_data: {
                   name: product.name,
-                  description: `${totalCredits} credits for Authority Content`,
+                  description: `${totalCredits} credits for AmpedAgent`,
                 },
                 unit_amount: product.price,
               },

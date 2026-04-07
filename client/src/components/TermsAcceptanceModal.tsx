@@ -24,7 +24,7 @@ export default function TermsAcceptanceModal({ open, onAccept }: TermsAcceptance
     <Dialog open={open}>
       <DialogContent className="max-w-3xl max-h-[80vh]">
         <DialogHeader>
-          <DialogTitle>Welcome to Authority Content</DialogTitle>
+          <DialogTitle>Welcome to AmpedAgent</DialogTitle>
           <DialogDescription>
             Please review and accept our Terms of Service to continue
           </DialogDescription>
@@ -35,7 +35,7 @@ export default function TermsAcceptanceModal({ open, onAccept }: TermsAcceptance
             <section>
               <h3 className="font-semibold text-base mb-2">Content Responsibility</h3>
               <p className="text-muted-foreground">
-                You are solely responsible for all content generated using Authority Content. This includes ensuring accuracy of property information, compliance with Fair Housing Act regulations, and obtaining necessary permissions for uploaded media.
+                You are solely responsible for all content generated using AmpedAgent. This includes ensuring accuracy of property information, compliance with Fair Housing Act regulations, and obtaining necessary permissions for uploaded media.
               </p>
             </section>
 
@@ -61,20 +61,20 @@ export default function TermsAcceptanceModal({ open, onAccept }: TermsAcceptance
             <section>
               <h3 className="font-semibold text-base mb-2">Content Moderation</h3>
               <p className="text-muted-foreground">
-                Authority Content employs automated content moderation systems to detect potentially harmful or non-compliant content. We reserve the right to block generation of content that violates our policies, suspend accounts that repeatedly violate these terms, and report illegal activity to appropriate authorities.
+                AmpedAgent employs automated content moderation systems to detect potentially harmful or non-compliant content. We reserve the right to block generation of content that violates our policies, suspend accounts that repeatedly violate these terms, and report illegal activity to appropriate authorities.
               </p>
             </section>
 
             <section>
               <h3 className="font-semibold text-base mb-2">Limitation of Liability</h3>
               <p className="text-muted-foreground">
-                Authority Content is provided "as is" without warranties. We are not liable for any consequences resulting from your use of generated content. You agree to indemnify and hold harmless Authority Content from any claims arising from your use of the service.
+                AmpedAgent is provided "as is" without warranties. We are not liable for any consequences resulting from your use of generated content. You agree to indemnify and hold harmless AmpedAgent from any claims arising from your use of the service.
               </p>
             </section>
 
             <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
               <p className="text-sm text-primary">
-                <strong>Important:</strong> By accepting these terms, you acknowledge that you have read, understood, and agree to be bound by our Terms of Service. You are solely responsible for all content you generate and publish using Authority Content.
+                <strong>Important:</strong> By accepting these terms, you acknowledge that you have read, understood, and agree to be bound by our Terms of Service. You are solely responsible for all content you generate and publish using AmpedAgent.
               </p>
             </div>
 
@@ -122,7 +122,7 @@ export default function TermsAcceptanceModal({ open, onAccept }: TermsAcceptance
             disabled={!accepted || !hasRead}
             className="w-full"
           >
-            Continue to Authority Content
+            Continue to AmpedAgent
           </Button>
         </DialogFooter>
       </DialogContent>

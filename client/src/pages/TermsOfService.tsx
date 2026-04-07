@@ -11,14 +11,14 @@ export default function TermsOfService() {
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">1. Acceptance of Terms</h2>
           <p>
-            By accessing and using Authority Content ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to these Terms of Service, please do not use the Service.
+            By accessing and using AmpedAgent ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to these Terms of Service, please do not use the Service.
           </p>
         </section>
 
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">2. Description of Service</h2>
           <p>
-            Authority Content provides AI-powered content generation tools for real estate professionals, including but not limited to social media posts, videos, property tours, and marketing materials ("Generated Content").
+            AmpedAgent provides AI-powered content generation tools for real estate professionals, including but not limited to social media posts, videos, property tours, and marketing materials ("Generated Content").
           </p>
         </section>
 
@@ -59,7 +59,7 @@ export default function TermsOfService() {
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">4. Content Moderation</h2>
           <p>
-            Authority Content employs automated content moderation systems to detect potentially harmful or non-compliant content. We reserve the right to:
+            AmpedAgent employs automated content moderation systems to detect potentially harmful or non-compliant content. We reserve the right to:
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Block generation of content that violates our policies</li>
@@ -77,12 +77,12 @@ export default function TermsOfService() {
           
           <h3 className="text-xl font-semibold mt-6 mb-3">5.1 Generated Content</h3>
           <p>
-            You retain all rights to Generated Content created using the Service. Authority Content claims no ownership over your Generated Content.
+            You retain all rights to Generated Content created using the Service. AmpedAgent claims no ownership over your Generated Content.
           </p>
 
           <h3 className="text-xl font-semibold mt-6 mb-3">5.2 Service Content</h3>
           <p>
-            The Service itself, including all software, algorithms, templates, and branding, remains the exclusive property of Authority Content and is protected by copyright and other intellectual property laws.
+            The Service itself, including all software, algorithms, templates, and branding, remains the exclusive property of AmpedAgent and is protected by copyright and other intellectual property laws.
           </p>
 
           <h3 className="text-xl font-semibold mt-6 mb-3">5.3 Music and Media</h3>
@@ -94,7 +94,7 @@ export default function TermsOfService() {
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">6. Indemnification</h2>
           <p>
-            You agree to indemnify, defend, and hold harmless Authority Content, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable legal fees, arising out of or in any way connected with:
+            You agree to indemnify, defend, and hold harmless AmpedAgent, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable legal fees, arising out of or in any way connected with:
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Your use of the Service</li>
@@ -164,7 +164,7 @@ export default function TermsOfService() {
             For questions about these Terms of Service, please contact us at:
           </p>
           <p className="mt-2">
-            <strong>Authority Content</strong><br />
+            <strong>AmpedAgent</strong><br />
             Email: support@authoritycontent.co<br />
             Website: https://authoritycontent.co
           </p>
@@ -173,7 +173,7 @@ export default function TermsOfService() {
         <section className="mt-12 p-6 bg-muted border border-primary/20 rounded-lg">
           <h3 className="text-lg font-semibold text-primary mb-2">⚠️ Important Notice</h3>
           <p className="text-primary/80">
-            By using Authority Content, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. You further acknowledge that you are solely responsible for all content you generate and publish using the Service, and that Authority Content is not liable for any consequences resulting from your use of Generated Content.
+            By using AmpedAgent, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. You further acknowledge that you are solely responsible for all content you generate and publish using the Service, and that AmpedAgent is not liable for any consequences resulting from your use of Generated Content.
           </p>
         </section>
       </div>

@@ -252,7 +252,7 @@ export default function Onboarding() {
   const completeOnboarding = async () => {
     try {
       await completeOnboardingMutation.mutateAsync();
-      toast.success("Welcome to Authority Content!");
+      toast.success("Welcome to AmpedAgent!");
       navigate("/dashboard");
     } catch (error) {
       toast.error("Failed to complete onboarding");
@@ -282,7 +282,7 @@ export default function Onboarding() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold">Welcome to Authority Content!</h1>
+            <h1 className="text-3xl font-bold">Welcome to AmpedAgent!</h1>
             <Button variant="ghost" size="sm" onClick={handleSkip}>
               Skip for now
             </Button>
@@ -599,7 +599,7 @@ export default function Onboarding() {
             <div>
               <h2 className="text-3xl font-bold mb-2">You're all set!</h2>
               <p className="text-muted-foreground mb-8">
-                Welcome to Authority Content. Let's start creating amazing content!
+                Welcome to AmpedAgent. Let's start creating amazing content!
               </p>
             </div>
 

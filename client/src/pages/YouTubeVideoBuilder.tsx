@@ -633,7 +633,7 @@ export default function YouTubeVideoBuilder() {
                     onOpenChange={setShowVideoShare}
                     videoUrl={videoUrl}
                     videoTitle={seoTitle || customTopic || "YouTube Video"}
-                    defaultCaption={`🎥 ${seoTitle || customTopic || "New video!"} 🏡 #RealEstate #YouTube #AuthorityContent`}
+                    defaultCaption={`🎥 ${seoTitle || customTopic || "New video!"} 🏡 #RealEstate #YouTube #AmpedAgent`}
                   />
                 )}
               </div>

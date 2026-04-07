@@ -1211,7 +1211,7 @@ async function runWalkthroughJob(
       const { notifyOwner } = await import("../_core/notification");
       await notifyOwner({
         title: `🎬 Cinematic Walkthrough Ready — ${input.propertyAddress}`,
-        content: `Hi ${userRecord.name || "Agent"},\n\nYour AI Cinematic Walkthrough for ${input.propertyAddress} is ready!\n\nWatch and download your video here:\n${videoUrl}\n\nLog in to Authority Content to view it in your library.\n\nBest,\nAuthority Content`,
+        content: `Hi ${userRecord.name || "Agent"},\n\nYour AI Cinematic Walkthrough for ${input.propertyAddress} is ready!\n\nWatch and download your video here:\n${videoUrl}\n\nLog in to AmpedAgent to view it in your library.\n\nBest,\nAmpedAgent`,
       });
       log(`Job ${jobId}: Email notification sent to ${userRecord.email} ✓`);
     }

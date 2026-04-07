@@ -20,10 +20,10 @@ export async function sendEmailNotification(params: EmailNotificationParams): Pr
 
   if (type === "rate_limit") {
     title = "Daily Video Limit Reached";
-    content = `Hi ${userName},\n\nYou've reached your daily limit of 10 property tour videos. This limit resets at midnight UTC.\n\nUpgrade to Professional or Agency tier for unlimited video generation!\n\nVisit https://authoritycontent.co/credits to upgrade.\n\nBest regards,\nAuthority Content Team`;
+    content = `Hi ${userName},\n\nYou've reached your daily limit of 10 property tour videos. This limit resets at midnight UTC.\n\nUpgrade to Professional or Agency tier for unlimited video generation!\n\nVisit https://authoritycontent.co/credits to upgrade.\n\nBest regards,\nAmpedAgent Team`;
   } else if (type === "low_credits") {
     title = "Low Credits Warning";
-    content = `Hi ${userName},\n\nYour credit balance is running low. You currently have ${creditsRemaining} credits remaining.\n\nPurchase more credits to continue creating amazing property tour videos:\n- Starter: $49 for 100 credits\n- Professional: $149 for 350 credits\n- Agency: $399 for 1,000 credits\n\nVisit https://authoritycontent.co/credits to purchase.\n\nBest regards,\nAuthority Content Team`;
+    content = `Hi ${userName},\n\nYour credit balance is running low. You currently have ${creditsRemaining} credits remaining.\n\nPurchase more credits to continue creating amazing property tour videos:\n- Starter: $49 for 100 credits\n- Professional: $149 for 350 credits\n- Agency: $399 for 1,000 credits\n\nVisit https://authoritycontent.co/credits to purchase.\n\nBest regards,\nAmpedAgent Team`;
   }
 
   try {

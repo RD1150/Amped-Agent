@@ -4197,3 +4197,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fixed missing z import in youtube.ts (was causing persistent esbuild error at line 388)
 - [x] Updated Higgsfield integration tests to validate correct endpoint/payload
 - [x] All 513 tests pass
+
+## Rebrand: Authority Content → AmpedAgent
+- [x] Generate square app icon and dark-background logo variants
+- [x] Upload new logo to CDN (CDN URLs available for use)
+- [ ] Update VITE_APP_TITLE to "AmpedAgent" (user to update in Settings → General)
+- [ ] Upload new logo in Settings → General (user action required)
+- [x] Update all landing page copy (hero, taglines, feature descriptions) with new AmpedAgent messaging
+- [x] Replace all "Authority Content" / "LuxEstate" / "Realty Content Agent" text references in the codebase
+- [x] Update index.html title to AmpedAgent
+- [x] Update package.json name to ampedagent

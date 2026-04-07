@@ -41,7 +41,7 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
 
   const saveOnboarding = trpc.auth.saveOnboarding.useMutation({
     onSuccess: () => {
-      toast.success("Welcome to Authority Content! Your profile has been set up.");
+      toast.success("Welcome to AmpedAgent! Your profile has been set up.");
       onComplete();
     },
     onError: (err) => {
@@ -71,7 +71,7 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
               <Building2 className="w-4 h-4 text-primary" />
             </div>
-            <DialogTitle className="text-xl">Welcome to Authority Content</DialogTitle>
+            <DialogTitle className="text-xl">Welcome to AmpedAgent</DialogTitle>
           </div>
           <DialogDescription>
             Tell us a bit about yourself so we can personalize your content experience.

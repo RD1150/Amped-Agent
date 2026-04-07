@@ -56,20 +56,20 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-20">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <div className="inline-block px-4 py-2 bg-primary/10 rounded-full text-sm font-medium text-primary mb-4">
-              For Real Estate Professionals
+              The AI System for Real Estate Agents
             </div>
             
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-              Content That Sounds Like You —<br />
-              <span className="text-primary">On Your Best Day</span>
+              Become the Agent Everyone Already Trusts<br />
+              <span className="text-primary">Before They Even Meet You.</span>
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Authority Content creates professional, market-aware content that looks like it came from an experienced real estate agent — not an AI tool.
+              AmpedAgent is the AI system that turns real estate agents into market-dominant brands — with cinematic property videos, authority content, and a presence that makes you the obvious choice in your market.
             </p>
             
             <p className="text-lg font-medium">
-              Your clients will think you wrote it yourself.
+              Your competitors are still posting generic AI content. You won't be.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -124,12 +124,12 @@ export default function Landing() {
                 </CardContent>
               </Card>
 
-              {/* Authority Content Example */}
+              {/* AmpedAgent Example */}
               <Card className="border-2 border-primary">
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-center gap-2 text-primary font-semibold">
                     <CheckCircle2 className="h-5 w-5" />
-                    Authority Content
+                    AmpedAgent
                   </div>
                   <div className="bg-muted p-4 rounded-lg text-sm space-y-2">
                     <p className="font-medium">Beverly Hills inventory dropped 18% this quarter</p>
@@ -259,10 +259,10 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-20">
           <div className="max-w-3xl mx-auto text-center space-y-8">
             <h2 className="text-3xl md:text-4xl font-bold">
-              Ready to Create Content You're Proud Of?
+              Ready to Become the Agent Everyone Already Knows?
             </h2>
             <p className="text-xl text-muted-foreground">
-              Join real estate professionals who trust Authority Content to consistently produce high-quality, credible content.
+              Join real estate professionals using AmpedAgent to build market-dominant brands — before their competition figures out what's happening.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="text-lg px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg" asChild>

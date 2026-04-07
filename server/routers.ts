@@ -326,7 +326,7 @@ export const appRouter = router({
         const { voice_id } = await cloneVoice({
           name: voiceName,
           audioUrl: input.voiceSampleUrl,
-          description: `Voice clone for ${agentName} - Authority Content`,
+          description: `Voice clone for ${agentName} - AmpedAgent`,
         });
 
         await db.upsertPersona(ctx.user.id, {
