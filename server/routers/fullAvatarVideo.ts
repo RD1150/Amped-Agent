@@ -11,6 +11,7 @@ import {
   generateCustomAvatarVideo,
   createPhotoAvatarFromUrl,
   getCustomAvatarStatus,
+  triggerAvatarTraining,
   waitForHeyGenVideo,
   listHeyGenVoices,
 } from "../lib/heygen-service";
@@ -397,6 +398,41 @@ Requirements:
     }
 
     return twin;
+  }),
+
+  /**
+   * Retry / kick-start training for a stuck avatar (pending state)
+   */
+  retryAvatarTraining: protectedProcedure.mutation(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    const [twin] = await db
+      .select()
+      .from(customAvatarTwins)
+      .where(eq(customAvatarTwins.userId, ctx.user.id))
+      .limit(1);
+    if (!twin) throw new TRPCError({ code: "NOT_FOUND", message: "No avatar found" });
+    if (twin.status === "ready") return { status: "ready" };
+    // Re-trigger training on HeyGen
+    await triggerAvatarTraining(twin.didAvatarId);
+    // Reset status to training so polling resumes
+    await db
+      .update(customAvatarTwins)
+      .set({ status: "training" })
+      .where(eq(customAvatarTwins.userId, ctx.user.id));
+    return { status: "training" };
+  }),
+
+  /**
+   * Delete the user's custom avatar twin so they can retrain from scratch
+   */
+  deleteCustomAvatar: protectedProcedure.mutation(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    await db
+      .delete(customAvatarTwins)
+      .where(eq(customAvatarTwins.userId, ctx.user.id));
+    return { success: true };
   }),
 
   /**

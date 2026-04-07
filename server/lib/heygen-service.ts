@@ -115,19 +115,50 @@ export async function createPhotoAvatarFromUrl(
   if (!asset.image_key) throw new Error("HeyGen upload did not return image_key");
 
   // Step 3: Create avatar group
-  const res = await fetch(`${HEYGEN_API}/v2/photo_avatar/avatar_group/create`, {
+  const createRes = await fetch(`${HEYGEN_API}/v2/photo_avatar/avatar_group/create`, {
     method: "POST",
     headers: heygenHeaders(),
     body: JSON.stringify({ name, image_key: asset.image_key }),
   });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
+  if (!createRes.ok) {
+    const err = await createRes.json().catch(() => ({}));
     throw new Error(`HeyGen avatar group creation failed: ${JSON.stringify(err)}`);
   }
 
-  const data = await res.json() as { data: { group_id: string } };
-  return data.data.group_id;
+  const createData = await createRes.json() as { data: { group_id: string } };
+  const groupId = createData.data.group_id;
+
+  // Step 4: Trigger training — required to move from 'pending' to 'processing'
+  // Without this call the avatar stays pending forever.
+  const trainRes = await fetch(`${HEYGEN_API}/v2/photo_avatar/train`, {
+    method: "POST",
+    headers: heygenHeaders(),
+    body: JSON.stringify({ group_id: groupId }),
+  });
+
+  if (!trainRes.ok) {
+    // Log but don't throw — the group was created, training can be retried
+    const err = await trainRes.json().catch(() => ({}));
+    console.warn(`HeyGen train endpoint failed (group still created): ${JSON.stringify(err)}`);
+  }
+
+  return groupId;
+}
+
+/**
+ * Trigger training for an existing avatar group (e.g. retry after a stuck pending state).
+ */
+export async function triggerAvatarTraining(groupId: string): Promise<void> {
+  const trainRes = await fetch(`${HEYGEN_API}/v2/photo_avatar/train`, {
+    method: "POST",
+    headers: heygenHeaders(),
+    body: JSON.stringify({ group_id: groupId }),
+  });
+  if (!trainRes.ok) {
+    const err = await trainRes.json().catch(() => ({}));
+    throw new Error(`HeyGen train failed: ${JSON.stringify(err)}`);
+  }
 }
 
 /**
@@ -272,12 +303,14 @@ export async function getCustomAvatarStatus(avatarGroupId: string): Promise<{
   };
 
   const rawStatus = data.data.status;
+  // HeyGen statuses: pending → processing → completed/failed
+  // 'pending' means the group was created but training wasn't triggered yet
   const status: "processing" | "completed" | "failed" =
     rawStatus === "completed" || rawStatus === "ready" || rawStatus === "success"
       ? "completed"
       : rawStatus === "failed" || rawStatus === "error"
       ? "failed"
-      : "processing";
+      : "processing"; // treat both 'pending' and 'processing' as still-in-progress
 
   return { status, previewImageUrl: data.data.image_url };
 }

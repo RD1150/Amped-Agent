@@ -104,6 +104,14 @@ export default function FullAvatarVideo() {
   const { data: stockAvatars = [], isLoading: isLoadingAvatars } = trpc.fullAvatarVideo.getAvatars.useQuery();
   const generateV3Mutation = trpc.fullAvatarVideo.generateWithCustomAvatar.useMutation();
   const trainMutation = trpc.fullAvatarVideo.trainCustomAvatar.useMutation();
+  const retryTrainingMutation = trpc.fullAvatarVideo.retryAvatarTraining.useMutation({
+    onSuccess: () => { toast.success("Training re-triggered — polling for updates…"); refetchTwin(); },
+    onError: (e) => toast.error(`Retry failed: ${e.message}`),
+  });
+  const deleteAvatarMutation = trpc.fullAvatarVideo.deleteCustomAvatar.useMutation({
+    onSuccess: () => { toast.success("Avatar deleted. You can now upload a new headshot."); refetchTwin(); },
+    onError: (e) => toast.error(`Delete failed: ${e.message}`),
+  });
   const deleteMutation = trpc.fullAvatarVideo.delete.useMutation();
   const generateScriptMutation = trpc.fullAvatarVideo.generateAvatarScript.useMutation();
   const { data: heygenVoices = [], isLoading: isLoadingVoices } = trpc.fullAvatarVideo.getVoices.useQuery();
@@ -703,9 +711,31 @@ export default function FullAvatarVideo() {
               </Button>
 
               {twinStatus?.status === "training" && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20 text-sm text-primary dark:text-primary/80">
-                  <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
-                  Creating your Photo Avatar — this usually takes 1–3 minutes. You can leave this page and come back.
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20 text-sm text-primary dark:text-primary/80">
+                    <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
+                    Creating your Photo Avatar — usually takes 2–5 minutes. You can leave this page and come back.
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => retryTrainingMutation.mutate()}
+                      disabled={retryTrainingMutation.isPending}
+                      className="text-xs"
+                    >
+                      {retryTrainingMutation.isPending ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Retrying…</> : "Stuck? Retry Training"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => deleteAvatarMutation.mutate()}
+                      disabled={deleteAvatarMutation.isPending}
+                      className="text-xs text-destructive hover:text-destructive"
+                    >
+                      {deleteAvatarMutation.isPending ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Deleting…</> : "Delete & Start Over"}
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

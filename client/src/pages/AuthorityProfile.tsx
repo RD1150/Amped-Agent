@@ -39,7 +39,17 @@ import {
 } from "lucide-react";
 
 function PhotoAvatarCard() {
-  const { data: twinStatus, isLoading } = trpc.fullAvatarVideo.getCustomAvatarStatus.useQuery();
+  const { data: twinStatus, isLoading, refetch: refetchTwin } = trpc.fullAvatarVideo.getCustomAvatarStatus.useQuery(undefined, {
+    refetchInterval: (query) => (query.state.data?.status === "training" ? 10000 : false),
+  });
+  const retryTrainingMutation = trpc.fullAvatarVideo.retryAvatarTraining.useMutation({
+    onSuccess: () => { toast.success("Training re-triggered!"); refetchTwin(); },
+    onError: (e) => toast.error(`Retry failed: ${e.message}`),
+  });
+  const deleteAvatarMutation = trpc.fullAvatarVideo.deleteCustomAvatar.useMutation({
+    onSuccess: () => { toast.success("Avatar deleted. Head to Full Avatar Video to upload a new headshot."); refetchTwin(); },
+    onError: (e) => toast.error(`Delete failed: ${e.message}`),
+  });
 
   if (isLoading) return null;
 
@@ -90,11 +100,21 @@ function PhotoAvatarCard() {
           </Link>
         </div>
       ) : twinStatus?.status === "training" ? (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
-          <Loader2 className="h-6 w-6 text-primary animate-spin flex-shrink-0" />
-          <div>
-            <p className="font-semibold text-sm">Avatar training in progress…</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Usually takes 1–3 minutes. Refresh to check status.</p>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
+            <Loader2 className="h-6 w-6 text-primary animate-spin flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-sm">Avatar training in progress…</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Usually takes 2–5 minutes. Auto-refreshing every 10s.</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => retryTrainingMutation.mutate()} disabled={retryTrainingMutation.isPending} className="text-xs">
+              {retryTrainingMutation.isPending ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Retrying…</> : "Stuck? Retry Training"}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => deleteAvatarMutation.mutate()} disabled={deleteAvatarMutation.isPending} className="text-xs text-destructive hover:text-destructive">
+              {deleteAvatarMutation.isPending ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Deleting…</> : "Delete & Start Over"}
+            </Button>
           </div>
         </div>
       ) : (
