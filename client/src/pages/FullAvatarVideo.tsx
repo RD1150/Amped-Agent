@@ -243,7 +243,7 @@ export default function FullAvatarVideo() {
 
     setIsGenerating(true);
     setResultVideoUrl("");
-    setGenerationStep("Submitting to HeyGen…");
+    setGenerationStep("Submitting your video request…");
 
     try {
       let result: { videoUrl: string; duration: number };
@@ -264,7 +264,7 @@ export default function FullAvatarVideo() {
           visualPrompt: visualPrompt.trim() || undefined,
         });
       } else if (mode === "quick") {
-        setGenerationStep("Generating your avatar video with HeyGen…");
+        setGenerationStep("Generating your avatar video…");
         result = await generateV2Mutation.mutateAsync({
           script: script.trim(),
           avatarId: selectedAvatarId,
@@ -625,7 +625,7 @@ export default function FullAvatarVideo() {
               <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 space-y-1.5">
                 <p className="text-xs font-semibold text-primary dark:text-primary">📸 Upload a headshot photo of YOUR FACE to create your personal AI avatar</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Upload a clear, front-facing photo of yourself. The AI will animate your face to speak any script you write — so every video looks like you. Works on your current HeyGen plan.
+                  Upload a clear, front-facing photo of yourself. The AI will animate your face to speak any script you write — so every video looks like you.
                 </p>
               </div>
               <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
@@ -755,7 +755,7 @@ export default function FullAvatarVideo() {
                     <span className="text-base leading-none mt-0.5">⚠️</span>
                     <div>
                       <p className="font-medium">Avatar creation failed</p>
-                      <p className="text-xs mt-0.5 text-destructive/80">The upload didn’t complete on HeyGen’s side. Please delete this attempt and upload your headshot again — no credits were charged.</p>
+                      <p className="text-xs mt-0.5 text-destructive/80">The avatar creation didn't complete. Please delete this attempt and upload your headshot again — no credits were charged.</p>
                     </div>
                   </div>
                   <Button
@@ -1049,7 +1049,7 @@ export default function FullAvatarVideo() {
 
         {isGenerating && (
           <div className="text-center text-xs text-muted-foreground">
-    HeyGen is animating your avatar and syncing speech. This takes 1–5 minutes depending on script length.
+    Your AI avatar video is being created and synced with your voice. This takes 1–5 minutes depending on script length.
           </div>
         )}
       </Card>

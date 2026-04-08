@@ -4272,3 +4272,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Video Script Builder: pre-seed with AmpedAgent intro script as default template for new users
 - [x] Full Avatar Video: wire visualPrompt field into the video generation API call
 - [x] Full Avatar Video: add optional Captions toggle (CC) so agents can choose whether to burn in styled subtitles
+
+## AmpedAgent Intro Script — Pre-seed & Format
+- [ ] Format AmpedAgent intro script into scene-by-scene spoken lines + visual prompts (two-column)
+- [ ] Pre-seed Video Script Builder with AmpedAgent intro script as default template for new users
+
+## Branding Fix - Remove HeyGen References
+- [x] Remove "HeyGen is animating your avatar..." status text from Full Avatar Video page
+- [x] Replace all HeyGen-branded generation status messages with neutral AmpedAgent copy

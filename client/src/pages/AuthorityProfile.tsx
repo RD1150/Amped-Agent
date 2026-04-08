@@ -123,7 +123,7 @@ function PhotoAvatarCard() {
             <span className="text-xl leading-none mt-0.5">⚠️</span>
             <div>
               <p className="font-semibold text-sm text-destructive">Avatar creation failed</p>
-              <p className="text-xs text-muted-foreground mt-0.5">The upload didn’t complete on HeyGen’s side. No credits were charged. Please delete and try again from Full Avatar Video.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">The avatar creation didn't complete. No credits were charged. Please delete and try again from Full Avatar Video.</p>
             </div>
           </div>
           <Button size="sm" variant="destructive" onClick={() => deleteAvatarMutation.mutate()} disabled={deleteAvatarMutation.isPending} className="text-xs w-full">
