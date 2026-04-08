@@ -133,7 +133,14 @@ export default function FullAvatarVideo() {
   });
   const deleteMutation = trpc.fullAvatarVideo.delete.useMutation();
   const generateScriptMutation = trpc.fullAvatarVideo.generateAvatarScript.useMutation();
-  const { data: voices = [], isLoading: isLoadingVoices } = trpc.fullAvatarVideo.getVoices.useQuery();
+  const { data: voices = [], isLoading: isLoadingVoices, error: voicesError } = trpc.fullAvatarVideo.getVoices.useQuery(
+    undefined,
+    {
+      staleTime: 30 * 60 * 1000, // 30 min — voices don't change often
+      retry: 2,
+      retryDelay: 2000,
+    }
+  );
   // alias for internal use
   const heygenVoices = voices;
 
@@ -1284,6 +1291,10 @@ export default function FullAvatarVideo() {
             <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
               <Loader2 className="h-3 w-3 animate-spin" />
               Loading voices…
+            </div>
+          ) : voicesError ? (
+            <div className="text-xs text-destructive py-2">
+              Could not load voices — please refresh the page.
             </div>
           ) : (
             <div className="max-h-48 overflow-y-auto space-y-1 pr-1">

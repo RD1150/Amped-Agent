@@ -23,21 +23,31 @@ function estimateDuration(script: string): number {
   return Math.ceil((words / 130) * 60);
 }
 
+// ── Server-side voice cache (30 min TTL) ────────────────────────────────────
+let _voiceCache: { id: string; name: string; gender: "male" | "female"; previewUrl: string | null }[] | null = null;
+let _voiceCacheAt = 0;
+const VOICE_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
 export const fullAvatarVideoRouter = router({
   /**
-   * Fetch English voices from HeyGen for the voice picker
+   * Fetch English voices from HeyGen for the voice picker (cached 30 min)
    */
   getVoices: protectedProcedure
     .query(async () => {
+      // Return cached result if still fresh
+      if (_voiceCache && Date.now() - _voiceCacheAt < VOICE_CACHE_TTL) {
+        return _voiceCache;
+      }
       const apiKey = process.env.HEYGEN_API_KEY;
       if (!apiKey) throw new Error("Avatar API key not configured");
       const res = await fetch("https://api.heygen.com/v2/voices", {
         headers: { "X-Api-Key": apiKey },
+        signal: AbortSignal.timeout(15000), // 15s timeout
       });
       if (!res.ok) throw new Error(`Voice list fetch failed: ${res.status}`);
       const data = await res.json() as { data?: { voices?: Array<{ voice_id: string; name: string; gender: string; language: string; preview_audio?: string }> } };
       const voices = (data.data?.voices ?? []) as Array<{ voice_id: string; name: string; gender: string; language: string; preview_audio?: string }>;
-      return voices
+      const result = voices
         .filter((v) => v.language === "English" && v.name?.trim())
         .map((v) => ({
           id: v.voice_id,
@@ -46,6 +56,10 @@ export const fullAvatarVideoRouter = router({
           previewUrl: v.preview_audio ?? null,
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
+      // Store in cache
+      _voiceCache = result;
+      _voiceCacheAt = Date.now();
+      return result;
     }),
 
   /**
