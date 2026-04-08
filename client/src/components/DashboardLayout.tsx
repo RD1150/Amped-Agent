@@ -63,6 +63,7 @@ import {
   Smartphone,
   Images,
   Presentation,
+  Clapperboard,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -323,6 +324,22 @@ const menuSections = [
             { label: "Credits", value: "20 credits per video" },
             { label: "Time", value: "5–20 minutes to generate" },
             { label: "Includes", value: "Script templates, SEO metadata, Reels clips, Publish to YouTube" },
+          ],
+        },
+      },
+      {
+        icon: Clapperboard,
+        label: "Script Builder",
+        path: "/video-script-builder",
+        description: "Write two-column scripts with visual direction",
+        badge: "New",
+        hoverInfo: {
+          tagline: "Write your spoken script and visual direction side-by-side \u2014 then generate the video.",
+          details: [
+            { label: "Format", value: "Two-column: spoken words + visual prompt per scene" },
+            { label: "Best for", value: "Intro videos, market updates, testimonials, tips" },
+            { label: "AI assist", value: "Auto-generate visual prompts or full scripts from a brief" },
+            { label: "Export", value: "Use with Full Avatar Video or YouTube Builder" },
           ],
         },
       },

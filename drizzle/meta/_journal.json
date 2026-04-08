@@ -533,6 +533,13 @@
       "when": 1775554286317,
       "tag": "0075_solid_james_howlett",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "5",
+      "when": 1775622122292,
+      "tag": "0076_glorious_hannibal_king",
+      "breakpoints": true
     }
   ]
 }

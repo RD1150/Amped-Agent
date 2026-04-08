@@ -972,3 +972,24 @@ export const listingPresentations = mysqlTable("listing_presentations", {
 });
 export type ListingPresentation = typeof listingPresentations.$inferSelect;
 export type InsertListingPresentation = typeof listingPresentations.$inferInsert;
+
+// ─── Video Script Builder ─────────────────────────────────────────────────────
+export const videoScripts = mysqlTable("video_scripts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  // scenes stored as JSON array: [{id, spokenScript, visualPrompt, durationSec}]
+  scenes: text("scenes").notNull().default("[]"),
+  // assembled full script (spoken lines joined)
+  fullScript: text("fullScript"),
+  // video generation status
+  status: mysqlEnum("status", ["draft", "generating", "completed", "failed"]).default("draft").notNull(),
+  videoUrl: text("videoUrl"),
+  videoId: varchar("videoId", { length: 255 }),
+  totalDurationSec: int("totalDurationSec"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+export type VideoScript = typeof videoScripts.$inferSelect;
+export type InsertVideoScript = typeof videoScripts.$inferInsert;
