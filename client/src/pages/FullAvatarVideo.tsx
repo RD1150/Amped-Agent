@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { GenerationRatingPrompt } from "@/components/GenerationRatingPrompt";
 import { trpc } from "@/lib/trpc";
+import HeadshotCropper from "@/components/HeadshotCropper";
 
 // Voice options are loaded live from the AI engine
 
@@ -104,6 +105,7 @@ export default function FullAvatarVideo() {
   const [isUploadingTraining, setIsUploadingTraining] = useState(false);
   const [isTraining, setIsTraining] = useState(false);
   const [isReplacingPhoto, setIsReplacingPhoto] = useState(false); // true when user wants to swap their headshot
+  const [cropperFile, setCropperFile] = useState<File | null>(null); // file pending crop before becoming trainingPhotoFile
 
   const trainingPhotoRef = useRef<HTMLInputElement>(null);
   const scriptSectionRef = useRef<HTMLDivElement>(null);
@@ -214,8 +216,20 @@ export default function FullAvatarVideo() {
     if (!file) return;
     if (!file.type.startsWith("image/")) { toast.error("Please upload a photo (JPG, PNG, or WEBP)"); return; }
     if (file.size > 10 * 1024 * 1024) { toast.error("Photo must be under 10MB"); return; }
-    setTrainingPhotoFile(file);
-    setTrainingPhotoPreview(URL.createObjectURL(file));
+    // Open cropper instead of using the file directly
+    setCropperFile(file);
+    // Reset the input so the same file can be re-selected if needed
+    e.target.value = "";
+  };
+
+  const handleCropConfirm = (croppedFile: File) => {
+    setCropperFile(null);
+    setTrainingPhotoFile(croppedFile);
+    setTrainingPhotoPreview(URL.createObjectURL(croppedFile));
+  };
+
+  const handleCropCancel = () => {
+    setCropperFile(null);
   };
 
   const handleTrainAvatar = async () => {
@@ -410,6 +424,14 @@ export default function FullAvatarVideo() {
   }
 
   return (
+    <>
+    {cropperFile && (
+      <HeadshotCropper
+        file={cropperFile}
+        onConfirm={handleCropConfirm}
+        onCancel={handleCropCancel}
+      />
+    )}
     <div className="container max-w-4xl py-8 space-y-8">
       {/* Header */}
       <div>
@@ -1426,5 +1448,6 @@ export default function FullAvatarVideo() {
         </div>
       )}
     </div>
+    </>
   );
 }
