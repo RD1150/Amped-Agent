@@ -176,6 +176,8 @@ Requirements:
         voiceId: z.string().optional().default("1bd001e7e50f421d891986aad5158bc8"),
         title: z.string().max(255).optional(),
         landscape: z.boolean().optional().default(false),
+        captionsEnabled: z.boolean().optional().default(false), // Burn CC captions into video
+        visualPrompt: z.string().max(2000).optional(), // Visual direction / B-roll notes (stored for reference)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -215,37 +217,35 @@ Requirements:
       const videoId = record.id;
 
       try {
-        // Submit video generation job using stock avatar_id
+            // Submit video generation job using stock avatar_id
         const heygenVideoId = await generateStockAvatarVideo({
           avatarId: input.avatarId,
           script: input.script,
           voiceId: input.voiceId,
           title: input.title,
           landscape: input.landscape,
+          caption: input.captionsEnabled,
         });
-
         // Save HeyGen video ID for reference
         await db
           .update(fullAvatarVideos)
           .set({ didTalkId: heygenVideoId })
           .where(eq(fullAvatarVideos.id, videoId));
-
         // Poll until complete (up to 10 minutes for long scripts)
-        const heygenVideoUrl = await waitForHeyGenVideo(heygenVideoId, 600_000, 5_000);
-
+        const { videoUrl: heygenVideoUrl, captionVideoUrl } = await waitForHeyGenVideo(heygenVideoId, 600_000, 5_000);
+        // When captions are enabled, prefer the captioned version of the video
+        const finalVideoUrl = (input.captionsEnabled && captionVideoUrl) ? captionVideoUrl : heygenVideoUrl;
         // Download and re-host on S3 for permanence
-        const videoRes = await fetch(heygenVideoUrl);
+        const videoRes = await fetch(finalVideoUrl);
         if (!videoRes.ok) throw new Error("Failed to download HeyGen video");
         const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
         const s3Key = `full-avatar-videos/${ctx.user.id}/${videoId}-${Date.now()}.mp4`;
         const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
-
         await db
           .update(fullAvatarVideos)
           .set({ videoUrl: s3Url, s3Key, status: "completed" })
           .where(eq(fullAvatarVideos.id, videoId));
-
-        return { videoId, videoUrl: s3Url, duration, expiresAt: expiresAt.toISOString() };
+        return { videoId, videoUrl: s3Url, duration, expiresAt: expiresAt.toISOString() };;
       } catch (err) {
         await db
           .update(fullAvatarVideos)
@@ -460,6 +460,8 @@ Requirements:
         voiceId: z.string().optional().default("en-US-JennyNeural"),
         title: z.string().max(255).optional(),
         landscape: z.boolean().optional().default(false),
+        captionsEnabled: z.boolean().optional().default(false), // Burn CC captions into video
+        visualPrompt: z.string().max(2000).optional(), // Visual direction / B-roll notes (stored for reference)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -528,20 +530,19 @@ Requirements:
           .set({ didTalkId: heygenVideoId })
           .where(eq(fullAvatarVideos.id, videoId));
 
-        const heygenVideoUrl = await waitForHeyGenVideo(heygenVideoId, 600_000, 5_000);
-
+          const { videoUrl: heygenVideoUrl2, captionVideoUrl: captionVideoUrl2 } = await waitForHeyGenVideo(heygenVideoId, 600_000, 5_000);
+        // When captions are enabled, prefer the captioned version of the video
+        const finalVideoUrl2 = (input.captionsEnabled && captionVideoUrl2) ? captionVideoUrl2 : heygenVideoUrl2;
         // Download and re-host on S3
-        const videoRes = await fetch(heygenVideoUrl);
+        const videoRes = await fetch(finalVideoUrl2);
         if (!videoRes.ok) throw new Error("Failed to download HeyGen video");
         const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
         const s3Key = `full-avatar-videos/${ctx.user.id}/${videoId}-custom-${Date.now()}.mp4`;
         const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
-
         await db
           .update(fullAvatarVideos)
           .set({ videoUrl: s3Url, s3Key, status: "completed" })
           .where(eq(fullAvatarVideos.id, videoId));
-
         return { videoId, videoUrl: s3Url, duration, expiresAt: expiresAt.toISOString() };
       } catch (err) {
         await db

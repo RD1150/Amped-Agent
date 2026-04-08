@@ -4268,3 +4268,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update remaining 'Premium' badge labels to 'Agency' across pages (Dashboard, FullAvatarVideo, CinematicWalkthrough, LeadMagnet, RepurposeEngine, VideoComparison, NewsletterBuilder, PerformanceCoach, FAQ, Home, Onboarding, UsageCounter)
 - [x] Video Script Builder - two-column scene editor (spoken script + visual direction per scene, AI generate from brief, AI visual prompts, save/load/delete scripts, copy to clipboard, CTA to Full Avatar Video)
 - [x] Full Avatar Video: add separate Visual Prompt/Caption field alongside the Script field (like Mirage captions)
+- [ ] Dashboard: add Authority Profile summary strip at top (headshot, name, tagline, completion score, link to Authority Profile)
+- [ ] Video Script Builder: pre-seed with AmpedAgent intro script as default template for new users
+- [x] Full Avatar Video: wire visualPrompt field into the video generation API call
+- [x] Full Avatar Video: add optional Captions toggle (CC) so agents can choose whether to burn in styled subtitles

@@ -44,6 +44,7 @@ export interface HeyGenVideoStatus {
   video_id: string;
   status: "pending" | "processing" | "completed" | "failed";
   video_url?: string;
+  video_url_caption?: string; // URL for video with burned-in CC captions (when caption=true)
   thumbnail_url?: string;
   duration?: number;
   error?: string;
@@ -165,6 +166,7 @@ export async function generateStockAvatarVideo(opts: {
   voiceId?: string;
   title?: string;
   landscape?: boolean;
+  caption?: boolean; // When true, HeyGen burns styled CC subtitles into the video
 }): Promise<string> {
   const {
     avatarId,
@@ -172,6 +174,7 @@ export async function generateStockAvatarVideo(opts: {
     voiceId = "1bd001e7e50f421d891986aad5158bc8",
     title,
     landscape = false,
+    caption = false,
   } = opts;
 
   const res = await fetch(`${HEYGEN_API}/v2/video/generate`, {
@@ -198,6 +201,7 @@ export async function generateStockAvatarVideo(opts: {
       ],
       title: title || "Avatar Video",
       dimension: landscape ? { width: 1280, height: 720 } : { width: 720, height: 1280 },
+      ...(caption ? { caption: true } : {}),
     }),
   });
 
@@ -366,44 +370,46 @@ export async function getVideoStatus(videoId: string): Promise<HeyGenVideoStatus
       video_id: string;
       status: string;
       video_url?: string;
+      video_url_caption?: string;
       thumbnail_url?: string;
       duration?: number;
       error?: string;
     };
   };
-
   const d = data.data;
   const status: HeyGenVideoStatus["status"] =
     d.status === "completed" ? "completed"
     : d.status === "failed" ? "failed"
     : d.status === "processing" ? "processing"
     : "pending";
-
   return {
     video_id: d.video_id,
     status,
     video_url: d.video_url,
+    video_url_caption: d.video_url_caption,
     thumbnail_url: d.thumbnail_url,
     duration: d.duration,
     error: d.error,
   };
 }
-
 /**
- * Poll until a HeyGen video is completed or failed.
+ * Poll until a HeyGen video is completed or failed..
  * Resolves with the final video URL.
  */
 export async function waitForHeyGenVideo(
   videoId: string,
   timeoutMs = 600_000,
   intervalMs = 5_000
-): Promise<string> {
+): Promise<{ videoUrl: string; captionVideoUrl?: string }> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     await new Promise((r) => setTimeout(r, intervalMs));
     const status = await getVideoStatus(videoId);
     if (status.status === "completed" && status.video_url) {
-      return status.video_url;
+      return {
+        videoUrl: status.video_url,
+        captionVideoUrl: status.video_url_caption,
+      };
     }
     if (status.status === "failed") {
       throw new Error(`HeyGen video generation failed: ${status.error || "Unknown error"}`);

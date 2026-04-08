@@ -30,6 +30,8 @@ import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 import UsageCounter from "@/components/UsageCounter";
 import VideoPreviewGallery from "@/components/VideoPreviewGallery";
 import AuthorityScore from "@/components/AuthorityScore";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -128,6 +130,66 @@ export default function Dashboard() {
           </Button>
         </div>
       </div>
+
+      {/* Authority Profile Summary Strip */}
+      {!personaLoading && (
+        <Card
+          className="p-4 cursor-pointer hover:border-primary/50 transition-colors border"
+          onClick={() => setLocation("/authority-profile")}
+        >
+          <div className="flex items-center gap-4">
+            {/* Headshot */}
+            <div className="flex-shrink-0">
+              {persona?.headshotUrl ? (
+                <img
+                  src={persona.headshotUrl}
+                  alt={persona.agentName || "Agent"}
+                  className="w-14 h-14 rounded-full object-cover border-2 border-primary/30"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-primary/10 border-2 border-dashed border-primary/30 flex items-center justify-center">
+                  <UserCircle className="h-7 w-7 text-primary/50" />
+                </div>
+              )}
+            </div>
+            {/* Name + Tagline + Completion */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-base">
+                  {persona?.agentName || user?.name || "Complete your Authority Profile"}
+                </span>
+                {persona?.brokerageName && (
+                  <span className="text-xs text-muted-foreground">&middot; {persona.brokerageName}</span>
+                )}
+                {persona?.primaryCity && (
+                  <Badge variant="outline" className="text-xs">{persona.primaryCity}</Badge>
+                )}
+              </div>
+              {persona?.tagline ? (
+                <p className="text-sm text-muted-foreground truncate mt-0.5 italic">&ldquo;{persona.tagline}&rdquo;</p>
+              ) : (
+                <p className="text-sm text-primary/70 mt-0.5">Add your tagline &rarr;</p>
+              )}
+              {(() => {
+                const fields = [persona?.agentName, persona?.headshotUrl, persona?.tagline, persona?.bio, persona?.brokerageName, persona?.primaryCity];
+                const filled = fields.filter(Boolean).length;
+                const pct = Math.round((filled / fields.length) * 100);
+                return (
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <Progress value={pct} className="h-1.5 flex-1 max-w-[140px]" />
+                    <span className="text-xs text-muted-foreground">{pct}% profile complete</span>
+                  </div>
+                );
+              })()}
+            </div>
+            {/* CTA arrow */}
+            <div className="flex-shrink-0 flex items-center gap-1 text-xs text-primary font-medium">
+              <span className="hidden sm:inline">Edit Profile</span>
+              <ChevronRight className="h-4 w-4" />
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Usage Counter */}
       <UsageCounter />

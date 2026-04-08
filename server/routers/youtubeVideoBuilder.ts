@@ -323,7 +323,7 @@ Return JSON with:
             .set({ didTalkId: heygenVideoId })
             .where(eq(fullAvatarVideos.id, videoId));
 
-          const heygenVideoUrl = await waitForHeyGenVideo(heygenVideoId, 30 * 60 * 1000, 10_000);
+          const { videoUrl: heygenVideoUrl } = await waitForHeyGenVideo(heygenVideoId, 30 * 60 * 1000, 10_000);
 
           // Download and re-host on S3
           const videoRes = await fetch(heygenVideoUrl);

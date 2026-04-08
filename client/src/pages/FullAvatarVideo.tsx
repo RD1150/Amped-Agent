@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   Loader2, Video, Sparkles, Download, Upload, User, Trash2,
   CheckCircle2, Clock, AlertCircle, Zap, Crown, RefreshCw, Play, Wand2,
@@ -57,6 +58,7 @@ export default function FullAvatarVideo() {
   // ── Script ────────────────────────────────────────────────────────────────
   const [script, setScript] = useState("");
   const [visualPrompt, setVisualPrompt] = useState("");
+  const [captionsEnabled, setCaptionsEnabled] = useState(false);
   const [title, setTitle] = useState("");
   const [voiceId, setVoiceId] = useState("");
   const [voiceGenderFilter, setVoiceGenderFilter] = useState<"all" | "male" | "female">("all");
@@ -258,6 +260,8 @@ export default function FullAvatarVideo() {
           script: script.trim(),
           voiceId,
           title: title.trim() || undefined,
+          captionsEnabled,
+          visualPrompt: visualPrompt.trim() || undefined,
         });
       } else if (mode === "quick") {
         setGenerationStep("Generating your avatar video with HeyGen…");
@@ -267,6 +271,8 @@ export default function FullAvatarVideo() {
           avatarPreviewUrl: selectedAvatarPreviewUrl || undefined,
           voiceId,
           title: title.trim() || undefined,
+          captionsEnabled,
+          visualPrompt: visualPrompt.trim() || undefined,
         });
       } else {
         setGenerationStep("Generating with your custom digital twin…");
@@ -274,6 +280,8 @@ export default function FullAvatarVideo() {
           script: script.trim(),
           voiceId,
           title: title.trim() || undefined,
+          captionsEnabled,
+          visualPrompt: visualPrompt.trim() || undefined,
         });
       }
 
@@ -921,6 +929,22 @@ export default function FullAvatarVideo() {
               Optional — use this to guide your video editor or AI video tool on what visuals to pair with each line.
             </p>
           </div>
+        </div>
+
+        {/* Captions toggle */}
+        <div className="flex items-center justify-between rounded-lg border p-3 bg-muted/30">
+          <div className="space-y-0.5">
+            <Label className="text-sm font-medium flex items-center gap-2">
+              🎬 Add Closed Captions (CC)
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Burn styled subtitles into the video — bold, centred, Reels/TikTok style. Viewers can follow along without sound.
+            </p>
+          </div>
+          <Switch
+            checked={captionsEnabled}
+            onCheckedChange={setCaptionsEnabled}
+          />
         </div>
 
         {/* Voice selector — live from HeyGen */}
