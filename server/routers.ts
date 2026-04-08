@@ -39,6 +39,7 @@ import { ghlRouter } from "./routers/ghl";
 import { fullAvatarVideoRouter } from "./routers/fullAvatarVideo";
 import { liveTourRouter } from "./routers/liveTour";
 import { videoScriptBuilderRouter } from "./routers/videoScriptBuilder";
+import { generationFeedbackRouter } from "./routers/generationFeedback";
 
 export const appRouter = router({
   system: systemRouter,
@@ -64,6 +65,7 @@ export const appRouter = router({
   fullAvatarVideo: fullAvatarVideoRouter,
   liveTour: liveTourRouter,
   videoScriptBuilder: videoScriptBuilderRouter,
+  generationFeedback: generationFeedbackRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

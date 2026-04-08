@@ -4317,3 +4317,17 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Remove vendor names from server-side error messages in autoreels.ts
 - [x] Remove vendor names from server-side error messages in fullAvatarVideo.ts
 - [x] Remove vendor names from server-side error messages in cinematicWalkthrough.ts (Runway, Creatomate, ElevenLabs)
+
+## Three Pending Tasks (Apr 8)
+- [x] Upload Captions-style background images to CDN and update background picker labels
+- [x] Add headshot guidance card to Photo Avatar setup in FullAvatarVideo.tsx
+- [x] Create Terms of Service page and add to navigation/footer
+
+## Internal Generation Quality Rating System
+- [x] Add generation_feedback table to DB schema (id, userId, toolType, rating 1-5, note optional, createdAt)
+- [x] Add submitRating tRPC mutation (protected, logged-in users)
+- [x] Add ownerStats and ownerRecent tRPC queries (admin only) with aggregation by tool
+- [x] Build GenerationRatingPrompt reusable component (star picker, note field, dismiss)
+- [x] Add rating prompt to Full Avatar Video after generation completes
+- [x] Build Generation Quality admin dashboard at /admin/generation-quality
+- [x] Add Generation Quality link to admin sidebar section

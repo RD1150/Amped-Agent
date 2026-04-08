@@ -4,9 +4,7 @@ export default function TermsOfService() {
       <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
       
       <div className="prose prose-slate max-w-none space-y-6">
-        <p className="text-muted-foreground">
-          Last Updated: February 19, 2026
-        </p>
+        <p className="text-muted-foreground">Last Updated: April 8, 2026</p>
 
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">1. Acceptance of Terms</h2>
@@ -145,29 +143,44 @@ export default function TermsOfService() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">10. Changes to Terms</h2>
-          <p>
-            We reserve the right to modify these Terms of Service at any time. We will notify users of material changes via email or through the Service. Your continued use of the Service after such modifications constitutes acceptance of the updated terms.
-          </p>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">10. Subscription Plans and Billing</h2>
+
+          <h3 className="text-xl font-semibold mt-6 mb-3">10.1 Paid Plans</h3>
+          <p>AmpedAgent offers subscription-based plans with varying features and usage limits. Subscription fees are billed in advance on a monthly or annual basis depending on your selected plan.</p>
+
+          <h3 className="text-xl font-semibold mt-6 mb-3">10.2 Free Trial</h3>
+          <p>We may offer a free trial period for new users. At the end of the trial, your account will automatically convert to a paid plan unless you cancel before the trial ends.</p>
+
+          <h3 className="text-xl font-semibold mt-6 mb-3">10.3 Cancellation and Refunds</h3>
+          <p>You may cancel your subscription at any time. Cancellation takes effect at the end of the current billing period. We do not provide refunds for partial billing periods, except where required by applicable law.</p>
+
+          <h3 className="text-xl font-semibold mt-6 mb-3">10.4 Price Changes</h3>
+          <p>We reserve the right to change subscription prices with at least 30 days' notice. Continued use of the Service after a price change constitutes your acceptance of the new pricing.</p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">11. Governing Law</h2>
-          <p>
-            These Terms of Service shall be governed by and construed in accordance with the laws of the United States, without regard to its conflict of law provisions.
-          </p>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">11. AI Avatar and Likeness Rights</h2>
+          <p>When you upload a photo or video of yourself to create an AI avatar, you grant AmpedAgent the right to process that media solely for generating your personal avatar. We do not use your likeness to train AI models or share your avatar with other users. You are responsible for ensuring you have the right to use any photos or videos you upload.</p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">12. Contact Information</h2>
-          <p>
-            For questions about these Terms of Service, please contact us at:
-          </p>
-          <p className="mt-2">
-            <strong>AmpedAgent</strong><br />
-            Email: support@authoritycontent.co<br />
-            Website: https://authoritycontent.co
-          </p>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">12. Changes to Terms</h2>
+          <p>We reserve the right to modify these Terms of Service at any time. We will notify users of material changes via email or through the Service. Your continued use of the Service after such modifications constitutes acceptance of the updated terms.</p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">13. Governing Law and Dispute Resolution</h2>
+          <p>These Terms are governed by the laws of the State of Texas, without regard to conflict of law principles. Any disputes arising under these Terms shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association, except that either party may seek injunctive relief in a court of competent jurisdiction.</p>
+          <p className="mt-3">You waive any right to participate in a class action lawsuit or class-wide arbitration.</p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">14. Contact Information</h2>
+          <p>For questions about these Terms of Service, please contact us at:</p>
+          <ul className="list-disc pl-6 space-y-2 mt-2">
+            <li><strong>Email:</strong> support@ampedagent.com</li>
+            <li><strong>Website:</strong> AmpedAgent.com</li>
+          </ul>
         </section>
 
         <section className="mt-12 p-6 bg-muted border border-primary/20 rounded-lg">

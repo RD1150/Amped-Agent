@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { VideoPostingDialog } from "@/components/VideoPostingDialog";
+import { GenerationRatingPrompt } from "@/components/GenerationRatingPrompt";
 import { trpc } from "@/lib/trpc";
 
 // Voice options are loaded live from the AI engine
@@ -84,6 +85,8 @@ export default function FullAvatarVideo() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStep, setGenerationStep] = useState("");
   const [resultVideoUrl, setResultVideoUrl] = useState("");
+  const [showRatingPrompt, setShowRatingPrompt] = useState(false);
+  const [ratedVideoId, setRatedVideoId] = useState<number | undefined>(undefined);
   const [showVideoShare, setShowVideoShare] = useState(false);
   const [resultDuration, setResultDuration] = useState(0);
 
@@ -293,6 +296,7 @@ export default function FullAvatarVideo() {
 
       setResultVideoUrl(result.videoUrl);
       setResultDuration(result.duration);
+      setShowRatingPrompt(true);
       toast.success("Your avatar video is ready!");
       refetchVideos();
     } catch (err: any) {
@@ -639,9 +643,13 @@ export default function FullAvatarVideo() {
                 <p className="text-xs font-medium text-primary dark:text-primary/80 mb-2">Photo Requirements for Best Results:</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
                   <div><span className="font-medium text-foreground">Format:</span> JPG, PNG, or WEBP — under 10MB</div>
-                  <div><span className="font-medium text-foreground">Framing:</span> Head &amp; shoulders, face centred</div>
-                  <div><span className="font-medium text-foreground">Expression:</span> Neutral or slight smile</div>
+                  <div><span className="font-medium text-foreground">Framing:</span> Head &amp; shoulders, face centred with plenty of space above</div>
+                  <div><span className="font-medium text-foreground">Expression:</span> Relaxed jaw, <span className="font-semibold text-primary">slightly open mouth</span> (not smiling)</div>
                   <div><span className="font-medium text-foreground">Lighting:</span> Even, no harsh shadows</div>
+                </div>
+                <div className="mt-2 flex items-start gap-1.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md p-2">
+                  <span className="text-amber-500 text-sm mt-0.5">⚠️</span>
+                  <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed"><span className="font-semibold">Key tip for natural-looking video:</span> Use a photo where your mouth is <span className="font-semibold">slightly open and relaxed</span> — not smiling, not closed tight. This gives the AI the best starting point for realistic lip animation. A closed-mouth photo can cause the mouth to look oversized when animated.</p>
                 </div>
               </div>
 
@@ -674,8 +682,8 @@ export default function FullAvatarVideo() {
                         <p className="text-muted-foreground leading-relaxed">Head and shoulders in frame, face centred. Camera at eye level — not looking up from a desk or down from a shelf.</p>
                       </div>
                       <div className="space-y-1">
-                        <p className="font-semibold text-foreground flex items-center gap-1">😊 Expression</p>
-                        <p className="text-muted-foreground leading-relaxed">Neutral or slight smile, eyes open and looking directly at the camera. Relaxed jaw. Avoid squinting or over-posing.</p>
+                        <p className="font-semibold text-foreground flex items-center gap-1">😊 Expression &amp; Mouth</p>
+                        <p className="text-muted-foreground leading-relaxed">Relaxed jaw with your mouth <span className="font-semibold text-foreground">slightly open</span> — not smiling, not clenched. Eyes open, looking at the camera. This is the single biggest factor for natural-looking lip animation. A tightly closed mouth causes the AI to over-animate and can make the mouth look exaggerated.</p>
                       </div>
                       <div className="space-y-1">
                         <p className="font-semibold text-foreground flex items-center gap-1">🖼️ Photo quality</p>
@@ -883,14 +891,14 @@ export default function FullAvatarVideo() {
         <div className="grid grid-cols-5 gap-2">
           {([
             { id: null, label: "None" },
-            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-podcast-studio-favFjkuJRqPSNYpQJhEauy.png", label: "Podcast", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-podcast-studio-YF6usR7mt7nMoWT3GGkbpG.webp" },
-            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-luxury-office-NjMH8V6WnH2zvrV6XTvzmP.png", label: "Luxury Office", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-luxury-office-HrKgPH8H8rEr7ua7oLbpvX.webp" },
-            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-modern-office-SvbeGvDV9QG5B332CvNHzn.png", label: "Modern Office", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-modern-office-TckALB3z2LTKuT8qsQ5hKF.webp" },
-            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-cafe-kgEWhLtfw8VZpgmhVBJKWh.png", label: "Café", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-cafe-9RoYucwz5NYGUwtzaYAR4G.webp" },
-            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-library-7G3D5AzqHGWfFADUTfgjk4.png", label: "Library", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-library-YU5hKzGMBMVoohpT63ApNu.webp" },
-            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-city-view-XZiCwJTRcgFU34TH43ZJ6h.png", label: "City View", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-city-view-HXaQzw35s5yAhttj9qEd3h.webp" },
-            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-luxury-living-evNGDjK9DPM63HdMi9SJhH.png", label: "Luxury Living", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-luxury-living-GmgDFqNoG2mwWd8ebhbceD.webp" },
-            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-outdoor-terrace-MHTNj6r55JARu8VRJhsrWC.png", label: "Terrace", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-outdoor-terrace-YUmsjEr5yTHfdLpjBf9DyJ.webp" },
+            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/jYfgdUExrEcbDAis.jpg", label: "Podcast Studio", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/jYfgdUExrEcbDAis.jpg" },
+            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/qKjEeuuLaWkzAxNe.jpg", label: "News Desk", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/qKjEeuuLaWkzAxNe.jpg" },
+            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/MgWGSwAwyfSFefaS.jpg", label: "Home Office", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/MgWGSwAwyfSFefaS.jpg" },
+            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/zDZBrCkDfXNXbDWe.jpg", label: "Luxury Lounge", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/zDZBrCkDfXNXbDWe.jpg" },
+            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/hHUSgwiKTppasmAr.jpg", label: "Outdoor Terrace", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/hHUSgwiKTppasmAr.jpg" },
+            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/mFqorDBHYTlbITEk.jpg", label: "Modern Office", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/mFqorDBHYTlbITEk.jpg" },
+            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/eTbIKQMscznjExYf.jpg", label: "Café", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/eTbIKQMscznjExYf.jpg" },
+            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/NgjqXKaYOnCvGxxC.jpg", label: "Real Estate Office", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/NgjqXKaYOnCvGxxC.jpg" },
           ] as { id: string | null; label: string; thumb?: string }[]).map((bg) => (
             <button
               key={bg.id ?? "none"}
@@ -1126,6 +1134,14 @@ export default function FullAvatarVideo() {
             className="w-full rounded-xl border border-border"
             style={{ maxHeight: "480px" }}
           />
+          {showRatingPrompt && (
+            <GenerationRatingPrompt
+              toolType="full_avatar_video"
+              referenceId={ratedVideoId}
+              referenceTable="full_avatar_videos"
+              onDismiss={() => setShowRatingPrompt(false)}
+            />
+          )}
           <div className="flex gap-3 flex-wrap">
             <Button
               onClick={() => handleDownload(resultVideoUrl, title)}

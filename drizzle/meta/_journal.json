@@ -540,6 +540,13 @@
       "when": 1775622122292,
       "tag": "0076_glorious_hannibal_king",
       "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "5",
+      "when": 1775682486604,
+      "tag": "0077_redundant_pretty_boy",
+      "breakpoints": true
     }
   ]
 }

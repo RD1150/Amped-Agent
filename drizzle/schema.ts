@@ -993,3 +993,31 @@ export const videoScripts = mysqlTable("video_scripts", {
 });
 export type VideoScript = typeof videoScripts.$inferSelect;
 export type InsertVideoScript = typeof videoScripts.$inferInsert;
+
+// ─── Generation Quality Feedback (internal only, never shown to end users) ────
+export const generationFeedback = mysqlTable("generation_feedback", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  toolType: mysqlEnum("toolType", [
+    "full_avatar_video",
+    "ai_reels",
+    "property_tour",
+    "post_builder",
+    "blog_builder",
+    "youtube_builder",
+    "newsletter",
+    "lead_magnet",
+    "market_insights",
+    "expert_hooks",
+    "listing_presentation",
+    "other"
+  ]).notNull(),
+  referenceId: int("referenceId"),
+  referenceTable: varchar("referenceTable", { length: 100 }),
+  rating: int("rating").notNull(), // 1-5
+  note: text("note"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type GenerationFeedback = typeof generationFeedback.$inferSelect;
+export type InsertGenerationFeedback = typeof generationFeedback.$inferInsert;
+

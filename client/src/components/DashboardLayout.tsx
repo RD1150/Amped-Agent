@@ -64,6 +64,7 @@ import {
   Images,
   Presentation,
   Clapperboard,
+  Star,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -438,6 +439,12 @@ const menuSections = [
         label: "Users",
         path: "/admin/users",
         description: "Registered users",
+      },
+      {
+        icon: Star,
+        label: "Generation Quality",
+        path: "/admin/generation-quality",
+        description: "Agent ratings by tool",
       },
     ],
   },
