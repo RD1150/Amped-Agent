@@ -417,7 +417,7 @@ export default function LeadMagnet() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold text-foreground">Lead Magnet Generator</h1>
-            <Badge className="bg-primary/15 text-primary border-primary/20 text-xs">Premium</Badge>
+            <Badge className="bg-primary/15 text-primary border-primary/20 text-xs">Agency</Badge>
           </div>
           <p className="text-muted-foreground text-sm">
             Generate branded PDF lead magnets for Facebook Lead Ads, email opt-ins, and open house follow-ups.

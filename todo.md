@@ -4263,3 +4263,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix Agency tier showing "Upgrade required" for Full Avatar Videos on dashboard
 - [x] Update "Premium" sidebar badges to "Agency"
 - [x] Remove black gap between sidebar logo and top navbar; make search bar white
+- [x] Fix Expert Hooks 404 - route not found (wrong /ai-generate path → fixed to /generate)
+- [ ] Add Authority Profile summary strip to top of Dashboard
+- [x] Update remaining 'Premium' badge labels to 'Agency' across pages (Dashboard, FullAvatarVideo, CinematicWalkthrough, LeadMagnet, RepurposeEngine, VideoComparison, NewsletterBuilder, PerformanceCoach, FAQ, Home, Onboarding, UsageCounter)

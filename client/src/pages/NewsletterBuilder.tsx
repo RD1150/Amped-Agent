@@ -35,9 +35,9 @@ export default function NewsletterBuilder() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
               <Crown className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle className="text-2xl">Premium Feature</CardTitle>
+            <CardTitle className="text-2xl">Agency Feature</CardTitle>
             <CardDescription>
-              Newsletter Builder is available exclusively on the Premium plan
+              Newsletter Builder is available exclusively on the Agency plan
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -119,7 +119,7 @@ export default function NewsletterBuilder() {
           <Alert>
             <Crown className="h-4 w-4" />
             <AlertDescription>
-              You have Premium access! Newsletter Builder will open in a new tab with automatic authentication.
+              You have Agency access! Newsletter Builder will open in a new tab with automatic authentication.
             </AlertDescription>
           </Alert>
 

@@ -124,7 +124,7 @@ export default function UsageCounter() {
           {!isPremiumOrPro && (
             <div className="pl-10">
               <p className="text-xs text-muted-foreground">
-                Unlock AI talking-head videos with a Premium plan
+                Unlock AI talking-head videos with an Agency plan
               </p>
             </div>
           )}

@@ -115,7 +115,7 @@ export default function VideoComparison() {
         {/* AI Property Film */}
         <Card className="p-6 border-2 border-primary/30 hover:border-primary/70 transition-colors relative">
           <Badge className="absolute top-4 right-4 bg-primary/10 text-primary border-primary/20">
-            Premium
+            Agency
           </Badge>
 
           <div className="flex items-center gap-3 mb-4">

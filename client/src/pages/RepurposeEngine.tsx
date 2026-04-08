@@ -429,7 +429,7 @@ export default function RepurposeEngine() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold text-foreground">Repurpose Engine</h1>
-            <Badge className="bg-primary/15 text-primary border-primary/20 text-xs">Premium</Badge>
+            <Badge className="bg-primary/15 text-primary border-primary/20 text-xs">Agency</Badge>
           </div>
           <p className="text-muted-foreground text-sm">
             Write once. Each platform gets content written in its own native style — not a copy-paste.

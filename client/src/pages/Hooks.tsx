@@ -113,7 +113,7 @@ export default function Hooks() {
 
   const handleUseHook = (hook: Hook) => {
     const text = getEffectiveHookText(hook);
-    setLocation(`/ai-generate?hook=${encodeURIComponent(text)}`);
+    setLocation(`/generate?hook=${encodeURIComponent(text)}`);
   };
 
   const handleCopyHook = (hook: Hook) => {

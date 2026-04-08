@@ -610,7 +610,7 @@ export default function Onboarding() {
                 <p>✓ Create scroll-stopping vertical videos</p>
                 <p>✓ Build professional property tours</p>
                 <p>✓ Schedule content across all platforms</p>
-                <p>✓ Access Premium features (Newsletter Builder)</p>
+                <p>✓ Access Agency features (Newsletter Builder)</p>
               </div>
             </div>
 

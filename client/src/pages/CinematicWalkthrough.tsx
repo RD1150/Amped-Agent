@@ -650,7 +650,7 @@ export default function CinematicWalkthrough() {
               AI-generated camera movement per room — dolly, crane, drone, orbit
             </p>
           </div>
-          <Badge className="ml-auto bg-primary/10 text-primary border-primary/20 text-xs">Premium</Badge>
+          <Badge className="ml-auto bg-primary/10 text-primary border-primary/20 text-xs">Agency</Badge>
         </div>
         <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm text-muted-foreground">
           <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />

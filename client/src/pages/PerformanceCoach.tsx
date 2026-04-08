@@ -180,7 +180,7 @@ export default function PerformanceCoach() {
             <div className="flex items-center gap-2 mb-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/30">
                 <Award className="h-3.5 w-3.5" />
-                Premium Feature
+                Agency Feature
               </span>
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">

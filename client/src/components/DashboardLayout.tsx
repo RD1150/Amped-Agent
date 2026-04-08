@@ -114,6 +114,12 @@ const menuSections = [
     title: "HOME",
     items: [
       {
+        icon: User,
+        label: "Authority Profile",
+        path: "/authority-profile",
+        description: "Your branding, bio, headshot — start here",
+      },
+      {
         icon: Home,
         label: "Dashboard",
         path: "/dashboard",
@@ -380,12 +386,6 @@ const menuSections = [
   {
     title: "ACCOUNT",
     items: [
-      {
-        icon: User,
-        label: "Authority Profile",
-        path: "/authority-profile",
-        description: "Your branding, bio, headshot",
-      },
       {
         icon: CreditCard,
         label: "Credits",
