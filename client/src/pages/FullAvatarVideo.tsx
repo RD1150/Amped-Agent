@@ -67,6 +67,7 @@ export default function FullAvatarVideo() {
   const bgUploadRef = useRef<HTMLInputElement>(null);
   const [musicUrl, setMusicUrl] = useState<string | null>(null);
   const [musicFileName, setMusicFileName] = useState<string | null>(null);
+  const [bgmVolume, setBgmVolume] = useState(12); // percent 5-25
   const [isUploadingMusic, setIsUploadingMusic] = useState(false);
   const musicUploadRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
@@ -293,6 +294,7 @@ export default function FullAvatarVideo() {
           visualPrompt: visualPrompt.trim() || undefined,
           backgroundUrl: selectedBackground || undefined,
           musicUrl: musicUrl || undefined,
+          bgmVolume: musicUrl ? bgmVolume : undefined,
         });
       } else if (mode === "quick") {
         setGenerationStep("Generating your avatar video…");
@@ -306,6 +308,7 @@ export default function FullAvatarVideo() {
           visualPrompt: visualPrompt.trim() || undefined,
           backgroundUrl: selectedBackground || undefined,
           musicUrl: musicUrl || undefined,
+          bgmVolume: musicUrl ? bgmVolume : undefined,
         });
       } else {
         setGenerationStep("Generating with your custom digital twin…");
@@ -317,6 +320,7 @@ export default function FullAvatarVideo() {
           visualPrompt: visualPrompt.trim() || undefined,
           backgroundUrl: selectedBackground || undefined,
           musicUrl: musicUrl || undefined,
+          bgmVolume: musicUrl ? bgmVolume : undefined,
         });
       }
 
@@ -981,15 +985,15 @@ export default function FullAvatarVideo() {
         <div className="grid grid-cols-5 gap-2">
           {([
             { id: null, label: "None" },
-            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/jYfgdUExrEcbDAis.jpg", label: "Podcast Studio", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/jYfgdUExrEcbDAis.jpg" },
+            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/jYfgdUExrEcbDAis.jpg", label: "Podcast Studio", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/jYfgdUExrEcbDAis.jpg", recommended: true },
             { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/qKjEeuuLaWkzAxNe.jpg", label: "News Desk", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/qKjEeuuLaWkzAxNe.jpg" },
             { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/MgWGSwAwyfSFefaS.jpg", label: "Home Office", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/MgWGSwAwyfSFefaS.jpg" },
             { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/zDZBrCkDfXNXbDWe.jpg", label: "Luxury Lounge", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/zDZBrCkDfXNXbDWe.jpg" },
             { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/hHUSgwiKTppasmAr.jpg", label: "Outdoor Terrace", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/hHUSgwiKTppasmAr.jpg" },
             { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/mFqorDBHYTlbITEk.jpg", label: "Modern Office", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/mFqorDBHYTlbITEk.jpg" },
             { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/eTbIKQMscznjExYf.jpg", label: "Café", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/eTbIKQMscznjExYf.jpg" },
-            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/NgjqXKaYOnCvGxxC.jpg", label: "Real Estate Office", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/NgjqXKaYOnCvGxxC.jpg" },
-          ] as { id: string | null; label: string; thumb?: string }[]).map((bg) => (
+            { id: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/NgjqXKaYOnCvGxxC.jpg", label: "Real Estate Office", thumb: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/NgjqXKaYOnCvGxxC.jpg", recommended: true },
+          ] as { id: string | null; label: string; thumb?: string; recommended?: boolean }[]).map((bg) => (
             <button
               key={bg.id ?? "none"}
               type="button"
@@ -1011,6 +1015,11 @@ export default function FullAvatarVideo() {
               <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-1 py-0.5">
                 <p className="text-[9px] text-white font-medium text-center leading-tight truncate">{bg.label}</p>
               </div>
+              {(bg as any).recommended && selectedBackground !== bg.id && (
+                <div className="absolute top-1 left-1 bg-amber-500 rounded-sm px-1 py-0.5">
+                  <span className="text-[8px] text-white font-bold leading-none">★ Best</span>
+                </div>
+              )}
               {selectedBackground === bg.id && (
                 <div className="absolute top-1 right-1 bg-primary rounded-full w-4 h-4 flex items-center justify-center">
                   <span className="text-[9px] text-white font-bold">✓</span>
@@ -1218,6 +1227,23 @@ export default function FullAvatarVideo() {
             }}
           />
         </div>
+
+        {/* BGM volume slider — only shown when music is loaded */}
+        {musicUrl && (
+          <div className="flex items-center gap-3 px-3 py-2 rounded-lg border bg-muted/20">
+            <span className="text-xs text-muted-foreground shrink-0">🔉 Volume</span>
+            <input
+              type="range"
+              min={5}
+              max={25}
+              step={1}
+              value={bgmVolume}
+              onChange={(e) => setBgmVolume(Number(e.target.value))}
+              className="flex-1 accent-primary h-1.5 cursor-pointer"
+            />
+            <span className="text-xs font-medium text-primary w-8 text-right shrink-0">{bgmVolume}%</span>
+          </div>
+        )}
 
         {/* Voice selector */}
         <div className="space-y-2">

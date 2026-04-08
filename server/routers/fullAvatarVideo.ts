@@ -181,6 +181,7 @@ Requirements:
         visualPrompt: z.string().max(2000).optional(), // Visual direction / B-roll notes (stored for reference)
         backgroundUrl: z.string().url().optional(), // Background scene image URL
         musicUrl: z.string().url().optional(), // Custom BGM track URL (S3)
+        bgmVolume: z.number().min(5).max(25).optional(), // BGM volume percent (default 12)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -250,7 +251,8 @@ Requirements:
             const musicRes = await fetch(input.musicUrl);
             if (musicRes.ok) {
               const musicBuffer = Buffer.from(await musicRes.arrayBuffer());
-              videoBuffer = await mixBgmIntoVideo(videoBuffer, musicBuffer, 0.12);
+              const vol = (input.bgmVolume ?? 12) / 100;
+              videoBuffer = await mixBgmIntoVideo(videoBuffer, musicBuffer, vol);
             }
           } catch (mixErr) {
             // BGM mixing is best-effort — don't fail the whole generation
@@ -482,6 +484,7 @@ Requirements:
         visualPrompt: z.string().max(2000).optional(), // Visual direction / B-roll notes (stored for reference)
         backgroundUrl: z.string().url().optional(), // Background scene image URL
         musicUrl: z.string().url().optional(), // Custom BGM track URL (S3)
+        bgmVolume: z.number().min(5).max(25).optional(), // BGM volume percent (default 12)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -566,7 +569,8 @@ Requirements:
             const musicRes = await fetch(input.musicUrl);
             if (musicRes.ok) {
               const musicBuffer = Buffer.from(await musicRes.arrayBuffer());
-              videoBuffer = await mixBgmIntoVideo(videoBuffer, musicBuffer, 0.12);
+              const vol = (input.bgmVolume ?? 12) / 100;
+              videoBuffer = await mixBgmIntoVideo(videoBuffer, musicBuffer, vol);
             }
           } catch (mixErr) {
             console.warn("BGM mixing failed, using video without music:", mixErr);
