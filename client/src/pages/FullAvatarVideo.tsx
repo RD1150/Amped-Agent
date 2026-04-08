@@ -97,6 +97,7 @@ export default function FullAvatarVideo() {
 
   // ── tRPC ──────────────────────────────────────────────────────────────────
   const { data: currentUser } = trpc.auth.me.useQuery();
+  const { data: personaData } = trpc.persona.get.useQuery();
   const { data: twinStatus, refetch: refetchTwin } = trpc.fullAvatarVideo.getCustomAvatarStatus.useQuery(undefined, {
     refetchInterval: (query) => (query.state.data?.status === "training" ? 8000 : false),
   });
@@ -154,7 +155,7 @@ export default function FullAvatarVideo() {
     id: "__photo_avatar__",
     name: "Your Photo Avatar",
     gender: "female" as const,
-    previewImageUrl: twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl || "",
+    previewImageUrl: personaData?.headshotUrl || twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl || "",
     isPhotoAvatar: true,
   } : null;
 
