@@ -103,6 +103,7 @@ export default function FullAvatarVideo() {
   const [trainingPhotoPreview, setTrainingPhotoPreview] = useState("");
   const [isUploadingTraining, setIsUploadingTraining] = useState(false);
   const [isTraining, setIsTraining] = useState(false);
+  const [isReplacingPhoto, setIsReplacingPhoto] = useState(false); // true when user wants to swap their headshot
 
   const trainingPhotoRef = useRef<HTMLInputElement>(null);
   const scriptSectionRef = useRef<HTMLDivElement>(null);
@@ -230,6 +231,7 @@ export default function FullAvatarVideo() {
       setIsTraining(true);
       await trainMutation.mutateAsync({ photoUrl });
       toast.success("Your Photo Avatar is being created! It will be ready in a few minutes.");
+      setIsReplacingPhoto(false);
       refetchTwin();
     } catch (err: any) {
       toast.error(err.message || "Photo Avatar creation failed. Please try again.");
@@ -607,7 +609,7 @@ export default function FullAvatarVideo() {
             )}
           </div>
 
-          {twinStatus?.status === "ready" ? (
+          {twinStatus?.status === "ready" && !isReplacingPhoto ? (
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
               <div className="flex items-center gap-3 flex-1">
                 {twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl ? (
@@ -625,7 +627,7 @@ export default function FullAvatarVideo() {
                     Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.{" "}
                     <button
                       className="underline text-primary hover:text-primary transition-colors"
-                      onClick={() => trainingPhotoRef.current?.click()}
+                      onClick={() => { setIsReplacingPhoto(true); setTrainingPhotoFile(null); setTrainingPhotoPreview(""); }}
                     >
                       Replace photo
                     </button>
@@ -641,7 +643,7 @@ export default function FullAvatarVideo() {
                 Generate with My Avatar
               </Button>
             </div>
-          ) : (
+          ) : (isReplacingPhoto || twinStatus?.status !== "ready") ? (
             <div className="space-y-3">
               <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 space-y-1.5">
                 <p className="text-xs font-semibold text-primary dark:text-primary">📸 Upload a headshot photo of YOUR FACE to create your personal AI avatar</p>
@@ -819,14 +821,14 @@ export default function FullAvatarVideo() {
                 </div>
               )}
             </div>
-          )}
+          ) : null}
 
-          {twinStatus?.status === "ready" && (
+          {isReplacingPhoto && (
             <button
-              onClick={() => trainingPhotoRef.current?.click()}
+              onClick={() => setIsReplacingPhoto(false)}
               className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
             >
-              Update with a new headshot
+              ← Cancel and keep current avatar
             </button>
           )}
         </Card>
