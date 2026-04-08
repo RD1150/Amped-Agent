@@ -126,22 +126,15 @@ export async function createPhotoAvatarFromUrl(
     throw new Error(`HeyGen avatar group creation failed: ${JSON.stringify(err)}`);
   }
 
-  const createData = await createRes.json() as { data: { group_id: string } };
-  const groupId = createData.data.group_id;
+  const createData = await createRes.json() as { data: { id?: string; group_id?: string } };
+  // HeyGen returns data.id (not data.group_id) for photo avatar groups
+  const groupId = createData.data.id || createData.data.group_id;
+  if (!groupId) throw new Error(`HeyGen avatar group creation returned no ID: ${JSON.stringify(createData)}`);
 
-  // Step 4: Trigger training — required to move from 'pending' to 'processing'
-  // Without this call the avatar stays pending forever.
-  const trainRes = await fetch(`${HEYGEN_API}/v2/photo_avatar/train`, {
-    method: "POST",
-    headers: heygenHeaders(),
-    body: JSON.stringify({ group_id: groupId }),
-  });
-
-  if (!trainRes.ok) {
-    // Log but don't throw — the group was created, training can be retried
-    const err = await trainRes.json().catch(() => ({}));
-    console.warn(`HeyGen train endpoint failed (group still created): ${JSON.stringify(err)}`);
-  }
+  // Photo avatars created with image_key are 'uploaded' type and ready immediately.
+  // No training step needed — the avatar is usable as a talking_photo right away.
+  // (Training is only for video-based digital twins, not photo avatars)
+  console.log(`[HeyGen] Photo avatar group created: ${groupId} (ready immediately)`);
 
   return groupId;
 }
@@ -284,19 +277,32 @@ export async function createCustomAvatar(opts: {
 
 /**
  * Check the training status of a custom avatar group.
- */
-export async function getCustomAvatarStatus(avatarGroupId: string): Promise<{
+ */export async function getCustomAvatarStatus(avatarGroupId: string): Promise<{
   status: "processing" | "completed" | "failed";
   previewImageUrl?: string;
   invalidGroup?: boolean;
 }> {
-  const res = await fetch(`${HEYGEN_API}/v2/photo_avatar/avatar_group/${avatarGroupId}`, {
+  // Correct endpoint: /v2/photo_avatar/{id} (NOT /v2/photo_avatar/avatar_group/{id})
+  const res = await fetch(`${HEYGEN_API}/v2/photo_avatar/${avatarGroupId}`, {
     headers: heygenHeaders(),
   });
 
   if (res.status === 404) {
-    // Group doesn't exist on HeyGen — was never created or was deleted
-    return { status: "failed", invalidGroup: true };
+    // Also try the old endpoint as fallback
+    const res2 = await fetch(`${HEYGEN_API}/v2/photo_avatar/avatar_group/${avatarGroupId}`, {
+      headers: heygenHeaders(),
+    });
+    if (!res2.ok) {
+      // Group doesn't exist on HeyGen — was never created or was deleted
+      return { status: "failed", invalidGroup: true };
+    }
+    const data2 = await res2.json() as { data: { status: string; image_url?: string } };
+    const s2 = data2.data?.status;
+    const status2: "processing" | "completed" | "failed" =
+      s2 === "completed" || s2 === "ready" || s2 === "success" ? "completed"
+      : s2 === "failed" || s2 === "error" ? "failed"
+      : "processing";
+    return { status: status2, previewImageUrl: data2.data?.image_url };
   }
 
   if (!res.ok) {
@@ -305,21 +311,20 @@ export async function getCustomAvatarStatus(avatarGroupId: string): Promise<{
   }
 
   const data = await res.json() as {
-    data: { status: string; image_url?: string };
+    data: { status: string; image_url?: string; group_id?: string };
   };
 
-  const rawStatus = data.data.status;
-  // HeyGen statuses: pending → processing → completed/failed
-  // 'pending' means the group was created but training wasn't triggered yet
+  const rawStatus = data.data?.status;
+  // HeyGen statuses for uploaded photo avatars: 'completed' immediately after creation
+  // For trained avatars: pending → processing → completed/failed
   const status: "processing" | "completed" | "failed" =
     rawStatus === "completed" || rawStatus === "ready" || rawStatus === "success"
       ? "completed"
       : rawStatus === "failed" || rawStatus === "error"
       ? "failed"
-      : "processing"; // treat both 'pending' and 'processing' as still-in-progress
+      : "processing"; // treat 'pending' and 'processing' as still-in-progress
 
-  return { status, previewImageUrl: data.data.image_url };
-}
+  return { status, previewImageUrl: data.data?.image_url };}
 
 /**
  * Generate a video using a trained custom avatar group.

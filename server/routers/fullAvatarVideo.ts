@@ -325,6 +325,19 @@ Requirements:
         `${ctx.user.name || "Agent"}'s Photo Avatar`
       );
 
+      // Immediately check if the avatar is already ready (photo avatars complete instantly)
+      let initialStatus: "training" | "ready" = "training";
+      let previewUrl = input.thumbnailUrl || input.photoUrl;
+      try {
+        const check = await getCustomAvatarStatus(avatarId);
+        if (check.status === "completed") {
+          initialStatus = "ready";
+          previewUrl = check.previewImageUrl || previewUrl;
+        }
+      } catch {
+        // Non-blocking — default to training so polling can pick it up
+      }
+
       // Upsert the twin record (one per user)
       const existing = await db
         .select()
@@ -338,9 +351,9 @@ Requirements:
           .set({
             didAvatarId: avatarId,
             trainingVideoUrl: input.photoUrl,
-            thumbnailUrl: input.thumbnailUrl || input.photoUrl,
-            status: "training",
-            trainedAt: null,
+            thumbnailUrl: previewUrl,
+            status: initialStatus,
+            trainedAt: initialStatus === "ready" ? new Date() : null,
           })
           .where(eq(customAvatarTwins.userId, ctx.user.id));
       } else {
@@ -348,12 +361,13 @@ Requirements:
           userId: ctx.user.id,
           didAvatarId: avatarId,
           trainingVideoUrl: input.photoUrl,
-          thumbnailUrl: input.thumbnailUrl || input.photoUrl,
-          status: "training",
+          thumbnailUrl: previewUrl,
+          status: initialStatus,
+          trainedAt: initialStatus === "ready" ? new Date() : null,
         });
       }
 
-      return { avatarId, status: "training" };
+      return { avatarId, status: initialStatus };
     }),
 
   /**
