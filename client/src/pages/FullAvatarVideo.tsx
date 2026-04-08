@@ -59,6 +59,7 @@ export default function FullAvatarVideo() {
   const [script, setScript] = useState("");
   const [visualPrompt, setVisualPrompt] = useState("");
   const [captionsEnabled, setCaptionsEnabled] = useState(false);
+  const [selectedBackground, setSelectedBackground] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [voiceId, setVoiceId] = useState("");
   const [voiceGenderFilter, setVoiceGenderFilter] = useState<"all" | "male" | "female">("all");
@@ -262,6 +263,7 @@ export default function FullAvatarVideo() {
           title: title.trim() || undefined,
           captionsEnabled,
           visualPrompt: visualPrompt.trim() || undefined,
+          backgroundUrl: selectedBackground || undefined,
         });
       } else if (mode === "quick") {
         setGenerationStep("Generating your avatar video…");
@@ -273,6 +275,7 @@ export default function FullAvatarVideo() {
           title: title.trim() || undefined,
           captionsEnabled,
           visualPrompt: visualPrompt.trim() || undefined,
+          backgroundUrl: selectedBackground || undefined,
         });
       } else {
         setGenerationStep("Generating with your custom digital twin…");
@@ -282,6 +285,7 @@ export default function FullAvatarVideo() {
           title: title.trim() || undefined,
           captionsEnabled,
           visualPrompt: visualPrompt.trim() || undefined,
+          backgroundUrl: selectedBackground || undefined,
         });
       }
 
@@ -865,6 +869,55 @@ export default function FullAvatarVideo() {
             </Button>
           </div>
         )}
+      </Card>
+
+      {/* Background Scene Picker */}
+      <Card className="p-6 space-y-4">
+        <div>
+          <Label className="text-base font-semibold">🎨 Background Scene</Label>
+          <p className="text-xs text-muted-foreground mt-1">Choose the environment behind your avatar. A realistic scene makes your video look professional and natural.</p>
+        </div>
+        <div className="grid grid-cols-5 gap-2">
+          {([
+            { id: null, label: "None" },
+            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-podcast-studio-favFjkuJRqPSNYpQJhEauy.png", label: "Podcast", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-podcast-studio-YF6usR7mt7nMoWT3GGkbpG.webp" },
+            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-luxury-office-NjMH8V6WnH2zvrV6XTvzmP.png", label: "Luxury Office", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-luxury-office-HrKgPH8H8rEr7ua7oLbpvX.webp" },
+            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-modern-office-SvbeGvDV9QG5B332CvNHzn.png", label: "Modern Office", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-modern-office-TckALB3z2LTKuT8qsQ5hKF.webp" },
+            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-cafe-kgEWhLtfw8VZpgmhVBJKWh.png", label: "Café", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-cafe-9RoYucwz5NYGUwtzaYAR4G.webp" },
+            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-library-7G3D5AzqHGWfFADUTfgjk4.png", label: "Library", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-library-YU5hKzGMBMVoohpT63ApNu.webp" },
+            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-city-view-XZiCwJTRcgFU34TH43ZJ6h.png", label: "City View", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-city-view-HXaQzw35s5yAhttj9qEd3h.webp" },
+            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-luxury-living-evNGDjK9DPM63HdMi9SJhH.png", label: "Luxury Living", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-luxury-living-GmgDFqNoG2mwWd8ebhbceD.webp" },
+            { id: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-outdoor-terrace-MHTNj6r55JARu8VRJhsrWC.png", label: "Terrace", thumb: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/bg-outdoor-terrace-YUmsjEr5yTHfdLpjBf9DyJ.webp" },
+          ] as { id: string | null; label: string; thumb?: string }[]).map((bg) => (
+            <button
+              key={bg.id ?? "none"}
+              type="button"
+              onClick={() => setSelectedBackground(bg.id)}
+              className={`relative rounded-lg overflow-hidden border-2 transition-all ${
+                selectedBackground === bg.id
+                  ? "border-primary ring-2 ring-primary/30"
+                  : "border-border hover:border-primary/40"
+              }`}
+              style={{ aspectRatio: "9/16" }}
+            >
+              {bg.thumb ? (
+                <img src={bg.thumb} alt={bg.label} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-muted flex flex-col items-center justify-center gap-1">
+                  <span className="text-xl">⬛</span>
+                </div>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-1 py-0.5">
+                <p className="text-[9px] text-white font-medium text-center leading-tight truncate">{bg.label}</p>
+              </div>
+              {selectedBackground === bg.id && (
+                <div className="absolute top-1 right-1 bg-primary rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="text-[9px] text-white font-bold">✓</span>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
       </Card>
 
       {/* Script input */}

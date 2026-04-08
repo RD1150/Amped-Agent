@@ -167,6 +167,7 @@ export async function generateStockAvatarVideo(opts: {
   title?: string;
   landscape?: boolean;
   caption?: boolean; // When true, HeyGen burns styled CC subtitles into the video
+  backgroundUrl?: string; // URL to a background image; when omitted falls back to dark color
 }): Promise<string> {
   const {
     avatarId,
@@ -175,7 +176,12 @@ export async function generateStockAvatarVideo(opts: {
     title,
     landscape = false,
     caption = false,
+    backgroundUrl,
   } = opts;
+
+  const background = backgroundUrl
+    ? { type: "image", url: backgroundUrl }
+    : { type: "color", value: "#1a1a2e" };
 
   const res = await fetch(`${HEYGEN_API}/v2/video/generate`, {
     method: "POST",
@@ -193,10 +199,7 @@ export async function generateStockAvatarVideo(opts: {
             input_text: script,
             voice_id: voiceId,
           },
-          background: {
-            type: "color",
-            value: "#1a1a2e",
-          },
+          background,
         },
       ],
       title: title || "Avatar Video",
@@ -222,6 +225,8 @@ export async function generateTalkingPhotoVideo(opts: {
   voiceId?: string;
   title?: string;
   landscape?: boolean;
+  caption?: boolean;
+  backgroundUrl?: string;
 }): Promise<string> {
   return generateStockAvatarVideo({
     avatarId: opts.photoAvatarId,
@@ -229,6 +234,8 @@ export async function generateTalkingPhotoVideo(opts: {
     voiceId: opts.voiceId,
     title: opts.title,
     landscape: opts.landscape,
+    caption: opts.caption,
+    backgroundUrl: opts.backgroundUrl,
   });
 }
 
@@ -339,6 +346,8 @@ export async function generateCustomAvatarVideo(opts: {
   voiceId?: string;
   title?: string;
   landscape?: boolean;
+  caption?: boolean;
+  backgroundUrl?: string;
 }): Promise<string> {
   // Custom avatar uses same talking_photo endpoint with the group_id
   return generateTalkingPhotoVideo({
@@ -347,6 +356,8 @@ export async function generateCustomAvatarVideo(opts: {
     voiceId: opts.voiceId,
     title: opts.title,
     landscape: opts.landscape,
+    caption: opts.caption,
+    backgroundUrl: opts.backgroundUrl,
   });
 }
 

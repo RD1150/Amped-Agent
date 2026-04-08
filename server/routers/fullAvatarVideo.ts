@@ -178,6 +178,7 @@ Requirements:
         landscape: z.boolean().optional().default(false),
         captionsEnabled: z.boolean().optional().default(false), // Burn CC captions into video
         visualPrompt: z.string().max(2000).optional(), // Visual direction / B-roll notes (stored for reference)
+        backgroundUrl: z.string().url().optional(), // Background scene image URL
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -225,6 +226,7 @@ Requirements:
           title: input.title,
           landscape: input.landscape,
           caption: input.captionsEnabled,
+          backgroundUrl: input.backgroundUrl,
         });
         // Save HeyGen video ID for reference
         await db
@@ -462,6 +464,7 @@ Requirements:
         landscape: z.boolean().optional().default(false),
         captionsEnabled: z.boolean().optional().default(false), // Burn CC captions into video
         visualPrompt: z.string().max(2000).optional(), // Visual direction / B-roll notes (stored for reference)
+        backgroundUrl: z.string().url().optional(), // Background scene image URL
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -523,6 +526,8 @@ Requirements:
           voiceId: input.voiceId,
           title: input.title,
           landscape: input.landscape,
+          caption: input.captionsEnabled,
+          backgroundUrl: input.backgroundUrl,
         });
 
         await db

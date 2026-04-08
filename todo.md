@@ -4280,3 +4280,15 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Branding Fix - Remove HeyGen References
 - [x] Remove "HeyGen is animating your avatar..." status text from Full Avatar Video page
 - [x] Replace all HeyGen-branded generation status messages with neutral AmpedAgent copy
+
+## Photo Avatar Quality Fixes
+- [ ] Update photo upload requirements: add "slightly open mouth" and "more headroom" guidance
+- [ ] Check HeyGen API for crop_style or framing parameters on avatar creation
+- [ ] Add visual example/tip showing ideal headshot vs bad headshot for avatar creation
+
+## Full Avatar Video - Background Scene Picker
+- [x] Source curated background scene images (office, podcast, cafe, luxury home, outdoor, etc.)
+- [x] Upload background images to CDN via manus-upload-file --webdev
+- [x] Build background picker UI card in FullAvatarVideo.tsx with thumbnail grid
+- [x] Wire selected background URL into all three HeyGen generation paths
+- [x] Update HeyGen service to pass background image URL in video generation payload
