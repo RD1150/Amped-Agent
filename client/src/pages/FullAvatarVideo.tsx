@@ -98,7 +98,7 @@ export default function FullAvatarVideo() {
   const [resultDuration, setResultDuration] = useState(0);
 
   // ── Custom Photo Avatar ───────────────────────────────────────────
-  const [showTwinTips, setShowTwinTips] = useState(false);
+  const [showTwinTips, setShowTwinTips] = useState(true); // Open by default so agents see requirements before uploading
   const [trainingPhotoFile, setTrainingPhotoFile] = useState<File | null>(null);
   const [trainingPhotoPreview, setTrainingPhotoPreview] = useState("");
   const [isUploadingTraining, setIsUploadingTraining] = useState(false);
@@ -678,6 +678,30 @@ export default function FullAvatarVideo() {
                 </button>
                 {showTwinTips && (
                   <div className="px-3 pb-3 pt-1 space-y-3 border-t border-border bg-muted/20">
+
+                    {/* Critical warnings — shown first, always visible */}
+                    <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-md p-3 text-xs space-y-1.5">
+                      <p className="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">⚠️ Most common mistakes that cause distorted results</p>
+                      <ul className="space-y-1 text-amber-700 dark:text-amber-400 list-disc list-inside">
+                        <li><span className="font-semibold">Closed or tightly pressed lips</span> — the AI over-animates a closed mouth, making it look huge and distorted. Keep your mouth <span className="font-semibold">slightly open</span> (like mid-sentence) when the photo is taken.</li>
+                        <li><span className="font-semibold">Head too close to the top edge</span> — your head will be cropped. Leave space above your head equal to at least 20% of the photo height.</li>
+                        <li><span className="font-semibold">Face too small in frame</span> — your face should fill at least 50% of the photo height. Crop in close before uploading.</li>
+                      </ul>
+                    </div>
+
+                    {/* Dimensions */}
+                    <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-md p-3 text-xs">
+                      <p className="font-bold text-blue-800 dark:text-blue-300 mb-1.5">📐 Recommended photo dimensions</p>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-blue-700 dark:text-blue-400">
+                        <span className="font-semibold">Size:</span><span>800 × 800 px minimum (square preferred)</span>
+                        <span className="font-semibold">Aspect ratio:</span><span>1:1 (square) or 3:4 (portrait)</span>
+                        <span className="font-semibold">Max file size:</span><span>10 MB</span>
+                        <span className="font-semibold">Format:</span><span>JPG, PNG, or WEBP</span>
+                        <span className="font-semibold">Face size:</span><span>Face fills 50–70% of the frame height</span>
+                        <span className="font-semibold">Head room:</span><span>At least 20% space above your head</span>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                       <div className="space-y-1">
                         <p className="font-semibold text-foreground flex items-center gap-1">📍 Background</p>
@@ -693,19 +717,19 @@ export default function FullAvatarVideo() {
                       </div>
                       <div className="space-y-1">
                         <p className="font-semibold text-foreground flex items-center gap-1">😊 Expression &amp; Mouth</p>
-                        <p className="text-muted-foreground leading-relaxed">Relaxed jaw with your mouth <span className="font-semibold text-foreground">slightly open</span> — not smiling, not clenched. Eyes open, looking at the camera. This is the single biggest factor for natural-looking lip animation. A tightly closed mouth causes the AI to over-animate and can make the mouth look exaggerated.</p>
+                        <p className="text-muted-foreground leading-relaxed">Relaxed jaw, mouth <span className="font-semibold text-foreground">slightly open</span> — not smiling, not clenched. Eyes open, looking directly at the camera. This is the single biggest factor for natural-looking lip sync.</p>
                       </div>
                       <div className="space-y-1">
                         <p className="font-semibold text-foreground flex items-center gap-1">🖼️ Photo quality</p>
-                        <p className="text-muted-foreground leading-relaxed">Use a recent photo — a professional headshot or a clear selfie both work. JPG, PNG, or WEBP under 10MB. Avoid blurry or heavily filtered photos.</p>
+                        <p className="text-muted-foreground leading-relaxed">Sharp, well-lit, recent photo. JPG, PNG, or WEBP under 10 MB. Avoid blurry, heavily filtered, or low-resolution photos.</p>
                       </div>
                       <div className="space-y-1">
                         <p className="font-semibold text-foreground flex items-center gap-1">🚫 What to Avoid</p>
-                        <p className="text-muted-foreground leading-relaxed">No sunglasses, hats, or masks. Avoid group photos — only your face should be in the frame. No heavy filters or extreme colour grading.</p>
+                        <p className="text-muted-foreground leading-relaxed">No sunglasses, hats, or masks. No group photos — only your face. No heavy filters or extreme colour grading.</p>
                       </div>
                     </div>
                     <div className="bg-primary/10 border border-primary/20 rounded-md p-2.5 text-xs text-green-700 dark:text-green-400">
-                      <span className="font-semibold">Pro tip:</span> A professional headshot or a clear selfie taken in good natural light works perfectly. You only need to do this once — update it whenever you get a new headshot.
+                      <span className="font-semibold">Pro tip:</span> A professional headshot cropped to 800×800 px in good natural light gives the best results. You only need to do this once — update it whenever you get a new headshot.
                     </div>
                   </div>
                 )}

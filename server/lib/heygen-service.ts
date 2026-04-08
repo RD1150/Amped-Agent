@@ -185,9 +185,12 @@ export async function generateStockAvatarVideo(opts: {
     isTalkingPhoto = false,
   } = opts;
 
+  // Default to the Podcast Studio background when none is selected
+  // so the avatar always appears in a polished, professional setting
+  const DEFAULT_BG_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/jYfgdUExrEcbDAis.jpg";
   const background = backgroundUrl
     ? { type: "image", url: backgroundUrl }
-    : { type: "color", value: "#1a1a2e" };
+    : { type: "image", url: DEFAULT_BG_URL };
 
   // Build character object — talking_photo type supports Avatar IV model
   const character: Record<string, unknown> = isTalkingPhoto

@@ -4350,3 +4350,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] BGM mixing utility (server/lib/audioMixer.ts) using FFmpeg — best-effort, never fails generation
 - [x] musicUrl wired through all 3 generate paths (stock avatar, photo avatar, custom twin)
 - [x] TypeScript clean (0 errors) after all changes
+
+## Full Avatar Video Quality Fixes
+- [x] Default background changed from dark navy to Podcast Studio scene (prevents "no background" issue)
+- [x] Headshot tips auto-open by default so agents see requirements before uploading
+- [x] Added amber warning banner highlighting the 3 most common distortion causes (closed mouth, head cropped, face too small)
+- [x] Added blue dimensions panel with exact specs (800×800 px min, 1:1 aspect ratio, face fills 50-70%, 20% headroom)
