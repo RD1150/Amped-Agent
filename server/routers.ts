@@ -1652,8 +1652,54 @@ Create a compelling social media post.`;
         await db.incrementHookUsage(input.id);
         return { success: true };
       }),
-  }),
 
+    generateScript: protectedProcedure
+      .input(z.object({
+        hookText: z.string().min(1),
+        prompt: z.string().min(1),
+        format: z.enum(["video", "email", "social", "carousel"]).default("social"),
+        targetLength: z.enum(["short", "medium", "long"]).default("medium"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+        const agentName = persona?.agentName || "a real estate agent";
+        const city = (() => {
+          try {
+            const mc = persona?.marketContext ? JSON.parse(persona.marketContext) : null;
+            return mc?.city || persona?.primaryCity || "";
+          } catch { return persona?.primaryCity || ""; }
+        })();
+
+        const lengthGuide: Record<string, string> = {
+          short: "30-45 seconds (80-100 words)",
+          medium: "60-90 seconds (150-200 words)",
+          long: "2-3 minutes (300-450 words)",
+        };
+        const formatGuide: Record<string, string> = {
+          video: "spoken video script with natural pauses and energy cues",
+          social: "social media caption with line breaks, emojis, and hashtags",
+          email: "email body with subject line, greeting, body, and CTA",
+          carousel: "carousel slide-by-slide content (Slide 1: ..., Slide 2: ..., etc.)",
+        };
+
+        const response = await invokeLLM({
+          messages: [
+            {
+              role: "system",
+              content: `You are an expert real estate marketing copywriter. Write compelling, authentic content for real estate agents that builds authority and drives engagement. Keep it conversational and specific.`,
+            },
+            {
+              role: "user",
+              content: `Write a ${formatGuide[input.format] || "social media post"} for a real estate agent.\n\nAgent: ${agentName}${city ? ` in ${city}` : ""}\nOpening hook (use this verbatim as the first line): "${input.hookText}"\nAdditional context / prompt: ${input.prompt}\nTarget length: ${lengthGuide[input.targetLength] || "60-90 seconds"}\n\nImportant: Start with the hook exactly as written. Then expand naturally based on the prompt. Write only the final content — no instructions, no labels, no meta-commentary.`,
+            },
+          ],
+        });
+
+        const content = response.choices[0]?.message?.content;
+        if (!content || typeof content !== "string") throw new Error("No response from AI");
+        return { script: content };
+      }),
+  }),
   betaSignup: router({
     submit: publicProcedure
       .input(z.object({
