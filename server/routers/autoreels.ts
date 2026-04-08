@@ -454,7 +454,7 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
               use_speaker_boost: true,
             });
             if (!audioBuffer || audioBuffer.length === 0) {
-              throw new Error("ElevenLabs returned empty audio for AutoReel voiceover.");
+              throw new Error("Voice generation returned empty audio for AutoReel voiceover.");
             }
             const key = `autoreels/voiceover/${ctx.user.id}-${Date.now()}.mp3`;
             const { url } = await storagePut(key, audioBuffer, "audio/mpeg");
@@ -585,7 +585,7 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
         const credits = await getRemainingCredits();
         return { credits };
       } catch (error: any) {
-        throw new Error(`Failed to fetch D-ID credits: ${error.message}`);
+        throw new Error(`Failed to fetch avatar credits: ${error.message}`);
       }
     }),
 

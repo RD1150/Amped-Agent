@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { trpc } from "@/lib/trpc";
 
-// Voice options are loaded live from HeyGen API
+// Voice options are loaded live from the AI engine
 
 /** Estimate read time from word count at 130 wpm */
 function estimateReadTime(text: string): { words: number; seconds: number; label: string } {
@@ -119,7 +119,9 @@ export default function FullAvatarVideo() {
   });
   const deleteMutation = trpc.fullAvatarVideo.delete.useMutation();
   const generateScriptMutation = trpc.fullAvatarVideo.generateAvatarScript.useMutation();
-  const { data: heygenVoices = [], isLoading: isLoadingVoices } = trpc.fullAvatarVideo.getVoices.useQuery();
+  const { data: voices = [], isLoading: isLoadingVoices } = trpc.fullAvatarVideo.getVoices.useQuery();
+  // alias for internal use
+  const heygenVoices = voices;
 
   // Auto-select first voice once loaded
   useEffect(() => {
@@ -1001,7 +1003,7 @@ export default function FullAvatarVideo() {
           />
         </div>
 
-        {/* Voice selector — live from HeyGen */}
+        {/* Voice selector */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label className="text-sm">Voice</Label>

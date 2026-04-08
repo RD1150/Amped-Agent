@@ -1211,7 +1211,7 @@ export default function PropertyTours() {
                   }`}
                 >
                   <div className="text-sm font-semibold mb-1">✨ AI Motion</div>
-                  <div className="text-xs text-muted-foreground">Kling AI generates real camera movement</div>
+                  <div className="text-xs text-muted-foreground">AI generates real camera movement</div>
                   <div className="text-xs text-primary font-medium mt-1">~5 min · 15 credits</div>
                 </button>
               </div>
@@ -1222,7 +1222,7 @@ export default function PropertyTours() {
               )}
               {videoMode === "ai-enhanced" && (
                 <p className="text-xs text-muted-foreground bg-muted dark:bg-primary/10 border border-primary/20 dark:border-primary/50 rounded p-2">
-                  🤖 AI Motion uses Kling AI to generate real camera movement (dolly push, arc turns, crane shots) for your best 3–5 photos. Takes ~5 minutes to generate.
+                  🤖 AI Motion generates real camera movement (dolly push, arc turns, crane shots) for your best 3–5 photos. Takes ~5 minutes to generate.
                 </p>
               )}
             </div>

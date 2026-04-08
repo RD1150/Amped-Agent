@@ -4301,3 +4301,19 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Avatar IV Upgrade
 - [x] Upgrade Photo Avatar and Digital Twin generation to use Avatar IV motion engine (use_avatar_iv_model: true)
 - [x] Add Avatar V coming-soon badge and note in the Custom Digital Twin mode selector
+
+## White-Label Branding — Remove All Vendor Names
+- [ ] Audit and remove all third-party tool names from user-facing client pages (HeyGen, D-ID, ElevenLabs, Runway, Shotstack, Creatomate, etc.)
+- [ ] Replace with neutral AmpedAgent-branded copy across all pages
+- [ ] Check server-side error messages and toast strings for vendor names
+
+## White-Label Branding — Remove All Vendor Names (Completed)
+- [x] Audit all client pages for third-party vendor name references (HeyGen, D-ID, ElevenLabs, Runway, Shotstack, Creatomate, Kling, Higgsfield)
+- [x] Remove HeyGen references from FullAvatarVideo.tsx and AuthorityProfile.tsx
+- [x] Remove ElevenLabs references from PersonaBrand.tsx and Settings.tsx
+- [x] Remove D-ID references from Settings.tsx
+- [x] Remove Kling AI references from PropertyTours.tsx
+- [x] Remove vendor names from Privacy Policy AI services section
+- [x] Remove vendor names from server-side error messages in autoreels.ts
+- [x] Remove vendor names from server-side error messages in fullAvatarVideo.ts
+- [x] Remove vendor names from server-side error messages in cinematicWalkthrough.ts (Runway, Creatomate, ElevenLabs)

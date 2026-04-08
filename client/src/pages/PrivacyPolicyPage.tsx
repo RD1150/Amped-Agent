@@ -103,10 +103,10 @@ export default function PrivacyPolicyPage() {
 
           <h3 className="text-xl font-semibold mt-6 mb-3">4.1 AI and Media Services</h3>
           <ul className="list-disc pl-6 space-y-2">
-            <li><strong>OpenAI:</strong> Powers text generation and content moderation</li>
-            <li><strong>D-ID:</strong> Generates AI avatar videos from your headshots</li>
-            <li><strong>ElevenLabs:</strong> Provides AI voiceover generation</li>
-            <li><strong>Shotstack:</strong> Renders video content with effects and music</li>
+            <li><strong>AI Text Services:</strong> Power text generation and content creation</li>
+            <li><strong>AI Avatar Services:</strong> Generate AI avatar videos from your headshots</li>
+            <li><strong>AI Voice Services:</strong> Provide AI voiceover generation and voice cloning</li>
+            <li><strong>Video Rendering Services:</strong> Render video content with effects and music</li>
           </ul>
 
           <h3 className="text-xl font-semibold mt-6 mb-3">4.2 Payment Processing</h3>

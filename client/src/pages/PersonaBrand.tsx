@@ -658,7 +658,7 @@ export default function PersonaBrand() {
             </Button>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Mic className="h-4 w-4" /> Voice Recording (for Kling Avatar)</Label>
+            <Label className="flex items-center gap-2"><Mic className="h-4 w-4" /> Voice Recording (for AI Avatar)</Label>
             <p className="text-xs text-muted-foreground">Upload a 15–30 second audio clip of your voice (MP3 or WAV). Used for the AI avatar overlay animation.</p>
             {formData.klingAvatarVoiceUrl && (
               <audio controls src={formData.klingAvatarVoiceUrl} className="w-full mt-1" />
@@ -697,7 +697,7 @@ export default function PersonaBrand() {
             </Button>
           </div>
 
-          {/* ElevenLabs Voice Clone Section */}
+          {/* AI Voice Clone Section */}
           <div className="border-t pt-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
@@ -706,7 +706,7 @@ export default function PersonaBrand() {
                   AI Voice Clone (for Voiceover Narration)
                 </Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Upload a 15-second to 5-minute voice sample. ElevenLabs will clone your voice and use it to narrate property tours automatically.
+                  Upload a 15-second to 5-minute voice sample. Our AI will clone your voice and use it to narrate property tours automatically.
                 </p>
               </div>
               {(persona as any)?.elevenlabsVoiceId && (

@@ -352,7 +352,7 @@ export default function Settings() {
             Clone Your Voice
           </CardTitle>
           <CardDescription>
-            Record 30–60 seconds of your natural speaking voice. ElevenLabs will clone it and use it as your default narration voice across all videos.
+            Record 30–60 seconds of your natural speaking voice. Our AI will clone it and use it as your default narration voice across all videos.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -642,7 +642,7 @@ export default function Settings() {
                     {avatarVideoExpired ? 'Avatar video has expired' : `Avatar video expires in ${90 - (avatarVideoAgeDays ?? 0)} days`}
                   </p>
                   <p className="text-xs mt-0.5 opacity-80">
-                    D-ID avatar videos are hosted for 90 days. Head to AI Reels to regenerate your avatar intro.
+                    Avatar videos are hosted for 90 days. Head to AI Reels to regenerate your avatar intro.
                   </p>
                 </div>
               </div>

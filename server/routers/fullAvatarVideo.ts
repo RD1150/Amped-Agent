@@ -29,11 +29,11 @@ export const fullAvatarVideoRouter = router({
   getVoices: protectedProcedure
     .query(async () => {
       const apiKey = process.env.HEYGEN_API_KEY;
-      if (!apiKey) throw new Error("HeyGen API key not configured");
+      if (!apiKey) throw new Error("Avatar API key not configured");
       const res = await fetch("https://api.heygen.com/v2/voices", {
         headers: { "X-Api-Key": apiKey },
       });
-      if (!res.ok) throw new Error(`HeyGen voices fetch failed: ${res.status}`);
+      if (!res.ok) throw new Error(`Voice list fetch failed: ${res.status}`);
       const data = await res.json() as { data?: { voices?: Array<{ voice_id: string; name: string; gender: string; language: string; preview_audio?: string }> } };
       const voices = (data.data?.voices ?? []) as Array<{ voice_id: string; name: string; gender: string; language: string; preview_audio?: string }>;
       return voices
@@ -126,11 +126,11 @@ Requirements:
   getAvatars: protectedProcedure
     .query(async () => {
       const apiKey = process.env.HEYGEN_API_KEY;
-      if (!apiKey) throw new Error("HeyGen API key not configured");
+      if (!apiKey) throw new Error("Avatar API key not configured");
       const res = await fetch("https://api.heygen.com/v2/avatars", {
         headers: { "X-Api-Key": apiKey, accept: "application/json" },
       });
-      if (!res.ok) throw new Error(`HeyGen avatars fetch failed: ${res.status}`);
+      if (!res.ok) throw new Error(`Avatar list fetch failed: ${res.status}`);
       // HeyGen /v2/avatars returns two separate arrays:
       //   data.avatars       → true stock avatars (use type:"avatar" + avatar_id)
       //   data.talking_photos → photo-based avatars (require image dimensions — NOT supported here)
@@ -239,7 +239,7 @@ Requirements:
         const finalVideoUrl = (input.captionsEnabled && captionVideoUrl) ? captionVideoUrl : heygenVideoUrl;
         // Download and re-host on S3 for permanence
         const videoRes = await fetch(finalVideoUrl);
-        if (!videoRes.ok) throw new Error("Failed to download HeyGen video");
+        if (!videoRes.ok) throw new Error("Failed to download generated video");
         const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
         const s3Key = `full-avatar-videos/${ctx.user.id}/${videoId}-${Date.now()}.mp4`;
         const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
@@ -540,7 +540,7 @@ Requirements:
         const finalVideoUrl2 = (input.captionsEnabled && captionVideoUrl2) ? captionVideoUrl2 : heygenVideoUrl2;
         // Download and re-host on S3
         const videoRes = await fetch(finalVideoUrl2);
-        if (!videoRes.ok) throw new Error("Failed to download HeyGen video");
+        if (!videoRes.ok) throw new Error("Failed to download generated video");
         const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
         const s3Key = `full-avatar-videos/${ctx.user.id}/${videoId}-custom-${Date.now()}.mp4`;
         const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");

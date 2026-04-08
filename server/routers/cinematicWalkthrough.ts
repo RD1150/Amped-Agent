@@ -209,7 +209,7 @@ async function generateRunwayClip(
 ): Promise<string> {
   const promptText = getMotionPrompt(roomType, clipIndex, customPrompt, isExterior, motionDirection);
 
-  log(`Generating Runway clip for room: ${roomType} (attempt ${attempt}), prompt: ${promptText.substring(0, 60)}...`);
+  log(`Generating AI video clip for room: ${roomType} (attempt ${attempt}), prompt: ${promptText.substring(0, 60)}...`);
 
   // Add a small delay between clips to avoid rate limits (3s after first clip)
   if (attempt === 1) {
@@ -238,7 +238,7 @@ async function generateRunwayClip(
     });
   } catch (fetchErr: any) {
     clearTimeout(createTimer);
-    throw new Error(`Runway task creation failed or timed out: ${fetchErr.message}`);
+    throw new Error(`AI video task creation failed or timed out: ${fetchErr.message}`);
   }
   clearTimeout(createTimer);
 
@@ -255,7 +255,7 @@ async function generateRunwayClip(
   if (!response.ok) {
     const err = await response.text();
     log(`Runway API error ${response.status}: ${err}`);
-    throw new Error(`Runway API error: ${response.status} - ${err}`);
+    throw new Error(`AI video API error: ${response.status} - ${err}`);
   }
 
   const task = await response.json() as { id: string };
@@ -305,22 +305,22 @@ async function pollRunwayTask(taskId: string, maxWaitMs = 420000): Promise<strin
 
     if (task.status === "SUCCEEDED") {
       if (!task.output || task.output.length === 0) {
-        throw new Error("Runway returned success but no output URL");
+        throw new Error("AI video generation succeeded but returned no output URL");
       }
       log(`✓ Runway clip ready: ${task.output[0]}`);
       return task.output[0];
     }
 
     if (task.status === "FAILED") {
-      throw new Error(`Runway generation failed: ${task.failure || "Unknown error"}`);
+      throw new Error(`AI video generation failed: ${task.failure || "Unknown error"}`);
     }
 
     if (task.status === "CANCELLED") {
-      throw new Error("Runway generation was cancelled");
+      throw new Error("AI video generation was cancelled");
     }
   }
 
-  throw new Error("Runway generation timed out after 7 minutes");
+  throw new Error("AI video generation timed out after 7 minutes");
 }
 
 // ============================================================
@@ -642,7 +642,7 @@ async function assembleCreatomateVideo(opts: {
   // Creatomate requires a `source` object for dynamic (template-free) renders.
   // Passing elements at the top level causes a 400 "template_id must be provided" error.
   const CREATOMATE_API_KEY = ENV.CREATOMATE_API_KEY;
-  if (!CREATOMATE_API_KEY) throw new Error("CREATOMATE_API_KEY not configured");
+  if (!CREATOMATE_API_KEY) throw new Error("Video render API key not configured");
 
   // Luxury mode + 16:9: submit BOTH 16:9 and 9:16 in a single Creatomate call
   // Creatomate supports an array of render objects in one request
@@ -673,12 +673,12 @@ async function assembleCreatomateVideo(opts: {
 
   if (!renderRes.ok) {
     const err = await renderRes.text();
-    throw new Error(`Creatomate render error: ${renderRes.status} - ${err}`);
+    throw new Error(`Video render error: ${renderRes.status} - ${err}`);
   }
 
   const renderData = await renderRes.json() as Array<{ id: string }>;
   const renderId = Array.isArray(renderData) ? renderData[0]?.id : (renderData as any).id;
-  if (!renderId) throw new Error("Creatomate did not return a render ID");
+  if (!renderId) throw new Error("Video renderer did not return a render ID");
   log(`Creatomate render started: ${renderId}`);
 
   // Track cost (estimate: 1 credit per second)
@@ -726,11 +726,11 @@ async function pollCreatomateRender(renderId: string, maxWaitMs = 600000): Promi
         ? ` — ${data.error_message}`
         : data.error_type ? ` (${data.error_type})` : "";
       log(`✗ Creatomate render FAILED for ${renderId}: ${data.error_message ?? data.error_type ?? "unknown"}`);
-      throw new Error(`Creatomate render failed${detail}`);
+      throw new Error(`Video render failed${detail}`);
     }
   }
 
-  throw new Error("Creatomate render timed out");
+  throw new Error("Video render timed out");
 }
 
 // ============================================================
@@ -1241,7 +1241,7 @@ async function generateVoiceover(script: string, voiceId: string): Promise<strin
   });
 
   if (!res.ok) {
-    throw new Error(`ElevenLabs error: ${res.status}`);
+    throw new Error(`Voice generation error: ${res.status}`);
   }
 
   const buffer = Buffer.from(await res.arrayBuffer());
