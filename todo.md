@@ -4292,3 +4292,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Build background picker UI card in FullAvatarVideo.tsx with thumbnail grid
 - [x] Wire selected background URL into all three HeyGen generation paths
 - [x] Update HeyGen service to pass background image URL in video generation payload
+
+## Full Avatar Video - Captions-Style Immersive Backgrounds
+- [ ] Generate new Captions-style immersive background images (podcast studio, news desk, home office, luxury lounge, outdoor terrace, modern living room)
+- [ ] Upload new backgrounds to CDN and replace old ones in the picker
+- [ ] Update picker labels and thumbnails to match new scenes
+
+## Avatar IV Upgrade
+- [x] Upgrade Photo Avatar and Digital Twin generation to use Avatar IV motion engine (use_avatar_iv_model: true)
+- [x] Add Avatar V coming-soon badge and note in the Custom Digital Twin mode selector

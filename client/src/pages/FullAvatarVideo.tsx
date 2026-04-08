@@ -435,9 +435,10 @@ export default function FullAvatarVideo() {
           <div className="flex items-center gap-2 mb-2">
             <Crown className={`h-5 w-5 ${mode === "custom" ? "text-primary" : "text-muted-foreground"}`} />
             <span className="font-semibold">Custom Digital Twin</span>
-            <Badge className="text-xs bg-muted0 text-black">V3 · Agency</Badge>
+            <Badge className="text-xs bg-primary/20 text-primary border-primary/30">Avatar IV · Agency</Badge>
           </div>
-          <p className="text-xs text-muted-foreground">Train once with a 2-min video clip. Natural motion, any length, unlimited videos.</p>
+          <p className="text-xs text-muted-foreground">Train once with a 2-min video clip. Powered by Avatar IV — expressive full-face motion, 1080p, up to 3 min.</p>
+          <p className="text-xs text-amber-500/80 mt-1 flex items-center gap-1"><Sparkles className="h-3 w-3" />Avatar V coming soon — cinematic full-body motion from a 15-sec clip.</p>
           {twinStatus?.status === "ready" && (
             <div className="mt-2 flex items-center gap-1 text-xs text-primary">
               <CheckCircle2 className="h-3 w-3" />

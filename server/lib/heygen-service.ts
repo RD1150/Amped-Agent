@@ -168,6 +168,9 @@ export async function generateStockAvatarVideo(opts: {
   landscape?: boolean;
   caption?: boolean; // When true, HeyGen burns styled CC subtitles into the video
   backgroundUrl?: string; // URL to a background image; when omitted falls back to dark color
+  useAvatarIV?: boolean; // Use Avatar IV motion engine (better quality, more expressive)
+  motionPrompt?: string; // Avatar IV motion direction prompt (only used when useAvatarIV=true)
+  isTalkingPhoto?: boolean; // Whether this is a talking_photo type (photo avatar or digital twin)
 }): Promise<string> {
   const {
     avatarId,
@@ -177,11 +180,28 @@ export async function generateStockAvatarVideo(opts: {
     landscape = false,
     caption = false,
     backgroundUrl,
+    useAvatarIV = false,
+    motionPrompt,
+    isTalkingPhoto = false,
   } = opts;
 
   const background = backgroundUrl
     ? { type: "image", url: backgroundUrl }
     : { type: "color", value: "#1a1a2e" };
+
+  // Build character object — talking_photo type supports Avatar IV model
+  const character: Record<string, unknown> = isTalkingPhoto
+    ? {
+        type: "talking_photo",
+        talking_photo_id: avatarId,
+        ...(useAvatarIV ? { use_avatar_iv_model: true } : {}),
+        ...(useAvatarIV && motionPrompt ? { prompt: motionPrompt } : {}),
+      }
+    : {
+        type: "avatar",
+        avatar_id: avatarId,
+        avatar_style: "normal",
+      };
 
   const res = await fetch(`${HEYGEN_API}/v2/video/generate`, {
     method: "POST",
@@ -189,11 +209,7 @@ export async function generateStockAvatarVideo(opts: {
     body: JSON.stringify({
       video_inputs: [
         {
-          character: {
-            type: "avatar",
-            avatar_id: avatarId,
-            avatar_style: "normal",
-          },
+          character,
           voice: {
             type: "text",
             input_text: script,
@@ -218,7 +234,9 @@ export async function generateStockAvatarVideo(opts: {
   return data.data.video_id;
 }
 
-/** @deprecated Use generateStockAvatarVideo instead */
+/**
+ * Generate a video using a photo avatar (talking_photo type) with Avatar IV motion engine.
+ */
 export async function generateTalkingPhotoVideo(opts: {
   photoAvatarId: string;
   script: string;
@@ -227,6 +245,7 @@ export async function generateTalkingPhotoVideo(opts: {
   landscape?: boolean;
   caption?: boolean;
   backgroundUrl?: string;
+  motionPrompt?: string;
 }): Promise<string> {
   return generateStockAvatarVideo({
     avatarId: opts.photoAvatarId,
@@ -236,6 +255,9 @@ export async function generateTalkingPhotoVideo(opts: {
     landscape: opts.landscape,
     caption: opts.caption,
     backgroundUrl: opts.backgroundUrl,
+    isTalkingPhoto: true,
+    useAvatarIV: true, // Enable Avatar IV for more expressive motion
+    motionPrompt: opts.motionPrompt,
   });
 }
 
@@ -338,7 +360,8 @@ export async function createCustomAvatar(opts: {
   return { status, previewImageUrl: data.data?.image_url };}
 
 /**
- * Generate a video using a trained custom avatar group.
+ * Generate a video using a trained custom avatar group (Digital Twin).
+ * Automatically uses Avatar IV motion engine for best quality.
  */
 export async function generateCustomAvatarVideo(opts: {
   avatarId: string;
@@ -348,8 +371,9 @@ export async function generateCustomAvatarVideo(opts: {
   landscape?: boolean;
   caption?: boolean;
   backgroundUrl?: string;
+  motionPrompt?: string;
 }): Promise<string> {
-  // Custom avatar uses same talking_photo endpoint with the group_id
+  // Custom avatar uses talking_photo endpoint with Avatar IV enabled
   return generateTalkingPhotoVideo({
     photoAvatarId: opts.avatarId,
     script: opts.script,
@@ -358,6 +382,7 @@ export async function generateCustomAvatarVideo(opts: {
     landscape: opts.landscape,
     caption: opts.caption,
     backgroundUrl: opts.backgroundUrl,
+    motionPrompt: opts.motionPrompt,
   });
 }
 
