@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Input } from "@/components/ui/input";
 import { ImageCropModal } from "@/components/ImageCropModal";
 import { MARKET_VIEW_OPTIONS, DEFAULT_MARKET_VIEW, type MarketView } from "../../../shared/marketView";
+import { GenerationRatingPrompt } from "@/components/GenerationRatingPrompt";
 
 type InputMethod = "bullets" | "caption" | "blog" | "listing";
 type VideoLength = "30" | "60";
@@ -24,6 +25,7 @@ type CaptionStyle = "white" | "yellow" | "gold" | "none";
 
 export default function AutoReels() {
   const [, navigate] = useLocation();
+  const [showRatingPrompt, setShowRatingPrompt] = useState(false);
   // Check URL for pre-filled script
   const urlParams = new URLSearchParams(window.location.search);
   const scriptParam = urlParams.get('script');
@@ -166,6 +168,7 @@ export default function AutoReels() {
           const status = await utils.autoreels.checkRenderStatus.fetch({ renderId });
           if (status.status === "done" && status.url) {
             setVideoUrl(status.url);
+            setShowRatingPrompt(true);
             setIsGenerating(false);
             setGenerationStep("");
             toast.success("Your reel is ready!");
@@ -363,6 +366,7 @@ export default function AutoReels() {
         const status = await utils.autoreels.checkRenderStatus.fetch({ renderId });
         if (status.status === 'done' && status.url) {
           setVideoUrl(status.url);
+          setShowRatingPrompt(true);
           setHooks([`${marketLocation} Market Update`]);
           setSelectedHook(`${marketLocation} Market Update`);
           setScript(`Market update for ${marketLocation}: Median price $${(marketData.medianPrice / 1000).toFixed(0)}K, ${marketData.daysOnMarket} days on market, ${marketData.activeListings} active listings.`);
@@ -467,6 +471,7 @@ export default function AutoReels() {
 
         if (status.status === 'done' && status.url) {
           setVideoUrl(status.url);
+          setShowRatingPrompt(true);
           toast.success("Your reel is ready!");
           done = true;
           // Persist the completed video URL to the database so it appears in My Content
@@ -1452,6 +1457,14 @@ export default function AutoReels() {
                 </div>
               </div>
             </Card>
+          )}
+
+          {/* Generation Quality Rating */}
+          {videoUrl && showRatingPrompt && (
+            <GenerationRatingPrompt
+              toolType="ai_reels"
+              onDismiss={() => setShowRatingPrompt(false)}
+            />
           )}
 
           {/* Generated Content */}

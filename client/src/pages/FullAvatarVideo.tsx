@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Loader2, Video, Sparkles, Download, Upload, User, Trash2,
   CheckCircle2, Clock, AlertCircle, Zap, Crown, RefreshCw, Play, Wand2,
-  Lightbulb, ChevronDown, ChevronUp, Share2
+  Lightbulb, ChevronDown, ChevronUp, Share2, ImagePlus
 } from "lucide-react";
 import { toast } from "sonner";
 import { VideoPostingDialog } from "@/components/VideoPostingDialog";
@@ -61,6 +61,13 @@ export default function FullAvatarVideo() {
   const [visualPrompt, setVisualPrompt] = useState("");
   const [captionsEnabled, setCaptionsEnabled] = useState(false);
   const [selectedBackground, setSelectedBackground] = useState<string | null>(null);
+  const [customBgUrl, setCustomBgUrl] = useState<string | null>(null);
+  const [isUploadingBg, setIsUploadingBg] = useState(false);
+  const bgUploadRef = useRef<HTMLInputElement>(null);
+  const [musicUrl, setMusicUrl] = useState<string | null>(null);
+  const [musicFileName, setMusicFileName] = useState<string | null>(null);
+  const [isUploadingMusic, setIsUploadingMusic] = useState(false);
+  const musicUploadRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [voiceId, setVoiceId] = useState("");
   const [voiceGenderFilter, setVoiceGenderFilter] = useState<"all" | "male" | "female">("all");
@@ -269,6 +276,7 @@ export default function FullAvatarVideo() {
           captionsEnabled,
           visualPrompt: visualPrompt.trim() || undefined,
           backgroundUrl: selectedBackground || undefined,
+          musicUrl: musicUrl || undefined,
         });
       } else if (mode === "quick") {
         setGenerationStep("Generating your avatar video…");
@@ -281,6 +289,7 @@ export default function FullAvatarVideo() {
           captionsEnabled,
           visualPrompt: visualPrompt.trim() || undefined,
           backgroundUrl: selectedBackground || undefined,
+          musicUrl: musicUrl || undefined,
         });
       } else {
         setGenerationStep("Generating with your custom digital twin…");
@@ -291,6 +300,7 @@ export default function FullAvatarVideo() {
           captionsEnabled,
           visualPrompt: visualPrompt.trim() || undefined,
           backgroundUrl: selectedBackground || undefined,
+          musicUrl: musicUrl || undefined,
         });
       }
 
@@ -888,6 +898,38 @@ export default function FullAvatarVideo() {
           <Label className="text-base font-semibold">🎨 Background Scene</Label>
           <p className="text-xs text-muted-foreground mt-1">Choose the environment behind your avatar. A realistic scene makes your video look professional and natural.</p>
         </div>
+        {/* Custom background upload input */}
+        <input
+          ref={bgUploadRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            if (file.size > 10 * 1024 * 1024) {
+              toast.error("Image must be under 10 MB");
+              return;
+            }
+            setIsUploadingBg(true);
+            try {
+              const formData = new FormData();
+              formData.append("file", file);
+              const res = await fetch("/api/upload-images", { method: "POST", body: formData });
+              const json = await res.json();
+              const url = json.urls?.[0] ?? json.url;
+              if (!url) throw new Error("Upload failed");
+              setCustomBgUrl(url);
+              setSelectedBackground(url);
+              toast.success("Custom background uploaded!");
+            } catch {
+              toast.error("Upload failed — please try again");
+            } finally {
+              setIsUploadingBg(false);
+              e.target.value = "";
+            }
+          }}
+        />
         <div className="grid grid-cols-5 gap-2">
           {([
             { id: null, label: "None" },
@@ -928,6 +970,54 @@ export default function FullAvatarVideo() {
               )}
             </button>
           ))}
+
+          {/* Custom upload tile */}
+          {customBgUrl ? (
+            <button
+              type="button"
+              onClick={() => setSelectedBackground(customBgUrl)}
+              className={`relative rounded-lg overflow-hidden border-2 transition-all ${
+                selectedBackground === customBgUrl
+                  ? "border-primary ring-2 ring-primary/30"
+                  : "border-border hover:border-primary/40"
+              }`}
+              style={{ aspectRatio: "9/16" }}
+            >
+              <img src={customBgUrl} alt="Custom" className="w-full h-full object-cover" />
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-1 py-0.5">
+                <p className="text-[9px] text-white font-medium text-center leading-tight">My Background</p>
+              </div>
+              {selectedBackground === customBgUrl && (
+                <div className="absolute top-1 right-1 bg-primary rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="text-[9px] text-white font-bold">✓</span>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setCustomBgUrl(null); if (selectedBackground === customBgUrl) setSelectedBackground(null); }}
+                className="absolute top-1 left-1 bg-black/60 rounded-full w-4 h-4 flex items-center justify-center hover:bg-red-500/80 transition-colors"
+              >
+                <span className="text-[9px] text-white font-bold">✕</span>
+              </button>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => bgUploadRef.current?.click()}
+              disabled={isUploadingBg}
+              className="relative rounded-lg overflow-hidden border-2 border-dashed border-border hover:border-primary/60 transition-all bg-muted/30 hover:bg-muted/50 flex flex-col items-center justify-center gap-1"
+              style={{ aspectRatio: "9/16" }}
+            >
+              {isUploadingBg ? (
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              ) : (
+                <ImagePlus className="w-4 h-4 text-muted-foreground" />
+              )}
+              <span className="text-[9px] text-muted-foreground font-medium text-center leading-tight px-1">
+                {isUploadingBg ? "Uploading..." : "Upload Custom"}
+              </span>
+            </button>
+          )}
         </div>
       </Card>
 
@@ -1008,6 +1098,76 @@ export default function FullAvatarVideo() {
           <Switch
             checked={captionsEnabled}
             onCheckedChange={setCaptionsEnabled}
+          />
+        </div>
+
+        {/* Background Music upload */}
+        <div className="flex items-center justify-between rounded-lg border p-3 bg-muted/30">
+          <div className="space-y-0.5 flex-1 min-w-0">
+            <Label className="text-sm font-medium flex items-center gap-2">
+              🎵 Background Music
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              {musicFileName
+                ? <span className="text-primary font-medium truncate block max-w-[220px]">{musicFileName}</span>
+                : "Upload an MP3 or WAV to play softly behind your avatar's voice."}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 ml-3">
+            {musicUrl && (
+              <button
+                type="button"
+                onClick={() => { setMusicUrl(null); setMusicFileName(null); }}
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+              >
+                Remove
+              </button>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => musicUploadRef.current?.click()}
+              disabled={isUploadingMusic}
+              className="text-xs"
+            >
+              {isUploadingMusic ? (
+                <><Loader2 className="mr-1 h-3 w-3 animate-spin" />Uploading…</>
+              ) : (
+                <><Upload className="mr-1 h-3 w-3" />{musicUrl ? "Change" : "Upload"}</>
+              )}
+            </Button>
+          </div>
+          <input
+            ref={musicUploadRef}
+            type="file"
+            accept="audio/mp3,audio/mpeg,audio/wav,audio/*"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              if (file.size > 20 * 1024 * 1024) {
+                toast.error("Music file must be under 20 MB");
+                return;
+              }
+              setIsUploadingMusic(true);
+              try {
+                const formData = new FormData();
+                formData.append("file", file);
+                const res = await fetch("/api/upload", { method: "POST", body: formData });
+                const json = await res.json();
+                const url = json.url;
+                if (!url) throw new Error("Upload failed");
+                setMusicUrl(url);
+                setMusicFileName(file.name);
+                toast.success("Music track uploaded!");
+              } catch {
+                toast.error("Upload failed — please try again");
+              } finally {
+                setIsUploadingMusic(false);
+                e.target.value = "";
+              }
+            }}
           />
         </div>
 

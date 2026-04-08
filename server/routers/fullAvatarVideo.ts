@@ -5,6 +5,7 @@ import { getDb } from "../db";
 import { fullAvatarVideos, customAvatarTwins, users } from "../../drizzle/schema";
 import { eq, and, desc, gte, sql } from "drizzle-orm";
 import { storagePut } from "../storage";
+import { mixBgmIntoVideo } from "../lib/audioMixer";
 import { invokeLLM } from "../_core/llm";
 import {
   generateStockAvatarVideo,
@@ -179,6 +180,7 @@ Requirements:
         captionsEnabled: z.boolean().optional().default(false), // Burn CC captions into video
         visualPrompt: z.string().max(2000).optional(), // Visual direction / B-roll notes (stored for reference)
         backgroundUrl: z.string().url().optional(), // Background scene image URL
+        musicUrl: z.string().url().optional(), // Custom BGM track URL (S3)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -240,7 +242,21 @@ Requirements:
         // Download and re-host on S3 for permanence
         const videoRes = await fetch(finalVideoUrl);
         if (!videoRes.ok) throw new Error("Failed to download generated video");
-        const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let videoBuffer: any = Buffer.from(await videoRes.arrayBuffer());
+        // ── BGM mixing (optional) ────────────────────────────────────────────
+        if (input.musicUrl) {
+          try {
+            const musicRes = await fetch(input.musicUrl);
+            if (musicRes.ok) {
+              const musicBuffer = Buffer.from(await musicRes.arrayBuffer());
+              videoBuffer = await mixBgmIntoVideo(videoBuffer, musicBuffer, 0.12);
+            }
+          } catch (mixErr) {
+            // BGM mixing is best-effort — don't fail the whole generation
+            console.warn("BGM mixing failed, using video without music:", mixErr);
+          }
+        }
         const s3Key = `full-avatar-videos/${ctx.user.id}/${videoId}-${Date.now()}.mp4`;
         const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
         await db
@@ -465,6 +481,7 @@ Requirements:
         captionsEnabled: z.boolean().optional().default(false), // Burn CC captions into video
         visualPrompt: z.string().max(2000).optional(), // Visual direction / B-roll notes (stored for reference)
         backgroundUrl: z.string().url().optional(), // Background scene image URL
+        musicUrl: z.string().url().optional(), // Custom BGM track URL (S3)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -541,7 +558,20 @@ Requirements:
         // Download and re-host on S3
         const videoRes = await fetch(finalVideoUrl2);
         if (!videoRes.ok) throw new Error("Failed to download generated video");
-        const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let videoBuffer: any = Buffer.from(await videoRes.arrayBuffer());
+        // ── BGM mixing (optional) ────────────────────────────────────────────
+        if (input.musicUrl) {
+          try {
+            const musicRes = await fetch(input.musicUrl);
+            if (musicRes.ok) {
+              const musicBuffer = Buffer.from(await musicRes.arrayBuffer());
+              videoBuffer = await mixBgmIntoVideo(videoBuffer, musicBuffer, 0.12);
+            }
+          } catch (mixErr) {
+            console.warn("BGM mixing failed, using video without music:", mixErr);
+          }
+        }
         const s3Key = `full-avatar-videos/${ctx.user.id}/${videoId}-custom-${Date.now()}.mp4`;
         const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
         await db

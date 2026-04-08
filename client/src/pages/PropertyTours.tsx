@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { ImageCropModal } from "@/components/ImageCropModal";
+import { GenerationRatingPrompt } from "@/components/GenerationRatingPrompt";
 import { compressVideo } from "@/lib/videoCompression";
 import { useLocation } from "wouter";
 import { MusicLibrary } from "@/components/MusicLibrary";
@@ -130,6 +131,7 @@ export default function PropertyTours() {
 
   // Video-ready celebration modal
   const [readyVideoUrl, setReadyVideoUrl] = useState<string | null>(null);
+  const [showRatingPrompt, setShowRatingPrompt] = useState(false);
   const [showVideoShare, setShowVideoShare] = useState(false);
   const [readyVideoAddress, setReadyVideoAddress] = useState<string>("");
   const [copiedLink, setCopiedLink] = useState(false);
@@ -544,6 +546,7 @@ export default function PropertyTours() {
               // Show the video-ready modal
               if ((status as any).videoUrl) {
                 setReadyVideoUrl((status as any).videoUrl);
+                setShowRatingPrompt(true);
                 setReadyVideoAddress(address || "Your Property Tour");
               } else {
                 // Fetch from list to get the URL
@@ -551,6 +554,7 @@ export default function PropertyTours() {
                 const latest = tours?.find((t: any) => t.status === "completed" && t.videoUrl);
                 if (latest?.videoUrl) {
                   setReadyVideoUrl(latest.videoUrl);
+                  setShowRatingPrompt(true);
                   setReadyVideoAddress(latest.address || "Your Property Tour");
                 }
               }
@@ -1960,6 +1964,16 @@ export default function PropertyTours() {
                 playsInline
               />
             </div>
+
+            {/* Generation Quality Rating */}
+            {showRatingPrompt && (
+              <div className="px-5 pt-4">
+                <GenerationRatingPrompt
+                  toolType="property_tour"
+                  onDismiss={() => setShowRatingPrompt(false)}
+                />
+              </div>
+            )}
 
             {/* Actions */}
             <div className="p-5 space-y-3">

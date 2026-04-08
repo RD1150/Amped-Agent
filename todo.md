@@ -4331,3 +4331,22 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add rating prompt to Full Avatar Video after generation completes
 - [x] Build Generation Quality admin dashboard at /admin/generation-quality
 - [x] Add Generation Quality link to admin sidebar section
+
+## Rating Prompt Extension + Custom Background + Avatar V Monitor (Apr 8)
+- [ ] Extend GenerationRatingPrompt to AI Reels page (after reel is ready)
+- [ ] Extend GenerationRatingPrompt to Property Tours page (after video is ready)
+- [ ] Add Custom background upload tile to Full Avatar Video background picker
+- [ ] Set up Avatar V API monitoring scheduled check
+
+## Fine-Tuning Batch (Apr 8 PM)
+- [ ] Add custom background upload tile to Full Avatar Video background picker
+- [ ] Add custom music upload option to AI Reels and Property Tours
+- [ ] Set up Avatar V API monitoring scheduled check
+- [ ] Swap in new example videos when provided by user
+
+## Session Continuation - Custom Upload Features
+- [x] Custom background upload tile in Full Avatar Video (agent uploads own backdrop image → S3 → HeyGen)
+- [x] Custom music upload for Full Avatar Video BGM (MP3/WAV → S3 → FFmpeg post-mix at 12% volume)
+- [x] BGM mixing utility (server/lib/audioMixer.ts) using FFmpeg — best-effort, never fails generation
+- [x] musicUrl wired through all 3 generate paths (stock avatar, photo avatar, custom twin)
+- [x] TypeScript clean (0 errors) after all changes
