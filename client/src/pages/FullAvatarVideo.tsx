@@ -56,6 +56,7 @@ export default function FullAvatarVideo() {
 
   // ── Script ────────────────────────────────────────────────────────────────
   const [script, setScript] = useState("");
+  const [visualPrompt, setVisualPrompt] = useState("");
   const [title, setTitle] = useState("");
   const [voiceId, setVoiceId] = useState("");
   const [voiceGenderFilter, setVoiceGenderFilter] = useState<"all" | "male" | "female">("all");
@@ -860,7 +861,7 @@ export default function FullAvatarVideo() {
       {/* Script input */}
       <Card className="p-6 space-y-4" ref={scriptSectionRef}>
         <div className="flex items-center justify-between">
-          <Label className="text-base font-semibold">Your Script</Label>
+          <Label className="text-base font-semibold">Script &amp; Visual Direction</Label>
           {script.trim() && (
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span>{readTime.words} words</span>
@@ -885,13 +886,41 @@ export default function FullAvatarVideo() {
           className="text-sm"
         />
 
-        <Textarea
-          placeholder="Write or paste your full script here. The AI avatar will speak every word exactly as written. Aim for 100–250 words for a 45–120 second video."
-          value={script}
-          onChange={(e) => setScript(e.target.value)}
-          rows={8}
-          className="resize-none text-sm leading-relaxed"
-        />
+        {/* Two-column: Script + Visual Prompt */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Left: Spoken Script */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">🎙️ Spoken Script</Label>
+              <span className="text-xs text-muted-foreground">— what the avatar says</span>
+            </div>
+            <Textarea
+              placeholder="Write or paste your full script here. The AI avatar will speak every word exactly as written. Aim for 100–250 words for a 45–120 second video."
+              value={script}
+              onChange={(e) => setScript(e.target.value)}
+              rows={10}
+              className="resize-none text-sm leading-relaxed"
+            />
+          </div>
+
+          {/* Right: Visual Prompt / Captions */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">🎬 Visual Prompt / Captions</Label>
+              <span className="text-xs text-muted-foreground">— on-screen direction</span>
+            </div>
+            <Textarea
+              placeholder={`Describe what should appear on screen as the script is read.\n\nExamples:\n• Show exterior shot of 123 Main St\n• Cut to kitchen with granite counters\n• Display caption: "3 beds · 2 baths · $650K"\n• B-roll: couple walking through backyard\n• Text overlay: Call to action`}
+              value={visualPrompt}
+              onChange={(e) => setVisualPrompt(e.target.value)}
+              rows={10}
+              className="resize-none text-sm leading-relaxed"
+            />
+            <p className="text-xs text-muted-foreground">
+              Optional — use this to guide your video editor or AI video tool on what visuals to pair with each line.
+            </p>
+          </div>
+        </div>
 
         {/* Voice selector — live from HeyGen */}
         <div className="space-y-2">
