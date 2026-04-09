@@ -80,9 +80,28 @@ export const fullAvatarVideoRouter = router({
         keyPoints: z.string().max(1000),
         agentName: z.string().optional(),
         targetLength: z.enum(["30s", "60s", "90s", "2min"]).default("60s"),
+        city: z.string().optional(), // For market_update: pull live market data
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Fetch live market data for market_update scripts
+      let marketDataBlock = "";
+      if (input.contentType === "market_update" && input.city) {
+        try {
+          const { getMarketData } = await import("../marketStatsHelper");
+          const md = await getMarketData(input.city);
+          marketDataBlock = `\n\nLIVE MARKET DATA for ${md.location} (use these exact numbers — do not invent statistics):
+- Median Home Price: $${md.medianPrice.toLocaleString()} (${md.priceChange > 0 ? "+" : ""}${md.priceChange}% YoY)
+- Days on Market: ${md.daysOnMarket} days
+- Active Listings: ${md.activeListings.toLocaleString()} (${md.listingsChange > 0 ? "+" : ""}${md.listingsChange}% YoY)
+- Price per Sq Ft: $${md.pricePerSqft}
+- Market Condition: ${md.marketTemperature === "hot" ? "Seller's Market" : md.marketTemperature === "cold" ? "Buyer's Market" : "Balanced Market"}`;
+          console.log(`[FullAvatarVideo] Fetched live market data for ${input.city}`);
+        } catch (err) {
+          console.warn("[FullAvatarVideo] Could not fetch market data, using key points only:", err);
+        }
+      }
+
       const lengthGuide = {
         "30s": "65–80 words (30 seconds at camera pace)",
         "60s": "130–150 words (60 seconds at camera pace)",
@@ -113,11 +132,11 @@ Do NOT start with "Hey guys" or generic openers. Start with something specific a
 Target length: ${lengthGuide}
 
 Key points to cover:
-${input.keyPoints}
+${input.keyPoints}${marketDataBlock}
 
 Requirements:
 - Direct-to-camera delivery tone (not a voiceover)
-- Conversational but professional
+- Conversational but professional${marketDataBlock ? "\n- Use the LIVE MARKET DATA numbers above — do not invent or round statistics" : ""}
 - End with a clear call to action
 - No hashtags, no emojis, no stage directions
 - Just the spoken words`;

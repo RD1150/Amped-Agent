@@ -718,7 +718,8 @@ export default function AutoReels() {
                     try {
                       const result = await generateContentMutation.mutateAsync({
                         topic,
-                        inputMethod
+                        inputMethod,
+                        city: marketLocation.trim() || undefined,
                       });
                       setInputText(result.content);
                       toast.success("Content generated! Edit as needed.");

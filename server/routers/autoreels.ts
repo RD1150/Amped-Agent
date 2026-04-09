@@ -18,6 +18,7 @@ export const autoreelsRouter = router({
     .input(z.object({
       topic: z.string().min(1, "Topic is required"),
       inputMethod: inputMethodEnum,
+      city: z.string().optional(), // For market update topics: pull live data
     }))
     .mutation(async ({ ctx, input }) => {
       const { topic, inputMethod } = input;
@@ -45,6 +46,25 @@ export const autoreelsRouter = router({
         }
       }
       
+      // Fetch live market data if topic is market-related and city is provided
+      let marketDataBlock = "";
+      const isMarketTopic = /market|price|inventory|listing|rate|sold|buyer|seller/i.test(topic);
+      if (isMarketTopic && input.city) {
+        try {
+          const { getMarketData } = await import("../marketStatsHelper");
+          const md = await getMarketData(input.city);
+          marketDataBlock = `\n\nLIVE MARKET DATA for ${md.location} (use these exact numbers — do not invent statistics):
+- Median Home Price: $${md.medianPrice.toLocaleString()} (${md.priceChange > 0 ? "+" : ""}${md.priceChange}% YoY)
+- Days on Market: ${md.daysOnMarket} days
+- Active Listings: ${md.activeListings.toLocaleString()} (${md.listingsChange > 0 ? "+" : ""}${md.listingsChange}% YoY)
+- Price per Sq Ft: $${md.pricePerSqft}
+- Market Condition: ${md.marketTemperature === "hot" ? "Seller's Market" : md.marketTemperature === "cold" ? "Buyer's Market" : "Balanced Market"}`;
+          console.log(`[AutoReels] Fetched live market data for ${input.city}`);
+        } catch (err) {
+          console.warn("[AutoReels] Could not fetch market data:", err);
+        }
+      }
+
       // Generate content based on input method
       const contentTypeInstructions = {
         bullets: "Create 3-5 bullet points that can be used for a reel script. Each bullet should be a key point or tip.",
@@ -61,7 +81,7 @@ export const autoreelsRouter = router({
           },
           {
             role: "user",
-            content: `Topic: ${topic}\n\n${contentTypeInstructions[inputMethod]}\n\nMake it specific, valuable, and aligned with the agent's authority profile.`
+            content: `Topic: ${topic}${marketDataBlock}\n\n${contentTypeInstructions[inputMethod]}\n\nMake it specific, valuable, and aligned with the agent's authority profile.${marketDataBlock ? " Use the LIVE MARKET DATA numbers above — do not invent statistics." : ""}`
           }
         ]
       });

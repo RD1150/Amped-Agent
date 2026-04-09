@@ -214,6 +214,24 @@ Return JSON array with id and visualPrompt for each scene.`,
       const approxScenes = Math.max(3, Math.round(input.targetDurationSec / 10));
       const wordsPerScene = Math.round((input.targetDurationSec / 60) * 150 / approxScenes);
 
+      // Fetch live market data for market_update scripts
+      let marketDataBlock = "";
+      if (input.videoType === "market_update" && input.city) {
+        try {
+          const { getMarketData } = await import("../marketStatsHelper");
+          const md = await getMarketData(input.city);
+          marketDataBlock = `\n\nLIVE MARKET DATA for ${md.location} (use these exact numbers — do not invent statistics):
+- Median Home Price: $${md.medianPrice.toLocaleString()} (${md.priceChange > 0 ? "+" : ""}${md.priceChange}% YoY)
+- Days on Market: ${md.daysOnMarket} days
+- Active Listings: ${md.activeListings.toLocaleString()} (${md.listingsChange > 0 ? "+" : ""}${md.listingsChange}% YoY)
+- Price per Sq Ft: $${md.pricePerSqft}
+- Market Condition: ${md.marketTemperature === "hot" ? "Seller's Market" : md.marketTemperature === "cold" ? "Buyer's Market" : "Balanced Market"}`;
+          console.log(`[VideoScriptBuilder] Fetched live market data for ${input.city}`);
+        } catch (err) {
+          console.warn("[VideoScriptBuilder] Could not fetch market data:", err);
+        }
+      }
+
       const response = await invokeLLM({
         messages: [
           {
@@ -229,8 +247,7 @@ Return ONLY valid JSON — no markdown, no extra text.`,
 Topic: ${input.topic}
 Agent: ${input.agentName || "a real estate agent"}
 Market: ${input.city || "local market"}
-Tone: ${input.tone}
-
+Tone: ${input.tone}${marketDataBlock}
 Generate exactly ${approxScenes} scenes. Each scene has:
 - spokenScript: the exact words to be spoken
 - visualPrompt: what to show on screen while those words are spoken (B-roll, screen demo, text overlay, animation, etc.)

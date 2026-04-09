@@ -88,6 +88,7 @@ export default function FullAvatarVideo() {
   const [scriptContentType, setScriptContentType] = useState<string>("market_update");
   const [scriptKeyPoints, setScriptKeyPoints] = useState("");
   const [scriptTargetLength, setScriptTargetLength] = useState<"30s" | "60s" | "90s" | "2min">("60s");
+  const [scriptCity, setScriptCity] = useState("");
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
 
   // ── Generation state ──────────────────────────────────────────────────────
@@ -356,6 +357,7 @@ export default function FullAvatarVideo() {
         keyPoints: scriptKeyPoints,
         agentName: currentUser?.name || undefined,
         targetLength: scriptTargetLength,
+        city: scriptCity.trim() || undefined,
       });
       setScript(result.script);
       setShowScriptGen(false);
@@ -922,6 +924,32 @@ export default function FullAvatarVideo() {
                 ))}
               </div>
             </div>
+
+            {/* City field — only for market_update */}
+            {scriptContentType === "market_update" && (
+              <div className="space-y-2">
+                <Label className="text-sm">
+                  Your market city{" "}
+                  <span className="text-muted-foreground font-normal">(optional — pulls live data)</span>
+                </Label>
+                <div className="relative">
+                  <Input
+                    placeholder="e.g. Austin, TX"
+                    value={scriptCity}
+                    onChange={(e) => setScriptCity(e.target.value)}
+                    className="text-sm pr-24"
+                  />
+                  {scriptCity.trim() && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-emerald-500 font-medium">
+                      📊 Live data
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Enter your city to auto-populate the script with real median price, days on market, and inventory stats.
+                </p>
+              </div>
+            )}
 
             {/* Key points */}
             <div className="space-y-2">
