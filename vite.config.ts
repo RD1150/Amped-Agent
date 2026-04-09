@@ -1,7 +1,6 @@
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import fs from "node:fs";
 import path from "path";
 import { defineConfig } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
@@ -24,40 +23,6 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // Heavy syntax highlighting / diagram libs — split into separate chunks
-          if (id.includes('shiki') || id.includes('highlight') || id.includes('mermaid') || id.includes('cytoscape')) {
-            return 'syntax-heavy';
-          }
-          // Streamdown markdown renderer
-          if (id.includes('streamdown')) {
-            return 'markdown';
-          }
-          // React core
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-            return 'react-core';
-          }
-          // Radix UI components
-          if (id.includes('@radix-ui')) {
-            return 'radix-ui';
-          }
-          // Tanstack query + trpc
-          if (id.includes('@tanstack') || id.includes('@trpc')) {
-            return 'data-layer';
-          }
-          // Recharts / chart libs
-          if (id.includes('recharts') || id.includes('d3-')) {
-            return 'charts';
-          }
-          // Lucide icons
-          if (id.includes('lucide-react')) {
-            return 'icons';
-          }
-        },
-      },
-    },
   },
   server: {
     host: true,
