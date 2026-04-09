@@ -105,7 +105,7 @@ export default function Help() {
 
       {/* Quick Links */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-card border-border card-hover cursor-pointer">
+        <Card className="bg-card border-border card-hover cursor-pointer" onClick={() => window.open('https://ampedagent.app/help', '_blank')}>
           <CardContent className="p-4 text-center">
             <BookOpen className="h-8 w-8 mx-auto mb-2 text-primary" />
             <p className="font-medium">Documentation</p>
@@ -119,14 +119,14 @@ export default function Help() {
             <p className="text-xs text-muted-foreground">Watch the welcome tour</p>
           </CardContent>
         </Card>
-        <Card className="bg-card border-border card-hover cursor-pointer">
+        <Card className="bg-card border-border card-hover cursor-pointer" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=AmpedAgent Support'}>
           <CardContent className="p-4 text-center">
             <MessageCircle className="h-8 w-8 mx-auto mb-2 text-primary" />
             <p className="font-medium">Live Chat</p>
             <p className="text-xs text-muted-foreground">Talk to support</p>
           </CardContent>
         </Card>
-        <Card className="bg-card border-border card-hover cursor-pointer">
+        <Card className="bg-card border-border card-hover cursor-pointer" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=AmpedAgent Support'}>
           <CardContent className="p-4 text-center">
             <Mail className="h-8 w-8 mx-auto mb-2 text-primary" />
             <p className="font-medium">Email Support</p>
@@ -231,13 +231,13 @@ export default function Help() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline">
+              <Button variant="outline" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=AmpedAgent Support'}>
                 <Mail className="h-4 w-4 mr-2" />
                 Email Support
               </Button>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=AmpedAgent Support'}>
                 <MessageCircle className="h-4 w-4 mr-2" />
-                Start Live Chat
+                Contact Support
               </Button>
             </div>
           </div>
