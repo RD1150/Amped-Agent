@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Accordion,
   AccordionContent,
@@ -12,9 +14,11 @@ import {
   MessageCircle, 
   Video, 
   Mail,
-  ExternalLink,
-  Sparkles
+  Sparkles,
+  Play
 } from "lucide-react";
+
+const WELCOME_VIDEO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/bVtfomvNsCVcQzbd.mp4";
 
 const faqs = [
   {
@@ -52,14 +56,52 @@ const faqs = [
 ];
 
 export default function Help() {
+  const [showVideo, setShowVideo] = useState(false);
+
   return (
     <div className="space-y-6 max-w-4xl">
+      {/* Welcome Video Dialog */}
+      <Dialog open={showVideo} onOpenChange={setShowVideo}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Welcome to AmpedAgent 👋</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
+            <video
+              src={WELCOME_VIDEO_URL}
+              controls
+              autoPlay
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div>
         <h1 className="text-2xl font-bold text-foreground">Help & Support</h1>
         <p className="text-muted-foreground mt-1">
           Get help with AmpedAgent and learn how to make the most of your content
         </p>
       </div>
+
+      {/* Replay Intro Video Banner */}
+      <Card className="bg-primary/5 border-primary/20 cursor-pointer hover:bg-primary/10 transition-colors" onClick={() => setShowVideo(true)}>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+              <Play className="h-6 w-6 text-primary ml-0.5" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-foreground">Watch the AmpedAgent Intro</p>
+              <p className="text-sm text-muted-foreground">Replay the welcome video to get a quick overview of all features</p>
+            </div>
+            <Button size="sm" className="flex-shrink-0">
+              <Play className="h-4 w-4 mr-2" />
+              Watch Now
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Quick Links */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -70,11 +112,11 @@ export default function Help() {
             <p className="text-xs text-muted-foreground">Read the guides</p>
           </CardContent>
         </Card>
-        <Card className="bg-card border-border card-hover cursor-pointer">
+        <Card className="bg-card border-border card-hover cursor-pointer" onClick={() => setShowVideo(true)}>
           <CardContent className="p-4 text-center">
             <Video className="h-8 w-8 mx-auto mb-2 text-primary" />
-            <p className="font-medium">Video Tutorials</p>
-            <p className="text-xs text-muted-foreground">Watch and learn</p>
+            <p className="font-medium">Replay Intro Video</p>
+            <p className="text-xs text-muted-foreground">Watch the welcome tour</p>
           </CardContent>
         </Card>
         <Card className="bg-card border-border card-hover cursor-pointer">
