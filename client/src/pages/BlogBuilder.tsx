@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import ScheduleToCalendarModal from "@/components/ScheduleToCalendarModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
-import { Loader2, FileText, Copy, Trash2, ChevronDown, ChevronUp, Sparkles, Search, Repeat2, ExternalLink } from "lucide-react";
+import { Loader2, FileText, Copy, Trash2, ChevronDown, ChevronUp, Sparkles, Search, Repeat2, ExternalLink, CalendarPlus } from "lucide-react";
 
 const TOPIC_SUGGESTIONS = [
   "5 Things First-Time Buyers Wish They Knew Before Buying",
@@ -33,6 +34,7 @@ export default function BlogBuilder() {
   const [wordCount, setWordCount] = useState<"short" | "medium" | "long">("medium");
   const [expandedPost, setExpandedPost] = useState<number | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [schedulePost, setSchedulePost] = useState<{ title: string; content: string } | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -74,6 +76,7 @@ export default function BlogBuilder() {
   const wordCountLabel = { short: "~500 words", medium: "~800 words", long: "~1,100 words" };
 
   return (
+    <>
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
       <div>
@@ -314,6 +317,15 @@ export default function BlogBuilder() {
                             variant="outline"
                             size="sm"
                             className="gap-2 text-primary border-primary/30 hover:bg-muted dark:hover:bg-primary/10"
+                            onClick={() => setSchedulePost({ title: post.title, content: post.content })}
+                          >
+                            <CalendarPlus className="h-3.5 w-3.5" />
+                            Add to Calendar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2 text-primary border-primary/30 hover:bg-muted dark:hover:bg-primary/10"
                             onClick={() => {
                               const params = new URLSearchParams({
                                 topic: post.title,
@@ -375,5 +387,18 @@ export default function BlogBuilder() {
         )}
       </div>
     </div>
+
+    {/* Schedule to Calendar Modal */}
+    {schedulePost && (
+      <ScheduleToCalendarModal
+        open={!!schedulePost}
+        onClose={() => setSchedulePost(null)}
+        content={schedulePost.content}
+        title={schedulePost.title}
+        contentType="custom"
+        sourceLabel="Blog Post"
+      />
+    )}
+    </>
   );
 }

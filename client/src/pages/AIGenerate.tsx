@@ -39,6 +39,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { getFirstPost } from "@/lib/postFormatter";
 import ComprehensiveTemplateSelector from "@/components/ComprehensiveTemplateSelector";
 import { PostingDialog } from "@/components/PostingDialog";
+import ScheduleToCalendarModal from "@/components/ScheduleToCalendarModal";
 import type { Template } from "../../../shared/templates";
 
 type ContentType = "property_listing" | "market_report" | "trending_news" | "tips" | "neighborhood" | "custom";
@@ -75,6 +76,7 @@ export default function AIGenerate() {
   const [ctaText, setCtaText] = useState("");
   const [showPostingDialog, setShowPostingDialog] = useState(false);
   const [isEditingContent, setIsEditingContent] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [marketLocation, setMarketLocation] = useState("");
 
   // Image generation states
@@ -600,9 +602,9 @@ export default function AIGenerate() {
                           </>
                         )}
                       </Button>
-                      <Button onClick={handleSaveDraft} variant="outline" className="flex-1">
+                      <Button onClick={() => setShowScheduleModal(true)} variant="outline" className="flex-1">
                         <Calendar className="mr-2 h-4 w-4" />
-                        Save to Drafts
+                        Add to Calendar
                       </Button>
                       <Button 
                         onClick={() => {
@@ -976,6 +978,18 @@ export default function AIGenerate() {
           toast.success("Content posted successfully!");
         }}
       />
+
+      {showScheduleModal && (
+        <ScheduleToCalendarModal
+          open={showScheduleModal}
+          onClose={() => setShowScheduleModal(false)}
+          content={generatedContent}
+          title={topic || "Social Media Post"}
+          contentType={contentType}
+          imageUrl={generatedImage || undefined}
+          sourceLabel="Post"
+        />
+      )}
 
       <ImageLibraryPicker
         open={showLibraryPicker}

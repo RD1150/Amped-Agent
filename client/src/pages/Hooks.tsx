@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import ScheduleToCalendarModal from "@/components/ScheduleToCalendarModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ import {
   X,
   FileText,
   Clapperboard,
+  CalendarPlus,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -61,6 +63,7 @@ export default function Hooks() {
   const [scriptFormat, setScriptFormat] = useState<"video" | "email" | "social" | "carousel">("social");
   const [scriptLength, setScriptLength] = useState<"short" | "medium" | "long">("medium");
   const [generatedScript, setGeneratedScript] = useState<string | null>(null);
+  const [scheduleScript, setScheduleScript] = useState<string | null>(null);
 
   // Voiceover state per hook
   const [previewingHookId, setPreviewingHookId] = useState<number | null>(null);
@@ -173,6 +176,7 @@ export default function Hooks() {
   };
 
   return (
+    <>
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -434,7 +438,7 @@ export default function Hooks() {
                           <p className="text-xs text-muted-foreground font-medium mb-2">Generated script:</p>
                           <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{generatedScript}</p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                           <Button
                             size="sm"
                             variant="outline"
@@ -442,6 +446,14 @@ export default function Hooks() {
                             onClick={() => { navigator.clipboard.writeText(generatedScript); toast.success("Script copied!"); }}
                           >
                             <Copy className="h-3.5 w-3.5 mr-1.5" />Copy
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1"
+                            onClick={() => setScheduleScript(generatedScript)}
+                          >
+                            <CalendarPlus className="h-3.5 w-3.5 mr-1.5" />Schedule
                           </Button>
                           <Button
                             size="sm"
@@ -478,5 +490,18 @@ export default function Hooks() {
         </Card>
       )}
     </div>
+
+    {/* Schedule to Calendar Modal */}
+    {scheduleScript && (
+      <ScheduleToCalendarModal
+        open={!!scheduleScript}
+        onClose={() => setScheduleScript(null)}
+        content={scheduleScript}
+        title="Hook Script"
+        contentType="custom"
+        sourceLabel="Hook Script"
+      />
+    )}
+    </>
   );
 }

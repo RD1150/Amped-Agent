@@ -4356,3 +4356,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Headshot tips auto-open by default so agents see requirements before uploading
 - [x] Added amber warning banner highlighting the 3 most common distortion causes (closed mouth, head cropped, face too small)
 - [x] Added blue dimensions panel with exact specs (800×800 px min, 1:1 aspect ratio, face fills 50-70%, 20% headroom)
+
+## Calendar Integration - Add to Calendar from Feature Pages
+- [x] Add ScheduleToCalendarModal reusable component
+- [x] Add "Add to Calendar" button to Post Builder (AIGenerate)
+- [x] Add "Add to Calendar" button to Blog Builder
+- [x] Add "Add to Calendar" button to AutoReels
+- [x] Add "Add to Calendar" button to Hooks page
+- [x] Verify ContentCalendar renders scheduled posts from feature pages

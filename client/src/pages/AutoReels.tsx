@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import ImageLibraryPicker from "@/components/ImageLibraryPicker";
+import ScheduleToCalendarModal from "@/components/ScheduleToCalendarModal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save, Mic, Play, Square, Repeat2, Image as ImageIcon } from "lucide-react";
+import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save, Mic, Play, Square, Repeat2, Image as ImageIcon, CalendarPlus } from "lucide-react";
 import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -18,6 +19,7 @@ import { MARKET_VIEW_OPTIONS, DEFAULT_MARKET_VIEW, type MarketView } from "../..
 import { GenerationRatingPrompt } from "@/components/GenerationRatingPrompt";
 
 type InputMethod = "bullets" | "caption" | "blog" | "listing";
+type ScheduleData = { content: string; title: string } | null;
 type VideoLength = "30" | "60";
 type Tone = "calm" | "bold" | "authoritative" | "warm";
 type CaptionSize = "normal" | "large";
@@ -32,6 +34,7 @@ export default function AutoReels() {
   
   const [inputMethod, setInputMethod] = useState<InputMethod>("bullets");
   const [inputText, setInputText] = useState(scriptParam || "");
+  const [scheduleData, setScheduleData] = useState<ScheduleData>(null);
   const [videoLength, setVideoLength] = useState<VideoLength>("30");
   const [tone, setTone] = useState<Tone>("authoritative");
   const [niche] = useState("real estate");
@@ -1634,6 +1637,14 @@ export default function AutoReels() {
                 </>
               )}
             </Button>
+            <Button
+              onClick={() => setScheduleData({ content: caption || script, title: selectedHook || "Reel" })}
+              variant="outline"
+              disabled={isGenerating || (!caption && !script)}
+            >
+              <CalendarPlus className="mr-2 h-4 w-4" />
+              Add to Calendar
+            </Button>
             <Button 
               onClick={() => {
                 setHooks([]);
@@ -1704,6 +1715,17 @@ export default function AutoReels() {
         title="Select Background Images from Library"
       />
 
+      {/* Schedule to Calendar Modal */}
+      {scheduleData && (
+        <ScheduleToCalendarModal
+          open={!!scheduleData}
+          onClose={() => setScheduleData(null)}
+          content={scheduleData.content}
+          title={scheduleData.title}
+          contentType="video"
+          sourceLabel="Reel"
+        />
+      )}
       {/* Video Posting Dialog */}
       {showVideoShare && videoUrl && (
         <VideoPostingDialog
