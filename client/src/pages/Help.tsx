@@ -18,7 +18,7 @@ import {
   Play
 } from "lucide-react";
 
-const WELCOME_VIDEO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/bVtfomvNsCVcQzbd.mp4";
+const WELCOME_VIDEO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/fRqkhJtByHBulTDL.mp4";
 
 const faqs = [
   {
