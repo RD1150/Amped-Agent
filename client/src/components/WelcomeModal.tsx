@@ -65,7 +65,7 @@ export function WelcomeModal() {
                   setShowSoundHint(true);
                   setTimeout(() => setShowSoundHint(false), 3000);
                 }}
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/welcome-synced-v3_095b8cb4.mp4"
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/welcome-amped-agent-compressed_6bd9af48.mp4"
               >
                 Your browser does not support the video tag.
               </video>

@@ -18,7 +18,7 @@ import {
   Play
 } from "lucide-react";
 
-const WELCOME_VIDEO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/welcome-synced-v3_095b8cb4.mp4";
+const WELCOME_VIDEO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/welcome-amped-agent-compressed_6bd9af48.mp4";
 
 const faqs = [
   {
