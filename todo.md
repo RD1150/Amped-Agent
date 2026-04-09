@@ -4364,3 +4364,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add "Add to Calendar" button to AutoReels
 - [x] Add "Add to Calendar" button to Hooks page
 - [x] Verify ContentCalendar renders scheduled posts from feature pages
+
+## Listing Photo Importer (New)
+- [ ] Build tRPC procedure to extract listing photos from Zillow URL via RapidAPI
+- [ ] Build scraper for Homes.com listing URL photo extraction
+- [ ] Add URL import UI to Property Tour page with photo picker and disclaimer
+- [ ] Add URL import UI to AutoReels page with photo picker and disclaimer

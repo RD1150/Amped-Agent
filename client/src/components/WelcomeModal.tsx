@@ -43,7 +43,7 @@ export function WelcomeModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold text-center">
             Welcome to AmpedAgent! 🎉
@@ -54,12 +54,12 @@ export function WelcomeModal() {
           {/* Welcome Video */}
           <Card className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
             <h3 className="text-xl font-semibold mb-4 text-center">A Message From Our Team</h3>
-            <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
+            <div className="bg-black rounded-lg overflow-hidden relative mx-auto flex items-center justify-center" style={{maxHeight: '70vh', maxWidth: '360px', width: '100%', aspectRatio: '9/16'}}>
               <video
                 controls
                 autoPlay
                 muted
-                className="w-full h-full"
+                className="w-full h-full object-contain"
                 onEnded={() => setVideoEnded(true)}
                 onPlay={() => {
                   setShowSoundHint(true);

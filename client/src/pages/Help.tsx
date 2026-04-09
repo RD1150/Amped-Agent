@@ -62,16 +62,16 @@ export default function Help() {
     <div className="space-y-6 max-w-4xl">
       {/* Welcome Video Dialog */}
       <Dialog open={showVideo} onOpenChange={setShowVideo}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-sm sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Welcome to AmpedAgent 👋</DialogTitle>
           </DialogHeader>
-          <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
+          <div className="bg-black rounded-lg overflow-hidden mx-auto" style={{maxHeight: '70vh', maxWidth: '360px', width: '100%', aspectRatio: '9/16'}}>
             <video
               src={WELCOME_VIDEO_URL}
               controls
               autoPlay
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
         </DialogContent>
