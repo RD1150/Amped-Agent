@@ -65,7 +65,7 @@ export function WelcomeModal() {
                   setShowSoundHint(true);
                   setTimeout(() => setShowSoundHint(false), 3000);
                 }}
-                src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/iEALwbLszpsyZWou.mp4"
+                src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/SecHXeUsFQnPoduR.mp4"
               >
                 Your browser does not support the video tag.
               </video>
