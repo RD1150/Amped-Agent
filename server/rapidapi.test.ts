@@ -10,7 +10,7 @@ describe('RapidAPI Credentials', () => {
 
   it('should successfully fetch data from US Real Estate API', async () => {
     const response = await fetch(
-      'https://us-real-estate.p.rapidapi.com/v2/for-sale?city=houston&state_code=TX&limit=1&offset=0',
+      'https://us-real-estate.p.rapidapi.com/v3/for-sale?city=houston&state_code=TX&limit=1&offset=0',
       {
         headers: {
           'X-RapidAPI-Host': 'us-real-estate.p.rapidapi.com',

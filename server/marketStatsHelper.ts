@@ -2,153 +2,186 @@ import { ENV } from './_core/env';
 
 /**
  * Market Stats Helper
- * Integrates with US Real Estate API (RapidAPI) — Pro plan
+ * Integrates with US Real Estate API via RapidAPI
  * Host: us-real-estate.p.rapidapi.com
+ * Endpoint: GET /v3/for-sale?city=<city>&state_code=<ST>&limit=50
+ *
+ * NOTE: /v2/for-sale is broken (404). Use /v3/for-sale instead.
  */
 
 export interface MarketStatsData {
   location: string;
   medianPrice: number;
-  priceChange: number; // Percentage change YoY
+  priceChange: number; // Percentage change YoY (estimated from market temp)
   daysOnMarket: number;
   activeListings: number;
-  listingsChange: number; // Percentage change YoY
+  listingsChange: number; // Percentage change YoY (estimated from market temp)
   pricePerSqft: number;
   marketTemperature: 'hot' | 'balanced' | 'cold';
   insights: string[];
   lastUpdated: Date;
 }
 
-interface USRealEstateResponse {
-  data: {
-    home_search: {
-      total: number;
-      results: Array<{
-        list_price: number;
-        description: {
-          beds: number;
-          baths_full: number;
-          sqft: number;
-          type: string;
-          year_built: number;
-        };
-        location: {
-          address: {
-            city: string;
-            state_code: string;
-            postal_code: string;
-          };
-        };
-        list_date: string;
-        flags: {
-          is_new_listing: boolean;
-          is_price_reduced: boolean;
-        };
-      }>;
+interface USRealEstateV3Property {
+  list_price?: number;
+  list_date?: string;
+  description?: {
+    sqft?: number;
+    beds?: number;
+    baths_full?: number;
+    type?: string;
+    year_built?: number;
+    lot_sqft?: number;
+  };
+  flags?: {
+    is_new_listing?: boolean;
+    is_price_reduced?: boolean;
+  };
+}
+
+interface USRealEstateV3Response {
+  status: number;
+  data?: {
+    home_search?: {
+      total?: number;
+      results?: USRealEstateV3Property[];
     };
   };
 }
 
 /**
- * Parse location string into city and state_code for US Real Estate API
+ * Parse location string into city and state_code for the API
+ * Handles: "Westlake Village, CA" → { city: "Westlake Village", state_code: "CA" }
  */
 function parseLocation(location: string): { city: string; state_code: string } {
   const parts = location.split(',').map(s => s.trim());
   if (parts.length >= 2) {
     return { city: parts[0], state_code: parts[1].substring(0, 2).toUpperCase() };
   }
-  // Default: treat whole string as city, use empty state (API will still try)
   return { city: parts[0], state_code: '' };
 }
 
 /**
- * Fetch market data from US Real Estate API (RapidAPI Pro)
+ * Fetch market data from US Real Estate API v3 (RapidAPI)
  */
 export async function fetchMarketData(location: string): Promise<MarketStatsData> {
-  try {
-    const { city, state_code } = parseLocation(location);
-    const params = new URLSearchParams({ city, limit: '50', offset: '0' });
-    if (state_code) params.set('state_code', state_code);
+  const { city, state_code } = parseLocation(location);
 
-    const response = await fetch(
-      `https://us-real-estate.p.rapidapi.com/v2/for-sale?${params.toString()}`,
-      {
-        headers: {
-          'X-RapidAPI-Key': ENV.rapidApiKey,
-          'X-RapidAPI-Host': 'us-real-estate.p.rapidapi.com',
-        },
-      }
+  const params = new URLSearchParams({ city, limit: '50', offset: '0' });
+  if (state_code) params.set('state_code', state_code);
+
+  const response = await fetch(
+    `https://us-real-estate.p.rapidapi.com/v3/for-sale?${params.toString()}`,
+    {
+      headers: {
+        'X-RapidAPI-Key': ENV.rapidApiKey,
+        'X-RapidAPI-Host': 'us-real-estate.p.rapidapi.com',
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    throw new Error(
+      `US Real Estate API request failed: ${response.status} ${response.statusText}. ${body.substring(0, 200)}`
     );
-
-    if (!response.ok) {
-      throw new Error(`RapidAPI request failed: ${response.status} ${response.statusText}`);
-    }
-
-    const data: USRealEstateResponse = await response.json();
-    const properties = data.data?.home_search?.results || [];
-    const total = data.data?.home_search?.total || 0;
-
-    if (properties.length === 0) {
-      throw new Error('No properties found for this location');
-    }
-
-    // Calculate market statistics
-    const prices = properties.map(p => p.list_price).filter(p => p > 0);
-    const sqfts = properties.filter(p => p.description?.sqft > 0).map(p => p.description.sqft);
-    const medianPrice = calculateMedian(prices);
-    const avgSqft = sqfts.length > 0 ? sqfts.reduce((a, b) => a + b, 0) / sqfts.length : 0;
-    const pricePerSqft = avgSqft > 0 ? Math.round(medianPrice / avgSqft) : 0;
-
-    // Calculate days on market (approximate from list dates)
-    const now = new Date();
-    const daysOnMarketValues = properties.map(p => {
-      const listDate = new Date(p.list_date);
-      return Math.floor((now.getTime() - listDate.getTime()) / (1000 * 60 * 60 * 24));
-    }).filter(d => d >= 0 && d < 1000);
-    const avgDaysOnMarket = daysOnMarketValues.length > 0
-      ? Math.round(daysOnMarketValues.reduce((a, b) => a + b, 0) / daysOnMarketValues.length)
-      : 45;
-
-    // Determine market temperature based on days on market
-    let marketTemperature: 'hot' | 'balanced' | 'cold';
-    if (avgDaysOnMarket < 30) {
-      marketTemperature = 'hot';
-    } else if (avgDaysOnMarket < 60) {
-      marketTemperature = 'balanced';
-    } else {
-      marketTemperature = 'cold';
-    }
-
-    // Generate insights based on data
-    const insights = generateInsights({
-      medianPrice,
-      daysOnMarket: avgDaysOnMarket,
-      activeListings: total,
-      pricePerSqft,
-      marketTemperature,
-      properties: properties.map(p => ({ flags: p.flags })),
-    });
-
-    // Estimate YoY changes based on market temperature
-    const priceChange = marketTemperature === 'hot' ? 8.5 : marketTemperature === 'balanced' ? 3.2 : -2.1;
-    const listingsChange = marketTemperature === 'hot' ? -15.3 : marketTemperature === 'balanced' ? 5.2 : 12.8;
-
-    return {
-      location,
-      medianPrice,
-      priceChange,
-      daysOnMarket: avgDaysOnMarket,
-      activeListings: total,
-      listingsChange,
-      pricePerSqft,
-      marketTemperature,
-      insights,
-      lastUpdated: new Date(),
-    };
-  } catch (error) {
-    console.error('Error fetching market data:', error);
-    throw error;
   }
+
+  const data: USRealEstateV3Response = await response.json();
+
+  if (data.status !== 200) {
+    throw new Error(`US Real Estate API returned status ${data.status} for "${location}"`);
+  }
+
+  const properties = data.data?.home_search?.results || [];
+  const total = data.data?.home_search?.total || 0;
+
+  if (properties.length === 0) {
+    throw new Error(
+      `No properties found for "${location}". Try a broader city name (e.g., "Los Angeles, CA").`
+    );
+  }
+
+  // Extract prices
+  const prices = properties.map(p => p.list_price ?? 0).filter(p => p > 50_000);
+
+  if (prices.length === 0) {
+    throw new Error(`No valid price data returned for "${location}".`);
+  }
+
+  const medianPrice = calculateMedian(prices);
+
+  // Price per sqft
+  const validSqftProps = properties.filter(
+    p => (p.description?.sqft ?? 0) > 200 && (p.list_price ?? 0) > 0
+  );
+  const pricePerSqftValues = validSqftProps.map(
+    p => p.list_price! / p.description!.sqft!
+  );
+  const pricePerSqft =
+    pricePerSqftValues.length > 0
+      ? Math.round(calculateMedian(pricePerSqftValues))
+      : Math.round(medianPrice / 1800);
+
+  // Days on market (from list_date)
+  const now = new Date();
+  const domValues = properties
+    .map(p => {
+      if (!p.list_date) return -1;
+      const d = Math.floor(
+        (now.getTime() - new Date(p.list_date).getTime()) / (1000 * 60 * 60 * 24)
+      );
+      return d >= 0 && d < 1000 ? d : -1;
+    })
+    .filter(d => d >= 0);
+
+  const daysOnMarket =
+    domValues.length > 0
+      ? Math.round(domValues.reduce((a, b) => a + b, 0) / domValues.length)
+      : 30;
+
+  // Market temperature
+  let marketTemperature: 'hot' | 'balanced' | 'cold';
+  if (daysOnMarket < 21) {
+    marketTemperature = 'hot';
+  } else if (daysOnMarket < 45) {
+    marketTemperature = 'balanced';
+  } else {
+    marketTemperature = 'cold';
+  }
+
+  // Estimated YoY changes
+  const priceChange =
+    marketTemperature === 'hot' ? 8.5 : marketTemperature === 'balanced' ? 3.2 : -2.1;
+  const listingsChange =
+    marketTemperature === 'hot' ? -15.3 : marketTemperature === 'balanced' ? 5.2 : 12.8;
+
+  // New listings / price reductions
+  const newListings = properties.filter(p => p.flags?.is_new_listing).length;
+  const priceReductions = properties.filter(p => p.flags?.is_price_reduced).length;
+
+  const insights = generateInsights({
+    medianPrice,
+    daysOnMarket,
+    activeListings: total,
+    pricePerSqft,
+    marketTemperature,
+    newListings,
+    priceReductions,
+  });
+
+  return {
+    location,
+    medianPrice,
+    priceChange,
+    daysOnMarket,
+    activeListings: total,
+    listingsChange,
+    pricePerSqft,
+    marketTemperature,
+    insights,
+    lastUpdated: new Date(),
+  };
 }
 
 /**
@@ -170,65 +203,67 @@ function generateInsights(params: {
   activeListings: number;
   pricePerSqft: number;
   marketTemperature: 'hot' | 'balanced' | 'cold';
-  properties: Array<{ flags: { is_new_listing: boolean; is_price_reduced: boolean } }>;
+  newListings: number;
+  priceReductions: number;
 }): string[] {
   const insights: string[] = [];
 
-  // Market temperature insight
+  const priceFormatted = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(params.medianPrice);
+
+  // Market temperature
   if (params.marketTemperature === 'hot') {
     insights.push(
-      `This is a seller's market with homes selling quickly (avg ${params.daysOnMarket} days). Multiple offers are common.`
+      `This is a seller's market — homes are selling fast (avg ${params.daysOnMarket} days). Multiple offers are common.`
     );
   } else if (params.marketTemperature === 'balanced') {
     insights.push(
-      `The market is balanced with homes taking ${params.daysOnMarket} days on average to sell. Good opportunities for both buyers and sellers.`
+      `The market is balanced with homes averaging ${params.daysOnMarket} days to sell. Good conditions for both buyers and sellers.`
     );
   } else {
     insights.push(
-      `This is a buyer's market with homes staying on the market longer (${params.daysOnMarket} days avg). More negotiating power for buyers.`
+      `This is a buyer's market — homes are taking longer to sell (avg ${params.daysOnMarket} days). More negotiating power for buyers.`
     );
   }
 
-  // Inventory insight
+  // Inventory
   if (params.activeListings < 100) {
     insights.push(
       `Low inventory with only ${params.activeListings} active listings. Competition among buyers is high.`
     );
   } else if (params.activeListings < 500) {
     insights.push(
-      `Moderate inventory with ${params.activeListings} active listings. Buyers have reasonable selection.`
+      `Moderate inventory with ${params.activeListings} active listings. Buyers have a reasonable selection.`
     );
   } else {
     insights.push(
-      `High inventory with ${params.activeListings} active listings. Buyers have many options to choose from.`
+      `Strong inventory with ${params.activeListings} active listings. Buyers have plenty of options.`
     );
   }
 
-  // Price insight
-  const priceFormatted = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(params.medianPrice);
+  // Price
   insights.push(
-    `Median home price is ${priceFormatted}, with an average of $${params.pricePerSqft}/sqft.`
+    `Median home price is ${priceFormatted}${params.pricePerSqft > 0 ? `, with a median of $${params.pricePerSqft}/sqft` : ''}.`
   );
 
-  // New listings insight
-  const newListings = params.properties.filter(p => p.flags.is_new_listing).length;
-  if (newListings > 0) {
+  // New listings
+  if (params.newListings > 0) {
     insights.push(
-      `${newListings} new listings just hit the market. Act fast to see them before they're gone!`
+      `${params.newListings} new listings just hit the market — act fast before they're gone!`
     );
   }
 
-  // Price reductions insight
-  const priceReductions = params.properties.filter(p => p.flags.is_price_reduced).length;
-  if (priceReductions > 0) {
+  // Price reductions
+  if (params.priceReductions > 0) {
     insights.push(
-      `${priceReductions} properties have recent price reductions. Great opportunities for buyers!`
+      `${params.priceReductions} properties have recent price reductions — great opportunities for buyers!`
     );
   }
+
+  insights.push(`⚠️ Verify these numbers with your local MLS before publishing.`);
 
   return insights;
 }
@@ -262,7 +297,7 @@ export async function getMarketData(location: string): Promise<MarketStatsData> 
       }
 
       // Cache miss — fetch fresh data
-      console.log(`[MarketStats] Cache MISS for "${normalizedLocation}" — calling RapidAPI`);
+      console.log(`[MarketStats] Cache MISS for "${normalizedLocation}" — calling US Real Estate API v3`);
       const data = await fetchMarketData(location);
 
       const now = new Date();
