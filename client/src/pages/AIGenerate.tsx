@@ -33,7 +33,8 @@ import {
   Repeat2
 } from "lucide-react";
 import { toast } from "sonner";
-import { Streamdown } from "streamdown";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import { getFirstPost } from "@/lib/postFormatter";
@@ -574,7 +575,7 @@ export default function AIGenerate() {
                           autoFocus
                         />
                       ) : (
-                        <Streamdown>{generatedContent}</Streamdown>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{generatedContent}</ReactMarkdown>
                       )}
                     </div>
                     <div className="flex gap-2">
