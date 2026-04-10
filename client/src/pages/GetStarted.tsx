@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 const POST_BUILDER_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-post-builder_6968e999.mp4";
 const AGENT_PROFILE_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-agent-profile_1f382cd7.mp4";
 const BRAND_STORY_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-brand-story_25de4381.mp4";
+const MARKET_INSIGHTS_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-market-insights_2f1f33d9.mp4";
+const AVATAR_VIDEO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-avatar-video_fc8a72ae.mp4";
+const LEAD_MAGNET_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-lead-magnet_934ee5e7.mp4";
 
 const THUMBNAILS: Record<string, string> = {
   "agent-profile": "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/thumb-authority-profile_49225b7f.webp",
@@ -58,30 +61,27 @@ const videos: VideoCard[] = [
     id: "market-insights",
     title: "Using Market Insights",
     description: "Pull live market data for your city and turn it into ready-to-share content automatically.",
-    duration: "Coming Soon",
+    duration: "0:47",
     icon: <BarChart2 className="h-5 w-5" />,
-    videoUrl: null,
-    comingSoon: true,
+    videoUrl: MARKET_INSIGHTS_VIDEO,
     category: "Content Creation",
   },
   {
     id: "avatar-video",
     title: "Creating Avatar Videos",
     description: "Generate professional avatar videos with your face and voice clone for social media and listings.",
-    duration: "Coming Soon",
+    duration: "0:51",
     icon: <Video className="h-5 w-5" />,
-    videoUrl: null,
-    comingSoon: true,
+    videoUrl: AVATAR_VIDEO_VIDEO,
     category: "Video",
   },
   {
     id: "lead-magnet",
     title: "Setting Up Lead Magnets",
     description: "Create downloadable guides and resources that capture leads and grow your database.",
-    duration: "Coming Soon",
+    duration: "0:45",
     icon: <Mic className="h-5 w-5" />,
-    videoUrl: null,
-    comingSoon: true,
+    videoUrl: LEAD_MAGNET_VIDEO,
     category: "Lead Generation",
   },
 ];

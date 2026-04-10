@@ -37,7 +37,7 @@ export const startDashboardTour = () => {
           title: 'Welcome to AmpedAgent! 👋',
           description: `
             <div style="margin-bottom: 16px;">
-              <p style="margin-bottom: 12px;">Watch this quick 60-second intro to see what you can accomplish with AmpedAgent:</p>
+              <p style="margin-bottom: 12px;">Watch this quick 45-second intro to see what you can accomplish with AmpedAgent:</p>
               <video 
                 src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/TdPsCdKazBtIqarA.mp4" 
                 controls 
