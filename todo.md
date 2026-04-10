@@ -4402,3 +4402,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Create Kling AI image-to-video helper
 - [x] Update clip generation chain: Luma → Kling → Runway → static
 - [x] Test Luma API end-to-end with a real image - CONFIRMED WORKING (201 queued)
+
+## AI Motion Tour - Music Volume Fix
+- [x] Find audio volume setting in Creatomate template
+- [x] Measured all 8 tracks: 7 were too quiet (-17 to -22 dB mean), 1 was already correct
+- [x] Normalized all 7 quiet tracks to -14 dB LUFS using ffmpeg loudnorm filter
+- [x] Uploaded normalized tracks to CDN and updated all music URLs in CinematicWalkthrough.tsx
