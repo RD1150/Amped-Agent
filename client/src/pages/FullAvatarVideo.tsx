@@ -497,7 +497,6 @@ export default function FullAvatarVideo() {
             <Badge className="text-xs bg-primary/20 text-primary border-primary/30">Avatar IV · Agency</Badge>
           </div>
           <p className="text-xs text-muted-foreground">Train once with a 2-min video clip. Powered by Avatar IV — expressive full-face motion, 1080p, up to 3 min.</p>
-          <p className="text-xs text-amber-500/80 mt-1 flex items-center gap-1"><Sparkles className="h-3 w-3" />Avatar V coming soon — cinematic full-body motion from a 15-sec clip.</p>
           {twinStatus?.status === "ready" && (
             <div className="mt-2 flex items-center gap-1 text-xs text-primary">
               <CheckCircle2 className="h-3 w-3" />

@@ -4464,3 +4464,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Verify avatar generation procedure reads avatar ID from DB (not hardcoded)
 - [x] Add info tooltip to Advanced Settings Avatar ID field
 - [x] Add avatar setup status prompt to dashboard home page ("Set Up Your AI Avatar" step in Getting Started checklist)
+
+## Minor UI Fixes (Apr 2026)
+- [x] Remove "Avatar 5 coming soon" text from Full Avatar Videos page
