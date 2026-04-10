@@ -4447,3 +4447,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Preserve completedJobId after job completion so editor can reference saved clips
 - [x] Fix handleRetryClip to use completedJobId (not jobId which is cleared after completion)
 - [x] 13 unit tests for editAndRerender logic (clip reorder, remove, relabel, music resolution, outro resolution)
+
+## Avatar Management — Per-User HeyGen Avatar ID (Apr 2026)
+- [x] Updated user's avatar ID in database from old ID to 06d9f77a44e74f649c0ce6416ab23684 (HeyGen Avatar V)
+- [x] Added setAvatarId tRPC procedure — lets any user link their HeyGen avatar ID without re-uploading
+- [x] Added "Change avatar ID" link in the avatar-ready state UI
+- [x] Added "Already created your avatar on HeyGen? Link it here" panel in the upload/setup section
+- [x] Both flows (existing avatar + new user) now support pasting a HeyGen Avatar ID directly

@@ -504,6 +504,44 @@ Requirements:
   }),
 
   /**
+   * Directly set the HeyGen avatar ID for the current user.
+   * Useful when a user has already created their avatar on HeyGen and just needs to link it.
+   */
+  setAvatarId: protectedProcedure
+    .input(
+      z.object({
+        avatarId: z.string().min(10).max(255),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const [existing] = await db
+        .select()
+        .from(customAvatarTwins)
+        .where(eq(customAvatarTwins.userId, ctx.user.id))
+        .limit(1);
+
+      if (existing) {
+        await db
+          .update(customAvatarTwins)
+          .set({ didAvatarId: input.avatarId, status: "ready", trainedAt: new Date() })
+          .where(eq(customAvatarTwins.userId, ctx.user.id));
+      } else {
+        await db.insert(customAvatarTwins).values({
+          userId: ctx.user.id,
+          didAvatarId: input.avatarId,
+          trainingVideoUrl: "",
+          status: "ready",
+          trainedAt: new Date(),
+        });
+      }
+
+      return { success: true, avatarId: input.avatarId };
+    }),
+
+  /**
    * Generate a full video using the trained custom avatar
    */
   generateWithCustomAvatar: protectedProcedure
