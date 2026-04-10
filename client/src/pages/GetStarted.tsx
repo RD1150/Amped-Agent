@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 const POST_BUILDER_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-post-builder_6968e999.mp4";
 const AGENT_PROFILE_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-agent-profile_1f382cd7.mp4";
 const BRAND_STORY_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-brand-story_25de4381.mp4";
-const MARKET_INSIGHTS_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-market-insights_2f1f33d9.mp4";
-const AVATAR_VIDEO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-avatar-video_fc8a72ae.mp4";
-const LEAD_MAGNET_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-lead-magnet_934ee5e7.mp4";
+const MARKET_INSIGHTS_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-market-insights-v2_b759d4b3.mp4";
+const AVATAR_VIDEO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-avatar-video-v2_33b60919.mp4";
+const LEAD_MAGNET_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-lead-magnet-v2_31ea8b1e.mp4";
 
 const THUMBNAILS: Record<string, string> = {
   "agent-profile": "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/thumb-authority-profile_49225b7f.webp",
