@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { User, Bell, Shield, Palette, LogOut, Mic, Play, Loader2, Trash2, CheckCircle, AlertCircle, Square, Upload, Video, AlertTriangle, RefreshCw } from "lucide-react";
+import { User, Bell, Shield, Palette, LogOut, Mic, Play, Loader2, Trash2, CheckCircle, AlertCircle, Square, Upload, Video, AlertTriangle, RefreshCw, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRef } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -672,8 +673,20 @@ export default function Settings() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium">Avatar ID</p>
-                <p className="text-xs text-muted-foreground">If you have an existing avatar ID from a previous setup, you can link it here.</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium">Avatar ID</p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs text-xs">
+                        If you have a personal AI avatar set up through a separate service, you can link it here using its unique ID. Contact support if you need help locating your avatar ID.
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <p className="text-xs text-muted-foreground">Link an existing avatar ID from a previous setup.</p>
               </div>
               <Button
                 size="sm"

@@ -25,6 +25,7 @@ import {
   Film,
   Smartphone,
   UserCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 import UsageCounter from "@/components/UsageCounter";
@@ -42,6 +43,10 @@ export default function Dashboard() {
       enabled: !!user,
       retry: false,
     }
+  );
+  const { data: twinStatus } = trpc.fullAvatarVideo.getCustomAvatarStatus.useQuery(
+    undefined,
+    { enabled: !!user, retry: false }
   );
 
   // Auto-start tour for first-time users
@@ -100,6 +105,12 @@ export default function Dashboard() {
       description: "Create professional content in minutes",
       completed: false, // TODO: Check if user has generated posts
       href: "/generate"
+    },
+    {
+      title: "Set Up Your AI Avatar",
+      description: "Upload your headshot to create your personal talking avatar",
+      completed: twinStatus?.status === "ready",
+      href: "/full-avatar-video"
     }
   ];
 

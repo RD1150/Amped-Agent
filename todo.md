@@ -4459,3 +4459,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Remove "Link HeyGen Avatar ID" panel and all HeyGen mentions from Full Avatar Videos page
 - [x] Remove "Change avatar ID" link from the avatar-ready state on Full Avatar Videos page
 - [x] Add Avatar ID field to Account Settings page under an "Advanced" section (no HeyGen mention, just "Avatar ID")
+
+## Avatar UX Improvements (Apr 2026)
+- [x] Verify avatar generation procedure reads avatar ID from DB (not hardcoded)
+- [x] Add info tooltip to Advanced Settings Avatar ID field
+- [x] Add avatar setup status prompt to dashboard home page ("Set Up Your AI Avatar" step in Getting Started checklist)
