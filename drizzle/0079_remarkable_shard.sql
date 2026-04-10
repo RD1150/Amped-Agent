@@ -1,0 +1,1 @@
+ALTER TABLE `cinematic_jobs` ADD `isServerRestartFailure` boolean DEFAULT false NOT NULL;

@@ -820,7 +820,8 @@ export const cinematicJobs = mysqlTable("cinematic_jobs", {
   error: text("error"),
   inputSnapshot: text("inputSnapshot"), // JSON snapshot of input for retry
   clipsJson: text("clipsJson"), // JSON array of per-clip results [{url, roomLabel, duration, roomType}]
-  retryCount: int("retryCount").default(0).notNull(), // number of retries (max 3)
+  retryCount: int("retryCount").default(0).notNull(), // number of retries (max 3) — server-restart failures are exempt
+  isServerRestartFailure: boolean("isServerRestartFailure").default(false).notNull(), // true when failure was caused by server restart (exempt from retry limit)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

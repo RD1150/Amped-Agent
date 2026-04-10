@@ -185,6 +185,7 @@ export async function recoverStuckCinematicJobs(): Promise<void> {
       .set({
         status: "failed",
         error: "Generation was interrupted because the server restarted. Please click Retry to restart your Cinematic Tour.",
+        isServerRestartFailure: true, // exempt from retry limit
       })
       .where(inArray(cinematicJobs.id, ids));
     log(`[Startup Recovery] Marked ${stuck.length} job(s) as failed.`);
@@ -874,9 +875,12 @@ Requirements:
       if (!failedJob.inputSnapshot) {
         throw new Error("No input snapshot available for retry");
       }
-      // Enforce retry limit
-      const nextRetryCount = (failedJob.retryCount ?? 0) + 1;
-      if (nextRetryCount > MAX_RETRIES) {
+      // Server-restart failures are exempt from the retry limit — they are not the agent's fault.
+      // Only genuine generation failures (API errors, timeouts, etc.) count against the limit.
+      const isServerRestart = failedJob.isServerRestartFailure ?? false;
+      const currentRetryCount = failedJob.retryCount ?? 0;
+      const nextRetryCount = isServerRestart ? currentRetryCount : currentRetryCount + 1;
+      if (!isServerRestart && nextRetryCount > MAX_RETRIES) {
         throw new Error(`RETRY_LIMIT_REACHED:${MAX_RETRIES}`);
       }
       // Apply normal daily rate limit
@@ -915,7 +919,14 @@ Requirements:
           await dbUpdateJob(newJobId, { status: "failed", error: err.message });
         } catch {}
       });
-      return { jobId: newJobId, totalPhotos: originalInput.photos.length, retryCount: nextRetryCount, maxRetries: MAX_RETRIES, resumeFromIndex };
+      return {
+        jobId: newJobId,
+        totalPhotos: originalInput.photos.length,
+        retryCount: nextRetryCount,
+        maxRetries: MAX_RETRIES,
+        resumeFromIndex,
+        isServerRestartRetry: isServerRestart, // true = this retry was free (didn't count against limit)
+      };
     }),
 
   /**
@@ -940,6 +951,7 @@ Requirements:
         error: job.error ?? undefined,
         elapsedMs: Date.now() - new Date(job.createdAt).getTime(),
         retryCount: job.retryCount ?? 0,
+        isServerRestartFailure: job.isServerRestartFailure ?? false,
       };
     }),
 

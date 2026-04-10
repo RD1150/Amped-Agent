@@ -4386,3 +4386,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] On job retry, skip already-completed clips and resume from last saved state
 - [x] Add startup recovery to re-queue stuck "processing" jobs after restart
 - [x] Update frontend to show accurate retry progress (not restart from scratch)
+
+## AI Motion Tour - Server Restart Retry Exemption
+- [x] Tag server-restart failures with isServerRestartFailure flag in DB
+- [x] Skip incrementing retryCount when failure was caused by server restart
+- [x] Update frontend to not count server-restart retries against limit display

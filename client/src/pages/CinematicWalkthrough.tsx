@@ -324,6 +324,7 @@ export default function CinematicWalkthrough() {
   const [failedJobId, setFailedJobId] = useState<string | null>(null);
   const [failedJobError, setFailedJobError] = useState<string | null>(null);
   const [failedJobRetryCount, setFailedJobRetryCount] = useState<number>(0);
+  const [failedJobIsServerRestart, setFailedJobIsServerRestart] = useState<boolean>(false);
   const MAX_RETRIES = 3;
 
   // AI script generation state
@@ -456,12 +457,14 @@ export default function CinematicWalkthrough() {
       setFailedJobId(jobId);
       setFailedJobError(jobProgress.error || "Generation failed. Please try again.");
       setFailedJobRetryCount(jobProgress.retryCount ?? 0);
+      setFailedJobIsServerRestart(jobProgress.isServerRestartFailure ?? false);
       setJobId(null);
     } else if (jobProgress.status === "not_found" && isGenerating) {
       setIsGenerating(false);
       setFailedJobId(jobId);
       setFailedJobError("The job could not be located. Please try again.");
       setFailedJobRetryCount(0);
+      setFailedJobIsServerRestart(false);
       setJobId(null);
     }
   }, [jobProgress?.status, jobProgress?.videoUrl]);
@@ -620,10 +623,13 @@ export default function CinematicWalkthrough() {
       utils.rateLimit.getDailyUsage.invalidate();
       const resumeFrom = (result as any).resumeFromIndex ?? 0;
       const remaining = result.totalPhotos - resumeFrom;
+      const isRestartRetry = (result as any).isServerRestartRetry ?? false;
       toast.success("Resuming generation", {
-        description: resumeFrom > 0
-          ? `Attempt ${result.retryCount} of ${result.maxRetries}. ${resumeFrom} clip${resumeFrom === 1 ? '' : 's'} already saved — generating ${remaining} remaining.`
-          : `Attempt ${result.retryCount} of ${result.maxRetries}. Generating all ${result.totalPhotos} clips.`,
+        description: isRestartRetry
+          ? `Resuming from clip ${resumeFrom + 1} of ${result.totalPhotos}. This retry is free — server restarts don’t count against your limit.`
+          : resumeFrom > 0
+            ? `Attempt ${result.retryCount} of ${result.maxRetries}. ${resumeFrom} clip${resumeFrom === 1 ? '' : 's'} already saved — generating ${remaining} remaining.`
+            : `Attempt ${result.retryCount} of ${result.maxRetries}. Generating all ${result.totalPhotos} clips.`,
       });
     } catch (err: any) {
       setIsGenerating(false);
@@ -786,16 +792,21 @@ export default function CinematicWalkthrough() {
             </div>
           </div>
           {/* Retry count indicator */}
-          {failedJobRetryCount > 0 && (
+          {failedJobIsServerRestart ? (
+            <p className="text-xs text-green-500 font-medium">
+              ✅ This retry is free — server restarts don’t count against your {MAX_RETRIES}-retry limit.
+              {failedJobRetryCount > 0 && ` You still have ${MAX_RETRIES - failedJobRetryCount} of ${MAX_RETRIES} retries remaining for generation errors.`}
+            </p>
+          ) : failedJobRetryCount > 0 ? (
             <p className="text-xs text-muted-foreground">
               Attempt {failedJobRetryCount} of {MAX_RETRIES} failed.
               {failedJobRetryCount >= MAX_RETRIES
                 ? " No more retries available."
                 : ` ${MAX_RETRIES - failedJobRetryCount} retry${MAX_RETRIES - failedJobRetryCount === 1 ? "" : "ies"} remaining.`}
             </p>
-          )}
+          ) : null}
           <div className="flex gap-3 flex-wrap">
-            {failedJobRetryCount >= MAX_RETRIES ? (
+            {!failedJobIsServerRestart && failedJobRetryCount >= MAX_RETRIES ? (
               <>
                 <Button
                   className="bg-red-600 hover:bg-red-700 text-white font-semibold"
@@ -810,7 +821,7 @@ export default function CinematicWalkthrough() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => { setFailedJobId(null); setFailedJobError(null); setFailedJobRetryCount(0); }}
+                  onClick={() => { setFailedJobId(null); setFailedJobError(null); setFailedJobRetryCount(0); setFailedJobIsServerRestart(false); }}
                 >
                   Dismiss
                 </Button>
@@ -830,7 +841,7 @@ export default function CinematicWalkthrough() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => { setFailedJobId(null); setFailedJobError(null); setFailedJobRetryCount(0); }}
+                  onClick={() => { setFailedJobId(null); setFailedJobError(null); setFailedJobRetryCount(0); setFailedJobIsServerRestart(false); }}
                 >
                   Dismiss
                 </Button>
