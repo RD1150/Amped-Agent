@@ -1161,26 +1161,28 @@ async function runWalkthroughJob(
     const motionPrompt = buildLumaPrompt(photo.roomType, photo.motionDirection, photo.customPrompt);
 
     // Attempt 1: Luma Ray Flash 2 (primary — fast, pay-as-you-go, genuine AI motion)
-    log(`Job ${jobId}: Clip ${i + 1}/${input.photos.length} — trying Luma Ray Flash 2 (${photo.roomType})`);
+    log(`Job ${jobId}: Clip ${i + 1}/${input.photos.length} — trying Luma Ray Flash 2 (${photo.roomType}) imageUrl=${photo.url.slice(0, 80)}`);
     try {
       clipUrl = await lumaImageToVideo(photo.url, motionPrompt, { aspectRatio: "16:9", resolution: "720p", model: "ray-flash-2" });
-      log(`Job ${jobId}: Clip ${i + 1} via Luma ✓`);
+      log(`Job ${jobId}: Clip ${i + 1} via Luma ✓ url=${clipUrl?.slice(0, 80)}`);
     } catch (lumaErr: any) {
-      log(`Job ${jobId}: Luma failed (${lumaErr.message}) — trying Kling...`);
+      log(`Job ${jobId}: Luma FAILED — ${lumaErr.message} | stack: ${lumaErr.stack?.split('\n')[1] ?? ''}`);
 
       // Attempt 2: Kling AI (secondary — camera control, good quality)
       try {
+        log(`Job ${jobId}: Clip ${i + 1} — trying Kling AI...`);
         clipUrl = await klingImageToVideo(photo.url, photo.roomType, { aspectRatio: "16:9", duration: "5", model: "kling-v1-5", mode: "pro" });
-        log(`Job ${jobId}: Clip ${i + 1} via Kling ✓`);
+        log(`Job ${jobId}: Clip ${i + 1} via Kling ✓ url=${clipUrl?.slice(0, 80)}`);
       } catch (klingErr: any) {
-        log(`Job ${jobId}: Kling failed (${klingErr.message}) — trying Runway ML...`);
+        log(`Job ${jobId}: Kling FAILED — ${klingErr.message} | stack: ${klingErr.stack?.split('\n')[1] ?? ''}`);
 
         // Attempt 3: Runway ML (tertiary)
         try {
+          log(`Job ${jobId}: Clip ${i + 1} — trying Runway ML...`);
           clipUrl = await generateRunwayClip(photo.url, photo.roomType, i, photo.customPrompt, 1, photo.isExterior, photo.motionDirection);
-          log(`Job ${jobId}: Clip ${i + 1} via Runway ML ✓`);
+          log(`Job ${jobId}: Clip ${i + 1} via Runway ML ✓ url=${clipUrl?.slice(0, 80)}`);
         } catch (runwayErr: any) {
-          log(`Job ${jobId}: All AI engines failed (${runwayErr.message}) — using static photo as last resort`);
+          log(`Job ${jobId}: Runway FAILED — ${runwayErr.message} | ALL 3 ENGINES FAILED — using static photo fallback`);
           // Last resort: static photo with Ken Burns in Creatomate
           clipUrl = photo.url;
           clipIsFallback = true;

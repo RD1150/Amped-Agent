@@ -4408,3 +4408,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Measured all 8 tracks: 7 were too quiet (-17 to -22 dB mean), 1 was already correct
 - [x] Normalized all 7 quiet tracks to -14 dB LUFS using ffmpeg loudnorm filter
 - [x] Uploaded normalized tracks to CDN and updated all music URLs in CinematicWalkthrough.tsx
+
+## AI Motion Tour - Definitive Fix (PRIORITY)
+- [ ] Run live end-to-end diagnostic: test Luma API with real image, confirm video URL returned
+- [ ] Identify exact failure point causing silent fallback to static slideshow
+- [ ] Fix root cause so real AI cinematic motion clips are generated
+- [ ] Verify final assembled video has actual camera movement (not slideshow)
