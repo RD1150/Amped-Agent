@@ -312,6 +312,7 @@ export default function CinematicWalkthrough() {
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
   const [agentPhone, setAgentPhone] = useState("");
   const [luxuryMode, setLuxuryMode] = useState(false);
+  const [includeOutro, setIncludeOutro] = useState(true);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Job tracking
@@ -319,6 +320,16 @@ export default function CinematicWalkthrough() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [showVideoShare, setShowVideoShare] = useState(false);
+
+  // Video editor state
+  const [showEditor, setShowEditor] = useState(false);
+  const [isRerendering, setIsRerendering] = useState(false);
+  // editClips mirrors the original photos list but allows reorder/remove/relabel
+  const [editClips, setEditClips] = useState<Array<{ originalIndex: number; label: string }>>([]);
+  const [editMusicUrl, setEditMusicUrl] = useState<string>("keep"); // "keep" = don't change
+  const [editIncludeOutro, setEditIncludeOutro] = useState(true);
+  const [completedJobId, setCompletedJobId] = useState<string | null>(null); // preserved after job done for editing
+  const editAndRerenderMutation = trpc.cinematicWalkthrough.editAndRerender.useMutation();
 
   // Failed job state for retry
   const [failedJobId, setFailedJobId] = useState<string | null>(null);
@@ -380,11 +391,48 @@ export default function CinematicWalkthrough() {
   const [retryingClipIndex, setRetryingClipIndex] = useState<number | null>(null);
   const retryClipMutation = trpc.cinematicWalkthrough.retryClip.useMutation();
 
+  // Open the editor panel and initialize editClips from current photos
+  const handleOpenEditor = () => {
+    setEditClips(photos.map((p, i) => ({
+      originalIndex: i,
+      label: p.label || ROOM_TYPE_LABELS[p.roomType] || `Clip ${i + 1}`,
+    })));
+    setEditMusicUrl("keep");
+    setEditIncludeOutro(includeOutro);
+    setShowEditor(true);
+  };
+
+  const handleEditRerender = async () => {
+    const activeJobId = completedJobId;
+    if (!activeJobId) {
+      toast.error("No job found to edit", { description: "Please generate a video first." });
+      return;
+    }
+    setIsRerendering(true);
+    try {
+      const result = await editAndRerenderMutation.mutateAsync({
+        jobId: activeJobId,
+        clips: editClips,
+        musicTrackUrl: editMusicUrl === "keep" ? undefined : (editMusicUrl === "none" ? null : editMusicUrl),
+        includeOutro: editIncludeOutro,
+      });
+      setVideoUrl(result.videoUrl ?? null);
+      setCompletedJobId(activeJobId); // keep for further edits
+      setShowEditor(false);
+      toast.success("Video updated!", { description: "Re-assembled with your edits." });
+    } catch (err: any) {
+      toast.error("Re-render failed", { description: err.message });
+    } finally {
+      setIsRerendering(false);
+    }
+  };
+
   const handleRetryClip = async (clipIndex: number) => {
-    if (!jobId) return;
+    const activeJobId = completedJobId;
+    if (!activeJobId) return;
     setRetryingClipIndex(clipIndex);
     try {
-      const result = await retryClipMutation.mutateAsync({ jobId, clipIndex });
+      const result = await retryClipMutation.mutateAsync({ jobId: activeJobId, clipIndex });
       setVideoUrl(result.videoUrl);
       toast.success(`Clip ${clipIndex + 1} regenerated!`, { description: "Video has been re-assembled with the new clip." });
     } catch (err: any) {
@@ -450,8 +498,9 @@ export default function CinematicWalkthrough() {
     if (jobProgress.status === "done" && jobProgress.videoUrl) {
       setIsGenerating(false);
       setVideoUrl(jobProgress.videoUrl);
+      setCompletedJobId(jobId); // preserve for editor
       setJobId(null);
-      toast.success("Your AI AI Motion Tour is ready!");
+      toast.success("Your AI Motion Tour is ready!");
     } else if (jobProgress.status === "failed") {
       setIsGenerating(false);
       setFailedJobId(jobId);
@@ -560,6 +609,7 @@ export default function CinematicWalkthrough() {
         voiceId: enableVoiceover ? voiceId : undefined,
         aspectRatio,
         luxuryMode,
+        includeOutro,
       });
 
       setJobId(result.jobId);
@@ -719,8 +769,111 @@ export default function CinematicWalkthrough() {
               </Button>
             </div>
 
+            {/* Edit Video button */}
+            {completedJobId && photos.length > 0 && (
+              <div className="mt-3">
+                <Button
+                  variant="outline"
+                  className="w-full border-primary/30 text-primary hover:bg-primary/10"
+                  onClick={handleOpenEditor}
+                >
+                  <Wand2 className="h-4 w-4 mr-2" />
+                  Edit Video (reorder clips, swap music, toggle outro)
+                </Button>
+              </div>
+            )}
+
+            {/* Video Editor Panel */}
+            {showEditor && (
+              <div className="mt-4 pt-4 border-t border-border space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-foreground">Edit Your Video</p>
+                  <button onClick={() => setShowEditor(false)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+                </div>
+
+                {/* Clip list — drag to reorder, click X to remove, edit label */}
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Clips (drag to reorder, × to remove)</p>
+                  {editClips.map((clip, idx) => (
+                    <div key={`${clip.originalIndex}-${idx}`} className="flex items-center gap-2 p-2 rounded-lg border border-border bg-muted/20">
+                      <GripVertical className="h-4 w-4 text-muted-foreground flex-shrink-0 cursor-grab" />
+                      <img
+                        src={photos[clip.originalIndex]?.previewUrl}
+                        alt={clip.label}
+                        className="w-12 h-8 object-cover rounded flex-shrink-0"
+                      />
+                      <input
+                        value={clip.label}
+                        onChange={(e) => setEditClips(prev => prev.map((c, i) => i === idx ? { ...c, label: e.target.value } : c))}
+                        className="flex-1 min-w-0 text-sm bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
+                        placeholder="Room label"
+                      />
+                      <div className="flex gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => setEditClips(prev => { const a = [...prev]; if (idx > 0) { [a[idx-1], a[idx]] = [a[idx], a[idx-1]]; } return a; })}
+                          disabled={idx === 0}
+                          className="p-1 rounded hover:bg-muted disabled:opacity-30"
+                          title="Move up"
+                        ><ArrowUp className="h-3 w-3" /></button>
+                        <button
+                          onClick={() => setEditClips(prev => { const a = [...prev]; if (idx < a.length - 1) { [a[idx], a[idx+1]] = [a[idx+1], a[idx]]; } return a; })}
+                          disabled={idx === editClips.length - 1}
+                          className="p-1 rounded hover:bg-muted disabled:opacity-30"
+                          title="Move down"
+                        ><ArrowLeft className="h-3 w-3 rotate-90" /></button>
+                        <button
+                          onClick={() => { if (editClips.length > 1) setEditClips(prev => prev.filter((_, i) => i !== idx)); else toast.error("Need at least 1 clip"); }}
+                          className="p-1 rounded hover:bg-red-500/20 text-muted-foreground hover:text-red-400"
+                          title="Remove clip"
+                        ><X className="h-3 w-3" /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Music swap */}
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Background Music</p>
+                  <select
+                    value={editMusicUrl}
+                    onChange={(e) => setEditMusicUrl(e.target.value)}
+                    className="w-full text-sm rounded-lg border border-border bg-muted/30 px-3 py-2 text-foreground"
+                  >
+                    <option value="keep">Keep current music</option>
+                    <option value="none">No music</option>
+                    {MUSIC_OPTIONS.filter(o => o.url).map(o => (
+                      <option key={o.value} value={o.value}>{o.label} — {o.desc}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Outro toggle */}
+                <div className="flex items-center justify-between py-1">
+                  <Label className="text-sm flex items-center gap-2 cursor-pointer">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    Include Agent Outro Card
+                  </Label>
+                  <Switch checked={editIncludeOutro} onCheckedChange={setEditIncludeOutro} />
+                </div>
+
+                {/* Re-render button */}
+                <Button
+                  onClick={handleEditRerender}
+                  disabled={isRerendering || editClips.length === 0}
+                  className="w-full bg-muted0 hover:bg-primary text-black font-semibold"
+                >
+                  {isRerendering ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Re-assembling video…</>
+                  ) : (
+                    <><Film className="h-4 w-4 mr-2" />Apply Edits &amp; Re-render</>  
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">Re-render uses your saved clips — no new AI generation needed (~30–60 seconds)</p>
+              </div>
+            )}
+
             {/* Per-clip retry — only shown when we have clip data */}
-            {jobId && photos.length > 0 && (
+            {completedJobId && photos.length > 0 && (
               <div className="mt-4 pt-4 border-t border-border">
                 <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Regenerate individual clips</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -1157,6 +1310,16 @@ export default function CinematicWalkthrough() {
                 ))}
               </div>
             </div>
+            {/* Outro toggle */}
+            <div className="flex items-center justify-between py-1">
+              <Label className="text-sm flex items-center gap-2 cursor-pointer">
+                <User className="h-4 w-4 text-muted-foreground" />
+                Include Agent Outro Card
+                <span className="text-xs text-muted-foreground font-normal">(name, brokerage, phone)</span>
+              </Label>
+              <Switch checked={includeOutro} onCheckedChange={setIncludeOutro} />
+            </div>
+
             {/* Voice-over */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">

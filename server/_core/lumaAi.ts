@@ -86,7 +86,7 @@ export async function getGeneration(id: string): Promise<LumaGeneration> {
  */
 export async function waitForGeneration(
   id: string,
-  maxWaitMs: number = 180000 // 3 minutes default
+  maxWaitMs: number = 480000 // 8 minutes — ray-2 at 1080p can take up to 6 min
 ): Promise<LumaGeneration> {
   const startTime = Date.now();
   const pollInterval = 5000; // 5 seconds
@@ -126,7 +126,7 @@ export async function imageToVideo(
   // Create generation
   const generation = await createGeneration({
     prompt,
-    model: options.model || "ray-flash-2", // Use faster model by default
+    model: options.model || "ray-2", // Premium: ray-2 for 1080p cinematic quality
     keyframes: {
       frame0: {
         type: "image",
@@ -134,7 +134,7 @@ export async function imageToVideo(
       },
     },
     aspect_ratio: options.aspectRatio || "16:9",
-    resolution: options.resolution || "720p",
+    resolution: options.resolution || "1080p",
     duration: "5s",
     loop: false,
   });

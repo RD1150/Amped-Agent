@@ -4420,3 +4420,30 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Removed pan animation from AI video clips (they already have motion from Luma)
 - [x] Updated Luma prompts to include: no people, no humans, no persons, no figures, no pedestrians, vacant, unoccupied
 - [x] Static fallback images still use 110% with pan animation as before
+
+## AI Motion Tour - Quality Fixes (Round 3)
+- [ ] Fix first clip distortion at start of video
+- [ ] Fix blurry output quality - upgrade Luma model or resolution
+- [ ] Cut off trailing end of assembled video
+
+## AI Motion Tour - Agent Outro Toggle
+- [ ] Add "Include agent outro card" toggle to AI Motion Tour settings
+- [ ] When disabled, skip the outro card in Creatomate assembly (no name/brokerage/headshot)
+
+## AI Motion Tour - Premium Quality Upgrade
+- [ ] Switch Luma model from ray-flash-2 to ray-2 (1080p, highest quality, $0.71/clip)
+- [ ] Add includeOutro toggle to UI and server (skip agent info for demo videos)
+- [ ] Fix exterior shot distortion - improve Luma prompt for architectural shots
+- [ ] Improve Creatomate assembly: sharper output, better transitions, trim trailing end
+
+## AI Motion Tour — Quality Upgrade & Video Editor (Apr 2026)
+- [x] Switch Luma model from ray-flash-2 (720p) to ray-2 (1080p) for top-tier quality
+- [x] Add includeOutro boolean to generate schema, pass through to assembleCreatomateVideo
+- [x] Add outro toggle switch in Advanced Options UI (Include Agent Outro Card)
+- [x] Add stronger negative prompts for exterior/architectural shots (no lens distortion, straight lines)
+- [x] Add 30fps frame_rate to Creatomate render config
+- [x] Add editAndRerender backend procedure (reorder/remove clips, swap music, toggle outro, re-assemble without re-running AI)
+- [x] Add video editor panel in CinematicWalkthrough UI (Edit Video button, clip list with up/down/remove, label editing, music dropdown, outro toggle, re-render button)
+- [x] Preserve completedJobId after job completion so editor can reference saved clips
+- [x] Fix handleRetryClip to use completedJobId (not jobId which is cleared after completion)
+- [x] 13 unit tests for editAndRerender logic (clip reorder, remove, relabel, music resolution, outro resolution)

@@ -106,7 +106,12 @@ const ROOM_MOTION_PROMPTS: Record<string, { ltr: string; rtl: string; tilt?: str
 // room-type prompts and append a quality suffix.
 function buildLumaPrompt(roomType: string, motionDirection?: string, customPrompt?: string): string {
   const base = getMotionPrompt(roomType, 0, customPrompt, false, motionDirection);
-  return `${base}, photorealistic, 4K quality, smooth camera movement, no cuts, empty property, no people, no humans, no persons, no figures, no pedestrians, vacant, unoccupied`;
+  const isExterior = roomType === "exterior_front" || roomType === "exterior_back";
+  // Exterior shots need explicit anti-distortion instructions — Luma can warp architectural lines
+  const exteriorSuffix = isExterior
+    ? ", no lens distortion, straight architectural lines, no warping, no perspective bending, stable horizon"
+    : "";
+  return `${base}${exteriorSuffix}, photorealistic, ultra-high definition, cinematic color grading, smooth camera movement, no cuts, no jump cuts, no transitions, empty property, no people, no humans, no persons, no figures, no pedestrians, no animals, vacant, unoccupied, luxury real estate photography style`;
 }
 
 // Returns the motion prompt for a given room type and clip index.
@@ -350,8 +355,9 @@ async function assembleCreatomateVideo(opts: {
   luxuryMode?: boolean;
   letterboxMode?: boolean;
   userId?: number | null;
+  includeOutro?: boolean;
 }): Promise<string> {
-  const { clips, propertyAddress, agentName, agentBrokerage, agentPhone, agentAvatarUrl, musicTrackUrl, voiceoverUrl, aspectRatio, luxuryMode, letterboxMode, userId } = opts;
+  const { clips, propertyAddress, agentName, agentBrokerage, agentPhone, agentAvatarUrl, musicTrackUrl, voiceoverUrl, aspectRatio, luxuryMode, letterboxMode, userId, includeOutro = true } = opts;
 
   const [width, height] = aspectRatio === "16:9" ? [1920, 1080] : [1080, 1920];
 
@@ -367,7 +373,7 @@ async function assembleCreatomateVideo(opts: {
   const FADE = 0.5; // crossfade duration in seconds
   const clipsDuration = clips.reduce((sum, c) => sum + c.duration, 0)
     - FADE * Math.max(0, clips.length - 1); // subtract overlaps
-  const OUTRO_DURATION = 4;
+  const OUTRO_DURATION = includeOutro ? 4 : 0;
   const totalDuration = clipsDuration + OUTRO_DURATION;
 
   elements.push({
@@ -499,6 +505,7 @@ async function assembleCreatomateVideo(opts: {
   // TRACK SAFETY: clips use tracks 2...(clips.length+1), max track 13 for 12 photos.
   // Outro uses tracks 20-26 to never collide with clip tracks.
   const outroStart = clipsDuration;
+  if (includeOutro) { // Only add outro elements when includeOutro is true
   elements.push({
     type: "shape",
     track: 20,
@@ -627,6 +634,7 @@ async function assembleCreatomateVideo(opts: {
     animations: [{ time: 0, duration: 0.4, easing: "ease-out", type: "fade", fade: true }],
   });
 
+  } // end includeOutro block
   // Audio tracks
   // Audio tracks use high track numbers (200+) to never collide with video clip tracks
   // (which occupy tracks i+2, i.e. up to track ~14 for 12 photos) or label tracks (100+).
@@ -662,7 +670,8 @@ async function assembleCreatomateVideo(opts: {
   // Creatomate supports an array of render objects in one request
   const renders: any[] = [{
     output_format: "mp4",
-    source: { output_format: "mp4", width, height, duration: totalDuration, elements },
+    frame_rate: 30,
+    source: { output_format: "mp4", width, height, duration: totalDuration, frame_rate: 30, elements },
   }];
 
   if (luxuryMode && aspectRatio === "16:9") {
@@ -851,6 +860,7 @@ Requirements:
         voiceId: z.string().optional(),
         aspectRatio: z.enum(["16:9", "9:16"]).default("16:9"),
         luxuryMode: z.boolean().default(false),
+        includeOutro: z.boolean().default(true),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -1067,6 +1077,97 @@ Requirements:
     }),
 
   /**
+   * Edit a completed job's clips (reorder, remove, relabel) and/or settings (music, outro)
+   * then re-assemble the video WITHOUT re-running expensive AI generation.
+   */
+  editAndRerender: protectedProcedure
+    .input(
+      z.object({
+        jobId: z.string(),
+        // New ordered/filtered clip list — each item references the original clip by index
+        clips: z.array(
+          z.object({
+            originalIndex: z.number().int().min(0), // index in the saved clipsJson
+            label: z.string().optional(), // override room label
+          })
+        ).min(1, "At least 1 clip required"),
+        // Optional overrides — omit to keep original values
+        musicTrackUrl: z.string().url().optional().nullable(),
+        includeOutro: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const job = await dbGetJob(input.jobId);
+      if (!job || job.userId !== ctx.user.id) throw new Error("Job not found or access denied");
+      if (!job.clipsJson) throw new Error("No clip data saved for this job");
+      if (!job.inputSnapshot) throw new Error("No input snapshot for this job");
+
+      const originalInput = JSON.parse(job.inputSnapshot);
+      const savedClips: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }> = JSON.parse(job.clipsJson);
+
+      // Build the new ordered clips array from the user's selection
+      const editedClips = input.clips.map((c) => {
+        const orig = savedClips[c.originalIndex];
+        if (!orig) throw new Error(`Clip index ${c.originalIndex} not found`);
+        return {
+          ...orig,
+          roomLabel: c.label ?? orig.roomLabel, // apply label override if provided
+        };
+      });
+
+      // Resolve agent info
+      let agentName = originalInput.agentName;
+      let agentBrokerage = originalInput.agentBrokerage;
+      let agentAvatarUrl: string | undefined;
+      if (!agentName) {
+        try {
+          const persona = await db.getPersonaByUserId(ctx.user.id);
+          agentName = persona?.agentName || "Your Agent";
+          agentBrokerage = agentBrokerage || persona?.brokerageName || "";
+        } catch { agentName = "Your Agent"; }
+      }
+      try {
+        const database = await getDb();
+        const { users } = await import("../../drizzle/schema");
+        const { eq: eqOp } = await import("drizzle-orm");
+        if (database) {
+          const rows = await database.select({ avatarImageUrl: users.avatarImageUrl }).from(users).where(eqOp(users.id, ctx.user.id)).limit(1);
+          agentAvatarUrl = rows[0]?.avatarImageUrl ?? undefined;
+        }
+      } catch { /* non-critical */ }
+
+      // Determine effective settings (user overrides take priority)
+      const effectiveMusicUrl = input.musicTrackUrl !== undefined ? (input.musicTrackUrl ?? undefined) : originalInput.musicTrackUrl;
+      const effectiveIncludeOutro = input.includeOutro !== undefined ? input.includeOutro : (originalInput.includeOutro ?? true);
+
+      log(`EditAndRerender job=${input.jobId} clips=${editedClips.length} music=${effectiveMusicUrl ? 'yes' : 'none'} outro=${effectiveIncludeOutro}`);
+
+      // Mark as assembling
+      await dbUpdateJob(input.jobId, { status: "assembling" });
+
+      const newVideoUrl = await assembleCreatomateVideo({
+        clips: editedClips,
+        propertyAddress: originalInput.propertyAddress,
+        agentName: agentName!,
+        agentBrokerage,
+        agentPhone: originalInput.agentPhone,
+        agentAvatarUrl,
+        musicTrackUrl: effectiveMusicUrl,
+        aspectRatio: originalInput.aspectRatio ?? "16:9",
+        luxuryMode: originalInput.luxuryMode ?? false,
+        includeOutro: effectiveIncludeOutro,
+        userId: ctx.user.id,
+      });
+
+      const [primaryVideoUrl] = newVideoUrl.includes("|||") ? newVideoUrl.split("|||") : [newVideoUrl];
+
+      await dbUpdateJob(input.jobId, { status: "done", videoUrl: primaryVideoUrl });
+      log(`EditAndRerender job=${input.jobId} done ✓ url=${primaryVideoUrl?.slice(0, 80)}`);
+
+      return { videoUrl: primaryVideoUrl };
+    }),
+
+  /**
    * Get the most recent active job for the current user (for job recovery on page load)
    */
   getLatestPendingJob: protectedProcedure
@@ -1111,6 +1212,7 @@ async function runWalkthroughJob(
     voiceId?: string;
     aspectRatio: "16:9" | "9:16";
     luxuryMode?: boolean;
+    includeOutro?: boolean;
   },
   // Pre-saved clips from a previous run (used when resuming after a server restart)
   resumeClips?: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }>
@@ -1165,11 +1267,11 @@ async function runWalkthroughJob(
     // Build a cinematic prompt based on room type and user-selected motion direction
     const motionPrompt = buildLumaPrompt(photo.roomType, photo.motionDirection, photo.customPrompt);
 
-    // Attempt 1: Luma Ray Flash 2 (primary — fast, pay-as-you-go, genuine AI motion)
-    log(`Job ${jobId}: Clip ${i + 1}/${input.photos.length} — trying Luma Ray Flash 2 (${photo.roomType}) imageUrl=${photo.url.slice(0, 80)}`);
+    // Attempt 1: Luma Ray 2 (primary — 1080p, top-tier cinematic quality)
+    log(`Job ${jobId}: Clip ${i + 1}/${input.photos.length} — trying Luma Ray 2 1080p (${photo.roomType}) imageUrl=${photo.url.slice(0, 80)}`);
     try {
-      clipUrl = await lumaImageToVideo(photo.url, motionPrompt, { aspectRatio: "16:9", resolution: "720p", model: "ray-flash-2" });
-      log(`Job ${jobId}: Clip ${i + 1} via Luma ✓ url=${clipUrl?.slice(0, 80)}`);
+      clipUrl = await lumaImageToVideo(photo.url, motionPrompt, { aspectRatio: "16:9", resolution: "1080p", model: "ray-2" });
+      log(`Job ${jobId}: Clip ${i + 1} via Luma Ray 2 ✓ url=${clipUrl?.slice(0, 80)}`);
     } catch (lumaErr: any) {
       log(`Job ${jobId}: Luma FAILED — ${lumaErr.message} | stack: ${lumaErr.stack?.split('\n')[1] ?? ''}`);
 
@@ -1227,6 +1329,7 @@ async function runWalkthroughJob(
     voiceoverUrl,
     aspectRatio: input.aspectRatio,
     luxuryMode: input.luxuryMode,
+    includeOutro: input.includeOutro,
     userId,
   });
 
