@@ -4491,3 +4491,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Generate HeyGen intro clip in background job before Creatomate assembly
 - [x] Pass avatarIntroVideoUrl to Creatomate assembly (both initial and retry jobs)
 - [x] Write unit tests for avatar library logic (10 tests passing)
+
+## Public Landing Page (Apr 2026)
+- [x] Audit App.tsx routing to understand public vs authenticated flow
+- [x] Build LandingPage.tsx with hero, problem, solution, features, social proof, CTA
+- [x] Wire routing: unauthenticated → landing page, authenticated → dashboard
+- [x] Save checkpoint
