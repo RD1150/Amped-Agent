@@ -482,6 +482,17 @@ export default function LiveTour() {
           </CardContent>
         </Card>
 
+        {/* Device tip */}
+        <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800 p-4 text-sm text-blue-800 dark:text-blue-300">
+          <p className="font-semibold mb-1">📱 Which device should I use?</p>
+          <p className="text-blue-700 dark:text-blue-400">
+            <strong>Phone or tablet</strong> — best for walking through the property room by room. The rear camera gives you higher quality and better low-light performance.
+          </p>
+          <p className="text-blue-700 dark:text-blue-400 mt-1">
+            <strong>Computer webcam</strong> — great for desk-based narration or recording from a fixed position.
+          </p>
+        </div>
+
         {/* Tips */}
         <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-4 text-sm text-amber-800 dark:text-amber-300 space-y-1">
           <p className="font-semibold">Tips for a great tour:</p>
@@ -596,7 +607,7 @@ export default function LiveTour() {
   const currentClip = clips[currentRoomIdx];
 
   return (
-    <div className="max-w-3xl mx-auto py-6 px-4 space-y-4">
+    <div className="max-w-3xl mx-auto py-4 sm:py-6 px-3 sm:px-4 space-y-4">
       {/* Progress bar */}
       <div className="space-y-1">
         <div className="flex items-center justify-between text-sm">
@@ -728,16 +739,16 @@ export default function LiveTour() {
       </div>
 
       {/* Controls */}
-      <div className="flex gap-3 justify-center">
+      <div className="flex flex-col sm:flex-row gap-3 justify-center">
         {recordingState === "idle" && (
-          <Button size="lg" onClick={startCountdown} className="bg-red-600 hover:bg-red-700 text-white px-8">
+          <Button size="lg" onClick={startCountdown} className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto sm:px-8">
             <Circle className="w-4 h-4 mr-2 fill-white" />
             Record {currentRoom}
           </Button>
         )}
 
         {recordingState === "countdown" && (
-          <Button size="lg" variant="outline" disabled>
+          <Button size="lg" variant="outline" disabled className="w-full sm:w-auto">
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             Get ready...
           </Button>
@@ -747,7 +758,7 @@ export default function LiveTour() {
           <Button
             size="lg"
             onClick={stopRecording}
-            className="bg-gray-800 hover:bg-gray-700 text-white px-8"
+            className="bg-gray-800 hover:bg-gray-700 text-white w-full sm:w-auto sm:px-8"
           >
             <div className="w-4 h-4 mr-2 bg-white rounded-sm" />
             Stop Recording
@@ -756,11 +767,11 @@ export default function LiveTour() {
 
         {recordingState === "preview" && (
           <>
-            <Button variant="outline" size="lg" onClick={retakeClip}>
+            <Button variant="outline" size="lg" onClick={retakeClip} className="flex-1 sm:flex-none">
               <RotateCcw className="w-4 h-4 mr-2" />
               Retake
             </Button>
-            <Button size="lg" onClick={acceptClip} className="bg-green-600 hover:bg-green-700 text-white">
+            <Button size="lg" onClick={acceptClip} className="bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none">
               <CheckCircle2 className="w-4 h-4 mr-2" />
               Use This Clip
             </Button>
@@ -770,6 +781,7 @@ export default function LiveTour() {
         {recordingState === "done" && currentRoomIdx < rooms.length - 1 && (
           <Button
             size="lg"
+            className="w-full sm:w-auto"
             onClick={() => {
               setCurrentRoomIdx((i) => i + 1);
               setRecordingState("idle");

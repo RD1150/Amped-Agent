@@ -21,7 +21,8 @@ import {
   propertyTours, PropertyTour, InsertPropertyTour,
   contentTemplates, ContentTemplate, InsertContentTemplate,
   drafts, Draft, InsertDraft,
-  aiReels, AiReel, InsertAiReel
+  aiReels, AiReel, InsertAiReel,
+  watchedVideos, WatchedVideo
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -956,4 +957,33 @@ export async function deleteAiReel(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(aiReels).where(eq(aiReels.id, id));
+}
+
+// ─── Watched Videos ───────────────────────────────────────────────────────────
+export async function getWatchedVideoIds(userId: number): Promise<string[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ videoId: watchedVideos.videoId })
+    .from(watchedVideos)
+    .where(eq(watchedVideos.userId, userId));
+  return rows.map((r) => r.videoId);
+}
+
+export async function markVideoWatched(userId: number, videoId: string): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Check if already exists
+  const existing = await db.select({ id: watchedVideos.id })
+    .from(watchedVideos)
+    .where(and(eq(watchedVideos.userId, userId), eq(watchedVideos.videoId, videoId)));
+  if (existing.length === 0) {
+    await db.insert(watchedVideos).values({ userId, videoId });
+  }
+}
+
+export async function unmarkVideoWatched(userId: number, videoId: string): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(watchedVideos)
+    .where(and(eq(watchedVideos.userId, userId), eq(watchedVideos.videoId, videoId)));
 }

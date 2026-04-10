@@ -40,6 +40,7 @@ import { fullAvatarVideoRouter } from "./routers/fullAvatarVideo";
 import { liveTourRouter } from "./routers/liveTour";
 import { videoScriptBuilderRouter } from "./routers/videoScriptBuilder";
 import { generationFeedbackRouter } from "./routers/generationFeedback";
+import { getStartedRouter } from "./routers/getStarted";
 
 export const appRouter = router({
   system: systemRouter,
@@ -66,6 +67,7 @@ export const appRouter = router({
   liveTour: liveTourRouter,
   videoScriptBuilder: videoScriptBuilderRouter,
   generationFeedback: generationFeedbackRouter,
+  getStarted: getStartedRouter,
 
   support: router({
     chat: publicProcedure

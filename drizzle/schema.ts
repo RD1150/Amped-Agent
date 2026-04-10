@@ -56,6 +56,19 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
 /**
+ * Tracks which Get Started tutorial videos each user has watched
+ */
+export const watchedVideos = mysqlTable("watched_videos", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  videoId: varchar("videoId", { length: 64 }).notNull(), // e.g. "post-builder", "agent-profile"
+  watchedAt: timestamp("watchedAt").defaultNow().notNull(),
+});
+
+export type WatchedVideo = typeof watchedVideos.$inferSelect;
+export type InsertWatchedVideo = typeof watchedVideos.$inferInsert;
+
+/**
  * Persona & Brand settings for each user
  */
 export const personas = mysqlTable("personas", {

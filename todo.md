@@ -4370,3 +4370,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Build scraper for Homes.com listing URL photo extraction
 - [ ] Add URL import UI to Property Tour page with photo picker and disclaimer
 - [ ] Add URL import UI to AutoReels page with photo picker and disclaimer
+
+## Get Started Page Enhancements
+- [x] Regenerate thumbnails from fixed videos (orange label fully inside box)
+- [x] Add Mark as Watched toggle per video with progress tracker
+- [x] Add search bar to filter tutorials by title, description, or category
+- [x] Wire getStarted tRPC router with watchedVideos DB table
+
+## Live Tour Page Improvements
+- [x] Add device tip banner (phone/tablet vs computer webcam guidance)
+- [x] Make recording phase controls mobile-responsive (full-width buttons on mobile)
