@@ -7,7 +7,7 @@ import { generatePropertyTourVideo, checkRenderStatus } from "../videoGenerator"
 import { storagePut } from "../storage";
 import { fetchPropertyData } from "../rapidapi";
 import { getDb } from "../db";
-import { users, propertyTours } from "../../drizzle/schema";
+import { users, propertyTours, customAvatarTwins } from "../../drizzle/schema";
 import { eq, and, gte, sql, inArray } from "drizzle-orm";
 import * as fs from "fs";
 
@@ -49,6 +49,8 @@ export const propertyToursRouter = router({
         movementSpeed: z.enum(["slow", "fast"]).default("slow"),
         enableAvatarOverlay: z.boolean().default(false),
         avatarOverlayPosition: z.enum(["bottom-left", "bottom-right"]).default("bottom-left"),
+        avatarTwinId: z.number().int().positive().optional(), // DB id of the avatar twin to use for intro/outro
+        avatarIntroScript: z.string().max(2000).optional(), // Script for the avatar intro clip
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -69,7 +71,7 @@ export const propertyToursRouter = router({
         aspectRatio: input.aspectRatio,
         musicTrack: input.musicTrack,
         cardTemplate: input.cardTemplate,
-        includeIntroVideo: input.includeIntroVideo,
+        includeIntroVideo: input.includeIntroVideo || (input.avatarTwinId ? true : false),
         videoMode: input.videoMode,
         enableVoiceover: input.enableVoiceover,
         voiceId: input.voiceId,
@@ -79,6 +81,8 @@ export const propertyToursRouter = router({
         movementSpeed: input.movementSpeed,
         enableAvatarOverlay: input.enableAvatarOverlay,
         avatarOverlayPosition: input.avatarOverlayPosition,
+        avatarTwinId: input.avatarTwinId,
+        avatarIntroScript: input.avatarIntroScript,
         status: "pending",
       });
 
@@ -202,7 +206,45 @@ export const propertyToursRouter = router({
           const persona = await getPersonaByUserId(userId);
           bgLog(`[PropertyTours] Persona fetched: ${persona ? 'yes' : 'no'}`);
 
-          // Stage 2: Generate voiceover (if enabled) — this is fast, ~5s
+          // Stage 2a: Generate avatar intro clip (if avatarTwinId is set)
+          let avatarIntroVideoUrl: string | undefined = tour.avatarIntroVideoUrl || undefined;
+          if (tour.avatarTwinId && !avatarIntroVideoUrl) {
+            bgLog(`[PropertyTours] Stage: generating_avatar_intro (HeyGen)`);
+            await db.updatePropertyTour(tourId, { processingStage: "generating_avatar_intro" });
+            try {
+              const dbConn = await getDb();
+              if (dbConn) {
+                const [twin] = await dbConn.select().from(customAvatarTwins).where(eq(customAvatarTwins.id, tour.avatarTwinId)).limit(1);
+                if (twin && twin.status === "ready") {
+                  const script = tour.avatarIntroScript || `Hi, I'm your agent and I'm excited to show you this beautiful property at ${tour.address}. Let's take a look inside!`;
+                  const { generateCustomAvatarVideo, waitForHeyGenVideo } = await import("../lib/heygen-service");
+                  const heygenVideoId = await generateCustomAvatarVideo({
+                    avatarId: twin.didAvatarId,
+                    script,
+                    voiceId: "en-US-JennyNeural",
+                    landscape: true,
+                    caption: false,
+                  });
+                  const { videoUrl: heygenUrl } = await waitForHeyGenVideo(heygenVideoId, 600_000, 5_000);
+                  // Re-host on S3
+                  const res = await fetch(heygenUrl);
+                  if (res.ok) {
+                    const buf = Buffer.from(await res.arrayBuffer());
+                    const key = `property-tour-intros/${userId}/${tourId}-${Date.now()}.mp4`;
+                    const { url: s3Url } = await storagePut(key, buf, "video/mp4");
+                    avatarIntroVideoUrl = s3Url;
+                    await db.updatePropertyTour(tourId, { avatarIntroVideoUrl: s3Url });
+                    bgLog(`[PropertyTours] Avatar intro clip generated: ${s3Url}`);
+                  }
+                }
+              }
+            } catch (introErr) {
+              bgLog(`[PropertyTours] ⚠️ Avatar intro generation failed (non-fatal): ${introErr instanceof Error ? introErr.message : String(introErr)}`);
+              // Non-fatal: continue without intro clip
+            }
+          }
+
+          // Stage 2b: Generate voiceover (if enabled) — this is fast, ~5s
           if (tour.enableVoiceover) {
             await db.updatePropertyTour(tourId, { processingStage: "generating_voiceover" });
           }
@@ -249,6 +291,7 @@ export const propertyToursRouter = router({
             agentHeadshotUrl: persona?.klingAvatarHeadshotUrl || undefined,
             agentVoiceUrl: persona?.klingAvatarVoiceUrl || undefined,
             voiceId: persona?.elevenlabsVoiceId || tour.voiceId || undefined,
+            avatarIntroVideoUrl: avatarIntroVideoUrl || undefined,
           });
 
           // Store renderId in videoUrl field for polling
@@ -755,6 +798,7 @@ export const propertyToursRouter = router({
             agentHeadshotUrl: persona?.klingAvatarHeadshotUrl || undefined,
             agentVoiceUrl: persona?.klingAvatarVoiceUrl || undefined,
             voiceId: persona?.elevenlabsVoiceId || tour.voiceId || undefined,
+            avatarIntroVideoUrl: tour.avatarIntroVideoUrl || undefined,
           });
 
           await db.updatePropertyTour(tourId, {

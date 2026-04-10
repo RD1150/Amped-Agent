@@ -655,7 +655,7 @@ export default function FullAvatarVideo() {
                 <div className="flex items-center gap-3 flex-1">
                   {twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl ? (
                     <img
-                      src={twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl}
+                      src={twinStatus.thumbnailUrl ?? twinStatus.trainingVideoUrl ?? undefined}
                       alt="Your Photo Avatar"
                       className="h-12 w-12 rounded-full object-cover border-2 border-green-500 flex-shrink-0"
                     />

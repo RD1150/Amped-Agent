@@ -527,6 +527,10 @@ export const propertyTours = mysqlTable("property_tours", {
   youtubeDescription: text("youtubeDescription"), // AI-generated YouTube description with keywords
   youtubeTags: text("youtubeTags"), // JSON array of keyword tags
   youtubeTimestamps: text("youtubeTimestamps"), // JSON array of {time, label} chapter markers
+  // Avatar intro/outro
+  avatarTwinId: int("avatarTwinId"), // FK to custom_avatar_twins.id — which avatar to use for intro/outro
+  avatarIntroScript: text("avatarIntroScript"), // Script for the avatar intro clip
+  avatarIntroVideoUrl: text("avatarIntroVideoUrl"), // Generated HeyGen intro clip URL (S3)
   // Status
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
   errorMessage: text("errorMessage"),
@@ -911,12 +915,14 @@ export type FullAvatarVideo = typeof fullAvatarVideos.$inferSelect;
 export type InsertFullAvatarVideo = typeof fullAvatarVideos.$inferInsert;
 
 // ─── Custom Avatar Twins (D-ID V3) ────────────────────────────────────────────────────────────
-// Stores trained D-ID V3 digital twins — one per user (can be retrained)
+// Stores HeyGen / D-ID digital twins — multiple per user (different outfits/looks)
 export const customAvatarTwins = mysqlTable("custom_avatar_twins", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().unique(), // One twin per user
-  didAvatarId: varchar("didAvatarId", { length: 255 }).notNull(), // D-ID V3 avatar ID
-  trainingVideoUrl: text("trainingVideoUrl").notNull(), // S3 URL of the training video clip
+  userId: int("userId").notNull(), // Multiple avatars per user allowed
+  nickname: varchar("nickname", { length: 100 }), // e.g. "Blazer — Office", "Casual — Outdoor"
+  isDefault: boolean("isDefault").default(false).notNull(), // Which avatar to use by default
+  didAvatarId: varchar("didAvatarId", { length: 255 }).notNull(), // HeyGen / D-ID avatar ID
+  trainingVideoUrl: text("trainingVideoUrl"), // S3 URL of training photo/video (null for manually linked)
   thumbnailUrl: text("thumbnailUrl"), // Preview thumbnail
   status: mysqlEnum("status", ["training", "ready", "failed"]).default("training").notNull(),
   trainedAt: timestamp("trainedAt"), // When training completed

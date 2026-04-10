@@ -85,11 +85,33 @@ export default function Settings() {
   const cloneVoiceMutation = trpc.auth.cloneAgentVoice.useMutation();
   const deleteClonedVoiceMutation = trpc.auth.deleteClonedVoice.useMutation();
 
-  // Advanced: link existing avatar ID
-  const [advAvatarId, setAdvAvatarId] = useState("");
-  const [showAdvAvatar, setShowAdvAvatar] = useState(false);
+  // Avatar Library
+  const [showAddAvatar, setShowAddAvatar] = useState(false);
+  const [newAvatarId, setNewAvatarId] = useState("");
+  const [newAvatarNickname, setNewAvatarNickname] = useState("");
+  const [editingNicknameId, setEditingNicknameId] = useState<number | null>(null);
+  const [editingNicknameValue, setEditingNicknameValue] = useState("");
+
+  const { data: avatarList, refetch: refetchAvatars } = trpc.fullAvatarVideo.listAvatars.useQuery();
+  const addAvatarMutation = trpc.fullAvatarVideo.addAvatar.useMutation({
+    onSuccess: () => { toast.success("Avatar added to your library."); setNewAvatarId(""); setNewAvatarNickname(""); setShowAddAvatar(false); refetchAvatars(); },
+    onError: (e) => toast.error(`Failed to add avatar: ${e.message}`),
+  });
+  const setDefaultAvatarMutation = trpc.fullAvatarVideo.setDefaultAvatar.useMutation({
+    onSuccess: () => { toast.success("Default avatar updated."); refetchAvatars(); },
+    onError: (e) => toast.error(`Failed to set default: ${e.message}`),
+  });
+  const updateNicknameMutation = trpc.fullAvatarVideo.updateAvatarNickname.useMutation({
+    onSuccess: () => { toast.success("Nickname saved."); setEditingNicknameId(null); refetchAvatars(); },
+    onError: (e) => toast.error(`Failed to save nickname: ${e.message}`),
+  });
+  const deleteAvatarByIdMutation = trpc.fullAvatarVideo.deleteAvatarById.useMutation({
+    onSuccess: () => { toast.success("Avatar removed."); refetchAvatars(); },
+    onError: (e) => toast.error(`Failed to remove avatar: ${e.message}`),
+  });
+  // Legacy single-avatar update (kept for backward compat)
   const setAvatarIdMutation = trpc.fullAvatarVideo.setAvatarId.useMutation({
-    onSuccess: () => { toast.success("Avatar ID updated successfully."); setAdvAvatarId(""); setShowAdvAvatar(false); },
+    onSuccess: () => { toast.success("Avatar ID updated successfully."); refetchAvatars(); },
     onError: (e) => toast.error(`Failed to update avatar ID: ${e.message}`),
   });
   const [isRecording, setIsRecording] = useState(false);
@@ -660,61 +682,110 @@ export default function Settings() {
         </CardContent>
       </Card>
 
-      {/* Advanced Settings */}
+      {/* Avatar Library */}
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-muted-foreground" />
-            Advanced Settings
+            <Video className="h-5 w-5 text-muted-foreground" />
+            My Avatar Library
           </CardTitle>
-          <CardDescription>Technical options for power users</CardDescription>
+          <CardDescription>Manage your personal AI avatars. Each avatar can have a different look or outfit. The default avatar is used when generating videos.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-medium">Avatar ID</p>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs text-xs">
-                        If you have a personal AI avatar set up through a separate service, you can link it here using its unique ID. Contact support if you need help locating your avatar ID.
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+          {/* Avatar list */}
+          {avatarList && avatarList.length > 0 ? (
+            <div className="space-y-2">
+              {avatarList.map((avatar) => (
+                <div key={avatar.id} className={`flex items-center gap-3 p-3 rounded-lg border ${avatar.isDefault ? 'border-primary/40 bg-primary/5' : 'border-border bg-muted/30'}`}>
+                  {/* Thumbnail or icon */}
+                  {avatar.thumbnailUrl ? (
+                    <img src={avatar.thumbnailUrl} alt="Avatar" className="h-10 w-10 rounded-full object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                      <User className="h-5 w-5 text-primary" />
+                    </div>
+                  )}
+                  {/* Nickname / ID */}
+                  <div className="flex-1 min-w-0">
+                    {editingNicknameId === avatar.id ? (
+                      <div className="flex gap-2">
+                        <Input
+                          value={editingNicknameValue}
+                          onChange={(e) => setEditingNicknameValue(e.target.value)}
+                          placeholder="e.g. Blazer — Office"
+                          className="h-7 text-xs flex-1"
+                          autoFocus
+                        />
+                        <Button size="sm" className="h-7 text-xs px-2" onClick={() => updateNicknameMutation.mutate({ avatarId: avatar.id, nickname: editingNicknameValue.trim() })} disabled={updateNicknameMutation.isPending}>Save</Button>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => setEditingNicknameId(null)}>Cancel</Button>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-sm font-medium truncate">{avatar.nickname || 'My Avatar'} {avatar.isDefault && <span className="ml-1 text-xs text-primary font-normal">(default)</span>}</p>
+                        <p className="text-xs text-muted-foreground truncate">{avatar.didAvatarId}</p>
+                      </div>
+                    )}
+                  </div>
+                  {/* Actions */}
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {!avatar.isDefault && (
+                      <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => setDefaultAvatarMutation.mutate({ avatarId: avatar.id })} disabled={setDefaultAvatarMutation.isPending}>
+                        Set Default
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => { setEditingNicknameId(avatar.id); setEditingNicknameValue(avatar.nickname || ''); }}>
+                      Rename
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => deleteAvatarByIdMutation.mutate({ avatarId: avatar.id })} disabled={deleteAvatarByIdMutation.isPending}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">Link an existing avatar ID from a previous setup.</p>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setShowAdvAvatar((v) => !v)}
-              >
-                {showAdvAvatar ? "Cancel" : "Update"}
-              </Button>
+              ))}
             </div>
-            {showAdvAvatar && (
-              <div className="flex gap-2 pt-1">
+          ) : (
+            <p className="text-sm text-muted-foreground">No avatars in your library yet. Add one below.</p>
+          )}
+
+          {/* Add avatar */}
+          {!showAddAvatar ? (
+            <Button size="sm" variant="outline" onClick={() => setShowAddAvatar(true)} className="w-full">
+              + Add Avatar
+            </Button>
+          ) : (
+            <div className="space-y-3 p-3 rounded-lg border border-dashed border-border bg-muted/20">
+              <p className="text-sm font-medium">Add Avatar to Library</p>
+              <div className="space-y-2">
+                <Label className="text-xs">Avatar ID</Label>
                 <Input
-                  value={advAvatarId}
-                  onChange={(e) => setAdvAvatarId(e.target.value)}
-                  placeholder="Paste your avatar ID here"
-                  className="flex-1 text-sm"
+                  value={newAvatarId}
+                  onChange={(e) => setNewAvatarId(e.target.value)}
+                  placeholder="Paste your avatar ID"
+                  className="text-sm"
                 />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">Nickname (optional)</Label>
+                <Input
+                  value={newAvatarNickname}
+                  onChange={(e) => setNewAvatarNickname(e.target.value)}
+                  placeholder="e.g. Blazer — Office"
+                  className="text-sm"
+                />
+              </div>
+              <div className="flex gap-2">
                 <Button
                   size="sm"
-                  disabled={advAvatarId.length < 10 || setAvatarIdMutation.isPending}
-                  onClick={() => setAvatarIdMutation.mutate({ avatarId: advAvatarId.trim() })}
-                  className="bg-primary text-black font-semibold"
+                  className="bg-primary text-black font-semibold flex-1"
+                  disabled={newAvatarId.length < 10 || addAvatarMutation.isPending}
+                  onClick={() => addAvatarMutation.mutate({ avatarId: newAvatarId.trim(), nickname: newAvatarNickname.trim() || undefined, setAsDefault: !avatarList?.length })}
                 >
-                  {setAvatarIdMutation.isPending ? "Saving…" : "Save"}
+                  {addAvatarMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add to Library"}
                 </Button>
+                <Button size="sm" variant="ghost" onClick={() => { setShowAddAvatar(false); setNewAvatarId(""); setNewAvatarNickname(""); }}>Cancel</Button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

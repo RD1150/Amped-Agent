@@ -105,6 +105,9 @@ export default function PropertyTours() {
   const [musicVolume, setMusicVolume] = useState(50);
   const [cardTemplate, setCardTemplate] = useState<"modern" | "luxury" | "bold" | "classic" | "contemporary">("modern");
   const [includeIntroVideo, setIncludeIntroVideo] = useState(false);
+  const [selectedAvatarTwinId, setSelectedAvatarTwinId] = useState<number | undefined>(undefined);
+  const [avatarIntroScript, setAvatarIntroScript] = useState("");
+  const [showAvatarIntroPanel, setShowAvatarIntroPanel] = useState(false);
 
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel - professional female
@@ -191,6 +194,7 @@ export default function PropertyTours() {
   const fetchPropertyData = trpc.propertyTours.fetchPropertyData.useMutation();
   const generateVoiceoverScript = trpc.propertyTours.generateVoiceoverScript.useMutation();
   const previewVoice = trpc.propertyTours.previewVoice.useMutation();
+  const { data: avatarList } = trpc.fullAvatarVideo.listAvatars.useQuery();
 
   // Handle file selection
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -468,7 +472,9 @@ export default function PropertyTours() {
         aspectRatio,
         musicTrack,
         cardTemplate,
-        includeIntroVideo,
+        includeIntroVideo: includeIntroVideo || showAvatarIntroPanel,
+        avatarTwinId: showAvatarIntroPanel ? selectedAvatarTwinId : undefined,
+        avatarIntroScript: showAvatarIntroPanel && avatarIntroScript ? avatarIntroScript : undefined,
         videoMode,
         enableVoiceover,
         voiceId: enableVoiceover ? voiceId : undefined,
@@ -1045,125 +1051,76 @@ export default function PropertyTours() {
               </Label>
             </div>
 
-            {/* Intro Video */}
+            {/* Avatar Intro */}
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="includeIntroVideo"
-                checked={includeIntroVideo}
+                id="showAvatarIntroPanel"
+                checked={showAvatarIntroPanel}
                 onCheckedChange={(checked) => {
-                  setIncludeIntroVideo(checked as boolean);
+                  setShowAvatarIntroPanel(checked as boolean);
                   if (!checked) {
-                    setUseProfileAvatar(null);
-                    setCustomAvatarPreview("");
-                    setCustomAvatarFile(null);
+                    setSelectedAvatarTwinId(undefined);
+                    setAvatarIntroScript("");
                   }
                 }}
               />
-              <Label htmlFor="includeIntroVideo" className="text-sm font-normal cursor-pointer">
-                Prepend my intro video (adds personal intro before property tour)
+              <Label htmlFor="showAvatarIntroPanel" className="text-sm font-normal cursor-pointer">
+                Add personal intro &amp; outro (your AI avatar appears before and after the tour)
               </Label>
             </div>
 
-            {/* Avatar headshot choice — shown when intro video is enabled */}
-            {includeIntroVideo && (
-              <div className="ml-6 mt-2 p-4 rounded-lg border bg-muted/30 space-y-3">
-                <p className="text-sm font-medium">Agent Headshot for Intro</p>
-
-                {/* Saved profile avatar option */}
-                {currentUser?.avatarImageUrl && useProfileAvatar !== false && (
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={currentUser.avatarImageUrl}
-                      alt="Saved profile headshot"
-                      className="w-14 h-14 rounded-full object-cover border-2 border-primary"
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">Your saved headshot</p>
-                      <p className="text-xs text-muted-foreground">From your profile</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
+            {/* Avatar intro panel — shown when checkbox is ticked */}
+            {showAvatarIntroPanel && (
+              <div className="ml-6 mt-2 p-4 rounded-lg border bg-muted/30 space-y-4">
+                <p className="text-sm font-semibold">Choose Your Avatar</p>
+                {avatarList && avatarList.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    {avatarList.map((twin) => (
+                      <button
+                        key={twin.id}
                         type="button"
-                        size="sm"
-                        variant={useProfileAvatar === true ? "default" : "outline"}
-                        onClick={() => { setUseProfileAvatar(true); setCustomAvatarPreview(""); setCustomAvatarFile(null); }}
+                        onClick={() => setSelectedAvatarTwinId(twin.id)}
+                        className={`flex items-center gap-3 p-3 rounded-lg border-2 text-left transition-all ${
+                          selectedAvatarTwinId === twin.id
+                            ? "border-primary bg-primary/10"
+                            : "border-border bg-background hover:border-primary/50"
+                        }`}
                       >
-                        {useProfileAvatar === true ? <><Check className="w-3 h-3 mr-1" />Using this</> : "Use this"}
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setUseProfileAvatar(false)}
-                      >
-                        Use different
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Custom upload option */}
-                {(useProfileAvatar === false || !currentUser?.avatarImageUrl) && (
-                  <div className="space-y-2">
-                    {customAvatarPreview ? (
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={customAvatarPreview}
-                          alt="Custom headshot"
-                          className="w-14 h-14 rounded-full object-cover border-2 border-primary"
-                        />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">Custom headshot ready</p>
-                          <p className="text-xs text-muted-foreground">Will be used for this tour</p>
-                        </div>
-                        <div className="flex gap-2">
-                          {currentUser?.avatarImageUrl && (
-                            <Button type="button" size="sm" variant="ghost" onClick={() => setUseProfileAvatar(true)}>
-                              Use saved instead
-                            </Button>
+                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                          {twin.thumbnailUrl ? (
+                            <img src={twin.thumbnailUrl} alt={twin.nickname || "Avatar"} className="w-full h-full object-cover" />
+                          ) : (
+                            <UserCircle2 className="w-6 h-6 text-muted-foreground" />
                           )}
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            onClick={() => { setCustomAvatarPreview(""); setCustomAvatarFile(null); }}
-                          >
-                            <X className="w-3 h-3 mr-1" />Remove
-                          </Button>
                         </div>
-                      </div>
-                    ) : (
-                      <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                        <UserCircle2 className="w-6 h-6 text-muted-foreground mb-1" />
-                        <span className="text-xs text-muted-foreground">Upload your headshot</span>
-                        <input
-                          id="avatarHeadshotUpload"
-                          name="avatarHeadshotUpload"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = (ev) => {
-                              setAvatarCropImageUrl(ev.target?.result as string);
-                              setShowAvatarCropModal(true);
-                            };
-                            reader.readAsDataURL(file);
-                          }}
-                        />
-                      </label>
-                    )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{twin.nickname || "My Avatar"}</p>
+                          <p className="text-xs text-muted-foreground capitalize">{twin.status}</p>
+                        </div>
+                        {selectedAvatarTwinId === twin.id && <Check className="w-4 h-4 text-primary shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <UserCircle2 className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No avatars set up yet.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Go to <strong>Full Avatar Video</strong> to create your personal AI avatar first.</p>
                   </div>
                 )}
 
-                {/* Prompt to choose if no decision yet and profile avatar exists */}
-                {useProfileAvatar === null && currentUser?.avatarImageUrl && (
-                  <p className="text-xs text-muted-foreground">Choose to use your saved headshot or upload a different one.</p>
-                )}
-                {!currentUser?.avatarImageUrl && !customAvatarPreview && (
-                  <p className="text-xs text-primary">No saved headshot found. Upload one above, or go to AI Reels to save your profile headshot.</p>
+                {selectedAvatarTwinId && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Intro Script (optional)</Label>
+                    <Textarea
+                      placeholder={`Hi, I'm your agent and I'm excited to show you this beautiful property. Let's take a look inside!`}
+                      value={avatarIntroScript}
+                      onChange={(e) => setAvatarIntroScript(e.target.value)}
+                      rows={3}
+                      className="text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground">Leave blank to use a default intro. Your avatar will also appear at the end with your contact info.</p>
+                  </div>
                 )}
               </div>
             )}

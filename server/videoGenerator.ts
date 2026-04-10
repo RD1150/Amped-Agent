@@ -32,6 +32,7 @@ export interface VideoGenerationOptions {
   aspectRatio?: "16:9" | "9:16" | "1:1"; // Video aspect ratio
   cardTemplate?: "modern" | "luxury" | "bold" | "classic" | "contemporary"; // Intro/outro card style
   includeIntroVideo?: boolean; // Prepend user's intro video
+  avatarIntroVideoUrl?: string; // Custom avatar intro clip URL (overrides hardcoded URL)
   videoMode?: "standard" | "ai-enhanced" | "full-ai" | "cinematic"; // Video generation mode
   enableVoiceover?: boolean; // Enable AI voiceover narration
   voiceId?: string; // ElevenLabs voice ID
@@ -542,16 +543,17 @@ export async function generatePropertyTourVideo(
   }
   
   // Add user's intro video if enabled
-  const USER_INTRO_VIDEO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/eskOJdrujAZgEfsC.mp4";
+  const FALLBACK_INTRO_VIDEO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/eskOJdrujAZgEfsC.mp4";
+  const resolvedIntroVideoUrl = options.avatarIntroVideoUrl || FALLBACK_INTRO_VIDEO_URL;
   const userIntroClip: any[] = [];
   let userIntroLength = 0;
   
   if (includeIntroVideo) {
-    userIntroLength = 5; // Assume 5 second intro video
+    userIntroLength = 8; // Avatar intro clips are typically 8-15s
     userIntroClip.push({
       asset: {
         type: "video",
-        src: USER_INTRO_VIDEO_URL,
+        src: resolvedIntroVideoUrl,
         volume: 1.0, // Full volume for intro video
       },
       start: 0,
@@ -785,7 +787,7 @@ export async function generatePropertyTourVideo(
       avatarVideoUrl,
       avatarOverlayPosition,
       includeIntroVideo,
-      introVideoUrl: includeIntroVideo ? "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/eskOJdrujAZgEfsC.mp4" : undefined,
+      introVideoUrl: includeIntroVideo ? resolvedIntroVideoUrl : undefined,
     });
 
     writeLog(`[VideoGenerator] Creatomate render queued: ${result.renderId}`);

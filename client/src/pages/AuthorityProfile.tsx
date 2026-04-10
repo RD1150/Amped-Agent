@@ -70,7 +70,7 @@ function PhotoAvatarCard() {
           <div className="relative flex-shrink-0">
             {twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl ? (
               <img
-                src={twinStatus.thumbnailUrl || twinStatus.trainingVideoUrl}
+                src={twinStatus.thumbnailUrl ?? twinStatus.trainingVideoUrl ?? undefined}
                 alt="Your Photo Avatar"
                 className="h-20 w-20 rounded-full object-cover border-2 border-green-500"
               />

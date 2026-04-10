@@ -504,15 +504,11 @@ Requirements:
   }),
 
   /**
-   * Directly set the HeyGen avatar ID for the current user.
+   * Directly set / update the HeyGen avatar ID for the current user's default avatar.
    * Useful when a user has already created their avatar on HeyGen and just needs to link it.
    */
   setAvatarId: protectedProcedure
-    .input(
-      z.object({
-        avatarId: z.string().min(10).max(255),
-      })
-    )
+    .input(z.object({ avatarId: z.string().min(10).max(255) }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
@@ -520,25 +516,149 @@ Requirements:
       const [existing] = await db
         .select()
         .from(customAvatarTwins)
-        .where(eq(customAvatarTwins.userId, ctx.user.id))
+        .where(and(eq(customAvatarTwins.userId, ctx.user.id), eq(customAvatarTwins.isDefault, true)))
         .limit(1);
 
       if (existing) {
         await db
           .update(customAvatarTwins)
           .set({ didAvatarId: input.avatarId, status: "ready", trainedAt: new Date() })
-          .where(eq(customAvatarTwins.userId, ctx.user.id));
+          .where(eq(customAvatarTwins.id, existing.id));
       } else {
         await db.insert(customAvatarTwins).values({
           userId: ctx.user.id,
           didAvatarId: input.avatarId,
-          trainingVideoUrl: "",
+          trainingVideoUrl: null,
           status: "ready",
           trainedAt: new Date(),
+          isDefault: true,
         });
       }
 
       return { success: true, avatarId: input.avatarId };
+    }),
+
+  /** List all avatars for the current user */
+  listAvatars: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    return db
+      .select()
+      .from(customAvatarTwins)
+      .where(eq(customAvatarTwins.userId, ctx.user.id))
+      .orderBy(customAvatarTwins.createdAt);
+  }),
+
+  /** Add a new avatar to the user's library by pasting an avatar ID */
+  addAvatar: protectedProcedure
+    .input(z.object({
+      avatarId: z.string().min(10).max(255),
+      nickname: z.string().max(100).optional(),
+      setAsDefault: z.boolean().optional().default(false),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const existing = await db
+        .select({ id: customAvatarTwins.id })
+        .from(customAvatarTwins)
+        .where(eq(customAvatarTwins.userId, ctx.user.id));
+      const isFirst = existing.length === 0;
+
+      if (input.setAsDefault || isFirst) {
+        await db.update(customAvatarTwins).set({ isDefault: false }).where(eq(customAvatarTwins.userId, ctx.user.id));
+      }
+
+      const [inserted] = await db.insert(customAvatarTwins).values({
+        userId: ctx.user.id,
+        didAvatarId: input.avatarId,
+        nickname: input.nickname || null,
+        trainingVideoUrl: null,
+        status: "ready",
+        trainedAt: new Date(),
+        isDefault: isFirst || input.setAsDefault,
+      }).$returningId();
+
+      return { success: true, id: inserted.id };
+    }),
+
+  /** Update nickname for an avatar */
+  updateAvatarNickname: protectedProcedure
+    .input(z.object({ avatarId: z.number().int().positive(), nickname: z.string().max(100) }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      await db
+        .update(customAvatarTwins)
+        .set({ nickname: input.nickname })
+        .where(and(eq(customAvatarTwins.id, input.avatarId), eq(customAvatarTwins.userId, ctx.user.id)));
+      return { success: true };
+    }),
+
+  /** Set a specific avatar as the default */
+  setDefaultAvatar: protectedProcedure
+    .input(z.object({ avatarId: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      await db.update(customAvatarTwins).set({ isDefault: false }).where(eq(customAvatarTwins.userId, ctx.user.id));
+      await db
+        .update(customAvatarTwins)
+        .set({ isDefault: true })
+        .where(and(eq(customAvatarTwins.id, input.avatarId), eq(customAvatarTwins.userId, ctx.user.id)));
+      return { success: true };
+    }),
+
+  /** Delete a specific avatar by DB id */
+  deleteAvatarById: protectedProcedure
+    .input(z.object({ avatarId: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      await db
+        .delete(customAvatarTwins)
+        .where(and(eq(customAvatarTwins.id, input.avatarId), eq(customAvatarTwins.userId, ctx.user.id)));
+      return { success: true };
+    }),
+
+  /** Generate an avatar intro/outro clip for a property tour (returns HeyGen video URL) */
+  generatePropertyIntroClip: protectedProcedure
+    .input(z.object({
+      avatarId: z.number().int().positive(), // DB id of the twin to use
+      script: z.string().min(10).max(2000),
+      landscape: z.boolean().optional().default(true),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const [twin] = await db
+        .select()
+        .from(customAvatarTwins)
+        .where(and(eq(customAvatarTwins.id, input.avatarId), eq(customAvatarTwins.userId, ctx.user.id)))
+        .limit(1);
+
+      if (!twin || twin.status !== "ready") throw new TRPCError({ code: "BAD_REQUEST", message: "Avatar not ready" });
+
+      const heygenVideoId = await generateCustomAvatarVideo({
+        avatarId: twin.didAvatarId,
+        script: input.script,
+        voiceId: "en-US-JennyNeural",
+        landscape: input.landscape,
+        caption: false,
+      });
+
+      const { videoUrl } = await waitForHeyGenVideo(heygenVideoId, 600_000, 5_000);
+
+      // Re-host on S3
+      const res = await fetch(videoUrl);
+      if (!res.ok) throw new Error("Failed to download HeyGen clip");
+      const buf = Buffer.from(await res.arrayBuffer());
+      const key = `property-tour-intros/${ctx.user.id}/${Date.now()}.mp4`;
+      const { url: s3Url } = await storagePut(key, buf, "video/mp4");
+
+      return { videoUrl: s3Url };
     }),
 
   /**

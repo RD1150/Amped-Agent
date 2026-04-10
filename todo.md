@@ -4481,3 +4481,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Rename "Property Slideshow" to "Property Tour" in Dashboard cards
 - [x] Rename headings on the page itself to "Property Tour"
 - [x] Update description text to remove "Ken Burns / Cinematic / AI Motion" reference
+
+## Avatar + Property Tour Unified Experience (Apr 2026)
+- [x] Extend customAvatarTwins schema: remove unique constraint, add nickname, isDefault, make trainingVideoUrl nullable
+- [x] Push schema migration (columns already applied to live DB)
+- [x] Add listAvatars, addAvatar, updateAvatarNickname, setDefaultAvatar, deleteAvatarById procedures to fullAvatarVideo router
+- [x] Build Avatar Library UI in Settings: add multiple avatars with nicknames, set default, photo upload + ID paste
+- [x] Add avatar intro selector to Property Tour creation page (checkbox + avatar grid + optional script)
+- [x] Generate HeyGen intro clip in background job before Creatomate assembly
+- [x] Pass avatarIntroVideoUrl to Creatomate assembly (both initial and retry jobs)
+- [x] Write unit tests for avatar library logic (10 tests passing)
