@@ -64,6 +64,7 @@ import MyContent from "./pages/MyContent";
 import VideoComparison from "./pages/VideoComparison";
 import BlogBuilder from "./pages/BlogBuilder";
 import BrandStory from "./pages/BrandStory";
+import { SupportChatbot } from "./components/SupportChatbot";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -176,6 +177,7 @@ function AppWithOnboarding() {
         open={showOnboarding}
         onComplete={() => refetch()}
       />
+      <SupportChatbot />
     </>
   );
 }

@@ -4,6 +4,16 @@ import { Button } from "@/components/ui/button";
 
 const POST_BUILDER_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-post-builder_6968e999.mp4";
 const AGENT_PROFILE_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-agent-profile_1f382cd7.mp4";
+const BRAND_STORY_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-brand-story_25de4381.mp4";
+
+const THUMBNAILS: Record<string, string> = {
+  "agent-profile": "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/thumb-authority-profile_49225b7f.webp",
+  "post-builder": "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/thumb-post-builder_85d735f9.webp",
+  "blog-builder": "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/thumb-brand-story_787e79af.webp",
+  "market-insights": "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/thumb-market-insights_676e6a4b.webp",
+  "avatar-video": "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/thumb-avatar-video_f59e8395.webp",
+  "lead-magnet": "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/thumb-lead-magnet_b3633e6e.webp",
+};
 
 interface VideoCard {
   id: string;
@@ -37,13 +47,12 @@ const videos: VideoCard[] = [
   },
   {
     id: "blog-builder",
-    title: "Writing Blog Articles",
-    description: "Generate long-form blog content that positions you as the local real estate expert.",
-    duration: "Coming Soon",
+    title: "Your Brand Story",
+    description: "Turn your personal experience into professional bios, elevator pitches, social posts, and LinkedIn summaries — all in one click.",
+    duration: "0:53",
     icon: <BookOpen className="h-5 w-5" />,
-    videoUrl: null,
-    comingSoon: true,
-    category: "Content Creation",
+    videoUrl: BRAND_STORY_VIDEO,
+    category: "Getting Started",
   },
   {
     id: "market-insights",
@@ -143,8 +152,20 @@ export default function GetStarted() {
             onClick={() => !video.comingSoon && video.videoUrl && setActiveVideo(video)}
           >
             {/* Thumbnail area */}
-            <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 h-40 flex items-center justify-center">
-              <div className="text-primary/40 scale-150">{video.icon}</div>
+            <div className="relative h-40 overflow-hidden bg-muted">
+              {THUMBNAILS[video.id] ? (
+                <img
+                  src={THUMBNAILS[video.id]}
+                  alt={video.title}
+                  className="w-full h-full object-cover object-top transition-transform group-hover:scale-105"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                  <div className="text-primary/40 scale-150">{video.icon}</div>
+                </div>
+              )}
+              {/* Dark overlay for readability */}
+              <div className="absolute inset-0 bg-black/20" />
               {!video.comingSoon && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="bg-primary rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform">
@@ -153,7 +174,7 @@ export default function GetStarted() {
                 </div>
               )}
               {video.comingSoon && (
-                <div className="absolute top-2 right-2 bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full font-medium">
+                <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full font-medium">
                   Coming Soon
                 </div>
               )}
@@ -162,7 +183,7 @@ export default function GetStarted() {
                   {video.duration}
                 </div>
               )}
-              <div className="absolute top-2 left-2 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full font-medium">
+              <div className="absolute top-2 left-2 bg-primary/90 text-white text-xs px-2 py-0.5 rounded-full font-medium">
                 {video.category}
               </div>
             </div>
