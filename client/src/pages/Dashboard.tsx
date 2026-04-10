@@ -22,7 +22,6 @@ import {
   ExternalLink,
   Link2,
   Building2,
-  Film,
   Smartphone,
   UserCircle,
   CheckCircle2,
@@ -414,28 +413,12 @@ export default function Dashboard() {
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Listing</span>
               </div>
               <div>
-                <p className="font-semibold text-sm">Property Slideshow</p>
-                <p className="text-xs text-muted-foreground">Ken Burns / Cinematic / AI Motion</p>
+                <p className="font-semibold text-sm">Property Tour</p>
+                <p className="text-xs text-muted-foreground">Cinematic tour video · 5 credits</p>
               </div>
             </div>
           </Card>
-          <Card
-            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
-            onClick={() => setLocation("/cinematic-walkthrough")}
-          >
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <div className="p-2 rounded-lg bg-purple-500/10">
-                  <Film className="h-5 w-5 text-purple-600" />
-                </div>
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">Agency</span>
-              </div>
-              <div>
-                <p className="font-semibold text-sm">AI Motion Tour</p>
-                <p className="text-xs text-muted-foreground">Cinematic AI camera · 10 credits</p>
-              </div>
-            </div>
-          </Card>
+
           <Card
             className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
             onClick={() => setLocation("/live-tour")}

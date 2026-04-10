@@ -215,34 +215,17 @@ const menuSections = [
     items: [
       {
         icon: Building2,
-        label: "Property Slideshow",
+        label: "Property Tour",
         path: "/property-tours",
-        description: "Quick Ken Burns video for any listing · 5 credits",
+        description: "Cinematic property tour video for any home · 5 credits",
         hoverInfo: {
-          tagline: "Turn listing photos into a polished video in under 2 minutes.",
+          tagline: "Turn property photos into a polished cinematic tour video in under 2 minutes.",
           details: [
-            { label: "Style", value: "Ken Burns zoom & pan on your photos" },
-            { label: "Best for", value: "Every listing — quick, professional, shareable" },
+            { label: "Style", value: "Smooth Ken Burns motion — zoom, pan, cross-fade" },
+            { label: "Best for", value: "Any property — your listings or buyer searches" },
             { label: "Music", value: "Choose from 8 curated background tracks" },
             { label: "Credits", value: "5 credits per video" },
             { label: "Time", value: "~2 minutes to generate" },
-          ],
-        },
-      },
-      {
-        icon: Film,
-        label: "AI Motion Tour",
-        path: "/cinematic-walkthrough",
-        description: "AI-animated cinematic tour for premium listings",
-        badge: "Agency",
-        hoverInfo: {
-          tagline: "AI generates real camera movement on each photo — drone pull-backs, orbits, dollies.",
-          details: [
-            { label: "Style", value: "Per-photo AI motion: drone, orbit, dolly, crane, pan" },
-            { label: "Best for", value: "Luxury & premium listings that deserve cinematic quality" },
-            { label: "Music", value: "8 curated tracks with custom volume control" },
-            { label: "Credits", value: "10 credits per video" },
-            { label: "Time", value: "5–10 minutes (AI generation per clip)" },
           ],
         },
       },

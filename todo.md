@@ -4467,3 +4467,17 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Minor UI Fixes (Apr 2026)
 - [x] Remove "Avatar 5 coming soon" text from Full Avatar Videos page
+
+## Retire AI Motion Tour (Apr 2026)
+- [ ] Remove AI Motion Tour from sidebar navigation
+- [ ] Remove AI Motion Tour from dashboard quick-action cards
+- [ ] Remove AI Motion Tour route from App.tsx (keep code, just hide route)
+- [ ] Remove any other entry points (dashboard links, feature cards)
+
+## Product Lineup Cleanup (Apr 2026)
+- [x] Remove AI Motion Tour from sidebar navigation (DashboardLayout.tsx)
+- [x] Remove AI Motion Tour card from Dashboard quick-actions
+- [x] Rename "Property Slideshow" to "Property Tour" in DashboardLayout sidebar
+- [x] Rename "Property Slideshow" to "Property Tour" in Dashboard cards
+- [x] Rename headings on the page itself to "Property Tour"
+- [x] Update description text to remove "Ken Burns / Cinematic / AI Motion" reference

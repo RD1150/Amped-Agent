@@ -642,7 +642,7 @@ export default function PropertyTours() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Listing Slideshow</h1>
+            <h1 className="text-4xl font-bold mb-2">Property Tour</h1>
             <p className="text-muted-foreground">
               Create cinematic property tour videos with Ken Burns effects
             </p>
@@ -721,7 +721,7 @@ export default function PropertyTours() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Create New Tour Form */}
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-6">Create New Listing Slideshow</h2>
+          <h2 className="text-2xl font-semibold mb-6">Create New Property Tour</h2>
 
           {/* Image Upload */}
           <div className="mb-6">
@@ -1668,7 +1668,7 @@ export default function PropertyTours() {
 
         {/* Tours Library */}
         <div>
-          <h2 className="text-2xl font-semibold mb-6">Your Listing Slideshows</h2>
+          <h2 className="text-2xl font-semibold mb-6">Your Property Tours</h2>
 
           {toursLoading ? (
             <div className="flex items-center justify-center py-12">
