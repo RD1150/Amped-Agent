@@ -673,13 +673,7 @@ export default function FullAvatarVideo() {
                       >
                         Replace photo
                       </button>
-                      {" · "}
-                      <button
-                        className="underline text-primary hover:text-primary transition-colors"
-                        onClick={() => setShowLinkAvatar((v) => !v)}
-                      >
-                        Change avatar ID
-                      </button>
+
                     </p>
                   </div>
                 </div>
@@ -692,68 +686,10 @@ export default function FullAvatarVideo() {
                   Generate with My Avatar
                 </Button>
               </div>
-              {/* Link HeyGen Avatar ID panel */}
-              {showLinkAvatar && (
-                <div className="p-3 rounded-lg border border-border bg-muted/20 space-y-2">
-                  <p className="text-xs font-semibold text-foreground">Link a HeyGen Avatar ID</p>
-                  <p className="text-xs text-muted-foreground">Already created your avatar on HeyGen? Paste your Avatar ID below to use it directly — no re-upload needed.</p>
-                  <div className="flex gap-2">
-                    <input
-                      value={linkAvatarId}
-                      onChange={(e) => setLinkAvatarId(e.target.value)}
-                      placeholder="e.g. 06d9f77a44e74f649c0ce6416ab23684"
-                      className="flex-1 text-sm rounded-lg border border-border bg-background px-3 py-2 text-foreground placeholder:text-muted-foreground outline-none focus:ring-1 focus:ring-primary"
-                    />
-                    <Button
-                      size="sm"
-                      disabled={linkAvatarId.length < 10 || setAvatarIdMutation.isPending}
-                      onClick={() => setAvatarIdMutation.mutate({ avatarId: linkAvatarId.trim() })}
-                      className="bg-primary text-black font-semibold"
-                    >
-                      {setAvatarIdMutation.isPending ? "Saving…" : "Save"}
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setShowLinkAvatar(false)}>Cancel</Button>
-                  </div>
-                </div>
-              )}
+
             </div>
           ) : (isReplacingPhoto || twinStatus?.status !== "ready") ? (
             <div className="space-y-3">
-              {/* Quick link option for users who already have a HeyGen avatar */}
-              <div className="p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-2">
-                <p className="text-xs font-semibold text-primary">Already created your avatar on HeyGen?</p>
-                <p className="text-xs text-muted-foreground">Paste your HeyGen Avatar ID to link it instantly — no upload needed.</p>
-                {showLinkAvatar ? (
-                  <div className="flex gap-2">
-                    <input
-                      value={linkAvatarId}
-                      onChange={(e) => setLinkAvatarId(e.target.value)}
-                      placeholder="e.g. 06d9f77a44e74f649c0ce6416ab23684"
-                      className="flex-1 text-sm rounded-lg border border-border bg-background px-3 py-2 text-foreground placeholder:text-muted-foreground outline-none focus:ring-1 focus:ring-primary"
-                    />
-                    <Button
-                      size="sm"
-                      disabled={linkAvatarId.length < 10 || setAvatarIdMutation.isPending}
-                      onClick={() => setAvatarIdMutation.mutate({ avatarId: linkAvatarId.trim() })}
-                      className="bg-primary text-black font-semibold"
-                    >
-                      {setAvatarIdMutation.isPending ? "Saving…" : "Link Avatar"}
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setShowLinkAvatar(false)}>Cancel</Button>
-                  </div>
-                ) : (
-                  <Button size="sm" variant="outline" className="border-primary/40 text-primary" onClick={() => setShowLinkAvatar(true)}>
-                    Link HeyGen Avatar ID
-                  </Button>
-                )}
-              </div>
-
-              <div className="relative flex items-center gap-2">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-xs text-muted-foreground">or upload a new photo</span>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-
               <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 space-y-1.5">
                 <p className="text-xs font-semibold text-primary dark:text-primary">📸 Upload a headshot photo of YOUR FACE to create your personal AI avatar</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">

@@ -83,6 +83,14 @@ export default function Settings() {
   const { data: clonedVoice, refetch: refetchClonedVoice } = trpc.auth.getClonedVoice.useQuery();
   const cloneVoiceMutation = trpc.auth.cloneAgentVoice.useMutation();
   const deleteClonedVoiceMutation = trpc.auth.deleteClonedVoice.useMutation();
+
+  // Advanced: link existing avatar ID
+  const [advAvatarId, setAdvAvatarId] = useState("");
+  const [showAdvAvatar, setShowAdvAvatar] = useState(false);
+  const setAvatarIdMutation = trpc.fullAvatarVideo.setAvatarId.useMutation({
+    onSuccess: () => { toast.success("Avatar ID updated successfully."); setAdvAvatarId(""); setShowAdvAvatar(false); },
+    onError: (e) => toast.error(`Failed to update avatar ID: ${e.message}`),
+  });
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
@@ -645,6 +653,52 @@ export default function Settings() {
                     Avatar videos are hosted for 90 days. Head to AI Reels to regenerate your avatar intro.
                   </p>
                 </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Advanced Settings */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-muted-foreground" />
+            Advanced Settings
+          </CardTitle>
+          <CardDescription>Technical options for power users</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">Avatar ID</p>
+                <p className="text-xs text-muted-foreground">If you have an existing avatar ID from a previous setup, you can link it here.</p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowAdvAvatar((v) => !v)}
+              >
+                {showAdvAvatar ? "Cancel" : "Update"}
+              </Button>
+            </div>
+            {showAdvAvatar && (
+              <div className="flex gap-2 pt-1">
+                <Input
+                  value={advAvatarId}
+                  onChange={(e) => setAdvAvatarId(e.target.value)}
+                  placeholder="Paste your avatar ID here"
+                  className="flex-1 text-sm"
+                />
+                <Button
+                  size="sm"
+                  disabled={advAvatarId.length < 10 || setAvatarIdMutation.isPending}
+                  onClick={() => setAvatarIdMutation.mutate({ avatarId: advAvatarId.trim() })}
+                  className="bg-primary text-black font-semibold"
+                >
+                  {setAvatarIdMutation.isPending ? "Saving…" : "Save"}
+                </Button>
               </div>
             )}
           </div>
