@@ -29,9 +29,9 @@ export interface LumaGenerationRequest {
 export interface LumaGeneration {
   id: string;
   state: "pending" | "processing" | "completed" | "failed";
-  video?: {
-    url: string;
-    download_url: string;
+  assets?: {
+    video?: string;
+    image?: string;
   };
   failure_reason?: string;
   created_at: string;
@@ -142,9 +142,10 @@ export async function imageToVideo(
   // Wait for completion
   const completed = await waitForGeneration(generation.id);
 
-  if (!completed.video?.download_url) {
-    throw new Error("Luma AI generation completed but no video URL returned");
+  const videoUrl = completed.assets?.video;
+  if (!videoUrl) {
+    throw new Error("Luma AI generation completed but no video URL returned in assets");
   }
 
-  return completed.video.download_url;
+  return videoUrl;
 }
