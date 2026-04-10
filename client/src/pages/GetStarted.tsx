@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Play, X, CheckCircle2, BookOpen, Video, Mic, BarChart2, FileText, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const POST_BUILDER_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-post-builder_6968e999.mp4";
-const AGENT_PROFILE_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-agent-profile_1f382cd7.mp4";
-const BRAND_STORY_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-brand-story_25de4381.mp4";
-const MARKET_INSIGHTS_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-market-insights-v2_b759d4b3.mp4";
-const AVATAR_VIDEO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-avatar-video-v2_33b60919.mp4";
-const LEAD_MAGNET_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/walkthrough-lead-magnet-v2_31ea8b1e.mp4";
+const POST_BUILDER_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/postbuilder_final_v6_d324127d.mp4";
+const AGENT_PROFILE_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/authority_profile_v2_42b2462b.mp4";
+const BRAND_STORY_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/brand_story_v2_787f3da0.mp4";
+const MARKET_INSIGHTS_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/market_insights_v2_c26b5465.mp4";
+const AVATAR_VIDEO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/avatar_video_v2_2f838bcd.mp4";
+const LEAD_MAGNET_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/lead_magnet_v2_4b706464.mp4";
 
 const THUMBNAILS: Record<string, string> = {
   "agent-profile": "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/thumb-authority-profile_49225b7f.webp",
