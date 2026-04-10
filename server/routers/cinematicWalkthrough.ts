@@ -101,6 +101,14 @@ const ROOM_MOTION_PROMPTS: Record<string, { ltr: string; rtl: string; tilt?: str
   },
 };
 
+// Builds a Luma-optimised cinematic prompt for a room.
+// Luma responds best to descriptive motion language, so we reuse the existing
+// room-type prompts and append a quality suffix.
+function buildLumaPrompt(roomType: string, motionDirection?: string, customPrompt?: string): string {
+  const base = getMotionPrompt(roomType, 0, customPrompt, false, motionDirection);
+  return `${base}, photorealistic, 4K quality, smooth camera movement, no cuts`;
+}
+
 // Returns the motion prompt for a given room type and clip index.
 // Respects user-selected motionDirection override if provided.
 // Exterior shots default to drone pull-back (not tilt-up).
@@ -1130,10 +1138,11 @@ async function runWalkthroughJob(
     }
   } catch { /* non-critical */ }
 
-  // Generate all clips: Higgsfield AI → Runway ML → static photo (last resort)
-  // Each photo gets real AI image-to-video motion. Static fallback only if both AI engines fail.
+  // Generate all clips: Luma Ray Flash 2 → Kling → Runway ML → static photo (last resort)
+  // Each photo gets real AI image-to-video motion. Static fallback only if all AI engines fail.
   // If resumeClips is provided, start from where we left off — skip already-completed clips.
-  const { generateHiggsfieldClip } = await import("../_core/higgsfieldAi");
+  const { imageToVideo: lumaImageToVideo } = await import("../_core/lumaAi");
+  const { imageToVideo: klingImageToVideo } = await import("../_core/klingAi");
   const clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }> = resumeClips ? [...resumeClips] : [];
 
   for (let i = startFromIndex; i < input.photos.length; i++) {
@@ -1148,23 +1157,34 @@ async function runWalkthroughJob(
     let clipUrl: string | null = null;
     let clipIsFallback = false;
 
-    // Attempt 1: Higgsfield AI (genuine cinematic motion)
-    log(`Job ${jobId}: Clip ${i + 1}/${input.photos.length} — trying Higgsfield AI (${photo.roomType})`);
-    try {
-      clipUrl = await generateHiggsfieldClip(photo.url, photo.roomType, i, photo.customPrompt, photo.isExterior, photo.motionDirection);
-      log(`Job ${jobId}: Clip ${i + 1} via Higgsfield ✓`);
-    } catch (higgsfieldErr: any) {
-      log(`Job ${jobId}: Higgsfield failed (${higgsfieldErr.message}) — trying Runway ML...`);
+    // Build a cinematic prompt based on room type and user-selected motion direction
+    const motionPrompt = buildLumaPrompt(photo.roomType, photo.motionDirection, photo.customPrompt);
 
-      // Attempt 2: Runway ML (real image-to-video motion)
+    // Attempt 1: Luma Ray Flash 2 (primary — fast, pay-as-you-go, genuine AI motion)
+    log(`Job ${jobId}: Clip ${i + 1}/${input.photos.length} — trying Luma Ray Flash 2 (${photo.roomType})`);
+    try {
+      clipUrl = await lumaImageToVideo(photo.url, motionPrompt, { aspectRatio: "16:9", resolution: "720p", model: "ray-flash-2" });
+      log(`Job ${jobId}: Clip ${i + 1} via Luma ✓`);
+    } catch (lumaErr: any) {
+      log(`Job ${jobId}: Luma failed (${lumaErr.message}) — trying Kling...`);
+
+      // Attempt 2: Kling AI (secondary — camera control, good quality)
       try {
-        clipUrl = await generateRunwayClip(photo.url, photo.roomType, i, photo.customPrompt, 1, photo.isExterior, photo.motionDirection);
-        log(`Job ${jobId}: Clip ${i + 1} via Runway ML ✓`);
-      } catch (runwayErr: any) {
-        log(`Job ${jobId}: Runway also failed (${runwayErr.message}) — using static photo as last resort`);
-        // Last resort: static photo with Ken Burns in Creatomate
-        clipUrl = photo.url;
-        clipIsFallback = true;
+        clipUrl = await klingImageToVideo(photo.url, photo.roomType, { aspectRatio: "16:9", duration: "5", model: "kling-v1-5", mode: "pro" });
+        log(`Job ${jobId}: Clip ${i + 1} via Kling ✓`);
+      } catch (klingErr: any) {
+        log(`Job ${jobId}: Kling failed (${klingErr.message}) — trying Runway ML...`);
+
+        // Attempt 3: Runway ML (tertiary)
+        try {
+          clipUrl = await generateRunwayClip(photo.url, photo.roomType, i, photo.customPrompt, 1, photo.isExterior, photo.motionDirection);
+          log(`Job ${jobId}: Clip ${i + 1} via Runway ML ✓`);
+        } catch (runwayErr: any) {
+          log(`Job ${jobId}: All AI engines failed (${runwayErr.message}) — using static photo as last resort`);
+          // Last resort: static photo with Ken Burns in Creatomate
+          clipUrl = photo.url;
+          clipIsFallback = true;
+        }
       }
     }
 

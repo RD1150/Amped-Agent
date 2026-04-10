@@ -4391,3 +4391,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Tag server-restart failures with isServerRestartFailure flag in DB
 - [x] Skip incrementing retryCount when failure was caused by server restart
 - [x] Update frontend to not count server-restart retries against limit display
+
+## AI Motion Tour - Fix Motion Generation (Slideshow Bug)
+- [x] Diagnose why Higgsfield/Runway AI motion generation is failing silently
+- [x] Fix root cause so clips have real cinematic camera motion
+- [x] Verify motion direction settings (dolly, pan, crane) are passed correctly to API
+
+## AI Motion Tour - Luma Primary + Kling Secondary
+- [x] Create Luma AI image-to-video helper (Ray Flash 2)
+- [x] Create Kling AI image-to-video helper
+- [x] Update clip generation chain: Luma → Kling → Runway → static
+- [x] Test Luma API end-to-end with a real image - CONFIRMED WORKING (201 queued)
