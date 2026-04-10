@@ -618,8 +618,12 @@ export default function CinematicWalkthrough() {
       setJobId(result.jobId);
       setFailedJobRetryCount(result.retryCount ?? 0);
       utils.rateLimit.getDailyUsage.invalidate();
-      toast.success("Retrying generation", {
-        description: `Attempt ${result.retryCount} of ${result.maxRetries}. Restarting ${result.totalPhotos} clips.`,
+      const resumeFrom = (result as any).resumeFromIndex ?? 0;
+      const remaining = result.totalPhotos - resumeFrom;
+      toast.success("Resuming generation", {
+        description: resumeFrom > 0
+          ? `Attempt ${result.retryCount} of ${result.maxRetries}. ${resumeFrom} clip${resumeFrom === 1 ? '' : 's'} already saved — generating ${remaining} remaining.`
+          : `Attempt ${result.retryCount} of ${result.maxRetries}. Generating all ${result.totalPhotos} clips.`,
       });
     } catch (err: any) {
       setIsGenerating(false);
@@ -764,6 +768,11 @@ export default function CinematicWalkthrough() {
               <p className="text-sm text-muted-foreground mt-0.5 break-words">
                 {failedJobError.length > 120 ? failedJobError.slice(0, 120) + "…" : failedJobError}
               </p>
+              {failedJobError.includes("server restarted") && (
+                <p className="text-xs text-amber-500 mt-1">
+                  ⚡ Any clips already generated have been saved — clicking Retry will resume from where it left off.
+                </p>
+              )}
               {/* Expandable full error detail */}
               {failedJobError.length > 30 && (
                 <details className="mt-2">

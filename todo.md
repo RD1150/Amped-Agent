@@ -4380,3 +4380,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Live Tour Page Improvements
 - [x] Add device tip banner (phone/tablet vs computer webcam guidance)
 - [x] Make recording phase controls mobile-responsive (full-width buttons on mobile)
+
+## AI Motion Tour - Server Restart Resilience
+- [x] Persist per-clip Runway video URLs to DB as each clip completes
+- [x] On job retry, skip already-completed clips and resume from last saved state
+- [x] Add startup recovery to re-queue stuck "processing" jobs after restart
+- [x] Update frontend to show accurate retry progress (not restart from scratch)

@@ -860,7 +860,8 @@ Requirements:
     }),
 
   /**
-   * Retry a failed job — creates a new job with the same input snapshot
+   * Retry a failed job — resumes from saved clip progress instead of restarting from scratch.
+   * Any clips already generated and saved to DB are reused; only missing clips are regenerated.
    */
   retry: protectedProcedure
     .input(z.object({ failedJobId: z.string() }))
@@ -886,23 +887,35 @@ Requirements:
       const originalInput = JSON.parse(failedJob.inputSnapshot);
       const newJobId = generateJobId();
       const database = await getDb();
-      // Create new job with incremented retryCount
+
+      // Carry over any clips already completed in the failed job
+      // This means a server-restart mid-job only regenerates the remaining clips
+      const savedClipsJson = failedJob.clipsJson ?? null;
+      const savedClips: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }> | null =
+        savedClipsJson ? JSON.parse(savedClipsJson) : null;
+      const resumeFromIndex = savedClips ? savedClips.length : 0;
+
+      log(`Retry job ${newJobId}: resuming from clip ${resumeFromIndex + 1}/${originalInput.photos.length} (${resumeFromIndex} clips already done)`);
+
+      // Create new job with incremented retryCount and carry over saved clips
       await database!.insert(cinematicJobs).values({
         id: newJobId,
         userId: ctx.user.id,
         status: "pending",
         totalPhotos: originalInput.photos.length,
-        completedClips: 0,
+        completedClips: resumeFromIndex,
         inputSnapshot: failedJob.inputSnapshot,
+        clipsJson: savedClipsJson,
         retryCount: nextRetryCount,
       });
-      runWalkthroughJob(newJobId, ctx.user.id, originalInput).catch(async (err) => {
+
+      runWalkthroughJob(newJobId, ctx.user.id, originalInput, savedClips ?? undefined).catch(async (err) => {
         log(`Retry job ${newJobId} top-level failure: ${err.message}`);
         try {
           await dbUpdateJob(newJobId, { status: "failed", error: err.message });
         } catch {}
       });
-      return { jobId: newJobId, totalPhotos: originalInput.photos.length, retryCount: nextRetryCount, maxRetries: MAX_RETRIES };
+      return { jobId: newJobId, totalPhotos: originalInput.photos.length, retryCount: nextRetryCount, maxRetries: MAX_RETRIES, resumeFromIndex };
     }),
 
   /**
@@ -1073,10 +1086,13 @@ async function runWalkthroughJob(
     voiceId?: string;
     aspectRatio: "16:9" | "9:16";
     luxuryMode?: boolean;
-  }
+  },
+  // Pre-saved clips from a previous run (used when resuming after a server restart)
+  resumeClips?: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }>
 ) {
   await dbUpdateJob(jobId, { status: "generating_clips" });
-  log(`Job ${jobId}: Generating ${input.photos.length} Runway clips...`);
+  const startFromIndex = resumeClips ? resumeClips.length : 0;
+  log(`Job ${jobId}: Generating ${input.photos.length} clips (resuming from clip ${startFromIndex + 1})...`);
   // Get agent info from persona if not provided
   let agentName = input.agentName;
   let agentBrokerage = input.agentBrokerage;
@@ -1104,10 +1120,11 @@ async function runWalkthroughJob(
 
   // Generate all clips: Higgsfield AI → Runway ML → static photo (last resort)
   // Each photo gets real AI image-to-video motion. Static fallback only if both AI engines fail.
+  // If resumeClips is provided, start from where we left off — skip already-completed clips.
   const { generateHiggsfieldClip } = await import("../_core/higgsfieldAi");
-  const clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }> = [];
+  const clips: Array<{ url: string; roomLabel: string; duration: number; roomType: string; isFallback?: boolean }> = resumeClips ? [...resumeClips] : [];
 
-  for (let i = 0; i < input.photos.length; i++) {
+  for (let i = startFromIndex; i < input.photos.length; i++) {
     const photo = input.photos[i];
     const roomLabel =
       photo.label ||
