@@ -4414,3 +4414,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Identify exact failure point causing silent fallback to static slideshow
 - [ ] Fix root cause so real AI cinematic motion clips are generated
 - [ ] Verify final assembled video has actual camera movement (not slideshow)
+
+## AI Motion Tour - People & Sizing Fix
+- [x] Fix horizontal squish/distortion in assembled video - AI video clips now use 100% width/height (not 110%) so fill_mode:cover works correctly
+- [x] Removed pan animation from AI video clips (they already have motion from Luma)
+- [x] Updated Luma prompts to include: no people, no humans, no persons, no figures, no pedestrians, vacant, unoccupied
+- [x] Static fallback images still use 110% with pan animation as before

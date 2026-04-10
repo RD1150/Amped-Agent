@@ -106,7 +106,7 @@ const ROOM_MOTION_PROMPTS: Record<string, { ltr: string; rtl: string; tilt?: str
 // room-type prompts and append a quality suffix.
 function buildLumaPrompt(roomType: string, motionDirection?: string, customPrompt?: string): string {
   const base = getMotionPrompt(roomType, 0, customPrompt, false, motionDirection);
-  return `${base}, photorealistic, 4K quality, smooth camera movement, no cuts`;
+  return `${base}, photorealistic, 4K quality, smooth camera movement, no cuts, empty property, no people, no humans, no persons, no figures, no pedestrians, vacant, unoccupied`;
 }
 
 // Returns the motion prompt for a given room type and clip index.
@@ -399,10 +399,15 @@ async function assembleCreatomateVideo(opts: {
       : i % 2 === 0
         ? { type: "pan", time: 0, duration: clip.duration, easing: "linear", x_start: "-5%", x_end: "5%" }
         : { type: "pan", time: 0, duration: clip.duration, easing: "linear", x_start: "5%", x_end: "-5%" };
-    // Use 'image' type for fallback static photos (Higgsfield unavailable),
-    // 'video' type for actual AI-animated clips from Higgsfield.
+    // Use 'image' type for fallback static photos,
+    // 'video' type for actual AI-animated clips from Luma/Kling.
     // Creatomate cannot animate a static image as type 'video' — it must be 'image'.
     const elementType = clip.isFallback ? "image" : "video";
+    // For AI video clips: use 100% width/height so Creatomate respects the native 16:9
+    // aspect ratio and fill_mode:cover scales it correctly without squishing.
+    // For static fallback images: use 110% to give the pan animation room to move.
+    const elementW = clip.isFallback ? "110%" : "100%";
+    const elementH = clip.isFallback ? "110%" : "100%";
     const baseElement: any = {
       type: elementType,
       source: clip.url,
@@ -410,15 +415,15 @@ async function assembleCreatomateVideo(opts: {
       time: currentTime,
       duration: clip.duration,
       fill_mode: "cover",
-      width: "110%",
-      height: "110%",
+      width: elementW,
+      height: elementH,
       animations: [
         // Fade in on all clips (crossfades from previous for non-first clips)
         { time: 0, duration: FADE, easing: "ease-in-out", type: "fade", fade: true },
         // Fade out only on the last clip; middle clips let the next clip's fade-in cover the transition
         ...(isLast ? [{ time: clip.duration - FADE, duration: FADE, easing: "ease-in-out", type: "fade", fade: true, reversed: true }] : []),
-        // Pan animation for walkthrough feel (validated against Creatomate API)
-        panAnim,
+        // Pan animation only for static fallback images; AI video clips have their own motion
+        ...(clip.isFallback ? [panAnim] : []),
       ],
     };
     // Only set volume: 0 for video clips (images have no audio track)
