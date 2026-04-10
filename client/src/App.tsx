@@ -13,6 +13,7 @@ import Integrations from "./pages/Integrations";
 import AIGenerate from "./pages/AIGenerate";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
+import GetStarted from "./pages/GetStarted";
 import Analytics from "./pages/Analytics";
 import Schedules from "./pages/Schedules";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -151,6 +152,7 @@ function Router() {
         <Route path="/schedules" component={Schedules} />
         <Route path="/settings" component={Settings} />
         <Route path="/help" component={Help} />
+        <Route path="/get-started" component={GetStarted} />
         <Route path="/faq" component={FAQ} />
         <Route path="/contact" component={Contact} />
               <Route path="/404" component={NotFound} />

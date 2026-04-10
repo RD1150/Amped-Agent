@@ -65,6 +65,7 @@ import {
   Presentation,
   Clapperboard,
   Star,
+  PlayCircle,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -126,6 +127,12 @@ const menuSections = [
         label: "Dashboard",
         path: "/dashboard",
         description: "Your AmpedAgent command center",
+      },
+      {
+        icon: PlayCircle,
+        label: "Get Started",
+        path: "/get-started",
+        description: "Video walkthroughs for every feature",
       },
     ],
   },
