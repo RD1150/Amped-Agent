@@ -472,3 +472,34 @@ export async function listHeyGenVoices(): Promise<
   const data = await res.json() as { data: { voices: any[] } };
   return data.data?.voices || [];
 }
+
+/**
+ * List all available HeyGen avatars (stock + custom) for the account.
+ * Returns an array of HeyGenAvatar objects with preview_image_url.
+ */
+export async function listHeyGenAvatars(): Promise<HeyGenAvatar[]> {
+  try {
+    const res = await fetch(`${HEYGEN_API}/v2/avatars`, {
+      headers: heygenHeaders(),
+    });
+    if (!res.ok) return [];
+    const data = await res.json() as { data: { avatars: HeyGenAvatar[] } };
+    return data.data?.avatars || [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Look up a single avatar by its avatar_id and return its preview image URL.
+ * Returns null if the avatar is not found or the API call fails.
+ */
+export async function getAvatarPreviewImage(avatarId: string): Promise<string | null> {
+  try {
+    const avatars = await listHeyGenAvatars();
+    const match = avatars.find((a) => a.avatar_id === avatarId);
+    return match?.preview_image_url ?? null;
+  } catch {
+    return null;
+  }
+}

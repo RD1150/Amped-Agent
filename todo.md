@@ -4546,3 +4546,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add optional city field to propertyTours DB schema and push migration
 - [ ] Add optional city input to Property Tour form (address stays optional for non-listed tours)
 - [ ] Update myVideos listAll to use city field when address is absent
+
+## Avatar/Settings Improvements (Apr 2026)
+- [x] Add Authority Profile quick-link at top of Settings page
+- [x] Fetch and display avatar thumbnail after adding an Avatar ID
+- [x] Add Test Avatar button for a short 5-second test render

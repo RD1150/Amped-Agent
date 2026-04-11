@@ -15,6 +15,7 @@ import {
   triggerAvatarTraining,
   waitForHeyGenVideo,
   listHeyGenVoices,
+  getAvatarPreviewImage,
 } from "../lib/heygen-service";
 
 /** Estimate video duration from word count (avg 130 words/min speaking pace) */
@@ -570,17 +571,26 @@ Requirements:
         await db.update(customAvatarTwins).set({ isDefault: false }).where(eq(customAvatarTwins.userId, ctx.user.id));
       }
 
+      // Try to fetch preview thumbnail from HeyGen (best-effort, non-blocking)
+      let thumbnailUrl: string | null = null;
+      try {
+        thumbnailUrl = await getAvatarPreviewImage(input.avatarId);
+      } catch {
+        // silently ignore — thumbnail is optional
+      }
+
       const [inserted] = await db.insert(customAvatarTwins).values({
         userId: ctx.user.id,
         didAvatarId: input.avatarId,
         nickname: input.nickname || null,
         trainingVideoUrl: null,
+        thumbnailUrl: thumbnailUrl || null,
         status: "ready",
         trainedAt: new Date(),
         isDefault: isFirst || input.setAsDefault,
       }).$returningId();
 
-      return { success: true, id: inserted.id };
+      return { success: true, id: inserted.id, thumbnailUrl };
     }),
 
   /** Update nickname for an avatar */
@@ -821,4 +831,48 @@ Requirements:
 
     return { used, limit, tier: tierLabel };
   }),
+
+  /**
+   * Generate a short 5-second test clip to verify an avatar is working correctly.
+   * Uses a fixed test script and returns the video URL.
+   */
+  testAvatar: protectedProcedure
+    .input(z.object({
+      avatarId: z.number().int().positive(), // DB id of the avatar to test
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const [twin] = await db
+        .select()
+        .from(customAvatarTwins)
+        .where(and(eq(customAvatarTwins.id, input.avatarId), eq(customAvatarTwins.userId, ctx.user.id)))
+        .limit(1);
+
+      if (!twin || twin.status !== "ready") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Avatar not ready" });
+      }
+
+      const testScript = "Hi, this is a quick test to confirm my avatar is working correctly. Everything looks great!";
+
+      const heygenVideoId = await generateCustomAvatarVideo({
+        avatarId: twin.didAvatarId,
+        script: testScript,
+        voiceId: "en-US-JennyNeural",
+        landscape: false,
+        caption: false,
+      });
+
+      const { videoUrl } = await waitForHeyGenVideo(heygenVideoId, 300_000, 5_000);
+
+      // Re-host on S3 so the URL is stable
+      const res = await fetch(videoUrl);
+      if (!res.ok) throw new Error("Failed to download test clip");
+      const buf = Buffer.from(await res.arrayBuffer());
+      const key = `avatar-tests/${ctx.user.id}/${input.avatarId}-${Date.now()}.mp4`;
+      const { url: s3Url } = await storagePut(key, buf, "video/mp4");
+
+      return { videoUrl: s3Url };
+    }),
 });

@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -91,10 +92,37 @@ export default function Settings() {
   const [newAvatarNickname, setNewAvatarNickname] = useState("");
   const [editingNicknameId, setEditingNicknameId] = useState<number | null>(null);
   const [editingNicknameValue, setEditingNicknameValue] = useState("");
+  const [lastAddedThumbnail, setLastAddedThumbnail] = useState<string | null>(null);
+  const [testingAvatarId, setTestingAvatarId] = useState<number | null>(null);
+  const [testAvatarVideoUrl, setTestAvatarVideoUrl] = useState<string | null>(null);
+
+  const testAvatarMutation = trpc.fullAvatarVideo.testAvatar.useMutation({
+    onSuccess: (data) => {
+      setTestAvatarVideoUrl(data.videoUrl);
+      toast.success("Test clip ready! Scroll down to preview it.");
+    },
+    onError: (e) => {
+      setTestingAvatarId(null);
+      toast.error(`Test failed: ${e.message}`);
+    },
+    onSettled: () => setTestingAvatarId(null),
+  });
 
   const { data: avatarList, refetch: refetchAvatars } = trpc.fullAvatarVideo.listAvatars.useQuery();
   const addAvatarMutation = trpc.fullAvatarVideo.addAvatar.useMutation({
-    onSuccess: () => { toast.success("Avatar added to your library."); setNewAvatarId(""); setNewAvatarNickname(""); setShowAddAvatar(false); refetchAvatars(); },
+    onSuccess: (data) => {
+      if (data.thumbnailUrl) {
+        setLastAddedThumbnail(data.thumbnailUrl);
+        toast.success("Avatar added — thumbnail found!");
+      } else {
+        setLastAddedThumbnail(null);
+        toast.success("Avatar added to your library.");
+      }
+      setNewAvatarId("");
+      setNewAvatarNickname("");
+      setShowAddAvatar(false);
+      refetchAvatars();
+    },
     onError: (e) => toast.error(`Failed to add avatar: ${e.message}`),
   });
   const setDefaultAvatarMutation = trpc.fullAvatarVideo.setDefaultAvatar.useMutation({
@@ -241,13 +269,26 @@ export default function Settings() {
     toast.success("Settings saved successfully");
   };
 
+  const [, setLocation] = useLocation();
+
   return (
     <div className="space-y-6 max-w-3xl">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your account and preferences
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage your account and preferences
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="shrink-0 flex items-center gap-2"
+          onClick={() => setLocation("/authority-profile")}
+        >
+          <User className="h-4 w-4" />
+          Authority Profile
+        </Button>
       </div>
 
       {/* Profile Settings */}
@@ -748,6 +789,23 @@ export default function Settings() {
                     <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => { setEditingNicknameId(avatar.id); setEditingNicknameValue(avatar.nickname || ''); }}>
                       Rename
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs px-2 text-blue-600 hover:text-blue-700"
+                      disabled={testAvatarMutation.isPending && testingAvatarId === avatar.id}
+                      onClick={() => {
+                        setTestAvatarVideoUrl(null);
+                        setTestingAvatarId(avatar.id);
+                        testAvatarMutation.mutate({ avatarId: avatar.id });
+                      }}
+                    >
+                      {testAvatarMutation.isPending && testingAvatarId === avatar.id ? (
+                        <><Loader2 className="h-3 w-3 animate-spin mr-1" />Testing…</>
+                      ) : (
+                        <><Play className="h-3 w-3 mr-1" />Test</>
+                      )}
+                    </Button>
                     <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => deleteAvatarByIdMutation.mutate({ avatarId: avatar.id })} disabled={deleteAvatarByIdMutation.isPending}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -757,6 +815,22 @@ export default function Settings() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">No avatars in your library yet. Add one below.</p>
+          )}
+
+          {/* Test clip preview */}
+          {testAvatarVideoUrl && (
+            <div className="space-y-2 p-3 rounded-lg border border-blue-200 bg-blue-50">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-blue-800">Test Clip Preview</p>
+                <Button size="sm" variant="ghost" className="h-6 text-xs px-2 text-blue-600" onClick={() => setTestAvatarVideoUrl(null)}>Dismiss</Button>
+              </div>
+              <video
+                src={testAvatarVideoUrl}
+                controls
+                autoPlay
+                className="w-full rounded-md max-h-64 bg-black"
+              />
+            </div>
           )}
 
           {/* Add avatar */}
