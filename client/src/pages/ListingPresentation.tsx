@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,20 +13,26 @@ import {
   Presentation, Sparkles, Download, ExternalLink, Trash2, Loader2,
   FileText, CheckCircle2, AlertCircle, Clock, Upload, X, Plus,
   Home, User, BarChart2, Megaphone, Settings2, Zap, ImageIcon,
-  BookmarkCheck, RefreshCw, ChevronRight, Copy, Link,
+  BookmarkCheck, RefreshCw, ChevronRight, Copy, Link, Send, Mail, Phone,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useEffect } from "react";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 type Comp = {
   address: string;
-  price: string;
+  status: "Sold" | "Active" | "Pending" | "Expired";
+  price: string;       // sale/list price
+  listPrice: string;   // original list price (for list-to-sale ratio)
   sqft: string;
-  pricePerSqft: string;
+  pricePerSqft: string; // auto-calculated
+  bedrooms: string;
+  bathrooms: string;
   daysOnMarket: string;
   soldDate: string;
+  adjustment: string;  // +/- dollar adjustment (pool, garage, condition, etc.)
+  adjustmentNote: string; // reason for adjustment
+  adjustedValue: string; // auto-calculated: price + adjustment
 };
 
 type Testimonial = { author: string; text: string };
@@ -81,7 +87,11 @@ const MARKETING_CHANNEL_OPTIONS = [
   "Neighborhood Door Knocking",
 ];
 
-const EMPTY_COMP: Comp = { address: "", price: "", sqft: "", pricePerSqft: "", daysOnMarket: "", soldDate: "" };
+const EMPTY_COMP: Comp = {
+  address: "", status: "Sold", price: "", listPrice: "",
+  sqft: "", pricePerSqft: "", bedrooms: "", bathrooms: "",
+  daysOnMarket: "", soldDate: "", adjustment: "", adjustmentNote: "", adjustedValue: "",
+};
 const EMPTY_TESTIMONIAL: Testimonial = { author: "", text: "" };
 
 const DEFAULT_FORM: FormData = {
@@ -148,6 +158,10 @@ export default function ListingPresentationPage() {
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [savingDraft, setSavingDraft] = useState(false);
+  const [sendDialog, setSendDialog] = useState<{ id: number; address: string } | null>(null);
+  const [sellerName, setSellerName] = useState("");
+  const [sellerEmail, setSellerEmail] = useState("");
+  const [sellerPhone, setSellerPhone] = useState("");
 
   const utils = trpc.useUtils();
   const { data: presentations = [] } = trpc.listingPresentation.list.useQuery();
@@ -188,6 +202,32 @@ export default function ListingPresentationPage() {
   const copyLink = (id: number) => {
     navigator.clipboard.writeText(getBrandedUrl(id));
     toast.success("Link copied to clipboard!");
+  };
+
+  const openSendDialog = (p: { id: number; propertyAddress: string | null }) => {
+    setSendDialog({ id: p.id, address: p.propertyAddress ?? "this property" });
+    setSellerName("");
+    setSellerEmail("");
+    setSellerPhone("");
+  };
+
+  const sendByEmail = () => {
+    const link = getBrandedUrl(sendDialog!.id);
+    const subject = encodeURIComponent(`Your Home Listing Presentation — ${sendDialog!.address}`);
+    const body = encodeURIComponent(
+      `Hi ${sellerName || "there"},\n\nI've put together your personalized listing presentation. You can view it here:\n\n${link}\n\nLooking forward to discussing it with you!\n\nBest,\n${user?.name ?? "Your Agent"}`
+    );
+    window.open(`mailto:${sellerEmail}?subject=${subject}&body=${body}`, "_blank");
+    toast.success("Email client opened!");
+  };
+
+  const sendBySms = () => {
+    const link = getBrandedUrl(sendDialog!.id);
+    const text = encodeURIComponent(
+      `Hi ${sellerName || "there"}, here's your personalized listing presentation: ${link}`
+    );
+    window.open(`sms:${sellerPhone}?body=${text}`, "_blank");
+    toast.success("SMS app opened!");
   };
 
   const generateMutation = trpc.listingPresentation.generate.useMutation({
@@ -332,6 +372,34 @@ export default function ListingPresentationPage() {
   };
 
   // ── CMA helpers ───────────────────────────────────────────────────────────────
+  const [fetchingComps, setFetchingComps] = useState(false);
+  const fetchCompsMutation = trpc.listingPresentation.fetchComps.useMutation({
+    onSuccess: (data) => {
+      setFetchingComps(false);
+      if (data && data.length > 0) {
+        update("comparableSales", data.map((c: any) => ({
+          ...EMPTY_COMP,
+          address: c.address ?? "",
+          status: c.status ?? "Sold",
+          price: c.price ?? "",
+          listPrice: c.listPrice ?? c.price ?? "",
+          sqft: c.sqft ?? "",
+          pricePerSqft: c.pricePerSqft ?? "",
+          bedrooms: c.bedrooms ?? "",
+          bathrooms: c.bathrooms ?? "",
+          daysOnMarket: c.daysOnMarket ?? "",
+          soldDate: c.soldDate ?? "",
+        })));
+        toast.success(`${data.length} comparable sales loaded!`);
+      } else {
+        toast.info("No comps found for this address. Enter them manually.");
+      }
+    },
+    onError: (err) => {
+      setFetchingComps(false);
+      toast.error("Could not auto-pull comps: " + err.message);
+    },
+  });
   const updateComp = (idx: number, field: keyof Comp, value: string) => {
     const updated = form.comparableSales.map((c, i) => i === idx ? { ...c, [field]: value } : c);
     update("comparableSales", updated);
@@ -599,7 +667,8 @@ export default function ListingPresentationPage() {
           <>
             <h2 className="text-lg font-semibold text-white flex items-center gap-2"><BarChart2 size={18} className="text-amber-400" />CMA & Pricing Strategy</h2>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Market Overview */}
               <div>
                 <Label className="text-white/70 text-sm">Market Overview</Label>
                 <Textarea value={form.marketOverview} onChange={(e) => update("marketOverview", e.target.value)}
@@ -607,39 +676,104 @@ export default function ListingPresentationPage() {
                   rows={3} className="mt-1 bg-white/5 border-white/20 text-white placeholder:text-white/30 resize-none" />
               </div>
 
+              {/* Comparable Sales */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <Label className="text-white/70 text-sm">Comparable Sales (CMA)</Label>
-                  <Button size="sm" variant="outline" className="border-white/20 text-white/60 bg-transparent text-xs" onClick={addComp}>
-                    <Plus size={12} className="mr-1" /> Add Comp
-                  </Button>
+                  <Label className="text-white/70 text-sm">Comparable Sales</Label>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline"
+                      className="border-amber-400/40 text-amber-400 bg-transparent hover:bg-amber-400/10 text-xs"
+                      disabled={fetchingComps || !form.propertyAddress}
+                      onClick={() => {
+                        setFetchingComps(true);
+                        fetchCompsMutation.mutate({ address: form.propertyAddress });
+                      }}>
+                      {fetchingComps ? <><Loader2 size={11} className="animate-spin mr-1" />Pulling...</> : <><Sparkles size={11} className="mr-1" />Auto-Pull Comps</>}
+                    </Button>
+                    <Button size="sm" variant="outline" className="border-white/20 text-white/60 bg-transparent text-xs" onClick={addComp}>
+                      <Plus size={12} className="mr-1" /> Add
+                    </Button>
+                  </div>
                 </div>
+
+                {!form.propertyAddress && (
+                  <p className="text-amber-400/70 text-xs mb-3">Enter a property address in Step 1 to enable auto-pull.</p>
+                )}
+
                 <div className="space-y-3">
                   {form.comparableSales.map((comp, idx) => (
                     <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-white/50 text-xs font-semibold uppercase tracking-wider">Comp #{idx + 1}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white/50 text-xs font-semibold uppercase tracking-wider">Comp #{idx + 1}</span>
+                          {/* Status badge */}
+                          <Select value={comp.status} onValueChange={(v) => updateComp(idx, "status", v as Comp["status"])}>
+                            <SelectTrigger className="h-6 text-xs px-2 bg-white/5 border-white/20 text-white w-24">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-[#1A1A1A] border-white/20 text-white">
+                              {["Sold","Active","Pending","Expired"].map(s => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         {form.comparableSales.length > 1 && (
                           <button onClick={() => removeComp(idx)} className="text-red-400/60 hover:text-red-400">
                             <X size={14} />
                           </button>
                         )}
                       </div>
-                      <div>
-                        <Input value={comp.address} onChange={(e) => updateComp(idx, "address", e.target.value)}
-                          placeholder="456 Oak Ave, Beverly Hills, CA"
-                          className="bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm" />
-                      </div>
+
+                      {/* Address */}
+                      <Input value={comp.address} onChange={(e) => updateComp(idx, "address", e.target.value)}
+                        placeholder="456 Oak Ave, Beverly Hills, CA"
+                        className="bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm" />
+
+                      {/* Row 1: Price, List Price, Sq Ft, Beds/Baths */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <div>
                           <Label className="text-white/40 text-xs">Sale Price</Label>
-                          <Input value={comp.price} onChange={(e) => updateComp(idx, "price", e.target.value)}
+                          <Input value={comp.price} onChange={(e) => {
+                            updateComp(idx, "price", e.target.value);
+                            // Auto-calc $/sqft
+                            const price = parseFloat(e.target.value.replace(/[^0-9.]/g, ""));
+                            const sqft = parseFloat(comp.sqft.replace(/[^0-9.]/g, ""));
+                            if (price > 0 && sqft > 0) updateComp(idx, "pricePerSqft", `$${Math.round(price / sqft)}`);
+                          }}
                             placeholder="$1,100,000" className="mt-1 bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm" />
                         </div>
                         <div>
+                          <Label className="text-white/40 text-xs">List Price</Label>
+                          <Input value={comp.listPrice} onChange={(e) => updateComp(idx, "listPrice", e.target.value)}
+                            placeholder="$1,150,000" className="mt-1 bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm" />
+                        </div>
+                        <div>
                           <Label className="text-white/40 text-xs">Sq Ft</Label>
-                          <Input value={comp.sqft} onChange={(e) => updateComp(idx, "sqft", e.target.value)}
+                          <Input value={comp.sqft} onChange={(e) => {
+                            updateComp(idx, "sqft", e.target.value);
+                            const price = parseFloat(comp.price.replace(/[^0-9.]/g, ""));
+                            const sqft = parseFloat(e.target.value.replace(/[^0-9.]/g, ""));
+                            if (price > 0 && sqft > 0) updateComp(idx, "pricePerSqft", `$${Math.round(price / sqft)}`);
+                          }}
                             placeholder="2,850" className="mt-1 bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm" />
+                        </div>
+                        <div>
+                          <Label className="text-white/40 text-xs">$/Sq Ft</Label>
+                          <Input value={comp.pricePerSqft} readOnly
+                            placeholder="Auto" className="mt-1 bg-white/3 border-white/10 text-amber-400/80 text-sm cursor-default" />
+                        </div>
+                      </div>
+
+                      {/* Row 2: Beds, Baths, DOM, Sold Date */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div>
+                          <Label className="text-white/40 text-xs">Beds</Label>
+                          <Input value={comp.bedrooms} onChange={(e) => updateComp(idx, "bedrooms", e.target.value)}
+                            placeholder="4" className="mt-1 bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm" />
+                        </div>
+                        <div>
+                          <Label className="text-white/40 text-xs">Baths</Label>
+                          <Input value={comp.bathrooms} onChange={(e) => updateComp(idx, "bathrooms", e.target.value)}
+                            placeholder="3" className="mt-1 bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm" />
                         </div>
                         <div>
                           <Label className="text-white/40 text-xs">Days on Market</Label>
@@ -652,11 +786,66 @@ export default function ListingPresentationPage() {
                             placeholder="Mar 2025" className="mt-1 bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm" />
                         </div>
                       </div>
+
+                      {/* Row 3: Adjustment */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-white/40 text-xs">Adjustment (+/-)</Label>
+                          <Input value={comp.adjustment} onChange={(e) => {
+                            updateComp(idx, "adjustment", e.target.value);
+                            const price = parseFloat(comp.price.replace(/[^0-9.]/g, ""));
+                            const adj = parseFloat(e.target.value.replace(/[^0-9.-]/g, ""));
+                            if (!isNaN(price) && !isNaN(adj)) updateComp(idx, "adjustedValue", `$${(price + adj).toLocaleString()}`);
+                          }}
+                            placeholder="+15,000 (pool)" className="mt-1 bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm" />
+                        </div>
+                        <div>
+                          <Label className="text-white/40 text-xs">Adjusted Value</Label>
+                          <Input value={comp.adjustedValue} readOnly
+                            placeholder="Auto" className="mt-1 bg-white/3 border-white/10 text-amber-400/80 text-sm cursor-default" />
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
+
+                {/* CMA Summary Stats */}
+                {form.comparableSales.some(c => c.price) && (() => {
+                  const soldComps = form.comparableSales.filter(c => c.price && c.status === "Sold");
+                  const prices = soldComps.map(c => parseFloat(c.price.replace(/[^0-9.]/g, ""))).filter(p => p > 0);
+                  const doms = soldComps.map(c => parseFloat(c.daysOnMarket)).filter(d => !isNaN(d) && d > 0);
+                  const listPrices = soldComps.map(c => parseFloat(c.listPrice.replace(/[^0-9.]/g, ""))).filter(p => p > 0);
+                  const avgPrice = prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0;
+                  const avgDom = doms.length > 0 ? Math.round(doms.reduce((a, b) => a + b, 0) / doms.length) : 0;
+                  const avgLtsr = prices.length > 0 && listPrices.length === prices.length
+                    ? Math.round((prices.reduce((a, b) => a + b, 0) / listPrices.reduce((a, b) => a + b, 0)) * 100)
+                    : 0;
+                  return (
+                    <div className="mt-3 grid grid-cols-3 gap-3">
+                      {avgPrice > 0 && (
+                        <div className="bg-amber-400/10 border border-amber-400/20 rounded-lg p-3 text-center">
+                          <p className="text-white/40 text-xs">Avg Sale Price</p>
+                          <p className="text-amber-400 font-bold text-sm">${avgPrice.toLocaleString()}</p>
+                        </div>
+                      )}
+                      {avgDom > 0 && (
+                        <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
+                          <p className="text-white/40 text-xs">Avg Days on Market</p>
+                          <p className="text-white font-bold text-sm">{avgDom} days</p>
+                        </div>
+                      )}
+                      {avgLtsr > 0 && (
+                        <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
+                          <p className="text-white/40 text-xs">List-to-Sale Ratio</p>
+                          <p className="text-white font-bold text-sm">{avgLtsr}%</p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
+              {/* Pricing */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-white/70 text-sm">Suggested List Price Range</Label>
@@ -922,7 +1111,18 @@ export default function ListingPresentationPage() {
                 <p className="text-white/40 text-xs uppercase tracking-wider font-semibold mb-2">Completed Presentations</p>
                 <div className="space-y-2">
                   {completed.map((p) => (
-                    <div key={p.id} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-4">
+                    <div key={p.id} className="flex items-start justify-between bg-white/5 border border-white/10 rounded-xl p-4 gap-3">
+                      {/* Thumbnail */}
+                      {p.thumbnailUrl ? (
+                        <div className="shrink-0 w-20 h-14 rounded-lg overflow-hidden border border-white/10 cursor-pointer"
+                          onClick={() => window.open(getBrandedUrl(p.id), "_blank")}>
+                          <img src={p.thumbnailUrl} alt="Slide preview" className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="shrink-0 w-20 h-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                          <Presentation size={20} className="text-white/20" />
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <p className="text-white font-medium truncate">{p.title}</p>
                         <div className="flex items-center gap-2 mt-1">
@@ -938,6 +1138,12 @@ export default function ListingPresentationPage() {
                               className="border-white/20 text-white/70 bg-transparent hover:text-amber-400"
                               onClick={() => window.open(getBrandedUrl(p.id), "_blank")}>
                               <ExternalLink size={12} className="mr-1" /> View
+                            </Button>
+                            <Button size="sm" variant="outline"
+                              className="border-amber-400/40 text-amber-400 bg-transparent hover:bg-amber-400/10"
+                              title="Send to Seller"
+                              onClick={() => openSendDialog(p)}>
+                              <Send size={12} className="mr-1" /> Send
                             </Button>
                             <Button size="sm" variant="outline"
                               className="border-white/20 text-white/70 bg-transparent hover:text-amber-400 px-2"
@@ -977,6 +1183,72 @@ export default function ListingPresentationPage() {
             {presentations.length === 0 && (
               <p className="text-white/40 text-center py-8">No presentations yet. Start building your first one!</p>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Send to Seller Dialog ─────────────────────────────────────────── */}
+      <Dialog open={!!sendDialog} onOpenChange={(o) => !o && setSendDialog(null)}>
+        <DialogContent className="bg-[#1a1a2e] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <Send size={18} className="text-amber-400" /> Send Presentation to Seller
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <p className="text-white/60 text-sm">
+              Share your branded presentation link for <span className="text-amber-400 font-medium">{sendDialog?.address}</span>.
+            </p>
+
+            {/* Branded link preview */}
+            <div className="bg-white/5 rounded-lg p-3 flex items-center gap-2">
+              <Link size={14} className="text-amber-400 shrink-0" />
+              <span className="text-white/70 text-xs truncate flex-1">{sendDialog ? getBrandedUrl(sendDialog.id) : ""}</span>
+              <Button size="sm" variant="ghost" className="text-amber-400 px-2 h-7"
+                onClick={() => sendDialog && copyLink(sendDialog.id)}>
+                <Copy size={12} />
+              </Button>
+            </div>
+
+            {/* Seller info */}
+            <div className="space-y-3">
+              <div>
+                <Label className="text-white/70 text-xs">Seller Name (optional)</Label>
+                <Input value={sellerName} onChange={(e) => setSellerName(e.target.value)}
+                  placeholder="Jane Smith"
+                  className="mt-1 bg-white/5 border-white/10 text-white placeholder:text-white/30" />
+              </div>
+
+              {/* Email section */}
+              <div className="border border-white/10 rounded-lg p-3 space-y-2">
+                <Label className="text-white/70 text-xs flex items-center gap-1">
+                  <Mail size={12} className="text-amber-400" /> Send via Email
+                </Label>
+                <Input value={sellerEmail} onChange={(e) => setSellerEmail(e.target.value)}
+                  placeholder="seller@email.com" type="email"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
+                <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+                  disabled={!sellerEmail}
+                  onClick={sendByEmail}>
+                  <Mail size={14} className="mr-2" /> Open Email Draft
+                </Button>
+              </div>
+
+              {/* SMS section */}
+              <div className="border border-white/10 rounded-lg p-3 space-y-2">
+                <Label className="text-white/70 text-xs flex items-center gap-1">
+                  <Phone size={12} className="text-amber-400" /> Send via SMS
+                </Label>
+                <Input value={sellerPhone} onChange={(e) => setSellerPhone(e.target.value)}
+                  placeholder="+1 (555) 000-0000" type="tel"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30" />
+                <Button className="w-full bg-white/10 hover:bg-white/20 text-white font-semibold"
+                  disabled={!sellerPhone}
+                  onClick={sendBySms}>
+                  <Phone size={14} className="mr-2" /> Open SMS App
+                </Button>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

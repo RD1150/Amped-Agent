@@ -1,0 +1,1 @@
+ALTER TABLE `listing_presentations` ADD `thumbnailUrl` text;

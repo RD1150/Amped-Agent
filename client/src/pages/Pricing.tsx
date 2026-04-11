@@ -46,12 +46,12 @@ export default function Pricing() {
           </p>
 
           {/* Billing Toggle */}
-          <div className="inline-flex items-center gap-4 p-1 bg-secondary rounded-lg">
+          <div className="inline-flex items-center gap-1 p-1 bg-secondary rounded-xl border border-border shadow-sm">
             <button
               onClick={() => setBillingCycle("monthly")}
-              className={`px-6 py-2 rounded-md transition-all ${
+              className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 billingCycle === "monthly"
-                  ? "bg-primary text-primary-foreground shadow-sm"
+                  ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -59,18 +59,23 @@ export default function Pricing() {
             </button>
             <button
               onClick={() => setBillingCycle("yearly")}
-              className={`px-6 py-2 rounded-md transition-all ${
+              className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
                 billingCycle === "yearly"
-                  ? "bg-primary text-primary-foreground shadow-sm"
+                  ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Yearly
-              <span className="ml-2 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">
-                Save 2 months
+              Annual
+              <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold">
+                2 months FREE
               </span>
             </button>
           </div>
+          {billingCycle === "yearly" && (
+            <p className="mt-3 text-sm text-green-600 dark:text-green-400 font-medium">
+              Save up to $598/year compared to monthly billing
+            </p>
+          )}
         </div>
 
         {/* Pricing Cards */}
@@ -102,18 +107,26 @@ export default function Pricing() {
                   {tier.description}
                 </CardDescription>
                 <div className="mt-6">
+                  {billingCycle === "yearly" && (
+                    <p className="text-sm text-muted-foreground line-through mb-1">
+                      ${tier.monthlyPrice}/mo
+                    </p>
+                  )}
                   <div className="flex items-baseline justify-center gap-1">
                     <span className="text-5xl font-bold">
-                      ${billingCycle === "monthly" ? tier.monthlyPrice : tier.yearlyPrice}
+                      ${billingCycle === "monthly" ? tier.monthlyPrice : (tier.yearlyPrice / 12).toFixed(0)}
                     </span>
-                    <span className="text-muted-foreground">
-                      /{billingCycle === "monthly" ? "mo" : "yr"}
-                    </span>
+                    <span className="text-muted-foreground">/mo</span>
                   </div>
                   {billingCycle === "yearly" && (
-                    <p className="text-sm text-muted-foreground mt-2">
-                      ${(tier.yearlyPrice / 12).toFixed(0)}/month billed annually
-                    </p>
+                    <>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        ${tier.yearlyPrice}/year billed annually
+                      </p>
+                      <p className="text-xs text-green-600 dark:text-green-400 font-semibold mt-1">
+                        Save ${(tier.monthlyPrice * 12 - tier.yearlyPrice).toLocaleString()}/year
+                      </p>
+                    </>
                   )}
                 </div>
               </CardHeader>

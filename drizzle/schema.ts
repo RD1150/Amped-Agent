@@ -1026,6 +1026,7 @@ export const listingPresentations = mysqlTable("listing_presentations", {
   gammaUrl: text("gammaUrl"),
   exportUrl: text("exportUrl"),
   exportFormat: mysqlEnum("exportFormat", ["pdf", "pptx"]).default("pptx"),
+  thumbnailUrl: text("thumbnailUrl"), // First-slide screenshot URL for card preview
 
   // ── Status & Metadata ────────────────────────────────────────────────────
   // draft = being built by agent, generating = sent to Gamma, completed = ready, failed = error

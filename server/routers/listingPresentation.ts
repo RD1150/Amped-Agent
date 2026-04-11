@@ -431,12 +431,21 @@ export const listingPresentationRouter = router({
           }
         }
 
+        // Try to get a thumbnail from Gamma's preview/screenshot endpoint
+        let thumbnailUrl = "";
+        try {
+          const previewRes = await gammaRequest(`/generations/${gammaId}/preview`, "GET");
+          thumbnailUrl = previewRes?.previewUrl ?? previewRes?.thumbnailUrl ?? "";
+        } catch {
+          // Thumbnail is optional — don't fail generation if preview fetch fails
+        }
+
         await db
           .update(listingPresentations)
-          .set({ gammaId, gammaUrl, exportUrl, status: "completed" })
+          .set({ gammaId, gammaUrl, exportUrl, status: "completed", thumbnailUrl: thumbnailUrl || null })
           .where(eq(listingPresentations.id, presentationId));
 
-        return { id: presentationId, gammaUrl, exportUrl, status: "completed" };
+        return { id: presentationId, gammaUrl, exportUrl, thumbnailUrl, status: "completed" };
       } catch (err) {
         await db
           .update(listingPresentations)
@@ -462,5 +471,64 @@ export const listingPresentationRouter = router({
       if (!pres) throw new Error("Presentation not found");
       await db.delete(listingPresentations).where(eq(listingPresentations.id, input.presentationId));
       return { success: true };
+    }),
+
+  // ── Fetch comparable sales from RapidAPI ───────────────────────────────────────────
+  fetchComps: protectedProcedure
+    .input(z.object({ address: z.string().min(5) }))
+    .mutation(async ({ input }) => {
+      const RAPIDAPI_KEY = ENV.rapidApiKey;
+      if (!RAPIDAPI_KEY) throw new Error("RapidAPI key not configured");
+
+      // Use Realty in US API to search for recently sold properties nearby
+      const searchRes = await fetch(
+        `https://realty-in-us.p.rapidapi.com/properties/v3/list?` +
+        new URLSearchParams({
+          city: input.address.split(",")[1]?.trim() ?? "",
+          state_code: input.address.split(",")[2]?.trim().split(" ")[0] ?? "",
+          status: "sold",
+          sort: "sold_date",
+          limit: "6",
+        }),
+        {
+          method: "GET",
+          headers: {
+            "x-rapidapi-host": "realty-in-us.p.rapidapi.com",
+            "x-rapidapi-key": RAPIDAPI_KEY,
+          },
+        }
+      );
+
+      if (!searchRes.ok) {
+        const errText = await searchRes.text();
+        throw new Error(`RapidAPI error ${searchRes.status}: ${errText}`);
+      }
+
+      const data = await searchRes.json();
+      const listings = data?.data?.home_search?.results ?? [];
+
+      return listings.slice(0, 6).map((l: any) => {
+        const desc = l.description ?? {};
+        const price = l.last_sold_price ?? l.list_price ?? 0;
+        const sqft = desc.sqft ?? 0;
+        const pricePerSqft = sqft > 0 ? Math.round(price / sqft) : 0;
+        const soldDate = l.last_sold_date
+          ? new Date(l.last_sold_date).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+          : "";
+        return {
+          address: `${l.location?.address?.line ?? ""}, ${l.location?.address?.city ?? ""}, ${l.location?.address?.state_code ?? ""}`,
+          status: l.last_sold_date ? "Sold" : "Active",
+          price: price > 0 ? `$${price.toLocaleString()}` : "",
+          listPrice: l.list_price > 0 ? `$${l.list_price.toLocaleString()}` : "",
+          sqft: sqft > 0 ? sqft.toLocaleString() : "",
+          pricePerSqft: pricePerSqft > 0 ? `$${pricePerSqft}` : "",
+          bedrooms: desc.beds?.toString() ?? "",
+          bathrooms: desc.baths_consolidated?.toString() ?? "",
+          daysOnMarket: l.list_date
+            ? Math.round((Date.now() - new Date(l.list_date).getTime()) / 86400000).toString()
+            : "",
+          soldDate,
+        };
+      });
     }),
 });

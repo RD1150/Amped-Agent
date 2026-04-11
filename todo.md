@@ -4570,3 +4570,17 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add GET /p/:id server route that looks up gammaUrl and redirects (hides Gamma domain)
 - [x] Update Listing Presentation UI to use /p/:id for share links and "View" buttons
 - [x] Add copy-link button that copies the branded URL
+
+## Three New Features (Apr 2026)
+- [x] Send to Seller button — in-app dialog with email/SMS share using branded link
+- [x] Presentation thumbnail — store screenshot URL on completion, show in My Presentations cards
+- [x] Annual pricing toggle on Pricing page — monthly/annual switch, annual = 2 months free
+
+## Comprehensive CMA (Apr 2026)
+- [x] Auto-pull nearby sold comps from RapidAPI when agent enters property address
+- [x] Add adjustments column per comp (+/- for pool, garage, condition, etc.)
+- [x] Auto-calculate adjusted value range and suggested list price
+- [x] Add Active / Pending / Sold status field per comp
+- [x] Show average DOM, list-to-sale ratio, and absorption rate summary
+- [x] Add price per sqft column with auto-calculation
+- [ ] Add price trend mini-chart from comp data (future enhancement)
