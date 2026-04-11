@@ -5,13 +5,13 @@ import { listingPresentations } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { ENV } from "../_core/env";
 
-const GAMMA_API_BASE = "https://api.gamma.app/v1";
+const GAMMA_API_BASE = "https://public-api.gamma.app/v1.0";
 
 async function gammaRequest(path: string, method: string, body?: object) {
   const res = await fetch(`${GAMMA_API_BASE}${path}`, {
     method,
     headers: {
-      Authorization: `Bearer ${ENV.GAMMA_API_KEY}`,
+      "X-API-KEY": ENV.GAMMA_API_KEY ?? "",
       "Content-Type": "application/json",
     },
     body: body ? JSON.stringify(body) : undefined,
@@ -121,23 +121,22 @@ Tone: Professional, luxury real estate. Audience: Home sellers.`;
       try {
         // Call Gamma API
         const gammaPayload: Record<string, unknown> = {
-          title,
-          text: prompt,
+          inputText: prompt,
           textMode: "generate",
+          format: "presentation",
           numCards: 10,
           exportAs: input.exportFormat,
           textOptions: {
             tone: "professional",
-            audience: "home sellers",
           },
           imageOptions: {
-            source: "webFreeToUseCommercially",
+            source: "web",
           },
         };
         if (input.themeId) gammaPayload.themeId = input.themeId;
 
         const generation = await gammaRequest("/generations", "POST", gammaPayload);
-        const gammaId: string = generation?.id ?? generation?.generationId ?? "";
+        const gammaId: string = generation?.generationId ?? generation?.id ?? "";
 
         // Poll for completion (up to 3 minutes)
         let gammaUrl = "";
@@ -150,13 +149,14 @@ Tone: Professional, luxury real estate. Audience: Home sellers.`;
           attempts++;
           try {
             const status = await gammaRequest(`/generations/${gammaId}`, "GET");
-            const state: string = status?.status ?? status?.state ?? "";
-            if (state === "completed" || state === "done" || state === "success") {
-              gammaUrl = status?.gammaUrl ?? status?.url ?? "";
-              exportUrl = status?.exportUrl ?? status?.downloadUrl ?? "";
+            const state: string = status?.status ?? "";
+            if (state === "completed") {
+              gammaUrl = status?.gammaUrl ?? "";
+              exportUrl = status?.exportUrl ?? "";
               break;
-            } else if (state === "failed" || state === "error") {
-              throw new Error("Gamma generation failed");
+            } else if (state === "failed") {
+              const errMsg = status?.error?.message ?? "Gamma generation failed";
+              throw new Error(errMsg);
             }
           } catch (pollErr) {
             if (attempts >= maxAttempts) throw pollErr;
