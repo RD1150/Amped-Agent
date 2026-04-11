@@ -4584,3 +4584,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Show average DOM, list-to-sale ratio, and absorption rate summary
 - [x] Add price per sqft column with auto-calculation
 - [ ] Add price trend mini-chart from comp data (future enhancement)
+
+## Branded Seller Landing Page for /p/:id (Apr 2026)
+- [x] Convert /p/:id from a server redirect to a branded HTML interstitial page
+- [x] Show agent photo, name, brokerage, and property address on the interstitial
+- [x] Add animated "View Your Presentation" CTA button that opens Gamma in new tab
+- [x] Pull agent persona data (photo, name, brokerage) from the DB for the page
+- [x] Mobile-optimized full-screen design with dark/luxury aesthetic
+- [x] OG meta tags for rich link previews when shared via SMS/email
