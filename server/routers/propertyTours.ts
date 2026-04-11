@@ -24,7 +24,8 @@ export const propertyToursRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        address: z.string().min(1, "Address is required"),
+        address: z.string().optional(), // Optional — agents touring other brokers' listings may omit the full address
+        city: z.string().optional(), // Optional market/city tag when full address is not provided
         price: z.string().optional(),
         beds: z.number().int().min(0).optional(),
         baths: z.number().min(0).optional(),
@@ -57,6 +58,7 @@ export const propertyToursRouter = router({
       const tour = await db.createPropertyTour({
         userId: ctx.user.id,
         address: input.address,
+        city: input.city,
         price: input.price,
         beds: input.beds,
         baths: input.baths ? input.baths.toString() : undefined,
@@ -264,7 +266,7 @@ export const propertyToursRouter = router({
           const { renderId } = await generatePropertyTourVideo({
             imageUrls,
             propertyDetails: {
-              address: tour.address,
+              address: tour.address ?? tour.city ?? undefined,
               price: tour.price || undefined,
               beds: tour.beds || undefined,
               baths: tour.baths ? parseFloat(tour.baths) : undefined,
@@ -771,7 +773,7 @@ export const propertyToursRouter = router({
           const { renderId } = await generatePropertyTourVideo({
             imageUrls,
             propertyDetails: {
-              address: tour.address,
+              address: tour.address ?? tour.city ?? undefined,
               price: tour.price || undefined,
               beds: tour.beds || undefined,
               baths: tour.baths ? parseFloat(tour.baths) : undefined,

@@ -502,7 +502,7 @@ export async function renderAutoReel(options: AutoReelOptions): Promise<RenderRe
 export interface PropertyTourOptions {
   imageUrls: string[];
   propertyDetails: {
-    address: string;
+    address?: string; // Optional — agents may omit address for non-listed tours
     price?: string;
     beds?: number;
     baths?: number;
@@ -669,7 +669,7 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
   // Address text
   elements.push({
     type: "text",
-    text: propertyDetails.address,
+    text: propertyDetails.address ?? "",
     font_family: introFontFamily,
     font_size: introAddrSize,
     font_weight: cardTemplate === "bold" ? "900" : cardTemplate === "luxury" ? "300" : "700",
@@ -905,7 +905,7 @@ export async function renderPropertyTour(options: PropertyTourOptions): Promise<
   // Address text
   elements.push({
     type: "text",
-    text: propertyDetails.address,
+    text: propertyDetails.address ?? "",
     font_family: "Montserrat",
     font_size: addrFontSize,
     font_weight: "700",

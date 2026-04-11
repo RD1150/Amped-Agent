@@ -66,16 +66,20 @@ export const myVideosRouter = router({
           .orderBy(desc(propertyTours.createdAt));
         for (const r of rows) {
           if (!r.videoUrl) continue; // skip if never generated
+          // Use address as title if available; fall back to city tag or generic label
+          const listingTitle = r.address ?? r.city ?? 'Property Tour';
+          // City badge: extract from address, or use the explicit city tag
+          const listingCity = cityFromAddress(r.address) ?? r.city ?? null;
           results.push({
             id: `listing_${r.id}`,
             source: 'listing_video',
-            title: r.address ?? 'Listing Video',
+            title: listingTitle,
             videoUrl: r.videoUrl,
             thumbnailUrl: (r as any).thumbnailUrl ?? null,
             status: r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
             durationSeconds: null,
             createdAt: r.createdAt,
-            city: cityFromAddress(r.address),
+            city: listingCity,
           });
         }
       }

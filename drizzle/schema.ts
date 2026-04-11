@@ -491,7 +491,8 @@ export const propertyTours = mysqlTable("property_tours", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   // Property details
-  address: varchar("address", { length: 500 }).notNull(),
+  address: varchar("address", { length: 500 }), // Optional — agents touring other brokers' listings may omit the address
+  city: varchar("city", { length: 255 }), // Optional market/city tag (e.g., "Agoura Hills") when full address is not provided
   price: varchar("price", { length: 50 }), // Store as string to handle formatting ($1,500,000)
   beds: int("beds"),
   baths: decimal("baths", { precision: 3, scale: 1 }), // Support 2.5 baths

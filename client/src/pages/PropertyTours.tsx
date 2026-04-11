@@ -84,6 +84,7 @@ export default function PropertyTours() {
 
   // Form state
   const [address, setAddress] = useState("");
+  const [tourCity, setTourCity] = useState("");
   const [price, setPrice] = useState("");
   const [beds, setBeds] = useState("");
   const [baths, setBaths] = useState("");
@@ -435,8 +436,8 @@ export default function PropertyTours() {
 
   // Handle tour creation and video generation
   const handleCreateTour = async () => {
-    if (!address) {
-      toast.error("Please enter the property address");
+    if (!address && !tourCity) {
+      toast.error("Please enter either a property address or a city/market for this tour");
       return;
     }
 
@@ -461,7 +462,8 @@ export default function PropertyTours() {
     try {
       // Create tour
       const tour = await createTour.mutateAsync({
-        address,
+        address: address || undefined,
+        city: tourCity || undefined,
         price: price || undefined,
         beds: beds ? parseInt(beds) : undefined,
         baths: baths ? parseFloat(baths) : undefined,
@@ -609,6 +611,7 @@ export default function PropertyTours() {
 
       // Reset form
       setAddress("");
+      setTourCity("");
       setPrice("");
       setBeds("");
       setBaths("");
@@ -936,6 +939,12 @@ export default function PropertyTours() {
                       
                       // Auto-populate form fields
                       setAddress(data.address || "");
+                      // Auto-extract city from address for the city badge
+                      if (data.address) {
+                        const parts = data.address.split(',').map((s: string) => s.trim());
+                        if (parts.length >= 3) setTourCity(`${parts[parts.length - 2]}, ${parts[parts.length - 1].replace(/\s*\d{5}.*/, '').trim()}`);
+                        else if (parts.length === 2) setTourCity(parts[1].replace(/\s*\d{5}.*/, '').trim());
+                      }
                       setPrice(data.price ? `$${data.price.toLocaleString()}` : "");
                       setBeds(data.beds.toString());
                       setBaths(data.baths.toString());
@@ -967,13 +976,24 @@ export default function PropertyTours() {
             </div>
 
             <div>
-              <Label htmlFor="address">Address *</Label>
+              <Label htmlFor="address">Address <span className="text-muted-foreground font-normal text-xs">(optional — leave blank for non-listed tours)</span></Label>
               <Input
                 id="address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="123 Main St, City, State 12345"
               />
+            </div>
+
+            <div>
+              <Label htmlFor="tourCity">City / Market <span className="text-muted-foreground font-normal text-xs">(optional — used for video badge)</span></Label>
+              <Input
+                id="tourCity"
+                value={tourCity}
+                onChange={(e) => setTourCity(e.target.value)}
+                placeholder="Agoura Hills, CA"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Tag this video with a market without revealing the full address.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -1723,12 +1743,12 @@ export default function PropertyTours() {
                         <VideoThumbnail
                           src={tour.videoUrl}
                           thumbnailUrl={tour.thumbnailUrl || undefined}
-                          address={tour.address}
+                          address={tour.address ?? tour.city ?? "Property Tour"}
                         />
                       ) : tour.thumbnailUrl ? (
                         <img
                           src={tour.thumbnailUrl}
-                          alt={tour.address}
+                          alt={tour.address ?? tour.city ?? "Property Tour"}
                           className="w-full h-full object-cover"
                         />
                       ) : (

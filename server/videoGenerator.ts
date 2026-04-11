@@ -12,7 +12,7 @@ function writeLog(message: string) {
 }
 
 export interface PropertyDetails {
-  address: string;
+  address?: string; // Optional — agents may omit address for non-listed tours
   price?: string;
   beds?: number;
   baths?: number;
@@ -136,7 +136,7 @@ export async function generatePropertyTourVideo(
       // Generate or use provided script
       const script = voiceoverScript || await generatePropertyTourScript({
         propertyDetails: {
-          address: propertyDetails.address,
+          address: propertyDetails.address ?? "",
           price: propertyDetails.price ? parseFloat(propertyDetails.price.replace(/[^0-9.]/g, "")) : undefined,
           bedrooms: propertyDetails.beds,
           bathrooms: propertyDetails.baths,
@@ -482,7 +482,7 @@ export async function generatePropertyTourVideo(
       if (persona) {
         const introText = generateIntroCard(
           selectedTemplate,
-          propertyDetails.address,
+          propertyDetails.address ?? "",
           propertyDetails.price,
           persona.agentName || ""
         );
@@ -627,7 +627,7 @@ export async function generatePropertyTourVideo(
     const lowerThirdHold = Math.min(6, effectiveDuration - 2);
     if (lowerThirdHold > 1) {
       lowerThirdOverlays = getLuxuryLowerThird(
-        propertyDetails.address,
+        propertyDetails.address ?? "",
         detailsText,
         aspectRatio,
         lowerThirdStart,
@@ -729,7 +729,7 @@ export async function generatePropertyTourVideo(
         avatarVideoUrl = await generateAgentAvatarVideo(
           options.agentHeadshotUrl,
           options.agentVoiceUrl,
-          propertyDetails.address,
+          propertyDetails.address ?? "",
           "std"
         );
         console.log("[VideoGenerator] \u2713 Kling Avatar video ready:", avatarVideoUrl);

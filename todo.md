@@ -4541,3 +4541,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Persist city rotation index to localStorage in Post Builder and Blog Builder
 - [x] Add batch Generate for All Cities mode to Blog Builder
 - [x] Add city market badge to My Videos video cards
+
+## Property Tour Optional City (Apr 2026 - Session 6)
+- [ ] Add optional city field to propertyTours DB schema and push migration
+- [ ] Add optional city input to Property Tour form (address stays optional for non-listed tours)
+- [ ] Update myVideos listAll to use city field when address is absent
