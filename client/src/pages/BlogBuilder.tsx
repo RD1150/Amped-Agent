@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
-import { Loader2, FileText, Copy, Trash2, ChevronDown, ChevronUp, Sparkles, Search, Repeat2, ExternalLink, CalendarPlus } from "lucide-react";
+import { Loader2, FileText, Copy, Trash2, ChevronDown, ChevronUp, Sparkles, Search, Repeat2, ExternalLink, CalendarPlus, RefreshCw } from "lucide-react";
 
 const TOPIC_SUGGESTIONS = [
   "5 Things First-Time Buyers Wish They Knew Before Buying",
@@ -29,6 +29,27 @@ export default function BlogBuilder() {
   const [, navigate] = useLocation();
   const [topic, setTopic] = useState("");
   const [city, setCity] = useState("");
+  const [cityRotationIndex, setCityRotationIndex] = useState(0);
+  const { data: persona } = trpc.persona.get.useQuery();
+
+  // Parse service cities for rotation
+  const parsedServiceCities: Array<{ city: string; state: string }> = (() => {
+    try {
+      const raw = (persona as any)?.serviceCities;
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) return [];
+      if (typeof parsed[0] === "object" && parsed[0] !== null && "city" in parsed[0]) return parsed;
+      return (parsed as string[]).filter(Boolean).map((c: string) => ({ city: c, state: (persona as any)?.primaryState || "" }));
+    } catch { return []; }
+  })();
+
+  const activeCityEntry = parsedServiceCities.length > 0
+    ? parsedServiceCities[cityRotationIndex % parsedServiceCities.length]
+    : null;
+  const activeCityLabel = activeCityEntry
+    ? `${activeCityEntry.city}${activeCityEntry.state ? ", " + activeCityEntry.state : ""}`
+    : (persona as any)?.primaryCity || "";
   const [niche, setNiche] = useState<"buyers" | "sellers" | "investors" | "luxury" | "relocation" | "general">("general");
   const [tone, setTone] = useState<"professional" | "conversational" | "educational" | "inspirational">("conversational");
   const [wordCount, setWordCount] = useState<"short" | "medium" | "long">("medium");
@@ -63,7 +84,12 @@ export default function BlogBuilder() {
       toast.error("Enter a blog topic to get started.");
       return;
     }
-    generateMutation.mutate({ topic: topic.trim(), city: city.trim() || undefined, niche, tone, wordCount });
+    const effectiveCity = city.trim() || activeCityLabel || undefined;
+    generateMutation.mutate({ topic: topic.trim(), city: effectiveCity, niche, tone, wordCount });
+    // Advance city rotation for next post
+    if (!city.trim() && parsedServiceCities.length > 1) {
+      setCityRotationIndex((prev) => (prev + 1) % parsedServiceCities.length);
+    }
   };
 
   const copyToClipboard = (text: string, label: string) => {
@@ -125,13 +151,51 @@ export default function BlogBuilder() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* City */}
             <div className="space-y-2">
-              <Label htmlFor="city">Target City (optional)</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="city">Target City</Label>
+                {parsedServiceCities.length > 1 && cityRotationIndex !== 0 && !city.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => setCityRotationIndex(0)}
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+                  >
+                    <RefreshCw className="w-3 h-3" /> Reset
+                  </button>
+                )}
+              </div>
               <Input
                 id="city"
-                placeholder="e.g. Austin, TX"
+                placeholder={activeCityLabel || "e.g. Austin, TX"}
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
               />
+              {parsedServiceCities.length > 1 && !city.trim() && (
+                <div className="flex flex-wrap gap-1.5">
+                  {parsedServiceCities.map((entry, i) => {
+                    const lbl = `${entry.city}${entry.state ? ", " + entry.state : ""}`;
+                    const isActive = i === (cityRotationIndex % parsedServiceCities.length);
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setCityRotationIndex(i)}
+                        className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
+                          isActive
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+                        }`}
+                      >
+                        {lbl}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {parsedServiceCities.length > 1 && !city.trim() && (
+                <p className="text-xs text-muted-foreground">
+                  Auto-rotating markets — next: <span className="text-primary font-medium">{activeCityLabel}</span>
+                </p>
+              )}
             </div>
 
             {/* Niche */}

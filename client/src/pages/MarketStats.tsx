@@ -27,6 +27,20 @@ export default function MarketStats() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [marketView, setMarketView] = useState<MarketView>(DEFAULT_MARKET_VIEW);
 
+  const { data: persona } = trpc.persona.get.useQuery();
+
+  // Parse service cities for quick-pick
+  const parsedServiceCities: Array<{ city: string; state: string }> = (() => {
+    try {
+      const raw = (persona as any)?.serviceCities;
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) return [];
+      if (typeof parsed[0] === "object" && parsed[0] !== null && "city" in parsed[0]) return parsed;
+      return (parsed as string[]).filter(Boolean).map((c: string) => ({ city: c, state: (persona as any)?.primaryState || "" }));
+    } catch { return []; }
+  })();
+
   // Voiceover state
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
@@ -177,6 +191,38 @@ export default function MarketStats() {
               {fetchMarketStats.isPending ? "Searching..." : "Search"}
             </Button>
           </div>
+
+          {/* Service cities quick-pick */}
+          {parsedServiceCities.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs text-muted-foreground">Your markets:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {parsedServiceCities.map((entry, i) => {
+                  const lbl = `${entry.city}${entry.state ? ", " + entry.state : ""}`;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        setLocation(lbl);
+                        // Auto-search on click
+                        setTimeout(() => {
+                          fetchMarketStats.mutate({ location: lbl, marketView });
+                        }, 50);
+                      }}
+                      className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                        location === lbl
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "border-border text-muted-foreground hover:border-primary hover:text-primary bg-transparent"
+                      }`}
+                    >
+                      {lbl}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Market View selector */}
           <div className="space-y-2">

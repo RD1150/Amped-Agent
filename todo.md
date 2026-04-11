@@ -4531,3 +4531,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add per-city state field to service cities input in Onboarding and PersonaBrand
 - [x] Add city rotation logic to content generation LLM prompts
 - [x] Pre-populate Lead Magnet city field from first service city
+
+## City UX Round 2 (Apr 2026 - Session 4)
+- [x] Add reset rotation button to Post Builder city indicator
+- [x] Add city rotation indicator and cityIndex to Blog Builder
+- [x] Add city quick-pick selector to Market Insights

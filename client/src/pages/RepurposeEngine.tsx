@@ -546,13 +546,49 @@ export default function RepurposeEngine() {
                     if (!raw) return null;
                     const parsed = JSON.parse(raw);
                     if (!Array.isArray(parsed) || parsed.length <= 1) return null;
-                    const entry = parsed[cityRotationIndex % parsed.length];
-                    const label = typeof entry === "object" ? `${entry.city}${entry.state ? ", " + entry.state : ""}` : entry;
+                    const activeIdx = cityRotationIndex % parsed.length;
                     return (
-                      <p className="text-xs text-center text-muted-foreground">
-                        Targeting market: <span className="text-primary font-medium">{label}</span>
-                        <span className="ml-1 opacity-60">({cityRotationIndex + 1}/{parsed.length})</span>
-                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-muted-foreground">
+                            Targeting: <span className="text-primary font-medium">
+                              {(() => {
+                                const e = parsed[activeIdx];
+                                return typeof e === "object" ? `${e.city}${e.state ? ", " + e.state : ""}` : e;
+                              })()}
+                            </span>
+                            <span className="ml-1 opacity-60">({activeIdx + 1}/{parsed.length})</span>
+                          </p>
+                          {activeIdx !== 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setCityRotationIndex(0)}
+                              className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+                            >
+                              <RefreshCw className="w-3 h-3" /> Reset
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {parsed.map((e: any, i: number) => {
+                            const lbl = typeof e === "object" ? `${e.city}${e.state ? ", " + e.state : ""}` : e;
+                            return (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => setCityRotationIndex(i)}
+                                className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
+                                  i === activeIdx
+                                    ? "bg-primary text-primary-foreground border-primary"
+                                    : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+                                }`}
+                              >
+                                {lbl}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     );
                   } catch { return null; }
                 })()}
