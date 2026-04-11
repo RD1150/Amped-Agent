@@ -34,6 +34,8 @@ import FullAvatarVideo from "./pages/FullAvatarVideo";
 import YouTubeVideoBuilder from "./pages/YouTubeVideoBuilder";
 import ImageLibraryPage from "./pages/ImageLibrary";
 import ListingPresentationPage from "./pages/ListingPresentation";
+import BuyerPresentationPage from "./pages/BuyerPresentation";
+import AssetsHub from "./pages/AssetsHub";
 import ThumbnailGenerator from "./pages/ThumbnailGenerator";
 import PropertyTours from "./pages/PropertyTours";
 import ContentTemplates from "./pages/ContentTemplates";
@@ -125,6 +127,8 @@ function Router() {
         <Route path="/youtube-video-builder" component={YouTubeVideoBuilder} />
         <Route path="/image-library" component={ImageLibraryPage} />
         <Route path="/listing-presentation" component={ListingPresentationPage} />
+        <Route path="/buyer-presentation" component={BuyerPresentationPage} />
+        <Route path="/assets" component={AssetsHub} />
         <Route path="/thumbnails" component={ThumbnailGenerator} />
         <Route path="/property-tours" component={PropertyTours} />
         <Route path="/content-templates" component={ContentTemplates} />

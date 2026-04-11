@@ -36,6 +36,7 @@ import {
   Video,
   User,
   ArrowRight,
+  Calendar,
 } from "lucide-react";
 
 function PhotoAvatarCard() {
@@ -288,6 +289,9 @@ export default function AuthorityProfile() {
   const [keyTrends, setKeyTrends] = useState<string[]>([]);
   const [newTrend, setNewTrend] = useState("");
 
+  // Booking URL
+  const [bookingUrl, setBookingUrl] = useState("");
+
   // Voice Cloning state
   const [voiceFile, setVoiceFile] = useState<File | null>(null);
   const [voiceUploadUrl, setVoiceUploadUrl] = useState<string>("");
@@ -329,6 +333,9 @@ export default function AuthorityProfile() {
         }
       }
       
+      // Booking URL
+      setBookingUrl(persona.bookingUrl || "");
+
       // Parse market context
       if (persona.marketContext) {
         try {
@@ -411,6 +418,7 @@ export default function AuthorityProfile() {
         marketType,
         keyTrends,
       }),
+      bookingUrl: bookingUrl || undefined,
     });
   };
 
@@ -970,6 +978,28 @@ export default function AuthorityProfile() {
                 </>
               )}
             </Button>
+          </div>
+        </Card>
+
+        {/* Booking / Calendar URL */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-1 flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Booking Link
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Paste your Calendly, Cal.com, or CRM booking URL here. It will appear as a "Schedule a Call" button on every presentation landing page you share with sellers and buyers.
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="bookingUrl">Booking / Calendar URL</Label>
+            <Input
+              id="bookingUrl"
+              type="url"
+              placeholder="https://calendly.com/yourname"
+              value={bookingUrl}
+              onChange={(e) => setBookingUrl(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">Works with Calendly, Cal.com, Acuity, HubSpot, GHL, or any booking link.</p>
           </div>
         </Card>
 

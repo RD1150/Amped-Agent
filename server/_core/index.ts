@@ -75,7 +75,7 @@ async function startServer() {
       // Try to get brokerage from persona
       const { personas } = await import("../../drizzle/schema");
       const [persona] = await db
-        .select({ brokerageName: personas.brokerageName, headshotUrl: personas.headshotUrl, phoneNumber: personas.phoneNumber })
+        .select({ brokerageName: personas.brokerageName, headshotUrl: personas.headshotUrl, phoneNumber: personas.phoneNumber, bookingUrl: personas.bookingUrl })
         .from(personas)
         .where(eq(personas.userId, pres.userId))
         .limit(1);
@@ -87,6 +87,7 @@ async function startServer() {
       const address = pres.propertyAddress || "";
       const price = pres.listingPrice || "";
       const gammaUrl = pres.gammaUrl;
+      const bookingUrl = persona?.bookingUrl || "";
 
       // Serve a beautiful branded HTML interstitial
       res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -260,6 +261,7 @@ async function startServer() {
       color: rgba(255,255,255,0.2);
     }
     ${phone ? `.phone { font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 28px; }` : ""}
+    ${bookingUrl ? `.schedule-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: transparent; color: #C9A962; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 10px; border: 1.5px solid rgba(201,169,98,0.4); cursor: pointer; text-decoration: none; width: 100%; margin-top: 10px; transition: background 0.2s, border-color 0.2s; letter-spacing: -0.01em; } .schedule-btn:hover { background: rgba(201,169,98,0.08); border-color: rgba(201,169,98,0.7); }` : ""}
   </style>
 </head>
 <body>
@@ -296,6 +298,11 @@ async function startServer() {
       </svg>
       View Your Presentation
     </a>
+
+    ${bookingUrl ? `<a href="${bookingUrl}" target="_blank" rel="noopener" class="schedule-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Schedule a Call
+    </a>` : ""}
 
     <p class="footer">Prepared exclusively for you by ${agentName}</p>
   </div>

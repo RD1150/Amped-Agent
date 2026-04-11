@@ -113,6 +113,7 @@ export const personas = mysqlTable("personas", {
   headshotOffsetY: int("headshotOffsetY").default(50), // Vertical position of headshot in circle (0=top, 100=bottom, 50=center)
   headshotZoom: int("headshotZoom").default(100), // Zoom level of headshot (100=no zoom, 200=2x zoom)
   gammaThemeId: varchar("gammaThemeId", { length: 255 }), // Default Gamma workspace theme ID for Listing Presentations
+  bookingUrl: varchar("bookingUrl", { length: 500 }), // Calendly / CRM booking link shown on presentation landing pages
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -1038,6 +1039,63 @@ export const listingPresentations = mysqlTable("listing_presentations", {
 });
 export type ListingPresentation = typeof listingPresentations.$inferSelect;
 export type InsertListingPresentation = typeof listingPresentations.$inferInsert;
+
+// ─── Buyer Presentations ─────────────────────────────────────────────────────
+export const buyerPresentations = mysqlTable("buyer_presentations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+
+  // ── Buyer Details ─────────────────────────────────────────────────────────
+  buyerName: varchar("buyerName", { length: 255 }),
+  buyerType: varchar("buyerType", { length: 100 }), // first-time, move-up, investor, relocating, downsizing
+  priceRange: varchar("priceRange", { length: 200 }),
+  targetAreas: text("targetAreas"), // JSON string[]
+  desiredBedrooms: varchar("desiredBedrooms", { length: 20 }),
+  desiredBathrooms: varchar("desiredBathrooms", { length: 20 }),
+  mustHaves: text("mustHaves"), // free-text
+  niceToHaves: text("niceToHaves"), // free-text
+  timeline: varchar("timeline", { length: 200 }),
+
+  // ── Market Snapshot ───────────────────────────────────────────────────────
+  marketCity: varchar("marketCity", { length: 255 }),
+  marketState: varchar("marketState", { length: 100 }),
+  marketOverview: text("marketOverview"),
+  avgDaysOnMarket: varchar("avgDaysOnMarket", { length: 50 }),
+  avgListPrice: varchar("avgListPrice", { length: 100 }),
+  inventoryLevel: varchar("inventoryLevel", { length: 100 }), // low / balanced / high
+
+  // ── Financing Overview ────────────────────────────────────────────────────
+  financingNotes: text("financingNotes"), // free-text: pre-approval, loan types, down payment
+  lenderName: varchar("lenderName", { length: 255 }),
+  lenderContact: varchar("lenderContact", { length: 255 }),
+
+  // ── Agent Bio & Stats ─────────────────────────────────────────────────────
+  agentName: varchar("agentName", { length: 255 }),
+  agentHeadshotUrl: text("agentHeadshotUrl"),
+  agentBio: text("agentBio"),
+  agentStats: text("agentStats"),
+  agentTestimonials: text("agentTestimonials"), // JSON {author, text}[]
+
+  // ── Buying Process ────────────────────────────────────────────────────────
+  processSteps: text("processSteps"), // JSON string[] — custom steps the agent wants to highlight
+  buyerConcerns: text("buyerConcerns"), // free-text: common concerns and how agent addresses them
+
+  // ── Gamma Output ─────────────────────────────────────────────────────────
+  gammaId: varchar("gammaId", { length: 255 }),
+  gammaUrl: text("gammaUrl"),
+  exportFormat: mysqlEnum("exportFormat", ["pdf", "pptx"]).default("pptx"),
+  thumbnailUrl: text("thumbnailUrl"),
+
+  // ── Status & Metadata ────────────────────────────────────────────────────
+  status: mysqlEnum("status", ["draft", "generating", "completed", "failed"]).default("draft").notNull(),
+  inputData: text("inputData"),
+  creditsCost: int("creditsCost").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+export type BuyerPresentation = typeof buyerPresentations.$inferSelect;
+export type InsertBuyerPresentation = typeof buyerPresentations.$inferInsert;
 
 // ─── Video Script Builder ─────────────────────────────────────────────────────
 export const videoScripts = mysqlTable("video_scripts", {

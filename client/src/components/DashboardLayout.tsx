@@ -70,6 +70,7 @@ import {
   FolderOpen,
   UserCheck,
   Gift,
+  LayoutGrid,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -175,6 +176,19 @@ const menuSections = [
     title: "ASSETS",
     items: [
       {
+        icon: LayoutGrid,
+        label: "Assets Hub",
+        path: "/assets",
+        description: "All your externally-facing content in one place",
+        hoverInfo: {
+          tagline: "See all your presentations, lead magnets, and shareable content in one visual grid.",
+          details: [
+            { label: "Includes", value: "Listing & Buyer Presentations, Lead Magnets" },
+            { label: "Features", value: "Share links, view counts, filter by type" },
+          ],
+        },
+      },
+      {
         icon: Presentation,
         label: "Listing Presentation",
         path: "/listing-presentation",
@@ -194,14 +208,12 @@ const menuSections = [
         label: "Buyer Presentation",
         path: "/buyer-presentation",
         description: "Branded buyer consultation deck for first meetings",
-        badge: "Coming Soon",
         hoverInfo: {
           tagline: "A polished buyer consultation deck that walks new clients through the buying process with your branding.",
           details: [
             { label: "Best for", value: "First buyer meetings, open house follow-ups" },
-            { label: "Output", value: "10-slide deck: process, market, financing, why you" },
+            { label: "Output", value: "12-slide deck: process, market, financing, why you" },
             { label: "Share", value: "Branded link — same as listing presentation" },
-            { label: "Status", value: "Coming soon" },
           ],
         },
       },
@@ -678,7 +690,7 @@ function DashboardLayoutContent({
                 <div key={section.title} className="mb-0">
                   {/* Section label */}
                   <div className="px-4 pt-4 pb-1">
-                    <h3 className="text-[9px] font-semibold text-sidebar-foreground/40 uppercase tracking-[0.14em]">
+                    <h3 className="text-[11px] font-bold text-sidebar-foreground/75 uppercase tracking-[0.1em]">
                       {section.title}
                     </h3>
                   </div>

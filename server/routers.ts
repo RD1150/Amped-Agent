@@ -30,6 +30,7 @@ import { youtubeRouter } from "./routers/youtube";
 import { youtubeVideoBuilderRouter } from "./routers/youtubeVideoBuilder";
 import { imageLibraryRouter } from "./routers/imageLibrary";
 import { listingPresentationRouter } from "./routers/listingPresentation";
+import { buyerPresentationRouter } from "./routers/buyerPresentation";
 import { repurposeRouter } from "./routers/repurpose";
 import { leadMagnetRouter } from "./routers/leadMagnet";
 import { cinematicWalkthroughRouter } from "./routers/cinematicWalkthrough";
@@ -57,6 +58,7 @@ export const appRouter = router({
   youtubeVideoBuilder: youtubeVideoBuilderRouter,
   imageLibrary: imageLibraryRouter,
   listingPresentation: listingPresentationRouter,
+  buyerPresentation: buyerPresentationRouter,
   repurpose: repurposeRouter,
   leadMagnet: leadMagnetRouter,
   cinematicWalkthrough: cinematicWalkthroughRouter,
@@ -383,6 +385,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         customerAvatar: z.string().optional(),
         brandValues: z.string().optional(),
         marketContext: z.string().optional(),
+        bookingUrl: z.string().url().optional().or(z.literal("")),
       }))
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);

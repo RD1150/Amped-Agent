@@ -4601,3 +4601,27 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Sub-item: Newsletter (links to /newsletter)
 - [x] Sub-item: Market Dominance Report (links to /coach)
 - [x] Remove CONVERT section (all items moved to ASSETS)
+
+## Calendar URL + Buyer Presentation + Assets Hub (Apr 2026)
+- [x] Add bookingUrl field to Authority Profile (DB schema + UI)
+- [x] Wire bookingUrl to /p/:id branded landing page as "Schedule a Call" button
+- [x] Build Buyer Presentation page — 6-step wizard mirroring Listing Presentation
+- [x] Add buyer_presentations table to DB schema
+- [x] Add buyerPresentation router with saveDraft, generate, list, delete procedures
+- [x] Register /buyer-presentation route in App.tsx
+- [x] Build Assets Hub page at /assets — grid of all presentations, lead magnets, newsletters
+- [x] Show share link, view count, last-sent date per asset card
+- [x] Add /assets route to App.tsx and sidebar
+
+## ROADMAP: Listing Webpage (Future Sprint)
+- [ ] Single-property website at ampedagent.app/listing/:id for active listings
+- [ ] Pull property photos, description, price, beds/baths/sqft from listing presentation data
+- [ ] Show agent photo, name, brokerage, phone, and booking URL
+- [ ] "Request a Showing" button linked to agent's booking URL
+- [ ] OG meta tags for rich social media previews (photo, address, price)
+- [ ] Optional: open house dates, virtual tour embed
+- [ ] Add "Listing Webpage" sub-item to ASSETS sidebar section
+- [ ] Share link at ampedagent.app/listing/:id (no platform branding visible)
+
+## Sidebar Header Fix
+- [x] Make section header labels larger, bolder, and brighter (currently too small and too gray)
