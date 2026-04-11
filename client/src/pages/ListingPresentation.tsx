@@ -13,7 +13,7 @@ import {
   Presentation, Sparkles, Download, ExternalLink, Trash2, Loader2,
   FileText, CheckCircle2, AlertCircle, Clock, Upload, X, Plus,
   Home, User, BarChart2, Megaphone, Settings2, Zap, ImageIcon,
-  BookmarkCheck, RefreshCw, ChevronRight,
+  BookmarkCheck, RefreshCw, ChevronRight, Copy, Link,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useEffect } from "react";
@@ -183,13 +183,23 @@ export default function ListingPresentationPage() {
     },
   });
 
+  const getBrandedUrl = (id: number) => `${window.location.origin}/p/${id}`;
+
+  const copyLink = (id: number) => {
+    navigator.clipboard.writeText(getBrandedUrl(id));
+    toast.success("Link copied to clipboard!");
+  };
+
   const generateMutation = trpc.listingPresentation.generate.useMutation({
     onSuccess: (data) => {
       setGenerating(false);
-      toast.success("Presentation ready! Opening now...");
+      toast.success("Presentation ready!", {
+        description: "Your branded link is ready to share.",
+        action: { label: "Copy Link", onClick: () => copyLink(data.id) },
+      });
       utils.listingPresentation.list.invalidate();
-      if (data.gammaUrl) window.open(data.gammaUrl, "_blank");
-      else if (data.exportUrl) window.open(data.exportUrl, "_blank");
+      // Open via branded URL to keep Gamma hidden
+      window.open(getBrandedUrl(data.id), "_blank");
       setActiveDraftId(null);
       setStep(0);
       setForm({ ...DEFAULT_FORM, agentName: user?.name ?? "" });
@@ -922,18 +932,34 @@ export default function ListingPresentationPage() {
                         </div>
                       </div>
                       <div className="flex gap-2 ml-3 shrink-0">
-                        {p.gammaUrl && (
-                          <Button size="sm" variant="outline"
-                            className="border-white/20 text-white/70 bg-transparent hover:text-amber-400"
-                            onClick={() => window.open(p.gammaUrl!, "_blank")}>
-                            <ExternalLink size={12} className="mr-1" /> View
-                          </Button>
+                        {p.status === "completed" && (
+                          <>
+                            <Button size="sm" variant="outline"
+                              className="border-white/20 text-white/70 bg-transparent hover:text-amber-400"
+                              onClick={() => window.open(getBrandedUrl(p.id), "_blank")}>
+                              <ExternalLink size={12} className="mr-1" /> View
+                            </Button>
+                            <Button size="sm" variant="outline"
+                              className="border-white/20 text-white/70 bg-transparent hover:text-amber-400 px-2"
+                              title="Copy shareable link"
+                              onClick={() => copyLink(p.id)}>
+                              <Copy size={12} />
+                            </Button>
+                          </>
                         )}
                         {p.exportUrl && (
                           <Button size="sm" variant="outline"
-                            className="border-white/20 text-white/70 bg-transparent hover:text-amber-400"
+                            className="border-white/20 text-white/70 bg-transparent hover:text-amber-400 px-2"
+                            title="Download file"
                             onClick={() => window.open(p.exportUrl!, "_blank")}>
-                            <Download size={12} className="mr-1" /> Download
+                            <Download size={12} />
+                          </Button>
+                        )}
+                        {p.status === "draft" && (
+                          <Button size="sm" variant="outline"
+                            className="border-amber-400/30 text-amber-400 bg-transparent hover:bg-amber-400/10"
+                            onClick={() => resumeDraft(p)}>
+                            <RefreshCw size={12} className="mr-1" /> Resume
                           </Button>
                         )}
                         <Button size="sm" variant="outline"

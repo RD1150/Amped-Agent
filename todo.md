@@ -4565,3 +4565,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add monthly credit allowances per tier (Starter: 50, Pro: 150, Agency: 500)
 - [ ] Update pricing page display with new prices and credit inclusions
 - [ ] Update feature lists on pricing page to reflect premium positioning
+
+## Branded Presentation Redirect (Apr 2026)
+- [x] Add GET /p/:id server route that looks up gammaUrl and redirects (hides Gamma domain)
+- [x] Update Listing Presentation UI to use /p/:id for share links and "View" buttons
+- [x] Add copy-link button that copies the branded URL

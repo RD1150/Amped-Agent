@@ -9,6 +9,9 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import uploadEndpoint from "../uploadEndpoint";
 import { recoverStuckCinematicJobs } from "../routers/cinematicWalkthrough";
+import { getDb } from "../db";
+import { listingPresentations } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -39,6 +42,31 @@ async function startServer() {
   registerOAuthRoutes(app);
   // Direct upload endpoint (bypasses tRPC for large files)
   app.use("/api", uploadEndpoint);
+
+  // ── Branded presentation redirect: /p/:id → Gamma URL ──────────────────────
+  // Hides the Gamma domain from agents and sellers — they only see ampedagent.app/p/123
+  app.get("/p/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) { res.status(404).send("Presentation not found"); return; }
+      const db = await getDb();
+      if (!db) { res.status(503).send("Service unavailable"); return; }
+      const [pres] = await db
+        .select({ gammaUrl: listingPresentations.gammaUrl, status: listingPresentations.status })
+        .from(listingPresentations)
+        .where(eq(listingPresentations.id, id))
+        .limit(1);
+      if (!pres) { res.status(404).send("Presentation not found"); return; }
+      if (pres.status !== "completed" || !pres.gammaUrl) {
+        res.status(404).send("Presentation not ready yet"); return;
+      }
+      // 302 temporary redirect — keeps the branded URL intact for sharing
+      res.redirect(302, pres.gammaUrl);
+    } catch (err) {
+      console.error("[/p/:id] Error:", err);
+      res.status(500).send("Server error");
+    }
+  });
   // tRPC API
   app.use(
     "/api/trpc",
