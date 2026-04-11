@@ -829,7 +829,7 @@ function DashboardLayoutContent({
           <div className="flex items-center gap-3">
             <CreditBalanceDisplay />
             <button
-              onClick={() => setLocation("/authority-profile")}
+              onClick={() => setLocation("/settings")}
               className="text-sm text-white/60 hover:text-white transition-colors"
             >
               Account
