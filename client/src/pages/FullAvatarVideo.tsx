@@ -408,7 +408,7 @@ export default function FullAvatarVideo() {
             <div>
               <h2 className="text-2xl font-bold mb-2">Agency Feature</h2>
               <p className="text-muted-foreground">
-                Full Avatar Video is available on the <strong>Pro</strong> and <strong>Agency</strong> plans.
+                Avatar Video is available on the <strong>Pro</strong> and <strong>Agency</strong> plans.
                 Generate Captions/Mirage-quality talking-head videos with 1,200+ stock avatars and 2,000+ voices — all without leaving the platform.
               </p>
             </div>
@@ -459,7 +459,7 @@ export default function FullAvatarVideo() {
             <User className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Full Avatar Video</h1>
+            <h1 className="text-3xl font-bold">Avatar Video</h1>
             <p className="text-muted-foreground text-sm">Your AI twin delivers your entire script — no background photos needed</p>
           </div>
         </div>
@@ -1389,7 +1389,7 @@ export default function FullAvatarVideo() {
           {isGenerating ? (
             <><Loader2 className="mr-2 h-5 w-5 animate-spin" />{generationStep || "Generating…"}</>
           ) : (
-            <><Sparkles className="mr-2 h-5 w-5" />Generate Full Avatar Video</>
+            <><Sparkles className="mr-2 h-5 w-5" />Generate Avatar Video</>
           )}
         </Button>
 

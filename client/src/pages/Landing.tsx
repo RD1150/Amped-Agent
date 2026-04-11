@@ -50,7 +50,7 @@ export default function Landing() {
     },
     {
       icon: Camera,
-      name: "Full Avatar Video",
+      name: "Avatar Video",
       tagline: "Your AI twin. Any script. Any time.",
       description:
         "Upload your photo once. Generate unlimited talking-head videos of yourself — market updates, buyer tips, listing announcements — without ever recording again.",

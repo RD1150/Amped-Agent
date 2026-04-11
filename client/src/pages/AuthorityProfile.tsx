@@ -47,7 +47,7 @@ function PhotoAvatarCard() {
     onError: (e) => toast.error(`Retry failed: ${e.message}`),
   });
   const deleteAvatarMutation = trpc.fullAvatarVideo.deleteCustomAvatar.useMutation({
-    onSuccess: () => { toast.success("Avatar deleted. Head to Full Avatar Video to upload a new headshot."); refetchTwin(); },
+    onSuccess: () => { toast.success("Avatar deleted. Head to Avatar Video to upload a new headshot."); refetchTwin(); },
     onError: (e) => toast.error(`Delete failed: ${e.message}`),
   });
 
@@ -58,10 +58,10 @@ function PhotoAvatarCard() {
       <h2 className="text-xl font-semibold mb-1 flex items-center gap-2">
         <Video className="h-5 w-5" />
         AI Photo Avatar
-        <span className="text-xs font-normal text-muted-foreground ml-1">Full Avatar Video</span>
+        <span className="text-xs font-normal text-muted-foreground ml-1">Avatar Video</span>
       </h2>
       <p className="text-sm text-muted-foreground mb-4">
-        Your personal AI avatar that speaks your scripts in Full Avatar Videos.
+        Your personal AI avatar that speaks your scripts in Avatar Videos.
       </p>
 
       {twinStatus?.status === "ready" ? (
@@ -88,7 +88,7 @@ function PhotoAvatarCard() {
             <p className="font-semibold text-sm text-primary dark:text-green-400">Avatar ready</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.
-              Used automatically when you select "Your Photo Avatar" in Full Avatar Video.
+              Used automatically when you select "Your Photo Avatar" in Avatar Video.
             </p>
           </div>
           {/* Action */}
@@ -123,7 +123,7 @@ function PhotoAvatarCard() {
             <span className="text-xl leading-none mt-0.5">⚠️</span>
             <div>
               <p className="font-semibold text-sm text-destructive">Avatar creation failed</p>
-              <p className="text-xs text-muted-foreground mt-0.5">The avatar creation didn't complete. No credits were charged. Please delete and try again from Full Avatar Video.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">The avatar creation didn't complete. No credits were charged. Please delete and try again from Avatar Video.</p>
             </div>
           </div>
           <Button size="sm" variant="destructive" onClick={() => deleteAvatarMutation.mutate()} disabled={deleteAvatarMutation.isPending} className="text-xs w-full">
@@ -138,7 +138,7 @@ function PhotoAvatarCard() {
           <div className="flex-1">
             <p className="font-semibold text-sm">No avatar set up yet</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Upload a headshot photo in Full Avatar Video to create your personal AI avatar.
+              Upload a headshot photo in Avatar Video to create your personal AI avatar.
             </p>
           </div>
           <Link href="/full-avatar-video">

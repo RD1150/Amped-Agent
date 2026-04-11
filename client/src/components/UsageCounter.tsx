@@ -84,7 +84,7 @@ export default function UsageCounter() {
           )}
         </div>
 
-        {/* Full Avatar Videos */}
+        {/* Avatar Videos */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -92,7 +92,7 @@ export default function UsageCounter() {
                 <UserCircle2 className="w-4 h-4 text-primary" />
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-sm font-medium">Full Avatar Videos</span>
+                <span className="text-sm font-medium">Avatar Videos</span>
                 {isPremiumOrPro && (
                   <span className="text-[10px] font-semibold uppercase tracking-wide bg-primary/15 text-primary px-1.5 py-0.5 rounded-full">
                     {avatarUsage?.tier === "Agency" ? "Agency" : "Pro"}
@@ -134,7 +134,7 @@ export default function UsageCounter() {
       {tier === "Starter" && (
         <div className="mt-5 p-4 bg-primary/10 rounded-lg">
           <p className="text-sm text-muted-foreground mb-3">
-            Upgrade to Professional or Agency for unlimited video generation and Full Avatar Videos
+            Upgrade to Professional or Agency for unlimited video generation and Avatar Videos
           </p>
           <Button
             onClick={() => setLocation("/credits")}

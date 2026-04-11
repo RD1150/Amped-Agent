@@ -196,7 +196,6 @@ const menuSections = [
         label: "Listing Presentation",
         path: "/listing-presentation",
         description: "AI-generated 10-slide listing appointment deck",
-        badge: "New",
         hoverInfo: {
           tagline: "Generate a polished listing appointment presentation in minutes — powered by Gamma AI.",
           details: [
@@ -285,7 +284,7 @@ const menuSections = [
       },
       {
         icon: UserCircle,
-        label: "Full Avatar Video",
+        label: "Avatar Video",
         path: "/full-avatar-video",
         description: "Full talking-head video from your script",
         badge: "New",
@@ -330,7 +329,7 @@ const menuSections = [
             { label: "Format", value: "Two-column: spoken words + visual prompt per scene" },
             { label: "Best for", value: "Intro videos, market updates, testimonials, tips" },
             { label: "AI assist", value: "Auto-generate visual prompts or full scripts from a brief" },
-            { label: "Export", value: "Use with Full Avatar Video or YouTube Builder" },
+            { label: "Export", value: "Use with Avatar Video or YouTube Builder" },
           ],
         },
       },

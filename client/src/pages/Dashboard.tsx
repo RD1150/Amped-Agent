@@ -465,7 +465,7 @@ export default function Dashboard() {
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Social</span>
               </div>
               <div>
-                <p className="font-semibold text-sm">Full Avatar Video</p>
+                <p className="font-semibold text-sm">Avatar Video</p>
                 <p className="text-xs text-muted-foreground">Talking-head from script · 15 credits</p>
               </div>
             </div>

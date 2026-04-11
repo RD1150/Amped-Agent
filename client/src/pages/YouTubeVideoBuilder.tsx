@@ -248,7 +248,7 @@ export default function YouTubeVideoBuilder() {
 
   const handleGenerateVideo = () => {
     if (!twinStatus || twinStatus.status !== "ready") {
-      toast.error("Please train your digital twin in Full Avatar Video first");
+      toast.error("Please train your digital twin in Avatar Video first");
       navigate("/full-avatar-video");
       return;
     }
@@ -560,8 +560,8 @@ export default function YouTubeVideoBuilder() {
             {twinStatus?.status !== "ready" ? (
               <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm">
                 <p className="font-medium text-amber-700 dark:text-amber-400 mb-2">Digital twin not ready</p>
-                <p className="text-muted-foreground mb-3">Train your digital twin in Full Avatar Video first.</p>
-                <Button variant="outline" size="sm" onClick={() => navigate("/full-avatar-video")}>Go to Full Avatar Video →</Button>
+                <p className="text-muted-foreground mb-3">Train your digital twin in Avatar Video first.</p>
+                <Button variant="outline" size="sm" onClick={() => navigate("/full-avatar-video")}>Go to Avatar Video →</Button>
               </div>
             ) : (
               <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm">

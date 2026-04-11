@@ -439,7 +439,7 @@ export default function MyVideos() {
             <h3 className="text-lg font-semibold">No videos yet</h3>
             <p className="text-muted-foreground text-sm mt-1 max-w-xs">
               {sourceFilter === "all"
-                ? "Generate your first video using Property Slideshow, AI Motion Tour, AI Reels, or Full Avatar Video."
+                ? "Generate your first video using Property Slideshow, AI Motion Tour, AI Reels, or Avatar Video."
                 : `You haven't created any ${
                     FILTER_TABS.find((t) => t.value === sourceFilter)?.label ?? "videos"
                   } yet.`}

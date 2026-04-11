@@ -633,7 +633,7 @@ export default function VideoScriptBuilder() {
                       Ready to generate your video?
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Copy your spoken script and use it in Full Avatar Video or YouTube Builder.
+                      Copy your spoken script and use it in Avatar Video or YouTube Builder.
                     </p>
                   </div>
                   <div className="flex gap-2 shrink-0">
@@ -644,7 +644,7 @@ export default function VideoScriptBuilder() {
                       onClick={() => {
                         const text = scenes.map((s) => s.spokenScript).join("\n\n");
                         navigator.clipboard.writeText(text);
-                        toast.success("Script copied! Paste it into Full Avatar Video or YouTube Builder.");
+                        toast.success("Script copied! Paste it into Avatar Video or YouTube Builder.");
                       }}
                     >
                       <Copy className="h-3.5 w-3.5 mr-1.5" />

@@ -1105,7 +1105,7 @@ export default function PropertyTours() {
                   <div className="text-center py-4">
                     <UserCircle2 className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                     <p className="text-sm text-muted-foreground">No avatars set up yet.</p>
-                    <p className="text-xs text-muted-foreground mt-1">Go to <strong>Full Avatar Video</strong> to create your personal AI avatar first.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Go to <strong>Avatar Video</strong> to create your personal AI avatar first.</p>
                   </div>
                 )}
 

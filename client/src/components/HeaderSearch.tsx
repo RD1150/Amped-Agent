@@ -20,7 +20,7 @@ const ALL_PAGES = [
   { icon: Building2,   label: "Property Slideshow",           path: "/property-tours",       section: "LISTINGS", description: "Ken Burns video for any listing" },
   { icon: Film,        label: "AI Motion Tour",          path: "/cinematic-walkthrough",section: "LISTINGS", description: "AI-animated cinematic property tour" },
   { icon: Video,       label: "AI Reels",                path: "/autoreels",            section: "LISTINGS", description: "Short avatar intro clips" },
-  { icon: UserCircle,  label: "Full Avatar Video",       path: "/full-avatar-video",    section: "LISTINGS", description: "Talking-head video from your script" },
+  { icon: UserCircle,  label: "Avatar Video",       path: "/full-avatar-video",    section: "LISTINGS", description: "Talking-head video from your script" },
   { icon: FileVideo2,  label: "My Videos",               path: "/my-videos",            section: "LISTINGS", description: "All your generated videos" },
   { icon: Calendar,    label: "Content Calendar",        path: "/calendar",             section: "PUBLISH", description: "Schedule and manage all posts" },
   { icon: Upload,      label: "Bulk Import",             path: "/bulk-import",          section: "PUBLISH", description: "Import content ideas from CSV" },

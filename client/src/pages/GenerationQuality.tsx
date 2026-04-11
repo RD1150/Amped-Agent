@@ -6,7 +6,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Link } from "wouter";
 
 const TOOL_LABELS: Record<string, string> = {
-  full_avatar_video: "Full Avatar Video",
+  full_avatar_video: "Avatar Video",
   ai_reels: "AI Reels",
   property_tour: "Property Tour",
   post_builder: "Post Builder",
