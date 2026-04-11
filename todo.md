@@ -4536,3 +4536,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add reset rotation button to Post Builder city indicator
 - [x] Add city rotation indicator and cityIndex to Blog Builder
 - [x] Add city quick-pick selector to Market Insights
+
+## City Persistence & Batch (Apr 2026 - Session 5)
+- [x] Persist city rotation index to localStorage in Post Builder and Blog Builder
+- [x] Add batch Generate for All Cities mode to Blog Builder
+- [x] Add city market badge to My Videos video cards

@@ -26,6 +26,7 @@ import {
   Trash2,
   Smartphone,
   Share2,
+  MapPin,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -42,6 +43,7 @@ interface UnifiedVideo {
   status: 'processing' | 'completed' | 'failed' | 'rendering';
   durationSeconds: number | null;
   createdAt: Date;
+  city?: string | null;
   metadata?: Record<string, unknown>;
 }
 
@@ -311,12 +313,21 @@ export default function MyVideos() {
                     <h3 className="font-semibold text-sm leading-tight line-clamp-2">
                       {video.title}
                     </h3>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
                       <span>{formatDate(video.createdAt)}</span>
                       {video.durationSeconds && (
                         <>
                           <span>·</span>
                           <span>{formatDuration(video.durationSeconds)}</span>
+                        </>
+                      )}
+                      {video.city && (
+                        <>
+                          <span>·</span>
+                          <span className="inline-flex items-center gap-0.5 text-primary/70">
+                            <MapPin className="h-2.5 w-2.5" />
+                            {video.city}
+                          </span>
                         </>
                       )}
                     </div>

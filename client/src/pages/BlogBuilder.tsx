@@ -29,7 +29,13 @@ export default function BlogBuilder() {
   const [, navigate] = useLocation();
   const [topic, setTopic] = useState("");
   const [city, setCity] = useState("");
-  const [cityRotationIndex, setCityRotationIndex] = useState(0);
+  const [cityRotationIndex, setCityRotationIndex] = useState<number>(() => {
+    try { return parseInt(localStorage.getItem("blogBuilder_cityRotationIndex") || "0", 10) || 0; } catch { return 0; }
+  });
+  const persistCityIndex = (idx: number) => {
+    setCityRotationIndex(idx);
+    try { localStorage.setItem("blogBuilder_cityRotationIndex", String(idx)); } catch {};
+  };
   const { data: persona } = trpc.persona.get.useQuery();
 
   // Parse service cities for rotation
@@ -56,6 +62,7 @@ export default function BlogBuilder() {
   const [expandedPost, setExpandedPost] = useState<number | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [schedulePost, setSchedulePost] = useState<{ title: string; content: string } | null>(null);
+  const [batchProgress, setBatchProgress] = useState<{ current: number; total: number } | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -88,8 +95,36 @@ export default function BlogBuilder() {
     generateMutation.mutate({ topic: topic.trim(), city: effectiveCity, niche, tone, wordCount });
     // Advance city rotation for next post
     if (!city.trim() && parsedServiceCities.length > 1) {
-      setCityRotationIndex((prev) => (prev + 1) % parsedServiceCities.length);
+      persistCityIndex((cityRotationIndex + 1) % parsedServiceCities.length);
     }
+  };
+
+  const handleBatchGenerate = async () => {
+    if (!topic.trim()) {
+      toast.error("Enter a blog topic before generating for all cities.");
+      return;
+    }
+    if (parsedServiceCities.length < 2) {
+      toast.error("Add at least 2 service cities in your profile to use batch mode.");
+      return;
+    }
+    setBatchProgress({ current: 0, total: parsedServiceCities.length });
+    for (let i = 0; i < parsedServiceCities.length; i++) {
+      const entry = parsedServiceCities[i];
+      const lbl = `${entry.city}${entry.state ? ", " + entry.state : ""}`;
+      setBatchProgress({ current: i + 1, total: parsedServiceCities.length });
+      await new Promise<void>((resolve, reject) => {
+        generateMutation.mutate(
+          { topic: topic.trim(), city: lbl, niche, tone, wordCount },
+          { onSuccess: () => resolve(), onError: (e) => { toast.error(`Failed for ${lbl}: ${e.message}`); resolve(); } }
+        );
+      });
+      // Small delay between requests
+      if (i < parsedServiceCities.length - 1) await new Promise(r => setTimeout(r, 1200));
+    }
+    setBatchProgress(null);
+    persistCityIndex(0);
+    toast.success(`Generated ${parsedServiceCities.length} blog posts — one for each market!`, { icon: "🎉" });
   };
 
   const copyToClipboard = (text: string, label: string) => {
@@ -156,7 +191,7 @@ export default function BlogBuilder() {
                 {parsedServiceCities.length > 1 && cityRotationIndex !== 0 && !city.trim() && (
                   <button
                     type="button"
-                    onClick={() => setCityRotationIndex(0)}
+                    onClick={() => persistCityIndex(0)}
                     className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
                   >
                     <RefreshCw className="w-3 h-3" /> Reset
@@ -178,7 +213,7 @@ export default function BlogBuilder() {
                       <button
                         key={i}
                         type="button"
-                        onClick={() => setCityRotationIndex(i)}
+                        onClick={() => persistCityIndex(i)}
                         className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
                           isActive
                             ? "bg-primary text-primary-foreground border-primary"
@@ -248,24 +283,48 @@ export default function BlogBuilder() {
             </div>
           </div>
 
-          <Button
-            onClick={handleGenerate}
-            disabled={generateMutation.isPending || !topic.trim()}
-            className="w-full sm:w-auto"
-            size="lg"
-          >
-            {generateMutation.isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Writing your post…
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4 mr-2" />
-                Generate Blog Post
-              </>
+          <div className="flex flex-wrap gap-2 items-center">
+            <Button
+              onClick={handleGenerate}
+              disabled={generateMutation.isPending || !!batchProgress || !topic.trim()}
+              className="w-full sm:w-auto"
+              size="lg"
+            >
+              {generateMutation.isPending && !batchProgress ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Writing your post…
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate Blog Post
+                </>
+              )}
+            </Button>
+
+            {parsedServiceCities.length > 1 && (
+              <Button
+                variant="outline"
+                onClick={handleBatchGenerate}
+                disabled={generateMutation.isPending || !!batchProgress || !topic.trim()}
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                {batchProgress ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating {batchProgress.current}/{batchProgress.total}…
+                  </>
+                ) : (
+                  <>
+                    <Repeat2 className="h-4 w-4 mr-2" />
+                    Generate for All {parsedServiceCities.length} Cities
+                  </>
+                )}
+              </Button>
             )}
-          </Button>
+          </div>
         </CardContent>
       </Card>
 

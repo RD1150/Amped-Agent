@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
-import { generatedVideos, propertyTours, aiReels, cinematicJobs, fullAvatarVideos, liveTourJobs } from '../../drizzle/schema';
+import { generatedVideos, propertyTours, aiReels, cinematicJobs, fullAvatarVideos, liveTourJobs, personas } from '../../drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
 export type UnifiedVideo = {
@@ -13,6 +13,7 @@ export type UnifiedVideo = {
   status: 'processing' | 'completed' | 'failed' | 'rendering';
   durationSeconds: number | null;
   createdAt: Date;
+  city?: string | null; // Market/city badge for the video card
   metadata?: Record<string, unknown>;
 };
 
@@ -29,6 +30,32 @@ export const myVideosRouter = router({
       const userId = ctx.user.id;
       const src = input?.source ?? 'all';
       const results: UnifiedVideo[] = [];
+
+      // Helper: extract city from an address string (last 1-2 parts before zip/state)
+      const cityFromAddress = (addr: string | null | undefined): string | null => {
+        if (!addr) return null;
+        // Try to extract city from "123 Main St, Austin, TX 78701" → "Austin, TX"
+        const parts = addr.split(',').map(s => s.trim());
+        if (parts.length >= 3) return `${parts[parts.length - 2]}, ${parts[parts.length - 1].replace(/\s*\d{5}.*/, '').trim()}`;
+        if (parts.length === 2) return parts[1].replace(/\s*\d{5}.*/, '').trim();
+        return null;
+      };
+
+      // Fetch persona for agent's primary city (used for non-address videos)
+      const personaRows = await db!.select().from(personas).where(eq(personas.userId, userId)).limit(1);
+      const agentCityLabel = (() => {
+        const p = personaRows[0];
+        if (!p) return null;
+        try {
+          const sc = p.serviceCities ? JSON.parse(p.serviceCities as string) : null;
+          if (Array.isArray(sc) && sc.length > 0) {
+            const first = sc[0];
+            if (typeof first === 'string') return first;
+            if (first?.city) return `${first.city}${first.state ? ', ' + first.state : ''}`;
+          }
+        } catch {}
+        return p.primaryCity ? `${p.primaryCity}${p.primaryState ? ', ' + p.primaryState : ''}` : null;
+      })();
 
       // 1. Listing Videos (property_tours table)
       if (src === 'all' || src === 'listing_video') {
@@ -48,6 +75,7 @@ export const myVideosRouter = router({
             status: r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
             durationSeconds: null,
             createdAt: r.createdAt,
+            city: cityFromAddress(r.address),
           });
         }
       }
@@ -63,15 +91,17 @@ export const myVideosRouter = router({
           if (!r.videoUrl && r.status !== 'done') continue;
           let snap: Record<string, unknown> = {};
           try { snap = r.inputSnapshot ? JSON.parse(r.inputSnapshot) : {}; } catch {}
+          const cinAddr = (snap.address as string) ?? (snap.propertyAddress as string) ?? null;
           results.push({
             id: `cinematic_${r.id}`,
             source: 'cinematic_tour',
-            title: (snap.address as string) ?? (snap.propertyAddress as string) ?? 'Cinematic Tour',
+            title: cinAddr ?? 'Cinematic Tour',
             videoUrl: r.videoUrl ?? null,
             thumbnailUrl: null,
             status: r.status === 'done' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
             durationSeconds: null,
             createdAt: r.createdAt,
+            city: cityFromAddress(cinAddr),
             metadata: { jobId: r.id },
           });
         }
@@ -96,6 +126,7 @@ export const myVideosRouter = router({
             status: r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
             durationSeconds: null,
             createdAt: r.createdAt,
+            city: agentCityLabel,
           });
         }
       }
@@ -118,6 +149,7 @@ export const myVideosRouter = router({
             status: r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
             durationSeconds: r.duration ?? null,
             createdAt: r.createdAt,
+            city: agentCityLabel,
           });
         }
       }
@@ -140,6 +172,7 @@ export const myVideosRouter = router({
             status: r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : 'processing',
             durationSeconds: null,
             createdAt: r.createdAt,
+            city: cityFromAddress(r.propertyAddress),
           });
         }
       }

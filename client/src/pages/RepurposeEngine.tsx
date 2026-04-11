@@ -352,8 +352,14 @@ export default function RepurposeEngine() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(["linkedin", "instagram", "facebook"]);
   const [result, setResult] = useState<RepurposeResult | null>(null);
   const [activePlatform, setActivePlatform] = useState<Platform | null>(null);
-  // City rotation: increments each time Generate is clicked so each post targets a different market
-  const [cityRotationIndex, setCityRotationIndex] = useState(0);
+  // City rotation: persisted to localStorage so it survives page reloads
+  const [cityRotationIndex, setCityRotationIndex] = useState<number>(() => {
+    try { return parseInt(localStorage.getItem("postBuilder_cityRotationIndex") || "0", 10) || 0; } catch { return 0; }
+  });
+  const persistCityIndex = (idx: number) => {
+    setCityRotationIndex(idx);
+    try { localStorage.setItem("postBuilder_cityRotationIndex", String(idx)); } catch {}
+  };
   const { data: persona } = trpc.persona.get.useQuery();
 
   const generateBody = trpc.repurpose.generateBody.useMutation({
@@ -405,7 +411,7 @@ export default function RepurposeEngine() {
         return Array.isArray(parsed) ? parsed.length : 1;
       } catch { return 1; }
     })();
-    if (cityCount > 1) setCityRotationIndex((prev) => (prev + 1) % cityCount);
+    if (cityCount > 1) persistCityIndex((cityRotationIndex + 1) % cityCount);
   };
 
   const handleReset = () => {
@@ -562,7 +568,7 @@ export default function RepurposeEngine() {
                           {activeIdx !== 0 && (
                             <button
                               type="button"
-                              onClick={() => setCityRotationIndex(0)}
+                              onClick={() => persistCityIndex(0)}
                               className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
                             >
                               <RefreshCw className="w-3 h-3" /> Reset
@@ -576,7 +582,7 @@ export default function RepurposeEngine() {
                               <button
                                 key={i}
                                 type="button"
-                                onClick={() => setCityRotationIndex(i)}
+                                onClick={() => persistCityIndex(i)}
                                 className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
                                   i === activeIdx
                                     ? "bg-primary text-primary-foreground border-primary"
