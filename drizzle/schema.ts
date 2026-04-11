@@ -983,14 +983,57 @@ export const listingPresentations = mysqlTable("listing_presentations", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   title: varchar("title", { length: 500 }).notNull(),
+
+  // ── Property Details ──────────────────────────────────────────────────────
   propertyAddress: varchar("propertyAddress", { length: 500 }),
+  listingPrice: varchar("listingPrice", { length: 100 }),
+  bedrooms: varchar("bedrooms", { length: 20 }),
+  bathrooms: varchar("bathrooms", { length: 20 }),
+  squareFeet: varchar("squareFeet", { length: 50 }),
+  lotSize: varchar("lotSize", { length: 100 }),
+  yearBuilt: varchar("yearBuilt", { length: 10 }),
+  propertyType: varchar("propertyType", { length: 100 }),
+  hoaFee: varchar("hoaFee", { length: 100 }),
+  listingDescription: text("listingDescription"),
+  keyFeatures: text("keyFeatures"),
+
+  // ── Photos (S3 URLs stored as JSON array) ─────────────────────────────────
+  photoUrls: text("photoUrls"), // JSON string[] — null means empty array
+
+  // ── CMA / Market Data ─────────────────────────────────────────────────────
+  // comps stored as JSON: [{address, price, sqft, pricePerSqft, daysOnMarket, soldDate}][]
+  comparableSales: text("comparableSales"),
+  marketOverview: text("marketOverview"), // free-text or auto-populated from Market Insights
+  suggestedPriceRange: varchar("suggestedPriceRange", { length: 200 }),
+  pricingRationale: text("pricingRationale"),
+
+  // ── Agent Bio & Stats ─────────────────────────────────────────────────────
+  agentName: varchar("agentName", { length: 255 }),
+  agentHeadshotUrl: text("agentHeadshotUrl"),
+  agentBio: text("agentBio"),
+  agentStats: text("agentStats"), // free-text: years exp, homes sold, avg DOM, etc.
+  agentTestimonials: text("agentTestimonials"), // JSON {author, text}[]
+
+  // ── Marketing Plan ────────────────────────────────────────────────────────
+  // channels stored as JSON string[]: ["MLS", "Zillow", "Social", "Email", "Open House", "Video Tour"]
+  marketingChannels: text("marketingChannels"),
+  marketingDetails: text("marketingDetails"), // free-text elaboration
+  openHouseStrategy: text("openHouseStrategy"),
+  timelineToList: text("timelineToList"), // free-text week-by-week plan
+
+  // ── Gamma Output ─────────────────────────────────────────────────────────
   gammaId: varchar("gammaId", { length: 255 }),
   gammaUrl: text("gammaUrl"),
   exportUrl: text("exportUrl"),
-  exportFormat: mysqlEnum("exportFormat", ["pdf", "pptx"]).default("pdf"),
-  status: mysqlEnum("status", ["generating", "completed", "failed"]).default("generating").notNull(),
-  inputData: text("inputData"), // JSON blob of form inputs
+  exportFormat: mysqlEnum("exportFormat", ["pdf", "pptx"]).default("pptx"),
+
+  // ── Status & Metadata ────────────────────────────────────────────────────
+  // draft = being built by agent, generating = sent to Gamma, completed = ready, failed = error
+  status: mysqlEnum("status", ["draft", "generating", "completed", "failed"]).default("draft").notNull(),
+  inputData: text("inputData"), // full JSON snapshot of all inputs at generation time
+  creditsCost: int("creditsCost").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 export type ListingPresentation = typeof listingPresentations.$inferSelect;
 export type InsertListingPresentation = typeof listingPresentations.$inferInsert;

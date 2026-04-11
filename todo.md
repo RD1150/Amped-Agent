@@ -4551,3 +4551,17 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add Authority Profile quick-link at top of Settings page
 - [x] Fetch and display avatar thumbnail after adding an Avatar ID
 - [x] Add Test Avatar button for a short 5-second test render
+
+## Listing Presentation Rebuild (Apr 2026)
+- [x] Update DB schema — add draft status, photos JSON, CMA fields, marketing plan fields
+- [x] Rebuild multi-step UI with save/resume drafts, photo upload, CMA, agent stats, marketing plan
+- [x] Update server router — save drafts, load existing, enrich Gamma prompt with all data
+- [x] Add saved presentations list with resume/view/delete actions
+- [x] Pricing updated to $79/$149/$299 with monthly credit allowances
+- [ ] Add View Presentation button on result card
+- [ ] Add Gamma API key missing error message with Settings link
+## Pricing Update (Apr 2026)
+- [ ] Update Starter to $79/mo ($790/yr), Pro to $149/mo ($1490/yr), Agency to $299/mo ($2990/yr)
+- [ ] Add monthly credit allowances per tier (Starter: 50, Pro: 150, Agency: 500)
+- [ ] Update pricing page display with new prices and credit inclusions
+- [ ] Update feature lists on pricing page to reflect premium positioning

@@ -1,6 +1,11 @@
 /**
  * Stripe Product Configuration for AmpedAgent
  * Defines the 3 subscription tiers with pricing and features
+ *
+ * Pricing (updated Apr 2026):
+ *   Starter  $79/mo  — solo agents, 50 credits/mo included
+ *   Pro      $149/mo — active agents, 150 credits/mo included
+ *   Agency   $299/mo — top producers & teams, 500 credits/mo included
  */
 
 export interface StripeProduct {
@@ -8,11 +13,12 @@ export interface StripeProduct {
   description: string;
   tier: "starter" | "pro" | "agency";
   priceMonthly: number; // in cents
-  priceYearly: number; // in cents (with 20% discount)
+  priceYearly: number; // in cents (2 months free = 10× monthly)
   priceIdMonthly?: string; // Will be set after creating in Stripe
   priceIdYearly?: string; // Will be set after creating in Stripe
   productId?: string; // Will be set after creating in Stripe
   trialDays: number;
+  monthlyCredits: number; // Credits included with monthly subscription
   features: {
     contentGeneration: boolean;
     templates: number;
@@ -21,6 +27,7 @@ export interface StripeProduct {
     instagramIntegration: boolean;
     aiVideos: number; // -1 = unlimited
     listingPhotoVideos: boolean;
+    listingPresentation: boolean;
     voiceCloning: boolean;
     teamSeats: number;
     whiteLabel: boolean;
@@ -34,14 +41,15 @@ export interface StripeProduct {
 export const STRIPE_PRODUCTS: StripeProduct[] = [
   {
     name: "AmpedAgent Starter",
-    description: "Perfect for agents getting started with content marketing",
+    description: "The complete AI content suite for solo agents ready to dominate their market",
     tier: "starter",
-    priceMonthly: 3900, // $39/month
-    priceYearly: 39000, // $32.50/month ($390/year - 2 months free)
+    priceMonthly: 7900, // $79/month
+    priceYearly: 79000, // $790/year (2 months free)
     priceIdMonthly: "price_1SwEkxIg7t2mT914l2lYhLh7",
     priceIdYearly: "price_1SwEkxIg7t2mT914U85UGQZQ",
     productId: "prod_Tu2qUnne3JxuKt",
     trialDays: 14,
+    monthlyCredits: 50,
     features: {
       contentGeneration: true,
       templates: 50,
@@ -50,6 +58,7 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
       instagramIntegration: true,
       aiVideos: 5,
       listingPhotoVideos: true,
+      listingPresentation: true,
       voiceCloning: false,
       teamSeats: 1,
       whiteLabel: false,
@@ -57,38 +66,42 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
       support: "email-48hr",
     },
     featureList: [
+      "50 AI credits included every month",
       "Unlimited text & image posts",
       "5 AI avatar videos/month",
-      "Listing photo → video conversion",
+      "Property Tour videos",
+      "Listing Presentation builder (Gamma AI)",
+      "AI Reels & short-form video scripts",
       "50+ professional templates",
-      "AI-powered content ideas",
+      "Post & Blog Builder with city rotation",
+      "Market Insights with auto-populated stats",
+      "Lead Magnet generator",
       "Post scheduling",
       "Facebook & Instagram integration",
-      "Content calendar view",
-      "Stock image library",
-      "Basic branding",
       "Email support (48hr)",
     ],
   },
   {
     name: "AmpedAgent Pro",
-    description: "For active agents who post consistently",
+    description: "For active agents who post consistently and want to be the authority in their market",
     tier: "pro",
-    priceMonthly: 7900, // $79/month
-    priceYearly: 79000, // $65.83/month ($790/year - 2 months free)
+    priceMonthly: 14900, // $149/month
+    priceYearly: 149000, // $1,490/year (2 months free)
     priceIdMonthly: "price_1SwEkzIg7t2mT914CiNdZgkd",
     priceIdYearly: "price_1SwEkzIg7t2mT914ZibEMRwS",
     productId: "prod_Tu2qEpQy3NGNdY",
     trialDays: 14,
     recommended: true,
+    monthlyCredits: 150,
     features: {
       contentGeneration: true,
-      templates: 50,
+      templates: 100,
       scheduling: true,
       facebookIntegration: true,
       instagramIntegration: true,
       aiVideos: 20,
       listingPhotoVideos: true,
+      listingPresentation: true,
       voiceCloning: false,
       teamSeats: 1,
       whiteLabel: false,
@@ -97,14 +110,15 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     },
     featureList: [
       "Everything in Starter, plus:",
+      "150 AI credits included every month",
       "20 AI avatar videos per month",
-      "Listing photo to video conversion",
-      "3 hook options per video",
-      "AI script generation (7-30 seconds)",
+      "AI-Enhanced Property Tours (Runway B-roll)",
+      "3 hook options per reel",
+      "AI script generation",
       "Auto-generated captions with CTA",
-      "Smooth transitions & effects",
-      "Background music",
+      "Smooth transitions & background music",
       "No watermarks",
+      "Batch Blog Builder (all cities at once)",
       "Priority support (24hr)",
     ],
   },
@@ -112,12 +126,13 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     name: "AmpedAgent Agency",
     description: "The complete authority marketing suite for top producers and teams",
     tier: "agency",
-    priceMonthly: 14900, // $149/month
-    priceYearly: 149000, // $124.17/month ($1,490/year - 2 months free)
+    priceMonthly: 29900, // $299/month
+    priceYearly: 299000, // $2,990/year (2 months free)
     priceIdMonthly: "price_1SwEl1Ig7t2mT914iDGqGZ40",
     priceIdYearly: "price_1SwEl2Ig7t2mT914uAb8Wm9i",
     productId: "prod_Tu2qRnlGJmcZu8",
     trialDays: 14,
+    monthlyCredits: 500,
     features: {
       contentGeneration: true,
       templates: 100,
@@ -126,6 +141,7 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
       instagramIntegration: true,
       aiVideos: -1, // unlimited
       listingPhotoVideos: true,
+      listingPresentation: true,
       voiceCloning: true,
       teamSeats: 3,
       whiteLabel: true,
@@ -134,7 +150,9 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     },
     featureList: [
       "Everything in Pro, plus:",
+      "500 AI credits included every month",
       "UNLIMITED AI avatar videos",
+      "Full AI Cinematic Property Tours (Kling AI)",
       "Voice cloning (1 custom voice)",
       "Multiple avatar looks (3 styles)",
       "Custom branding overlays",
@@ -191,6 +209,14 @@ export function getVideoLimit(tier: "starter" | "pro" | "agency"): number {
 }
 
 /**
+ * Get monthly credit allowance for a tier
+ */
+export function getMonthlyCredits(tier: "starter" | "pro" | "agency"): number {
+  const product = getProductByTier(tier);
+  return product?.monthlyCredits ?? 0;
+}
+
+/**
  * Create Stripe products and prices
  * Run this script once: npx tsx server/stripe-products.ts
  */
@@ -209,6 +235,7 @@ export async function createStripeProducts() {
         tier: product.tier,
         aiVideos: product.features.aiVideos.toString(),
         teamSeats: product.features.teamSeats.toString(),
+        monthlyCredits: product.monthlyCredits.toString(),
       },
     });
 

@@ -2,6 +2,11 @@
  * Shared Pricing Constants
  * Safe to import from both client and server code.
  * Does NOT use process.env (would break in browser).
+ *
+ * Pricing (updated Apr 2026):
+ *   Starter  $79/mo  — 50 credits/mo included
+ *   Pro      $149/mo — 150 credits/mo included
+ *   Agency   $299/mo — 500 credits/mo included
  */
 
 export type SubscriptionTier = 'starter' | 'pro' | 'agency';
@@ -13,6 +18,7 @@ export interface PricingTier {
   description: string;
   monthlyPrice: number;
   yearlyPrice: number;
+  monthlyCredits: number; // AI credits included with subscription each month
   features: string[];
   limits: {
     postsPerMonth: number | 'unlimited';
@@ -28,21 +34,26 @@ export const PRICING_TIERS: Record<SubscriptionTier, PricingTier> = {
     name: 'Starter',
     tagline: 'Show Up Consistently',
     description: 'For agents ready to stop winging their content and start showing up like a pro.',
-    monthlyPrice: 59,
-    yearlyPrice: 590,
+    monthlyPrice: 79,
+    yearlyPrice: 790,
+    monthlyCredits: 50,
     features: [
-      '25 AI-generated posts per month',
-      'Property tour slideshow videos',
+      '50 AI credits included every month',
+      'Unlimited text & image posts',
+      'Property Tour videos',
       'AI Reels for social media',
-      'YouTube thumbnail generator',
-      'Content calendar',
+      'Listing Presentation builder',
+      'Post & Blog Builder with city rotation',
+      'Market Insights with live stats',
+      'Lead Magnet generator',
+      'Content calendar & scheduling',
       '3 social media connections',
-      'Email support',
+      'Email support (48hr)',
     ],
     limits: {
-      postsPerMonth: 25,
+      postsPerMonth: 'unlimited',
       socialConnections: 3,
-      videoGenerations: 25,
+      videoGenerations: 5,
     },
   },
   pro: {
@@ -50,62 +61,71 @@ export const PRICING_TIERS: Record<SubscriptionTier, PricingTier> = {
     name: 'Pro',
     tagline: 'Dominate Your Market',
     description: 'For agents who want to be the name everyone in their city thinks of first.',
-    monthlyPrice: 99,
-    yearlyPrice: 990,
+    monthlyPrice: 149,
+    yearlyPrice: 1490,
+    monthlyCredits: 150,
     popular: true,
     features: [
-      '100 AI-generated posts per month',
-      'Unlimited property tour videos',
-      'Unlimited AI Reels',
-      'Full Avatar Video (talking-head from script)',
-      'Content calendar & scheduling',
+      'Everything in Starter, plus:',
+      '150 AI credits included every month',
+      '20 AI avatar videos per month',
+      'AI-Enhanced Property Tours (Runway B-roll)',
+      '3 hook options per reel',
+      'AI script generation',
+      'Batch Blog Builder (all cities at once)',
+      'Auto-generated captions with CTA',
+      'No watermarks',
       'Unlimited social media connections',
-      'Market Dominance Score tracker',
       'Performance analytics',
-      'Priority email support',
-      'Custom branding on all content',
+      'Priority email support (24hr)',
     ],
     limits: {
-      postsPerMonth: 100,
+      postsPerMonth: 'unlimited',
       socialConnections: 'unlimited',
-      videoGenerations: 'unlimited',
+      videoGenerations: 20,
     },
   },
   agency: {
     id: 'agency',
     name: 'Agency',
     tagline: 'Own the Entire Conversation',
-    description: 'The complete authority marketing suite. Write once, publish everywhere, and never run out of content.',
-    monthlyPrice: 149,
-    yearlyPrice: 1490,
+    description: 'The complete authority marketing suite for top producers and teams.',
+    monthlyPrice: 299,
+    yearlyPrice: 2990,
+    monthlyCredits: 500,
     features: [
       'Everything in Pro, plus:',
-      'Auto-Repurpose Engine — 1 idea → 5 formats',
-      'Lead Magnet Generator (Buyer Guide, Neighborhood Report, Market Update)',
-      '30 Script-to-Reel videos per month',
-      'Newsletter Builder (full access)',
-      'Email list management & campaigns',
+      '500 AI credits included every month',
+      'UNLIMITED AI avatar videos',
+      'Full AI Cinematic Property Tours (Kling AI)',
       'Voice cloning (1 custom voice)',
       'Multiple avatar looks (3 styles)',
-      'YouTube Video Builder (long-form)',
-      'Priority support (4-hour response)',
+      'Custom branding overlays',
+      '3 team member seats',
+      'Shared content library',
+      'White-label branding',
+      'Custom domain',
+      'API access',
+      'Advanced analytics',
+      'Priority rendering',
+      'Phone support (4hr)',
+      'Dedicated account manager',
     ],
     limits: {
       postsPerMonth: 'unlimited',
       socialConnections: 'unlimited',
-      videoGenerations: 30,
+      videoGenerations: -1, // unlimited
     },
   },
 };
 
-export const TRIAL_DAYS = 7;
+export const TRIAL_DAYS = 14;
 
 export function getUserTier(subscription: any): SubscriptionTier {
   if (!subscription || subscription.status !== 'active') {
     return 'starter';
   }
   return (subscription.tier as SubscriptionTier) || 'starter';
-
 }
 
 export function hasExceededLimit(
@@ -116,12 +136,20 @@ export function hasExceededLimit(
   const limits = PRICING_TIERS[tier].limits;
 
   if (usageType === 'posts') {
-    return limits.postsPerMonth !== 'unlimited' && currentUsage >= limits.postsPerMonth;
+    return limits.postsPerMonth !== 'unlimited' && currentUsage >= (limits.postsPerMonth as number);
   }
 
   if (usageType === 'videos') {
-    return limits.videoGenerations !== 'unlimited' && currentUsage >= limits.videoGenerations;
+    if (limits.videoGenerations === 'unlimited' || limits.videoGenerations === -1) return false;
+    return currentUsage >= (limits.videoGenerations as number);
   }
 
   return false;
+}
+
+/**
+ * Get monthly credit allowance for a tier
+ */
+export function getMonthlyCredits(tier: SubscriptionTier): number {
+  return PRICING_TIERS[tier].monthlyCredits;
 }
