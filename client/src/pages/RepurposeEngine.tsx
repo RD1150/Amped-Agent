@@ -352,6 +352,9 @@ export default function RepurposeEngine() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(["linkedin", "instagram", "facebook"]);
   const [result, setResult] = useState<RepurposeResult | null>(null);
   const [activePlatform, setActivePlatform] = useState<Platform | null>(null);
+  // City rotation: increments each time Generate is clicked so each post targets a different market
+  const [cityRotationIndex, setCityRotationIndex] = useState(0);
+  const { data: persona } = trpc.persona.get.useQuery();
 
   const generateBody = trpc.repurpose.generateBody.useMutation({
     onSuccess: (data) => {
@@ -392,7 +395,17 @@ export default function RepurposeEngine() {
       toast.error("Select at least one platform.");
       return;
     }
-    repurpose.mutate({ topic: topic.trim(), body: body.trim(), platforms: selectedPlatforms });
+    repurpose.mutate({ topic: topic.trim(), body: body.trim(), platforms: selectedPlatforms, cityIndex: cityRotationIndex });
+    // Advance rotation so next generation targets the next city
+    const cityCount = (() => {
+      try {
+        const raw = (persona as any)?.serviceCities;
+        if (!raw) return 1;
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed.length : 1;
+      } catch { return 1; }
+    })();
+    if (cityCount > 1) setCityRotationIndex((prev) => (prev + 1) % cityCount);
   };
 
   const handleReset = () => {
@@ -526,6 +539,23 @@ export default function RepurposeEngine() {
                     </>
                   )}
                 </Button>
+                {/* City rotation indicator */}
+                {(() => {
+                  try {
+                    const raw = (persona as any)?.serviceCities;
+                    if (!raw) return null;
+                    const parsed = JSON.parse(raw);
+                    if (!Array.isArray(parsed) || parsed.length <= 1) return null;
+                    const entry = parsed[cityRotationIndex % parsed.length];
+                    const label = typeof entry === "object" ? `${entry.city}${entry.state ? ", " + entry.state : ""}` : entry;
+                    return (
+                      <p className="text-xs text-center text-muted-foreground">
+                        Targeting market: <span className="text-primary font-medium">{label}</span>
+                        <span className="ml-1 opacity-60">({cityRotationIndex + 1}/{parsed.length})</span>
+                      </p>
+                    );
+                  } catch { return null; }
+                })()}
               </CardContent>
             </Card>
           </div>

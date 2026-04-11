@@ -43,7 +43,7 @@ export default function PersonaBrand() {
   });
   const [headshotOffsetY, setHeadshotOffsetY] = useState(50);
   const [headshotZoom, setHeadshotZoom] = useState(100);
-  const [serviceCities, setServiceCities] = useState<string[]>([""]);
+  const [serviceCities, setServiceCities] = useState<Array<{ city: string; state: string }>>([{ city: "", state: "" }]);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartY = useRef(0);
   const dragStartOffset = useRef(50);
@@ -123,14 +123,21 @@ export default function PersonaBrand() {
       setVoiceSampleUrl((persona as any).voiceSampleUrl || "");
       setHeadshotOffsetY((persona as any).headshotOffsetY ?? 50);
       setHeadshotZoom((persona as any).headshotZoom ?? 100);
-      // Load service cities
+      // Load service cities (supports legacy string[] and new {city,state}[] formats)
       if ((persona as any).serviceCities) {
         try {
           const parsed = JSON.parse((persona as any).serviceCities);
-          if (Array.isArray(parsed) && parsed.length > 0) setServiceCities(parsed);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            if (typeof parsed[0] === "object" && parsed[0] !== null && "city" in parsed[0]) {
+              setServiceCities(parsed as Array<{ city: string; state: string }>);
+            } else {
+              // Legacy: string[]
+              setServiceCities((parsed as string[]).filter(Boolean).map((c) => ({ city: c, state: (persona as any).primaryState || "" })));
+            }
+          }
         } catch { /* keep default */ }
       } else if ((persona as any).primaryCity) {
-        setServiceCities([(persona as any).primaryCity]);
+        setServiceCities([{ city: (persona as any).primaryCity, state: (persona as any).primaryState || "" }]);
       }
     }
   }, [persona]);
@@ -213,13 +220,14 @@ export default function PersonaBrand() {
 
   const handleSave = () => {
     // Send all fields — including empty strings — so clearing a value persists to the DB
-    const validCities = serviceCities.map((c) => c.trim()).filter(Boolean);
+    const validCities = serviceCities.filter((e) => e.city.trim());
     upsertPersona.mutate({
       ...formData,
       headshotOffsetY,
       headshotZoom,
       isCompleted: true,
-      primaryCity: validCities[0] || formData.serviceAreas.split(",")[0]?.trim() || "",
+      primaryCity: validCities[0]?.city || formData.serviceAreas.split(",")[0]?.trim() || "",
+      primaryState: validCities[0]?.state || "",
       serviceCities: validCities.length > 0 ? JSON.stringify(validCities) : undefined,
     });
   };
@@ -473,18 +481,41 @@ export default function PersonaBrand() {
               <span className="text-xs text-muted-foreground font-normal ml-1">(up to 5 — used for AI content)</span>
             </Label>
             <div className="space-y-2">
-              {serviceCities.map((city, idx) => (
+              {serviceCities.map((entry, idx) => (
                 <div key={idx} className="flex gap-2 items-center">
                   <Input
                     placeholder={idx === 0 ? "Primary city or county" : `City or county ${idx + 1}`}
-                    value={city}
+                    value={entry.city}
                     onChange={(e) => {
                       const updated = [...serviceCities];
-                      updated[idx] = e.target.value;
+                      updated[idx] = { ...updated[idx], city: e.target.value };
                       setServiceCities(updated);
                     }}
-                    className="bg-secondary border-border flex-1"
+                    className="bg-secondary border-border flex-1 min-w-0"
                   />
+                  <Select
+                    value={entry.state}
+                    onValueChange={(v) => {
+                      const updated = [...serviceCities];
+                      updated[idx] = { ...updated[idx], state: v };
+                      setServiceCities(updated);
+                    }}
+                  >
+                    <SelectTrigger className="w-[80px] shrink-0 bg-secondary border-border">
+                      <SelectValue placeholder="ST" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {[
+                        "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
+                        "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
+                        "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+                        "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
+                        "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"
+                      ].map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {serviceCities.length > 1 && (
                     <button
                       type="button"
@@ -500,7 +531,7 @@ export default function PersonaBrand() {
             {serviceCities.length < 5 && (
               <button
                 type="button"
-                onClick={() => setServiceCities([...serviceCities, ""])}
+                onClick={() => setServiceCities([...serviceCities, { city: "", state: "" }])}
                 className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
               >
                 <Plus className="w-3 h-3" />

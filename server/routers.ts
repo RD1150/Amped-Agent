@@ -215,7 +215,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         primaryCity: z.string().min(1).max(255),
         primaryState: z.string().min(1).max(100),
         yearsExperience: z.number().int().min(0).max(60),
-        serviceCities: z.array(z.string().min(1).max(255)).min(1).max(5).optional(),
+        serviceCities: z.array(z.object({ city: z.string().min(1).max(255), state: z.string().max(100) })).min(1).max(5).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         // Save to persona (brokerage, city, state, years)
@@ -224,7 +224,9 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
           primaryCity: input.primaryCity,
           primaryState: input.primaryState,
           yearsExperience: input.yearsExperience,
-          serviceCities: input.serviceCities ? JSON.stringify(input.serviceCities) : JSON.stringify([input.primaryCity]),
+          serviceCities: input.serviceCities
+            ? JSON.stringify(input.serviceCities)
+            : JSON.stringify([{ city: input.primaryCity, state: input.primaryState }]),
         });
         // Mark onboarding complete
         await db.markOnboardingComplete(ctx.user.id);

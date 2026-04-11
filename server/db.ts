@@ -265,25 +265,55 @@ export async function upsertPersona(userId: number, data: Partial<InsertPersona>
   }
 }
 
+export interface ServiceCity { city: string; state: string; }
+
+/**
+ * Parse serviceCities JSON — supports both legacy string[] and new {city,state}[] formats.
+ */
+export function parseServiceCities(raw: string | null | undefined): ServiceCity[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) return [];
+    // New format: [{city, state}]
+    if (typeof parsed[0] === "object" && parsed[0] !== null && "city" in parsed[0]) {
+      return (parsed as ServiceCity[]).filter((e) => e.city?.trim());
+    }
+    // Legacy format: string[]
+    return (parsed as string[]).filter(Boolean).map((c) => ({ city: c, state: "" }));
+  } catch { return []; }
+}
+
 /**
  * Returns a human-readable location string from a persona.
- * Prefers serviceCities (all cities joined) over primaryCity.
+ * Prefers serviceCities (all cities joined with per-city state) over primaryCity.
  */
 export function getServiceCitiesLabel(persona: { serviceCities?: string | null; primaryCity?: string | null; primaryState?: string | null } | null, fallback = "your area"): string {
   if (!persona) return fallback;
-  if (persona.serviceCities) {
-    try {
-      const cities: string[] = JSON.parse(persona.serviceCities);
-      if (Array.isArray(cities) && cities.length > 0) {
-        const label = cities.join(", ");
-        return persona.primaryState ? `${label}, ${persona.primaryState}` : label;
-      }
-    } catch { /* fall through */ }
+  const entries = parseServiceCities(persona.serviceCities);
+  if (entries.length > 0) {
+    return entries.map((e) => e.state ? `${e.city}, ${e.state}` : e.city).join(" | ");
   }
   if (persona.primaryCity) {
     return persona.primaryState ? `${persona.primaryCity}, ${persona.primaryState}` : persona.primaryCity;
   }
   return fallback;
+}
+
+/**
+ * Pick one city from the service cities list using a rotation index.
+ * Useful for generating hyperlocal content that cycles through all markets.
+ */
+export function pickServiceCity(persona: { serviceCities?: string | null; primaryCity?: string | null; primaryState?: string | null } | null, index = 0): string {
+  const entries = parseServiceCities(persona?.serviceCities);
+  if (entries.length > 0) {
+    const entry = entries[index % entries.length];
+    return entry.state ? `${entry.city}, ${entry.state}` : entry.city;
+  }
+  if (persona?.primaryCity) {
+    return persona.primaryState ? `${persona.primaryCity}, ${persona.primaryState}` : persona.primaryCity;
+  }
+  return "your area";
 }
 
 // ============ CONTENT POST HELPERS ============

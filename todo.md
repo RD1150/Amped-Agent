@@ -4521,3 +4521,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update repurpose router to use all service cities in LLM prompts
 - [x] Update video script builder location to use all service cities
 - [x] Update generateAvatarIntroScript to include service area context
+
+## City UX Improvements (Apr 2026 - Session 3)
+- [x] Add per-city state field to service cities input in Onboarding and PersonaBrand
+- [x] Add city rotation logic to content generation LLM prompts
+- [x] Pre-populate Lead Magnet city field from first service city
+
+## City UX Improvements (Apr 2026 - Session 3)
+- [x] Add per-city state field to service cities input in Onboarding and PersonaBrand
+- [x] Add city rotation logic to content generation LLM prompts
+- [x] Pre-populate Lead Magnet city field from first service city

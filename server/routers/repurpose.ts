@@ -31,15 +31,19 @@ export const repurposeRouter = router({
         agentName: z.string().optional(),
         city: z.string().optional(),
         targetAudience: z.string().optional(),
+        cityIndex: z.number().int().min(0).optional(), // rotation index for multi-city agents
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { topic, body, platforms, agentName, city, targetAudience } = input;
+      const { topic, body, platforms, agentName, city, targetAudience, cityIndex } = input;
 
       // Load persona for brand voice context
       const persona = await db.getPersonaByUserId(ctx.user.id);
       const name = agentName || persona?.agentName || "a real estate agent";
-      const location = city || db.getServiceCitiesLabel(persona);
+      // Use city rotation if no explicit city override is provided
+      const location = city || (cityIndex !== undefined
+        ? db.pickServiceCity(persona, cityIndex)
+        : db.getServiceCitiesLabel(persona));
       const audience = targetAudience || persona?.targetAudience || "home buyers and sellers";
       const voice = persona?.brandVoice || "professional";
 

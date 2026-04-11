@@ -19,6 +19,19 @@ const US_STATES = [
   "Wisconsin","Wyoming","Washington D.C."
 ];
 
+const US_STATES_ABBR: Record<string, string> = {
+  Alabama:"AL",Alaska:"AK",Arizona:"AZ",Arkansas:"AR",California:"CA",Colorado:"CO",
+  Connecticut:"CT",Delaware:"DE",Florida:"FL",Georgia:"GA",Hawaii:"HI",Idaho:"ID",
+  Illinois:"IL",Indiana:"IN",Iowa:"IA",Kansas:"KS",Kentucky:"KY",Louisiana:"LA",
+  Maine:"ME",Maryland:"MD",Massachusetts:"MA",Michigan:"MI",Minnesota:"MN",
+  Mississippi:"MS",Missouri:"MO",Montana:"MT",Nebraska:"NE",Nevada:"NV",
+  "New Hampshire":"NH","New Jersey":"NJ","New Mexico":"NM","New York":"NY",
+  "North Carolina":"NC","North Dakota":"ND",Ohio:"OH",Oklahoma:"OK",Oregon:"OR",
+  Pennsylvania:"PA","Rhode Island":"RI","South Carolina":"SC","South Dakota":"SD",
+  Tennessee:"TN",Texas:"TX",Utah:"UT",Vermont:"VT",Virginia:"VA",Washington:"WA",
+  "West Virginia":"WV",Wisconsin:"WI",Wyoming:"WY","Washington D.C.":"DC"
+};
+
 const EXPERIENCE_OPTIONS = [
   { value: "0", label: "Less than 1 year" },
   { value: "1", label: "1–2 years" },
@@ -30,6 +43,8 @@ const EXPERIENCE_OPTIONS = [
 
 const MAX_CITIES = 5;
 
+interface CityEntry { city: string; state: string; }
+
 interface OnboardingModalProps {
   open: boolean;
   onComplete: () => void;
@@ -37,8 +52,7 @@ interface OnboardingModalProps {
 
 export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
   const [brokerageName, setBrokerageName] = useState("");
-  const [cities, setCities] = useState<string[]>([""]);
-  const [primaryState, setPrimaryState] = useState("");
+  const [cityEntries, setCityEntries] = useState<CityEntry[]>([{ city: "", state: "" }]);
   const [yearsExperience, setYearsExperience] = useState("");
 
   const saveOnboarding = trpc.auth.saveOnboarding.useMutation({
@@ -52,33 +66,38 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
   });
 
   const addCity = () => {
-    if (cities.length < MAX_CITIES) setCities([...cities, ""]);
+    if (cityEntries.length < MAX_CITIES) setCityEntries([...cityEntries, { city: "", state: "" }]);
   };
 
-  const updateCity = (idx: number, val: string) => {
-    const updated = [...cities];
-    updated[idx] = val;
-    setCities(updated);
+  const updateCity = (idx: number, field: keyof CityEntry, val: string) => {
+    const updated = [...cityEntries];
+    updated[idx] = { ...updated[idx], [field]: val };
+    setCityEntries(updated);
   };
 
   const removeCity = (idx: number) => {
-    if (cities.length === 1) return; // keep at least one
-    setCities(cities.filter((_, i) => i !== idx));
+    if (cityEntries.length === 1) return;
+    setCityEntries(cityEntries.filter((_, i) => i !== idx));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const validCities = cities.map((c) => c.trim()).filter(Boolean);
-    if (!brokerageName.trim() || validCities.length === 0 || !primaryState || !yearsExperience) {
+    const validEntries = cityEntries.filter((e) => e.city.trim());
+    if (!brokerageName.trim() || validEntries.length === 0 || !yearsExperience) {
       toast.error("Please fill in all fields and at least one city");
       return;
     }
+    if (validEntries.some((e) => !e.state)) {
+      toast.error("Please select a state for each city");
+      return;
+    }
+    const abbr = (s: string) => US_STATES_ABBR[s] || s;
     saveOnboarding.mutate({
       brokerageName: brokerageName.trim(),
-      primaryCity: validCities[0],
-      primaryState,
+      primaryCity: validEntries[0].city.trim(),
+      primaryState: abbr(validEntries[0].state),
       yearsExperience: parseInt(yearsExperience, 10),
-      serviceCities: validCities,
+      serviceCities: validEntries.map((e) => ({ city: e.city.trim(), state: abbr(e.state) })),
     });
   };
 
@@ -113,25 +132,37 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
             />
           </div>
 
-          {/* Cities + State */}
+          {/* Cities + per-city State */}
           <div className="space-y-1.5">
             <Label className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
               What markets do you serve?
-              <span className="text-xs text-muted-foreground font-normal ml-1">(up to {MAX_CITIES} cities or counties)</span>
+              <span className="text-xs text-muted-foreground font-normal ml-1">(up to {MAX_CITIES})</span>
             </Label>
 
             <div className="space-y-2">
-              {cities.map((city, idx) => (
+              {cityEntries.map((entry, idx) => (
                 <div key={idx} className="flex gap-2 items-center">
                   <Input
                     placeholder={idx === 0 ? "Primary city or county" : `City or county ${idx + 1}`}
-                    value={city}
-                    onChange={(e) => updateCity(idx, e.target.value)}
-                    className="flex-1"
+                    value={entry.city}
+                    onChange={(e) => updateCity(idx, "city", e.target.value)}
+                    className="flex-1 min-w-0"
                     required={idx === 0}
                   />
-                  {cities.length > 1 && (
+                  <Select value={entry.state} onValueChange={(v) => updateCity(idx, "state", v)}>
+                    <SelectTrigger className="w-[90px] shrink-0">
+                      <SelectValue placeholder="State" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {US_STATES.map((state) => (
+                        <SelectItem key={state} value={state}>
+                          {US_STATES_ABBR[state] || state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {cityEntries.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeCity(idx)}
@@ -144,7 +175,7 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
               ))}
             </div>
 
-            {cities.length < MAX_CITIES && (
+            {cityEntries.length < MAX_CITIES && (
               <button
                 type="button"
                 onClick={addCity}
@@ -154,17 +185,6 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
                 Add another city or county
               </button>
             )}
-
-            <Select value={primaryState} onValueChange={setPrimaryState} required>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="State" />
-              </SelectTrigger>
-              <SelectContent className="max-h-60">
-                {US_STATES.map((state) => (
-                  <SelectItem key={state} value={state}>{state}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
 
           {/* Years of Experience */}

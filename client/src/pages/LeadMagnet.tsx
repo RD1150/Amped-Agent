@@ -315,7 +315,27 @@ export default function LeadMagnet() {
   const { data: persona } = trpc.persona.get.useQuery();
 
   const effectiveName = agentName || (persona as any)?.agentName || user?.name || "";
-  const effectiveCity = city || (persona as any)?.primaryCity || "";
+
+  // Parse service cities for the dropdown (supports both legacy string[] and new {city,state}[] formats)
+  const parsedServiceCities: Array<{ city: string; state: string }> = (() => {
+    try {
+      const raw = (persona as any)?.serviceCities;
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) return [];
+      if (typeof parsed[0] === "object" && parsed[0] !== null && "city" in parsed[0]) {
+        return parsed as Array<{ city: string; state: string }>;
+      }
+      return (parsed as string[]).filter(Boolean).map((c: string) => ({ city: c, state: (persona as any)?.primaryState || "" }));
+    } catch { return []; }
+  })();
+
+  // Auto-fill city from first service city when the field is empty
+  const firstServiceCityLabel = parsedServiceCities.length > 0
+    ? `${parsedServiceCities[0].city}${parsedServiceCities[0].state ? ", " + parsedServiceCities[0].state : ""}`
+    : (persona as any)?.primaryCity || "";
+
+  const effectiveCity = city || firstServiceCityLabel;
   const activeThemeColor = COLOR_THEMES.find(t => t.id === selectedTheme)?.hex || "#1a3a5c";
 
   const generate = trpc.leadMagnet.generate.useMutation({
@@ -602,11 +622,32 @@ export default function LeadMagnet() {
                   </Label>
                   <Input
                     id="city"
-                    placeholder="e.g. Austin, TX"
+                    placeholder={firstServiceCityLabel || "e.g. Austin, TX"}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="text-sm"
                   />
+                  {parsedServiceCities.length > 1 && (
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {parsedServiceCities.map((entry, i) => {
+                        const label = `${entry.city}${entry.state ? ", " + entry.state : ""}`;
+                        return (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setCity(label)}
+                            className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
+                              (city || firstServiceCityLabel) === label
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Neighborhood */}
