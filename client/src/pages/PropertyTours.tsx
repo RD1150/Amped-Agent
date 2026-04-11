@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X, Repeat2, UserCircle2, AlertCircle, ChevronDown, ChevronUp, Share2 } from "lucide-react";
+import { Upload, Video, Loader2, Download, Trash2, Play, Edit, RefreshCw, PartyPopper, Copy, Check, X, Repeat2, UserCircle2, AlertCircle, ChevronDown, ChevronUp, Share2, Sparkles } from "lucide-react";
 import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
@@ -108,6 +108,8 @@ export default function PropertyTours() {
   const [selectedAvatarTwinId, setSelectedAvatarTwinId] = useState<number | undefined>(undefined);
   const [avatarIntroScript, setAvatarIntroScript] = useState("");
   const [showAvatarIntroPanel, setShowAvatarIntroPanel] = useState(false);
+  const [isGeneratingIntroScript, setIsGeneratingIntroScript] = useState(false);
+  const generateAvatarIntroScript = trpc.propertyTours.generateAvatarIntroScript.useMutation();
 
   const [enableVoiceover, setEnableVoiceover] = useState(false);
   const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM"); // Rachel - professional female
@@ -1111,7 +1113,40 @@ export default function PropertyTours() {
 
                 {selectedAvatarTwinId && (
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Intro Script (optional)</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">Intro Script (optional)</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!address || isGeneratingIntroScript}
+                        onClick={async () => {
+                          if (!address) return;
+                          setIsGeneratingIntroScript(true);
+                          try {
+                            const result = await generateAvatarIntroScript.mutateAsync({
+                              address,
+                              price: price || undefined,
+                              beds: beds || undefined,
+                              baths: baths || undefined,
+                              sqft: sqft || undefined,
+                            });
+                            setAvatarIntroScript(result.script);
+                          } catch {
+                            toast.error("Failed to generate script. Try again.");
+                          } finally {
+                            setIsGeneratingIntroScript(false);
+                          }
+                        }}
+                        className="text-xs h-7 px-2 gap-1"
+                      >
+                        {isGeneratingIntroScript ? (
+                          <><Loader2 className="w-3 h-3 animate-spin" />Generating...</>
+                        ) : (
+                          <><Sparkles className="w-3 h-3" />Generate Script</>
+                        )}
+                      </Button>
+                    </div>
                     <Textarea
                       placeholder={`Hi, I'm your agent and I'm excited to show you this beautiful property. Let's take a look inside!`}
                       value={avatarIntroScript}

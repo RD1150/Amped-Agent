@@ -110,6 +110,11 @@ export default function Settings() {
     onError: (e) => toast.error(`Failed to remove avatar: ${e.message}`),
   });
   // Legacy single-avatar update (kept for backward compat)
+  const resetOnboardingMutation = trpc.auth.resetOnboarding.useMutation({
+    onSuccess: () => toast.success("Welcome tour reset. Reload the page to see it."),
+    onError: () => toast.error("Failed to reset tour."),
+  });
+
   const setAvatarIdMutation = trpc.fullAvatarVideo.setAvatarId.useMutation({
     onSuccess: () => { toast.success("Avatar ID updated successfully."); refetchAvatars(); },
     onError: (e) => toast.error(`Failed to update avatar ID: ${e.message}`),
@@ -786,6 +791,27 @@ export default function Settings() {
               </div>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Reset Welcome Tour */}
+      <Card className="bg-card border-border">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Reset Welcome Tour</p>
+              <p className="text-sm text-muted-foreground">Re-show the welcome modal and product tour on next page load</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={resetOnboardingMutation.isPending}
+              onClick={() => resetOnboardingMutation.mutate()}
+            >
+              {resetOnboardingMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+              Reset Tour
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

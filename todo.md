@@ -4500,3 +4500,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Welcome Modal Fix (Apr 2026)
 - [x] Remove outdated Authority Content branded video from welcome onboarding modal — replaced with clean feature list
+
+## UI Polish (Apr 2026 - Session 3)
+- [x] Add AI script generator button to Property Tour intro script field
+- [x] Fix MyVideos empty state copy (remove retired product names)
+- [x] Add Reset Welcome Tour button in Account Settings → Advanced

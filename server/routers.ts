@@ -204,6 +204,10 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
       .mutation(async ({ ctx }) => {
         return db.markOnboardingComplete(ctx.user.id);
       }),
+    resetOnboarding: authOnlyProcedure
+      .mutation(async ({ ctx }) => {
+        return db.resetOnboardingComplete(ctx.user.id);
+      }),
 
     saveOnboarding: authOnlyProcedure
       .input(z.object({

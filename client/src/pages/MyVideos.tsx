@@ -47,16 +47,16 @@ interface UnifiedVideo {
 
 const SOURCE_CONFIG: Record<VideoSource, { label: string; icon: React.ElementType; color: string; path: string }> = {
   listing_video: {
-    label: "Property Slideshow",
+    label: "Property Tour",
     icon: Building2,
     color: "bg-primary/15 text-primary border-primary/20",
     path: "/property-tours",
   },
   cinematic_tour: {
-    label: "AI Motion Tour",
+    label: "Property Tour",
     icon: Film,
     color: "bg-primary/20 text-primary border-primary/20",
-    path: "/cinematic-walkthrough",
+    path: "/property-tours",
   },
   ai_reel: {
     label: "AI Reel",
@@ -124,8 +124,8 @@ type FilterSource = VideoSource | "all";
 
 const FILTER_TABS: Array<{ value: FilterSource; label: string; icon: React.ElementType }> = [
   { value: "all", label: "All Videos", icon: Video },
-  { value: "listing_video", label: "Property Slideshows", icon: Building2 },
-  { value: "cinematic_tour", label: "AI Motion Tours", icon: Film },
+  { value: "listing_video", label: "Property Tours", icon: Building2 },
+  { value: "cinematic_tour", label: "Cinematic Tours", icon: Film },
   { value: "ai_reel", label: "AI Reels", icon: Clapperboard },
   { value: "avatar_video", label: "Avatar Videos", icon: UserCircle },
   { value: "live_tour", label: "Live Tours", icon: Smartphone },
@@ -177,7 +177,7 @@ export default function MyVideos() {
             My Videos
           </h1>
           <p className="text-muted-foreground mt-1">
-            All your generated videos — Listing, AI Motion Tours, AI Reels, and Avatar Videos
+            All your generated videos — Property Tours, AI Reels, Avatar Videos, and Live Tours
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -439,7 +439,7 @@ export default function MyVideos() {
             <h3 className="text-lg font-semibold">No videos yet</h3>
             <p className="text-muted-foreground text-sm mt-1 max-w-xs">
               {sourceFilter === "all"
-                ? "Generate your first video using Property Slideshow, AI Motion Tour, AI Reels, or Avatar Video."
+                ? "Generate your first video using Property Tour, AI Reels, Avatar Video, or Live Tour."
                 : `You haven't created any ${
                     FILTER_TABS.find((t) => t.value === sourceFilter)?.label ?? "videos"
                   } yet.`}
@@ -452,16 +452,7 @@ export default function MyVideos() {
               className="gap-2"
             >
               <Building2 className="h-4 w-4" />
-              Property Slideshow
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setLocation("/cinematic-walkthrough")}
-              className="gap-2"
-            >
-              <Film className="h-4 w-4" />
-              AI Motion Tour
+              Property Tour
             </Button>
             <Button
               size="sm"
