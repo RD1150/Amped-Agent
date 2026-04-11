@@ -107,8 +107,9 @@ export const personas = mysqlTable("personas", {
   elevenlabsVoiceName: varchar("elevenlabsVoiceName", { length: 255 }), // Display name for the cloned voice
   voiceSampleUrl: text("voiceSampleUrl"), // URL to agent's voice recording sample (mp3/wav, 15s–5min)
   yearsExperience: int("yearsExperience"), // Years in real estate (from onboarding)
-  primaryCity: varchar("primaryCity", { length: 255 }), // Primary market city (from onboarding)
+  primaryCity: varchar("primaryCity", { length: 255 }), // Primary market city (from onboarding, kept for legacy)
   primaryState: varchar("primaryState", { length: 100 }), // Primary market state (from onboarding)
+  serviceCities: text("serviceCities"), // JSON: string[] of up to 5 cities/counties the agent serves
   headshotOffsetY: int("headshotOffsetY").default(50), // Vertical position of headshot in circle (0=top, 100=bottom, 50=center)
   headshotZoom: int("headshotZoom").default(100), // Zoom level of headshot (100=no zoom, 200=2x zoom)
   gammaThemeId: varchar("gammaThemeId", { length: 255 }), // Default Gamma workspace theme ID for Listing Presentations

@@ -4510,3 +4510,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add reload link to Reset Tour success toast
 - [x] Add word count and estimated speaking time counter to intro script textarea
 - [x] Wire Generate Script button to voiceover script field on Property Tour
+
+## Multi-City Support (Apr 2026)
+- [x] Add serviceCities column to personas table (JSON array, up to 5)
+- [x] Update saveOnboarding procedure to accept serviceCities array
+- [x] Update OnboardingModal to allow 3-5 cities with add/remove UI
+- [x] Update PersonaBrand profile page with Service Cities multi-input
+- [x] Update Dashboard to show all service city badges
+- [x] Add getServiceCitiesLabel helper to db.ts
+- [x] Update repurpose router to use all service cities in LLM prompts
+- [x] Update video script builder location to use all service cities
+- [x] Update generateAvatarIntroScript to include service area context

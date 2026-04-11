@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Building2, MapPin, Clock, ChevronRight } from "lucide-react";
+import { Building2, MapPin, Clock, ChevronRight, X, Plus } from "lucide-react";
 
 const US_STATES = [
   "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut",
@@ -28,6 +28,8 @@ const EXPERIENCE_OPTIONS = [
   { value: "21", label: "20+ years" },
 ];
 
+const MAX_CITIES = 5;
+
 interface OnboardingModalProps {
   open: boolean;
   onComplete: () => void;
@@ -35,7 +37,7 @@ interface OnboardingModalProps {
 
 export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
   const [brokerageName, setBrokerageName] = useState("");
-  const [primaryCity, setPrimaryCity] = useState("");
+  const [cities, setCities] = useState<string[]>([""]);
   const [primaryState, setPrimaryState] = useState("");
   const [yearsExperience, setYearsExperience] = useState("");
 
@@ -49,17 +51,34 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
     },
   });
 
+  const addCity = () => {
+    if (cities.length < MAX_CITIES) setCities([...cities, ""]);
+  };
+
+  const updateCity = (idx: number, val: string) => {
+    const updated = [...cities];
+    updated[idx] = val;
+    setCities(updated);
+  };
+
+  const removeCity = (idx: number) => {
+    if (cities.length === 1) return; // keep at least one
+    setCities(cities.filter((_, i) => i !== idx));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!brokerageName.trim() || !primaryCity.trim() || !primaryState || !yearsExperience) {
-      toast.error("Please fill in all fields");
+    const validCities = cities.map((c) => c.trim()).filter(Boolean);
+    if (!brokerageName.trim() || validCities.length === 0 || !primaryState || !yearsExperience) {
+      toast.error("Please fill in all fields and at least one city");
       return;
     }
     saveOnboarding.mutate({
       brokerageName: brokerageName.trim(),
-      primaryCity: primaryCity.trim(),
+      primaryCity: validCities[0],
       primaryState,
       yearsExperience: parseInt(yearsExperience, 10),
+      serviceCities: validCities,
     });
   };
 
@@ -94,31 +113,58 @@ export function OnboardingModal({ open, onComplete }: OnboardingModalProps) {
             />
           </div>
 
-          {/* City + State */}
+          {/* Cities + State */}
           <div className="space-y-1.5">
             <Label className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
-              What market do you serve?
+              What markets do you serve?
+              <span className="text-xs text-muted-foreground font-normal ml-1">(up to {MAX_CITIES} cities or counties)</span>
             </Label>
-            <div className="flex gap-2">
-              <Input
-                placeholder="City"
-                value={primaryCity}
-                onChange={(e) => setPrimaryCity(e.target.value)}
-                required
-                className="flex-1"
-              />
-              <Select value={primaryState} onValueChange={setPrimaryState} required>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="State" />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {US_STATES.map((state) => (
-                    <SelectItem key={state} value={state}>{state}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+            <div className="space-y-2">
+              {cities.map((city, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <Input
+                    placeholder={idx === 0 ? "Primary city or county" : `City or county ${idx + 1}`}
+                    value={city}
+                    onChange={(e) => updateCity(idx, e.target.value)}
+                    className="flex-1"
+                    required={idx === 0}
+                  />
+                  {cities.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeCity(idx)}
+                      className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
+
+            {cities.length < MAX_CITIES && (
+              <button
+                type="button"
+                onClick={addCity}
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors mt-1"
+              >
+                <Plus className="w-3 h-3" />
+                Add another city or county
+              </button>
+            )}
+
+            <Select value={primaryState} onValueChange={setPrimaryState} required>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="State" />
+              </SelectTrigger>
+              <SelectContent className="max-h-60">
+                {US_STATES.map((state) => (
+                  <SelectItem key={state} value={state}>{state}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Years of Experience */}

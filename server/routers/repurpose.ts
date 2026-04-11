@@ -39,7 +39,7 @@ export const repurposeRouter = router({
       // Load persona for brand voice context
       const persona = await db.getPersonaByUserId(ctx.user.id);
       const name = agentName || persona?.agentName || "a real estate agent";
-      const location = city || persona?.primaryCity || "your area";
+      const location = city || db.getServiceCitiesLabel(persona);
       const audience = targetAudience || persona?.targetAudience || "home buyers and sellers";
       const voice = persona?.brandVoice || "professional";
 
@@ -155,7 +155,7 @@ ${selectedSchemas}
       const { topic } = input;
       const persona = await db.getPersonaByUserId(ctx.user.id);
       const name = persona?.agentName || "a real estate agent";
-      const location = persona?.primaryCity || "your area";
+      const location = db.getServiceCitiesLabel(persona);
       const voice = persona?.brandVoice || "professional";
       const audience = persona?.targetAudience || "home buyers and sellers";
 

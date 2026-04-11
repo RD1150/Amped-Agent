@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Check, User, Palette, Globe, Phone, Mail, Mic, Camera, Loader2, CheckCircle2, Trash2 } from "lucide-react";
+import { Check, User, Palette, Globe, Phone, Mail, Mic, Camera, Loader2, CheckCircle2, Trash2, X, Plus, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 type BrandVoice = "professional" | "friendly" | "luxury" | "casual" | "authoritative";
@@ -43,6 +43,7 @@ export default function PersonaBrand() {
   });
   const [headshotOffsetY, setHeadshotOffsetY] = useState(50);
   const [headshotZoom, setHeadshotZoom] = useState(100);
+  const [serviceCities, setServiceCities] = useState<string[]>([""]);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartY = useRef(0);
   const dragStartOffset = useRef(50);
@@ -122,6 +123,15 @@ export default function PersonaBrand() {
       setVoiceSampleUrl((persona as any).voiceSampleUrl || "");
       setHeadshotOffsetY((persona as any).headshotOffsetY ?? 50);
       setHeadshotZoom((persona as any).headshotZoom ?? 100);
+      // Load service cities
+      if ((persona as any).serviceCities) {
+        try {
+          const parsed = JSON.parse((persona as any).serviceCities);
+          if (Array.isArray(parsed) && parsed.length > 0) setServiceCities(parsed);
+        } catch { /* keep default */ }
+      } else if ((persona as any).primaryCity) {
+        setServiceCities([(persona as any).primaryCity]);
+      }
     }
   }, [persona]);
 
@@ -203,11 +213,14 @@ export default function PersonaBrand() {
 
   const handleSave = () => {
     // Send all fields — including empty strings — so clearing a value persists to the DB
+    const validCities = serviceCities.map((c) => c.trim()).filter(Boolean);
     upsertPersona.mutate({
       ...formData,
       headshotOffsetY,
       headshotZoom,
       isCompleted: true,
+      primaryCity: validCities[0] || formData.serviceAreas.split(",")[0]?.trim() || "",
+      serviceCities: validCities.length > 0 ? JSON.stringify(validCities) : undefined,
     });
   };
 
@@ -452,16 +465,59 @@ export default function PersonaBrand() {
               className="bg-secondary border-border min-h-[100px]"
             />
           </div>
+          {/* Service Cities — primary market cities used for AI content generation */}
           <div className="space-y-2">
-            <Label htmlFor="serviceAreas">Service Areas</Label>
+            <Label className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
+              Service Cities / Counties
+              <span className="text-xs text-muted-foreground font-normal ml-1">(up to 5 — used for AI content)</span>
+            </Label>
+            <div className="space-y-2">
+              {serviceCities.map((city, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <Input
+                    placeholder={idx === 0 ? "Primary city or county" : `City or county ${idx + 1}`}
+                    value={city}
+                    onChange={(e) => {
+                      const updated = [...serviceCities];
+                      updated[idx] = e.target.value;
+                      setServiceCities(updated);
+                    }}
+                    className="bg-secondary border-border flex-1"
+                  />
+                  {serviceCities.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setServiceCities(serviceCities.filter((_, i) => i !== idx))}
+                      className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {serviceCities.length < 5 && (
+              <button
+                type="button"
+                onClick={() => setServiceCities([...serviceCities, ""])}
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+              >
+                <Plus className="w-3 h-3" />
+                Add another city or county
+              </button>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="serviceAreas">Service Areas (bio text)</Label>
             <Textarea
               id="serviceAreas"
-              placeholder="e.g., San Francisco, Oakland, Berkeley, Marin County"
+              placeholder="e.g., San Francisco Bay Area, including SF, Oakland, Berkeley, and Marin County"
               value={formData.serviceAreas}
               onChange={(e) => setFormData({ ...formData, serviceAreas: e.target.value })}
               className="bg-secondary border-border"
             />
-            <p className="text-xs text-muted-foreground">List the cities, neighborhoods, or regions you serve</p>
+            <p className="text-xs text-muted-foreground">Free-form description of your service area for your bio/profile</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="targetAudience">Target Audience</Label>

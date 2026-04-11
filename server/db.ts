@@ -265,6 +265,27 @@ export async function upsertPersona(userId: number, data: Partial<InsertPersona>
   }
 }
 
+/**
+ * Returns a human-readable location string from a persona.
+ * Prefers serviceCities (all cities joined) over primaryCity.
+ */
+export function getServiceCitiesLabel(persona: { serviceCities?: string | null; primaryCity?: string | null; primaryState?: string | null } | null, fallback = "your area"): string {
+  if (!persona) return fallback;
+  if (persona.serviceCities) {
+    try {
+      const cities: string[] = JSON.parse(persona.serviceCities);
+      if (Array.isArray(cities) && cities.length > 0) {
+        const label = cities.join(", ");
+        return persona.primaryState ? `${label}, ${persona.primaryState}` : label;
+      }
+    } catch { /* fall through */ }
+  }
+  if (persona.primaryCity) {
+    return persona.primaryState ? `${persona.primaryCity}, ${persona.primaryState}` : persona.primaryCity;
+  }
+  return fallback;
+}
+
 // ============ CONTENT POST HELPERS ============
 
 export async function getContentPostsByUserId(userId: number, limit = 50) {

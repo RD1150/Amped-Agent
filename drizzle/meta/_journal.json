@@ -575,6 +575,13 @@
       "when": 1775861873627,
       "tag": "0081_clumsy_ken_ellis",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "5",
+      "when": 1775879690882,
+      "tag": "0082_lyrical_lily_hollister",
+      "breakpoints": true
     }
   ]
 }

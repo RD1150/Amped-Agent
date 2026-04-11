@@ -953,8 +953,10 @@ Adjust timestamps to match the video duration of ${tour.duration || 60} seconds.
     }))
     .mutation(async ({ ctx, input }) => {
       const { invokeLLM } = await import("../_core/llm");
-      // Get agent name from profile if not provided
-      let agentName = input.agentName;
+      const { getServiceCitiesLabel, getPersonaByUserId: fetchPersona } = await import("../db");
+      // Get agent name and service cities from profile
+      const persona = await fetchPersona(ctx.user.id);
+      let agentName = input.agentName || persona?.agentName;
       if (!agentName) {
         const dbConn = await getDb();
         if (dbConn) {
@@ -962,6 +964,7 @@ Adjust timestamps to match the video duration of ${tour.duration || 60} seconds.
           agentName = (userRow as any)?.displayName || (userRow as any)?.name || "your agent";
         }
       }
+      const serviceArea = getServiceCitiesLabel(persona, "");
       const details = [
         input.address,
         input.price ? `listed at ${input.price}` : null,
@@ -970,11 +973,12 @@ Adjust timestamps to match the video duration of ${tour.duration || 60} seconds.
         input.sqft ? `${input.sqft} sq ft` : null,
       ].filter(Boolean).join(", ");
 
+      const areaContext = serviceArea ? ` serving ${serviceArea}` : "";
       const response = await invokeLLM({
         messages: [
           {
             role: "system",
-            content: `You are a real estate video script writer. Write a short, warm, professional intro script (2–3 sentences, under 25 words) for a real estate agent named ${agentName} to say at the start of a property tour video. Sound excited but not over the top. Do not include stage directions or quotation marks. Just the spoken words.`,
+            content: `You are a real estate video script writer. Write a short, warm, professional intro script (2–3 sentences, under 25 words) for a real estate agent named ${agentName}${areaContext} to say at the start of a property tour video. Sound excited but not over the top. Do not include stage directions or quotation marks. Just the spoken words.`,
           },
           {
             role: "user",

@@ -171,9 +171,17 @@ export default function Dashboard() {
                 {persona?.brokerageName && (
                   <span className="text-xs text-muted-foreground">&middot; {persona.brokerageName}</span>
                 )}
-                {persona?.primaryCity && (
-                  <Badge variant="outline" className="text-xs">{persona.primaryCity}</Badge>
-                )}
+{(() => {
+                  const cities = (() => {
+                    try { return persona?.serviceCities ? JSON.parse(persona.serviceCities as string) as string[] : null; } catch { return null; }
+                  })();
+                  if (cities && cities.length > 0) {
+                    return cities.map((c: string, i: number) => (
+                      <Badge key={i} variant="outline" className="text-xs">{c}</Badge>
+                    ));
+                  }
+                  return persona?.primaryCity ? <Badge variant="outline" className="text-xs">{persona.primaryCity}</Badge> : null;
+                })()}
               </div>
               {persona?.tagline ? (
                 <p className="text-sm text-muted-foreground truncate mt-0.5 italic">&ldquo;{persona.tagline}&rdquo;</p>

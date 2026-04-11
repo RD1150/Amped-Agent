@@ -215,6 +215,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         primaryCity: z.string().min(1).max(255),
         primaryState: z.string().min(1).max(100),
         yearsExperience: z.number().int().min(0).max(60),
+        serviceCities: z.array(z.string().min(1).max(255)).min(1).max(5).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         // Save to persona (brokerage, city, state, years)
@@ -223,6 +224,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
           primaryCity: input.primaryCity,
           primaryState: input.primaryState,
           yearsExperience: input.yearsExperience,
+          serviceCities: input.serviceCities ? JSON.stringify(input.serviceCities) : JSON.stringify([input.primaryCity]),
         });
         // Mark onboarding complete
         await db.markOnboardingComplete(ctx.user.id);
@@ -363,6 +365,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         yearsExperience: z.number().int().min(0).max(60).optional(),
         primaryCity: z.string().max(255).optional(),
         primaryState: z.string().max(100).optional(),
+        serviceCities: z.string().optional(), // JSON-encoded string[]
         bio: z.string().optional(),
         serviceAreas: z.string().optional(),
         brokerage: z.string().optional(),
@@ -1749,8 +1752,8 @@ Create a compelling social media post.`;
         const city = (() => {
           try {
             const mc = persona?.marketContext ? JSON.parse(persona.marketContext) : null;
-            return mc?.city || persona?.primaryCity || "";
-          } catch { return persona?.primaryCity || ""; }
+            return mc?.city || db.getServiceCitiesLabel(persona, "");
+          } catch { return db.getServiceCitiesLabel(persona, ""); }
         })();
 
         const lengthGuide: Record<string, string> = {
