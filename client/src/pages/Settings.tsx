@@ -111,7 +111,14 @@ export default function Settings() {
   });
   // Legacy single-avatar update (kept for backward compat)
   const resetOnboardingMutation = trpc.auth.resetOnboarding.useMutation({
-    onSuccess: () => toast.success("Welcome tour reset. Reload the page to see it."),
+    onSuccess: () => toast.success("Welcome tour reset!", {
+      description: "Reload the page to see the welcome modal.",
+      action: {
+        label: "Reload now",
+        onClick: () => window.location.reload(),
+      },
+      duration: 8000,
+    }),
     onError: () => toast.error("Failed to reset tour."),
   });
 

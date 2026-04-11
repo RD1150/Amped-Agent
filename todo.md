@@ -4505,3 +4505,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add AI script generator button to Property Tour intro script field
 - [x] Fix MyVideos empty state copy (remove retired product names)
 - [x] Add Reset Welcome Tour button in Account Settings → Advanced
+
+## UX Polish (Apr 2026 - Session 3b)
+- [x] Add reload link to Reset Tour success toast
+- [x] Add word count and estimated speaking time counter to intro script textarea
+- [x] Wire Generate Script button to voiceover script field on Property Tour

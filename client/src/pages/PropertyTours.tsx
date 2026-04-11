@@ -109,6 +109,7 @@ export default function PropertyTours() {
   const [avatarIntroScript, setAvatarIntroScript] = useState("");
   const [showAvatarIntroPanel, setShowAvatarIntroPanel] = useState(false);
   const [isGeneratingIntroScript, setIsGeneratingIntroScript] = useState(false);
+  const [isGeneratingVoiceoverScript, setIsGeneratingVoiceoverScript] = useState(false);
   const generateAvatarIntroScript = trpc.propertyTours.generateAvatarIntroScript.useMutation();
 
   const [enableVoiceover, setEnableVoiceover] = useState(false);
@@ -1154,7 +1155,20 @@ export default function PropertyTours() {
                       rows={3}
                       className="text-sm"
                     />
-                    <p className="text-xs text-muted-foreground">Leave blank to use a default intro. Your avatar will also appear at the end with your contact info.</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground">Leave blank to use a default intro. Your avatar will also appear at the end with your contact info.</p>
+                      {avatarIntroScript.trim() && (() => {
+                        const wordCount = avatarIntroScript.trim().split(/\s+/).filter(Boolean).length;
+                        const estSecs = Math.round(wordCount / 2.5); // ~150 wpm = 2.5 words/sec
+                        return (
+                          <span className={`text-xs font-medium shrink-0 ml-2 ${
+                            estSecs > 20 ? "text-amber-500" : "text-muted-foreground"
+                          }`}>
+                            ~{estSecs}s
+                          </span>
+                        );
+                      })()}
+                    </div>
                   </div>
                 )}
               </div>
@@ -1379,7 +1393,40 @@ export default function PropertyTours() {
 
                   {/* Custom Script */}
                   <div>
-                    <Label htmlFor="voiceoverScript" className="text-xs font-medium">Custom Script <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                    <div className="flex items-center justify-between mb-1">
+                      <Label htmlFor="voiceoverScript" className="text-xs font-medium">Custom Script <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!address || isGeneratingVoiceoverScript}
+                        onClick={async () => {
+                          if (!address) return;
+                          setIsGeneratingVoiceoverScript(true);
+                          try {
+                            const result = await generateAvatarIntroScript.mutateAsync({
+                              address,
+                              price: price || undefined,
+                              beds: beds || undefined,
+                              baths: baths || undefined,
+                              sqft: sqft || undefined,
+                            });
+                            setCustomScript(result.script);
+                          } catch {
+                            toast.error("Failed to generate script. Try again.");
+                          } finally {
+                            setIsGeneratingVoiceoverScript(false);
+                          }
+                        }}
+                        className="text-xs h-7 px-2 gap-1"
+                      >
+                        {isGeneratingVoiceoverScript ? (
+                          <><Loader2 className="w-3 h-3 animate-spin" />Generating...</>
+                        ) : (
+                          <><Sparkles className="w-3 h-3" />Generate Script</>
+                        )}
+                      </Button>
+                    </div>
                     <Textarea
                       id="voiceoverScript"
                       placeholder="Leave blank — AI will auto-generate a script in the selected style from your property details. Or paste your own narration here."
