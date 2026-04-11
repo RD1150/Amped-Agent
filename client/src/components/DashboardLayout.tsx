@@ -67,6 +67,9 @@ import {
   Clapperboard,
   Star,
   PlayCircle,
+  FolderOpen,
+  UserCheck,
+  Gift,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -168,11 +171,42 @@ const menuSections = [
     ],
   },
   {
-    // Stage 2 — Convert attention into leads
-    title: "CONVERT",
+    // Assets — externally-facing content sent to sellers, buyers, and leads
+    title: "ASSETS",
     items: [
       {
-        icon: FileText,
+        icon: Presentation,
+        label: "Listing Presentation",
+        path: "/listing-presentation",
+        description: "AI-generated listing appointment deck for sellers",
+        hoverInfo: {
+          tagline: "Generate a polished listing appointment presentation in minutes — powered by Gamma AI.",
+          details: [
+            { label: "Best for", value: "Listing appointments, seller consultations" },
+            { label: "Output", value: "15-slide deck: property, comps, agent bio, marketing plan" },
+            { label: "Share", value: "Branded link hides Gamma — sellers see your name" },
+            { label: "Time", value: "1–3 minutes to generate" },
+          ],
+        },
+      },
+      {
+        icon: UserCheck,
+        label: "Buyer Presentation",
+        path: "/buyer-presentation",
+        description: "Branded buyer consultation deck for first meetings",
+        badge: "Coming Soon",
+        hoverInfo: {
+          tagline: "A polished buyer consultation deck that walks new clients through the buying process with your branding.",
+          details: [
+            { label: "Best for", value: "First buyer meetings, open house follow-ups" },
+            { label: "Output", value: "10-slide deck: process, market, financing, why you" },
+            { label: "Share", value: "Branded link — same as listing presentation" },
+            { label: "Status", value: "Coming soon" },
+          ],
+        },
+      },
+      {
+        icon: Gift,
         label: "Lead Magnet",
         path: "/lead-magnet",
         description: "Branded PDF lead magnets for Facebook Lead Ads",
@@ -186,26 +220,11 @@ const menuSections = [
         badge: "Agency",
       },
       {
-        icon: Award,
-        label: "Market Dominance Coach",
+        icon: TrendingUp,
+        label: "Market Dominance Report",
         path: "/coach",
-        description: "AI coaching for positioning and market leadership",
+        description: "AI-generated market authority report for your farm area",
         badge: "Agency",
-      },
-      {
-        icon: Presentation,
-        label: "Listing Presentation",
-        path: "/listing-presentation",
-        description: "AI-generated 10-slide listing appointment deck",
-        hoverInfo: {
-          tagline: "Generate a polished listing appointment presentation in minutes — powered by Gamma AI.",
-          details: [
-            { label: "Best for", value: "Listing appointments, seller consultations" },
-            { label: "Output", value: "10-slide deck: property, comps, agent bio, marketing plan" },
-            { label: "Export", value: "Download as PPTX or PDF" },
-            { label: "Time", value: "1–3 minutes to generate" },
-          ],
-        },
       },
     ],
   },

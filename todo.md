@@ -4592,3 +4592,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Pull agent persona data (photo, name, brokerage) from the DB for the page
 - [x] Mobile-optimized full-screen design with dark/luxury aesthetic
 - [x] OG meta tags for rich link previews when shared via SMS/email
+
+## Assets Section in Sidebar (Apr 2026)
+- [x] Add ASSETS section to sidebar navigation
+- [x] Sub-item: Listing Presentation (links to /listing-presentation)
+- [x] Sub-item: Buyer Presentation (Coming Soon badge)
+- [x] Sub-item: Lead Magnet (links to /lead-magnet)
+- [x] Sub-item: Newsletter (links to /newsletter)
+- [x] Sub-item: Market Dominance Report (links to /coach)
+- [x] Remove CONVERT section (all items moved to ASSETS)
