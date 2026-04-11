@@ -4497,3 +4497,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Build LandingPage.tsx with hero, problem, solution, features, social proof, CTA
 - [x] Wire routing: unauthenticated → landing page, authenticated → dashboard
 - [x] Save checkpoint
+
+## Welcome Modal Fix (Apr 2026)
+- [x] Remove outdated Authority Content branded video from welcome onboarding modal — replaced with clean feature list

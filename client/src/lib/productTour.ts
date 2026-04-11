@@ -37,34 +37,14 @@ export const startDashboardTour = () => {
           title: 'Welcome to AmpedAgent! 👋',
           description: `
             <div style="margin-bottom: 16px;">
-              <p style="margin-bottom: 12px;">Watch this quick 45-second intro to see what you can accomplish with AmpedAgent:</p>
-              <video 
-                src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/TdPsCdKazBtIqarA.mp4" 
-                controls 
-                width="100%" 
-                height="315" 
-                style="border-radius: 8px; margin-bottom: 12px;"
-              ></video>
-              <p>After watching, click <strong>Next</strong> to start the interactive tour!</p>
-              <div style="margin-top: 16px; text-align: center;">
-                <button 
-                  id="skip-video-btn" 
-                  style="
-                    padding: 8px 16px;
-                    background: transparent;
-                    border: 1px solid #d1d5db;
-                    border-radius: 6px;
-                    color: #6b7280;
-                    cursor: pointer;
-                    font-size: 14px;
-                    transition: all 0.2s;
-                  "
-                  onmouseover="this.style.borderColor='#9ca3af'; this.style.color='#374151'"
-                  onmouseout="this.style.borderColor='#d1d5db'; this.style.color='#6b7280'"
-                >
-                  Skip Video →
-                </button>
-              </div>
+              <p style="margin-bottom: 12px; color: #6b7280;">Here's a quick look at what you can do with AmpedAgent:</p>
+              <ul style="list-style: none; padding: 0; margin: 0 0 16px 0;">
+                <li style="padding: 8px 0; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; gap: 8px;"><span style="color: #f97316;">🎬</span> <strong>AI Reels</strong> — Vertical videos for Instagram, TikTok & YouTube Shorts</li>
+                <li style="padding: 8px 0; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; gap: 8px;"><span style="color: #f97316;">🏡</span> <strong>Property Tour</strong> — Cinematic listing videos in minutes</li>
+                <li style="padding: 8px 0; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; gap: 8px;"><span style="color: #f97316;">🎭</span> <strong>Avatar Videos</strong> — Your face, your voice, fully AI-generated</li>
+                <li style="padding: 8px 0; display: flex; align-items: center; gap: 8px;"><span style="color: #f97316;">📱</span> <strong>Live Tour</strong> — Record a walkthrough on your phone, auto-edited</li>
+              </ul>
+              <p style="color: #6b7280;">Click <strong>Next</strong> to take a quick tour of the platform!</p>
             </div>
           `
         }
@@ -118,15 +98,7 @@ export const startDashboardTour = () => {
   currentDriver = driverObj;
   driverObj.drive();
   
-  // Add click handler for Skip Video button after tour starts
-  setTimeout(() => {
-    const skipBtn = document.getElementById('skip-video-btn');
-    if (skipBtn) {
-      skipBtn.addEventListener('click', () => {
-        driverObj.moveNext();
-      });
-    }
-  }, 100);
+
 };
 
 // Generate Post Feature Tour
