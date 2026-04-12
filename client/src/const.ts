@@ -1,7 +1,10 @@
 export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
-// Generate login URL at runtime so redirect URI reflects the current origin.
-export const getLoginUrl = () => {
+// Points to our own /login page which supports email/password, Google OAuth, and Manus OAuth.
+export const getLoginUrl = () => "/login";
+
+// For users who specifically want Manus OAuth (kept for backward compat)
+export const getManusLoginUrl = () => {
   const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
   const appId = import.meta.env.VITE_APP_ID;
   const redirectUri = `${window.location.origin}/api/oauth/callback`;

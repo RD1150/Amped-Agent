@@ -33,4 +33,6 @@ export const ENV = {
   HIGGSFIELD_API_KEY: process.env.HIGGSFIELD_API_KEY ?? "",
   HIGGSFIELD_KEY_ID: process.env.HIGGSFIELD_KEY_ID ?? "",
   GAMMA_API_KEY: process.env.GAMMA_API_KEY ?? "",
+  googleLoginClientId: process.env.GOOGLE_LOGIN_CLIENT_ID ?? "",
+  googleLoginClientSecret: process.env.GOOGLE_LOGIN_CLIENT_SECRET ?? "",
 };

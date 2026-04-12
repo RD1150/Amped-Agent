@@ -53,6 +53,8 @@ export const users = mysqlTable("users", {
   // Cloned voice (ElevenLabs Instant Voice Clone from agent recording)
   clonedVoiceId: varchar("clonedVoiceId", { length: 64 }),
   clonedVoiceName: varchar("clonedVoiceName", { length: 128 }),
+  // Email/password auth (null for OAuth-only users)
+  passwordHash: varchar("passwordHash", { length: 255 }),
 });
 
 export type User = typeof users.$inferSelect;

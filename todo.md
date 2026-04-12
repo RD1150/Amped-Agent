@@ -4742,3 +4742,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Session 10: Name Correction
 - [x] Replace all "Amp'd Agent" with "Amped Agent" across codebase
 - [x] Replace all "Amp'd" with "Amped" in page title, banners, and UI strings
+
+## Session 11: Auth & Bug Fixes
+- [x] Fix tRPC "Failed to fetch" error on dashboard page
+- [x] Add email/password registration and login routes (/api/auth/register, /api/auth/login)
+- [x] Add Google OAuth login route (/api/auth/google + /api/auth/google/callback)
+- [x] Build Login page with Sign In / Sign Up tabs and Google sign-in button
+- [x] Update getLoginUrl to point to /login instead of Manus OAuth portal
+- [x] Add passwordHash column to users table (db:push done)
+- [x] Write and pass 7 vitest tests for email auth validation logic

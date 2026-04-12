@@ -69,6 +69,7 @@ import BrandStory from "./pages/BrandStory";
 import { SupportChatbot } from "./components/SupportChatbot";
 import PublicPresentation from "./pages/PublicPresentation";
 import PublicBuyerPresentation from "./pages/PublicBuyerPresentation";
+import Login from "./pages/Login";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -86,6 +87,7 @@ function Router() {
     <Switch>
       {/* Public routes without dashboard layout */}
       <Route path="/" component={Landing} />
+      <Route path="/login" component={Login} />
       <Route path="/credits" component={Credits} />
       <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/admin/settings" component={AdminSettings} />

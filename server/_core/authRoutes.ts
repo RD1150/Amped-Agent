@@ -1,0 +1,217 @@
+/**
+ * authRoutes.ts
+ * Registers email/password and Google OAuth login routes.
+ * These are independent of Manus OAuth and allow any agent to sign up directly.
+ */
+import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
+import type { Express, Request, Response } from "express";
+import * as bcrypt from "bcryptjs";
+import { OAuth2Client } from "google-auth-library";
+import * as db from "../db";
+import { getSessionCookieOptions } from "./cookies";
+import { sdk } from "./sdk";
+import { ENV } from "./env";
+import { nanoid } from "nanoid";
+
+const SALT_ROUNDS = 12;
+
+function getGoogleClient() {
+  return new OAuth2Client(
+    ENV.googleLoginClientId,
+    ENV.googleLoginClientSecret
+  );
+}
+
+/**
+ * Generate a stable openId for email/password users based on their email.
+ * Prefixed with "email_" to distinguish from Manus OAuth openIds.
+ */
+function emailOpenId(email: string): string {
+  // Use a deterministic prefix so re-registration finds the same user
+  const Buffer = require("buffer").Buffer;
+  const hash = require("crypto").createHash("sha256").update(email.toLowerCase()).digest("hex");
+  return `email_${hash.slice(0, 32)}`;
+}
+
+/**
+ * Generate a stable openId for Google-login users based on their Google sub.
+ */
+function googleOpenId(googleSub: string): string {
+  return `google_${googleSub}`;
+}
+
+async function issueSession(req: Request, res: Response, openId: string, name: string) {
+  const sessionToken = await sdk.createSessionToken(openId, {
+    name,
+    expiresInMs: ONE_YEAR_MS,
+  });
+  const cookieOptions = getSessionCookieOptions(req);
+  res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+}
+
+export function registerAuthRoutes(app: Express) {
+  // ── Email/Password Registration ────────────────────────────────────────────
+  app.post("/api/auth/register", async (req: Request, res: Response) => {
+    try {
+      const { name, email, password } = req.body as {
+        name?: string;
+        email?: string;
+        password?: string;
+      };
+
+      if (!email || !password || !name) {
+        res.status(400).json({ error: "Name, email, and password are required." });
+        return;
+      }
+      if (password.length < 8) {
+        res.status(400).json({ error: "Password must be at least 8 characters." });
+        return;
+      }
+
+      const normalizedEmail = email.toLowerCase().trim();
+      const existing = await db.getUserByEmail(normalizedEmail);
+      if (existing) {
+        res.status(409).json({ error: "An account with this email already exists. Please sign in." });
+        return;
+      }
+
+      const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+      const openId = emailOpenId(normalizedEmail);
+
+      await db.upsertUser({
+        openId,
+        name: name.trim(),
+        email: normalizedEmail,
+        loginMethod: "email",
+        lastSignedIn: new Date(),
+        passwordHash,
+      } as any);
+
+      // Send welcome email (non-fatal)
+      try {
+        const { sendWelcomeEmail } = await import("./welcomeEmail");
+        await sendWelcomeEmail({ userName: name.trim(), userEmail: normalizedEmail });
+      } catch (e) {
+        console.warn("[Auth] Welcome email failed (non-fatal):", e);
+      }
+
+      await issueSession(req, res, openId, name.trim());
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Auth] Register failed:", error);
+      res.status(500).json({ error: "Registration failed. Please try again." });
+    }
+  });
+
+  // ── Email/Password Login ───────────────────────────────────────────────────
+  app.post("/api/auth/login", async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body as { email?: string; password?: string };
+
+      if (!email || !password) {
+        res.status(400).json({ error: "Email and password are required." });
+        return;
+      }
+
+      const normalizedEmail = email.toLowerCase().trim();
+      const user = await db.getUserByEmail(normalizedEmail);
+
+      if (!user || !user.passwordHash) {
+        // Vague message to prevent user enumeration
+        res.status(401).json({ error: "Invalid email or password." });
+        return;
+      }
+
+      const valid = await bcrypt.compare(password, user.passwordHash);
+      if (!valid) {
+        res.status(401).json({ error: "Invalid email or password." });
+        return;
+      }
+
+      await db.upsertUser({ openId: user.openId, lastSignedIn: new Date() });
+      await issueSession(req, res, user.openId, user.name || "");
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Auth] Login failed:", error);
+      res.status(500).json({ error: "Login failed. Please try again." });
+    }
+  });
+
+  // ── Google OAuth — Redirect to Google ─────────────────────────────────────
+  app.get("/api/auth/google", (req: Request, res: Response) => {
+    const client = getGoogleClient();
+    // Use host header (always present) rather than origin (absent on browser redirects)
+    const host = req.headers.host || req.hostname;
+    const proto = (req.headers["x-forwarded-proto"] as string) || (host.startsWith("localhost") ? "http" : "https");
+    const origin = `${proto}://${host}`;
+    const redirectUri = `${origin}/api/auth/google/callback`;
+
+    const url = client.generateAuthUrl({
+      access_type: "offline",
+      scope: ["openid", "email", "profile"],
+      redirect_uri: redirectUri,
+      prompt: "select_account",
+    });
+    res.redirect(302, url);
+  });
+
+  // ── Google OAuth — Callback ────────────────────────────────────────────────
+  app.get("/api/auth/google/callback", async (req: Request, res: Response) => {
+    try {
+      const code = req.query.code as string | undefined;
+      if (!code) {
+        res.status(400).json({ error: "Missing authorization code." });
+        return;
+      }
+
+      const host = req.headers.host || req.hostname;
+      const proto = (req.headers["x-forwarded-proto"] as string) || (host.startsWith("localhost") ? "http" : "https");
+      const origin = `${proto}://${host}`;
+      const redirectUri = `${origin}/api/auth/google/callback`;
+
+      const client = getGoogleClient();
+      const { tokens } = await client.getToken({ code, redirect_uri: redirectUri });
+      client.setCredentials(tokens);
+
+      const ticket = await client.verifyIdToken({
+        idToken: tokens.id_token!,
+        audience: ENV.googleLoginClientId,
+      });
+      const payload = ticket.getPayload();
+      if (!payload || !payload.sub || !payload.email) {
+        res.status(400).json({ error: "Invalid Google token payload." });
+        return;
+      }
+
+      const openId = googleOpenId(payload.sub);
+      const name = payload.name || payload.email.split("@")[0];
+      const email = payload.email.toLowerCase();
+
+      const existing = await db.getUserByOpenId(openId);
+      const isNewUser = !existing;
+
+      await db.upsertUser({
+        openId,
+        name,
+        email,
+        loginMethod: "google",
+        lastSignedIn: new Date(),
+      });
+
+      if (isNewUser) {
+        try {
+          const { sendWelcomeEmail } = await import("./welcomeEmail");
+          await sendWelcomeEmail({ userName: name, userEmail: email });
+        } catch (e) {
+          console.warn("[Auth] Welcome email failed (non-fatal):", e);
+        }
+      }
+
+      await issueSession(req, res, openId, name);
+      res.redirect(302, "/");
+    } catch (error) {
+      console.error("[Auth] Google callback failed:", error);
+      res.redirect(302, "/login?error=google_failed");
+    }
+  });
+}
