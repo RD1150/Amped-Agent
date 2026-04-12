@@ -56,7 +56,8 @@ export default function BlogBuilder() {
   const activeCityLabel = activeCityEntry
     ? `${activeCityEntry.city}${activeCityEntry.state ? ", " + activeCityEntry.state : ""}`
     : (persona as any)?.primaryCity || "";
-  const [niche, setNiche] = useState<"buyers" | "sellers" | "investors" | "luxury" | "relocation" | "general">("general");
+  const [niche, setNiche] = useState<"buyers" | "sellers" | "investors" | "luxury" | "relocation" | "general" | "local_authority">("general");
+  const [localAuthorityTemplate, setLocalAuthorityTemplate] = useState<"neighborhood_guide" | "zip_code_market" | "best_streets" | "moving_to" | "hidden_gems" | "">("neighborhood_guide");
   const [tone, setTone] = useState<"professional" | "conversational" | "educational" | "inspirational">("conversational");
   const [wordCount, setWordCount] = useState<"short" | "medium" | "long">("medium");
   const [expandedPost, setExpandedPost] = useState<number | null>(null);
@@ -92,7 +93,7 @@ export default function BlogBuilder() {
       return;
     }
     const effectiveCity = city.trim() || activeCityLabel || undefined;
-    generateMutation.mutate({ topic: topic.trim(), city: effectiveCity, niche, tone, wordCount });
+    generateMutation.mutate({ topic: topic.trim(), city: effectiveCity, niche, tone, wordCount, ...(niche === "local_authority" && localAuthorityTemplate ? { localAuthorityTemplate: localAuthorityTemplate as any } : {}) });
     // Advance city rotation for next post
     if (!city.trim() && parsedServiceCities.length > 1) {
       persistCityIndex((cityRotationIndex + 1) % parsedServiceCities.length);
@@ -115,7 +116,7 @@ export default function BlogBuilder() {
       setBatchProgress({ current: i + 1, total: parsedServiceCities.length });
       await new Promise<void>((resolve, reject) => {
         generateMutation.mutate(
-          { topic: topic.trim(), city: lbl, niche, tone, wordCount },
+          { topic: topic.trim(), city: lbl, niche, tone, wordCount, ...(niche === "local_authority" && localAuthorityTemplate ? { localAuthorityTemplate: localAuthorityTemplate as any } : {}) },
           { onSuccess: () => resolve(), onError: (e) => { toast.error(`Failed for ${lbl}: ${e.message}`); resolve(); } }
         );
       });
@@ -247,9 +248,36 @@ export default function BlogBuilder() {
                   <SelectItem value="investors">Real Estate Investors</SelectItem>
                   <SelectItem value="luxury">Luxury Buyers & Sellers</SelectItem>
                   <SelectItem value="relocation">Relocation Clients</SelectItem>
+                  <SelectItem value="local_authority">🏘️ Local Authority / Neighborhood Guide</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Local Authority Template Picker */}
+            {niche === "local_authority" && (
+              <div className="space-y-2">
+                <Label>Template Style</Label>
+                <Select value={localAuthorityTemplate} onValueChange={(v) => setLocalAuthorityTemplate(v as typeof localAuthorityTemplate)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="neighborhood_guide">🗺️ Ultimate Neighborhood Guide</SelectItem>
+                    <SelectItem value="zip_code_market">📊 ZIP Code Market Report</SelectItem>
+                    <SelectItem value="best_streets">🏡 Best Streets / Blocks</SelectItem>
+                    <SelectItem value="moving_to">📦 Moving to [City/Neighborhood]</SelectItem>
+                    <SelectItem value="hidden_gems">💎 Hidden Gem Neighborhoods</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {localAuthorityTemplate === "neighborhood_guide" && "Comprehensive guide to living in a specific neighborhood — schools, restaurants, parks, lifestyle, and market stats."}
+                  {localAuthorityTemplate === "zip_code_market" && "Hyperlocal market analysis for a specific ZIP code — prices, trends, inventory, and what it means for buyers and sellers."}
+                  {localAuthorityTemplate === "best_streets" && "Showcase the most desirable streets or blocks in a neighborhood and why buyers love them."}
+                  {localAuthorityTemplate === "moving_to" && "A relocation guide for people moving to the area — what to know, where to live, and how to find the right home."}
+                  {localAuthorityTemplate === "hidden_gems" && "Spotlight underrated or up-and-coming neighborhoods before they hit the mainstream radar."}
+                </p>
+              </div>
+            )}
 
             {/* Tone */}
             <div className="space-y-2">

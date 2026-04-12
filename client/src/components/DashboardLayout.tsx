@@ -185,16 +185,10 @@ const menuSections = [
     title: "HOME",
     items: [
       {
-        icon: User,
-        label: "Authority Profile",
-        path: "/authority-profile",
-        description: "Your branding, bio, headshot — start here",
-      },
-      {
         icon: Home,
         label: "Dashboard",
         path: "/dashboard",
-        description: "Your AmpedAgent command center",
+        description: "Your Amp'd Agent command center",
       },
       {
         icon: PlayCircle,
@@ -205,26 +199,155 @@ const menuSections = [
     ],
   },
   {
-    // Stage 1 — Build an audience and attract leads
-    title: "ATTRACT",
+    title: "MY BRAND STORY",
+    items: [
+      {
+        icon: User,
+        label: "Authority Profile",
+        path: "/authority-profile",
+        description: "Your branding, bio, headshot — powers all content",
+      },
+      {
+        icon: Heart,
+        label: "My Brand Story",
+        path: "/brand-story",
+        description: "Craft your authentic agent brand story",
+      },
+    ],
+  },
+  {
+    title: "VIDEOS",
+    items: [
+      {
+        icon: Building2,
+        label: "Property Tour",
+        path: "/property-tours",
+        description: "Cinematic property tour video for any home",
+        hoverInfo: {
+          tagline: "Turn property photos into a polished cinematic tour video in under 2 minutes.",
+          details: [
+            { label: "Style", value: "Smooth Ken Burns motion — zoom, pan, cross-fade" },
+            { label: "Best for", value: "Any property — your listings or buyer searches" },
+            { label: "Music", value: "Choose from 8 curated background tracks" },
+            { label: "Credits", value: "5 credits per video" },
+            { label: "Time", value: "~2 minutes to generate" },
+          ],
+        },
+      },
+      {
+        icon: Smartphone,
+        label: "Live Tour",
+        path: "/live-tour",
+        description: "Record a guided room-by-room walkthrough from your phone",
+        hoverInfo: {
+          tagline: "Walk through the property room by room and record directly in your browser.",
+          details: [
+            { label: "Style", value: "Live video capture with guided narration prompts" },
+            { label: "Best for", value: "Open houses, same-day listings, authentic walkthroughs" },
+            { label: "Teleprompter", value: "Optional scrolling script for each room" },
+            { label: "Auto-stop", value: "Each room clip auto-stops at 15 seconds" },
+            { label: "Credits", value: "8 credits per assembled tour" },
+          ],
+        },
+      },
+      {
+        icon: Video,
+        label: "AI Reels",
+        path: "/autoreels",
+        description: "Short avatar clips for Instagram, TikTok & Reels (15–60 sec)",
+        hoverInfo: {
+          tagline: "Vertical short-form videos with your AI avatar for Instagram, TikTok, and Facebook Reels.",
+          details: [
+            { label: "Style", value: "Vertical 9:16 with talking-head avatar overlay" },
+            { label: "Best for", value: "Social media reels, market updates, quick tips" },
+            { label: "Length", value: "15–60 seconds" },
+            { label: "Credits", value: "5 credits per reel" },
+            { label: "Time", value: "~3 minutes to generate" },
+          ],
+        },
+      },
+      {
+        icon: UserCircle,
+        label: "Avatar Video",
+        path: "/full-avatar-video",
+        description: "Full talking-head video from your script",
+        hoverInfo: {
+          tagline: "A full-length talking-head video where your AI avatar delivers your custom script.",
+          details: [
+            { label: "Style", value: "Landscape talking-head with branded lower-third" },
+            { label: "Best for", value: "Market reports, testimonials, long-form content" },
+            { label: "Length", value: "Up to 3 minutes" },
+            { label: "Credits", value: "15 credits per video" },
+            { label: "Time", value: "~5 minutes to generate" },
+          ],
+        },
+      },
+      {
+        icon: Youtube,
+        label: "YouTube Builder",
+        path: "/youtube-video-builder",
+        description: "Long-form avatar videos for YouTube — up to 15 min",
+        hoverInfo: {
+          tagline: "Generate long-form (5–15 min) avatar videos for YouTube, then auto-clip them into Reels and Shorts.",
+          details: [
+            { label: "Style", value: "16:9 landscape talking-head" },
+            { label: "Best for", value: "YouTube channel, market updates, buyer/seller guides" },
+            { label: "Length", value: "Up to 15 minutes" },
+            { label: "Credits", value: "20 credits per video" },
+            { label: "Time", value: "5–20 minutes to generate" },
+            { label: "Includes", value: "Script templates, SEO metadata, Reels clips, Publish to YouTube" },
+          ],
+        },
+      },
+      {
+        icon: Clapperboard,
+        label: "Script Builder",
+        path: "/video-script-builder",
+        description: "Write two-column scripts with visual direction",
+        hoverInfo: {
+          tagline: "Write your spoken script and visual direction side-by-side — then generate the video.",
+          details: [
+            { label: "Format", value: "Two-column: spoken words + visual prompt per scene" },
+            { label: "Best for", value: "Intro videos, market updates, testimonials, tips" },
+            { label: "AI assist", value: "Auto-generate visual prompts or full scripts from a brief" },
+            { label: "Export", value: "Use with Avatar Video or YouTube Builder" },
+          ],
+        },
+      },
+      {
+        icon: Youtube,
+        label: "YouTube Thumbnails",
+        path: "/thumbnails",
+        description: "Generate click-worthy thumbnails",
+      },
+      {
+        icon: FileVideo2,
+        label: "My Videos",
+        path: "/my-videos",
+        description: "All your generated videos in one place",
+      },
+    ],
+  },
+  {
+    title: "CONTENT",
     items: [
       {
         icon: Sparkles,
         label: "Post Builder",
         path: "/generate",
-        description: "AI-generated social posts that position you as the expert",
+        description: "AI-generated social posts that position you as the local expert",
       },
       {
         icon: BookOpen,
         label: "Blog Builder",
         path: "/blog-builder",
-        description: "SEO blog posts that rank and attract organic traffic",
+        description: "Hyperlocal SEO blog posts that rank and attract organic traffic",
       },
       {
         icon: TrendingUp,
         label: "Market Insights",
         path: "/market-stats",
-        description: "Real estate market data and local trend reports",
+        description: "Hyperlocal market data and neighborhood trend reports",
       },
       {
         icon: Lightbulb,
@@ -235,14 +358,13 @@ const menuSections = [
     ],
   },
   {
-    // Assets — externally-facing content sent to sellers, buyers, and leads
-    title: "ASSETS",
+    title: "PRESENTATIONS",
     items: [
       {
         icon: LayoutGrid,
         label: "Assets Hub",
         path: "/assets",
-        description: "All your externally-facing content in one place",
+        description: "All your presentations and shareable content in one place",
         hoverInfo: {
           tagline: "See all your presentations, lead magnets, and shareable content in one visual grid.",
           details: [
@@ -287,6 +409,11 @@ const menuSections = [
         description: "Branded PDF lead magnets for Facebook Lead Ads",
         badge: "Agency",
       },
+    ],
+  },
+  {
+    title: "AUTHORITY",
+    items: [
       {
         icon: Mail,
         label: "Newsletter",
@@ -304,42 +431,8 @@ const menuSections = [
     ],
   },
   {
-    // Stage 3a — Listing Videos
-    title: "LISTING VIDEOS",
+    title: "LIBRARY",
     items: [
-      {
-        icon: Building2,
-        label: "Property Tour",
-        path: "/property-tours",
-        description: "Cinematic property tour video for any home · 5 credits",
-        hoverInfo: {
-          tagline: "Turn property photos into a polished cinematic tour video in under 2 minutes.",
-          details: [
-            { label: "Style", value: "Smooth Ken Burns motion — zoom, pan, cross-fade" },
-            { label: "Best for", value: "Any property — your listings or buyer searches" },
-            { label: "Music", value: "Choose from 8 curated background tracks" },
-            { label: "Credits", value: "5 credits per video" },
-            { label: "Time", value: "~2 minutes to generate" },
-          ],
-        },
-      },
-      {
-        icon: Smartphone,
-        label: "Live Tour",
-        path: "/live-tour",
-        description: "Record a guided room-by-room walkthrough from your phone",
-        badge: "New",
-        hoverInfo: {
-          tagline: "Walk through the property room by room and record directly in your browser.",
-          details: [
-            { label: "Style", value: "Live video capture with guided narration prompts" },
-            { label: "Best for", value: "Open houses, same-day listings, authentic walkthroughs" },
-            { label: "Teleprompter", value: "Optional scrolling script for each room" },
-            { label: "Auto-stop", value: "Each room clip auto-stops at 15 seconds" },
-            { label: "Credits", value: "8 credits per assembled tour" },
-          ],
-        },
-      },
       {
         icon: Images,
         label: "Photo Library",
@@ -358,86 +451,6 @@ const menuSections = [
     ],
   },
   {
-    // Stage 3b — Social Videos
-    title: "SOCIAL VIDEOS",
-    items: [
-      {
-        icon: Video,
-        label: "AI Reels",
-        path: "/autoreels",
-        description: "Short avatar clips for Instagram, TikTok & Reels (15–60 sec)",
-        hoverInfo: {
-          tagline: "Vertical short-form videos with your AI avatar for Instagram, TikTok, and Facebook Reels.",
-          details: [
-            { label: "Style", value: "Vertical 9:16 with talking-head avatar overlay" },
-            { label: "Best for", value: "Social media reels, market updates, quick tips" },
-            { label: "Length", value: "15–60 seconds" },
-            { label: "Credits", value: "5 credits per reel" },
-            { label: "Time", value: "~3 minutes to generate" },
-          ],
-        },
-      },
-      {
-        icon: UserCircle,
-        label: "Avatar Video",
-        path: "/full-avatar-video",
-        description: "Full talking-head video from your script",
-        badge: "New",
-        hoverInfo: {
-          tagline: "A full-length talking-head video where your AI avatar delivers your custom script.",
-          details: [
-            { label: "Style", value: "Landscape talking-head with branded lower-third" },
-            { label: "Best for", value: "Market reports, testimonials, long-form content" },
-            { label: "Length", value: "Up to 3 minutes" },
-            { label: "Credits", value: "15 credits per video" },
-            { label: "Time", value: "~5 minutes to generate" },
-          ],
-        },
-      },
-      {
-        icon: Youtube,
-        label: "YouTube Builder",
-        path: "/youtube-video-builder",
-        description: "Long-form avatar videos for YouTube — up to 15 min",
-        badge: "New",
-        hoverInfo: {
-          tagline: "Generate long-form (5–15 min) avatar videos for YouTube, then auto-clip them into Reels and Shorts.",
-          details: [
-            { label: "Style", value: "16:9 landscape talking-head" },
-            { label: "Best for", value: "YouTube channel, market updates, buyer/seller guides" },
-            { label: "Length", value: "Up to 15 minutes" },
-            { label: "Credits", value: "20 credits per video" },
-            { label: "Time", value: "5–20 minutes to generate" },
-            { label: "Includes", value: "Script templates, SEO metadata, Reels clips, Publish to YouTube" },
-          ],
-        },
-      },
-      {
-        icon: Clapperboard,
-        label: "Script Builder",
-        path: "/video-script-builder",
-        description: "Write two-column scripts with visual direction",
-        badge: "New",
-        hoverInfo: {
-          tagline: "Write your spoken script and visual direction side-by-side \u2014 then generate the video.",
-          details: [
-            { label: "Format", value: "Two-column: spoken words + visual prompt per scene" },
-            { label: "Best for", value: "Intro videos, market updates, testimonials, tips" },
-            { label: "AI assist", value: "Auto-generate visual prompts or full scripts from a brief" },
-            { label: "Export", value: "Use with Avatar Video or YouTube Builder" },
-          ],
-        },
-      },
-      {
-        icon: FileVideo2,
-        label: "My Videos",
-        path: "/my-videos",
-        description: "All your generated videos in one place",
-      },
-    ],
-  },
-  {
-    // Stage 4 — Schedule and distribute content
     title: "PUBLISH",
     items: [
       {
@@ -453,18 +466,6 @@ const menuSections = [
         description: "Import content ideas from CSV in bulk",
       },
       {
-        icon: Link2,
-        label: "Integrations",
-        path: "/integrations",
-        description: "Connect Facebook, Instagram, LinkedIn, GBP",
-      },
-    ],
-  },
-  {
-    // Stage 5 — Repurpose and grow reach
-    title: "GROW",
-    items: [
-      {
         icon: Shuffle,
         label: "Repurpose Engine",
         path: "/repurpose",
@@ -472,16 +473,10 @@ const menuSections = [
         badge: "Agency",
       },
       {
-        icon: Heart,
-        label: "Brand Story",
-        path: "/brand-story",
-        description: "Craft your authentic agent brand story",
-      },
-      {
-        icon: Youtube,
-        label: "YouTube Thumbnails",
-        path: "/thumbnails",
-        description: "Generate click-worthy thumbnails",
+        icon: Link2,
+        label: "Integrations",
+        path: "/integrations",
+        description: "Connect Facebook, Instagram, LinkedIn, GBP",
       },
     ],
   },

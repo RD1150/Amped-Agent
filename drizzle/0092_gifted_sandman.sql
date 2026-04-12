@@ -1,0 +1,1 @@
+ALTER TABLE `blog_posts` MODIFY COLUMN `niche` enum('buyers','sellers','investors','luxury','relocation','general','local_authority') DEFAULT 'general';

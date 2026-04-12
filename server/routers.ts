@@ -375,6 +375,8 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         brokerage: z.string().optional(),
         headshotOffsetY: z.number().int().min(0).max(100).optional(),
         headshotZoom: z.number().int().min(100).max(200).optional(),
+        targetNeighborhoods: z.string().optional(), // JSON-encoded string[]
+        targetZipCodes: z.string().optional(), // JSON-encoded string[]
       }))
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);
@@ -386,6 +388,8 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         brandValues: z.string().optional(),
         marketContext: z.string().optional(),
         bookingUrl: z.string().url().optional().or(z.literal("")),
+        targetNeighborhoods: z.string().optional(), // JSON-encoded string[]
+        targetZipCodes: z.string().optional(), // JSON-encoded string[]
       }))
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);
@@ -569,6 +573,22 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
             }
           } catch {}
         }
+
+        // Build hyperlocal context from targetNeighborhoods and targetZipCodes
+        let hyperlocalContext = "";
+        if (persona?.targetNeighborhoods || persona?.targetZipCodes) {
+          try {
+            const hoods: string[] = persona.targetNeighborhoods ? JSON.parse(persona.targetNeighborhoods) : [];
+            const zips: string[] = persona.targetZipCodes ? JSON.parse(persona.targetZipCodes) : [];
+            const parts: string[] = [];
+            if (hoods.length > 0) parts.push(`Target neighborhoods: ${hoods.join(", ")}`);
+            if (zips.length > 0) parts.push(`Target ZIP codes: ${zips.join(", ")}`);
+            if (parts.length > 0) {
+              hyperlocalContext = `\n\nHYPERLOCAL SEO FOCUS: ${parts.join(". ")}. Naturally weave these specific neighborhood names and ZIP codes into the content wherever relevant to maximize local search visibility. Do NOT force them — use them organically.`;
+            }
+          } catch {}
+        }
+        audienceContext += hyperlocalContext;
 
         // Fetch real market data for market_report content type
         let realMarketData: any = null;
@@ -1790,6 +1810,19 @@ Create a compelling social media post.`;
           } catch { return db.getServiceCitiesLabel(persona, ""); }
         })();
 
+        // Build hyperlocal context
+        let hyperlocalNote = "";
+        if (persona?.targetNeighborhoods || persona?.targetZipCodes) {
+          try {
+            const hoods: string[] = persona.targetNeighborhoods ? JSON.parse(persona.targetNeighborhoods) : [];
+            const zips: string[] = persona.targetZipCodes ? JSON.parse(persona.targetZipCodes) : [];
+            const parts: string[] = [];
+            if (hoods.length > 0) parts.push(`neighborhoods: ${hoods.join(", ")}`);
+            if (zips.length > 0) parts.push(`ZIP codes: ${zips.join(", ")}`);
+            if (parts.length > 0) hyperlocalNote = `\nHyperlocal SEO: Naturally weave in references to these specific ${parts.join(" and ")} where relevant.`;
+          } catch {}
+        }
+
         const lengthGuide: Record<string, string> = {
           short: "30-45 seconds (80-100 words)",
           medium: "60-90 seconds (150-200 words)",
@@ -1806,7 +1839,7 @@ Create a compelling social media post.`;
           messages: [
             {
               role: "system",
-              content: `You are an expert real estate marketing copywriter. Write compelling, authentic content for real estate agents that builds authority and drives engagement. Keep it conversational and specific.`,
+              content: `You are an expert real estate marketing copywriter. Write compelling, authentic content for real estate agents that builds authority and drives engagement. Keep it conversational and specific.${hyperlocalNote}`,
             },
             {
               role: "user",

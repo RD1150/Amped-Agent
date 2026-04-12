@@ -117,6 +117,8 @@ export const personas = mysqlTable("personas", {
   headshotZoom: int("headshotZoom").default(100), // Zoom level of headshot (100=no zoom, 200=2x zoom)
   gammaThemeId: varchar("gammaThemeId", { length: 255 }), // Default Gamma workspace theme ID for Listing Presentations
   bookingUrl: varchar("bookingUrl", { length: 500 }), // Calendly / CRM booking link shown on presentation landing pages
+  targetNeighborhoods: text("targetNeighborhoods"), // JSON: string[] - specific neighborhoods/subdivisions to dominate (e.g. ["Mueller", "Tarrytown"])
+  targetZipCodes: text("targetZipCodes"), // JSON: string[] - target ZIP codes for hyperlocal SEO (e.g. ["78704", "78745"])
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -864,7 +866,7 @@ export const blogPosts = mysqlTable("blog_posts", {
   content: text("content").notNull(), // Full blog post HTML/markdown
   topic: varchar("topic", { length: 255 }).notNull(), // e.g. "First-Time Buyer Tips"
   city: varchar("city", { length: 255 }), // Target city for hyperlocal SEO
-  niche: mysqlEnum("niche", ["buyers", "sellers", "investors", "luxury", "relocation", "general"]).default("general"),
+  niche: mysqlEnum("niche", ["buyers", "sellers", "investors", "luxury", "relocation", "general", "local_authority"]).default("general"),
   wordCount: int("wordCount").default(0),
   seoKeywords: text("seoKeywords"), // JSON array of target keywords
   metaDescription: text("metaDescription"), // SEO meta description

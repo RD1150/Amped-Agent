@@ -37,6 +37,7 @@ import {
   User,
   ArrowRight,
   Calendar,
+  MapPin,
 } from "lucide-react";
 
 function PhotoAvatarCard() {
@@ -301,6 +302,12 @@ export default function AuthorityProfile() {
   // Booking URL
   const [bookingUrl, setBookingUrl] = useState("");
 
+  // Hyperlocal SEO
+  const [targetNeighborhoods, setTargetNeighborhoods] = useState<string[]>([]);
+  const [targetZipCodes, setTargetZipCodes] = useState<string[]>([]);
+  const [newNeighborhood, setNewNeighborhood] = useState("");
+  const [newZipCode, setNewZipCode] = useState("");
+
   // Voice Cloning state
   const [voiceFile, setVoiceFile] = useState<File | null>(null);
   const [voiceUploadUrl, setVoiceUploadUrl] = useState<string>("");
@@ -344,6 +351,20 @@ export default function AuthorityProfile() {
       
       // Booking URL
       setBookingUrl(persona.bookingUrl || "");
+
+      // Hyperlocal SEO
+      if (persona.targetNeighborhoods) {
+        try {
+          const hoods = JSON.parse(persona.targetNeighborhoods);
+          setTargetNeighborhoods(Array.isArray(hoods) ? hoods : []);
+        } catch (e) { /* ignore */ }
+      }
+      if (persona.targetZipCodes) {
+        try {
+          const zips = JSON.parse(persona.targetZipCodes);
+          setTargetZipCodes(Array.isArray(zips) ? zips : []);
+        } catch (e) { /* ignore */ }
+      }
 
       // Parse market context
       if (persona.marketContext) {
@@ -428,6 +449,8 @@ export default function AuthorityProfile() {
         keyTrends,
       }),
       bookingUrl: bookingUrl || undefined,
+      targetNeighborhoods: JSON.stringify(targetNeighborhoods),
+      targetZipCodes: JSON.stringify(targetZipCodes),
     });
   };
 
@@ -1027,6 +1050,123 @@ export default function AuthorityProfile() {
               onChange={(e) => setBookingUrl(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">Works with Calendly, Cal.com, Acuity, HubSpot, GHL, or any booking link.</p>
+          </div>
+        </Card>
+
+        {/* Hyperlocal SEO Card */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-1 flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-primary" />
+            Hyperlocal SEO Targeting
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Add the specific neighborhoods and ZIP codes you want to dominate. Every piece of content you generate will be anchored to these areas for maximum local SEO impact.
+          </p>
+
+          <div className="space-y-5">
+            {/* Neighborhoods */}
+            <div className="space-y-2">
+              <Label>Target Neighborhoods / Subdivisions</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="e.g. Mueller, Tarrytown, South Congress"
+                  value={newNeighborhood}
+                  onChange={(e) => setNewNeighborhood(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = newNeighborhood.trim();
+                      if (val && !targetNeighborhoods.includes(val) && targetNeighborhoods.length < 10) {
+                        setTargetNeighborhoods([...targetNeighborhoods, val]);
+                        setNewNeighborhood("");
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const val = newNeighborhood.trim();
+                    if (val && !targetNeighborhoods.includes(val) && targetNeighborhoods.length < 10) {
+                      setTargetNeighborhoods([...targetNeighborhoods, val]);
+                      setNewNeighborhood("");
+                    }
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+              {targetNeighborhoods.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {targetNeighborhoods.map((hood, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full">
+                      {hood}
+                      <button
+                        type="button"
+                        onClick={() => setTargetNeighborhoods(targetNeighborhoods.filter((_, idx) => idx !== i))}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">Up to 10 neighborhoods. Press Enter or click Add.</p>
+            </div>
+
+            {/* ZIP Codes */}
+            <div className="space-y-2">
+              <Label>Target ZIP Codes</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="e.g. 78704, 78745"
+                  value={newZipCode}
+                  onChange={(e) => setNewZipCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = newZipCode.trim();
+                      if (val && !targetZipCodes.includes(val) && targetZipCodes.length < 10) {
+                        setTargetZipCodes([...targetZipCodes, val]);
+                        setNewZipCode("");
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const val = newZipCode.trim();
+                    if (val && !targetZipCodes.includes(val) && targetZipCodes.length < 10) {
+                      setTargetZipCodes([...targetZipCodes, val]);
+                      setNewZipCode("");
+                    }
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+              {targetZipCodes.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {targetZipCodes.map((zip, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full">
+                      {zip}
+                      <button
+                        type="button"
+                        onClick={() => setTargetZipCodes(targetZipCodes.filter((_, idx) => idx !== i))}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">Up to 10 ZIP codes. Press Enter or click Add.</p>
+            </div>
           </div>
         </Card>
 

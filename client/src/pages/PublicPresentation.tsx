@@ -1,4 +1,5 @@
 import { useParams } from "wouter";
+import { useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Loader2, Calendar, MapPin, DollarSign, Home, ExternalLink } from "lucide-react";
@@ -11,6 +12,61 @@ export default function PublicPresentation() {
     { id },
     { enabled: id > 0, retry: false }
   );
+
+  // Inject SEO meta tags dynamically when presentation data loads
+  useEffect(() => {
+    if (!pres) return;
+    const address = pres.propertyAddress || "Property Presentation";
+    const agent = pres.agentName || "Your Agent";
+    const price = pres.listingPrice ? ` · Listed at $${pres.listingPrice}` : "";
+    const title = `${address}${price} — Presented by ${agent}`;
+    const description = `View the listing presentation for ${address}. Presented by ${agent}. Schedule a call to learn more.`;
+    const ogImage = pres.agentHeadshotUrl || "";
+
+    // Update document title
+    document.title = title;
+
+    // Helper to set or create a meta tag
+    const setMeta = (selector: string, attr: string, value: string) => {
+      let el = document.querySelector(selector) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement("meta");
+        document.head.appendChild(el);
+      }
+      el.setAttribute(attr, value);
+    };
+
+    setMeta('meta[name="description"]', "name", "description");
+    (document.querySelector('meta[name="description"]') as HTMLMetaElement)?.setAttribute("content", description);
+
+    setMeta('meta[property="og:title"]', "property", "og:title");
+    (document.querySelector('meta[property="og:title"]') as HTMLMetaElement)?.setAttribute("content", title);
+
+    setMeta('meta[property="og:description"]', "property", "og:description");
+    (document.querySelector('meta[property="og:description"]') as HTMLMetaElement)?.setAttribute("content", description);
+
+    setMeta('meta[property="og:type"]', "property", "og:type");
+    (document.querySelector('meta[property="og:type"]') as HTMLMetaElement)?.setAttribute("content", "website");
+
+    if (ogImage) {
+      setMeta('meta[property="og:image"]', "property", "og:image");
+      (document.querySelector('meta[property="og:image"]') as HTMLMetaElement)?.setAttribute("content", ogImage);
+    }
+
+    setMeta('meta[name="twitter:card"]', "name", "twitter:card");
+    (document.querySelector('meta[name="twitter:card"]') as HTMLMetaElement)?.setAttribute("content", "summary_large_image");
+
+    setMeta('meta[name="twitter:title"]', "name", "twitter:title");
+    (document.querySelector('meta[name="twitter:title"]') as HTMLMetaElement)?.setAttribute("content", title);
+
+    setMeta('meta[name="twitter:description"]', "name", "twitter:description");
+    (document.querySelector('meta[name="twitter:description"]') as HTMLMetaElement)?.setAttribute("content", description);
+
+    // Restore defaults on unmount
+    return () => {
+      document.title = "Amp'd Agent";
+    };
+  }, [pres]);
 
   if (isLoading) {
     return (

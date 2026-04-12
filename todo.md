@@ -4692,3 +4692,24 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Authority Profile: Calendly booking URL field already exists — confirm it saves/loads correctly
 - [x] /p/:id seller landing page: show Schedule a Call button when bookingUrl is set
 - [x] Pool exhaustion email: fire notification when checkAndDeductVideoPool returns allowed: false
+
+## Session 5: Nav Restructure + Hyperlocal SEO
+- [ ] Nav: Restructure DashboardLayout with new sections (HOME, MY PROFILE, VIDEOS, CONTENT, PRESENTATIONS, AUTHORITY, LIBRARY, PUBLISH, ACCOUNT, ADMIN)
+- [ ] Nav: Remove "New" badges from Live Tour, Avatar Video, YouTube Builder, Script Builder
+- [ ] Nav: Move Script Builder out of top-level nav (embed inside YouTube Builder / Avatar Video)
+- [ ] Nav: Move Photo Library from Listing Videos to LIBRARY section
+- [ ] Nav: Move Brand Story from Grow to MY PROFILE section
+- [ ] Nav: Move YouTube Thumbnails from Grow to VIDEOS section
+- [ ] Nav: Move Repurpose Engine from Grow to PUBLISH section
+- [ ] Nav: Rename sections for agent-first flow
+- [ ] Hyperlocal: Add neighborhood/ZIP target area fields to Authority Profile persona (DB + UI)
+- [ ] Hyperlocal: Inject neighborhood context into Post Builder generation prompts
+- [ ] Hyperlocal: Inject neighborhood context into Market Insights generation prompts
+- [ ] Hyperlocal: Inject neighborhood context into Expert Hooks generation prompts
+- [ ] Hyperlocal: Add Local Authority Blog template to Blog Builder (neighborhood SEO guide format)
+- [ ] Hyperlocal: Add SEO meta tags to /p/:id public presentation pages (title, description, OG using property address + neighborhood)
+
+## Session 5 Nav & Branding Cleanup
+- [ ] Merge MY PROFILE + BRAND STORY nav sections into single MY BRAND STORY section
+- [ ] Sweep codebase for "Authority Content" references and update to Amp'd Agent
+- [ ] Add SEO meta tags to /p/:id public presentation page

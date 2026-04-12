@@ -72,6 +72,38 @@ export const marketStatsRouter = router({
       const userId = ctx.user.id;
       const agentName = ctx.user.name || 'Real Estate Agent';
 
+      // Build hyperlocal context
+      const { getPersonaByUserId } = await import('../db');
+      const persona = await getPersonaByUserId(userId);
+      let hyperlocalNote = '';
+      if (persona?.targetNeighborhoods || persona?.targetZipCodes) {
+        try {
+          const hoods: string[] = persona.targetNeighborhoods ? JSON.parse(persona.targetNeighborhoods) : [];
+          const zips: string[] = persona.targetZipCodes ? JSON.parse(persona.targetZipCodes) : [];
+          const parts: string[] = [];
+          if (hoods.length > 0) parts.push(`neighborhoods: ${hoods.join(', ')}`);
+          if (zips.length > 0) parts.push(`ZIP codes: ${zips.join(', ')}`);
+          if (parts.length > 0) hyperlocalNote = `\nHyperlocal SEO: Naturally weave in references to these specific ${parts.join(' and ')} where relevant to boost local search visibility.`;
+        } catch {}
+      }
+
+      // Build audience context
+      let audienceNote = '';
+      if (persona?.customerAvatar) {
+        try {
+          const avatar = JSON.parse(persona.customerAvatar);
+          const toneGuide: Record<string, string> = {
+            'first-time-buyers': 'Speak to first-time buyers: encouraging, educational, jargon-free.',
+            'luxury-sellers': 'Speak to luxury sellers: sophisticated, discreet, emphasize exclusivity.',
+            'investors': 'Speak to investors: data-driven, ROI-focused, direct.',
+            'relocators': 'Speak to relocating families: warm, reassuring, local expertise.',
+            'downsizers': 'Speak to downsizers: empathetic, lifestyle-focused.',
+            'move-up-buyers': 'Speak to move-up buyers: aspirational, strategic, equity-focused.',
+          };
+          if (avatar.type && toneGuide[avatar.type]) audienceNote = `\nAudience: ${toneGuide[avatar.type]}`;
+        } catch {}
+      }
+
       // Generate AI content based on market stats
       const systemPrompt = `You are a professional real estate social media content writer. Generate an engaging social media post about local market statistics. The post should:
 - Be 150-200 words
@@ -83,7 +115,7 @@ export const marketStatsRouter = router({
 - End with a call-to-action
 - Be formatted for social media (short paragraphs, easy to read)
 
-Agent name: ${agentName}`;
+Agent name: ${agentName}${audienceNote}${hyperlocalNote}`;
 
       const userPrompt = `Create a market update post for ${input.location} with the following data:
 

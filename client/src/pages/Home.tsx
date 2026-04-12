@@ -203,7 +203,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold text-white">What is AmpedAgent.co?</h2>
           <p className="text-xl text-slate-300 leading-relaxed">
-            AmpedAgent is the AI-powered marketing platform built exclusively for real estate agents. We don't just generate posts — we create cinematic property videos, authority content, and a digital presence that makes you the obvious choice in your market.
+            AmpedAgent is the AI-powered marketing platform built exclusively for real estate agents. We don't just generate posts — we create cinematic property videos, market authority posts, and a digital presence that makes you the obvious choice in your market.
           </p>
         </div>
       </section>
