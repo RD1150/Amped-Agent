@@ -10,7 +10,7 @@ interface Message {
 
 const WELCOME_MESSAGE: Message = {
   role: "assistant",
-  content: "Hi! I'm Aria, your AmpedAgent support assistant 👋 How can I help you today? You can ask me about any feature, how to get started, or anything else about the platform.",
+  content: "Hi! I'm Aria, your Amped Agent support assistant 👋 How can I help you today? You can ask me about any feature, how to get started, or anything else about the platform.",
 };
 
 export function SupportChatbot() {
@@ -93,7 +93,7 @@ export function SupportChatbot() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm">Aria</p>
-              <p className="text-xs text-primary-foreground/80">AmpedAgent Support</p>
+              <p className="text-xs text-primary-foreground/80">Amped Agent Support</p>
             </div>
             <button
               onClick={() => setOpen(false)}

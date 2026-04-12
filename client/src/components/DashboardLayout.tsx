@@ -188,7 +188,7 @@ const menuSections = [
         icon: Home,
         label: "Dashboard",
         path: "/dashboard",
-        description: "Your Amp'd Agent command center",
+        description: "Your Amped Agent command center",
       },
       {
         icon: PlayCircle,
@@ -606,7 +606,7 @@ export default function DashboardLayout({
                 <span className="text-xl font-bold text-white">A</span>
               </div>
               <span className="text-2xl font-bold text-gold-gradient">
-                AmpedAgent
+                Amped Agent
               </span>
             </div>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
@@ -621,7 +621,7 @@ export default function DashboardLayout({
             size="lg"
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all"
           >
-            Sign in to AmpedAgent
+            Sign in to Amped Agent
           </Button>
         </div>
       </div>
@@ -709,7 +709,7 @@ function DashboardLayoutContent({
               <div className="relative w-full h-12 flex items-center bg-white overflow-hidden">
                 <img
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/qseOVyhBAogPpalp.png"
-                  alt="AmpedAgent"
+                  alt="Amped Agent"
                   className="h-10 w-auto object-contain ml-3"
                 />
                 <span className="ml-2 text-[9px] font-bold tracking-widest uppercase bg-orange-100 text-orange-600 border border-orange-200 px-1.5 py-0.5 rounded-full leading-none">

@@ -567,7 +567,7 @@ export default function Integrations() {
               <div className="p-4 bg-muted/50 rounded-lg space-y-2">
                 <p className="text-sm font-medium">Connect Your YouTube Channel</p>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Publish property tour videos directly from AmpedAgent</li>
+                  <li>Publish property tour videos directly from Amped Agent</li>
                   <li>Auto-fill AI-generated titles, descriptions, and tags on upload</li>
                   <li>Secure Google OAuth 2.0 — no third-party required</li>
                 </ul>

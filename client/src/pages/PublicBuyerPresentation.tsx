@@ -61,7 +61,7 @@ export default function PublicBuyerPresentation() {
     (document.querySelector('meta[name="twitter:description"]') as HTMLMetaElement)?.setAttribute("content", description);
 
     return () => {
-      document.title = "Amp'd Agent";
+      document.title = "Amped Agent";
     };
   }, [pres]);
 
@@ -187,7 +187,7 @@ export default function PublicBuyerPresentation() {
       <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-gray-100 px-4 py-2">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <p className="text-xs text-gray-400">
-            Powered by <span className="font-semibold text-blue-600">AmpedAgent</span>
+            Powered by <span className="font-semibold text-blue-600">Amped Agent</span>
           </p>
           {pres.bookingUrl && (
             <a

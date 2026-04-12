@@ -34,10 +34,10 @@ export const startDashboardTour = () => {
       {
         element: 'body',
         popover: {
-          title: 'Welcome to AmpedAgent! 👋',
+          title: 'Welcome to Amped Agent! 👋',
           description: `
             <div style="margin-bottom: 16px;">
-              <p style="margin-bottom: 12px; color: #6b7280;">Here's a quick look at what you can do with AmpedAgent:</p>
+              <p style="margin-bottom: 12px; color: #6b7280;">Here's a quick look at what you can do with Amped Agent:</p>
               <ul style="list-style: none; padding: 0; margin: 0 0 16px 0;">
                 <li style="padding: 8px 0; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; gap: 8px;"><span style="color: #f97316;">🎬</span> <strong>AI Reels</strong> — Vertical videos for Instagram, TikTok & YouTube Shorts</li>
                 <li style="padding: 8px 0; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; gap: 8px;"><span style="color: #f97316;">🏡</span> <strong>Property Tour</strong> — Cinematic listing videos in minutes</li>

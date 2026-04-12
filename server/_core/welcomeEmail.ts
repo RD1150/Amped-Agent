@@ -26,7 +26,7 @@ The user has successfully completed the onboarding flow and is ready to start cr
 - Explore Property Tours
 
 ---
-*This is an automated notification from AmpedAgent*
+*This is an automated notification from Amped Agent*
   `.trim();
   
   try {

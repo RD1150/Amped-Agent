@@ -11,14 +11,14 @@ export default function Terms() {
           <section>
             <h2 className="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
             <p>
-              By accessing and using AmpedAgent ("Service"), you accept and agree to be bound by the terms and provision of this agreement.
+              By accessing and using Amped Agent ("Service"), you accept and agree to be bound by the terms and provision of this agreement.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold mb-4">2. Description of Service</h2>
             <p>
-              AmpedAgent provides AI-powered social media content generation and scheduling tools for real estate professionals.
+              Amped Agent provides AI-powered social media content generation and scheduling tools for real estate professionals.
             </p>
           </section>
 

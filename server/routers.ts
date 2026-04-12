@@ -80,11 +80,11 @@ export const appRouter = router({
         })),
       }))
       .mutation(async ({ input }) => {
-        const systemPrompt = `You are Aria, the friendly AI support assistant for AmpedAgent — a powerful marketing platform built specifically for real estate agents.
+        const systemPrompt = `You are Aria, the friendly AI support assistant for Amped Agent — a powerful marketing platform built specifically for real estate agents.
 
-Your job is to help users understand and get the most out of AmpedAgent. Be warm, concise, and helpful. Always stay on topic.
+Your job is to help users understand and get the most out of Amped Agent. Be warm, concise, and helpful. Always stay on topic.
 
-Here is what AmpedAgent offers:
+Here is what Amped Agent offers:
 
 **Content Creation:**
 - Post Builder: Generate Instagram, Facebook, LinkedIn, and X posts in seconds
@@ -423,7 +423,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         const { voice_id } = await cloneVoice({
           name: voiceName,
           audioUrl: input.voiceSampleUrl,
-          description: `Voice clone for ${agentName} - AmpedAgent`,
+          description: `Voice clone for ${agentName} - Amped Agent`,
         });
 
         await db.upsertPersona(ctx.user.id, {

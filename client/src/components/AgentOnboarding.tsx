@@ -131,7 +131,7 @@ export default function AgentOnboarding() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Sparkles className="h-6 w-6 text-primary" />
-              <CardTitle className="text-2xl">Welcome to AmpedAgent</CardTitle>
+              <CardTitle className="text-2xl">Welcome to Amped Agent</CardTitle>
             </div>
             <span className="text-sm text-muted-foreground">Step {step > 0 ? step : 1} of 4</span>
           </div>
@@ -141,7 +141,7 @@ export default function AgentOnboarding() {
         <CardContent className="space-y-6">
           {step === 0 && (
             <div className="space-y-4 text-center py-8">
-              <h2 className="text-2xl font-bold mb-6">Welcome to AmpedAgent!</h2>
+              <h2 className="text-2xl font-bold mb-6">Welcome to Amped Agent!</h2>
               <div className="aspect-video w-full max-w-2xl mx-auto rounded-lg overflow-hidden bg-black">
                 <video 
                   src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/aBgrJXfThsxtnLZz.mp4"

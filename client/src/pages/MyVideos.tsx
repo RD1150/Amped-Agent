@@ -494,7 +494,7 @@ export default function MyVideos() {
           onOpenChange={(open) => { if (!open) setShareVideo(null); }}
           videoUrl={shareVideo.videoUrl}
           videoTitle={shareVideo.title}
-          defaultCaption={`Check out this ${SOURCE_CONFIG[shareVideo.source]?.label ?? "video"}! 🏡 #RealEstate #AmpedAgent`}
+          defaultCaption={`Check out this ${SOURCE_CONFIG[shareVideo.source]?.label ?? "video"}! 🏡 #RealEstate #Amped Agent`}
           onSuccess={() => setShareVideo(null)}
         />
       )}

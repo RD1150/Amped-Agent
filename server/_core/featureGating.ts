@@ -151,7 +151,7 @@ export function requirePlatformAccess(user: User): void {
     const trialEnd = getTrialEndDate(user);
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: `SUBSCRIPTION_REQUIRED:Your 7-day free trial ended on ${trialEnd.toLocaleDateString()}. Please subscribe to continue using AmpedAgent.`,
+      message: `SUBSCRIPTION_REQUIRED:Your 7-day free trial ended on ${trialEnd.toLocaleDateString()}. Please subscribe to continue using Amped Agent.`,
     });
   }
 }

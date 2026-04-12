@@ -23,7 +23,7 @@ const WELCOME_VIDEO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756
 const faqs = [
   {
     question: "How do I connect my social media accounts?",
-    answer: "Navigate to the Integrations page from the sidebar. Click 'Connect' on the platform you want to link. You'll be redirected to authorize AmpedAgent to post on your behalf. Make sure you have a business account for Facebook and Instagram."
+    answer: "Navigate to the Integrations page from the sidebar. Click 'Connect' on the platform you want to link. You'll be redirected to authorize Amped Agent to post on your behalf. Make sure you have a business account for Facebook and Instagram."
   },
   {
     question: "How does content generation work?",
@@ -39,7 +39,7 @@ const faqs = [
   },
   {
     question: "What social media platforms are supported?",
-    answer: "AmpedAgent currently supports Facebook Business Pages, Instagram Business/Creator accounts, LinkedIn, and X (Twitter). Each platform requires proper authorization and business account setup."
+    answer: "Amped Agent currently supports Facebook Business Pages, Instagram Business/Creator accounts, LinkedIn, and X (Twitter). Each platform requires proper authorization and business account setup."
   },
   {
     question: "How do I customize my brand voice?",
@@ -64,7 +64,7 @@ export default function Help() {
       <Dialog open={showVideo} onOpenChange={setShowVideo}>
         <DialogContent className="max-w-sm sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Welcome to AmpedAgent 👋</DialogTitle>
+            <DialogTitle>Welcome to Amped Agent 👋</DialogTitle>
           </DialogHeader>
           <div className="bg-black rounded-lg overflow-hidden mx-auto" style={{maxHeight: '70vh', maxWidth: '360px', width: '100%', aspectRatio: '9/16'}}>
             <video
@@ -80,7 +80,7 @@ export default function Help() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Help & Support</h1>
         <p className="text-muted-foreground mt-1">
-          Get help with AmpedAgent and learn how to make the most of your content
+          Get help with Amped Agent and learn how to make the most of your content
         </p>
       </div>
 
@@ -92,7 +92,7 @@ export default function Help() {
               <Play className="h-6 w-6 text-primary ml-0.5" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-foreground">Watch the AmpedAgent Intro</p>
+              <p className="font-semibold text-foreground">Watch the Amped Agent Intro</p>
               <p className="text-sm text-muted-foreground">Replay the welcome video to get a quick overview of all features</p>
             </div>
             <Button size="sm" className="flex-shrink-0">
@@ -119,14 +119,14 @@ export default function Help() {
             <p className="text-xs text-muted-foreground">Watch the welcome tour</p>
           </CardContent>
         </Card>
-        <Card className="bg-card border-border card-hover cursor-pointer" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=AmpedAgent Support'}>
+        <Card className="bg-card border-border card-hover cursor-pointer" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=Amped Agent Support'}>
           <CardContent className="p-4 text-center">
             <MessageCircle className="h-8 w-8 mx-auto mb-2 text-primary" />
             <p className="font-medium">Live Chat</p>
             <p className="text-xs text-muted-foreground">Talk to support</p>
           </CardContent>
         </Card>
-        <Card className="bg-card border-border card-hover cursor-pointer" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=AmpedAgent Support'}>
+        <Card className="bg-card border-border card-hover cursor-pointer" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=Amped Agent Support'}>
           <CardContent className="p-4 text-center">
             <Mail className="h-8 w-8 mx-auto mb-2 text-primary" />
             <p className="font-medium">Email Support</p>
@@ -143,7 +143,7 @@ export default function Help() {
             Getting Started
           </CardTitle>
           <CardDescription>
-            Follow these steps to set up your AmpedAgent account
+            Follow these steps to set up your Amped Agent account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -231,11 +231,11 @@ export default function Help() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=AmpedAgent Support'}>
+              <Button variant="outline" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=Amped Agent Support'}>
                 <Mail className="h-4 w-4 mr-2" />
                 Email Support
               </Button>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=AmpedAgent Support'}>
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => window.location.href = 'mailto:hello@mindrocketsystems.com?subject=Amped Agent Support'}>
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Contact Support
               </Button>

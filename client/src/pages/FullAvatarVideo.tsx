@@ -1458,7 +1458,7 @@ export default function FullAvatarVideo() {
           onOpenChange={setShowVideoShare}
           videoUrl={resultVideoUrl}
           videoTitle={title || "Avatar Video"}
-          defaultCaption={`🌟 ${title || "Check out my latest video!"} 🏡 #RealEstate #AIAvatar #AmpedAgent`}
+          defaultCaption={`🌟 ${title || "Check out my latest video!"} 🏡 #RealEstate #AIAvatar #Amped Agent`}
         />
       )}
 

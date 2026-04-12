@@ -1733,7 +1733,7 @@ export default function AutoReels() {
           onOpenChange={setShowVideoShare}
           videoUrl={videoUrl}
           videoTitle="AI Reel"
-          defaultCaption={caption || `🎯 ${selectedHook || "Check out this reel!"} 🏡 #RealEstate #Reels #AmpedAgent`}
+          defaultCaption={caption || `🎯 ${selectedHook || "Check out this reel!"} 🏡 #RealEstate #Reels #Amped Agent`}
         />
       )}
     </div>

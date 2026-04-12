@@ -4739,3 +4739,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add BETA pill badge next to logo in DashboardLayout sidebar
 - [x] Update page title to "Amp'd Agent (Beta)" in index.html
 - [x] Add dismissible beta feedback banner to dashboard
+## Session 10: Name Correction
+- [x] Replace all "Amp'd Agent" with "Amped Agent" across codebase
+- [x] Replace all "Amp'd" with "Amped" in page title, banners, and UI strings

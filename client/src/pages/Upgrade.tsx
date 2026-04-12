@@ -242,7 +242,7 @@ export default function Upgrade() {
       </div>
 
       <div className="mt-16 text-center">
-        <h2 className="text-2xl font-bold mb-4">Why AmpedAgent?</h2>
+        <h2 className="text-2xl font-bold mb-4">Why Amped Agent?</h2>
         <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-8">
           <div>
             <div className="text-4xl mb-2">🚀</div>

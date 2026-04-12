@@ -91,7 +91,7 @@ export default function Landing() {
     },
     {
       quote:
-        "I used to spend $800/month on a social media manager. AmpedAgent does more for a fraction of the cost.",
+        "I used to spend $800/month on a social media manager. Amped Agent does more for a fraction of the cost.",
       name: "Reena D.",
       title: "Team Lead · Beverly Hills, CA",
       initials: "RD",
@@ -128,7 +128,7 @@ export default function Landing() {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Zap className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold tracking-tight">AmpedAgent</span>
+            <span className="text-xl font-bold tracking-tight">Amped Agent</span>
           </div>
           <div className="flex items-center gap-3">
             <a href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
@@ -311,7 +311,7 @@ export default function Landing() {
               <CardContent className="p-8">
                 <div className="text-primary font-semibold text-sm mb-4 flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5" />
-                  AmpedAgent Content
+                  Amped Agent Content
                 </div>
                 <div className="bg-white border border-primary/20 rounded-lg p-5 text-sm space-y-2 mb-4">
                   <p className="font-medium">Beverly Hills inventory dropped 18% this quarter.</p>
@@ -343,7 +343,7 @@ export default function Landing() {
               Agents Are Already Winning
             </h2>
             <p className="text-xl text-muted-foreground">
-              Real results from real estate professionals using AmpedAgent.
+              Real results from real estate professionals using Amped Agent.
             </p>
           </div>
 
@@ -378,7 +378,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Built for Every Agent</h2>
           <p className="text-xl text-muted-foreground mb-12">
-            Whether you're a solo agent building your brand or a team lead managing multiple producers — AmpedAgent scales with you.
+            Whether you're a solo agent building your brand or a team lead managing multiple producers — Amped Agent scales with you.
           </p>
 
           <div className="grid sm:grid-cols-3 gap-6">
@@ -411,7 +411,7 @@ export default function Landing() {
             Start Dominating Your Market Today
           </h2>
           <p className="text-xl text-primary-foreground/80 mb-10">
-            Join real estate professionals using AmpedAgent to build market-dominant brands — before their competition figures out what's happening.
+            Join real estate professionals using Amped Agent to build market-dominant brands — before their competition figures out what's happening.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
             <Button
@@ -446,7 +446,7 @@ export default function Landing() {
             <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
               <Zap className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-foreground">AmpedAgent</span>
+            <span className="font-semibold text-foreground">Amped Agent</span>
           </div>
           <div className="flex flex-wrap justify-center gap-6">
             <a href="/pricing" className="hover:text-foreground transition-colors">Pricing</a>
@@ -454,7 +454,7 @@ export default function Landing() {
             <a href="/terms-of-service" className="hover:text-foreground transition-colors">Terms of Service</a>
             <a href="/fair-housing" className="hover:text-foreground transition-colors">Fair Housing</a>
           </div>
-          <div>© {new Date().getFullYear()} AmpedAgent. All rights reserved.</div>
+          <div>© {new Date().getFullYear()} Amped Agent. All rights reserved.</div>
         </div>
       </footer>
     </div>

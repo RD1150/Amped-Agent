@@ -385,7 +385,7 @@ export default function Settings() {
             <Switch defaultChecked disabled />
           </div>
           <p className="text-xs text-muted-foreground">
-            AmpedAgent uses a premium dark theme by default.
+            Amped Agent uses a premium dark theme by default.
           </p>
         </CardContent>
       </Card>
@@ -902,7 +902,7 @@ export default function Settings() {
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Sign Out</p>
-              <p className="text-sm text-muted-foreground">Sign out of your AmpedAgent account</p>
+              <p className="text-sm text-muted-foreground">Sign out of your Amped Agent account</p>
             </div>
             <Button variant="outline" onClick={logout}>
               <LogOut className="h-4 w-4 mr-2" />

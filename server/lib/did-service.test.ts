@@ -90,7 +90,7 @@ describe("D-ID Service", () => {
     });
 
     const avatarUrl = "https://d-id-public-bucket.s3.us-west-2.amazonaws.com/alice.jpg";
-    const script = "Welcome to AmpedAgent! I'm here to help you create amazing real estate videos.";
+    const script = "Welcome to Amped Agent! I'm here to help you create amazing real estate videos.";
 
     const videoUrl = await generateAvatarIntro(avatarUrl, script);
 

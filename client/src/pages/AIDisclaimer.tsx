@@ -4,7 +4,7 @@ export default function AIDisclaimer() {
       <header className="border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <a href="/landing" className="flex items-center gap-2">
-            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/OIiAbFpfnRfWzAsg.png" alt="AmpedAgent" className="h-8 object-contain" />
+            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/OIiAbFpfnRfWzAsg.png" alt="Amped Agent" className="h-8 object-contain" />
           </a>
         </div>
       </header>
@@ -17,7 +17,7 @@ export default function AIDisclaimer() {
           <section>
             <h2 className="text-2xl font-bold mb-4">Important Notice About AI-Generated Content</h2>
             <p>
-              AmpedAgent uses artificial intelligence to generate social media content. While our AI is trained to produce high-quality, relevant content for real estate professionals, it is essential that you understand the following:
+              Amped Agent uses artificial intelligence to generate social media content. While our AI is trained to produce high-quality, relevant content for real estate professionals, it is essential that you understand the following:
             </p>
           </section>
 
@@ -77,20 +77,20 @@ export default function AIDisclaimer() {
           <section>
             <h2 className="text-2xl font-bold mb-4">5. Your Responsibility</h2>
             <p>
-              By using AmpedAgent, you acknowledge and agree that:
+              By using Amped Agent, you acknowledge and agree that:
             </p>
             <ul className="list-disc pl-6 space-y-2">
               <li>You are responsible for all content you publish</li>
               <li>You will review and edit AI-generated content appropriately</li>
               <li>You will ensure compliance with all applicable laws</li>
-              <li>You will not hold AmpedAgent liable for any consequences resulting from your use of AI-generated content</li>
+              <li>You will not hold Amped Agent liable for any consequences resulting from your use of AI-generated content</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold mb-4">6. Limitation of Liability</h2>
             <p>
-              AmpedAgent is not responsible for:
+              Amped Agent is not responsible for:
             </p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Errors or inaccuracies in AI-generated content</li>

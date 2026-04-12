@@ -107,7 +107,7 @@ export default function FacebookCallback() {
             <div className="space-y-4">
               <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
                 <p className="text-sm text-primary dark:text-green-400">
-                  You can now post directly to your Facebook Page from AmpedAgent!
+                  You can now post directly to your Facebook Page from Amped Agent!
                 </p>
               </div>
               <p className="text-sm text-muted-foreground text-center">

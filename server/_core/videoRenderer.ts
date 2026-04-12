@@ -15,7 +15,7 @@ import { ENV } from './env';
 const CREATOMATE_API_URL = 'https://api.creatomate.com/v1';
 
 // Luxury real estate background images — Thousand Oaks / Conejo Valley aesthetic ($1.2M+ properties)
-// AI-generated, owned by AmpedAgent. All 9:16 vertical for Reels.
+// AI-generated, owned by Amped Agent. All 9:16 vertical for Reels.
 const DEFAULT_REEL_BACKGROUNDS: Record<string, string[]> = {
   // calm tone → buyers category: welcoming exteriors and interiors
   buyers: [
@@ -369,7 +369,7 @@ export async function renderAutoReel(options: VideoRenderOptions): Promise<Rende
       track: trackNum++,
       time: 0,
       duration: videoLength,
-      text: 'AmpedAgent.co',
+      text: 'Amped Agent.co',
       x: '50%',
       y: '95%',
       width: '80%',
@@ -621,7 +621,7 @@ export async function renderMarketUpdateReel(options: MarketUpdateRenderOptions)
     // ── Branding watermark ──────────────────────────────────────────────────────
     elements.push({
       type: 'text', track: trackNum++, time: 0, duration: TOTAL,
-      text: 'AmpedAgent.co',
+      text: 'Amped Agent.co',
       x: '50%', y: '95%', width: '80%',
       font_family: 'Montserrat', font_size: '2.8 vmin', font_weight: '400',
       fill_color: 'rgba(201,169,98,0.45)', text_align: 'center',

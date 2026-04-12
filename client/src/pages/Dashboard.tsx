@@ -131,7 +131,7 @@ export default function Dashboard() {
             BETA
           </span>
           <p className="text-sm text-orange-800 flex-1">
-            You're using an early beta of Amp'd Agent. Your feedback shapes the platform —{" "}
+            You're using an early beta of Amped Agent. Your feedback shapes the platform —{" "}
             <a
               href="mailto:feedback@ampedagent.app"
               className="font-semibold underline hover:text-orange-900"
@@ -160,7 +160,7 @@ export default function Dashboard() {
               Ready to dominate your local market?
             </p>
             <p className="text-sm text-primary/80 font-medium mt-1">
-              This is your AmpedAgent command center.
+              This is your Amped Agent command center.
             </p>
           </div>
           <Button

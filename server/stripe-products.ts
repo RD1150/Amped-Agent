@@ -1,5 +1,5 @@
 /**
- * Stripe Product Configuration for AmpedAgent
+ * Stripe Product Configuration for Amped Agent
  * Defines the 3 subscription tiers with pricing and features
  *
  * Pricing (updated Apr 2026):
@@ -40,7 +40,7 @@ export interface StripeProduct {
 
 export const STRIPE_PRODUCTS: StripeProduct[] = [
   {
-    name: "AmpedAgent Starter",
+    name: "Amped Agent Starter",
     description: "The complete AI content suite for solo agents ready to dominate their market",
     tier: "starter",
     priceMonthly: 7900, // $79/month
@@ -82,7 +82,7 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     ],
   },
   {
-    name: "AmpedAgent Pro",
+    name: "Amped Agent Pro",
     description: "For active agents who post consistently and want to be the authority in their market",
     tier: "pro",
     priceMonthly: 14900, // $149/month
@@ -123,7 +123,7 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     ],
   },
   {
-    name: "AmpedAgent Agency",
+    name: "Amped Agent Agency",
     description: "The complete authority marketing suite for top producers and teams",
     tier: "agency",
     priceMonthly: 29900, // $299/month

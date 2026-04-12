@@ -186,7 +186,7 @@ describe("subtitle timing: speech-rate-based (not duration-based)", () => {
     // Find subtitle elements (text elements that are NOT the hook or branding)
     const hookText = "Market update hook";
     const subtitleEls = elements.filter(
-      (el: any) => el.type === "text" && el.text !== hookText && !el.text.includes("AmpedAgent")
+      (el: any) => el.type === "text" && el.text !== hookText && !el.text.includes("Amped Agent")
     );
 
     expect(subtitleEls.length).toBeGreaterThan(0);
@@ -214,7 +214,7 @@ describe("subtitle timing: speech-rate-based (not duration-based)", () => {
 
     const hookText = "Readable subtitles";
     const subtitleEls = elements.filter(
-      (el: any) => el.type === "text" && el.text !== hookText && !el.text.includes("AmpedAgent")
+      (el: any) => el.type === "text" && el.text !== hookText && !el.text.includes("Amped Agent")
     );
 
     expect(subtitleEls.length).toBeGreaterThan(0);
@@ -244,10 +244,10 @@ describe("subtitle timing: speech-rate-based (not duration-based)", () => {
     const hookText60 = "Hook B";
 
     const subs30 = body30.source.elements.filter(
-      (el: any) => el.type === "text" && el.text !== hookText30 && !el.text.includes("AmpedAgent")
+      (el: any) => el.type === "text" && el.text !== hookText30 && !el.text.includes("Amped Agent")
     );
     const subs60 = body60.source.elements.filter(
-      (el: any) => el.type === "text" && el.text !== hookText60 && !el.text.includes("AmpedAgent")
+      (el: any) => el.type === "text" && el.text !== hookText60 && !el.text.includes("Amped Agent")
     );
 
     // Same script → same number of subtitle chunks regardless of video length
