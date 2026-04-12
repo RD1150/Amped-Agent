@@ -4723,3 +4723,15 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix routers.ts:385 esbuild syntax error in persona upsert procedure
 - [x] Add Test booking link button next to Calendly URL field in Authority Profile
 - [x] Extend Primary Audience injection into Market Insights commentary generation
+
+## Session 8
+- [ ] Market Insights: add audience-framed "What this means for you" section to generated output
+- [ ] Build /bp/:id public Buyer Presentation page
+- [ ] Get Started: add onboarding checklist (Authority Profile, Brand Story, Hyperlocal, Booking link)
+- [ ] Produce trial-readiness checklist table for all platform offerings
+## Session 8 Completed
+- [x] Market Insights: add audience-framed "What this means for you" section to generated output
+- [x] Build /bp/:id public Buyer Presentation page (getPublic procedure + PublicBuyerPresentation.tsx + route)
+- [x] Fix BuyerPresentation brandedUrl to use /bp/:id instead of /p/:id
+- [x] Get Started: add onboarding checklist (Authority Profile, Brand Story, Hyperlocal, Booking link, Voice clone, Social connected)
+- [x] Produce trial-readiness checklist table for all platform offerings (trial_readiness_checklist.md)

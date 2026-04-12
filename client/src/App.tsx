@@ -68,6 +68,7 @@ import BlogBuilder from "./pages/BlogBuilder";
 import BrandStory from "./pages/BrandStory";
 import { SupportChatbot } from "./components/SupportChatbot";
 import PublicPresentation from "./pages/PublicPresentation";
+import PublicBuyerPresentation from "./pages/PublicBuyerPresentation";
 
 import Upgrade from "./pages/Upgrade";
 import Landing from "./pages/Landing";
@@ -108,6 +109,7 @@ function Router() {
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/agent-onboarding" component={AgentOnboarding} />
       <Route path="/p/:id" component={PublicPresentation} />
+      <Route path="/bp/:id" component={PublicBuyerPresentation} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/subscription" component={Subscription} />
       <Route path="/upgrade" component={Upgrade} />

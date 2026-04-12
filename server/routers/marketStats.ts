@@ -152,6 +152,29 @@ Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is t
         throw new Error('Generated content is not a string');
       }
 
+      // Generate audience-specific "What this means for you" section
+      let audienceInsight = '';
+      try {
+        const insightResult = await invokeLLM({
+          messages: [
+            {
+              role: 'system',
+              content: `You are a real estate expert writing a brief, punchy "What this means for you" insight paragraph for ${audienceFraming}. Be direct, specific, and actionable. 2-3 sentences max. No fluff.`,
+            },
+            {
+              role: 'user',
+              content: `Based on these market stats for ${input.location}:\n- Median Price: $${input.medianPrice.toLocaleString()} (${input.priceChange > 0 ? '+' : ''}${input.priceChange}% change)\n- Days on Market: ${input.daysOnMarket}\n- Active Listings: ${input.activeListings.toLocaleString()} (${input.inventoryChange > 0 ? '+' : ''}${input.inventoryChange}% change)\n- Market: ${input.marketTemperature}\n\nWrite a "What this means for ${audienceFraming}" paragraph. Start with that exact phrase as a bold header.`,
+            },
+          ],
+        });
+        const insightText = insightResult.choices[0]?.message?.content;
+        if (typeof insightText === 'string') audienceInsight = insightText;
+      } catch {}
+
+      const fullContent = audienceInsight
+        ? `${generatedContent}\n\n${audienceInsight}`
+        : generatedContent;
+
       // Create content post
       const db = await getDb();
       if (!db) {
@@ -162,7 +185,7 @@ Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is t
         .insert(contentPosts)
         .values({
           userId,
-          content: generatedContent,
+          content: fullContent,
           contentType: 'market_report',
           status: 'draft',
           scheduledAt: null,
@@ -170,7 +193,7 @@ Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is t
 
       return {
         success: true,
-        content: generatedContent,
+        content: fullContent,
       };
     }),
 

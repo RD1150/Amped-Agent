@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { buyerPresentations } from "../../drizzle/schema";
+import { buyerPresentations, personas, presentationViews } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { ENV } from "../_core/env";
 
@@ -388,6 +388,50 @@ export const buyerPresentationRouter = router({
           .where(eq(buyerPresentations.id, presentationId));
         throw err;
       }
+    }),
+
+  // ── Public page for buyers (no auth required) ────────────────────────────
+  getPublic: publicProcedure
+    .input(z.object({ id: z.number().int() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const [pres] = await db
+        .select()
+        .from(buyerPresentations)
+        .where(and(
+          eq(buyerPresentations.id, input.id),
+          eq(buyerPresentations.status, "completed")
+        ))
+        .limit(1);
+      if (!pres) throw new Error("Presentation not found");
+
+      // Get the agent's persona for booking URL and headshot
+      const [personaRow] = await db
+        .select({ bookingUrl: personas.bookingUrl, agentName: personas.agentName, headshotUrl: personas.headshotUrl })
+        .from(personas)
+        .where(eq(personas.userId, pres.userId))
+        .limit(1);
+
+      // Track the view
+      await db.insert(presentationViews).values({
+        presentationId: pres.id,
+        presentationType: "buyer",
+      }).catch(() => {}); // non-critical
+
+      return {
+        id: pres.id,
+        title: pres.title,
+        buyerName: pres.buyerName,
+        marketCity: pres.marketCity,
+        marketState: pres.marketState,
+        gammaUrl: pres.gammaUrl,
+        thumbnailUrl: pres.thumbnailUrl,
+        agentName: pres.agentName || personaRow?.agentName || null,
+        agentHeadshotUrl: personaRow?.headshotUrl || null,
+        agentBio: pres.agentBio,
+        bookingUrl: personaRow?.bookingUrl || null,
+      };
     }),
 
   // ── Delete a presentation ─────────────────────────────────────────────────

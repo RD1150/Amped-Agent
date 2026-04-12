@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { Play, X, CheckCircle2, BookOpen, Video, Mic, BarChart2, FileText, Users, Search, Check } from "lucide-react";
+import { Play, X, CheckCircle2, BookOpen, Video, Mic, BarChart2, FileText, Users, Search, Check, AlertCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 const POST_BUILDER_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/postbuilder_final_v6_d324127d.mp4";
 const AGENT_PROFILE_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/authority_profile_v2_42b2462b.mp4";
@@ -98,6 +99,69 @@ export default function GetStarted() {
   const [search, setSearch] = useState("");
   const utils = trpc.useUtils();
   const { data: watchedIds = [] } = trpc.getStarted.getWatched.useQuery();
+  const { data: persona } = trpc.persona.get.useQuery();
+  const { data: facebookConnection } = trpc.facebook.getConnection.useQuery();
+  const { data: linkedinConnection } = trpc.linkedin.getConnection.useQuery();
+  const [, navigate] = useLocation();
+
+  // Derive onboarding checklist status from real data
+  const onboardingItems = useMemo(() => {
+    let neighborhoodsSet = false;
+    if (persona?.targetNeighborhoods) {
+      try { neighborhoodsSet = JSON.parse(persona.targetNeighborhoods).length > 0; } catch {}
+    }
+    if (!neighborhoodsSet && persona?.targetZipCodes) {
+      try { neighborhoodsSet = JSON.parse(persona.targetZipCodes).length > 0; } catch {}
+    }
+    const socialConnected = !!(facebookConnection?.isConnected || linkedinConnection?.isConnected);
+    return [
+      {
+        id: "profile",
+        label: "Authority Profile filled out",
+        description: "Agent name, brokerage, brand voice, and customer avatar",
+        done: !!(persona?.agentName && persona?.brokerageName && persona?.customerAvatar),
+        href: "/authority-profile",
+      },
+      {
+        id: "brand-story",
+        label: "Brand Story written",
+        description: "Your personal story, why real estate, and what makes you different",
+        done: !!(persona?.agentName), // Brand story is generated on-demand; treat as done if profile exists
+        href: "/brand-story",
+      },
+      {
+        id: "hyperlocal",
+        label: "Hyperlocal neighborhoods / ZIPs set",
+        description: "Target neighborhoods and ZIP codes for local SEO content",
+        done: neighborhoodsSet,
+        href: "/authority-profile",
+      },
+      {
+        id: "booking",
+        label: "Booking / Calendly link added",
+        description: "Shown on presentation landing pages as a \"Schedule a Call\" button",
+        done: !!(persona?.bookingUrl),
+        href: "/authority-profile",
+      },
+      {
+        id: "voice",
+        label: "Voice cloned (ElevenLabs)",
+        description: "Upload a 30-second sample to personalize all video narrations",
+        done: !!(persona?.elevenlabsVoiceId),
+        href: "/authority-profile",
+      },
+      {
+        id: "social",
+        label: "Social account connected",
+        description: "Facebook, Instagram, or LinkedIn connected for one-click publishing",
+        done: socialConnected,
+        href: "/integrations",
+      },
+    ];
+  }, [persona, facebookConnection, linkedinConnection]);
+
+  const completedCount = onboardingItems.filter((i) => i.done).length;
+  const allDone = completedCount === onboardingItems.length;
 
   const markWatched = trpc.getStarted.markWatched.useMutation({
     onSuccess: () => utils.getStarted.getWatched.invalidate(),
@@ -142,6 +206,74 @@ export default function GetStarted() {
         <p className="text-muted-foreground text-base">
           Short video walkthroughs to help you get the most out of every feature.
         </p>
+      </div>
+
+      {/* Onboarding Checklist */}
+      <div className="bg-card border rounded-xl p-5 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-base font-semibold">Setup Checklist</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Complete these steps before generating content for best results.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {allDone ? (
+              <span className="flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
+                <CheckCircle2 className="h-3.5 w-3.5" /> All done!
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground font-medium">
+                {completedCount} / {onboardingItems.length} complete
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="w-full bg-muted rounded-full h-1.5 mb-4">
+          <div
+            className="bg-primary h-1.5 rounded-full transition-all duration-500"
+            style={{ width: `${(completedCount / onboardingItems.length) * 100}%` }}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {onboardingItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => navigate(item.href)}
+              className={`flex items-start gap-3 p-3 rounded-lg border text-left transition-colors hover:bg-muted/50 ${
+                item.done
+                  ? "border-green-200 bg-green-50/50"
+                  : "border-border bg-background"
+              }`}
+            >
+              <div className={`mt-0.5 shrink-0 rounded-full p-0.5 ${
+                item.done ? "bg-green-500 text-white" : "bg-muted text-muted-foreground"
+              }`}>
+                {item.done ? (
+                  <Check className="h-3.5 w-3.5" />
+                ) : (
+                  <AlertCircle className="h-3.5 w-3.5" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-medium leading-snug ${
+                  item.done ? "text-green-700" : "text-foreground"
+                }`}>
+                  {item.label}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
+              {!item.done && (
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Progress banner */}

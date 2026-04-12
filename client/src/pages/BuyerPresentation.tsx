@@ -235,7 +235,7 @@ export default function BuyerPresentation() {
   };
 
   // ── Share helpers ─────────────────────────────────────────────────────────
-  const brandedUrl = (id: number) => `${window.location.origin}/p/${id}`;
+  const brandedUrl = (id: number) => `${window.location.origin}/bp/${id}`;
 
   const copyLink = (id: number) => {
     navigator.clipboard.writeText(brandedUrl(id));
