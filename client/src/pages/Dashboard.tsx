@@ -30,6 +30,7 @@ import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 import UsageCounter from "@/components/UsageCounter";
 import VideoPreviewGallery from "@/components/VideoPreviewGallery";
 import AuthorityScore from "@/components/AuthorityScore";
+import ReferralCard from "@/components/ReferralCard";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { X, MessageSquare } from "lucide-react";
@@ -531,6 +532,8 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
+      {/* Referral Incentive Card */}
+      <ReferralCard />
       {/* YouTube Channel Analytics */}
       <YouTubeAnalyticsWidget />
       {/* Video Preview Gallery */}

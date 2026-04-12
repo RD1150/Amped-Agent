@@ -6,11 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, Gift } from "lucide-react";
 
 export default function Login() {
+  // Read ?ref= and ?tab= from URL
+  const params = new URLSearchParams(window.location.search);
+  const refCode = params.get("ref") || "";
+  const defaultTab = params.get("tab") === "register" ? "register" : "signin";
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
     if (params.get("error") === "google_failed") {
       toast.error("Google sign-in failed. Please try again or use email/password.");
     }
@@ -31,7 +35,10 @@ export default function Login() {
   const [regLoading, setRegLoading] = useState(false);
 
   const handleGoogleLogin = () => {
-    window.location.href = "/api/auth/google";
+    // Pass ref code through state param so callback can apply it
+    const state = refCode ? `ref_${refCode}` : undefined;
+    const url = state ? `/api/auth/google?state=${encodeURIComponent(state)}` : "/api/auth/google";
+    window.location.href = url;
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -75,12 +82,15 @@ export default function Login() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ name: regName, email: regEmail, password: regPassword }),
+        body: JSON.stringify({ name: regName, email: regEmail, password: regPassword, referralCode: refCode || undefined }),
       });
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.error || "Something went wrong.");
         return;
+      }
+      if (data.referralApplied) {
+        toast.success("🎁 50 bonus credits added — welcome gift from your referral!");
       }
       window.location.href = "/dashboard";
     } catch {
@@ -105,6 +115,14 @@ export default function Login() {
             <p className="text-sm text-muted-foreground mt-1">AI-Powered Real Estate Authority Platform</p>
           </a>
         </div>
+
+        {/* Referral bonus banner */}
+        {refCode && (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
+            <Gift size={16} className="shrink-0" />
+            <span>You were invited! Create an account to receive <strong>50 free bonus credits</strong>.</span>
+          </div>
+        )}
 
         <Card className="border-border/50 shadow-2xl">
           <CardHeader className="pb-4">
@@ -137,7 +155,7 @@ export default function Login() {
             </div>
 
             {/* Email/Password Tabs */}
-            <Tabs defaultValue="signin" className="w-full">
+            <Tabs defaultValue={defaultTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="register">Create Account</TabsTrigger>

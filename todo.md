@@ -4751,3 +4751,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update getLoginUrl to point to /login instead of Manus OAuth portal
 - [x] Add passwordHash column to users table (db:push done)
 - [x] Write and pass 7 vitest tests for email auth validation logic
+
+## Referral Incentive System
+- [x] Add referralCode and referredBy columns to users table, push DB migration
+- [x] Generate unique referral code on user creation
+- [x] Track referral conversions and award 50 credits to both referrer and new user on signup
+- [x] Build referral card UI on dashboard (copy link, referred count, credits earned)
+- [x] Add /join?ref=CODE route that pre-fills referral code on login/register page

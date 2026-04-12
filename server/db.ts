@@ -1051,3 +1051,112 @@ export async function unmarkVideoWatched(userId: number, videoId: string): Promi
   await db.delete(watchedVideos)
     .where(and(eq(watchedVideos.userId, userId), eq(watchedVideos.videoId, videoId)));
 }
+
+
+// ============ REFERRAL HELPERS ============
+
+/**
+ * Generate a unique 8-character alphanumeric referral code for a user.
+ * Retries up to 5 times to avoid collisions.
+ */
+export async function generateReferralCode(userId: number): Promise<string> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Unambiguous chars (no 0/O, 1/I)
+  for (let attempt = 0; attempt < 5; attempt++) {
+    let code = "";
+    for (let i = 0; i < 8; i++) {
+      code += chars[Math.floor(Math.random() * chars.length)];
+    }
+    // Check uniqueness
+    const existing = await db.select({ id: users.id }).from(users).where(eq(users.referralCode, code)).limit(1);
+    if (existing.length === 0) {
+      await db.update(users).set({ referralCode: code }).where(eq(users.id, userId));
+      return code;
+    }
+  }
+  throw new Error("Failed to generate unique referral code after 5 attempts");
+}
+
+/**
+ * Get a user by their referral code.
+ */
+export async function getUserByReferralCode(code: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.referralCode, code.toUpperCase())).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Apply a referral: award 50 credits to both the new user and the referrer.
+ * Sets referredBy on the new user and logs credit transactions for both.
+ * Safe to call only once per new user (checks referredBy is null).
+ */
+export async function applyReferral(newUserId: number, referrerUserId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Mark the new user as referred (idempotency guard)
+  const newUser = await db.select({ referredBy: users.referredBy }).from(users).where(eq(users.id, newUserId)).limit(1);
+  if (newUser.length > 0 && newUser[0].referredBy !== null) {
+    // Already applied
+    return;
+  }
+
+  await db.update(users)
+    .set({ referredBy: referrerUserId })
+    .where(eq(users.id, newUserId));
+
+  // Import addCredits lazily to avoid circular deps
+  const { addCredits } = await import("./credits");
+
+  // Award 50 credits to the new user
+  await addCredits({
+    userId: newUserId,
+    amount: 50,
+    type: "bonus",
+    description: "Referral bonus — joined via a friend's invite link",
+  });
+
+  // Award 50 credits to the referrer
+  await addCredits({
+    userId: referrerUserId,
+    amount: 50,
+    type: "bonus",
+    description: "Referral reward — a friend joined using your invite link",
+  });
+
+  // Track total referral credits earned by referrer
+  await db.update(users)
+    .set({ referralCreditsEarned: sql`${users.referralCreditsEarned} + 50` })
+    .where(eq(users.id, referrerUserId));
+}
+
+/**
+ * Get referral stats for a user: their code, number of successful referrals, and total credits earned.
+ */
+export async function getReferralStats(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const userRow = await db
+    .select({ referralCode: users.referralCode, referralCreditsEarned: users.referralCreditsEarned })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (userRow.length === 0) throw new Error("User not found");
+
+  const referralCount = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(users)
+    .where(eq(users.referredBy, userId));
+
+  return {
+    referralCode: userRow[0].referralCode,
+    referralCount: Number(referralCount[0]?.count ?? 0),
+    creditsEarned: userRow[0].referralCreditsEarned ?? 0,
+  };
+}

@@ -53,10 +53,11 @@ export function registerAuthRoutes(app: Express) {
   // ── Email/Password Registration ────────────────────────────────────────────
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
-      const { name, email, password } = req.body as {
+      const { name, email, password, referralCode } = req.body as {
         name?: string;
         email?: string;
         password?: string;
+        referralCode?: string;
       };
 
       if (!email || !password || !name) {
@@ -87,6 +88,29 @@ export function registerAuthRoutes(app: Express) {
         passwordHash,
       } as any);
 
+      // Apply referral code if provided
+      let referralApplied = false;
+      if (referralCode && referralCode.trim()) {
+        try {
+          const newUser = await db.getUserByOpenId(openId);
+          const referrer = await db.getUserByReferralCode(referralCode.trim());
+          if (newUser && referrer && referrer.id !== newUser.id) {
+            await db.applyReferral(newUser.id, referrer.id);
+            referralApplied = true;
+          }
+        } catch (e) {
+          console.warn("[Auth] Referral application failed (non-fatal):", e);
+        }
+      }
+
+      // Generate referral code for new user
+      try {
+        const newUser = await db.getUserByOpenId(openId);
+        if (newUser) await db.generateReferralCode(newUser.id);
+      } catch (e) {
+        console.warn("[Auth] Referral code generation failed (non-fatal):", e);
+      }
+
       // Send welcome email (non-fatal)
       try {
         const { sendWelcomeEmail } = await import("./welcomeEmail");
@@ -96,7 +120,7 @@ export function registerAuthRoutes(app: Express) {
       }
 
       await issueSession(req, res, openId, name.trim());
-      res.json({ success: true });
+      res.json({ success: true, referralApplied });
     } catch (error) {
       console.error("[Auth] Register failed:", error);
       res.status(500).json({ error: "Registration failed. Please try again." });
@@ -146,11 +170,15 @@ export function registerAuthRoutes(app: Express) {
     const origin = `${proto}://${host}`;
     const redirectUri = `${origin}/api/auth/google/callback`;
 
+    // Pass referral code via state param (format: ref_CODE)
+    const stateParam = req.query.state as string | undefined;
+
     const url = client.generateAuthUrl({
       access_type: "offline",
       scope: ["openid", "email", "profile"],
       redirect_uri: redirectUri,
       prompt: "select_account",
+      state: stateParam,
     });
     res.redirect(302, url);
   });
@@ -199,6 +227,29 @@ export function registerAuthRoutes(app: Express) {
       });
 
       if (isNewUser) {
+        // Generate referral code for the new user
+        try {
+          const newUser = await db.getUserByOpenId(openId);
+          if (newUser) await db.generateReferralCode(newUser.id);
+        } catch (e) {
+          console.warn("[Auth] Referral code generation failed (non-fatal):", e);
+        }
+
+        // Apply referral code if passed via state param
+        const stateParam = req.query.state as string | undefined;
+        if (stateParam && stateParam.startsWith("ref_")) {
+          const refCode = stateParam.slice(4);
+          try {
+            const newUser = await db.getUserByOpenId(openId);
+            const referrer = await db.getUserByReferralCode(refCode);
+            if (newUser && referrer && referrer.id !== newUser.id) {
+              await db.applyReferral(newUser.id, referrer.id);
+            }
+          } catch (e) {
+            console.warn("[Auth] Referral application failed (non-fatal):", e);
+          }
+        }
+
         try {
           const { sendWelcomeEmail } = await import("./welcomeEmail");
           await sendWelcomeEmail({ userName: name, userEmail: email });

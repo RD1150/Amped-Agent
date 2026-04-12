@@ -88,6 +88,13 @@ function Router() {
       {/* Public routes without dashboard layout */}
       <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
+      {/* Referral invite link — /join?ref=CODE redirects to /login?ref=CODE&tab=register */}
+      <Route path="/join" component={() => {
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get("ref") || "";
+        window.location.replace(`/login?ref=${encodeURIComponent(ref)}&tab=register`);
+        return null;
+      }} />
       <Route path="/credits" component={Credits} />
       <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/admin/settings" component={AdminSettings} />

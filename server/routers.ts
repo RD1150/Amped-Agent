@@ -42,6 +42,7 @@ import { liveTourRouter } from "./routers/liveTour";
 import { videoScriptBuilderRouter } from "./routers/videoScriptBuilder";
 import { generationFeedbackRouter } from "./routers/generationFeedback";
 import { getStartedRouter } from "./routers/getStarted";
+import { referralRouter } from "./routers/referral";
 
 export const appRouter = router({
   system: systemRouter,
@@ -70,6 +71,7 @@ export const appRouter = router({
   videoScriptBuilder: videoScriptBuilderRouter,
   generationFeedback: generationFeedbackRouter,
   getStarted: getStartedRouter,
+  referral: referralRouter,
 
   support: router({
     chat: publicProcedure
