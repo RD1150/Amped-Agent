@@ -14,7 +14,7 @@ vi.mock("./db", () => ({
 }));
 
 vi.mock("./credits", () => ({
-  addCredits: vi.fn().mockResolvedValue(50),
+  addCredits: vi.fn().mockResolvedValue(25),
 }));
 
 import * as db from "./db";

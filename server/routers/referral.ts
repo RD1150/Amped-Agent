@@ -31,7 +31,7 @@ export const referralRouter = router({
 
   /**
    * Apply a referral code for a newly registered user.
-   * Awards 50 credits to both the new user and the referrer.
+   * Awards 25 credits to both the new user and the referrer.
    * This is called server-side during registration, but exposed as a
    * protected procedure so the frontend can also trigger it post-login
    * if the ref query param was captured.
@@ -57,6 +57,6 @@ export const referralRouter = router({
       }
 
       await db.applyReferral(newUserId, referrer.id);
-      return { success: true, message: "50 bonus credits added to your account!" };
+      return { success: true, message: "25 bonus credits added to your account!" };
     }),
 });

@@ -1090,7 +1090,7 @@ export async function getUserByReferralCode(code: string) {
 }
 
 /**
- * Apply a referral: award 50 credits to both the new user and the referrer.
+ * Apply a referral: award 25 credits to both the new user and the referrer.
  * Sets referredBy on the new user and logs credit transactions for both.
  * Safe to call only once per new user (checks referredBy is null).
  */
@@ -1112,25 +1112,25 @@ export async function applyReferral(newUserId: number, referrerUserId: number): 
   // Import addCredits lazily to avoid circular deps
   const { addCredits } = await import("./credits");
 
-  // Award 50 credits to the new user
+  // Award 25 credits to the new user
   await addCredits({
     userId: newUserId,
-    amount: 50,
+    amount: 25,
     type: "bonus",
     description: "Referral bonus — joined via a friend's invite link",
   });
 
-  // Award 50 credits to the referrer
+  // Award 25 credits to the referrer
   await addCredits({
     userId: referrerUserId,
-    amount: 50,
+    amount: 25,
     type: "bonus",
     description: "Referral reward — a friend joined using your invite link",
   });
 
   // Track total referral credits earned by referrer
   await db.update(users)
-    .set({ referralCreditsEarned: sql`${users.referralCreditsEarned} + 50` })
+    .set({ referralCreditsEarned: sql`${users.referralCreditsEarned} + 25` })
     .where(eq(users.id, referrerUserId));
 }
 

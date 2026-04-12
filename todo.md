@@ -4758,3 +4758,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Track referral conversions and award 50 credits to both referrer and new user on signup
 - [x] Build referral card UI on dashboard (copy link, referred count, credits earned)
 - [x] Add /join?ref=CODE route that pre-fills referral code on login/register page
+- [x] Change referral credit reward from 50 to 25 credits (both referrer and new user)

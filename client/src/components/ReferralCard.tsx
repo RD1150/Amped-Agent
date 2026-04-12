@@ -38,13 +38,13 @@ export default function ReferralCard() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <Gift size={18} className="text-primary" />
-          Invite Agents — Earn 50 Credits Each
+          Invite Agents — Earn 25 Credits Each
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
           Share your personal invite link. When a fellow agent signs up, you{" "}
-          <strong className="text-foreground">both</strong> get 50 free credits — no limits on how many you can earn.
+          <strong className="text-foreground">both</strong> get 25 free credits — no limits on how many you can earn.
         </p>
 
         {/* Referral link copy row */}
