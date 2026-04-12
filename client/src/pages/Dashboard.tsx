@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { 
   Sparkles, 
   Calendar, 
@@ -32,10 +32,19 @@ import VideoPreviewGallery from "@/components/VideoPreviewGallery";
 import AuthorityScore from "@/components/AuthorityScore";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { X, MessageSquare } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+  const [betaBannerDismissed, setBetaBannerDismissed] = useState(
+    () => localStorage.getItem("ampd_beta_banner_dismissed") === "1"
+  );
+
+  const dismissBetaBanner = () => {
+    localStorage.setItem("ampd_beta_banner_dismissed", "1");
+    setBetaBannerDismissed(true);
+  };
   const { data: persona, isLoading: personaLoading } = trpc.persona.get.useQuery(
     undefined,
     {
@@ -115,6 +124,31 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
+      {/* Beta Banner */}
+      {!betaBannerDismissed && (
+        <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
+          <span className="text-[10px] font-bold tracking-widest uppercase bg-orange-500 text-white px-2 py-0.5 rounded-full shrink-0">
+            BETA
+          </span>
+          <p className="text-sm text-orange-800 flex-1">
+            You're using an early beta of Amp'd Agent. Your feedback shapes the platform —{" "}
+            <a
+              href="mailto:feedback@ampedagent.app"
+              className="font-semibold underline hover:text-orange-900"
+            >
+              share your thoughts
+            </a>.
+          </p>
+          <button
+            onClick={dismissBetaBanner}
+            className="text-orange-400 hover:text-orange-600 transition-colors shrink-0"
+            aria-label="Dismiss beta banner"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {/* Welcome Header */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">

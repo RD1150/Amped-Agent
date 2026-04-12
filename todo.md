@@ -4735,3 +4735,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix BuyerPresentation brandedUrl to use /bp/:id instead of /p/:id
 - [x] Get Started: add onboarding checklist (Authority Profile, Brand Story, Hyperlocal, Booking link, Voice clone, Social connected)
 - [x] Produce trial-readiness checklist table for all platform offerings (trial_readiness_checklist.md)
+## Session 9: Beta Launch Prep
+- [x] Add BETA pill badge next to logo in DashboardLayout sidebar
+- [x] Update page title to "Amp'd Agent (Beta)" in index.html
+- [x] Add dismissible beta feedback banner to dashboard

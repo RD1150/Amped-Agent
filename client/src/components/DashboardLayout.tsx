@@ -712,6 +712,9 @@ function DashboardLayoutContent({
                   alt="AmpedAgent"
                   className="h-10 w-auto object-contain ml-3"
                 />
+                <span className="ml-2 text-[9px] font-bold tracking-widest uppercase bg-orange-100 text-orange-600 border border-orange-200 px-1.5 py-0.5 rounded-full leading-none">
+                  BETA
+                </span>
                 <button
                   onClick={toggleSidebar}
                   className="absolute right-2 h-7 w-7 flex items-center justify-center hover:bg-black/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
