@@ -1288,12 +1288,8 @@ export default function PropertyTours() {
                     AI Voiceover Narration
                   </Label>
                 </div>
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                  enableVoiceover
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}>
-                  +5 credits
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">
+                  Free
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">

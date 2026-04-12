@@ -10,7 +10,7 @@ export const CREDIT_COSTS = {
   standard_video: 5, // Standard Ken Burns video
   ai_enhanced_video: 15, // AI-Enhanced (3-5 hero shots with Luma AI)
   full_ai_video: 40, // Full AI Cinematic (all photos with Kling AI pro mode, 1080p/30fps)
-  voiceover: 5, // AI voiceover narration add-on
+  voiceover: 0, // AI voiceover narration — free (negligible ElevenLabs cost)
   cinematic_authority_reel: 15, // Cinematic Authority Reel with Runway B-roll
 } as const;
 
@@ -224,10 +224,9 @@ export function calculateVideoCost(params: {
 
   let totalCredits = videoCredits;
 
-  // Add voiceover cost if enabled
+  // Voiceover is free — no credit charge
   if (enableVoiceover) {
-    totalCredits += CREDIT_COSTS.voiceover;
-    breakdown.push({ item: "AI Voiceover Narration", credits: CREDIT_COSTS.voiceover });
+    breakdown.push({ item: "AI Voiceover Narration", credits: 0 });
   }
 
   return { totalCredits, breakdown };
