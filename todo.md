@@ -4678,8 +4678,17 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add VideoPoolDisplay component in dashboard header (shows remaining free slots with progress bar, hover tooltip)
 
 ## Follow-up Features (Session 3 Part 2)
-- [ ] Credits page: add pool usage widget with slot-weight table and days-until-reset countdown
-- [ ] Authority Profile: add bookingUrl field (Calendly/Cal.com URL)
-- [ ] /p/:id seller landing page: show Schedule a Call button when bookingUrl is set
-- [ ] Pool exhaustion email: fire transactional email when checkAndDeductVideoPool returns allowed: false
+- [x] Credits page: add pool usage widget with slot-weight table and days-until-reset countdown
+- [x] Authority Profile: add bookingUrl field (Calendly/Cal.com URL)
+- [x] /p/:id seller landing page: show Schedule a Call button when bookingUrl is set
+- [x] Pool exhaustion email: fire transactional email when checkAndDeductVideoPool returns allowed: false
 - [x] Fix Customer Avatar: changing Primary Audience dropdown auto-populates Audience Description textarea with matching preset (smart — only overwrites if empty or was a preset)
+
+## Session 4 Features
+- [x] Add "Reset to preset" link on Audience Description in AuthorityProfile
+- [x] Wire Primary Audience type into Post Builder content generation prompts (audience-aware tone)
+- [x] Wire Primary Audience type into AutoReels hook/caption generation (audience-aware tone)
+- [x] Credits page: add pool usage widget with slot-weight table and days-until-reset countdown
+- [x] Authority Profile: Calendly booking URL field already exists — confirm it saves/loads correctly
+- [x] /p/:id seller landing page: show Schedule a Call button when bookingUrl is set
+- [x] Pool exhaustion email: fire notification when checkAndDeductVideoPool returns allowed: false

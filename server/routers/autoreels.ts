@@ -36,7 +36,32 @@ export const autoreelsRouter = router({
       let contextPrompt = "";
       if (persona) {
         if (persona.customerAvatar) {
-          contextPrompt += `\nTarget Audience: ${persona.customerAvatar}`;
+          try {
+            const avatarObj = JSON.parse(persona.customerAvatar);
+            const audienceLabels: Record<string, string> = {
+              "first-time-buyers": "First-Time Home Buyers",
+              "luxury-sellers": "Luxury Sellers",
+              "investors": "Real Estate Investors",
+              "relocators": "Relocating Families",
+              "downsizers": "Downsizers/Empty Nesters",
+              "move-up-buyers": "Move-Up Buyers",
+            };
+            const audienceToneGuide: Record<string, string> = {
+              "first-time-buyers": "Use encouraging, educational language. Demystify the process. Avoid jargon. Speak to their anxiety and excitement.",
+              "luxury-sellers": "Use sophisticated, discreet language. Emphasize exclusivity, track record, and white-glove service. Avoid anything that feels mass-market.",
+              "investors": "Use data-driven, ROI-focused language. Lead with numbers, cap rates, and market opportunity. Be direct and analytical.",
+              "relocators": "Use warm, reassuring language. Emphasize local expertise, seamless coordination, and making a new place feel like home.",
+              "downsizers": "Use empathetic, lifestyle-focused language. Acknowledge the emotional weight of the transition. Emphasize freedom and simplicity.",
+              "move-up-buyers": "Use aspirational, strategic language. Speak to equity, timing, and the next chapter. Balance excitement with practical guidance.",
+            };
+            if (avatarObj.type) {
+              contextPrompt += `\nTarget Audience: ${audienceLabels[avatarObj.type] || avatarObj.type}`;
+              if (avatarObj.description) contextPrompt += `\nAudience Profile: ${avatarObj.description}`;
+              if (audienceToneGuide[avatarObj.type]) contextPrompt += `\nTone Guidance: ${audienceToneGuide[avatarObj.type]}`;
+            }
+          } catch {
+            contextPrompt += `\nTarget Audience: ${persona.customerAvatar}`;
+          }
         }
         if (persona.brandValues) {
           contextPrompt += `\nBrand Values: ${persona.brandValues}`;

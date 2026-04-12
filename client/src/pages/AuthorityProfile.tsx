@@ -624,7 +624,18 @@ export default function AuthorityProfile() {
             </div>
 
             <div>
-              <Label htmlFor="avatarDescription">Audience Description</Label>
+              <div className="flex items-center justify-between mt-0">
+                <Label htmlFor="avatarDescription">Audience Description</Label>
+                {avatarType && AUDIENCE_PRESETS[avatarType] && avatarDescription !== AUDIENCE_PRESETS[avatarType] && (
+                  <button
+                    type="button"
+                    onClick={() => setAvatarDescription(AUDIENCE_PRESETS[avatarType])}
+                    className="text-xs text-primary hover:underline flex items-center gap-1"
+                  >
+                    ↺ Reset to preset
+                  </button>
+                )}
+              </div>
               <Textarea
                 id="avatarDescription"
                 placeholder="Describe your ideal client in detail (e.g., 'Young professionals, 28-35, first-time buyers, tech industry, value modern design and walkability')"

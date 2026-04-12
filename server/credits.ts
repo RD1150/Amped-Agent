@@ -1,7 +1,7 @@
 import { getDb } from "./db";
 import { users, creditTransactions } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
-import { sendLowCreditsNotification } from "./emailNotifications";
+import { sendLowCreditsNotification, sendPoolExhaustedNotification } from "./emailNotifications";
 
 /**
  * Credit costs for different video types (legacy — kept for compatibility)
@@ -425,7 +425,20 @@ export async function checkAndDeductVideoPool(
     return { allowed: true, chargedSlots: 0, chargedCredits: overageCost, usedPool: false };
   }
 
-  // Neither pool nor credits available
+  // Neither pool nor credits available — fire exhaustion notification (non-blocking)
+  try {
+    const [userInfo] = await db
+      .select({ email: users.email, name: users.name })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    if (userInfo?.email && userInfo?.name) {
+      sendPoolExhaustedNotification(userInfo.email, userInfo.name, poolSize, overageCost).catch(console.error);
+    }
+  } catch {
+    // notification failure must never block the response
+  }
+
   return {
     allowed: false,
     reason: `You've used all ${poolSize} free videos this month. Add credits to continue (${overageCost} credits needed).`,

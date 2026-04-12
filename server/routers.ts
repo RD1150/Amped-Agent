@@ -541,6 +541,35 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         const persona = await db.getPersonaByUserId(ctx.user.id);
         const tone = input.tone || persona?.brandVoice || "professional";
 
+        // Build audience context from customer avatar
+        let audienceContext = "";
+        if (persona?.customerAvatar) {
+          try {
+            const avatar = JSON.parse(persona.customerAvatar);
+            const audienceLabels: Record<string, string> = {
+              "first-time-buyers": "First-Time Home Buyers",
+              "luxury-sellers": "Luxury Sellers",
+              "investors": "Real Estate Investors",
+              "relocators": "Relocating Families",
+              "downsizers": "Downsizers/Empty Nesters",
+              "move-up-buyers": "Move-Up Buyers",
+            };
+            const audienceToneGuide: Record<string, string> = {
+              "first-time-buyers": "Use encouraging, educational language. Demystify the process. Avoid jargon. Speak to their anxiety and excitement.",
+              "luxury-sellers": "Use sophisticated, discreet language. Emphasize exclusivity, track record, and white-glove service. Avoid anything that feels mass-market.",
+              "investors": "Use data-driven, ROI-focused language. Lead with numbers, cap rates, and market opportunity. Be direct and analytical.",
+              "relocators": "Use warm, reassuring language. Emphasize local expertise, seamless coordination, and making a new place feel like home.",
+              "downsizers": "Use empathetic, lifestyle-focused language. Acknowledge the emotional weight of the transition. Emphasize freedom and simplicity.",
+              "move-up-buyers": "Use aspirational, strategic language. Speak to equity, timing, and the next chapter. Balance excitement with practical guidance.",
+            };
+            if (avatar.type) {
+              audienceContext = `\n\nTARGET AUDIENCE: ${audienceLabels[avatar.type] || avatar.type}`;
+              if (avatar.description) audienceContext += `\nAudience Profile: ${avatar.description}`;
+              if (audienceToneGuide[avatar.type]) audienceContext += `\nTone Guidance: ${audienceToneGuide[avatar.type]}`;
+            }
+          } catch {}
+        }
+
         // Fetch real market data for market_report content type
         let realMarketData: any = null;
         if (input.contentType === 'market_report') {
@@ -560,7 +589,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         
         if (input.format === "carousel") {
           systemPrompt = `You are a real estate content creator specializing in carousel posts. Create engaging multi-slide content for Instagram/Facebook carousels.
-Use a ${tone} tone.
+Use a ${tone} tone.${audienceContext}
 
 Format your response as:
 
@@ -590,7 +619,7 @@ FINAL SLIDE (CTA):
 Make each slide concise (2-3 sentences max), use emojis, and ensure the content flows naturally from slide to slide.`;
         } else if (input.format === "reel_script") {
           systemPrompt = `You are a real estate content creator specializing in short-form video scripts (Reels/TikTok/YouTube Shorts).
-Use a ${tone} tone. Create a 30-60 second video script formatted EXACTLY like this:
+Use a ${tone} tone.${audienceContext} Create a 30-60 second video script formatted EXACTLY like this:
 
 🎬 REEL SCRIPT: [Catchy Title]
 
@@ -625,7 +654,7 @@ CTA (28-30s):
 Use emojis, be specific about what to show on camera, and make the hook IRRESISTIBLE.`;
         } else {
           systemPrompt = `You are a real estate content creator. Create engaging social media content for real estate professionals.
-Use a ${tone} tone. Generate 3 different caption variations without labeling them:
+Use a ${tone} tone.${audienceContext} Generate 3 different caption variations without labeling them:
 - First variation: long-form and emotional
 - Second variation: medium length and value-focused
 - Third variation: short and CTA-driven
