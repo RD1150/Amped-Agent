@@ -275,6 +275,15 @@ export default function AuthorityProfile() {
   const { data: persona, isLoading, refetch: refetchPersona } = trpc.persona.get.useQuery();
   
   // Customer Avatar
+  const AUDIENCE_PRESETS: Record<string, string> = {
+    "first-time-buyers": "Young adults, 25-38 years old, navigating the home buying process for the first time. Value education, transparency, and hand-holding through the process. Often pre-approved but overwhelmed by choices.",
+    "luxury-sellers": "High-net-worth individuals, 45-65 years old, looking to sell luxury properties $2M+. Value discretion, white-glove service, and proven track record with high-end properties.",
+    "investors": "Experienced or aspiring real estate investors seeking cash-flowing rentals, fix-and-flip opportunities, or portfolio diversification. Driven by ROI, cap rates, and market data.",
+    "relocators": "Families or professionals moving from out of state or out of country. Need a trusted local expert to guide them remotely. Value responsiveness, neighborhood knowledge, and seamless coordination.",
+    "downsizers": "Empty nesters or retirees, 55+, ready to sell the family home and move to something smaller, easier to maintain, or in a retirement-friendly community. Value patience, empathy, and lifestyle fit.",
+    "move-up-buyers": "Growing families or professionals, 32-48 years old, ready to trade up from their starter home to a larger or more desirable property. Value equity guidance, timing strategy, and school district knowledge.",
+  };
+
   const [avatarType, setAvatarType] = useState("");
   const [avatarDescription, setAvatarDescription] = useState("");
   
@@ -592,7 +601,14 @@ export default function AuthorityProfile() {
           <div className="space-y-4">
             <div>
               <Label htmlFor="avatarType">Primary Audience</Label>
-              <Select value={avatarType} onValueChange={setAvatarType}>
+              <Select value={avatarType} onValueChange={(val) => {
+                setAvatarType(val);
+                // Only auto-populate if the description is empty or matches a previous preset
+                const currentIsPreset = Object.values(AUDIENCE_PRESETS).includes(avatarDescription);
+                if (!avatarDescription || currentIsPreset) {
+                  setAvatarDescription(AUDIENCE_PRESETS[val] || "");
+                }
+              }}>
                 <SelectTrigger id="avatarType" className="mt-1.5">
                   <SelectValue placeholder="Select your target audience" />
                 </SelectTrigger>
