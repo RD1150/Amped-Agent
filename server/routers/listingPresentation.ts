@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { listingPresentations } from "../../drizzle/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { listingPresentations, presentationViews } from "../../drizzle/schema";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { ENV } from "../_core/env";
 
 const GAMMA_API_BASE = "https://public-api.gamma.app/v1.0";
@@ -193,15 +193,24 @@ function buildGammaPrompt(input: z.infer<typeof generateInputSchema>): string {
 
 export const listingPresentationRouter = router({
 
-  // ── List presentations for current user ───────────────────────────────────
+  // ── List presentations for current user (with view counts) ──────────────
   list: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
     if (!db) return [];
-    return db
+    const rows = await db
       .select()
       .from(listingPresentations)
       .where(eq(listingPresentations.userId, ctx.user.id))
       .orderBy(desc(listingPresentations.createdAt));
+    // Attach view counts
+    const ids = rows.map(r => r.id);
+    if (ids.length === 0) return rows.map(r => ({ ...r, viewCount: 0 }));
+    const viewCounts = await db
+      .select({ presentationId: presentationViews.presentationId, count: sql<number>`count(*)`.as("count") })
+      .from(presentationViews)
+      .where(and(eq(presentationViews.presentationType, "listing"), sql`${presentationViews.presentationId} IN (${sql.join(ids.map(id => sql`${id}`), sql`, `)})`));
+    const countMap = new Map(viewCounts.map(v => [v.presentationId, Number(v.count)]));
+    return rows.map(r => ({ ...r, viewCount: countMap.get(r.id) ?? 0 }));
   }),
 
   // ── Get themes from Gamma workspace ──────────────────────────────────────

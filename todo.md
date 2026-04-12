@@ -4613,15 +4613,27 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Show share link, view count, last-sent date per asset card
 - [x] Add /assets route to App.tsx and sidebar
 
-## ROADMAP: Listing Webpage (Future Sprint)
-- [ ] Single-property website at ampedagent.app/listing/:id for active listings
-- [ ] Pull property photos, description, price, beds/baths/sqft from listing presentation data
-- [ ] Show agent photo, name, brokerage, phone, and booking URL
-- [ ] "Request a Showing" button linked to agent's booking URL
-- [ ] OG meta tags for rich social media previews (photo, address, price)
-- [ ] Optional: open house dates, virtual tour embed
-- [ ] Add "Listing Webpage" sub-item to ASSETS sidebar section
-- [ ] Share link at ampedagent.app/listing/:id (no platform branding visible)
+## ROADMAP: Listing Webpage (COMPLETED)
+- [x] Single-property website at /listing/:id for active listings
+- [x] Pull property photos, description, price, beds/baths/sqft from listing presentation data
+- [x] Show agent photo, name, brokerage, phone, and booking URL
+- [x] "Request a Showing" button linked to agent's booking URL
+- [x] OG meta tags for rich social media previews (photo, address, price)
+- [x] Add "Listing Webpage" sub-item to ASSETS sidebar section
+- [x] Share link at /listing/:id (no platform branding visible)
 
 ## Sidebar Header Fix
 - [x] Make section header labels larger, bolder, and brighter (currently too small and too gray)
+
+## Listing Webpage + View Tracking + Send to Buyer (Apr 2026)
+- [x] Build Listing Webpage at /listing/:id — single-property public site
+- [x] Pull property photos, description, price, beds/baths/sqft from listing_presentations table
+- [x] Show agent photo, name, brokerage, phone, and booking URL on listing webpage
+- [x] "Request a Showing" button linked to agent's booking URL
+- [x] OG meta tags for rich social media previews (photo, address, price)
+- [x] Add /listing/:id server route (Express, no auth required)
+- [x] Add "Listing Webpage" sub-item to ASSETS sidebar section
+- [x] Add view tracking table to DB schema (presentation_id, type, visited_at, ip_region)
+- [x] Log each visit to /p/:id and /listing/:id in view_tracking table
+- [x] Show "Opened N times" badge on presentation cards in My Presentations
+- [x] Add Send to Buyer button on Buyer Presentation — email/SMS dialog with branded link

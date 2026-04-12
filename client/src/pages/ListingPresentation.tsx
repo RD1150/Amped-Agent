@@ -13,7 +13,7 @@ import {
   Presentation, Sparkles, Download, ExternalLink, Trash2, Loader2,
   FileText, CheckCircle2, AlertCircle, Clock, Upload, X, Plus,
   Home, User, BarChart2, Megaphone, Settings2, Zap, ImageIcon,
-  BookmarkCheck, RefreshCw, ChevronRight, Copy, Link, Send, Mail, Phone,
+  BookmarkCheck, RefreshCw, ChevronRight, Copy, Link, Send, Mail, Phone, Eye,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -1129,6 +1129,11 @@ export default function ListingPresentationPage() {
                           <StatusBadge status={p.status} />
                           <span className="text-white/40 text-xs">{new Date(p.createdAt).toLocaleDateString()}</span>
                           <Badge variant="outline" className="text-xs border-white/20 text-white/50">{(p.exportFormat ?? "pptx").toUpperCase()}</Badge>
+                          {(p as any).viewCount > 0 && (
+                            <Badge variant="outline" className="text-xs border-amber-400/30 text-amber-400 bg-amber-400/5 flex items-center gap-1">
+                              <Eye size={10} /> {(p as any).viewCount} {(p as any).viewCount === 1 ? "view" : "views"}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2 ml-3 shrink-0">

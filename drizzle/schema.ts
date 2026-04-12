@@ -1040,6 +1040,16 @@ export const listingPresentations = mysqlTable("listing_presentations", {
 export type ListingPresentation = typeof listingPresentations.$inferSelect;
 export type InsertListingPresentation = typeof listingPresentations.$inferInsert;
 
+// ─── Presentation View Tracking ─────────────────────────────────────────────────────────────────
+export const presentationViews = mysqlTable("presentation_views", {
+  id: int("id").autoincrement().primaryKey(),
+  presentationId: int("presentationId").notNull(), // ID of the listing or buyer presentation
+  presentationType: mysqlEnum("presentationType", ["listing", "buyer", "listing_webpage"]).notNull(),
+  viewedAt: timestamp("viewedAt").defaultNow().notNull(),
+  ipRegion: varchar("ipRegion", { length: 100 }), // Rough geo from IP (optional)
+});
+export type PresentationView = typeof presentationViews.$inferSelect;
+
 // ─── Buyer Presentations ─────────────────────────────────────────────────────
 export const buyerPresentations = mysqlTable("buyer_presentations", {
   id: int("id").autoincrement().primaryKey(),
