@@ -85,6 +85,69 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
+// Monthly Video Pool Display Component
+function VideoPoolDisplay() {
+  const [, setLocation] = useLocation();
+  const { data: pool } = trpc.credits.getVideoPoolStatus.useQuery();
+
+  if (!pool) return null;
+  if (pool.unlimited) return null; // Agency tier — no indicator needed
+
+  const remaining = pool.slotsRemaining;
+  const total = pool.poolSize;
+  const pct = total > 0 ? Math.round((remaining / total) * 100) : 0;
+  const isLow = remaining <= 2;
+  const isExhausted = remaining <= 0;
+
+  return (
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <button
+          onClick={() => setLocation("/credits")}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+        >
+          <Video className="h-4 w-4 text-white" />
+          <span className={`text-sm font-medium ${
+            isExhausted ? 'text-red-400' : isLow ? 'text-amber-400' : 'text-white'
+          }`}>
+            {isExhausted ? '0' : remaining} free
+          </span>
+          {isExhausted && (
+            <Badge variant="destructive" className="text-xs px-1.5 py-0">Add Credits</Badge>
+          )}
+        </button>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-64 bg-[#1a1a1a] border-white/10 text-white p-3" side="bottom" align="end">
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-white/70">Free Videos This Month</span>
+            <span className="font-semibold">{remaining} / {total}</span>
+          </div>
+          <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${
+                isExhausted ? 'bg-red-500' : isLow ? 'bg-amber-500' : 'bg-emerald-500'
+              }`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <p className="text-xs text-white/50">
+            {isExhausted
+              ? 'Pool exhausted. Overage credits apply per video.'
+              : `${remaining} slot${remaining === 1 ? '' : 's'} remaining. Resets in ~30 days.`}
+          </p>
+          <div className="text-xs text-white/40 space-y-0.5 pt-1 border-t border-white/10">
+            <div className="flex justify-between"><span>Ken Burns / Market Update</span><span>1 slot</span></div>
+            <div className="flex justify-between"><span>AI-Enhanced</span><span>2 slots</span></div>
+            <div className="flex justify-between"><span>Full AI / YouTube</span><span>3 slots</span></div>
+            <div className="flex justify-between"><span>Voice-overs</span><span className="text-emerald-400">Free</span></div>
+          </div>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
+
 // Credit Balance Display Component
 function CreditBalanceDisplay() {
   const [, setLocation] = useLocation();
@@ -867,6 +930,7 @@ function DashboardLayoutContent({
           {/* Search bar */}
           <HeaderSearch />
           <div className="flex items-center gap-3">
+            <VideoPoolDisplay />
             <CreditBalanceDisplay />
             <button
               onClick={() => setLocation("/settings")}

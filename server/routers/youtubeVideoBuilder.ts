@@ -247,13 +247,10 @@ Return JSON with:
         );
       }
 
-      // Credit check
-      const hasEnough = await credits.hasCredits(ctx.user.id, YOUTUBE_VIDEO_CREDITS);
-      if (!hasEnough) {
-        const balance = await credits.getCreditBalance(ctx.user.id);
-        throw new Error(
-          `Insufficient credits. YouTube videos cost ${YOUTUBE_VIDEO_CREDITS} credits. You have ${balance}.`
-        );
+      // Check monthly free pool (deducts slots or overage credits)
+      const ytPoolResult = await credits.checkAndDeductVideoPool(ctx.user.id, 'youtube-video');
+      if (!ytPoolResult.allowed) {
+        throw new Error(ytPoolResult.reason);
       }
 
       // Get user's custom avatar twin
@@ -275,13 +272,7 @@ Return JSON with:
 
       const twin = twins[0];
 
-      // Deduct credits
-      await credits.deductCredits({
-        userId: ctx.user.id,
-        amount: YOUTUBE_VIDEO_CREDITS,
-        usageType: "youtube_video",
-        description: "YouTube Video Builder — long-form avatar video",
-      });
+      // Credits/slots already handled by checkAndDeductVideoPool above
 
       // Save record
       const expiresAt = new Date();

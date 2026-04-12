@@ -33,6 +33,9 @@ export const users = mysqlTable("users", {
   cinematicPropertyToursThisMonth: int("cinematicPropertyToursThisMonth").default(0).notNull(),
   cinematicAuthorityReelsThisMonth: int("cinematicAuthorityReelsThisMonth").default(0).notNull(),
   lastCinematicCountReset: timestamp("lastCinematicCountReset").defaultNow().notNull(),
+  // Monthly free video pool system
+  monthlyVideoSlotsUsed: int("monthlyVideoSlotsUsed").default(0).notNull(), // Slots used this billing cycle
+  slotsResetAt: timestamp("slotsResetAt").defaultNow().notNull(), // When slots were last reset
   // Credit system
   creditBalance: int("creditBalance").default(50).notNull(), // Start with 50 free trial credits
   // Rate limiting

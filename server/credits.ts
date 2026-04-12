@@ -4,15 +4,55 @@ import { eq, desc } from "drizzle-orm";
 import { sendLowCreditsNotification } from "./emailNotifications";
 
 /**
- * Credit costs for different video types
+ * Credit costs for different video types (legacy — kept for compatibility)
  */
 export const CREDIT_COSTS = {
-  standard_video: 5, // Standard Ken Burns video
-  ai_enhanced_video: 15, // AI-Enhanced (3-5 hero shots with Luma AI)
-  full_ai_video: 40, // Full AI Cinematic (all photos with Kling AI pro mode, 1080p/30fps)
-  voiceover: 0, // AI voiceover narration — free (negligible ElevenLabs cost)
-  cinematic_authority_reel: 15, // Cinematic Authority Reel with Runway B-roll
+  standard_video: 5,
+  ai_enhanced_video: 15,
+  full_ai_video: 40,
+  voiceover: 0, // Always free
+  cinematic_authority_reel: 15,
 } as const;
+
+// ---------------------------------------------------------------------------
+// Monthly free video pool configuration
+// ---------------------------------------------------------------------------
+
+/**
+ * How many free video slots each subscription tier gets per month.
+ * Agency = -1 means unlimited (no pool check needed).
+ */
+export const MONTHLY_POOL_SIZES: Record<string, number> = {
+  starter: 10,
+  pro: 25,
+  agency: -1, // unlimited
+};
+
+/**
+ * Slot weight consumed from the monthly pool per video type.
+ * Voice-overs always cost 0 (free everywhere).
+ */
+export const VIDEO_SLOT_WEIGHTS: Record<string, number> = {
+  "ken-burns": 1,
+  "market-update": 1,
+  "ai-enhanced": 2,
+  "full-ai": 3,
+  "youtube-video": 3,
+  voiceover: 0,
+};
+
+/**
+ * Overage credit cost when the monthly pool is exhausted.
+ * These are charged from the user's credit balance.
+ */
+export const OVERAGE_CREDIT_COSTS: Record<string, number> = {
+  "ken-burns": 2,
+  "market-update": 2,
+  "ai-enhanced": 5,
+  "full-ai": 8,
+  "youtube-video": 3,
+  voiceover: 0,
+};
 
 /**
  * Credit packages available for purchase
@@ -29,16 +69,20 @@ export const CREDIT_PACKAGES = {
     credits: 350,
     price: 14900, // $149.00 in cents
     priceDisplay: "$149",
-    bonus: 50, // Bonus credits
+    bonus: 50,
   },
   agency: {
     name: "Agency",
     credits: 1000,
     price: 39900, // $399.00 in cents
     priceDisplay: "$399",
-    bonus: 200, // Bonus credits
+    bonus: 200,
   },
 } as const;
+
+// ---------------------------------------------------------------------------
+// Credit helpers
+// ---------------------------------------------------------------------------
 
 /**
  * Get user's current credit balance
@@ -46,27 +90,31 @@ export const CREDIT_PACKAGES = {
 export async function getCreditBalance(userId: number): Promise<number> {
   const db = await getDb();
   if (!db) return 0;
-  const [user] = await db.select({ creditBalance: users.creditBalance, email: users.email }).from(users).where(eq(users.id, userId));
-  
-  // Owner gets unlimited credits
-  if (user?.email === 'rdshop70@gmail.com') {
+  const [user] = await db
+    .select({ creditBalance: users.creditBalance, email: users.email })
+    .from(users)
+    .where(eq(users.id, userId));
+
+  if (user?.email === "rdshop70@gmail.com") {
     return 999999;
   }
-  
+
   return user?.creditBalance ?? 0;
 }
 
 /**
  * Check if user has sufficient credits
  */
-export async function hasCredits(userId: number, requiredCredits: number): Promise<boolean> {
+export async function hasCredits(
+  userId: number,
+  requiredCredits: number
+): Promise<boolean> {
   const balance = await getCreditBalance(userId);
   return balance >= requiredCredits;
 }
 
 /**
  * Deduct credits from user's balance
- * Returns new balance or throws error if insufficient credits
  */
 export async function deductCredits(params: {
   userId: number;
@@ -81,38 +129,39 @@ export async function deductCredits(params: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Check if user is owner - owners get unlimited credits
-  const [user] = await db.select({ email: users.email }).from(users).where(eq(users.id, userId)).limit(1);
-  if (user?.email === 'rdshop70@gmail.com') {
-    // Owner gets unlimited credits - just record the transaction without deducting
+  const [user] = await db
+    .select({ email: users.email })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (user?.email === "rdshop70@gmail.com") {
     await db.insert(creditTransactions).values({
       userId,
       type: "usage",
       amount: -amount,
-      balanceAfter: 999999, // Show large number for owner
+      balanceAfter: 999999,
       usageType,
       description: `${description} (Owner - Unlimited)`,
       relatedResourceId,
       relatedResourceType,
     });
-    return 999999; // Return large number to indicate unlimited
+    return 999999;
   }
 
-  // Get current balance
   const currentBalance = await getCreditBalance(userId);
 
   if (currentBalance < amount) {
-    throw new Error(`Insufficient credits. You have ${currentBalance} credits but need ${amount} credits.`);
+    throw new Error(
+      `Insufficient credits. You have ${currentBalance} credits but need ${amount} credits.`
+    );
   }
 
   const newBalance = currentBalance - amount;
 
-  // Update user's balance
   await db.update(users).set({ creditBalance: newBalance }).where(eq(users.id, userId));
 
-  // Send low credits notification if balance falls below 10
   if (newBalance < 10 && currentBalance >= 10) {
-    // Get user email and name
     const [userInfo] = await db
       .select({ email: users.email, name: users.name })
       .from(users)
@@ -120,16 +169,14 @@ export async function deductCredits(params: {
       .limit(1);
 
     if (userInfo?.email && userInfo?.name) {
-      // Send notification asynchronously (don't wait)
       sendLowCreditsNotification(userInfo.email, userInfo.name, newBalance).catch(console.error);
     }
   }
 
-  // Record transaction
   await db.insert(creditTransactions).values({
     userId,
     type: "usage",
-    amount: -amount, // Negative for deduction
+    amount: -amount,
     balanceAfter: newBalance,
     usageType,
     description,
@@ -157,18 +204,15 @@ export async function addCredits(params: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Get current balance
   const currentBalance = await getCreditBalance(userId);
   const newBalance = currentBalance + amount;
 
-  // Update user's balance
   await db.update(users).set({ creditBalance: newBalance }).where(eq(users.id, userId));
 
-  // Record transaction
   await db.insert(creditTransactions).values({
     userId,
     type,
-    amount, // Positive for addition
+    amount,
     balanceAfter: newBalance,
     description,
     stripePaymentIntentId,
@@ -194,7 +238,7 @@ export async function getCreditHistory(userId: number, limit: number = 50) {
 }
 
 /**
- * Calculate credit cost for a property tour video
+ * Calculate credit cost for a property tour video (legacy helper kept for UI)
  */
 export function calculateVideoCost(params: {
   videoMode: "standard" | "ai-enhanced" | "full-ai" | "cinematic";
@@ -204,7 +248,6 @@ export function calculateVideoCost(params: {
 
   const breakdown: { item: string; credits: number }[] = [];
 
-  // Base video cost based on mode
   let videoCredits: number;
   let videoLabel: string;
   if (videoMode === "ai-enhanced") {
@@ -214,7 +257,7 @@ export function calculateVideoCost(params: {
     videoCredits = CREDIT_COSTS.full_ai_video;
     videoLabel = "Property Tour Video (Full AI Cinematic)";
   } else if (videoMode === "cinematic") {
-    videoCredits = 7; // Cinematic: between standard (5) and AI-enhanced (15)
+    videoCredits = 7;
     videoLabel = "Property Tour Video (Cinematic)";
   } else {
     videoCredits = CREDIT_COSTS.standard_video;
@@ -222,14 +265,11 @@ export function calculateVideoCost(params: {
   }
   breakdown.push({ item: videoLabel, credits: videoCredits });
 
-  let totalCredits = videoCredits;
-
-  // Voiceover is free — no credit charge
   if (enableVoiceover) {
     breakdown.push({ item: "AI Voiceover Narration", credits: 0 });
   }
 
-  return { totalCredits, breakdown };
+  return { totalCredits: videoCredits, breakdown };
 }
 
 /**
@@ -242,7 +282,7 @@ export async function refundCredits(params: {
   relatedResourceId?: number;
   relatedResourceType?: string;
 }): Promise<number> {
-  const { userId, amount, reason, relatedResourceId, relatedResourceType } = params;
+  const { userId, amount, reason } = params;
 
   return await addCredits({
     userId,
@@ -264,4 +304,174 @@ export async function grantTrialCredits(userId: number): Promise<number> {
     type: "trial",
     description: "Welcome! 50 free trial credits",
   });
+}
+
+// ---------------------------------------------------------------------------
+// Monthly video pool helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Get the user's subscription tier key (starter / pro / agency).
+ */
+async function getUserTier(userId: number): Promise<string> {
+  const db = await getDb();
+  if (!db) return "starter";
+
+  const [user] = await db
+    .select({ email: users.email, subscriptionTier: users.subscriptionTier })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (user?.email === "rdshop70@gmail.com") return "agency";
+
+  const tier = (user?.subscriptionTier ?? "starter").toLowerCase();
+  if (tier.includes("agency")) return "agency";
+  if (tier.includes("pro")) return "pro";
+  return "starter";
+}
+
+/**
+ * Check whether the monthly pool reset date has passed and reset if needed.
+ * Returns the current slotsUsed after any reset.
+ */
+async function ensurePoolFresh(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const [user] = await db
+    .select({
+      monthlyVideoSlotsUsed: users.monthlyVideoSlotsUsed,
+      slotsResetAt: users.slotsResetAt,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!user) return 0;
+
+  const resetAt = user.slotsResetAt ? new Date(user.slotsResetAt) : new Date(0);
+  const now = new Date();
+  const daysSinceReset = (now.getTime() - resetAt.getTime()) / (1000 * 60 * 60 * 24);
+
+  if (daysSinceReset >= 30) {
+    await db
+      .update(users)
+      .set({ monthlyVideoSlotsUsed: 0, slotsResetAt: now })
+      .where(eq(users.id, userId));
+    return 0;
+  }
+
+  return user.monthlyVideoSlotsUsed ?? 0;
+}
+
+export type VideoPoolResult =
+  | { allowed: true; chargedSlots: number; chargedCredits: number; usedPool: boolean }
+  | { allowed: false; reason: string; slotsUsed: number; poolSize: number; overageCost: number };
+
+/**
+ * Check the monthly free video pool and deduct slots (or overage credits).
+ *
+ * Returns:
+ *  - allowed: true  → generation can proceed
+ *  - allowed: false → generation blocked; show "Add Credits" CTA
+ *
+ * Voice-overs always pass through free.
+ */
+export async function checkAndDeductVideoPool(
+  userId: number,
+  videoType: string
+): Promise<VideoPoolResult> {
+  if (videoType === "voiceover") {
+    return { allowed: true, chargedSlots: 0, chargedCredits: 0, usedPool: false };
+  }
+
+  const db = await getDb();
+  if (!db) {
+    return { allowed: true, chargedSlots: 0, chargedCredits: 0, usedPool: false };
+  }
+
+  const tier = await getUserTier(userId);
+  const poolSize = MONTHLY_POOL_SIZES[tier] ?? 10;
+  const slotWeight = VIDEO_SLOT_WEIGHTS[videoType] ?? 1;
+  const overageCost = OVERAGE_CREDIT_COSTS[videoType] ?? 2;
+
+  // Agency = unlimited
+  if (poolSize === -1) {
+    return { allowed: true, chargedSlots: 0, chargedCredits: 0, usedPool: false };
+  }
+
+  const slotsUsed = await ensurePoolFresh(userId);
+  const slotsRemaining = poolSize - slotsUsed;
+
+  if (slotsRemaining >= slotWeight) {
+    await db
+      .update(users)
+      .set({ monthlyVideoSlotsUsed: slotsUsed + slotWeight })
+      .where(eq(users.id, userId));
+
+    return { allowed: true, chargedSlots: slotWeight, chargedCredits: 0, usedPool: true };
+  }
+
+  // Pool exhausted — try overage credits
+  const creditBalance = await getCreditBalance(userId);
+  if (creditBalance >= overageCost) {
+    await deductCredits({
+      userId,
+      amount: overageCost,
+      usageType: "video_overage",
+      description: `Overage: ${videoType} video (pool exhausted)`,
+    });
+    return { allowed: true, chargedSlots: 0, chargedCredits: overageCost, usedPool: false };
+  }
+
+  // Neither pool nor credits available
+  return {
+    allowed: false,
+    reason: `You've used all ${poolSize} free videos this month. Add credits to continue (${overageCost} credits needed).`,
+    slotsUsed,
+    poolSize,
+    overageCost,
+  };
+}
+
+/**
+ * Get the current pool status for a user (for UI display).
+ */
+export async function getVideoPoolStatus(userId: number): Promise<{
+  tier: string;
+  poolSize: number;
+  slotsUsed: number;
+  slotsRemaining: number;
+  resetAt: Date | null;
+  unlimited: boolean;
+}> {
+  const db = await getDb();
+  if (!db) {
+    return { tier: "starter", poolSize: 10, slotsUsed: 0, slotsRemaining: 10, resetAt: null, unlimited: false };
+  }
+
+  const tier = await getUserTier(userId);
+  const poolSize = MONTHLY_POOL_SIZES[tier] ?? 10;
+
+  if (poolSize === -1) {
+    return { tier, poolSize: -1, slotsUsed: 0, slotsRemaining: -1, resetAt: null, unlimited: true };
+  }
+
+  const slotsUsed = await ensurePoolFresh(userId);
+
+  const [user] = await db
+    .select({ slotsResetAt: users.slotsResetAt })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  return {
+    tier,
+    poolSize,
+    slotsUsed,
+    slotsRemaining: Math.max(0, poolSize - slotsUsed),
+    resetAt: user?.slotsResetAt ? new Date(user.slotsResetAt) : null,
+    unlimited: false,
+  };
 }

@@ -4651,3 +4651,28 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Voice-Over Free (Apr 2026)
 - [x] Remove +5 credit badge from voice-over UI in PropertyTours (now shows "Free" badge)
 - [x] Set voiceover credit cost to 0 in credits.ts so it adds nothing to total
+
+## Monthly Free Video Pool System (Apr 2026)
+- [ ] Add monthly_video_slots_used and slots_reset_at columns to users table
+- [ ] Update credits.ts with VIDEO_SLOT_COSTS, MONTHLY_FREE_SLOTS per tier, and pool check helpers
+- [ ] Update propertyTours router to check/deduct pool slots, fall back to overage credits
+- [ ] Update marketStats router to use pool system
+- [ ] Update youtubeVideoBuilder router to use pool system (3 slots)
+- [ ] Update autoreels router to zero out voiceover credits
+- [ ] Update UI to show monthly pool usage bar and remaining slots
+- [ ] Auto-reset slots_used to 0 on billing cycle renewal
+
+## Monthly Free Video Pool System (Session 3)
+- [x] Add monthlyVideoSlotsUsed + slotsResetAt columns to users table, push migration
+- [x] Rewrite credits.ts with MONTHLY_POOL_SIZES, VIDEO_SLOT_WEIGHTS, OVERAGE_CREDIT_COSTS constants
+- [x] Add checkAndDeductVideoPool() helper — deducts slots from pool or overage credits
+- [x] Add getVideoPoolStatus() helper for UI display
+- [x] Remove +5 credit charge for voice-over in Market Update router (now free everywhere)
+- [x] Remove +5 credit charge for voice-over in AutoReels router (now free everywhere)
+- [x] Integrate pool check into propertyTours.generateVideo (replaces old credit deduction)
+- [x] Integrate pool check into propertyTours.retryVideo
+- [x] Integrate pool check into marketStats.generateVideo
+- [x] Integrate pool check into autoreels.renderVideo
+- [x] Integrate pool check into youtubeVideoBuilder.generate
+- [x] Add getVideoPoolStatus tRPC procedure to credits router
+- [x] Add VideoPoolDisplay component in dashboard header (shows remaining free slots with progress bar, hover tooltip)

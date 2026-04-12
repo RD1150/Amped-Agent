@@ -156,30 +156,17 @@ export const propertyToursRouter = router({
           .where(eq(users.id, ctx.user.id));
       }
 
-      // Calculate credit cost
-      const costBreakdown = credits.calculateVideoCost({
-        videoMode: (tour.videoMode as "standard" | "ai-enhanced" | "cinematic") || "standard",
-        enableVoiceover: tour.enableVoiceover || false,
-      });
+      // Map video mode to pool type key
+      const poolVideoType =
+        tour.videoMode === "ai-enhanced" ? "ai-enhanced" :
+        tour.videoMode === "cinematic" ? "full-ai" :
+        "ken-burns";
 
-      // Check if user has sufficient credits
-      const hasEnoughCredits = await credits.hasCredits(ctx.user.id, costBreakdown.totalCredits);
-      if (!hasEnoughCredits) {
-        const currentBalance = await credits.getCreditBalance(ctx.user.id);
-        throw new Error(
-          `Insufficient credits. You need ${costBreakdown.totalCredits} credits but only have ${currentBalance}. Please purchase more credits to continue.`
-        );
+      // Check monthly free pool (deducts slots or overage credits)
+      const poolResult = await credits.checkAndDeductVideoPool(ctx.user.id, poolVideoType);
+      if (!poolResult.allowed) {
+        throw new Error(poolResult.reason);
       }
-
-      // Deduct credits BEFORE starting generation
-      await credits.deductCredits({
-        userId: ctx.user.id,
-        amount: costBreakdown.totalCredits,
-        usageType: `${tour.videoMode}_video${tour.enableVoiceover ? '_with_voiceover' : ''}`,
-        description: `Generated ${tour.videoMode} video for "${tour.address}"`,
-        relatedResourceId: input.tourId,
-        relatedResourceType: "property_tour",
-      });
 
       // Mark as processing immediately so the UI can start polling
       await db.updatePropertyTour(input.tourId, {
@@ -730,24 +717,15 @@ export const propertyToursRouter = router({
         throw new Error(`Daily video limit reached. Try again after ${rateLimitStatus.resetTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC.`);
       }
 
-      // Check and deduct credits
-      const costBreakdown = credits.calculateVideoCost({
-        videoMode: "standard",
-        enableVoiceover: tour.enableVoiceover || false,
-      });
-      const hasEnoughCredits = await credits.hasCredits(ctx.user.id, costBreakdown.totalCredits);
-      if (!hasEnoughCredits) {
-        const currentBalance = await credits.getCreditBalance(ctx.user.id);
-        throw new Error(`Insufficient credits. Need ${costBreakdown.totalCredits} but have ${currentBalance}.`);
+      // Check monthly free pool (deducts slots or overage credits)
+      const retryPoolType =
+        tour.videoMode === "ai-enhanced" ? "ai-enhanced" :
+        tour.videoMode === "cinematic" ? "full-ai" :
+        "ken-burns";
+      const retryPoolResult = await credits.checkAndDeductVideoPool(ctx.user.id, retryPoolType);
+      if (!retryPoolResult.allowed) {
+        throw new Error(retryPoolResult.reason);
       }
-      await credits.deductCredits({
-        userId: ctx.user.id,
-        amount: costBreakdown.totalCredits,
-        usageType: `${tour.videoMode}_video_retry`,
-        description: `Retried ${tour.videoMode} video for "${tour.address}"`,
-        relatedResourceId: input.tourId,
-        relatedResourceType: "property_tour",
-      });
 
       // Reset tour status
       await db.updatePropertyTour(input.tourId, {
@@ -819,13 +797,8 @@ export const propertyToursRouter = router({
             errorMessage: errMsg,
             processingStage: null,
           });
-          await credits.refundCredits({
-            userId,
-            amount: costBreakdown.totalCredits,
-            reason: `Retry failed: ${errMsg}`,
-            relatedResourceId: tourId,
-            relatedResourceType: "property_tour",
-          });
+          // Pool slots/credits were already deducted; no refund on retry failure
+          // (overage credits are non-refundable per policy)
         }
       });
 

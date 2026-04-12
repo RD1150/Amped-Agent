@@ -442,12 +442,14 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
     .mutation(async ({ ctx, input }) => {
       const { hook, script, caption, videoLength, tone, enableVoiceover, voiceId, voiceoverStyle, backgroundImages, captionsEnabled, captionSize, captionStyle } = input;
 
-      // Deduct voiceover credits if requested
-      if (enableVoiceover) {
-        const { deductCredits } = await import("../credits");
-        await deductCredits({ userId: ctx.user.id, amount: 5, usageType: "voiceover", description: "AutoReels voiceover narration" });
+      // Check monthly free pool (deducts slots or overage credits)
+      const { checkAndDeductVideoPool } = await import("../credits");
+      const reelPoolResult = await checkAndDeductVideoPool(ctx.user.id, 'ken-burns');
+      if (!reelPoolResult.allowed) {
+        throw new Error(reelPoolResult.reason);
       }
-      
+
+      // Voice-over is always free — no additional credit deduction
       try {
         console.log('[renderVideo] Starting video render with params:', {
           hook: hook.substring(0, 50),
@@ -534,22 +536,6 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
           statusCode: error.response?.status
         });
 
-        // Refund voiceover credits if render failed after deduction
-        if (enableVoiceover) {
-          try {
-            const { refundCredits } = await import("../credits");
-            await refundCredits({
-              userId: ctx.user.id,
-              amount: 5,
-              reason: `AutoReels render failed: ${error.message || 'Unknown error'}`,
-              relatedResourceType: "authority_reel",
-            });
-            console.log('[renderVideo] Voiceover credits refunded due to render failure');
-          } catch (refundErr: any) {
-            console.error('[renderVideo] Failed to refund credits:', refundErr.message);
-          }
-        }
-        
         // Throw a more descriptive error
         throw new Error(`Video render failed: ${error.message || 'Unknown error'}`);
       }

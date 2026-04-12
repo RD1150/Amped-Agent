@@ -49,4 +49,22 @@ export const creditsRouter = router({
       totalCredits: pkg.credits + ('bonus' in pkg ? pkg.bonus : 0),
     }));
   }),
+
+  /**
+   * Get monthly video pool status for the current user
+   */
+  getVideoPoolStatus: authOnlyProcedure.query(async ({ ctx }) => {
+    return await credits.getVideoPoolStatus(ctx.user.id);
+  }),
+
+  /**
+   * Get slot weights and overage costs (for UI display)
+   */
+  getPoolConfig: protectedProcedure.query(() => {
+    return {
+      slotWeights: credits.VIDEO_SLOT_WEIGHTS,
+      overageCosts: credits.OVERAGE_CREDIT_COSTS,
+      poolSizes: credits.MONTHLY_POOL_SIZES,
+    };
+  }),
 });

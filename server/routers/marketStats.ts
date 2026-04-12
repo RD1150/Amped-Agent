@@ -152,18 +152,16 @@ Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is t
     .mutation(async ({ input, ctx }: { input: any; ctx: any }) => {
       const marketView: MarketView = input.marketView ?? DEFAULT_MARKET_VIEW;
       const viewOption = getMarketViewOption(marketView);
-      const { deductCredits } = await import('../credits');
       const { textToSpeech } = await import('../_core/elevenLabs');
       const { storagePut } = await import('../storage');
       const { renderMarketUpdateReel } = await import('../_core/videoRenderer');
 
-      const creditCost = 10 + (input.enableVoiceover ? 5 : 0);
-      await deductCredits({
-        userId: ctx.user.id,
-        amount: creditCost,
-        usageType: 'market_update_video',
-        description: `Market update video for ${input.location}${input.enableVoiceover ? ' with voiceover' : ''}`,
-      });
+      // Check monthly free pool (deducts slots or overage credits)
+      const { checkAndDeductVideoPool } = await import('../credits');
+      const marketPoolResult = await checkAndDeductVideoPool(ctx.user.id, 'market-update');
+      if (!marketPoolResult.allowed) {
+        throw new Error(marketPoolResult.reason);
+      }
 
       // Generate voiceover script from market data
       let voiceoverAudioUrl: string | undefined;
