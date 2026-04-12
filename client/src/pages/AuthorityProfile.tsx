@@ -38,6 +38,7 @@ import {
   ArrowRight,
   Calendar,
   MapPin,
+  ExternalLink,
 } from "lucide-react";
 
 function PhotoAvatarCard() {
@@ -1042,14 +1043,31 @@ export default function AuthorityProfile() {
           </p>
           <div className="space-y-2">
             <Label htmlFor="bookingUrl">Booking / Calendar URL</Label>
-            <Input
-              id="bookingUrl"
-              type="url"
-              placeholder="https://calendly.com/yourname"
-              value={bookingUrl}
-              onChange={(e) => setBookingUrl(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">Works with Calendly, Cal.com, Acuity, HubSpot, GHL, or any booking link.</p>
+            <div className="flex gap-2">
+              <Input
+                id="bookingUrl"
+                type="url"
+                placeholder="https://calendly.com/yourname"
+                value={bookingUrl}
+                onChange={(e) => setBookingUrl(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!bookingUrl.trim()}
+                onClick={() => {
+                  const url = bookingUrl.trim();
+                  if (url) window.open(url.startsWith('http') ? url : `https://${url}`, '_blank');
+                }}
+                title="Open your booking link in a new tab to verify it works"
+              >
+                <ExternalLink className="h-4 w-4 mr-1" />
+                Test
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">Works with Calendly, Cal.com, Acuity, HubSpot, GHL, or any booking link. Click Test to verify it opens correctly.</p>
           </div>
         </Card>
 

@@ -4718,3 +4718,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add placeholder/hint text to hyperlocal neighborhood and ZIP fields in Authority Profile
 - [x] Remove stale "New" badges from Live Tour, Avatar Video, YouTube Builder, Script Builder in nav (already removed)
 - [x] Add Copy Link button to Listing Presentations for /p/:id shareable URL (already existed)
+
+## Session 7
+- [x] Fix routers.ts:385 esbuild syntax error in persona upsert procedure
+- [x] Add Test booking link button next to Calendly URL field in Authority Profile
+- [x] Extend Primary Audience injection into Market Insights commentary generation

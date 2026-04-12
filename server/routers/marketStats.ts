@@ -89,18 +89,30 @@ export const marketStatsRouter = router({
 
       // Build audience context
       let audienceNote = '';
+      let audienceFraming = 'buyers and sellers';
       if (persona?.customerAvatar) {
         try {
           const avatar = JSON.parse(persona.customerAvatar);
           const toneGuide: Record<string, string> = {
-            'first-time-buyers': 'Speak to first-time buyers: encouraging, educational, jargon-free.',
-            'luxury-sellers': 'Speak to luxury sellers: sophisticated, discreet, emphasize exclusivity.',
-            'investors': 'Speak to investors: data-driven, ROI-focused, direct.',
-            'relocators': 'Speak to relocating families: warm, reassuring, local expertise.',
-            'downsizers': 'Speak to downsizers: empathetic, lifestyle-focused.',
-            'move-up-buyers': 'Speak to move-up buyers: aspirational, strategic, equity-focused.',
+            'first-time-buyers': 'Speak to first-time buyers: encouraging, educational, jargon-free. Explain what each stat means in plain language.',
+            'luxury-sellers': 'Speak to luxury sellers: sophisticated, discreet, emphasize exclusivity and market positioning.',
+            'investors': 'Speak to real estate investors: data-driven, ROI-focused, direct. Highlight cap rates, cash flow implications, and market timing.',
+            'relocators': 'Speak to relocating families: warm, reassuring, local expertise. Help them understand the market before they arrive.',
+            'downsizers': 'Speak to downsizers: empathetic, lifestyle-focused. Emphasize equity gains and the opportunity to simplify.',
+            'move-up-buyers': 'Speak to move-up buyers: aspirational, strategic, equity-focused. Show how current conditions affect their move.',
           };
-          if (avatar.type && toneGuide[avatar.type]) audienceNote = `\nAudience: ${toneGuide[avatar.type]}`;
+          const framingGuide: Record<string, string> = {
+            'first-time-buyers': 'first-time buyers entering the market',
+            'luxury-sellers': 'luxury sellers and high-end property owners',
+            'investors': 'real estate investors evaluating opportunities',
+            'relocators': 'families relocating to the area',
+            'downsizers': 'homeowners looking to downsize',
+            'move-up-buyers': 'homeowners looking to move up',
+          };
+          if (avatar.type && toneGuide[avatar.type]) {
+            audienceNote = `\nAudience: ${toneGuide[avatar.type]}`;
+            audienceFraming = framingGuide[avatar.type] || 'buyers and sellers';
+          }
         } catch {}
       }
 
@@ -126,7 +138,7 @@ Agent name: ${agentName}${audienceNote}${hyperlocalNote}`;
 - Price per Sq Ft: $${input.pricePerSqft}
 - Market Temperature: ${input.marketTemperature.charAt(0).toUpperCase() + input.marketTemperature.slice(1)}
 
-Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is the selected view). Generate a social media post that explains what these numbers mean for buyers and sellers in ${input.location}. Include insights about whether it's a good time to buy or sell based on the data.`;
+Frame all statistics as ${comparisonPhrase} (NOT year-over-year unless that is the selected view). Generate a social media post that explains what these numbers mean specifically for ${audienceFraming} in ${input.location}. Frame your insights and call-to-action around what this audience cares about most. Include insights about whether it's a good time to act based on the data.`;
 
       const result = await invokeLLM({
         messages: [
