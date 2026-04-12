@@ -1062,6 +1062,9 @@ export default function AuthorityProfile() {
           <p className="text-sm text-muted-foreground mb-4">
             Add the specific neighborhoods and ZIP codes you want to dominate. Every piece of content you generate will be anchored to these areas for maximum local SEO impact.
           </p>
+          <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3 mb-4 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">💡 SEO Tip:</span> Neighborhood-level content ranks significantly higher than generic city-wide posts. Adding 2–3 target neighborhoods here means every blog post, market update, and social caption will automatically include hyperlocal keywords like <span className="italic">"homes for sale in Mueller"</span> or <span className="italic">"78704 market update"</span> — without you having to think about it.
+          </div>
 
           <div className="space-y-5">
             {/* Neighborhoods */}

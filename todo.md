@@ -4713,3 +4713,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Merge MY PROFILE + BRAND STORY nav sections into single MY BRAND STORY section
 - [ ] Sweep codebase for "Authority Content" references and update to Amp'd Agent
 - [ ] Add SEO meta tags to /p/:id public presentation page
+
+## Session 6 Cleanup
+- [x] Add placeholder/hint text to hyperlocal neighborhood and ZIP fields in Authority Profile
+- [x] Remove stale "New" badges from Live Tour, Avatar Video, YouTube Builder, Script Builder in nav (already removed)
+- [x] Add Copy Link button to Listing Presentations for /p/:id shareable URL (already existed)
