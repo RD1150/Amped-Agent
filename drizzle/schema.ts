@@ -1198,3 +1198,19 @@ export const generatedGuides = mysqlTable("generated_guides", {
 });
 export type GeneratedGuide = typeof generatedGuides.$inferSelect;
 export type InsertGeneratedGuide = typeof generatedGuides.$inferInsert;
+
+// ─── Saved Prospecting Letters ────────────────────────────────────────────────
+export const savedLetters = mysqlTable("saved_letters", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  letterType: varchar("letterType", { length: 100 }).notNull(),
+  letterLabel: varchar("letterLabel", { length: 200 }).notNull(),
+  letterCategory: varchar("letterCategory", { length: 100 }).notNull(),
+  targetInput: varchar("targetInput", { length: 500 }),
+  recipientName: varchar("recipientName", { length: 255 }),
+  content: text("content").notNull(),
+  pdfUrl: text("pdfUrl"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SavedLetter = typeof savedLetters.$inferSelect;
+export type InsertSavedLetter = typeof savedLetters.$inferInsert;

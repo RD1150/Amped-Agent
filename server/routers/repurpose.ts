@@ -166,6 +166,7 @@ ${selectedSchemas}
         backBody: z.string().min(10),
         cta: z.string().min(3),
         agentTagline: z.string().min(3),
+        size: z.enum(["4x6", "6x9"]).default("6x9"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -181,7 +182,7 @@ ${selectedSchemas}
         primaryCity: persona?.primaryCity || undefined,
         primaryColor: persona?.primaryColor || undefined,
       };
-      const url = await generatePostcardPdf(input, agent, ctx.user.id);
+      const url = await generatePostcardPdf(input, agent, ctx.user.id, input.size);
       return { url };
     }),
 

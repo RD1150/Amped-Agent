@@ -11,8 +11,8 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { personas } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { personas, savedLetters } from "../../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { TRPCError } from "@trpc/server";
 
@@ -359,5 +359,59 @@ Write only the letter — no preamble, no explanation.`;
         agentEmail,
         agentBrokerage,
       };
+    }),
+
+  /** Save a generated letter to the user's history */
+  save: protectedProcedure
+    .input(
+      z.object({
+        letterType: z.string(),
+        letterLabel: z.string(),
+        letterCategory: z.string(),
+        targetInput: z.string().optional(),
+        recipientName: z.string().optional(),
+        content: z.string().min(10),
+        pdfUrl: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const [result] = await db.insert(savedLetters).values({
+        userId: ctx.user.id,
+        letterType: input.letterType,
+        letterLabel: input.letterLabel,
+        letterCategory: input.letterCategory,
+        targetInput: input.targetInput ?? null,
+        recipientName: input.recipientName ?? null,
+        content: input.content,
+        pdfUrl: input.pdfUrl ?? null,
+      });
+      return { id: (result as { insertId: number }).insertId };
+    }),
+
+  /** List all saved letters for the current user */
+  list: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    return db
+      .select()
+      .from(savedLetters)
+      .where(eq(savedLetters.userId, ctx.user.id))
+      .orderBy(desc(savedLetters.createdAt));
+  }),
+
+  /** Delete a saved letter */
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      await db
+        .delete(savedLetters)
+        .where(
+          eq(savedLetters.id, input.id)
+        );
+      return { success: true };
     }),
 });

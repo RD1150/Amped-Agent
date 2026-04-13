@@ -35,12 +35,14 @@ export interface AgentBranding {
 export async function generatePostcardPdf(
   content: PostcardContent,
   agent: AgentBranding,
-  userId: number
+  userId: number,
+  size: "4x6" | "6x9" = "6x9"
 ): Promise<string> {
-  // 4x6 inches in PDF points (1pt = 1/72 inch)
-  // 6in wide x 4in tall = 432pt x 288pt
-  const W = 432;
-  const H = 288;
+  // Postcard dimensions in PDF points (1pt = 1/72 inch), landscape orientation
+  // 4x6: 6in wide x 4in tall = 432pt x 288pt
+  // 6x9: 9in wide x 6in tall = 648pt x 432pt
+  const W = size === "6x9" ? 648 : 432;
+  const H = size === "6x9" ? 432 : 288;
   const accent = agent.primaryColor || "#E85D04";
 
   // Generate QR code PNG buffer

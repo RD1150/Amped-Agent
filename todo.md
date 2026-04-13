@@ -4871,3 +4871,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Letter PDF download — professional letterhead layout (agent photo, logo, brokerage, signature block)
 - [ ] Letter history — DB schema (savedLetters table), save procedure, My Letters tab in Prospecting Letter Studio
 - [ ] Postcard visual preview — live 4x6 branded card preview in Repurpose Engine before PDF download
+
+## Postcard Size Toggle (Apr 12 2026)
+- [x] Add 4x6 and 6x9 (landscape) size toggle to postcard visual preview
+- [x] Update aspect ratio in preview card based on selected size (6/4 vs 9/6)
+- [x] Pass selected size to PDF generator so it renders at correct dimensions
+- [x] Label both sizes clearly as landscape (6w x 4h and 9w x 6h)

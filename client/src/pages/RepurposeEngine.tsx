@@ -343,9 +343,17 @@ function ReelScriptCard({ data }: { data: NonNullable<RepurposeResult["reelScrip
   );
 }
 
-function PostcardCard({ data }: { data: NonNullable<RepurposeResult["postcard"]> }) {
+function PostcardCard({ data, persona }: { data: NonNullable<RepurposeResult["postcard"]>; persona?: { agentName?: string; headshotUrl?: string; primaryColor?: string; brokerageName?: string; phoneNumber?: string } }) {
+  const [showFront, setShowFront] = useState(true);
+  const [cardSize, setCardSize] = useState<"4x6" | "6x9">("6x9");
   const frontText = `${data.headline}${data.subheadline ? '\n' + data.subheadline : ''}`;
   const backText = `${data.backBody}\n\n${data.cta}\n\n${data.agentTagline}`;
+  const accentColor = persona?.primaryColor || "#C9A962";
+  const agentName = persona?.agentName || "Your Name";
+  const brokerage = persona?.brokerageName || "Your Brokerage";
+  const phone = persona?.phoneNumber || "";
+  const headshot = persona?.headshotUrl;
+
   const generatePdf = trpc.repurpose.generatePostcardPdf.useMutation({
     onSuccess: (result) => {
       window.open(result.url, "_blank");
@@ -355,47 +363,153 @@ function PostcardCard({ data }: { data: NonNullable<RepurposeResult["postcard"]>
       toast.error("PDF generation failed: " + err.message);
     },
   });
+
   return (
     <div className="space-y-4">
-      {/* Front of Postcard Preview */}
-      <div className="rounded-xl border-2 border-amber-200 bg-amber-50 dark:bg-amber-950/30 p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wide text-amber-600">Front of Postcard</span>
+      {/* Controls row: Front/Back toggle + Size toggle */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowFront(true)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              showFront ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            Front
+          </button>
+          <button
+            onClick={() => setShowFront(false)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              !showFront ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            Back
+          </button>
         </div>
-        <div className="text-center space-y-2">
-          <p className="text-xl font-extrabold text-foreground leading-tight">{data.headline}</p>
-          {data.subheadline && (
-            <p className="text-sm text-muted-foreground">{data.subheadline}</p>
-          )}
-          <p className="text-xs text-amber-600 font-medium mt-3">[Agent photo + name + brokerage + phone]</p>
-        </div>
-        <div className="flex justify-end mt-3">
-          <CopyButton text={frontText} label="Copy Front" />
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-muted-foreground mr-1">Size:</span>
+          <button
+            onClick={() => setCardSize("4x6")}
+            className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors border ${
+              cardSize === "4x6" ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"
+            }`}
+          >
+            4×6
+          </button>
+          <button
+            onClick={() => setCardSize("6x9")}
+            className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors border ${
+              cardSize === "6x9" ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-primary/50"
+            }`}
+          >
+            6×9
+          </button>
+          <span className="text-xs text-muted-foreground ml-1">(landscape)</span>
         </div>
       </div>
-      {/* Back of Postcard Preview */}
-      <div className="rounded-xl border-2 border-border bg-card p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Back of Postcard</span>
-        </div>
-        <div className="space-y-3">
-          <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{data.backBody}</p>
-          <div className="rounded-lg bg-primary/10 border border-primary/20 px-4 py-2">
-            <p className="text-sm font-semibold text-primary">{data.cta}</p>
+
+      {/* Card preview — landscape aspect ratio based on selected size */}
+      <div
+        className="relative w-full rounded-2xl overflow-hidden shadow-lg border border-border"
+        style={{ aspectRatio: cardSize === "6x9" ? "9/6" : "6/4" }}
+      >
+        {showFront ? (
+          /* ── FRONT ── */
+          <div className="absolute inset-0 flex" style={{ background: "#fff" }}>
+            {/* Left accent bar */}
+            <div className="w-2 h-full shrink-0" style={{ background: accentColor }} />
+            {/* Main content area */}
+            <div className="flex-1 flex flex-col justify-center items-center px-8 py-6 text-center">
+              <p
+                className="font-extrabold leading-tight mb-2"
+                style={{ fontSize: "clamp(1rem, 2.5vw, 1.75rem)", color: "#1a1a1a" }}
+              >
+                {data.headline}
+              </p>
+              {data.subheadline && (
+                <p className="text-muted-foreground" style={{ fontSize: "clamp(0.65rem, 1.2vw, 0.9rem)" }}>
+                  {data.subheadline}
+                </p>
+              )}
+              <div
+                className="mt-4 px-5 py-2 rounded-full font-semibold text-white"
+                style={{ background: accentColor, fontSize: "clamp(0.6rem, 1vw, 0.8rem)" }}
+              >
+                {data.cta}
+              </div>
+            </div>
+            {/* Right agent panel */}
+            <div
+              className="w-28 shrink-0 flex flex-col items-center justify-center gap-2 py-4 px-2"
+              style={{ background: accentColor + "18" }}
+            >
+              {headshot ? (
+                <img
+                  src={headshot}
+                  alt={agentName}
+                  className="w-14 h-14 rounded-full object-cover border-2 border-white shadow"
+                />
+              ) : (
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shadow"
+                  style={{ background: accentColor }}
+                >
+                  {agentName.charAt(0)}
+                </div>
+              )}
+              <p className="text-center font-bold leading-tight" style={{ fontSize: "0.6rem", color: "#1a1a1a" }}>{agentName}</p>
+              <p className="text-center leading-tight" style={{ fontSize: "0.55rem", color: "#555" }}>{brokerage}</p>
+              {phone && <p className="text-center" style={{ fontSize: "0.55rem", color: "#555" }}>{phone}</p>}
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground italic">{data.agentTagline}</p>
-        </div>
-        <div className="flex justify-end mt-3">
-          <CopyButton text={backText} label="Copy Back" />
-        </div>
+        ) : (
+          /* ── BACK ── */
+          <div className="absolute inset-0 flex" style={{ background: "#fff" }}>
+            {/* Left: message area */}
+            <div className="flex-1 flex flex-col justify-center px-8 py-6">
+              <p
+                className="text-gray-700 leading-relaxed mb-4"
+                style={{ fontSize: "clamp(0.6rem, 1.1vw, 0.8rem)" }}
+              >
+                {data.backBody}
+              </p>
+              <p className="italic text-gray-500" style={{ fontSize: "clamp(0.55rem, 0.9vw, 0.7rem)" }}>
+                {data.agentTagline}
+              </p>
+            </div>
+            {/* Right: address block area */}
+            <div
+              className="w-36 shrink-0 flex flex-col justify-between py-6 px-4 border-l border-dashed border-gray-300"
+            >
+              <div>
+                <div
+                  className="w-10 h-6 rounded mb-1 opacity-40"
+                  style={{ background: accentColor }}
+                />
+                <p className="text-gray-400" style={{ fontSize: "0.5rem" }}>STAMP</p>
+              </div>
+              <div className="space-y-1">
+                <div className="h-2 bg-gray-200 rounded w-full" />
+                <div className="h-2 bg-gray-200 rounded w-3/4" />
+                <div className="h-2 bg-gray-200 rounded w-5/6" />
+                <p className="text-gray-400 mt-1" style={{ fontSize: "0.5rem" }}>RECIPIENT ADDRESS</p>
+              </div>
+              <div>
+                <p className="font-bold" style={{ fontSize: "0.55rem", color: "#1a1a1a" }}>{agentName}</p>
+                <p style={{ fontSize: "0.5rem", color: "#555" }}>{brokerage}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      {/* Download PDF button */}
-      <div className="flex items-center justify-between rounded-lg bg-muted/50 border border-border px-4 py-3">
-        <p className="text-xs text-muted-foreground">📬 <strong>Print tip:</strong> Download a print-ready 4×6 PDF with your agent branding and QR code.</p>
+
+      {/* Copy + Download row */}
+      <div className="flex items-center justify-between gap-3">
+        <CopyButton text={showFront ? frontText : backText} label={showFront ? "Copy Front" : "Copy Back"} />
         <Button
           size="sm"
           variant="outline"
-          className="ml-3 shrink-0 gap-1.5 text-xs border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
+          className="gap-1.5 text-xs border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
           disabled={generatePdf.isPending}
           onClick={() => generatePdf.mutate({
             headline: data.headline,
@@ -403,12 +517,13 @@ function PostcardCard({ data }: { data: NonNullable<RepurposeResult["postcard"]>
             backBody: data.backBody,
             cta: data.cta,
             agentTagline: data.agentTagline,
+            size: cardSize,
           })}
         >
           {generatePdf.isPending ? (
-            <><Loader2 className="w-3 h-3 animate-spin" /> Generating...</>
+            <><Loader2 className="w-3 h-3 animate-spin" /> Generating PDF...</>
           ) : (
-            <><Download className="w-3 h-3" /> Download PDF</>
+            <><Download className="w-3 h-3" /> Download Print PDF</>
           )}
         </Button>
       </div>
@@ -801,7 +916,7 @@ export default function RepurposeEngine() {
                     <ReelScriptCard data={result.reelScript} />
                   )}
                   {activePlatform === "postcard" && result.postcard && (
-                    <PostcardCard data={result.postcard} />
+                    <PostcardCard data={result.postcard} persona={persona as any} />
                   )}
                 </CardContent>
               </Card>

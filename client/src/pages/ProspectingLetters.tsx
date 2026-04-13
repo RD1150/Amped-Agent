@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   Loader2,
@@ -25,6 +26,10 @@ import {
   Target,
   Clock,
   BookOpen,
+  Save,
+  Trash2,
+  History,
+  PenLine,
 } from "lucide-react";
 
 // ─── Category icons ───────────────────────────────────────────────────────────
@@ -70,8 +75,43 @@ export default function ProspectingLetters() {
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
+  const [activeTab, setActiveTab] = useState("studio");
+  const [savedSuccess, setSavedSuccess] = useState(false);
+  const utils = trpc.useUtils();
 
   const { data: letterTypes, isLoading: typesLoading } = trpc.prospectingLetters.getLetterTypes.useQuery();
+  const { data: savedLettersList, isLoading: savedLoading } = trpc.prospectingLetters.list.useQuery();
+
+  const saveMutation = trpc.prospectingLetters.save.useMutation({
+    onSuccess: () => {
+      setSavedSuccess(true);
+      toast.success("Letter saved to My Letters.");
+      utils.prospectingLetters.list.invalidate();
+      setTimeout(() => setSavedSuccess(false), 2500);
+    },
+    onError: (err) => toast.error("Save failed: " + err.message),
+  });
+
+  const deleteMutation = trpc.prospectingLetters.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Letter deleted.");
+      utils.prospectingLetters.list.invalidate();
+    },
+    onError: (err) => toast.error("Delete failed: " + err.message),
+  });
+
+  const handleSaveLetter = () => {
+    const content = editedLetter ?? generatedLetter ?? "";
+    if (!content || !selectedType) return;
+    saveMutation.mutate({
+      letterType: selectedType.key,
+      letterLabel: selectedType.label,
+      letterCategory: selectedType.category,
+      targetInput: targetInput || undefined,
+      recipientName: recipientName || undefined,
+      content,
+    });
+  };
 
   const generateMutation = trpc.prospectingLetters.generate.useMutation({
     onSuccess: (data) => {
@@ -174,20 +214,34 @@ export default function ProspectingLetters() {
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 space-y-6">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Mail className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Prospecting Letter Studio</h1>
-            <p className="text-sm text-muted-foreground">
-              AI-crafted letters for every situation — empathetic, professional, and personalized to your brand
-            </p>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <Mail className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Prospecting Letter Studio</h1>
+          <p className="text-sm text-muted-foreground">
+            AI-crafted letters for every situation — empathetic, professional, and personalized to your brand
+          </p>
         </div>
       </div>
 
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="studio" className="flex items-center gap-2">
+            <PenLine className="h-4 w-4" />
+            Write a Letter
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            My Letters
+            {savedLettersList && savedLettersList.length > 0 && (
+              <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0">{savedLettersList.length}</Badge>
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="studio" className="mt-4">
       <div className="grid lg:grid-cols-5 gap-6">
         {/* Left: Letter type picker */}
         <div className="lg:col-span-2 space-y-4">
@@ -415,6 +469,21 @@ export default function ProspectingLetters() {
                         <><Download className="h-4 w-4 mr-2" />Download PDF</>
                       )}
                     </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSaveLetter}
+                      disabled={saveMutation.isPending || savedSuccess}
+                      className="text-xs"
+                    >
+                      {savedSuccess ? (
+                        <><Check className="h-3.5 w-3.5 mr-1.5 text-green-500" />Saved</>
+                      ) : saveMutation.isPending ? (
+                        <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Saving...</>
+                      ) : (
+                        <><Save className="h-3.5 w-3.5 mr-1.5" />Save</>
+                      )}
+                    </Button>
                     <Button variant="ghost" size="sm" onClick={handleDownload} className="text-xs text-muted-foreground">
                       .txt
                     </Button>
@@ -425,6 +494,75 @@ export default function ProspectingLetters() {
           )}
         </div>
       </div>
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-4">
+          {savedLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : !savedLettersList?.length ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                <History className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="font-semibold text-lg mb-1">No saved letters yet</h3>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Generate a letter in the Studio tab and click Save to keep it here for future reference.
+              </p>
+              <Button variant="outline" className="mt-4" onClick={() => setActiveTab("studio")}>
+                <PenLine className="h-4 w-4 mr-2" />
+                Write a Letter
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {savedLettersList.map((letter) => (
+                <Card key={letter.id} className="p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-sm">{letter.letterLabel}</span>
+                        <Badge variant="outline" className="text-xs">
+                          {letter.letterCategory}
+                        </Badge>
+                      </div>
+                      {letter.targetInput && (
+                        <p className="text-xs text-muted-foreground mb-1">{letter.targetInput}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(letter.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-3 font-mono leading-relaxed">
+                        {letter.content.slice(0, 200)}...
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-2 shrink-0">
+                      {letter.pdfUrl && (
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={letter.pdfUrl} target="_blank" rel="noopener noreferrer">
+                            <Download className="h-3.5 w-3.5 mr-1.5" />
+                            PDF
+                          </a>
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => deleteMutation.mutate({ id: letter.id })}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
