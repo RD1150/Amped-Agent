@@ -78,6 +78,7 @@ import {
   Clock,
   X,
   AlertTriangle,
+  Ticket,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -811,6 +812,12 @@ const menuSections = [
         label: "Generation Quality",
         path: "/admin/generation-quality",
         description: "Agent ratings by tool",
+      },
+      {
+        icon: Ticket,
+        label: "Invite Codes",
+        path: "/admin/invite-codes",
+        description: "Beta invite management",
       },
     ],
   },

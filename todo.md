@@ -4955,3 +4955,22 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Copy-to-clipboard button on each script history entry
 - [x] Script rename - custom title for saved scripts
 - [x] Avatar video thumbnail/poster image on video cards
+
+## Pre-Launch Essentials
+
+- [ ] Verify HeyGen and D-ID API key status with health check in admin panel
+- [ ] Wire up transactional email (Resend) for user-facing emails
+- [ ] Review and update Terms of Service and Privacy Policy
+- [ ] Add admin role promotion UI
+- [ ] Test and fix full new-user onboarding flow
+- [ ] Audit and fix mobile responsiveness across all key pages
+- [ ] Stripe KYC - document instructions for user
+- [ ] Custom domain SSL verification - document instructions
+- [ ] Facebook/Instagram OAuth - deferred to post-launch
+
+## Beta Invite System
+
+- [ ] Add invite_codes table to DB schema
+- [ ] Admin procedures: generate, list, revoke invite codes
+- [ ] Invite code validation at signup (grant Authority access on redemption)
+- [ ] Admin UI panel: generate/view/copy invite codes with usage status

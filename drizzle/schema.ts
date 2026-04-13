@@ -1232,3 +1232,18 @@ export const avatarScripts = mysqlTable("avatar_scripts", {
 });
 export type AvatarScript = typeof avatarScripts.$inferSelect;
 export type InsertAvatarScript = typeof avatarScripts.$inferInsert;
+
+// ─── Beta Invite Codes ────────────────────────────────────────────────────────
+export const inviteCodes = mysqlTable("invite_codes", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 32 }).notNull().unique(),
+  label: varchar("label", { length: 200 }), // e.g. "Beta Tester - Jane Smith"
+  usedByUserId: int("usedByUserId"),         // null = not yet used
+  usedAt: timestamp("usedAt"),
+  expiresAt: timestamp("expiresAt"),         // null = never expires
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  createdByAdminId: int("createdByAdminId").notNull(),
+  isRevoked: boolean("isRevoked").default(false).notNull(),
+});
+export type InviteCode = typeof inviteCodes.$inferSelect;
+export type InsertInviteCode = typeof inviteCodes.$inferInsert;

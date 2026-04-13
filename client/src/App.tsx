@@ -48,6 +48,7 @@ import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
 import AdminSpend from "./pages/AdminSpend";
 import AdminUsers from "./pages/AdminUsers";
+import AdminInviteCodes from "./pages/AdminInviteCodes";
 import GenerationQuality from "./pages/GenerationQuality";
 import Drafts from "./pages/Drafts";
 import ScriptToReel from "./pages/ScriptToReel";
@@ -104,6 +105,7 @@ function Router() {
       <Route path="/admin/spend" component={AdminSpend} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/generation-quality" component={GenerationQuality} />
+      <Route path="/admin/invite-codes" component={AdminInviteCodes} />
       <Route path="/landing" component={Landing} />
       <Route path="/terms" component={Terms} />
       <Route path="/terms-of-service" component={TermsOfService} />

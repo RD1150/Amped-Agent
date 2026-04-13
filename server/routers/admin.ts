@@ -2,7 +2,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "../db";
-import { users, propertyTours, creditTransactions, apiUsageLogs } from "../../drizzle/schema";
+import { users, propertyTours, creditTransactions, apiUsageLogs, inviteCodes } from "../../drizzle/schema";
 import { sql, eq, and, gte, lte, desc, isNotNull } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { notifyOwner } from "../_core/notification";
@@ -434,13 +434,83 @@ export const adminRouter = router({
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      // Update admin user's avatarVideoUrl
       await db
         .update(users)
         .set({ avatarVideoUrl: input.videoUrl })
         .where(eq(users.id, ctx.user.id));
+      return { success: true };
+    }),
 
+  // ─── Beta Invite Codes ──────────────────────────────────────────────────────
+
+  generateInviteCodes: adminProcedure
+    .input(z.object({
+      count: z.number().int().min(1).max(50).default(10),
+      label: z.string().max(200).optional(),
+      expiresInDays: z.number().int().min(1).max(365).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const { randomBytes } = await import("crypto");
+      const codes: string[] = [];
+      const expiresAt = input.expiresInDays
+        ? new Date(Date.now() + input.expiresInDays * 86400000)
+        : undefined;
+      for (let i = 0; i < input.count; i++) {
+        const code = randomBytes(6).toString("hex").toUpperCase();
+        await db.insert(inviteCodes).values({
+          code,
+          label: input.label ?? `Beta Invite ${i + 1}`,
+          createdByAdminId: ctx.user.id,
+          ...(expiresAt ? { expiresAt } : {}),
+          isRevoked: false,
+        });
+        codes.push(code);
+      }
+      return { codes };
+    }),
+
+  listInviteCodes: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    const rows = await db
+      .select({
+        id: inviteCodes.id,
+        code: inviteCodes.code,
+        label: inviteCodes.label,
+        usedByUserId: inviteCodes.usedByUserId,
+        usedAt: inviteCodes.usedAt,
+        expiresAt: inviteCodes.expiresAt,
+        createdAt: inviteCodes.createdAt,
+        isRevoked: inviteCodes.isRevoked,
+        usedByName: users.name,
+        usedByEmail: users.email,
+      })
+      .from(inviteCodes)
+      .leftJoin(users, eq(inviteCodes.usedByUserId, users.id))
+      .orderBy(desc(inviteCodes.createdAt));
+    return rows;
+  }),
+
+  revokeInviteCode: adminProcedure
+    .input(z.object({ id: z.number().int() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      await db
+        .update(inviteCodes)
+        .set({ isRevoked: true })
+        .where(eq(inviteCodes.id, input.id));
+      return { success: true };
+    }),
+
+  deleteInviteCode: adminProcedure
+    .input(z.object({ id: z.number().int() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      await db.delete(inviteCodes).where(eq(inviteCodes.id, input.id));
       return { success: true };
     }),
 });
