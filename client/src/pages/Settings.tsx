@@ -946,7 +946,7 @@ export default function Settings() {
       </Card>
 
       {/* Owner Self-Promotion — only visible to the platform owner who isn't yet admin */}
-      {user && user.role !== "admin" && <OwnerPromoteCard />}
+      {user && (user as any).isOwner === true && user.role !== "admin" && <OwnerPromoteCard />}
 
       {/* Sign Out */}
       <Card className="bg-card border-border">

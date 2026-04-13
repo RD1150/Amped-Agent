@@ -4989,3 +4989,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Admin self-promotion: add ownerRouter.selfPromoteToAdmin procedure (checks OWNER_OPEN_ID)
 - [x] Admin self-promotion: add OwnerPromoteCard to Settings.tsx (visible only to non-admin owner)
 - [x] Admin self-promotion: add Make Admin button to AdminUsers.tsx actions column
+
+## Session Apr 13 2026 — Live Verification of Three Features
+
+- [ ] Live test: create invite code in Admin → Invite Codes, register with it in incognito, confirm Authority tier granted
+- [ ] Live test: confirm Resend domain ampedagent.app is verified, trigger welcome email via test registration
+- [ ] Live test: claim admin role via Settings → Claim Admin button
+
+## Session Apr 13 2026 - Live Verification
+- [ ] Live test: create invite code in Admin, register with it in incognito, confirm Authority tier
+- [ ] Live test: confirm Resend domain verified, trigger welcome email via test registration
+- [ ] Live test: claim admin role via Settings Claim Admin button

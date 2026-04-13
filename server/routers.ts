@@ -156,7 +156,14 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
   }),
 
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query(opts => {
+      const user = opts.ctx.user;
+      if (!user) return null;
+      return {
+        ...user,
+        isOwner: Boolean(ENV.ownerOpenId && user.openId === ENV.ownerOpenId),
+      };
+    }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
