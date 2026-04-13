@@ -4943,3 +4943,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] trialSource field in DB schema, captured on checkout, shown in admin analytics
 - [x] Move Lead Magnets sidebar nav item into the Attract section
 - [x] Fix Avatar Video keyPoints field 1000-char validation error on market update script generation
+
+## Avatar Video Script Generator UX (Apr 2026)
+- [x] Live word count and estimated duration preview below key points textarea
+- [x] Market data auto-fill button to pre-populate key points from live market stats API
+- [x] Script history - save last 5 generated scripts per user
+- [x] Update Facebook OAuth app display name to "Authority Content" (was old app name)
+- [x] Fix Avatar Video API error handling - catch non-JSON "Service Unavailable" responses gracefully

@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Loader2, Video, Sparkles, Download, Upload, User, Trash2,
   CheckCircle2, Clock, AlertCircle, Zap, Crown, RefreshCw, Play, Wand2,
-  Lightbulb, ChevronDown, ChevronUp, Share2, ImagePlus
+  Lightbulb, ChevronDown, ChevronUp, Share2, ImagePlus, BarChart2
 } from "lucide-react";
 import { toast } from "sonner";
 import { VideoPostingDialog } from "@/components/VideoPostingDialog";
@@ -49,6 +49,96 @@ const TARGET_LENGTHS = [
 ] as const;
 
 type AvatarMode = "quick" | "custom";
+
+
+// ─── Script History Panel ─────────────────────────────────────────────────────
+interface ScriptHistoryPanelProps {
+  onUseScript: (s: {
+    script: string;
+    contentType: string;
+    keyPoints?: string | null;
+    targetLength?: string | null;
+    city?: string | null;
+  }) => void;
+}
+
+function ScriptHistoryPanel({ onUseScript }: ScriptHistoryPanelProps) {
+  const [open, setOpen] = useState(false);
+  const { data: scripts, isLoading } = trpc.fullAvatarVideo.listScripts.useQuery(undefined, { enabled: open });
+  const deleteScript = trpc.fullAvatarVideo.deleteScript.useMutation({
+    onSuccess: () => { utils.fullAvatarVideo.listScripts.invalidate(); toast.success("Script deleted"); },
+  });
+  const utils = trpc.useUtils();
+
+  const CONTENT_LABELS: Record<string, string> = {
+    market_update: "Market Update",
+    listing_pitch: "Listing Pitch",
+    just_sold: "Just Sold",
+    tips_advice: "Tips & Advice",
+    testimonial_request: "Testimonial Request",
+    open_house: "Open House",
+    custom: "Custom",
+  };
+
+  return (
+    <Card className="p-4">
+      <button
+        type="button"
+        className="w-full flex items-center justify-between text-sm font-semibold"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          Script History
+          <span className="text-xs font-normal text-muted-foreground">(last 5 generated)</span>
+        </span>
+        {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+      </button>
+      {open && (
+        <div className="mt-4 space-y-3">
+          {isLoading && <div className="text-xs text-muted-foreground">Loading…</div>}
+          {!isLoading && (!scripts || scripts.length === 0) && (
+            <div className="text-xs text-muted-foreground text-center py-4">
+              No saved scripts yet. Generate a script above to see it here.
+            </div>
+          )}
+          {scripts?.map((s) => (
+            <div key={s.id} className="rounded-lg border p-3 space-y-2 bg-muted/20">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="secondary" className="text-xs">{CONTENT_LABELS[s.contentType] ?? s.contentType}</Badge>
+                  {s.targetLength && <Badge variant="outline" className="text-xs">{s.targetLength}</Badge>}
+                  {s.city && <span className="text-xs text-muted-foreground">{s.city}</span>}
+                  <span className="text-xs text-muted-foreground">{new Date(s.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs px-2"
+                    onClick={() => onUseScript(s)}
+                  >
+                    Use
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => deleteScript.mutate({ scriptId: s.id })}
+                    disabled={deleteScript.isPending}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{s.script}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
 
 export default function FullAvatarVideo() {
   const { user, loading: isAuthLoading } = useAuth();
@@ -140,6 +230,8 @@ export default function FullAvatarVideo() {
   const [linkAvatarId, setLinkAvatarId] = useState("");
   const deleteMutation = trpc.fullAvatarVideo.delete.useMutation();
   const generateScriptMutation = trpc.fullAvatarVideo.generateAvatarScript.useMutation();
+  const marketDataMutation = trpc.marketStats.getMarketData.useMutation();
+  const [isFetchingMarketData, setIsFetchingMarketData] = useState(false);
   const { data: voices = [], isLoading: isLoadingVoices, error: voicesError } = trpc.fullAvatarVideo.getVoices.useQuery(
     undefined,
     {
@@ -348,6 +440,31 @@ export default function FullAvatarVideo() {
     } finally {
       setIsGenerating(false);
       setGenerationStep("");
+    }
+  };
+
+  const handleAutoFillMarketData = async () => {
+    if (!scriptCity.trim()) {
+      toast.error("Enter a city first to pull live market data");
+      return;
+    }
+    setIsFetchingMarketData(true);
+    try {
+      const data = await marketDataMutation.mutateAsync({ location: scriptCity.trim() });
+      const bullets = [
+        `- Median home price: $${data.medianPrice?.toLocaleString() ?? "N/A"}`,
+        data.priceChange != null ? `- Price change YoY: ${data.priceChange > 0 ? "+" : ""}${data.priceChange}%` : null,
+        data.daysOnMarket != null ? `- Average days on market: ${data.daysOnMarket} days` : null,
+        data.activeListings != null ? `- Active listings: ${data.activeListings?.toLocaleString()}` : null,
+        data.inventoryChange != null ? `- Inventory change: ${data.inventoryChange > 0 ? "+" : ""}${data.inventoryChange}%` : null,
+        data.marketTemperature ? `- Market temperature: ${data.marketTemperature}` : null,
+      ].filter(Boolean).join("\n");
+      setScriptKeyPoints(bullets);
+      toast.success(`Live market data for ${data.location} loaded!`);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to fetch market data");
+    } finally {
+      setIsFetchingMarketData(false);
     }
   };
 
@@ -962,7 +1079,26 @@ export default function FullAvatarVideo() {
 
             {/* Key points */}
             <div className="space-y-2">
-              <Label className="text-sm">Key points to cover</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">Key points to cover</Label>
+                {scriptContentType === "market_update" && scriptCity.trim() && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAutoFillMarketData}
+                    disabled={isFetchingMarketData}
+                    className="h-7 text-xs gap-1.5 border-emerald-500/40 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                  >
+                    {isFetchingMarketData ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <BarChart2 className="h-3 w-3" />
+                    )}
+                    {isFetchingMarketData ? "Fetching…" : "Auto-fill live data"}
+                  </Button>
+                )}
+              </div>
               <Textarea
                 placeholder={`e.g.\n- Inventory is down 18% from last year\n- Interest rates stabilizing around 6.5%\n- Great time to list before spring rush`}
                 value={scriptKeyPoints}
@@ -970,7 +1106,17 @@ export default function FullAvatarVideo() {
                 rows={4}
                 className="resize-none text-sm"
               />
-              <p className="text-xs text-muted-foreground">Jot down 2–4 bullet points. The AI will write the full camera-ready script.</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">Jot down 2–4 bullet points. The AI will write the full camera-ready script.</p>
+                {scriptKeyPoints.trim() && (() => {
+                  const rt = estimateReadTime(scriptKeyPoints);
+                  return (
+                    <span className="text-xs text-muted-foreground shrink-0 ml-2">
+                      {rt.words} words · {rt.label}
+                    </span>
+                  );
+                })()}
+              </div>
             </div>
 
             <Button
@@ -1399,6 +1545,9 @@ export default function FullAvatarVideo() {
           </div>
         )}
       </Card>
+
+      {/* Script History Panel */}
+      <ScriptHistoryPanel onUseScript={(s) => { setScript(s.script); setScriptContentType(s.contentType); if (s.keyPoints) setScriptKeyPoints(s.keyPoints); if (s.targetLength) setScriptTargetLength(s.targetLength as "30s" | "60s" | "90s" | "2min"); if (s.city) setScriptCity(s.city); toast.success("Script loaded from history"); }} />
 
       {/* Result */}
       {resultVideoUrl && (

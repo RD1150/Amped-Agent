@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { fullAvatarVideos, customAvatarTwins, users } from "../../drizzle/schema";
+import { fullAvatarVideos, customAvatarTwins, users, avatarScripts } from "../../drizzle/schema";
 import { eq, and, desc, gte, sql } from "drizzle-orm";
 import { storagePut } from "../storage";
 import { mixBgmIntoVideo } from "../lib/audioMixer";
@@ -151,8 +151,59 @@ Requirements:
 
       const script = response.choices?.[0]?.message?.content as string;
       if (!script) throw new Error("Script generation failed");
+      const trimmedScript = script.trim();
+      // Save to script history (keep last 5 per user)
+      try {
+        const db = await getDb();
+        if (!db) throw new Error('DB unavailable');
+        await db.insert(avatarScripts).values({
+          userId: ctx.user.id,
+          contentType: input.contentType,
+          keyPoints: input.keyPoints,
+          script: trimmedScript,
+          targetLength: input.targetLength,
+          city: input.city ?? null,
+        });
+        // Prune to last 5 scripts for this user
+        const allScripts = await db
+          .select({ id: avatarScripts.id })
+          .from(avatarScripts)
+          .where(eq(avatarScripts.userId, ctx.user.id))
+          .orderBy(desc(avatarScripts.createdAt));
+        if (allScripts.length > 5) {
+          const idsToDelete = allScripts.slice(5).map((s: { id: number }) => s.id);
+          for (const id of idsToDelete) {
+            await db.delete(avatarScripts).where(eq(avatarScripts.id, id));
+          }
+        }
+      } catch (histErr) {
+        console.warn("[FullAvatarVideo] Failed to save script history:", histErr);
+      }
+      return { script: trimmedScript };
+    }),
 
-      return { script: script.trim() };
+  listScripts: protectedProcedure
+    .query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const scripts = await db
+        .select()
+        .from(avatarScripts)
+        .where(eq(avatarScripts.userId, ctx.user.id))
+        .orderBy(desc(avatarScripts.createdAt))
+        .limit(5);
+      return scripts;
+    }),
+
+  deleteScript: protectedProcedure
+    .input(z.object({ scriptId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return { success: false };
+      await db
+        .delete(avatarScripts)
+        .where(and(eq(avatarScripts.id, input.scriptId), eq(avatarScripts.userId, ctx.user.id)));
+      return { success: true };
     }),
 
   /**

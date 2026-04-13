@@ -39,7 +39,7 @@ export default function Terms() {
           <section>
             <h2 className="text-2xl font-bold mb-4">5. Contact</h2>
             <p>
-              Email: <a href="mailto:support@realtycontentagent.com" className="text-primary hover:underline">support@realtycontentagent.com</a>
+              Email: <a href="mailto:support@ampedagent.com" className="text-primary hover:underline">support@ampedagent.com</a>
             </p>
           </section>
         </div>

@@ -121,7 +121,7 @@ export default function AIDisclaimer() {
               If you have questions about AI-generated content or this disclaimer, please contact us at:
             </p>
             <p className="mt-2">
-              Email: <a href="mailto:support@realtycontentagent.com" className="text-primary hover:underline">support@realtycontentagent.com</a>
+              Email: <a href="mailto:support@ampedagent.com" className="text-primary hover:underline">support@ampedagent.com</a>
             </p>
           </section>
         </div>

@@ -90,7 +90,7 @@ export default function Privacy() {
               If you have questions about this Privacy Policy, please contact us at:
             </p>
             <p className="mt-2">
-              Email: <a href="mailto:privacy@realtycontentagent.com" className="text-primary hover:underline">privacy@realtycontentagent.com</a>
+              Email: <a href="mailto:privacy@ampedagent.com" className="text-primary hover:underline">privacy@ampedagent.com</a>
             </p>
           </section>
         </div>

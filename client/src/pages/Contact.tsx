@@ -52,7 +52,7 @@ export default function Contact() {
               </div>
               <div>
                 <h3 className="font-semibold">Email Support</h3>
-                <p className="text-sm text-muted-foreground">support@realtycontentagent.com</p>
+                <p className="text-sm text-muted-foreground">support@ampedagent.com</p>
                 <p className="text-xs text-muted-foreground mt-1">Response within 24 hours</p>
               </div>
             </div>

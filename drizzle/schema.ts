@@ -1216,3 +1216,17 @@ export const savedLetters = mysqlTable("saved_letters", {
 });
 export type SavedLetter = typeof savedLetters.$inferSelect;
 export type InsertSavedLetter = typeof savedLetters.$inferInsert;
+
+// ─── Avatar Script History ────────────────────────────────────────────────────
+export const avatarScripts = mysqlTable("avatar_scripts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  contentType: varchar("contentType", { length: 100 }).notNull(),
+  keyPoints: text("keyPoints"),
+  script: text("script").notNull(),
+  targetLength: varchar("targetLength", { length: 20 }),
+  city: varchar("city", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AvatarScript = typeof avatarScripts.$inferSelect;
+export type InsertAvatarScript = typeof avatarScripts.$inferInsert;

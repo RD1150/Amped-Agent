@@ -15,6 +15,37 @@
 const HEYGEN_API = "https://api.heygen.com";
 const HEYGEN_UPLOAD_API = "https://upload.heygen.com";
 
+/**
+ * Safely parse a fetch Response as JSON.
+ * If the response body is not valid JSON (e.g. a 503 HTML page),
+ * returns the raw text wrapped in { _raw: text } instead of throwing.
+ */
+async function safeJson(res: Response): Promise<any> {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { _raw: text };
+  }
+}
+
+/**
+ * Build a readable error message from a failed HeyGen response.
+ * Handles both JSON error objects and plain-text/HTML bodies.
+ */
+async function heygenError(res: Response, context: string): Promise<Error> {
+  const parsed = await safeJson(res);
+  if (parsed._raw) {
+    // Non-JSON body (e.g. "Service Unavailable")
+    const snippet = (parsed._raw as string).slice(0, 120).replace(/\s+/g, " ").trim();
+    if (res.status === 503 || res.status === 502) {
+      return new Error(`HeyGen is temporarily unavailable (${res.status}). Please try again in a few minutes.`);
+    }
+    return new Error(`${context} failed (${res.status}): ${snippet}`);
+  }
+  return new Error(`${context} failed (${res.status}): ${JSON.stringify(parsed)}`);
+}
+
 function apiKey(): string {
   const key = process.env.HEYGEN_API_KEY;
   if (!key) throw new Error("HEYGEN_API_KEY is not configured");
@@ -77,7 +108,7 @@ export async function uploadHeyGenAsset(
     throw new Error(`HeyGen asset upload failed (${res.status}): ${text}`);
   }
 
-  const data = await res.json() as {
+  const data = await safeJson(res) as {
     code: number;
     data: { id: string; image_key?: string; url: string };
   };
@@ -122,12 +153,10 @@ export async function createPhotoAvatarFromUrl(
     body: JSON.stringify({ name, image_key: asset.image_key }),
   });
 
-  if (!createRes.ok) {
-    const err = await createRes.json().catch(() => ({}));
-    throw new Error(`HeyGen avatar group creation failed: ${JSON.stringify(err)}`);
+   if (!createRes.ok) {
+    throw await heygenError(createRes, "HeyGen avatar group creation");
   }
-
-  const createData = await createRes.json() as { data: { id?: string; group_id?: string } };
+  const createData = await safeJson(createRes) as { data: { id?: string; group_id?: string } };
   // HeyGen returns data.id (not data.group_id) for photo avatar groups
   const groupId = createData.data.id || createData.data.group_id;
   if (!groupId) throw new Error(`HeyGen avatar group creation returned no ID: ${JSON.stringify(createData)}`);
@@ -150,8 +179,7 @@ export async function triggerAvatarTraining(groupId: string): Promise<void> {
     body: JSON.stringify({ group_id: groupId }),
   });
   if (!trainRes.ok) {
-    const err = await trainRes.json().catch(() => ({}));
-    throw new Error(`HeyGen train failed: ${JSON.stringify(err)}`);
+    throw await heygenError(trainRes, "HeyGen train");
   }
 }
 
@@ -227,12 +255,10 @@ export async function generateStockAvatarVideo(opts: {
     }),
   });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(`HeyGen video generation failed: ${JSON.stringify(err)}`);
+   if (!res.ok) {
+    throw await heygenError(res, "HeyGen video generation");
   }
-
-  const data = await res.json() as { data: { video_id: string }; error?: { message: string } };
+  const data = await safeJson(res) as { data: { video_id: string }; error?: { message: string } };
   if (data.error) throw new Error(`HeyGen video generation failed: ${JSON.stringify(data.error)}`);
   return data.data.video_id;
 }
@@ -299,12 +325,10 @@ export async function createCustomAvatar(opts: {
     body: JSON.stringify({ name, image_key: imageKey }),
   });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(`HeyGen custom avatar creation failed: ${JSON.stringify(err)}`);
+   if (!res.ok) {
+    throw await heygenError(res, "HeyGen custom avatar creation");
   }
-
-  const data = await res.json() as { data: { group_id: string; status: string } };
+  const data = await safeJson(res) as { data: { group_id: string; status: string } };
   return {
     avatarId: data.data.group_id,
     status: data.data.status || "pending",
@@ -332,7 +356,7 @@ export async function createCustomAvatar(opts: {
       // Group doesn't exist on HeyGen — was never created or was deleted
       return { status: "failed", invalidGroup: true };
     }
-    const data2 = await res2.json() as { data: { status: string; image_url?: string } };
+    const data2 = await safeJson(res2) as { data: { status: string; image_url?: string } };
     const s2 = data2.data?.status;
     const status2: "processing" | "completed" | "failed" =
       s2 === "completed" || s2 === "ready" || s2 === "success" ? "completed"
@@ -342,13 +366,11 @@ export async function createCustomAvatar(opts: {
   }
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(`HeyGen avatar status check failed: ${JSON.stringify(err)}`);
+    throw await heygenError(res, "HeyGen avatar status check");
   }
-
-  const data = await res.json() as {
+  const data = await safeJson(res) as {
     data: { status: string; image_url?: string; group_id?: string };
-  };
+  };;
 
   const rawStatus = data.data?.status;
   // HeyGen statuses for uploaded photo avatars: 'completed' immediately after creation
@@ -399,12 +421,10 @@ export async function getVideoStatus(videoId: string): Promise<HeyGenVideoStatus
     headers: heygenHeaders(),
   });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(`HeyGen status check failed: ${JSON.stringify(err)}`);
+   if (!res.ok) {
+    throw await heygenError(res, "HeyGen status check");
   }
-
-  const data = await res.json() as {
+  const data = await safeJson(res) as {
     data: {
       video_id: string;
       status: string;
@@ -469,7 +489,7 @@ export async function listHeyGenVoices(): Promise<
     headers: heygenHeaders(),
   });
   if (!res.ok) return [];
-  const data = await res.json() as { data: { voices: any[] } };
+  const data = await safeJson(res) as { data: { voices: any[] } };
   return data.data?.voices || [];
 }
 
@@ -483,7 +503,7 @@ export async function listHeyGenAvatars(): Promise<HeyGenAvatar[]> {
       headers: heygenHeaders(),
     });
     if (!res.ok) return [];
-    const data = await res.json() as { data: { avatars: HeyGenAvatar[] } };
+    const data = await safeJson(res) as { data: { avatars: HeyGenAvatar[] } };
     return data.data?.avatars || [];
   } catch {
     return [];

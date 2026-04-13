@@ -46,7 +46,7 @@ export default function FAQ() {
     },
     {
       question: "Do you offer training or support?",
-      answer: "Yes! We provide video tutorials, live onboarding calls, and email support. Contact us anytime at support@realtycontentagent.com."
+      answer: "Yes! We provide video tutorials, live onboarding calls, and email support. Contact us anytime at support@ampedagent.com."
     },
     {
       question: "What is Newsletter Builder?",

@@ -120,7 +120,7 @@ export default function FairHousing() {
               If you have questions or concerns about fair housing compliance, please contact us at:
             </p>
             <p className="mt-2">
-              Email: <a href="mailto:compliance@realtycontentagent.com" className="text-primary hover:underline">compliance@realtycontentagent.com</a>
+              Email: <a href="mailto:compliance@ampedagent.com" className="text-primary hover:underline">compliance@ampedagent.com</a>
             </p>
           </section>
         </div>
