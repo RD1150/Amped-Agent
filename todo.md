@@ -4866,3 +4866,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Build Prospecting Letter Studio — 14 letter types, 4 categories, tone-aware AI prompts
 - [x] Add Prospecting Letters to CONVERT section in sidebar
 - [x] Register /prospecting-letters route in App.tsx
+
+## Session: Apr 12 2026 — Letter PDF, Letter History, Postcard Preview
+- [ ] Letter PDF download — professional letterhead layout (agent photo, logo, brokerage, signature block)
+- [ ] Letter history — DB schema (savedLetters table), save procedure, My Letters tab in Prospecting Letter Studio
+- [ ] Postcard visual preview — live 4x6 branded card preview in Repurpose Engine before PDF download

@@ -69,6 +69,7 @@ export default function ProspectingLetters() {
   const [editedLetter, setEditedLetter] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [pdfDownloading, setPdfDownloading] = useState(false);
 
   const { data: letterTypes, isLoading: typesLoading } = trpc.prospectingLetters.getLetterTypes.useQuery();
 
@@ -126,6 +127,33 @@ export default function ProspectingLetters() {
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Letter downloaded as .txt");
+  };
+
+  const pdfMutation = trpc.letterPdf.generate.useMutation({
+    onSuccess: (data) => {
+      const a = document.createElement("a");
+      a.href = data.pdfUrl;
+      a.download = `${selectedType?.label ?? "letter"}.pdf`;
+      a.target = "_blank";
+      a.click();
+      toast.success("PDF downloaded — letterhead included.");
+      setPdfDownloading(false);
+    },
+    onError: (err) => {
+      toast.error("PDF generation failed: " + err.message);
+      setPdfDownloading(false);
+    },
+  });
+
+  const handleDownloadPdf = () => {
+    const content = editedLetter ?? generatedLetter ?? "";
+    if (!content || !selectedType) return;
+    setPdfDownloading(true);
+    pdfMutation.mutate({
+      letterContent: content,
+      letterLabel: selectedType.label,
+      letterType: selectedType.key,
+    });
   };
 
   const handleRegenerate = () => {
@@ -376,9 +404,19 @@ export default function ProspectingLetters() {
                         <><Copy className="h-4 w-4 mr-2" />Copy to Clipboard</>
                       )}
                     </Button>
-                    <Button variant="outline" onClick={handleDownload}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Download .txt
+                    <Button
+                      variant="outline"
+                      onClick={handleDownloadPdf}
+                      disabled={pdfDownloading}
+                    >
+                      {pdfDownloading ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generating PDF...</>
+                      ) : (
+                        <><Download className="h-4 w-4 mr-2" />Download PDF</>
+                      )}
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={handleDownload} className="text-xs text-muted-foreground">
+                      .txt
                     </Button>
                   </div>
                 </Card>
