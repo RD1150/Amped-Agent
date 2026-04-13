@@ -151,17 +151,14 @@ export default function Dashboard() {
       )}
 
       {/* Welcome Header */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {greeting}, {persona?.agentName || user?.name || "Agent"}! 👋
+              {greeting}, {persona?.agentName || user?.name || "Agent"}!
             </h1>
-            <p className="text-muted-foreground">
-              Ready to dominate your local market?
-            </p>
-            <p className="text-sm text-primary/80 font-medium mt-1">
-              This is your Amped Agent command center.
+            <p className="text-muted-foreground mt-1">
+              This platform runs your entire real estate business.
             </p>
           </div>
           <Button
@@ -173,6 +170,25 @@ export default function Dashboard() {
             <HelpCircle className="h-4 w-4" />
             Start Tour
           </Button>
+        </div>
+        {/* Lifecycle Stage Pills */}
+        <div className="flex flex-wrap gap-2">
+          {([
+            { label: "ATTRACT", sub: "Build your audience", color: "bg-blue-500/10 text-blue-600 border-blue-200", href: "/property-tours" },
+            { label: "ENGAGE", sub: "Stay top of mind", color: "bg-green-500/10 text-green-600 border-green-200", href: "/generate" },
+            { label: "CONVERT", sub: "Win listings", color: "bg-orange-500/10 text-orange-600 border-orange-200", href: "/listing-presentation" },
+            { label: "SCALE", sub: "Multiply output", color: "bg-purple-500/10 text-purple-600 border-purple-200", href: "/youtube-video-builder" },
+            { label: "DOMINATE", sub: "Own your market", color: "bg-red-500/10 text-red-600 border-red-200", href: "/coach" },
+          ] as const).map((stage) => (
+            <button
+              key={stage.label}
+              onClick={() => setLocation(stage.href)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold tracking-wider transition-all hover:scale-105 ${stage.color}`}
+            >
+              {stage.label}
+              <span className="font-normal opacity-70 hidden sm:inline">· {stage.sub}</span>
+            </button>
+          ))}
         </div>
       </div>
 

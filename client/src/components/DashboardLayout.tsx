@@ -180,6 +180,10 @@ function CreditBalanceDisplay() {
 // Attract → Convert → Listings → Publish → Grow
 // Mirrors the agent's actual workflow, not the app's internal architecture.
 // ─────────────────────────────────────────────────────────────────────────────
+// LIFECYCLE-BASED NAVIGATION
+// Attract → Engage → Convert → Scale → Dominate
+// Every feature lives inside the stage of the agent's business it serves.
+// ─────────────────────────────────────────────────────────────────────────────
 const menuSections = [
   {
     title: "HOME",
@@ -196,40 +200,29 @@ const menuSections = [
         path: "/get-started",
         description: "Video walkthroughs for every feature",
       },
-    ],
-  },
-  {
-    title: "MY BRAND STORY",
-    items: [
       {
         icon: User,
         label: "Authority Profile",
         path: "/authority-profile",
         description: "Your branding, bio, headshot — powers all content",
       },
-      {
-        icon: Heart,
-        label: "My Brand Story",
-        path: "/brand-story",
-        description: "Craft your authentic agent brand story",
-      },
     ],
   },
   {
-    title: "VIDEOS",
+    title: "ATTRACT",
+    subtitle: "Build your audience & get found",
     items: [
       {
         icon: Building2,
         label: "Property Tour",
         path: "/property-tours",
-        description: "Cinematic property tour video for any home",
+        description: "Cinematic listing videos that stop the scroll",
         hoverInfo: {
           tagline: "Turn property photos into a polished cinematic tour video in under 2 minutes.",
           details: [
-            { label: "Style", value: "Smooth Ken Burns motion — zoom, pan, cross-fade" },
+            { label: "Style", value: "Ken Burns motion, Cinematic, or AI Motion" },
             { label: "Best for", value: "Any property — your listings or buyer searches" },
-            { label: "Music", value: "Choose from 8 curated background tracks" },
-            { label: "Credits", value: "5 credits per video" },
+            { label: "Music", value: "Choose from 24 curated background tracks" },
             { label: "Time", value: "~2 minutes to generate" },
           ],
         },
@@ -245,8 +238,6 @@ const menuSections = [
             { label: "Style", value: "Live video capture with guided narration prompts" },
             { label: "Best for", value: "Open houses, same-day listings, authentic walkthroughs" },
             { label: "Teleprompter", value: "Optional scrolling script for each room" },
-            { label: "Auto-stop", value: "Each room clip auto-stops at 15 seconds" },
-            { label: "Credits", value: "8 credits per assembled tour" },
           ],
         },
       },
@@ -254,94 +245,47 @@ const menuSections = [
         icon: Video,
         label: "AI Reels",
         path: "/autoreels",
-        description: "Short avatar clips for Instagram, TikTok & Reels (15–60 sec)",
+        description: "Short-form vertical video for Instagram, TikTok & Reels",
         hoverInfo: {
           tagline: "Vertical short-form videos with your AI avatar for Instagram, TikTok, and Facebook Reels.",
           details: [
             { label: "Style", value: "Vertical 9:16 with talking-head avatar overlay" },
             { label: "Best for", value: "Social media reels, market updates, quick tips" },
             { label: "Length", value: "15–60 seconds" },
-            { label: "Credits", value: "5 credits per reel" },
-            { label: "Time", value: "~3 minutes to generate" },
           ],
         },
-      },
-      {
-        icon: UserCircle,
-        label: "Avatar Video",
-        path: "/full-avatar-video",
-        description: "Full talking-head video from your script",
-        hoverInfo: {
-          tagline: "A full-length talking-head video where your AI avatar delivers your custom script.",
-          details: [
-            { label: "Style", value: "Landscape talking-head with branded lower-third" },
-            { label: "Best for", value: "Market reports, testimonials, long-form content" },
-            { label: "Length", value: "Up to 3 minutes" },
-            { label: "Credits", value: "15 credits per video" },
-            { label: "Time", value: "~5 minutes to generate" },
-          ],
-        },
-      },
-      {
-        icon: Youtube,
-        label: "YouTube Builder",
-        path: "/youtube-video-builder",
-        description: "Long-form avatar videos for YouTube — up to 15 min",
-        hoverInfo: {
-          tagline: "Generate long-form (5–15 min) avatar videos for YouTube, then auto-clip them into Reels and Shorts.",
-          details: [
-            { label: "Style", value: "16:9 landscape talking-head" },
-            { label: "Best for", value: "YouTube channel, market updates, buyer/seller guides" },
-            { label: "Length", value: "Up to 15 minutes" },
-            { label: "Credits", value: "20 credits per video" },
-            { label: "Time", value: "5–20 minutes to generate" },
-            { label: "Includes", value: "Script templates, SEO metadata, Reels clips, Publish to YouTube" },
-          ],
-        },
-      },
-      {
-        icon: Clapperboard,
-        label: "Script Builder",
-        path: "/video-script-builder",
-        description: "Write two-column scripts with visual direction",
-        hoverInfo: {
-          tagline: "Write your spoken script and visual direction side-by-side — then generate the video.",
-          details: [
-            { label: "Format", value: "Two-column: spoken words + visual prompt per scene" },
-            { label: "Best for", value: "Intro videos, market updates, testimonials, tips" },
-            { label: "AI assist", value: "Auto-generate visual prompts or full scripts from a brief" },
-            { label: "Export", value: "Use with Avatar Video or YouTube Builder" },
-          ],
-        },
-      },
-      {
-        icon: Youtube,
-        label: "YouTube Thumbnails",
-        path: "/thumbnails",
-        description: "Generate click-worthy thumbnails",
-      },
-      {
-        icon: FileVideo2,
-        label: "My Videos",
-        path: "/my-videos",
-        description: "All your generated videos in one place",
-      },
-    ],
-  },
-  {
-    title: "CONTENT",
-    items: [
-      {
-        icon: Sparkles,
-        label: "Post Builder",
-        path: "/generate",
-        description: "AI-generated social posts that position you as the local expert",
       },
       {
         icon: BookOpen,
         label: "Blog Builder",
         path: "/blog-builder",
-        description: "Hyperlocal SEO blog posts that rank and attract organic traffic",
+        description: "Hyperlocal SEO blog posts that rank and drive organic traffic",
+      },
+      {
+        icon: Images,
+        label: "Photo Library",
+        path: "/image-library",
+        description: "Upload and manage property photos with AI hooks",
+        hoverInfo: {
+          tagline: "Upload property photos, tag by room, and generate AI hook text for social posts.",
+          details: [
+            { label: "Best for", value: "Organizing listing photos, creating social post assets" },
+            { label: "AI Hook", value: "Generates a punchy 12-word caption for each photo" },
+            { label: "Formats", value: "JPG, PNG, WEBP — drag-and-drop multi-upload" },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    title: "ENGAGE",
+    subtitle: "Stay top of mind with your market",
+    items: [
+      {
+        icon: Sparkles,
+        label: "Post Builder",
+        path: "/generate",
+        description: "AI social posts that position you as the local expert",
       },
       {
         icon: TrendingUp,
@@ -350,40 +294,47 @@ const menuSections = [
         description: "Hyperlocal market data and neighborhood trend reports",
       },
       {
+        icon: Newspaper,
+        label: "Trending News",
+        path: "/trending-news",
+        description: "Turn real estate news into engaging social posts",
+      },
+      {
         icon: Lightbulb,
         label: "Expert Hooks",
         path: "/hooks",
         description: "Proven hook formulas to stop the scroll",
       },
+      {
+        icon: Mail,
+        label: "Newsletter",
+        path: "/newsletter",
+        description: "Email newsletters that nurture your database",
+        badge: "Agency",
+      },
+      {
+        icon: Calendar,
+        label: "Content Calendar",
+        path: "/calendar",
+        description: "Schedule and publish all your content",
+      },
     ],
   },
   {
-    title: "PRESENTATIONS",
+    title: "CONVERT",
+    subtitle: "Win listings and close buyers",
     items: [
-      {
-        icon: LayoutGrid,
-        label: "Assets Hub",
-        path: "/assets",
-        description: "All your presentations and shareable content in one place",
-        hoverInfo: {
-          tagline: "See all your presentations, lead magnets, and shareable content in one visual grid.",
-          details: [
-            { label: "Includes", value: "Listing & Buyer Presentations, Lead Magnets" },
-            { label: "Features", value: "Share links, view counts, filter by type" },
-          ],
-        },
-      },
       {
         icon: Presentation,
         label: "Listing Presentation",
         path: "/listing-presentation",
-        description: "AI-generated listing appointment deck for sellers",
+        description: "AI-generated listing appointment deck with CMA",
         hoverInfo: {
           tagline: "Generate a polished listing appointment presentation in minutes — powered by Gamma AI.",
           details: [
             { label: "Best for", value: "Listing appointments, seller consultations" },
             { label: "Output", value: "15-slide deck: property, comps, agent bio, marketing plan" },
-            { label: "Share", value: "Branded link hides Gamma — sellers see your name" },
+            { label: "Share", value: "Branded link — sellers see your name, not Gamma" },
             { label: "Time", value: "1–3 minutes to generate" },
           ],
         },
@@ -403,67 +354,78 @@ const menuSections = [
         },
       },
       {
+        icon: UserCircle,
+        label: "Avatar Video",
+        path: "/full-avatar-video",
+        description: "Full talking-head video to introduce yourself to prospects",
+        hoverInfo: {
+          tagline: "A full-length talking-head video where your AI avatar delivers your custom script.",
+          details: [
+            { label: "Style", value: "Landscape talking-head with branded lower-third" },
+            { label: "Best for", value: "Intro videos, market reports, testimonials" },
+            { label: "Length", value: "Up to 3 minutes" },
+          ],
+        },
+      },
+      {
         icon: Gift,
         label: "Lead Magnet",
         path: "/lead-magnet",
         description: "Branded PDF lead magnets for Facebook Lead Ads",
         badge: "Agency",
       },
-    ],
-  },
-  {
-    title: "AUTHORITY",
-    items: [
       {
-        icon: Mail,
-        label: "Newsletter",
-        path: "/newsletter",
-        description: "Email newsletters that nurture your list",
-        badge: "Agency",
-      },
-      {
-        icon: TrendingUp,
-        label: "Market Dominance Report",
-        path: "/coach",
-        description: "AI-generated market authority report for your farm area",
-        badge: "Agency",
-      },
-    ],
-  },
-  {
-    title: "LIBRARY",
-    items: [
-      {
-        icon: Images,
-        label: "Photo Library",
-        path: "/image-library",
-        description: "Upload and manage property photos with AI hooks",
+        icon: LayoutGrid,
+        label: "Assets Hub",
+        path: "/assets",
+        description: "All your presentations and shareable assets in one place",
         hoverInfo: {
-          tagline: "Upload property photos, tag by room, and generate AI hook text for social posts — all in one place.",
+          tagline: "See all your presentations, lead magnets, and shareable content in one visual grid.",
           details: [
-            { label: "Best for", value: "Organizing listing photos, creating social post assets" },
-            { label: "AI Hook", value: "Generates a punchy 12-word caption for each photo" },
-            { label: "Formats", value: "JPG, PNG, WEBP — drag-and-drop multi-upload" },
-            { label: "Features", value: "Room tagging, property address, tag filtering" },
+            { label: "Includes", value: "Listing & Buyer Presentations, Lead Magnets" },
+            { label: "Features", value: "Share links, view counts, filter by type" },
           ],
         },
       },
     ],
   },
   {
-    title: "PUBLISH",
+    title: "SCALE",
+    subtitle: "Multiply your output without the work",
     items: [
       {
-        icon: Calendar,
-        label: "Content Calendar",
-        path: "/calendar",
-        description: "Schedule and manage all posts",
+        icon: Youtube,
+        label: "YouTube Builder",
+        path: "/youtube-video-builder",
+        description: "Long-form avatar videos for YouTube — up to 15 min",
+        hoverInfo: {
+          tagline: "Generate long-form (5–15 min) avatar videos for YouTube, then auto-clip them into Reels and Shorts.",
+          details: [
+            { label: "Style", value: "16:9 landscape talking-head" },
+            { label: "Best for", value: "YouTube channel, market updates, buyer/seller guides" },
+            { label: "Length", value: "Up to 15 minutes" },
+          ],
+        },
       },
       {
-        icon: Upload,
-        label: "Bulk Import",
-        path: "/bulk-import",
-        description: "Import content ideas from CSV in bulk",
+        icon: Clapperboard,
+        label: "Script Builder",
+        path: "/video-script-builder",
+        description: "Write two-column scripts with visual direction",
+        hoverInfo: {
+          tagline: "Write your spoken script and visual direction side-by-side — then generate the video.",
+          details: [
+            { label: "Format", value: "Two-column: spoken words + visual prompt per scene" },
+            { label: "Best for", value: "Intro videos, market updates, testimonials, tips" },
+            { label: "AI assist", value: "Auto-generate visual prompts or full scripts from a brief" },
+          ],
+        },
+      },
+      {
+        icon: Youtube,
+        label: "YouTube Thumbnails",
+        path: "/thumbnails",
+        description: "Generate click-worthy thumbnails for every video",
       },
       {
         icon: Shuffle,
@@ -473,10 +435,47 @@ const menuSections = [
         badge: "Agency",
       },
       {
+        icon: Upload,
+        label: "Bulk Import",
+        path: "/bulk-import",
+        description: "Import content ideas from CSV in bulk",
+      },
+      {
         icon: Link2,
         label: "Integrations",
         path: "/integrations",
         description: "Connect Facebook, Instagram, LinkedIn, GBP",
+      },
+    ],
+  },
+  {
+    title: "DOMINATE",
+    subtitle: "Own your market and build authority",
+    items: [
+      {
+        icon: Heart,
+        label: "Brand Story",
+        path: "/brand-story",
+        description: "Craft your authentic agent brand narrative",
+      },
+      {
+        icon: TrendingUp,
+        label: "Market Dominance",
+        path: "/coach",
+        description: "AI-generated market authority report for your farm area",
+        badge: "Agency",
+      },
+      {
+        icon: FileVideo2,
+        label: "My Videos",
+        path: "/my-videos",
+        description: "Your complete video library",
+      },
+      {
+        icon: Users,
+        label: "Referrals",
+        path: "/dashboard",
+        description: "Invite agents and earn 25 credits each",
       },
     ],
   },
@@ -754,6 +753,11 @@ function DashboardLayoutContent({
                     <h3 className="text-[11px] font-bold text-sidebar-foreground/75 uppercase tracking-[0.1em]">
                       {section.title}
                     </h3>
+                    {"subtitle" in section && section.subtitle && !isCollapsed && (
+                      <p className="text-[10px] text-sidebar-foreground/40 mt-0.5 leading-tight">
+                        {section.subtitle}
+                      </p>
+                    )}
                   </div>
 
                   {/* Items */}

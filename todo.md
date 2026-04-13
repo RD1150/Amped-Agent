@@ -4759,3 +4759,16 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Build referral card UI on dashboard (copy link, referred count, credits earned)
 - [x] Add /join?ref=CODE route that pre-fills referral code on login/register page
 - [x] Change referral credit reward from 50 to 25 credits (both referrer and new user)
+
+## Lifecycle Navigation Restructure (Apr 2026)
+- [ ] Rebuild sidebar navigation around 5 lifecycle buckets: ATTRACT, ENGAGE, CONVERT, SCALE, DOMINATE
+- [ ] Map all existing features to the correct lifecycle bucket
+- [ ] Rebuild Dashboard home page with lifecycle section cards and business progress framing
+- [ ] Update landing page hero and copy to lead with lifecycle positioning ("This platform runs your entire real estate business")
+- [ ] Remove all tool-centric section labels (LISTING VIDEOS, SOCIAL VIDEOS, CONTENT, ASSETS, etc.)
+
+## Lifecycle Navigation Restructure (Attract → Engage → Convert → Scale → Dominate)
+- [x] Rebuild sidebar navigation with 5 lifecycle sections: ATTRACT, ENGAGE, CONVERT, SCALE, DOMINATE
+- [x] Add subtitle taglines under each section header in sidebar
+- [x] Rebuild Dashboard home page with lifecycle framing (stage pills, lifecycle-aware quick actions)
+- [x] Update landing page hero and value prop copy to lead with lifecycle positioning

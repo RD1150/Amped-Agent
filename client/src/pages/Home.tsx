@@ -47,17 +47,30 @@ export default function HomePage() {
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-5xl mx-auto space-y-8">
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
-            Build Authority.
-            <span className="block text-primary mt-2">Generate Demand. Win Listings.</span>
+            This Platform Runs
+            <span className="block text-primary mt-2">Your Entire Real Estate Business.</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            The AI-powered marketing platform that turns real estate agents into market-dominant brands through cinematic video and strategic content.
+            From your next Instagram reel to your next listing appointment &mdash; Amped Agent is the complete marketing platform built exclusively for real estate agents.
           </p>
-          
-          <p className="text-lg text-primary/80 font-medium mt-4">
-            This is your Amped Agent command center.
-          </p>
+
+          {/* Lifecycle Pills */}
+          <div className="flex flex-wrap justify-center gap-2 pt-2">
+            {[
+              { label: "ATTRACT", desc: "Build your audience" },
+              { label: "ENGAGE", desc: "Stay top of mind" },
+              { label: "CONVERT", desc: "Win listings" },
+              { label: "SCALE", desc: "Multiply output" },
+              { label: "DOMINATE", desc: "Own your market" },
+            ].map((s, i) => (
+              <span key={s.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-wider text-white/80">
+                {i > 0 && <span className="text-primary/50 mr-0.5">&rarr;</span>}
+                {s.label}
+                <span className="font-normal text-white/40 hidden sm:inline">&nbsp;{s.desc}</span>
+              </span>
+            ))}
+          </div>
 
           {/* Social Proof - 8000+ Users */}
           <div className="flex flex-col items-center gap-3 py-6">
@@ -103,10 +116,10 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Stop Paying for 3+ Tools
+              Stop Stitching Together 5 Different Tools
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Amped Agent is the <span className="text-primary font-semibold">only all-in-one platform</span> real estate agents need for social media and video content.
+              Amped Agent is the <span className="text-primary font-semibold">only complete marketing platform</span> that covers every stage of an agent's business &mdash; from content creation and video production to listing presentations and market authority.
             </p>
           </div>
 
