@@ -38,7 +38,7 @@ export default function ReferralCard() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <Gift size={18} className="text-primary" />
-          Invite Agents — Earn 25 Credits Each
+          Invite Agents - Earn 25 Credits Each
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

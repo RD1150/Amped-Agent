@@ -41,7 +41,10 @@ export default function Pricing() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
-          <p className="text-xl text-muted-foreground mb-8">
+          <p className="text-xl text-muted-foreground mb-2">
+            Your complete authority marketing platform — content, video, strategy, and distribution in one place.
+          </p>
+          <p className="text-sm text-muted-foreground mb-8">
             Start your {TRIAL_DAYS}-day trial — then auto-billed. Cancel anytime.
           </p>
 
@@ -161,7 +164,7 @@ export default function Pricing() {
         <div className="mt-16 text-center text-sm text-muted-foreground space-y-2">
           <p>✓ {TRIAL_DAYS}-day trial, then auto-billed • ✓ Cancel anytime • ✓ Annual billing saves 2 months</p>
           <p className="max-w-2xl mx-auto">
-            All plans include AI-powered content generation, property tour videos, social media scheduling, and analytics. Built exclusively for real estate agents who want to dominate their local market.
+            All plans include AI-powered content generation, video production, social media repurposing across 6 formats, market insights, and scheduling — built exclusively for real estate agents who want to attract, engage, and convert at scale.
           </p>
         </div>
       </div>

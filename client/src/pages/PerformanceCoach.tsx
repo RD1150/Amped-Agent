@@ -1,18 +1,20 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import {
   Loader2, Sparkles, TrendingUp, Target, MessageSquare,
   CheckCircle2, Award, Upload, Image, Video, X, AlertCircle,
-  FileText
+  FileText, Send, Bot, User, Zap
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -45,12 +47,25 @@ interface VisualFeedback {
   priorityAction: string;
 }
 
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 const ANALYSIS_TYPES = [
   { value: "headshot", label: "Professional Headshot", description: "Evaluate your profile photo for authority and approachability" },
   { value: "listing_photo", label: "Listing Photo", description: "Get feedback on composition, lighting, and staging" },
   { value: "social_post_screenshot", label: "Social Post Screenshot", description: "Analyze a screenshot of your Instagram or Facebook post" },
   { value: "video_reel", label: "Video / Reel", description: "Review your video for hook strength, presence, and engagement" },
   { value: "general", label: "General", description: "Any image or video for general marketing feedback" },
+];
+
+const STARTER_PROMPTS = [
+  "What should I focus on this week to win more listings?",
+  "How do I build more authority in my local market?",
+  "What content strategy will get me the most leads?",
+  "How do I stand out against bigger teams in my area?",
+  "What's the fastest way to grow my sphere of influence?",
 ];
 
 export default function PerformanceCoach() {
@@ -64,6 +79,11 @@ export default function PerformanceCoach() {
   const [additionalContext, setAdditionalContext] = useState("");
   const [visualFeedback, setVisualFeedback] = useState<VisualFeedback | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Dominance Chat state
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   const analyzePost = trpc.coach.analyze.useMutation({
     onSuccess: (data: CoachFeedback) => {
@@ -84,6 +104,22 @@ export default function PerformanceCoach() {
       toast.error(`Visual analysis failed: ${error.message}`);
     },
   });
+
+  const dominanceChat = trpc.coach.dominanceChat.useMutation({
+    onSuccess: (data) => {
+      const reply = typeof data.reply === 'string' ? data.reply : '';
+      setChatMessages(prev => [...prev, { role: "assistant", content: reply }]);
+    },
+    onError: (error: any) => {
+      toast.error(`Coach unavailable: ${error.message}`);
+      // Remove the optimistic user message on error
+      setChatMessages(prev => prev.slice(0, -1));
+    },
+  });
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages]);
 
   const handleAnalyze = () => {
     if (!postContent.trim()) {
@@ -152,6 +188,27 @@ export default function PerformanceCoach() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleChatSend = (message?: string) => {
+    const text = message ?? chatInput.trim();
+    if (!text) return;
+
+    const newMessage: ChatMessage = { role: "user", content: text };
+    const updatedMessages = [...chatMessages, newMessage];
+    setChatMessages(updatedMessages);
+    setChatInput("");
+
+    dominanceChat.mutate({
+      messages: updatedMessages,
+    });
+  };
+
+  const handleChatKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleChatSend();
+    }
+  };
+
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-primary";
     if (score >= 60) return "text-primary/70";
@@ -182,6 +239,10 @@ export default function PerformanceCoach() {
                 <Award className="h-3.5 w-3.5" />
                 Agency Feature
               </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/30">
+                <Zap className="h-3.5 w-3.5" />
+                Personalized to your activity
+              </span>
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
               Market Dominance Coach
@@ -190,7 +251,7 @@ export default function PerformanceCoach() {
               Your unfair advantage in any market.
             </p>
             <p className="text-sm text-white/60 max-w-xl">
-              Analyze your posts, headshots, listing photos, and videos. Get AI-powered strategic feedback scored on authority, engagement, and market impact.
+              Analyze your posts, headshots, listing photos, and videos — or chat directly with your AI coach for personalized strategy based on your actual platform activity.
             </p>
           </div>
           <div className="hidden md:flex flex-col items-center justify-center w-36 h-36 rounded-2xl bg-primary/10 border border-primary/30 shrink-0">
@@ -201,8 +262,12 @@ export default function PerformanceCoach() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="text" className="w-full">
-        <TabsList className="mb-6 w-full max-w-md">
+      <Tabs defaultValue="chat" className="w-full">
+        <TabsList className="mb-6 w-full max-w-2xl">
+          <TabsTrigger value="chat" className="flex-1 flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Strategy Chat
+          </TabsTrigger>
           <TabsTrigger value="text" className="flex-1 flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Analyze Post
@@ -212,6 +277,129 @@ export default function PerformanceCoach() {
             Analyze Photo / Video
           </TabsTrigger>
         </TabsList>
+
+        {/* ── STRATEGY CHAT TAB ── */}
+        <TabsContent value="chat">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Chat Window */}
+            <div className="md:col-span-2 flex flex-col">
+              <Card className="flex flex-col h-[540px]">
+                <div className="px-5 py-4 border-b flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Bot className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-sm">Market Dominance Coach</div>
+                    <div className="text-xs text-muted-foreground">Knows your activity · Gives real advice</div>
+                  </div>
+                  <Badge variant="outline" className="ml-auto text-xs text-green-600 border-green-300 bg-green-50">
+                    Live
+                  </Badge>
+                </div>
+
+                <ScrollArea className="flex-1 px-5 py-4">
+                  {chatMessages.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center py-8">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                        <Bot className="h-8 w-8 text-primary/60" />
+                      </div>
+                      <p className="text-muted-foreground text-sm max-w-xs">
+                        Your coach has reviewed your platform activity and is ready to give you specific, personalized strategy. Ask anything.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {chatMessages.map((msg, i) => (
+                        <div key={i} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                            msg.role === "assistant" ? "bg-primary/10" : "bg-slate-100"
+                          }`}>
+                            {msg.role === "assistant"
+                              ? <Bot className="h-4 w-4 text-primary" />
+                              : <User className="h-4 w-4 text-slate-500" />
+                            }
+                          </div>
+                          <div className={`rounded-2xl px-4 py-3 max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap ${
+                            msg.role === "assistant"
+                              ? "bg-muted text-foreground"
+                              : "bg-primary text-primary-foreground"
+                          }`}>
+                            {msg.content}
+                          </div>
+                        </div>
+                      ))}
+                      {dominanceChat.isPending && (
+                        <div className="flex gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <Bot className="h-4 w-4 text-primary" />
+                          </div>
+                          <div className="rounded-2xl px-4 py-3 bg-muted">
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          </div>
+                        </div>
+                      )}
+                      <div ref={chatEndRef} />
+                    </div>
+                  )}
+                </ScrollArea>
+
+                <div className="px-5 py-4 border-t">
+                  <div className="flex gap-2">
+                    <Textarea
+                      placeholder="Ask your coach anything about your market strategy..."
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={handleChatKeyDown}
+                      rows={2}
+                      className="resize-none text-sm"
+                    />
+                    <Button
+                      onClick={() => handleChatSend()}
+                      disabled={dominanceChat.isPending || !chatInput.trim()}
+                      size="icon"
+                      className="h-auto"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1.5">Press Enter to send · Shift+Enter for new line</p>
+                </div>
+              </Card>
+            </div>
+
+            {/* Starter Prompts */}
+            <div className="space-y-4">
+              <Card className="p-5">
+                <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Ask your coach
+                </h3>
+                <div className="space-y-2">
+                  {STARTER_PROMPTS.map((prompt, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleChatSend(prompt)}
+                      disabled={dominanceChat.isPending}
+                      className="w-full text-left text-xs px-3 py-2.5 rounded-lg border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors text-muted-foreground hover:text-foreground"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </Card>
+
+              <Card className="p-5 bg-primary/5 border-primary/20">
+                <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-primary" />
+                  How this works
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Your coach automatically reviews your last 30 days of activity — videos created, guides generated, presentations built, credits used, and your subscription tier — then gives you advice that's specific to <em>you</em>, not generic tips.
+                </p>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
 
         {/* ── TEXT ANALYSIS TAB ── */}
         <TabsContent value="text">
@@ -265,229 +453,187 @@ export default function PerformanceCoach() {
                       </div>
                     ))}
                     {feedback.scores.avatarAlignment !== undefined && (
-                      <div className="pt-2 border-t">
+                      <div>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="flex items-center"><Target className="h-3.5 w-3.5 mr-1.5 text-primary" />Avatar Alignment</span>
+                          <span>Avatar Alignment</span>
                           <span className={getScoreColor(feedback.scores.avatarAlignment)}>{feedback.scores.avatarAlignment}/100</span>
                         </div>
                         <Progress value={feedback.scores.avatarAlignment} className="h-2" />
                       </div>
                     )}
                   </div>
-                  {feedback.strengths.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold text-sm mb-2 flex items-center text-primary"><CheckCircle2 className="h-4 w-4 mr-1" />Strengths</h3>
-                      <ul className="space-y-1 text-sm">{feedback.strengths.map((s, i) => <li key={i} className="flex items-start"><span className="text-primary mr-2">•</span><span>{s}</span></li>)}</ul>
-                    </div>
-                  )}
-                  {feedback.improvements.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold text-sm mb-2 flex items-center text-primary/70"><Target className="h-4 w-4 mr-1" />Suggested Improvements</h3>
-                      <ul className="space-y-1 text-sm">{feedback.improvements.map((imp, i) => <li key={i} className="flex items-start"><span className="text-primary/70 mr-2">•</span><span>{imp}</span></li>)}</ul>
-                    </div>
-                  )}
-                  <Button onClick={() => { setFeedback(null); setPostContent(""); }} variant="outline" className="w-full">Analyze Another Post</Button>
+                  <div className="space-y-3">
+                    {feedback.strengths.length > 0 && (
+                      <div className="rounded-lg bg-green-50 border border-green-200 p-3">
+                        <div className="text-xs font-semibold text-green-700 mb-1 flex items-center gap-1">
+                          <CheckCircle2 className="h-3.5 w-3.5" />Strengths
+                        </div>
+                        <ul className="text-xs text-green-800 space-y-1">
+                          {feedback.strengths.map((s, i) => <li key={i}>• {s}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {feedback.improvements.length > 0 && (
+                      <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
+                        <div className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1">
+                          <Target className="h-3.5 w-3.5" />Improvements
+                        </div>
+                        <ul className="text-xs text-amber-800 space-y-1">
+                          {feedback.improvements.map((s, i) => <li key={i}>• {s}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {feedback.rewriteSuggestion && (
+                      <div className="rounded-lg bg-primary/5 border border-primary/20 p-3">
+                        <div className="text-xs font-semibold text-primary mb-1 flex items-center gap-1">
+                          <Sparkles className="h-3.5 w-3.5" />Suggested Rewrite
+                        </div>
+                        <p className="text-xs text-foreground/80 leading-relaxed">{feedback.rewriteSuggestion}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
-                <div className="h-full flex items-center justify-center text-center text-muted-foreground">
-                  <div><TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" /><p>Your performance analysis will appear here</p></div>
+                <div className="flex flex-col items-center justify-center h-64 text-center">
+                  <TrendingUp className="h-12 w-12 text-muted-foreground/30 mb-3" />
+                  <p className="text-muted-foreground text-sm">Your performance analysis will appear here after you analyze a post.</p>
                 </div>
               )}
             </Card>
           </div>
-
-          {feedback?.rewriteSuggestion && (
-            <Card className="mt-6 p-6">
-              <h3 className="font-semibold mb-3 flex items-center"><MessageSquare className="h-5 w-5 mr-2" />Optimized Version</h3>
-              <div className="bg-muted p-4 rounded-lg"><p className="whitespace-pre-wrap">{feedback.rewriteSuggestion}</p></div>
-              <Button onClick={() => { navigator.clipboard.writeText(feedback.rewriteSuggestion); toast.success("Copied!"); }} variant="outline" className="mt-4">Copy Optimized Version</Button>
-            </Card>
-          )}
         </TabsContent>
 
         {/* ── VISUAL ANALYSIS TAB ── */}
         <TabsContent value="visual">
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Upload Card */}
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-1">Upload Photo or Video</h2>
-              <p className="text-sm text-muted-foreground mb-5">Upload a headshot, listing photo, social post screenshot, or video reel for expert AI feedback.</p>
+              <h2 className="text-xl font-semibold mb-4">Upload Photo or Video</h2>
+              <div className="space-y-4">
+                <div>
+                  <Label>Analysis Type</Label>
+                  <Select value={analysisType} onValueChange={setAnalysisType}>
+                    <SelectTrigger className="mt-1.5">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ANALYSIS_TYPES.map(t => (
+                        <SelectItem key={t.value} value={t.value}>
+                          <div>
+                            <div className="font-medium">{t.label}</div>
+                            <div className="text-xs text-muted-foreground">{t.description}</div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Analysis Type */}
-              <div className="mb-4">
-                <Label className="mb-1.5 block">What are you uploading?</Label>
-                <Select value={analysisType} onValueChange={setAnalysisType}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ANALYSIS_TYPES.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>
-                        <div>
-                          <div className="font-medium">{t.label}</div>
-                          <div className="text-xs text-muted-foreground">{t.description}</div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                {!selectedFile ? (
+                  <div
+                    className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">JPG, PNG, WebP, MP4, MOV, WebM · Max 16MB</p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,video/*"
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                  </div>
+                ) : (
+                  <div className="relative rounded-xl overflow-hidden border border-border">
+                    {selectedFile.type.startsWith("image/") ? (
+                      <img src={previewUrl!} alt="Preview" className="w-full h-48 object-cover" />
+                    ) : (
+                      <video src={previewUrl!} className="w-full h-48 object-cover" controls />
+                    )}
+                    <button
+                      onClick={clearFile}
+                      className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition-colors"
+                    >
+                      <X className="h-3.5 w-3.5 text-white" />
+                    </button>
+                    <div className="p-3 bg-muted/50">
+                      <p className="text-xs text-muted-foreground truncate">{selectedFile.name}</p>
+                    </div>
+                  </div>
+                )}
 
-              {/* Drop zone */}
-              {!selectedFile ? (
-                <div
-                  className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors mb-4"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-                  <p className="font-medium mb-1">Click to upload</p>
-                  <p className="text-sm text-muted-foreground">JPG, PNG, WebP, MP4, MOV, WebM · Max 16MB</p>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*,video/*"
-                    className="hidden"
-                    onChange={handleFileSelect}
+                <div>
+                  <Label htmlFor="additionalContext">Additional Context (optional)</Label>
+                  <Textarea
+                    id="additionalContext"
+                    placeholder="e.g. This is for Instagram, targeting first-time buyers in Austin..."
+                    value={additionalContext}
+                    onChange={(e) => setAdditionalContext(e.target.value)}
+                    rows={3}
+                    className="mt-1.5"
                   />
                 </div>
-              ) : (
-                <div className="relative mb-4 rounded-xl overflow-hidden border border-border bg-muted">
-                  {selectedFile.type.startsWith("video/") ? (
-                    <video src={previewUrl!} controls className="w-full max-h-56 object-contain" />
+
+                <Button
+                  onClick={handleVisualAnalyze}
+                  disabled={analyzeVisual.isPending || !selectedFile}
+                  className="w-full"
+                  size="lg"
+                >
+                  {analyzeVisual.isPending ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>
                   ) : (
-                    <img src={previewUrl!} alt="Preview" className="w-full max-h-56 object-contain" />
+                    <><Sparkles className="mr-2 h-4 w-4" />Analyze {selectedFile?.type.startsWith("video/") ? "Video" : "Photo"}</>
                   )}
-                  <button
-                    onClick={clearFile}
-                    className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 hover:bg-background border border-border"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                  <div className="px-3 py-2 text-xs text-muted-foreground flex items-center gap-1.5">
-                    {selectedFile.type.startsWith("video/") ? <Video className="h-3.5 w-3.5" /> : <Image className="h-3.5 w-3.5" />}
-                    {selectedFile.name} · {(selectedFile.size / (1024 * 1024)).toFixed(1)}MB
-                  </div>
-                </div>
-              )}
-
-              {/* Optional context */}
-              <div className="mb-5">
-                <Label htmlFor="context" className="mb-1.5 block">Additional context <span className="text-muted-foreground font-normal">(optional)</span></Label>
-                <Textarea
-                  id="context"
-                  placeholder="e.g. This is my main Instagram profile photo. I'm targeting first-time buyers in Austin."
-                  value={additionalContext}
-                  onChange={(e) => setAdditionalContext(e.target.value)}
-                  rows={3}
-                />
+                </Button>
               </div>
-
-              <Button
-                onClick={handleVisualAnalyze}
-                disabled={!selectedFile || analyzeVisual.isPending}
-                className="w-full"
-                size="lg"
-              >
-                {analyzeVisual.isPending ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>
-                ) : (
-                  <><Sparkles className="mr-2 h-4 w-4" />Get Visual Feedback</>
-                )}
-              </Button>
-
-              {analyzeVisual.isPending && (
-                <p className="text-xs text-muted-foreground text-center mt-2">This may take 15–30 seconds for videos</p>
-              )}
             </Card>
 
-            {/* Results Card */}
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Visual Feedback</h2>
-
+              <h2 className="text-xl font-semibold mb-4">Visual Analysis</h2>
               {visualFeedback ? (
                 <div className="space-y-5">
-                  {/* Score */}
                   <div className={`rounded-xl border p-4 text-center ${getScoreBg(visualFeedback.overallScore)}`}>
-                    <div className={`text-5xl font-bold ${getScoreColor(visualFeedback.overallScore)}`}>
-                      {visualFeedback.overallScore}
-                    </div>
-                    <div className="text-sm font-medium mt-1">{getScoreLabel(visualFeedback.overallScore)} · {ANALYSIS_TYPES.find(t => t.value === analysisType)?.label}</div>
+                    <div className={`text-4xl font-bold ${getScoreColor(visualFeedback.overallScore)}`}>{visualFeedback.overallScore}</div>
+                    <div className="text-sm text-muted-foreground mt-1">{getScoreLabel(visualFeedback.overallScore)}</div>
                   </div>
-
-                  {/* Summary */}
-                  <div>
+                  <div className="rounded-lg bg-muted/50 p-3">
                     <p className="text-sm leading-relaxed">{visualFeedback.summary}</p>
                   </div>
-
-                  {/* Priority Action */}
-                  <div className="rounded-lg bg-muted border border-primary/20 p-3">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                      <div>
-                        <p className="text-xs font-semibold text-primary mb-0.5">Priority Action</p>
-                        <p className="text-sm text-primary/80">{visualFeedback.priorityAction}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Strengths */}
                   {visualFeedback.strengths.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold text-sm mb-2 flex items-center text-primary">
-                        <CheckCircle2 className="h-4 w-4 mr-1" />What's Working
-                      </h3>
-                      <ul className="space-y-1.5 text-sm">
-                        {visualFeedback.strengths.map((s, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span className="text-primary mt-0.5">✓</span>
-                            <span>{s}</span>
-                          </li>
-                        ))}
+                    <div className="rounded-lg bg-green-50 border border-green-200 p-3">
+                      <div className="text-xs font-semibold text-green-700 mb-1 flex items-center gap-1">
+                        <CheckCircle2 className="h-3.5 w-3.5" />Strengths
+                      </div>
+                      <ul className="text-xs text-green-800 space-y-1">
+                        {visualFeedback.strengths.map((s, i) => <li key={i}>• {s}</li>)}
                       </ul>
                     </div>
                   )}
-
-                  {/* Improvements */}
                   {visualFeedback.improvements.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold text-sm mb-2 flex items-center text-primary/70">
-                        <Target className="h-4 w-4 mr-1" />How to Improve
-                      </h3>
-                      <ul className="space-y-2 text-sm">
-                        {visualFeedback.improvements.map((imp, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <Badge variant="outline" className="text-xs shrink-0 mt-0.5">{i + 1}</Badge>
-                            <span>{imp}</span>
-                          </li>
-                        ))}
+                    <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
+                      <div className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1">
+                        <Target className="h-3.5 w-3.5" />Improvements
+                      </div>
+                      <ul className="text-xs text-amber-800 space-y-1">
+                        {visualFeedback.improvements.map((s, i) => <li key={i}>• {s}</li>)}
                       </ul>
                     </div>
                   )}
-
-                  <Button
-                    onClick={() => { setVisualFeedback(null); clearFile(); }}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    Analyze Another
-                  </Button>
+                  {visualFeedback.priorityAction && (
+                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-3">
+                      <div className="text-xs font-semibold text-primary mb-1 flex items-center gap-1">
+                        <Zap className="h-3.5 w-3.5" />Priority Action
+                      </div>
+                      <p className="text-xs text-foreground/80 leading-relaxed">{visualFeedback.priorityAction}</p>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground gap-4 py-8">
-                  <div className="grid grid-cols-2 gap-3 w-full max-w-xs opacity-60">
-                    {[
-                      { icon: "👤", label: "Headshot" },
-                      { icon: "🏠", label: "Listing Photo" },
-                      { icon: "📱", label: "Social Post" },
-                      { icon: "🎬", label: "Video Reel" },
-                    ].map((item) => (
-                      <div key={item.label} className="rounded-lg border border-dashed border-border p-3 text-center">
-                        <div className="text-2xl mb-1">{item.icon}</div>
-                        <div className="text-xs">{item.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-sm">Upload any of the above to get<br/>specific, actionable feedback</p>
+                <div className="flex flex-col items-center justify-center h-64 text-center">
+                  <Image className="h-12 w-12 text-muted-foreground/30 mb-3" />
+                  <p className="text-muted-foreground text-sm">Upload a photo or video to get AI-powered visual feedback.</p>
                 </div>
               )}
             </Card>

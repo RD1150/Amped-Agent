@@ -6,12 +6,12 @@ import * as db from "../db";
 /**
  * Auto-Repurpose Engine Router
  * Takes a single piece of content and generates platform-native versions
- * for LinkedIn, Instagram, Facebook, TikTok, and Reel Script.
+ * for LinkedIn, Instagram, Facebook, TikTok, Reel Script, and Postcard.
  * Each platform output is written in that platform's native style, tone,
  * length, and structure — not generic format buckets.
  */
 
-const PLATFORMS = ["linkedin", "instagram", "facebook", "tiktok", "reelScript"] as const;
+const PLATFORMS = ["linkedin", "instagram", "facebook", "tiktok", "reelScript", "postcard"] as const;
 type Platform = typeof PLATFORMS[number];
 
 export const repurposeRouter = router({
@@ -25,7 +25,7 @@ export const repurposeRouter = router({
         topic: z.string().min(3, "Topic is required"),
         body: z.string().min(10, "Content body is required"),
         platforms: z
-          .array(z.enum(["linkedin", "instagram", "facebook", "tiktok", "reelScript"]))
+          .array(z.enum(["linkedin", "instagram", "facebook", "tiktok", "reelScript", "postcard"]))
           .min(1, "Select at least one platform"),
         // Optional context
         agentName: z.string().optional(),
@@ -47,7 +47,7 @@ export const repurposeRouter = router({
       const audience = targetAudience || persona?.targetAudience || "home buyers and sellers";
       const voice = persona?.brandVoice || "professional";
 
-      const systemPrompt = `You are a platform-native social media strategist for ${name}, a real estate agent in ${location}.
+      const systemPrompt = `You are a platform-native content strategist for ${name}, a real estate agent in ${location}.
 Brand voice: ${voice}. Target audience: ${audience}.
 
 You deeply understand how content performs differently on each platform:
@@ -56,11 +56,11 @@ You deeply understand how content performs differently on each platform:
 - Facebook: Community-driven. Conversational tone. Questions drive engagement. Local market angle. Longer posts work.
 - TikTok: Ultra-casual. Direct-to-camera. Pattern interrupts every 5-7 seconds. "POV:" and "Story time:" formats. Trending hooks.
 - Reel Script: 30-60 second spoken script. Hook in first 3 seconds. Fast-paced. Written for Instagram/TikTok video.
+- Postcard: Print-ready direct mail postcard. Bold front headline, short back body (2-3 sentences), clear CTA, agent tagline. Concise and punchy — every word earns its place.
 
 You will only generate content for the platforms requested. Return ONLY valid JSON — no markdown fences, no extra text.`;
 
       // Build dynamic JSON schema based on selected platforms
-      const schemaProperties: Record<string, string> = {};
       const schemaDescriptions: Record<string, string> = {
         linkedin: `{
     "hook": "Opening line that stops the scroll — bold statement or provocative question (1 sentence)",
@@ -87,6 +87,13 @@ You will only generate content for the platforms requested. Return ONLY valid JS
     "script": "Full 30-60 second reel script with [PAUSE] and [VISUAL: description] cues. Fast-paced. Written for Instagram/TikTok video.",
     "cta": "Closing call to action",
     "captionHook": "First line of the caption to pair with this reel"
+  }`,
+        postcard: `{
+    "headline": "Bold 6-10 word front headline that grabs attention — real estate insight, market stat, or compelling question",
+    "subheadline": "1 short supporting line (optional, 8-12 words max)",
+    "backBody": "2-3 sentence back-of-card message. Conversational, specific, and compelling. Leads into the CTA.",
+    "cta": "Clear call-to-action (e.g. 'Scan to see your home's value', 'Call me today', 'Visit [website]')",
+    "agentTagline": "Short memorable tagline for the agent (e.g. 'Your Neighborhood Expert', 'Trusted. Local. Results.')"
   }`,
       };
 
@@ -143,6 +150,7 @@ ${selectedSchemas}
         facebook: parsed.facebook || null,
         tiktok: parsed.tiktok || null,
         reelScript: parsed.reelScript || null,
+        postcard: parsed.postcard || null,
       };
     }),
 

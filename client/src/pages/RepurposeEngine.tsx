@@ -27,7 +27,7 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Platform = "linkedin" | "instagram" | "facebook" | "tiktok" | "reelScript";
+type Platform = "linkedin" | "instagram" | "facebook" | "tiktok" | "reelScript" | "postcard";
 
 type RepurposeResult = {
   topic: string;
@@ -57,6 +57,13 @@ type RepurposeResult = {
     script: string;
     cta: string;
     captionHook: string;
+  };
+  postcard?: {
+    headline: string;
+    subheadline: string;
+    backBody: string;
+    cta: string;
+    agentTagline: string;
   };
 };
 
@@ -118,6 +125,15 @@ const PLATFORM_CONFIG: Record<
     bgColor: "bg-red-50 dark:bg-red-950/40",
     borderColor: "border-red-200 dark:border-red-800",
     description: "30-60 sec Instagram/TikTok video script",
+  },
+  postcard: {
+    label: "Postcard",
+    shortLabel: "Postcard",
+    icon: Video,
+    color: "text-amber-600",
+    bgColor: "bg-amber-50 dark:bg-amber-950/40",
+    borderColor: "border-amber-200 dark:border-amber-800",
+    description: "Print-ready direct mail postcard copy",
   },
 };
 
@@ -326,6 +342,50 @@ function ReelScriptCard({ data }: { data: NonNullable<RepurposeResult["reelScrip
   );
 }
 
+function PostcardCard({ data }: { data: NonNullable<RepurposeResult["postcard"]> }) {
+  const frontText = `${data.headline}${data.subheadline ? '\n' + data.subheadline : ''}`;
+  const backText = `${data.backBody}\n\n${data.cta}\n\n${data.agentTagline}`;
+  return (
+    <div className="space-y-4">
+      {/* Front of Postcard Preview */}
+      <div className="rounded-xl border-2 border-amber-200 bg-amber-50 dark:bg-amber-950/30 p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xs font-semibold uppercase tracking-wide text-amber-600">Front of Postcard</span>
+        </div>
+        <div className="text-center space-y-2">
+          <p className="text-xl font-extrabold text-foreground leading-tight">{data.headline}</p>
+          {data.subheadline && (
+            <p className="text-sm text-muted-foreground">{data.subheadline}</p>
+          )}
+          <p className="text-xs text-amber-600 font-medium mt-3">[Agent photo + name + brokerage + phone]</p>
+        </div>
+        <div className="flex justify-end mt-3">
+          <CopyButton text={frontText} label="Copy Front" />
+        </div>
+      </div>
+      {/* Back of Postcard Preview */}
+      <div className="rounded-xl border-2 border-border bg-card p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Back of Postcard</span>
+        </div>
+        <div className="space-y-3">
+          <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{data.backBody}</p>
+          <div className="rounded-lg bg-primary/10 border border-primary/20 px-4 py-2">
+            <p className="text-sm font-semibold text-primary">{data.cta}</p>
+          </div>
+          <p className="text-xs text-muted-foreground italic">{data.agentTagline}</p>
+        </div>
+        <div className="flex justify-end mt-3">
+          <CopyButton text={backText} label="Copy Back" />
+        </div>
+      </div>
+      <div className="rounded-lg bg-muted/50 border border-border px-4 py-3">
+        <p className="text-xs text-muted-foreground">📬 <strong>Print tip:</strong> This copy is sized for a standard 4×6 or 6×9 postcard. Use a service like VistaPrint, Canva, or PostcardMania to design and print.</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function RepurposeEngine() {
@@ -436,10 +496,13 @@ export default function RepurposeEngine() {
     if (r.reelScript) {
       parts.push(`=== REEL SCRIPT ===\nHook: ${r.reelScript.hook}\n\n${r.reelScript.script}\n\nCTA: ${r.reelScript.cta}`);
     }
+    if (r.postcard) {
+      parts.push(`=== POSTCARD FRONT ===\n${r.postcard.headline}${r.postcard.subheadline ? '\n' + r.postcard.subheadline : ''}\n\n=== POSTCARD BACK ===\n${r.postcard.backBody}\n\nCTA: ${r.postcard.cta}\n\n${r.postcard.agentTagline}`);
+    }
     return parts.join("\n\n" + "─".repeat(40) + "\n\n");
   };
 
-  const allPlatforms: Platform[] = ["linkedin", "instagram", "facebook", "tiktok", "reelScript"];
+  const allPlatforms: Platform[] = ["linkedin", "instagram", "facebook", "tiktok", "reelScript", "postcard"];
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -706,6 +769,9 @@ export default function RepurposeEngine() {
                   )}
                   {activePlatform === "reelScript" && result.reelScript && (
                     <ReelScriptCard data={result.reelScript} />
+                  )}
+                  {activePlatform === "postcard" && result.postcard && (
+                    <PostcardCard data={result.postcard} />
                   )}
                 </CardContent>
               </Card>

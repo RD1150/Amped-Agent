@@ -71,6 +71,10 @@ import {
   UserCheck,
   Gift,
   LayoutGrid,
+  CheckCircle2,
+  Circle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -84,6 +88,84 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+
+// Getting Started Checklist Component
+function GettingStartedChecklist({
+  user,
+  setLocation,
+}: {
+  user: { subscriptionStatus?: string | null; hasCompletedOnboarding?: boolean } | null;
+  setLocation: (path: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(true);
+  const { data: persona } = trpc.persona.get.useQuery(undefined, { enabled: !!user });
+  const { data: fbConn } = trpc.facebook.getConnection.useQuery(undefined, { enabled: !!user });
+  const { data: liConn } = trpc.linkedin.getConnection.useQuery(undefined, { enabled: !!user });
+  const { data: ytConn } = trpc.youtube.getConnection.useQuery(undefined, { enabled: !!user });
+
+  const hasProfile = !!(persona?.agentName && persona?.primaryCity);
+  const hasSubscription = user?.subscriptionStatus === "active" || user?.subscriptionStatus === "trialing";
+  const hasSocial = !!(fbConn?.isConnected || liConn?.isConnected || ytConn?.connected);
+
+  const steps = [
+    { label: "Set up Authority Profile", done: hasProfile, path: "/authority-profile" },
+    { label: "Activate subscription", done: hasSubscription, path: "/pricing" },
+    { label: "Connect a social account", done: hasSocial, path: "/integrations" },
+  ];
+
+  const completedCount = steps.filter((s) => s.done).length;
+  const allDone = completedCount === steps.length;
+
+  // Hide once all done
+  if (allDone) return null;
+
+  return (
+    <div className="mx-3 mb-2 rounded-lg border border-orange-500/20 bg-orange-500/5 overflow-hidden">
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-orange-500/10 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-orange-400">Get Started</span>
+          <span className="text-[10px] bg-orange-500/20 text-orange-300 px-1.5 py-0.5 rounded-full font-semibold">
+            {completedCount}/{steps.length}
+          </span>
+        </div>
+        {expanded ? (
+          <ChevronUp className="h-3 w-3 text-orange-400/60" />
+        ) : (
+          <ChevronDown className="h-3 w-3 text-orange-400/60" />
+        )}
+      </button>
+      {expanded && (
+        <div className="px-3 pb-2 space-y-1.5">
+          {steps.map((step) => (
+            <button
+              key={step.label}
+              onClick={() => setLocation(step.path)}
+              className="w-full flex items-center gap-2 text-left group"
+            >
+              {step.done ? (
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+              ) : (
+                <Circle className="h-3.5 w-3.5 text-sidebar-foreground/30 shrink-0" />
+              )}
+              <span
+                className={`text-xs leading-tight ${
+                  step.done
+                    ? "text-sidebar-foreground/40 line-through"
+                    : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground"
+                }`}
+              >
+                {step.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Monthly Video Pool Display Component
 function VideoPoolDisplay() {
@@ -366,6 +448,27 @@ const menuSections = [
             { label: "Length", value: "Up to 3 minutes" },
           ],
         },
+      },
+      {
+        icon: BookOpen,
+        label: "Guide Generator",
+        path: "/guide-generator",
+        description: "Branded Seller's Manual & Buyer's Guide — print-ready PDFs",
+        hoverInfo: {
+          tagline: "Generate a fully branded, print-ready Seller's Manual or Buyer's Guide in minutes — with your photo, logo, and brokerage on every page.",
+          details: [
+            { label: "Best for", value: "Listing appointments, buyer consultations" },
+            { label: "Output", value: "17-page branded PDF — ready to print and hand to clients" },
+            { label: "Includes", value: "Hyperlocal market data, optional CMA, custom action plan" },
+            { label: "Time", value: "Under 2 minutes" },
+          ],
+        },
+      },
+      {
+        icon: FolderOpen,
+        label: "My Documents",
+        path: "/my-documents",
+        description: "Re-download your generated guides anytime",
       },
       {
         icon: Gift,
@@ -859,6 +962,11 @@ function DashboardLayoutContent({
                 </div>
               ))}
           </SidebarContent>
+
+          {/* ── Getting Started Checklist ─────────────────────────────── */}
+          {!isCollapsed && (
+            <GettingStartedChecklist user={user} setLocation={setLocation} />
+          )}
 
           {/* ── Footer / User ─────────────────────────────────────────── */}
           <SidebarFooter className="p-3 border-t border-sidebar-border/60">

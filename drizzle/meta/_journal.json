@@ -666,6 +666,13 @@
       "when": 1776027858355,
       "tag": "0094_violet_mephistopheles",
       "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "5",
+      "when": 1776042289170,
+      "tag": "0095_friendly_krista_starr",
+      "breakpoints": true
     }
   ]
 }

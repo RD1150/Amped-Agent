@@ -25,6 +25,8 @@ import {
   Smartphone,
   UserCircle,
   CheckCircle2,
+  BookOpen,
+  FileCheck,
 } from "lucide-react";
 import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 import UsageCounter from "@/components/UsageCounter";
@@ -433,6 +435,63 @@ export default function Dashboard() {
               className="bg-white hover:bg-white/90 text-black font-semibold gap-1.5 group-hover:shadow-lg transition-all"
             >
               Open Coach
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* CONVERT Featured Card - Listing Presentation Toolkit */}
+      <div
+        className="relative rounded-2xl overflow-hidden cursor-pointer group"
+        onClick={() => setLocation("/listing-presentation")}
+      >
+        {/* Deep navy background */}
+        <div className="absolute inset-0 bg-[#0A1628]" />
+        {/* Subtle diagonal grid */}
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(225deg, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        {/* Orange glow accent */}
+        <div className="absolute top-0 left-0 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
+        <div className="relative px-8 py-7 flex flex-col md:flex-row md:items-center gap-6">
+          {/* Icon */}
+          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-orange-500/20 border border-orange-500/30 shrink-0">
+            <BookOpen className="h-7 w-7 text-orange-400" />
+          </div>
+          {/* Text */}
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-semibold text-orange-400/90 uppercase tracking-wider">CONVERT &mdash; Listing Presentation Toolkit</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
+                <FileCheck className="h-2.5 w-2.5" />Print-Ready
+              </span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-1">Win More Listing Appointments</h3>
+            <p className="text-sm text-slate-300 max-w-xl">
+              Generate a fully branded Seller&apos;s Manual or Buyer&apos;s Guide in minutes &mdash; your name, photo, logo, and brokerage on every page. Print it before the appointment. Walk in looking like the most prepared agent in the room.
+            </p>
+            <div className="flex flex-wrap gap-3 mt-3">
+              <span className="flex items-center gap-1 text-xs text-slate-400">
+                <CheckCircle2 className="h-3.5 w-3.5 text-orange-400" /> Branded Seller&apos;s Manual
+              </span>
+              <span className="flex items-center gap-1 text-xs text-slate-400">
+                <CheckCircle2 className="h-3.5 w-3.5 text-orange-400" /> Branded Buyer&apos;s Guide
+              </span>
+              <span className="flex items-center gap-1 text-xs text-slate-400">
+                <CheckCircle2 className="h-3.5 w-3.5 text-orange-400" /> Hyperlocal Market Data
+              </span>
+              <span className="flex items-center gap-1 text-xs text-slate-400">
+                <CheckCircle2 className="h-3.5 w-3.5 text-orange-400" /> CMA Builder
+              </span>
+            </div>
+          </div>
+          {/* CTA */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              size="sm"
+              className="bg-orange-500 hover:bg-orange-400 text-white font-semibold gap-1.5 group-hover:shadow-lg group-hover:shadow-orange-500/20 transition-all"
+            >
+              Build Your Guide
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

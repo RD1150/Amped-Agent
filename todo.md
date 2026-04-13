@@ -4772,3 +4772,45 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add subtitle taglines under each section header in sidebar
 - [x] Rebuild Dashboard home page with lifecycle framing (stage pills, lifecycle-aware quick actions)
 - [x] Update landing page hero and value prop copy to lead with lifecycle positioning
+
+## Dashboard CONVERT Featured Card
+- [ ] Add CONVERT featured card to Dashboard highlighting the listing presentation toolkit
+
+## Branded Guide Generator (Seller's Manual + Buyer's Guide)
+- [ ] Upload Seller's Manual and Buyer's Guide PDFs to S3 as design references
+- [ ] Add generated_guides DB table (user_id, guide_type, client_name, property_address, cover_photo_url, pdf_url, created_at)
+- [ ] Build PDF generation engine using PDFKit/puppeteer that merges agent profile data into guide template
+- [ ] Build generator UI form (guide type, client name, property/area, cover photo upload or default)
+- [ ] Wire to agent Authority Profile for auto-fill (name, photo, logo, brokerage, phone)
+- [ ] Add hyperlocal market data section (auto-pulled from address/zip)
+- [ ] Add CMA entry form (simple and advanced adjustment grid modes)
+- [ ] Add credit cost per generation (Agency tier: unlimited)
+- [ ] Add guide generator to CONVERT section in sidebar nav
+
+## My Documents History Page
+- [ ] Build /my-documents page listing all generated guides
+- [ ] Show client name, property/area, date, guide type per entry
+- [ ] Add re-download button (no additional credits)
+- [ ] Add to CONVERT section in sidebar nav
+
+## Pricing Page Copy Update
+- [ ] Update pricing page headline and subtext to reflect full marketing platform positioning
+- [ ] Update tier descriptions to include listing presentation toolkit and guide generator
+- [ ] Replace "social media tool" language with "complete marketing platform" language
+
+## Context-Aware Market Dominance Coach
+- [ ] Build getAgentActivitySummary DB helper (last 30 days: videos, posts, guides, score trend, credits used, profile completion)
+- [ ] Add activity context to Coach LLM system prompt so it advises based on what the agent has actually been doing
+- [ ] Add activity summary panel in Coach UI showing what context the Coach is working from
+
+## Postcard Output in Repurpose Engine
+- [ ] Add "Postcard" as an output format option in the Repurpose Engine
+- [ ] Build postcard PDF generator (4x6 print-ready, front: headline + hero image, back: message + agent branding + QR code)
+- [ ] Auto-generate QR code linking to agent's booking URL or website from their Authority Profile
+- [ ] Add postcard to My Documents history for re-download
+
+## Completed in this session (Apr 2026)
+- [x] Context-Aware Market Dominance Coach - Strategy Chat tab with starter prompts and personalized context badge
+- [x] Postcard output in Repurpose Engine - frontend platform toggle + output card + backend LLM generation
+- [x] Pricing page copy updated - full platform positioning headline, tier descriptions include Market Dominance Coach and Repurpose Engine
+- [x] Getting Started sidebar checklist - collapsible widget showing Authority Profile, subscription, and social connection status; auto-hides when all done

@@ -66,6 +66,8 @@ import MyContent from "./pages/MyContent";
 import VideoComparison from "./pages/VideoComparison";
 import BlogBuilder from "./pages/BlogBuilder";
 import BrandStory from "./pages/BrandStory";
+import GuideGenerator from "./pages/GuideGenerator";
+import MyDocuments from "./pages/MyDocuments";
 import { SupportChatbot } from "./components/SupportChatbot";
 import PublicPresentation from "./pages/PublicPresentation";
 import PublicBuyerPresentation from "./pages/PublicBuyerPresentation";
@@ -159,6 +161,8 @@ function Router() {
         <Route path="/my-content" component={MyContent} />
         <Route path="/blog-builder" component={BlogBuilder} />
         <Route path="/brand-story" component={BrandStory} />
+        <Route path="/guide-generator" component={GuideGenerator} />
+        <Route path="/my-documents" component={MyDocuments} />
         <Route path="/newsletter" component={NewsletterBuilder} />
         <Route path="/drafts" component={Drafts} />
         <Route path="/coach" component={PerformanceCoach} />

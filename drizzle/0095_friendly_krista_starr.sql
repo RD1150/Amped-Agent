@@ -1,0 +1,23 @@
+CREATE TABLE `generated_guides` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`guideType` enum('sellers_manual','buyers_guide') NOT NULL,
+	`clientName` varchar(255),
+	`propertyAddress` varchar(500),
+	`cityArea` varchar(255),
+	`agentName` varchar(255),
+	`agentPhone` varchar(50),
+	`agentEmail` varchar(320),
+	`agentBrokerage` varchar(255),
+	`agentHeadshotUrl` text,
+	`agentLogoUrl` text,
+	`coverPhotoUrl` text,
+	`cmaData` text,
+	`suggestedPriceRange` varchar(200),
+	`customNotes` text,
+	`pdfUrl` text NOT NULL,
+	`s3Key` varchar(500) NOT NULL,
+	`creditsCost` int NOT NULL DEFAULT 5,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `generated_guides_id` PRIMARY KEY(`id`)
+);

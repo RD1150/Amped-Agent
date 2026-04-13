@@ -43,6 +43,7 @@ import { videoScriptBuilderRouter } from "./routers/videoScriptBuilder";
 import { generationFeedbackRouter } from "./routers/generationFeedback";
 import { getStartedRouter } from "./routers/getStarted";
 import { referralRouter } from "./routers/referral";
+import { guidesGeneratorRouter } from "./routers/guidesGenerator";
 
 export const appRouter = router({
   system: systemRouter,
@@ -72,6 +73,7 @@ export const appRouter = router({
   generationFeedback: generationFeedbackRouter,
   getStarted: getStartedRouter,
   referral: referralRouter,
+  guidesGenerator: guidesGeneratorRouter,
 
   support: router({
     chat: publicProcedure
@@ -2084,6 +2086,92 @@ Score criteria:
         const analysis = JSON.parse(typeof content === 'string' ? content : '');
 
         return analysis;
+      }),
+
+    dominanceChat: protectedProcedure
+      .input(z.object({
+        messages: z.array(z.object({
+          role: z.enum(['user', 'assistant']),
+          content: z.string(),
+        })),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { eq, desc } = await import('drizzle-orm');
+        const schema = await import('../drizzle/schema');
+        const { getDb } = await import('./db');
+        const dbInst = await getDb();
+        if (!dbInst) throw new Error('Database unavailable');
+
+        const [recentTransactions, recentGuides, recentPresentations, persona, user] = await Promise.all([
+          dbInst.select().from(schema.creditTransactions)
+            .where(eq(schema.creditTransactions.userId, ctx.user.id))
+            .orderBy(desc(schema.creditTransactions.createdAt))
+            .limit(20),
+          dbInst.select().from(schema.generatedGuides)
+            .where(eq(schema.generatedGuides.userId, ctx.user.id))
+            .orderBy(desc(schema.generatedGuides.createdAt))
+            .limit(10),
+          dbInst.select().from(schema.listingPresentations)
+            .where(eq(schema.listingPresentations.userId, ctx.user.id))
+            .orderBy(desc(schema.listingPresentations.createdAt))
+            .limit(5),
+          db.getPersonaByUserId(ctx.user.id),
+            dbInst.select().from(schema.users).where(eq(schema.users.id, ctx.user.id)).limit(1),
+        ]);
+        const userRow = (user as unknown as { id: number; name: string | null; credits: number | null; subscriptionTier?: string | null }[])[0] ?? null;
+        const usageActivities = (recentTransactions as { type: string; usageType: string | null; createdAt: Date }[])
+          .filter(t => t.type === 'usage' && t.usageType)
+          .map(t => `${t.usageType} (${new Date(t.createdAt).toLocaleDateString()})`);
+        const guidesSummary = (recentGuides as { guideType: string; cityArea: string | null; createdAt: Date }[]).map(g =>
+          `${g.guideType === 'sellers_manual' ? "Seller's Manual" : "Buyer's Guide"} for ${g.cityArea || 'unknown area'} (${new Date(g.createdAt).toLocaleDateString()})`
+        );
+        const presentationsSummary = (recentPresentations as { propertyAddress?: string | null; createdAt: Date }[]).map(p =>
+          `Listing Presentation for ${p.propertyAddress || 'unknown property'} (${new Date(p.createdAt).toLocaleDateString()})`
+        );
+        let personaContext = '';
+        if (persona) {
+          try {
+            const marketCtx = persona.marketContext ? JSON.parse(persona.marketContext) : null;
+            const brandVals = persona.brandValues ? JSON.parse(persona.brandValues) : [];
+            if (marketCtx) personaContext += `\nMarket: ${marketCtx.city}, ${marketCtx.state}`;
+            if (brandVals.length > 0) personaContext += `\nBrand Values: ${brandVals.join(', ')}`;
+          } catch (e) {}
+        }
+        const agentName = userRow?.name || 'the agent';
+        const creditBalance = userRow?.credits ?? 0;
+        const subscriptionTier = userRow?.subscriptionTier || 'free';
+
+        const activityContext = [
+          usageActivities.length > 0
+            ? `Recent tool usage (last 30 days): ${usageActivities.slice(0, 10).join('; ')}`
+            : 'No recent tool usage recorded.',
+          guidesSummary.length > 0
+            ? `Guides generated: ${guidesSummary.join('; ')}`
+            : 'No guides generated yet.',
+          presentationsSummary.length > 0
+            ? `Presentations created: ${presentationsSummary.join('; ')}`
+            : 'No presentations created yet.',
+          `Current credit balance: ${creditBalance} credits`,
+          `Subscription tier: ${subscriptionTier}`,
+        ].join('\n');
+
+        const systemPrompt = `You are the Market Dominance Coach for Amped Agent - a strategic advisor helping real estate agents build authority, win more listings, and dominate their local market.
+
+You are talking to ${agentName}.${personaContext}
+
+Here is what they have been working on in the platform over the last 30 days:
+${activityContext}
+
+Use this context to give specific, personalized, actionable coaching. Reference what they have actually been doing. If they have not used a feature that would help them, suggest it specifically. Be direct, honest, and strategic - not generic. Think like a high-performance real estate business coach who knows their numbers and their habits.`;
+
+        const response = await invokeLLM({
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...input.messages,
+          ],
+        });
+
+        return { reply: response.choices[0].message.content || '' };
       }),
   }),
 
