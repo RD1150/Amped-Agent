@@ -1222,6 +1222,7 @@ export const avatarScripts = mysqlTable("avatar_scripts", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   contentType: varchar("contentType", { length: 100 }).notNull(),
+  title: varchar("title", { length: 200 }), // User-defined custom title for the script
   keyPoints: text("keyPoints"),
   script: text("script").notNull(),
   targetLength: varchar("targetLength", { length: 20 }),

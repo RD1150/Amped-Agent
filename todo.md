@@ -4950,3 +4950,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Script history - save last 5 generated scripts per user
 - [x] Update Facebook OAuth app display name to "Authority Content" (was old app name)
 - [x] Fix Avatar Video API error handling - catch non-JSON "Service Unavailable" responses gracefully
+
+## Avatar Video UX Round 3
+- [ ] Copy-to-clipboard button on each script history entry
+- [ ] Script rename - custom title for saved scripts
+- [ ] Avatar video thumbnail/poster image on video cards
