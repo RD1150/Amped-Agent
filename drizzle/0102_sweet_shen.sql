@@ -1,0 +1,1 @@
+ALTER TABLE `full_avatar_videos` ADD `thumbnailUrl` text;

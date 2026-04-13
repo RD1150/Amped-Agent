@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Loader2, Video, Sparkles, Download, Upload, User, Trash2,
   CheckCircle2, Clock, AlertCircle, Zap, Crown, RefreshCw, Play, Wand2,
-  Lightbulb, ChevronDown, ChevronUp, Share2, ImagePlus, BarChart2
+  Lightbulb, ChevronDown, ChevronUp, Share2, ImagePlus, BarChart2, Copy, Pencil
 } from "lucide-react";
 import { toast } from "sonner";
 import { VideoPostingDialog } from "@/components/VideoPostingDialog";
@@ -64,11 +64,25 @@ interface ScriptHistoryPanelProps {
 
 function ScriptHistoryPanel({ onUseScript }: ScriptHistoryPanelProps) {
   const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+  const utils = trpc.useUtils();
   const { data: scripts, isLoading } = trpc.fullAvatarVideo.listScripts.useQuery(undefined, { enabled: open });
   const deleteScript = trpc.fullAvatarVideo.deleteScript.useMutation({
     onSuccess: () => { utils.fullAvatarVideo.listScripts.invalidate(); toast.success("Script deleted"); },
   });
-  const utils = trpc.useUtils();
+  const renameScript = trpc.fullAvatarVideo.renameScript.useMutation({
+    onSuccess: () => { utils.fullAvatarVideo.listScripts.invalidate(); setEditingId(null); toast.success("Script renamed"); },
+  });
+
+  const handleCopy = (s: { id: number; script: string }) => {
+    navigator.clipboard.writeText(s.script).then(() => {
+      setCopiedId(s.id);
+      setTimeout(() => setCopiedId(null), 2000);
+      toast.success("Script copied to clipboard");
+    });
+  };
 
   const CONTENT_LABELS: Record<string, string> = {
     market_update: "Market Update",
@@ -104,6 +118,37 @@ function ScriptHistoryPanel({ onUseScript }: ScriptHistoryPanelProps) {
           )}
           {scripts?.map((s) => (
             <div key={s.id} className="rounded-lg border p-3 space-y-2 bg-muted/20">
+              {/* Title / rename row */}
+              <div className="flex items-center gap-2">
+                {editingId === s.id ? (
+                  <div className="flex items-center gap-1 flex-1">
+                    <input
+                      autoFocus
+                      className="flex-1 text-xs border rounded px-2 py-1 bg-background"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") renameScript.mutate({ scriptId: s.id, title: editTitle });
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                      maxLength={200}
+                    />
+                    <Button size="sm" variant="default" className="h-6 text-xs px-2" onClick={() => renameScript.mutate({ scriptId: s.id, title: editTitle })} disabled={renameScript.isPending}>Save</Button>
+                    <Button size="sm" variant="ghost" className="h-6 text-xs px-1" onClick={() => setEditingId(null)}>×</Button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="flex-1 flex items-center gap-1 text-left text-xs font-medium truncate hover:text-primary transition-colors group"
+                    onClick={() => { setEditingId(s.id); setEditTitle(s.title ?? ""); }}
+                    title="Click to rename"
+                  >
+                    <span className="truncate">{s.title || <span className="text-muted-foreground italic">Untitled — click to rename</span>}</span>
+                    <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  </button>
+                )}
+              </div>
+              {/* Meta + actions row */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="secondary" className="text-xs">{CONTENT_LABELS[s.contentType] ?? s.contentType}</Badge>
@@ -112,20 +157,16 @@ function ScriptHistoryPanel({ onUseScript }: ScriptHistoryPanelProps) {
                   <span className="text-xs text-muted-foreground">{new Date(s.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
+                  <Button size="sm" variant="outline" className="h-7 text-xs px-2" onClick={() => onUseScript(s)}>Use</Button>
                   <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-xs px-2"
-                    onClick={() => onUseScript(s)}
+                    size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-primary"
+                    onClick={() => handleCopy(s)} title="Copy to clipboard"
                   >
-                    Use
+                    {copiedId === s.id ? <CheckCircle2 className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
                   </Button>
                   <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                    onClick={() => deleteScript.mutate({ scriptId: s.id })}
-                    disabled={deleteScript.isPending}
+                    size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => deleteScript.mutate({ scriptId: s.id })} disabled={deleteScript.isPending}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -1643,7 +1684,9 @@ export default function FullAvatarVideo() {
                   <video
                     src={video.videoUrl}
                     controls
-                    className="w-full rounded-lg border border-border"
+                    poster={(video as any).thumbnailUrl ?? undefined}
+                    preload="metadata"
+                    className="w-full rounded-lg border border-border bg-muted"
                     style={{ maxHeight: "200px" }}
                   />
                 )}

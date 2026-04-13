@@ -206,6 +206,18 @@ Requirements:
       return { success: true };
     }),
 
+  renameScript: protectedProcedure
+    .input(z.object({ scriptId: z.number(), title: z.string().max(200) }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return { success: false };
+      await db
+        .update(avatarScripts)
+        .set({ title: input.title })
+        .where(and(eq(avatarScripts.id, input.scriptId), eq(avatarScripts.userId, ctx.user.id)));
+      return { success: true };
+    }),
+
   /**
    * Fetch stock avatars from HeyGen for the avatar picker
    */

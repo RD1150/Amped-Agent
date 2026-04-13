@@ -4953,5 +4953,5 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Avatar Video UX Round 3
 - [ ] Copy-to-clipboard button on each script history entry
-- [ ] Script rename - custom title for saved scripts
-- [ ] Avatar video thumbnail/poster image on video cards
+- [x] Script rename - custom title for saved scripts
+- [x] Avatar video thumbnail/poster image on video cards

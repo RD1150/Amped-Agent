@@ -924,6 +924,7 @@ export const fullAvatarVideos = mysqlTable("full_avatar_videos", {
   s3Key: varchar("s3Key", { length: 500 }),
   duration: int("duration"), // Estimated duration in seconds
   status: mysqlEnum("status", ["processing", "completed", "failed"]).default("processing").notNull(),
+  thumbnailUrl: text("thumbnailUrl"), // Poster/thumbnail image URL for the video card
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt").notNull(), // 90 days from creation
 });
@@ -1222,7 +1223,7 @@ export const avatarScripts = mysqlTable("avatar_scripts", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   contentType: varchar("contentType", { length: 100 }).notNull(),
-  title: varchar("title", { length: 200 }), // User-defined custom title for the script
+  title: varchar("title", { length: 200 }),
   keyPoints: text("keyPoints"),
   script: text("script").notNull(),
   targetLength: varchar("targetLength", { length: 20 }),

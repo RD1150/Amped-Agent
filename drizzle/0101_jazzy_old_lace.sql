@@ -1,0 +1,1 @@
+ALTER TABLE `avatar_scripts` ADD `title` varchar(200);
