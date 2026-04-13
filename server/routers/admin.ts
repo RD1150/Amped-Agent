@@ -204,6 +204,21 @@ export const adminRouter = router({
       ? Math.round((convertedFromTrial / totalTrialUsers) * 100)
       : 0;
 
+    // Trial source breakdown: group all users who have ever trialed by trialSource
+    const trialSourceRows = await db
+      .select({
+        source: users.trialSource,
+        count: sql<number>`count(*)`,
+      })
+      .from(users)
+      .where(isNotNull(users.trialEndsAt))
+      .groupBy(users.trialSource);
+    const trialSourceBreakdown: Record<string, number> = {};
+    for (const row of trialSourceRows) {
+      const key = row.source ?? 'organic';
+      trialSourceBreakdown[key] = (trialSourceBreakdown[key] || 0) + (row.count || 0);
+    }
+
     return {
       totalUsers,
       newUsersToday,
@@ -225,6 +240,7 @@ export const adminRouter = router({
       convertedFromTrial,
       churnedAfterTrial,
       trialConversionRate,
+      trialSourceBreakdown,
     };
   }),
 

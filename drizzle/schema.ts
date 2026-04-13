@@ -21,6 +21,7 @@ export const users = mysqlTable("users", {
   subscriptionEndDate: timestamp("subscriptionEndDate"),
   cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").default(false),
   trialEndsAt: timestamp("trialEndsAt"), // When the 14-day trial expires (null if never trialed or already converted)
+  trialSource: varchar("trialSource", { length: 50 }), // Acquisition channel: 'organic', 'referral', 'ad', 'social', 'email', etc.
   // D-ID avatar fields
   avatarImageUrl: text("avatarImageUrl"), // User's headshot for D-ID avatar generation
   avatarVideoUrl: text("avatarVideoUrl"), // Generated D-ID avatar intro video URL

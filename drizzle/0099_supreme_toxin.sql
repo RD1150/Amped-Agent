@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `trialSource` varchar(50);

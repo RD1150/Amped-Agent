@@ -10,6 +10,7 @@ import { getDb } from "../db";
 import { users } from "../../drizzle/schema";
 import { and, eq, gte, lte, isNotNull } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
+import { sendTrialExpiryWarning } from "../emailNotifications";
 
 /**
  * Find users whose trial ends in the next 3 days and notify them.
@@ -57,13 +58,23 @@ async function sendTrialEndingWarnings(): Promise<void> {
       day: "numeric",
     });
 
-    // Notify the platform owner so they can follow up with the user
-    await notifyOwner({
-      title: `Trial Ending Soon: ${user.name || user.email || `User #${user.id}`}`,
-      content: `User ${user.name || "Unknown"} (${user.email || "no email"}) has ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left on their free trial.\n\nTrial ends: ${formattedDate}\n\nThey will be automatically downgraded to the Starter tier unless they subscribe.\n\nUser ID: ${user.id}`,
-    });
+    // Send user-facing trial expiry warning email
+    if (user.email) {
+      await sendTrialExpiryWarning(
+        user.email,
+        user.name || "there",
+        trialEnd,
+        daysLeft
+      );
+    } else {
+      // Fallback: notify owner if user has no email
+      await notifyOwner({
+        title: `Trial Ending Soon (no email): User #${user.id}`,
+        content: `User #${user.id} (${user.name || "Unknown"}) has ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left on their free trial but has no email address on file.\n\nTrial ends: ${formattedDate}`,
+      });
+    }
 
-    console.log(`[TrialJob] Sent trial warning notification for user ${user.id} (${user.email})`);
+    console.log(`[TrialJob] Sent trial expiry warning for user ${user.id} (${user.email})`);
   }
 }
 

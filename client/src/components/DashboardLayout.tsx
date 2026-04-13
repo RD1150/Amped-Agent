@@ -91,6 +91,92 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
+// Post-Trial Conversion Modal — shown once per session when a user's trial has expired
+function PostTrialModal({
+  user,
+  setLocation,
+}: {
+  user: { subscriptionStatus?: string | null; trialEndsAt?: Date | string | null } | null;
+  setLocation: (path: string) => void;
+}) {
+  const [open, setOpen] = useState(() => {
+    if (!user) return false;
+    if (user.subscriptionStatus !== "inactive") return false;
+    if (!user.trialEndsAt) return false;
+    const trialEnd = new Date(user.trialEndsAt as string);
+    if (trialEnd > new Date()) return false;
+    return sessionStorage.getItem("post-trial-modal-shown") !== "true";
+  });
+
+  if (!open) return null;
+
+  const handleClose = () => {
+    sessionStorage.setItem("post-trial-modal-shown", "true");
+    setOpen(false);
+  };
+
+  const handleUpgrade = () => {
+    sessionStorage.setItem("post-trial-modal-shown", "true");
+    setOpen(false);
+    setLocation("/upgrade");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">
+            Your Free Trial Has Ended
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            Your 14-day Authority Content trial has expired. Upgrade now to keep
+            creating unlimited property tours, AI reels, avatar videos, and more.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3 py-2">
+          {[
+            "Unlimited Property Tour videos",
+            "AI Reels & Avatar Videos",
+            "Live Tour editing",
+            "Blog Builder & Photo Library",
+          ].map((feature) => (
+            <div key={feature} className="flex items-center gap-2 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+              <span>{feature}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col gap-2 pt-2">
+          <Button
+            onClick={handleUpgrade}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+            size="lg"
+          >
+            Upgrade to Keep Access
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={handleClose}
+            className="w-full text-muted-foreground"
+            size="sm"
+          >
+            Maybe later
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 // Trial Countdown Banner Component
 function TrialCountdownBanner({
@@ -455,6 +541,13 @@ const menuSections = [
           ],
         },
       },
+      {
+        icon: Gift,
+        label: "Lead Magnet",
+        path: "/lead-magnet",
+        description: "Branded PDF lead magnets for Facebook Lead Ads",
+        badge: "Authority",
+      },
     ],
   },
   {
@@ -568,13 +661,6 @@ const menuSections = [
             { label: "Personalized", value: "Auto-filled with your name, phone, email, and brokerage" },
           ],
         },
-      },
-      {
-        icon: Gift,
-        label: "Lead Magnet",
-        path: "/lead-magnet",
-        description: "Branded PDF lead magnets for Facebook Lead Ads",
-        badge: "Authority",
       },
       {
         icon: LayoutGrid,
@@ -830,6 +916,7 @@ export default function DashboardLayout({
   return (
     <>
       <WelcomeModal />
+      <PostTrialModal user={user} setLocation={setLocation} />
       <SidebarProvider
         style={
           {

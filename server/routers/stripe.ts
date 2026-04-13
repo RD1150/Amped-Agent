@@ -135,11 +135,13 @@ export const stripeRouter = router({
       z.object({
         successUrl: z.string(),
         cancelUrl: z.string(),
+        trialSource: z.string().max(50).optional(), // Acquisition channel: 'organic', 'referral', 'ad', 'social', 'email', etc.
       })
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
       const userEmail = ctx.user.email;
+      const trialSource = input.trialSource ?? 'organic';
 
       const db = await getDb();
       if (!db) throw new Error('Database not available');
@@ -175,6 +177,7 @@ export const stripeRouter = router({
           metadata: {
             userId: userId.toString(),
             type: 'trial_start',
+            trialSource: input.trialSource ?? 'organic',
           },
         });
 
@@ -304,6 +307,7 @@ export const stripeRouter = router({
               ? new Date(subscription.trial_end * 1000)
               : null;
 
+            const sessionTrialSource = session.metadata?.trialSource || null;
             await db
               .update(users)
               .set({
@@ -313,10 +317,10 @@ export const stripeRouter = router({
                 subscriptionTier: tier,
                 trialEndsAt: trialEnd,
                 subscriptionEndDate: new Date((subscription.items?.data?.[0]?.current_period_end ?? subscription.billing_cycle_anchor) * 1000),
+                ...(sessionTrialSource ? { trialSource: sessionTrialSource } : {}),
               })
               .where(eq(users.id, userId));
-
-            console.log(`[Stripe] Trial/subscription started for user ${userId}: tier=${tier}, status=${subscription.status}, trialEnd=${trialEnd}`);
+            console.log(`[Stripe] Trial/subscription started for user ${userId}: tier=${tier}, status=${subscription.status}, trialEnd=${trialEnd}, trialSource=${sessionTrialSource}`);;
           }
           break;
         }

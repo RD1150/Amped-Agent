@@ -274,6 +274,34 @@ export default function AdminAnalytics() {
             {analytics.convertedFromTrial} converted out of {analytics.convertedFromTrial + analytics.churnedAfterTrial} completed trials
           </p>
         </div>
+
+        {/* Trial Source Breakdown */}
+        {analytics.trialSourceBreakdown && Object.keys(analytics.trialSourceBreakdown).length > 0 && (
+          <div className="space-y-2 pt-2 border-t border-border">
+            <p className="text-sm font-medium">Trials by Acquisition Channel</p>
+            <div className="space-y-1.5">
+              {Object.entries(analytics.trialSourceBreakdown)
+                .sort(([, a], [, b]) => b - a)
+                .map(([source, count]) => {
+                  const total = Object.values(analytics.trialSourceBreakdown!).reduce((s, v) => s + v, 0);
+                  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                  return (
+                    <div key={source} className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground w-20 capitalize shrink-0">{source}</span>
+                      <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
+                        <div
+                          className="h-2 rounded-full bg-primary/60 transition-all duration-500"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-medium w-8 text-right">{count}</span>
+                      <span className="text-xs text-muted-foreground w-8 text-right">{pct}%</span>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );

@@ -4936,3 +4936,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Admin Analytics: Trial Conversion Funnel panel (Active Trials, Ending Soon, Converted, Churned, conversion rate bar)
 - [x] Admin Users: trialEndsAt column with color-coded urgency (amber ≤3 days, red = expired)
 - [x] Admin Users: trialEndsAt included in CSV export
+
+## Follow-up Features Round 2 (Apr 2026)
+- [x] User-facing trial expiry email (3 days before trialEndsAt)
+- [x] Post-trial conversion modal when trial expires on dashboard
+- [x] trialSource field in DB schema, captured on checkout, shown in admin analytics
+- [x] Move Lead Magnets sidebar nav item into the Attract section
