@@ -12,6 +12,7 @@ function createAuthContext(): TrpcContext {
     name: "Test Agent",
     loginMethod: "manus",
     role: "user",
+        subscriptionStatus: "active" as any,
     createdAt: new Date(),
     updatedAt: new Date(),
     lastSignedIn: new Date(),

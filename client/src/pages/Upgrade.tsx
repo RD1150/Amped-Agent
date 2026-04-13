@@ -2,7 +2,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
+import { Check, Sparkles, Zap, Crown, ArrowRight, Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 type Tier = "starter" | "pro" | "authority";
@@ -105,14 +105,34 @@ export default function Upgrade() {
     },
   });
 
+  const createTrialMutation = trpc.stripe.createTrialCheckout.useMutation({
+    onSuccess: (data) => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    },
+    onError: (error: any) => {
+      alert(`Error: ${error.message}`);
+      setLoadingTier(null);
+    },
+  });
+
   const handleUpgrade = async (tier: Tier) => {
     setLoadingTier(tier);
-    await createCheckoutMutation.mutateAsync({
-      tier,
-      billingPeriod,
-      successUrl: `${window.location.origin}/?upgrade=success`,
-      cancelUrl: `${window.location.origin}/upgrade?canceled=true`,
-    });
+    if (tier === 'authority' && billingPeriod === 'monthly') {
+      // Use dedicated trial checkout for Authority monthly
+      await createTrialMutation.mutateAsync({
+        successUrl: `${window.location.origin}/?upgrade=success`,
+        cancelUrl: `${window.location.origin}/upgrade?canceled=true`,
+      });
+    } else {
+      await createCheckoutMutation.mutateAsync({
+        tier,
+        billingPeriod,
+        successUrl: `${window.location.origin}/?upgrade=success`,
+        cancelUrl: `${window.location.origin}/upgrade?canceled=true`,
+      });
+    }
   };
 
   return (
@@ -120,7 +140,7 @@ export default function Upgrade() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          Start with a 7-day free trial. Cancel anytime.
+          14-day free trial, full Authority access. Card required. Cancel anytime.
         </p>
 
         {/* Billing Period Toggle */}
@@ -198,10 +218,13 @@ export default function Upgrade() {
                       </p>
                     </div>
                   )}
-                  {billingPeriod === "monthly" && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      14-day free trial included
-                    </p>
+                  {billingPeriod === "monthly" && tier.tier === 'authority' && (
+                    <div className="mt-2 flex items-center gap-1.5">
+                      <Shield className="h-3.5 w-3.5 text-primary" />
+                      <p className="text-sm text-primary font-medium">
+                        14-day free trial included
+                      </p>
+                    </div>
                   )}
                 </div>
               </CardHeader>
@@ -219,9 +242,14 @@ export default function Upgrade() {
                 >
                   {isLoading ? (
                     "Loading..."
+                  ) : tier.tier === 'authority' && billingPeriod === 'monthly' ? (
+                    <>
+                      Start 14-Day Free Trial
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
                   ) : (
                     <>
-                      Start Free Trial
+                      Get Started
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </>
                   )}

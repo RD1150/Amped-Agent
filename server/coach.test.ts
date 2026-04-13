@@ -31,6 +31,7 @@ describe("Enhanced Performance Coach", () => {
         name: user.name,
         email: user.email!,
         role: "user",
+        subscriptionStatus: "active" as any,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastSignedIn: new Date(),

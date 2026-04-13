@@ -124,7 +124,7 @@ describe("Credit System", () => {
       videoMode: "full-ai",
       enableVoiceover: true,
     });
-    expect(fullAiWithVoice.totalCredits).toBe(45); // 40 + 5
+    expect(fullAiWithVoice.totalCredits).toBe(40); // voiceover is free (0 credits)
     expect(fullAiWithVoice.breakdown).toHaveLength(2);
   });
 

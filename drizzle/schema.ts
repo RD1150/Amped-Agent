@@ -20,6 +20,7 @@ export const users = mysqlTable("users", {
   subscriptionStatus: mysqlEnum("subscriptionStatus", ["active", "trialing", "past_due", "canceled", "incomplete", "incomplete_expired", "unpaid", "inactive"]).default("inactive"),
   subscriptionEndDate: timestamp("subscriptionEndDate"),
   cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").default(false),
+  trialEndsAt: timestamp("trialEndsAt"), // When the 14-day trial expires (null if never trialed or already converted)
   // D-ID avatar fields
   avatarImageUrl: text("avatarImageUrl"), // User's headshot for D-ID avatar generation
   avatarVideoUrl: text("avatarVideoUrl"), // Generated D-ID avatar intro video URL

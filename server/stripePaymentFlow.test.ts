@@ -71,9 +71,9 @@ describe('Stripe Product Configuration', () => {
   it('has 3 tiers configured with valid price IDs', () => {
     expect(STRIPE_PRODUCTS).toHaveLength(3);
     const tiers = STRIPE_PRODUCTS.map((p) => p.tier);
-    expect(tiers).toContain('essential');
-    expect(tiers).toContain('professional');
-    expect(tiers).toContain('premium');
+    expect(tiers).toContain('starter');
+    expect(tiers).toContain('pro');
+    expect(tiers).toContain('authority');
   });
 
   it('all tiers have monthly and yearly price IDs set', () => {
@@ -85,15 +85,15 @@ describe('Stripe Product Configuration', () => {
   });
 
   it('getTierByPriceId resolves essential monthly price', () => {
-    const essential = STRIPE_PRODUCTS.find((p) => p.tier === 'essential')!;
+    const essential = STRIPE_PRODUCTS.find((p) => p.tier === 'starter')!;
     const resolved = getTierByPriceId(essential.priceIdMonthly!);
-    expect(resolved).toBe('essential');
+    expect(resolved).toBe('starter');
   });
 
   it('getTierByPriceId resolves professional yearly price', () => {
-    const pro = STRIPE_PRODUCTS.find((p) => p.tier === 'professional')!;
+    const pro = STRIPE_PRODUCTS.find((p) => p.tier === 'pro')!;
     const resolved = getTierByPriceId(pro.priceIdYearly!);
-    expect(resolved).toBe('professional');
+    expect(resolved).toBe('pro');
   });
 
   it('getTierByPriceId returns undefined for unknown price ID', () => {

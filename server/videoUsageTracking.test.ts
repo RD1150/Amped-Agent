@@ -15,9 +15,9 @@ describe("videoUsageTracking", () => {
   });
 
   it("should have correct video limits for premium tier", () => {
-    expect(VIDEO_LIMITS.premium.standard).toBe(999);
-    expect(VIDEO_LIMITS.premium.aiEnhanced).toBe(25);
-    expect(VIDEO_LIMITS.premium.fullAi).toBe(10);
+    expect(VIDEO_LIMITS.authority.standard).toBe(999);
+    expect(VIDEO_LIMITS.authority.aiEnhanced).toBe(25);
+    expect(VIDEO_LIMITS.authority.fullAi).toBe(10);
   });
 
   it("should define all video modes", () => {

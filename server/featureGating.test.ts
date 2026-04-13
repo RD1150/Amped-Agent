@@ -1,5 +1,12 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { isTrialActive, hasPlatformAccess, requirePlatformAccess, areTierRestrictionsEnabled, TRIAL_DAYS } from "./_core/featureGating";
+import { describe, it, expect } from "vitest";
+import {
+  isTrialActive,
+  hasPlatformAccess,
+  requirePlatformAccess,
+  areTierRestrictionsEnabled,
+  getEffectiveTier,
+  TRIAL_DAYS,
+} from "./_core/featureGating";
 import type { User } from "../drizzle/schema";
 
 function makeUser(overrides: Partial<User> = {}): User {
@@ -21,6 +28,7 @@ function makeUser(overrides: Partial<User> = {}): User {
     avatarVideoUrl: null,
     loginMethod: null,
     creditBalance: 0,
+    trialEndsAt: null,
     ...overrides,
   } as unknown as User;
 }
@@ -31,42 +39,71 @@ describe("featureGating", () => {
     expect(areTierRestrictionsEnabled()).toBe(true);
   });
 
-  it("TRIAL_DAYS is 7", () => {
-    expect(TRIAL_DAYS).toBe(7);
+  it("TRIAL_DAYS is 14", () => {
+    expect(TRIAL_DAYS).toBe(14);
   });
 
-  it("user created today is within trial", () => {
-    const user = makeUser({ createdAt: new Date() });
+  it("user with trialing status and future trialEndsAt is on active trial", () => {
+    const trialEnd = new Date();
+    trialEnd.setDate(trialEnd.getDate() + 7); // 7 days from now
+    const user = makeUser({ subscriptionStatus: "trialing", trialEndsAt: trialEnd });
     expect(isTrialActive(user)).toBe(true);
     expect(hasPlatformAccess(user)).toBe(true);
   });
 
-  it("user created 8 days ago with no subscription is blocked", () => {
-    const oldDate = new Date();
-    oldDate.setDate(oldDate.getDate() - 8);
-    const user = makeUser({ createdAt: oldDate, subscriptionStatus: "inactive" });
+  it("user with trialing status and past trialEndsAt is NOT on active trial", () => {
+    const trialEnd = new Date();
+    trialEnd.setDate(trialEnd.getDate() - 1); // 1 day ago
+    const user = makeUser({ subscriptionStatus: "trialing", trialEndsAt: trialEnd });
+    expect(isTrialActive(user)).toBe(false);
+    expect(hasPlatformAccess(user)).toBe(false);
+  });
+
+  it("user with trialing status and no trialEndsAt trusts Stripe status", () => {
+    const user = makeUser({ subscriptionStatus: "trialing", trialEndsAt: null });
+    expect(isTrialActive(user)).toBe(true);
+    expect(hasPlatformAccess(user)).toBe(true);
+  });
+
+  it("user with inactive status and no trial is blocked", () => {
+    const user = makeUser({ subscriptionStatus: "inactive", trialEndsAt: null });
     expect(isTrialActive(user)).toBe(false);
     expect(hasPlatformAccess(user)).toBe(false);
   });
 
   it("user with active subscription is always allowed", () => {
-    const oldDate = new Date();
-    oldDate.setDate(oldDate.getDate() - 30);
-    const user = makeUser({ createdAt: oldDate, subscriptionStatus: "active" });
+    const user = makeUser({ subscriptionStatus: "active", subscriptionTier: "pro" });
     expect(hasPlatformAccess(user)).toBe(true);
   });
 
   it("admin is always allowed regardless of subscription", () => {
-    const oldDate = new Date();
-    oldDate.setDate(oldDate.getDate() - 30);
-    const user = makeUser({ createdAt: oldDate, subscriptionStatus: "inactive", role: "admin" });
+    const user = makeUser({ subscriptionStatus: "inactive", role: "admin" });
     expect(hasPlatformAccess(user)).toBe(true);
   });
 
-  it("requirePlatformAccess throws FORBIDDEN for expired trial user when restrictions enabled", () => {
-    const oldDate = new Date();
-    oldDate.setDate(oldDate.getDate() - 8);
-    const user = makeUser({ createdAt: oldDate, subscriptionStatus: "inactive" });
+  it("requirePlatformAccess throws FORBIDDEN for user with no subscription or trial", () => {
+    const user = makeUser({ subscriptionStatus: "inactive" });
     expect(() => requirePlatformAccess(user)).toThrow("SUBSCRIPTION_REQUIRED");
+  });
+
+  it("trial user gets Authority effective tier regardless of stored tier", () => {
+    const trialEnd = new Date();
+    trialEnd.setDate(trialEnd.getDate() + 5);
+    const user = makeUser({
+      subscriptionStatus: "trialing",
+      subscriptionTier: "starter",
+      trialEndsAt: trialEnd,
+    });
+    expect(getEffectiveTier(user)).toBe("authority");
+  });
+
+  it("active user gets their stored tier as effective tier", () => {
+    const user = makeUser({ subscriptionStatus: "active", subscriptionTier: "pro" });
+    expect(getEffectiveTier(user)).toBe("pro");
+  });
+
+  it("inactive user defaults to starter effective tier", () => {
+    const user = makeUser({ subscriptionStatus: "inactive", subscriptionTier: null });
+    expect(getEffectiveTier(user)).toBe("starter");
   });
 });

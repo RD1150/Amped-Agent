@@ -4894,3 +4894,32 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Dashboard "Unlock AI talking-head videos with an Agency plan" - fix to "Authority plan"
 - [ ] Fix TypeScript errors in Subscription.tsx, featureGating.ts, videoUsageTracking.ts
 - [x] Remove Avatar Video duplicate entry from CONVERT section in sidebar (was never in CONVERT - was a published vs dev server issue)
+
+## 14-Day Free Trial System (Apr 12 2026)
+- [ ] Add trialStartedAt, trialEndsAt, trialStatus fields to users table in schema
+- [ ] Push DB migration for trial fields
+- [ ] Build Stripe trial checkout session (card required, 14-day trial period)
+- [ ] Add webhook handlers: customer.subscription.trial_will_end, customer.subscription.updated, customer.subscription.deleted
+- [ ] Auto-downgrade to Starter tier when trial expires without conversion
+- [ ] Update feature gating to grant Authority access during active trial
+- [ ] Build trial countdown banner (days remaining, upgrade CTA)
+- [ ] Add trial badge in sidebar header
+- [ ] Build trial-expired upgrade prompt modal
+- [ ] Update Pricing page to show "Start Free Trial" CTA
+
+## Trial System (Stripe-Backed 14-Day Trial) — Completed Apr 2026
+
+- [x] Add trialEndsAt field to users table in drizzle/schema.ts
+- [x] Create createTrialCheckout tRPC procedure (Authority tier, 14-day trial, card required)
+- [x] Update featureGating.ts to use Stripe-backed trial (subscriptionStatus === 'trialing')
+- [x] Update featureGating.ts to grant Authority effective tier during active trial
+- [x] Update TRIAL_DAYS constant to 14
+- [x] Update DashboardLayout paywall gate to allow trialing users full access
+- [x] Add TrialCountdownBanner component (shows days remaining, urgent styling at ≤3 days)
+- [x] Update Upgrade page to use createTrialCheckout for Authority monthly tier
+- [x] Update Subscription page to show 14-day trial info with trialEndsAt date
+- [x] Handle customer.subscription.updated webhook for trial→active conversion
+- [x] Handle customer.subscription.deleted webhook for trial expiry → downgrade to starter
+- [x] Update all test files to include subscriptionStatus: "active" in mock users
+- [x] Update featureGating.test.ts to test Stripe-backed trial logic
+- [x] All 561 tests passing, TypeScript clean

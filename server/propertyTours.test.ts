@@ -16,7 +16,7 @@ const mockUser = {
   stripeCustomerId: null,
   stripeSubscriptionId: null,
   subscriptionTier: "starter" as const,
-  subscriptionStatus: "inactive" as const,
+  subscriptionStatus: "active" as const,
   subscriptionEndDate: null,
   cancelAtPeriodEnd: false,
   ghlSubAccountId: null,
@@ -229,17 +229,17 @@ describe("Property Tours", () => {
       expect(result.cardTemplate).toBe("contemporary");
     });
 
-    it("should require address", async () => {
+    it("should allow empty address (address is now optional)", async () => {
       const caller = appRouter.createCaller(createMockContext());
-
-      await expect(
-        caller.propertyTours.create({
-          address: "",
-          imageUrls: ["https://example.com/image1.jpg"],
-          template: "modern",
-          duration: 30,
-        })
-      ).rejects.toThrow();
+      // Address is optional — empty string is allowed
+      const result = await caller.propertyTours.create({
+        address: "",
+        imageUrls: ["https://example.com/image1.jpg"],
+        template: "modern",
+        duration: 30,
+      });
+      expect(result).toBeDefined();
+      expect(result.id).toBeGreaterThan(0);
     });
 
     it("should require at least one image", async () => {

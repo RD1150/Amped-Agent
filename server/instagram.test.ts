@@ -39,6 +39,7 @@ describe("Instagram Integration", () => {
         email: `instagram-test-${Date.now()}@example.com`,
         loginMethod: "manus",
         role: "user",
+        subscriptionStatus: "active" as any,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastSignedIn: new Date(),

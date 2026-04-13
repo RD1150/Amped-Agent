@@ -81,33 +81,42 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
 };
 
 /**
- * Trial period in days
+ * Trial period in days (Stripe-backed trial)
  */
-export const TRIAL_DAYS = 7;
+export const TRIAL_DAYS = 14;
 
 /**
- * Check if user's trial period is still active (within 7 days of account creation)
+ * Check if user is currently on a Stripe-backed trial.
+ * A trial is active when subscriptionStatus === 'trialing'.
  */
 export function isTrialActive(user: User): boolean {
-  const trialEnd = new Date(user.createdAt);
-  trialEnd.setDate(trialEnd.getDate() + TRIAL_DAYS);
-  return new Date() < trialEnd;
+  if (user.subscriptionStatus === "trialing") {
+    // If trialEndsAt is set, verify it hasn't passed
+    if (user.trialEndsAt) {
+      return new Date() < new Date(user.trialEndsAt);
+    }
+    // If no trialEndsAt (legacy), trust the Stripe status
+    return true;
+  }
+  return false;
 }
 
 /**
- * Get trial end date for a user
+ * Get trial end date for a user (from Stripe-backed trialEndsAt or fallback)
  */
-export function getTrialEndDate(user: User): Date {
-  const trialEnd = new Date(user.createdAt);
-  trialEnd.setDate(trialEnd.getDate() + TRIAL_DAYS);
-  return trialEnd;
+export function getTrialEndDate(user: User): Date | null {
+  if (user.trialEndsAt) {
+    return new Date(user.trialEndsAt);
+  }
+  return null;
 }
 
 /**
- * Get days remaining in trial (0 if expired)
+ * Get days remaining in trial (0 if expired or no trial)
  */
 export function getTrialDaysRemaining(user: User): number {
   const trialEnd = getTrialEndDate(user);
+  if (!trialEnd) return 0;
   const now = new Date();
   const msRemaining = trialEnd.getTime() - now.getTime();
   return Math.max(0, Math.ceil(msRemaining / (1000 * 60 * 60 * 24)));
@@ -121,10 +130,22 @@ export function hasActiveSubscription(user: User): boolean {
 }
 
 /**
- * Check if user is on trial (within 14 days AND no active paid subscription)
+ * Check if user is on a Stripe trial
  */
 export function isOnTrial(user: User): boolean {
-  return !hasActiveSubscription(user) && isTrialActive(user);
+  return isTrialActive(user);
+}
+
+/**
+ * Get the effective subscription tier for a user.
+ * Trial users always get Authority-level access regardless of their stored tier.
+ */
+export function getEffectiveTier(user: User): SubscriptionTier {
+  // Trial users get full Authority access
+  if (isTrialActive(user)) {
+    return "authority";
+  }
+  return (user.subscriptionTier as SubscriptionTier) || "starter";
 }
 
 /**
@@ -132,7 +153,7 @@ export function isOnTrial(user: User): boolean {
  * Access is granted if:
  *   1. User is an admin
  *   2. User has an active paid subscription
- *   3. User is within their 14-day trial window
+ *   3. User is within their Stripe 14-day trial window
  */
 export function hasPlatformAccess(user: User): boolean {
   if (user.role === "admin") return true;
@@ -148,22 +169,21 @@ export function hasPlatformAccess(user: User): boolean {
 export function requirePlatformAccess(user: User): void {
   if (!areTierRestrictionsEnabled()) return;
   if (!hasPlatformAccess(user)) {
-    const trialEnd = getTrialEndDate(user);
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: `SUBSCRIPTION_REQUIRED:Your 7-day free trial ended on ${trialEnd.toLocaleDateString()}. Please subscribe to continue using Amped Agent.`,
+      message: `SUBSCRIPTION_REQUIRED:Your free trial has ended. Please subscribe to continue using Amped Agent.`,
     });
   }
 }
 
 /**
- * Check if user has access to a feature
+ * Check if user has access to a feature (uses effective tier — trial = authority)
  */
 export function hasFeatureAccess(
   user: User,
   feature: keyof TierFeatures
 ): boolean {
-  const tier = user.subscriptionTier || "starter";
+  const tier = getEffectiveTier(user);
   const features = TIER_FEATURES[tier];
   return features[feature] as boolean;
 }
@@ -193,16 +213,16 @@ function getRequiredTier(feature: keyof TierFeatures): string {
     return "Pro";
   }
   if (TIER_FEATURES.authority[feature] && !TIER_FEATURES.pro[feature]) {
-    return "Premium";
+    return "Authority";
   }
   return "Starter";
 }
 
 /**
- * Get user's tier features
+ * Get user's effective tier features (trial users get Authority features)
  */
 export function getUserFeatures(user: User): TierFeatures {
-  const tier = user.subscriptionTier || "starter";
+  const tier = getEffectiveTier(user);
   return TIER_FEATURES[tier];
 }
 

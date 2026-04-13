@@ -75,6 +75,9 @@ import {
   Circle,
   ChevronDown,
   ChevronUp,
+  Clock,
+  X,
+  AlertTriangle,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -88,6 +91,85 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+
+// Trial Countdown Banner Component
+function TrialCountdownBanner({
+  user,
+  setLocation,
+}: {
+  user: { subscriptionStatus?: string | null; trialEndsAt?: Date | string | null } | null;
+  setLocation: (path: string) => void;
+}) {
+  const [dismissed, setDismissed] = useState(() => {
+    return localStorage.getItem('trial-banner-dismissed') === 'true';
+  });
+
+  if (!user || user.subscriptionStatus !== 'trialing') return null;
+  if (dismissed) return null;
+
+  const trialEnd = user.trialEndsAt ? new Date(user.trialEndsAt) : null;
+  const now = new Date();
+  const daysRemaining = trialEnd
+    ? Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+    : null;
+
+  const isUrgent = daysRemaining !== null && daysRemaining <= 3;
+
+  const handleDismiss = () => {
+    localStorage.setItem('trial-banner-dismissed', 'true');
+    setDismissed(true);
+  };
+
+  return (
+    <div className={`flex items-center gap-3 px-4 py-2.5 text-sm ${
+      isUrgent
+        ? 'bg-red-900/40 border-b border-red-500/30 text-red-200'
+        : 'bg-orange-900/30 border-b border-orange-500/20 text-orange-200'
+    }`}>
+      {isUrgent ? (
+        <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
+      ) : (
+        <Clock className="h-4 w-4 text-orange-400 shrink-0" />
+      )}
+      <span className="flex-1">
+        {daysRemaining !== null ? (
+          <>
+            <span className="font-semibold">
+              {daysRemaining === 0
+                ? 'Your trial ends today'
+                : daysRemaining === 1
+                ? '1 day left in your Authority trial'
+                : `${daysRemaining} days left in your Authority trial`}
+            </span>
+            {' — full access to all features. '}
+            {trialEnd && (
+              <span className="opacity-70">Ends {trialEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.</span>
+            )}
+          </>
+        ) : (
+          <span className="font-semibold">Authority trial active — full access to all features.</span>
+        )}
+      </span>
+      <button
+        onClick={() => setLocation('/subscription')}
+        className={`shrink-0 text-xs font-semibold px-3 py-1 rounded-full transition-colors ${
+          isUrgent
+            ? 'bg-red-500 hover:bg-red-400 text-white'
+            : 'bg-orange-500 hover:bg-orange-400 text-white'
+        }`}
+      >
+        Subscribe Now
+      </button>
+      <button
+        onClick={handleDismiss}
+        className="shrink-0 opacity-50 hover:opacity-100 transition-opacity"
+        aria-label="Dismiss trial banner"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
 
 // Getting Started Checklist Component
 function GettingStartedChecklist({
@@ -701,14 +783,12 @@ export default function DashboardLayout({
     if (!user) return;
     if (user.role === "admin") return;
     if (user.subscriptionStatus === "active") return;
-    const exemptPaths = ["/upgrade", "/credits", "/settings", "/help", "/faq", "/contact"];
+    // Stripe-backed trial: trialing status means they have full access
+    if (user.subscriptionStatus === "trialing") return;
+    const exemptPaths = ["/upgrade", "/credits", "/settings", "/help", "/faq", "/contact", "/pricing", "/subscription"];
     if (exemptPaths.some((p) => location.startsWith(p))) return;
-    const trialEnd = new Date(user.createdAt);
-    trialEnd.setDate(trialEnd.getDate() + 7);
-    const trialExpired = new Date() > trialEnd;
-    if (trialExpired) {
-      setLocation("/upgrade");
-    }
+    // No active subscription and not trialing — redirect to upgrade
+    setLocation("/upgrade");
   }, [user, location, setLocation]);
 
   if (loading || personaLoading) {
@@ -1086,6 +1166,8 @@ function DashboardLayoutContent({
           </div>
         </div>
 
+        {/* Trial countdown banner */}
+        <TrialCountdownBanner user={user} setLocation={setLocation} />
         {/* Page content */}
         <main className="flex-1 p-3 md:p-5">{children}</main>
       </SidebarInset>

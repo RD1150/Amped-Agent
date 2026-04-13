@@ -9,7 +9,9 @@ import { toast } from "sonner";
 
 export default function Subscription() {
   const { data: user } = trpc.auth.me.useQuery();
+  const { data: subStatus } = trpc.stripe.getSubscriptionStatus.useQuery(undefined, { enabled: !!user });
   const createCheckoutSession = trpc.stripe.createCheckoutSession.useMutation();
+  const createBillingPortal = trpc.stripe.createBillingPortalSession.useMutation();
 
   const tierInfo = {
     starter: {
@@ -53,7 +55,10 @@ export default function Subscription() {
     },
   };
 
-  const currentTier = user?.subscriptionTier || "starter";
+  const isTrialing = subStatus?.isTrialing || user?.subscriptionStatus === 'trialing';
+  const trialDaysRemaining = subStatus?.trialDaysRemaining ?? 0;
+  const trialEndsAt = subStatus?.trialEndsAt ? new Date(subStatus.trialEndsAt) : null;
+  const currentTier = isTrialing ? 'authority' : (user?.subscriptionTier || 'starter');
   const currentTierInfo = tierInfo[currentTier as keyof typeof tierInfo];
 
   const handleUpgrade = async (tier: string, billingPeriod: "monthly" | "annual") => {
@@ -95,8 +100,8 @@ export default function Subscription() {
               </Badge>
             </div>
             <p className="text-muted-foreground">
-              {user?.subscriptionStatus === "trialing"
-                ? "7-day trial active"
+              {isTrialing
+                ? `14-day Authority trial active${trialDaysRemaining > 0 ? ` — ${trialDaysRemaining} day${trialDaysRemaining === 1 ? '' : 's'} remaining` : ' — ends today'}`
                 : user?.subscriptionStatus === "active"
                 ? "Active subscription"
                 : "No active subscription"}
@@ -241,21 +246,37 @@ export default function Subscription() {
       </div>
 
       {/* Trial Info */}
-      {user?.subscriptionStatus === "trialing" && (
-        <Card className="p-6 bg-primary/5 border-primary/20">
+      {isTrialing && (
+        <Card className="p-6 bg-orange-500/5 border-orange-500/20">
           <div className="flex items-start gap-4">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Calendar className="h-6 w-6 text-primary" />
+            <div className="p-2 bg-orange-500/10 rounded-lg">
+              <Calendar className="h-6 w-6 text-orange-500" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold mb-1">Free Trial Active</h3>
+              <h3 className="font-semibold mb-1">14-Day Authority Trial Active</h3>
               <p className="text-sm text-muted-foreground">
-                Your 7-day trial is active. You'll be auto-billed when it ends.{" "}
-                {user?.subscriptionEndDate
-                  ? new Date(user.subscriptionEndDate).toLocaleDateString()
-                  : "the trial ends"}
-                . Cancel anytime before then to avoid charges.
+                You have full access to all Authority features during your trial.
+                {trialEndsAt ? (
+                  <> Your trial ends on <strong>{trialEndsAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</strong>.</>
+                ) : null}
+                {' '}After the trial, you'll be automatically billed for the Authority plan unless you cancel.
               </p>
+              <div className="mt-3 flex gap-3">
+                <Button
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      const { url } = await createBillingPortal.mutateAsync({ returnUrl: window.location.href });
+                      if (url) window.open(url, '_blank');
+                    } catch (e: any) {
+                      toast.error(e.message || 'Failed to open billing portal');
+                    }
+                  }}
+                  disabled={createBillingPortal.isPending}
+                >
+                  Manage Subscription
+                </Button>
+              </div>
             </div>
           </div>
         </Card>

@@ -13,6 +13,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-12-15.clover',
 });
 
+// Authority price ID for the trial checkout (monthly Authority plan)
+const AUTHORITY_PRICE_ID_MONTHLY = 'price_1SwEl1Ig7t2mT914iDGqGZ40';
+
 export const stripeRouter = router({
   // Create checkout session for credit purchase
   createCreditCheckout: authOnlyProcedure
@@ -28,7 +31,6 @@ export const stripeRouter = router({
       const userEmail = ctx.user.email;
       const { packageKey } = input;
 
-      // Get credit product configuration
       const product = getCreditProduct(packageKey);
       if (!product) {
         throw new Error(`Credit product not found: ${packageKey}`);
@@ -37,7 +39,6 @@ export const stripeRouter = router({
       const totalCredits = 'totalCredits' in product ? product.totalCredits : product.credits;
 
       try {
-        // Create Stripe checkout session for one-time payment
         const session = await stripe.checkout.sessions.create({
           mode: 'payment',
           payment_method_types: ['card'],
@@ -66,17 +67,14 @@ export const stripeRouter = router({
           },
         });
 
-        return {
-          sessionId: session.id,
-          url: session.url,
-        };
+        return { sessionId: session.id, url: session.url };
       } catch (error: any) {
         console.error('[Stripe] Failed to create credit checkout session:', error);
         throw new Error(`Failed to create checkout session: ${error.message}`);
       }
     }),
 
-  // Create checkout session for subscription
+  // Create checkout session for a specific subscription tier
   createCheckoutSession: authOnlyProcedure
     .input(
       z.object({
@@ -91,73 +89,112 @@ export const stripeRouter = router({
       const userEmail = ctx.user.email;
       const { tier, billingPeriod } = input;
 
-      // Get product configuration
       const product = getProductByTier(tier);
       if (!product) {
         throw new Error(`Product not found for tier: ${tier}`);
       }
 
-      // Select price ID based on billing period
       const priceId = billingPeriod === 'annual' ? product.priceIdYearly : product.priceIdMonthly;
       if (!priceId) {
         throw new Error(`Price ID not found for tier: ${tier}, period: ${billingPeriod}`);
       }
 
       try {
-        // Create Stripe checkout session
         const session = await stripe.checkout.sessions.create({
           mode: 'subscription',
           payment_method_types: ['card'],
           customer_email: userEmail || undefined,
           client_reference_id: userId.toString(),
-          line_items: [
-            {
-              price: priceId,
-              quantity: 1,
-            },
-          ],
+          line_items: [{ price: priceId, quantity: 1 }],
           subscription_data: {
             trial_period_days: product.trialDays,
             metadata: {
               userId: userId.toString(),
-              tier: tier,
-              billingPeriod: billingPeriod,
+              tier,
+              billingPeriod,
             },
           },
           success_url: input.successUrl,
           cancel_url: input.cancelUrl,
-          metadata: {
-            userId: userId.toString(),
-          },
+          metadata: { userId: userId.toString() },
         });
 
-        return {
-          sessionId: session.id,
-          url: session.url,
-        };
+        return { sessionId: session.id, url: session.url };
       } catch (error: any) {
         throw new Error(`Failed to create checkout session: ${error.message}`);
       }
     }),
 
-  // Create billing portal session
-  createBillingPortalSession: authOnlyProcedure
+  /**
+   * Create a 14-day Authority trial checkout session.
+   * Card is required upfront. User gets full Authority access during trial.
+   * If no paid subscription after trial, Stripe cancels and we downgrade to Starter.
+   */
+  createTrialCheckout: authOnlyProcedure
     .input(
       z.object({
-        returnUrl: z.string(),
+        successUrl: z.string(),
+        cancelUrl: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
+      const userEmail = ctx.user.email;
 
       const db = await getDb();
-      if (!db) {
-        throw new Error('Database not available');
+      if (!db) throw new Error('Database not available');
+
+      const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      if (user?.subscriptionStatus === 'active') {
+        throw new Error('You already have an active subscription.');
+      }
+      if (user?.subscriptionStatus === 'trialing') {
+        throw new Error('You already have an active trial.');
       }
 
-      // Get user's Stripe customer ID
-      const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      try {
+        const session = await stripe.checkout.sessions.create({
+          mode: 'subscription',
+          payment_method_types: ['card'],
+          customer_email: userEmail || undefined,
+          client_reference_id: userId.toString(),
+          line_items: [{ price: AUTHORITY_PRICE_ID_MONTHLY, quantity: 1 }],
+          subscription_data: {
+            trial_period_days: 14,
+            metadata: {
+              userId: userId.toString(),
+              tier: 'authority',
+              billingPeriod: 'monthly',
+              trialCheckout: 'true',
+            },
+          },
+          // Always collect payment method even during trial
+          payment_method_collection: 'always',
+          success_url: input.successUrl,
+          cancel_url: input.cancelUrl,
+          metadata: {
+            userId: userId.toString(),
+            type: 'trial_start',
+          },
+        });
 
+        return { sessionId: session.id, url: session.url };
+      } catch (error: any) {
+        console.error('[Stripe] Failed to create trial checkout session:', error);
+        throw new Error(`Failed to create trial checkout session: ${error.message}`);
+      }
+    }),
+
+  // Create billing portal session
+  createBillingPortalSession: authOnlyProcedure
+    .input(z.object({ returnUrl: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user.id;
+
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
       if (!user?.stripeCustomerId) {
         throw new Error('No Stripe customer found');
       }
@@ -167,36 +204,41 @@ export const stripeRouter = router({
           customer: user.stripeCustomerId,
           return_url: input.returnUrl,
         });
-
-        return {
-          url: session.url,
-        };
+        return { url: session.url };
       } catch (error: any) {
         throw new Error(`Failed to create billing portal session: ${error.message}`);
       }
     }),
 
-  // Get subscription status
+  // Get subscription status (includes trial info)
   getSubscriptionStatus: authOnlyProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
 
     const db = await getDb();
-    if (!db) {
-      throw new Error('Database not available');
-    }
+    if (!db) throw new Error('Database not available');
 
     const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!user) throw new Error('User not found');
 
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const isTrialing = user.subscriptionStatus === 'trialing';
+    const trialEndsAt = user.trialEndsAt ? new Date(user.trialEndsAt) : null;
+    const now = new Date();
+    const trialDaysRemaining = trialEndsAt
+      ? Math.max(0, Math.ceil((trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+      : 0;
 
     return {
       subscriptionStatus: user.subscriptionStatus || 'inactive',
+      subscriptionTier: user.subscriptionTier || 'starter',
+      // During trial, effective tier is always authority
+      effectiveTier: isTrialing ? 'authority' : (user.subscriptionTier || 'starter'),
       subscriptionId: user.stripeSubscriptionId || null,
       customerId: user.stripeCustomerId || null,
       currentPeriodEnd: user.subscriptionEndDate || null,
       cancelAtPeriodEnd: user.cancelAtPeriodEnd || false,
+      isTrialing,
+      trialEndsAt,
+      trialDaysRemaining: isTrialing ? trialDaysRemaining : 0,
     };
   }),
 
@@ -210,29 +252,18 @@ export const stripeRouter = router({
     )
     .mutation(async ({ input }) => {
       const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-      if (!webhookSecret) {
-        throw new Error('Webhook secret not configured');
-      }
+      if (!webhookSecret) throw new Error('Webhook secret not configured');
 
       let event: Stripe.Event;
-
       try {
-        event = stripe.webhooks.constructEvent(
-          input.body,
-          input.signature,
-          webhookSecret
-        );
+        event = stripe.webhooks.constructEvent(input.body, input.signature, webhookSecret);
       } catch (error: any) {
         throw new Error(`Webhook signature verification failed: ${error.message}`);
       }
 
       const db = await getDb();
-      if (!db) {
-        throw new Error('Database not available');
-      }
+      if (!db) throw new Error('Database not available');
 
-      // Handle different event types
       switch (event.type) {
         case 'checkout.session.completed': {
           const session = event.data.object as Stripe.Checkout.Session;
@@ -261,21 +292,31 @@ export const stripeRouter = router({
             break;
           }
 
-          // Handle subscription purchase
-          const tier = session.metadata?.tier as 'starter' | 'pro' | 'authority' | undefined;
+          // Handle subscription / trial start
           const customerId = session.customer as string;
           const subscriptionId = session.subscription as string;
 
-          if (userId && customerId && tier) {
+          if (userId && customerId && subscriptionId) {
+            // Fetch the subscription to get trial_end and status
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            const tier = (subscription.metadata?.tier as 'starter' | 'pro' | 'authority') || 'authority';
+            const trialEnd = subscription.trial_end
+              ? new Date(subscription.trial_end * 1000)
+              : null;
+
             await db
               .update(users)
               .set({
                 stripeCustomerId: customerId,
                 stripeSubscriptionId: subscriptionId,
-                subscriptionStatus: 'trialing',
-                subscriptionTier: tier as any,
+                subscriptionStatus: subscription.status as any,
+                subscriptionTier: tier,
+                trialEndsAt: trialEnd,
+                subscriptionEndDate: new Date((subscription.items?.data?.[0]?.current_period_end ?? subscription.billing_cycle_anchor) * 1000),
               })
               .where(eq(users.id, userId));
+
+            console.log(`[Stripe] Trial/subscription started for user ${userId}: tier=${tier}, status=${subscription.status}, trialEnd=${trialEnd}`);
           }
           break;
         }
@@ -286,26 +327,35 @@ export const stripeRouter = router({
           const customerId = subscription.customer as string;
           const tier = subscription.metadata?.tier as 'starter' | 'pro' | 'authority' | undefined;
 
-          // Find user by customer ID
           const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, customerId)).limit(1);
 
           if (user) {
+            const trialEnd = subscription.trial_end
+              ? new Date(subscription.trial_end * 1000)
+              : null;
+
             const updateData: any = {
               stripeSubscriptionId: subscription.id,
               subscriptionStatus: subscription.status as any,
-              subscriptionEndDate: new Date((subscription as any).current_period_end * 1000),
+              subscriptionEndDate: new Date((subscription.items?.data?.[0]?.current_period_end ?? subscription.billing_cycle_anchor) * 1000),
               cancelAtPeriodEnd: subscription.cancel_at_period_end,
+              trialEndsAt: trialEnd,
             };
-            
-            // Update tier if provided in metadata
+
             if (tier) {
               updateData.subscriptionTier = tier;
             }
 
-            await db
-              .update(users)
-              .set(updateData)
-              .where(eq(users.id, user.id));
+            // Trial converted to paid — keep authority tier
+            if (subscription.status === 'active' && user.subscriptionStatus === 'trialing') {
+              console.log(`[Stripe] Trial converted to paid subscription for user ${user.id}`);
+              if (!tier) {
+                updateData.subscriptionTier = user.subscriptionTier || 'authority';
+              }
+            }
+
+            await db.update(users).set(updateData).where(eq(users.id, user.id));
+            console.log(`[Stripe] Subscription updated for user ${user.id}: status=${subscription.status}`);
           }
           break;
         }
@@ -317,13 +367,26 @@ export const stripeRouter = router({
           const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, customerId)).limit(1);
 
           if (user) {
+            const wasTrialing = user.subscriptionStatus === 'trialing';
+
             await db
               .update(users)
               .set({
                 subscriptionStatus: 'canceled',
                 cancelAtPeriodEnd: false,
+                // Auto-downgrade to Starter when trial expires without conversion
+                subscriptionTier: wasTrialing ? 'starter' : user.subscriptionTier,
+                trialEndsAt: null,
               })
               .where(eq(users.id, user.id));
+
+            if (wasTrialing) {
+              console.log(`[Stripe] Trial expired for user ${user.id} — downgraded to Starter`);
+              await notifyOwner({
+                title: `Trial Expired: ${user.name || user.email}`,
+                content: `User ${user.name || user.email} (ID: ${user.id}) did not convert after their 14-day trial. They have been downgraded to the Starter plan.`,
+              }).catch((err) => console.error('[Stripe] Failed to send trial-expired notification:', err));
+            }
           }
           break;
         }
@@ -339,9 +402,8 @@ export const stripeRouter = router({
 
           if (user) {
             console.log(`[Stripe] Trial ending for user ${user.id} (${user.email}) on ${trialEndDate}`);
-            // Notify the platform owner so they can follow up if needed
             await notifyOwner({
-              title: `Trial Ending: ${user.name || user.email}`,
+              title: `Trial Ending Soon: ${user.name || user.email}`,
               content: `User ${user.name || user.email} (ID: ${user.id}) has a trial ending on ${trialEndDate}. Their subscription tier is ${user.subscriptionTier}. Consider reaching out to ensure a smooth conversion.`,
             }).catch((err) => console.error('[Stripe] Failed to send trial-ending owner notification:', err));
           } else {
