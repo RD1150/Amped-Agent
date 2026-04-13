@@ -64,7 +64,7 @@ export async function checkDailyVideoLimit(userId: number): Promise<{
   // Check if user has paid subscription (unlimited videos)
   const isPaidUser =
     user.subscriptionStatus === "active" &&
-    (user.subscriptionTier === "pro" || user.subscriptionTier === "agency");
+    (user.subscriptionTier === "pro" || user.subscriptionTier === "authority");
 
   if (isPaidUser) {
     // Paid users have unlimited videos

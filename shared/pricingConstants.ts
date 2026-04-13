@@ -4,12 +4,12 @@
  * Does NOT use process.env (would break in browser).
  *
  * Pricing (updated Apr 2026):
- *   Starter  $79/mo  — 50 credits/mo included
- *   Pro      $149/mo — 150 credits/mo included
- *   Agency   $299/mo — 500 credits/mo included
+ *   Starter   $79/mo  — 50 credits/mo included
+ *   Pro       $149/mo — 150 credits/mo included
+ *   Authority $299/mo — 500 credits/mo included
  */
 
-export type SubscriptionTier = 'starter' | 'pro' | 'agency';
+export type SubscriptionTier = 'starter' | 'pro' | 'authority';
 
 export interface PricingTier {
   id: SubscriptionTier;
@@ -86,9 +86,9 @@ export const PRICING_TIERS: Record<SubscriptionTier, PricingTier> = {
       videoGenerations: 20,
     },
   },
-  agency: {
-    id: 'agency',
-    name: 'Agency',
+  authority: {
+    id: 'authority',
+    name: 'Authority',
     tagline: 'Own the Entire Conversation',
     description: 'The complete authority marketing suite for top producers and teams. Every tool, every channel, every format — fully branded and built to scale.',
     monthlyPrice: 299,
@@ -99,6 +99,7 @@ export const PRICING_TIERS: Record<SubscriptionTier, PricingTier> = {
       '500 AI credits included every month',
       'UNLIMITED AI avatar videos',
       'Full AI Cinematic Property Tours (Kling AI)',
+      'Live Tour — record and auto-edit property walkthroughs',
       'Voice cloning (1 custom voice)',
       'Multiple avatar looks (3 styles)',
       'Custom branding overlays',
@@ -126,7 +127,10 @@ export function getUserTier(subscription: any): SubscriptionTier {
   if (!subscription || subscription.status !== 'active') {
     return 'starter';
   }
-  return (subscription.tier as SubscriptionTier) || 'starter';
+  // Support legacy 'authority' value in DB during migration
+  const tier = subscription.tier as string;
+  if (tier === 'authority') return 'authority';
+  return (tier as SubscriptionTier) || 'starter';
 }
 
 export function hasExceededLimit(

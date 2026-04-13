@@ -11,7 +11,7 @@ export default function NewsletterBuilder() {
   const { data: ssoLink, isLoading, error } = trpc.newsletter.getSsoLink.useQuery();
 
   // Check if user has Premium tier access
-  const hasPremiumAccess = user?.subscriptionTier === "agency";
+  const hasPremiumAccess = user?.subscriptionTier === "authority";
 
   // Removed auto-redirect to prevent error loop
   // User must click button to open Newsletter Builder
@@ -35,9 +35,9 @@ export default function NewsletterBuilder() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
               <Crown className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle className="text-2xl">Agency Feature</CardTitle>
+            <CardTitle className="text-2xl">Authority Feature</CardTitle>
             <CardDescription>
-              Newsletter Builder is available exclusively on the Agency plan
+              Newsletter Builder is available exclusively on the Authority plan
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -74,7 +74,7 @@ export default function NewsletterBuilder() {
             <Alert>
               <Crown className="h-4 w-4" />
               <AlertDescription>
-                Upgrade to Agency ($149/month) to unlock Newsletter Builder and all premium features
+                Upgrade to Authority ($149/month) to unlock Newsletter Builder and all premium features
               </AlertDescription>
             </Alert>
 
@@ -82,7 +82,7 @@ export default function NewsletterBuilder() {
               <Button asChild className="flex-1">
                 <a href="/upgrade">
                   <Crown className="mr-2 h-4 w-4" />
-                  Upgrade to Agency
+                  Upgrade to Authority
                 </a>
               </Button>
               <Button variant="outline" asChild>
@@ -119,7 +119,7 @@ export default function NewsletterBuilder() {
           <Alert>
             <Crown className="h-4 w-4" />
             <AlertDescription>
-              You have Agency access! Newsletter Builder will open in a new tab with automatic authentication.
+              You have Authority access! Newsletter Builder will open in a new tab with automatic authentication.
             </AlertDescription>
           </Alert>
 

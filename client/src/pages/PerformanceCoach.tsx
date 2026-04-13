@@ -239,7 +239,7 @@ export default function PerformanceCoach() {
             <div className="flex items-center gap-2 mb-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/30">
                 <Award className="h-3.5 w-3.5" />
-                Agency Feature
+                Authority Feature
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/30">
                 <Zap className="h-3.5 w-3.5" />

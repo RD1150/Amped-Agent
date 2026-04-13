@@ -52,7 +52,7 @@ type AvatarMode = "quick" | "custom";
 
 export default function FullAvatarVideo() {
   const { user, loading: isAuthLoading } = useAuth();
-  const isPremium = user?.subscriptionTier === "agency" || user?.subscriptionTier === "pro";
+  const isPremium = user?.subscriptionTier === "authority" || user?.subscriptionTier === "pro";
 
   // ── Mode ──────────────────────────────────────────────────────────────────
   const [mode, setMode] = useState<AvatarMode>("quick");
@@ -406,9 +406,9 @@ export default function FullAvatarVideo() {
               <Crown className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold mb-2">Agency Feature</h2>
+              <h2 className="text-2xl font-bold mb-2">Authority Feature</h2>
               <p className="text-muted-foreground">
-                Avatar Video is available on the <strong>Pro</strong> and <strong>Agency</strong> plans.
+                Avatar Video is available on the <strong>Pro</strong> and <strong>Authority</strong> plans.
                 Generate Captions/Mirage-quality talking-head videos with 1,200+ stock avatars and 2,000+ voices — all without leaving the platform.
               </p>
             </div>
@@ -434,7 +434,7 @@ export default function FullAvatarVideo() {
               onClick={() => window.location.href = "/subscription"}
             >
               <Crown className="h-4 w-4 mr-2" />
-              Upgrade to Agency
+              Upgrade to Authority
             </Button>
           </div>
         </Card>
@@ -494,7 +494,7 @@ export default function FullAvatarVideo() {
           <div className="flex items-center gap-2 mb-2">
             <Crown className={`h-5 w-5 ${mode === "custom" ? "text-primary" : "text-muted-foreground"}`} />
             <span className="font-semibold">Custom Digital Twin</span>
-            <Badge className="text-xs bg-primary/20 text-primary border-primary/30">Avatar IV · Agency</Badge>
+            <Badge className="text-xs bg-primary/20 text-primary border-primary/30">Avatar IV · Authority</Badge>
           </div>
           <p className="text-xs text-muted-foreground">Train once with a 2-min video clip. Powered by Avatar IV — expressive full-face motion, 1080p, up to 3 min.</p>
           {twinStatus?.status === "ready" && (

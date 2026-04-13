@@ -81,7 +81,7 @@ function VideoPoolWidget() {
             <Infinity className="h-8 w-8 text-emerald-400" />
             <div>
               <p className="text-2xl font-bold text-emerald-400">Unlimited</p>
-              <p className="text-sm text-white/50">Agency plan — no monthly cap</p>
+              <p className="text-sm text-white/50">Authority plan — no monthly cap</p>
             </div>
           </div>
         ) : (
@@ -206,7 +206,7 @@ export default function Credits() {
   const handlePurchase = (packageKey: string) => {
     setPurchasing(packageKey);
     createCheckout.mutate({
-      packageKey: packageKey as "starter" | "pro" | "agency",
+      packageKey: packageKey as "starter" | "pro" | "authority",
       successUrl: `${window.location.origin}/credits?success=true`,
       cancelUrl: `${window.location.origin}/credits?canceled=true`,
     });

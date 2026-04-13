@@ -420,7 +420,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-semibold text-primary/80 uppercase tracking-wider">Market Dominance Coach</span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
-                <Zap className="h-2.5 w-2.5" />Agency
+                <Zap className="h-2.5 w-2.5" />Authority
               </span>
             </div>
             <h3 className="text-xl font-bold text-white mb-1">This Week's Challenge</h3>

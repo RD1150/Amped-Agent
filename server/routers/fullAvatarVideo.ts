@@ -225,7 +225,7 @@ Requirements:
       // ── Premium gate ────────────────────────────────────────────────────────
       const [userRow] = await db.select({ tier: users.subscriptionTier }).from(users).where(eq(users.id, ctx.user.id));
       const tier = userRow?.tier ?? "starter";
-      if (tier !== "agency" && tier !== "pro") {
+      if (tier !== "authority" && tier !== "pro") {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Full Avatar Video is a Premium feature. Please upgrade your plan to access this feature.",
@@ -695,7 +695,7 @@ Requirements:
       // ── Premium gate ────────────────────────────────────────────────────────
       const [userRow2] = await db.select({ tier: users.subscriptionTier }).from(users).where(eq(users.id, ctx.user.id));
       const tier2 = userRow2?.tier ?? "starter";
-      if (tier2 !== "agency" && tier2 !== "pro") {
+      if (tier2 !== "authority" && tier2 !== "pro") {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Full Avatar Video is a Premium feature. Please upgrade your plan to access this feature.",
@@ -825,9 +825,9 @@ Requirements:
 
     const used = Number(countRow?.count ?? 0);
     // Premium/Pro = unlimited (-1); Starter = blocked (0 limit)
-    const limit = tier === "agency" || tier === "pro" ? -1 : 0;
+    const limit = tier === "authority" || tier === "pro" ? -1 : 0;
     const tierLabel =
-      tier === "agency" ? "Agency" : tier === "pro" ? "Pro" : "Starter";
+      tier === "authority" ? "Authority" : tier === "pro" ? "Pro" : "Starter";
 
     return { used, limit, tier: tierLabel };
   }),

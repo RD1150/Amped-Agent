@@ -54,7 +54,7 @@ export default function Landing() {
       tagline: "Your AI twin. Any script. Any time.",
       description:
         "Upload your photo once. Generate unlimited talking-head videos of yourself — market updates, buyer tips, listing announcements — without ever recording again.",
-      badge: "Agency",
+      badge: "Authority",
       badgeColor: "bg-amber-600 text-white",
     },
     {

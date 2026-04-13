@@ -173,7 +173,7 @@ function VideoPoolDisplay() {
   const { data: pool } = trpc.credits.getVideoPoolStatus.useQuery();
 
   if (!pool) return null;
-  if (pool.unlimited) return null; // Agency tier — no indicator needed
+  if (pool.unlimited) return null; // Authority tier — no indicator needed
 
   const remaining = pool.slotsRemaining;
   const total = pool.poolSize;
@@ -314,6 +314,7 @@ const menuSections = [
         label: "Live Tour",
         path: "/live-tour",
         description: "Record a guided room-by-room walkthrough from your phone",
+        badge: "Authority",
         hoverInfo: {
           tagline: "Walk through the property room by room and record directly in your browser.",
           details: [
@@ -334,6 +335,21 @@ const menuSections = [
             { label: "Style", value: "Vertical 9:16 with talking-head avatar overlay" },
             { label: "Best for", value: "Social media reels, market updates, quick tips" },
             { label: "Length", value: "15–60 seconds" },
+          ],
+        },
+      },
+      {
+        icon: UserCircle,
+        label: "Avatar Video",
+        path: "/full-avatar-video",
+        description: "Full talking-head video to introduce yourself to prospects",
+        badge: "Authority",
+        hoverInfo: {
+          tagline: "A full-length talking-head video where your AI avatar delivers your custom script.",
+          details: [
+            { label: "Style", value: "Landscape talking-head with branded lower-third" },
+            { label: "Best for", value: "Intro videos, market reports, testimonials" },
+            { label: "Length", value: "Up to 3 minutes" },
           ],
         },
       },
@@ -392,7 +408,7 @@ const menuSections = [
         label: "Newsletter",
         path: "/newsletter",
         description: "Email newsletters that nurture your database",
-        badge: "Agency",
+        badge: "Authority",
       },
       {
         icon: Calendar,
@@ -432,20 +448,6 @@ const menuSections = [
             { label: "Best for", value: "First buyer meetings, open house follow-ups" },
             { label: "Output", value: "12-slide deck: process, market, financing, why you" },
             { label: "Share", value: "Branded link — same as listing presentation" },
-          ],
-        },
-      },
-      {
-        icon: UserCircle,
-        label: "Avatar Video",
-        path: "/full-avatar-video",
-        description: "Full talking-head video to introduce yourself to prospects",
-        hoverInfo: {
-          tagline: "A full-length talking-head video where your AI avatar delivers your custom script.",
-          details: [
-            { label: "Style", value: "Landscape talking-head with branded lower-third" },
-            { label: "Best for", value: "Intro videos, market reports, testimonials" },
-            { label: "Length", value: "Up to 3 minutes" },
           ],
         },
       },
@@ -490,7 +492,7 @@ const menuSections = [
         label: "Lead Magnet",
         path: "/lead-magnet",
         description: "Branded PDF lead magnets for Facebook Lead Ads",
-        badge: "Agency",
+        badge: "Authority",
       },
       {
         icon: LayoutGrid,
@@ -550,7 +552,7 @@ const menuSections = [
         label: "Repurpose Engine",
         path: "/repurpose",
         description: "Write once, publish everywhere — 5 formats from 1 idea",
-        badge: "Agency",
+        badge: "Authority",
       },
       {
         icon: Upload,
@@ -581,7 +583,7 @@ const menuSections = [
         label: "Market Dominance",
         path: "/coach",
         description: "AI-generated market authority report for your farm area",
-        badge: "Agency",
+        badge: "Authority",
       },
       {
         icon: FileVideo2,

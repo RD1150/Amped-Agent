@@ -589,7 +589,7 @@ export default function HomePage() {
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-white mb-3">What's the difference between the pricing tiers?</h3>
                 <p className="text-slate-300 leading-relaxed">
-                  All tiers include the core features (content generation, templates, scheduling). Higher tiers offer more monthly posts, videos, and AI avatar minutes. Starter is perfect for solo agents, Pro for active agents, and Agency for teams or high-volume content creators.
+                  All tiers include the core features (content generation, templates, scheduling). Higher tiers offer more monthly posts, videos, and AI avatar minutes. Starter is perfect for solo agents, Pro for active agents, and Authority for top producers who want the full platform.
                 </p>
               </CardContent>
             </Card>

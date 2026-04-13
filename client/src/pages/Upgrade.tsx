@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-type Tier = "starter" | "pro" | "agency";
+type Tier = "starter" | "pro" | "authority";
 type BillingPeriod = "monthly" | "annual";
 
 interface PricingTier {
@@ -66,8 +66,8 @@ const pricingTiers: PricingTier[] = [
     ],
   },
   {
-    name: "Agency",
-    tier: "agency",
+    name: "Authority",
+    tier: "authority",
     priceMonthly: 149,
     priceAnnual: 1490,
     savings: 298,

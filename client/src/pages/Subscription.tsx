@@ -12,47 +12,43 @@ export default function Subscription() {
   const createCheckoutSession = trpc.stripe.createCheckoutSession.useMutation();
 
   const tierInfo = {
-    essential: {
-      name: "Essential",
-      price: "$59/mo",
-      yearlyPrice: "$590/yr",
-      limits: { posts: 25, videos: 10, images: 50 },
+    starter: {
+      name: "Starter",
+      price: "$79/mo",
+      yearlyPrice: "$790/yr",
+      limits: { posts: Infinity, videos: 5, images: 50 },
       features: [
-        "25 posts per month",
-        "10 property tour videos",
-        "50 AI-generated images",
+        "50 AI credits/month",
+        "Post & Blog Builder",
+        "5 property tour videos",
         "3 social media connections",
         "Email support",
       ],
     },
-    professional: {
-      name: "Professional",
-      price: "$99/mo",
-      yearlyPrice: "$990/yr",
-      limits: { posts: 100, videos: 50, images: 200 },
-      features: [
-        "100 posts per month",
-        "50 property tour videos",
-        "200 AI-generated images",
-        "Unlimited social connections",
-        "Priority support",
-        "Advanced analytics",
-      ],
-    },
-    agency: {
-      name: "Agency",
+    pro: {
+      name: "Pro",
       price: "$149/mo",
       yearlyPrice: "$1,490/yr",
+      limits: { posts: Infinity, videos: 20, images: Infinity },
+      features: [
+        "150 AI credits/month",
+        "20 AI avatar videos/month",
+        "Unlimited social connections",
+        "Market Dominance Coach",
+        "Priority support",
+      ],
+    },
+    authority: {
+      name: "Authority",
+      price: "$299/mo",
+      yearlyPrice: "$2,990/yr",
       limits: { posts: Infinity, videos: Infinity, images: Infinity },
       features: [
-        "Unlimited posts",
-        "Unlimited property tours",
-        "Unlimited AI images",
-        "Unlimited social connections",
-        "Priority support",
-        "Advanced analytics",
-        "White-label options",
-        "API access",
+        "500 AI credits/month",
+        "Unlimited avatar videos",
+        "Live Tour feature",
+        "Voice cloning",
+        "Dedicated account manager",
       ],
     },
   };
@@ -63,7 +59,7 @@ export default function Subscription() {
   const handleUpgrade = async (tier: string, billingPeriod: "monthly" | "annual") => {
     try {
       const { url } = await createCheckoutSession.mutateAsync({
-        tier: tier as "starter" | "pro" | "agency",
+        tier: tier as "starter" | "pro" | "authority",
         billingPeriod,
         successUrl: window.location.origin + "/subscription?success=true",
         cancelUrl: window.location.origin + "/subscription?canceled=true",

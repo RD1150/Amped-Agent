@@ -688,10 +688,10 @@ export const propertyToursRouter = router({
       standardLimit = 20;
       fullAiLimit = 5;
     }
-    // Professional and Agency tiers have unlimited
+    // Professional and Authority tiers have unlimited
 
     return {
-      tier: tier === "starter" ? "Starter" : tier === "pro" ? "Professional" : "Agency",
+      tier: tier === "starter" ? "Starter" : tier === "pro" ? "Professional" : "Authority",
       standardUsed,
       fullAiUsed,
       standardLimit,

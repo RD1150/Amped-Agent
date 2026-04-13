@@ -50,15 +50,15 @@ export default function FAQ() {
     },
     {
       question: "What is Newsletter Builder?",
-      answer: "Newsletter Builder is an Agency feature that gives you access to Newsletter Pro - a professional email newsletter creation tool. Design beautiful newsletters with a drag-and-drop editor, then download them to use with any email platform you already have (Mailchimp, Constant Contact, ActiveCampaign, etc.)."
+      answer: "Newsletter Builder is an Authority feature that gives you access to Newsletter Pro - a professional email newsletter creation tool. Design beautiful newsletters with a drag-and-drop editor, then download them to use with any email platform you already have (Mailchimp, Constant Contact, ActiveCampaign, etc.)."
     },
     {
       question: "How do I use newsletters with my email system?",
       answer: "It's simple! Create your newsletter in Newsletter Pro, download it as HTML or PDF, then upload it to your existing email marketing platform. This works with any CRM or email service - you're not locked into a specific system."
     },
     {
-      question: "What's included in the Agency tier?",
-      answer: "Agency ($149/month) includes everything in Professional, plus: 30 Script-to-Reel videos per month, full Newsletter Builder access, email list management tools, newsletter templates, email analytics, automated campaigns, voice cloning, multiple avatar styles, and priority support."
+      question: "What's included in the Authority tier?",
+      answer: "Authority ($299/month) includes everything in Professional, plus: 30 Script-to-Reel videos per month, full Newsletter Builder access, email list management tools, newsletter templates, email analytics, automated campaigns, voice cloning, multiple avatar styles, and priority support."
     },
     {
       question: "Do I need Newsletter Builder if I already have an email system?",

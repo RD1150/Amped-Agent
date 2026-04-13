@@ -4877,3 +4877,20 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update aspect ratio in preview card based on selected size (6/4 vs 9/6)
 - [x] Pass selected size to PDF generator so it renders at correct dimensions
 - [x] Label both sizes clearly as landscape (6w x 4h and 9w x 6h)
+
+## Sidebar Reorganization (Apr 12 2026)
+- [ ] Move Avatar Videos nav item from current section to ATTRACT section
+
+## Tier Rename & Sidebar Reorganization (Apr 12 2026)
+- [ ] Rename "Agency" tier to "Authority" everywhere (schema, pricingConstants, sidebar badges, copy)
+- [ ] Add "Pro" as middle tier between Starter and Authority
+- [ ] Move Avatar Videos from CONVERT to ATTRACT section in sidebar
+- [ ] Add Authority badge to Live Tour sidebar item
+
+## Sidebar/Display Fixes (Apr 12 2026)
+- [ ] Avatar Video still showing under CONVERT in sidebar - move to ATTRACT
+- [ ] Newsletter badge still shows "Agency" - fix to "Authority"
+- [ ] Dashboard "Current Tier: Agency" display - fix to "Authority"
+- [ ] Dashboard "Unlock AI talking-head videos with an Agency plan" - fix to "Authority plan"
+- [ ] Fix TypeScript errors in Subscription.tsx, featureGating.ts, videoUsageTracking.ts
+- [x] Remove Avatar Video duplicate entry from CONVERT section in sidebar (was never in CONVERT - was a published vs dev server issue)

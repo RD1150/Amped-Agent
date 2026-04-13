@@ -5,13 +5,13 @@
  * Pricing (updated Apr 2026):
  *   Starter  $79/mo  — solo agents, 50 credits/mo included
  *   Pro      $149/mo — active agents, 150 credits/mo included
- *   Agency   $299/mo — top producers & teams, 500 credits/mo included
+ *   Authority $299/mo — top producers & teams, 500 credits/mo included
  */
 
 export interface StripeProduct {
   name: string;
   description: string;
-  tier: "starter" | "pro" | "agency";
+  tier: "starter" | "pro" | "authority";
   priceMonthly: number; // in cents
   priceYearly: number; // in cents (2 months free = 10× monthly)
   priceIdMonthly?: string; // Will be set after creating in Stripe
@@ -123,9 +123,9 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
     ],
   },
   {
-    name: "Amped Agent Agency",
+    name: "Amped Agent Authority",
     description: "The complete authority marketing suite for top producers and teams",
-    tier: "agency",
+    tier: "authority",
     priceMonthly: 29900, // $299/month
     priceYearly: 299000, // $2,990/year (2 months free)
     priceIdMonthly: "price_1SwEl1Ig7t2mT914iDGqGZ40",
@@ -173,14 +173,14 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
 /**
  * Get product by tier
  */
-export function getProductByTier(tier: "starter" | "pro" | "agency"): StripeProduct | undefined {
+export function getProductByTier(tier: "starter" | "pro" | "authority"): StripeProduct | undefined {
   return STRIPE_PRODUCTS.find((p) => p.tier === tier);
 }
 
 /**
  * Get tier by price ID
  */
-export function getTierByPriceId(priceId: string): "starter" | "pro" | "agency" | undefined {
+export function getTierByPriceId(priceId: string): "starter" | "pro" | "authority" | undefined {
   const product = STRIPE_PRODUCTS.find(
     (p) => p.priceIdMonthly === priceId || p.priceIdYearly === priceId
   );
@@ -191,7 +191,7 @@ export function getTierByPriceId(priceId: string): "starter" | "pro" | "agency" 
  * Check if user has access to a feature based on their tier
  */
 export function hasFeatureAccess(
-  userTier: "starter" | "pro" | "agency",
+  userTier: "starter" | "pro" | "authority",
   feature: keyof StripeProduct["features"]
 ): boolean {
   const product = getProductByTier(userTier);
@@ -202,7 +202,7 @@ export function hasFeatureAccess(
 /**
  * Get video limit for a tier
  */
-export function getVideoLimit(tier: "starter" | "pro" | "agency"): number {
+export function getVideoLimit(tier: "starter" | "pro" | "authority"): number {
   const product = getProductByTier(tier);
   if (!product) return 0;
   return product.features.aiVideos;
@@ -211,7 +211,7 @@ export function getVideoLimit(tier: "starter" | "pro" | "agency"): number {
 /**
  * Get monthly credit allowance for a tier
  */
-export function getMonthlyCredits(tier: "starter" | "pro" | "agency"): number {
+export function getMonthlyCredits(tier: "starter" | "pro" | "authority"): number {
   const product = getProductByTier(tier);
   return product?.monthlyCredits ?? 0;
 }

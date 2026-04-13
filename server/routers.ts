@@ -127,7 +127,7 @@ Here is what Amped Agent offers:
 
 **Account & Billing:**
 - Credits system: each feature uses credits
-- Subscription tiers: Starter, Pro, Agency
+- Subscription tiers: Starter, Pro, Authority
 - Stripe-powered billing
 - Settings: manage profile, brand voice, integrations
 
@@ -1557,7 +1557,7 @@ Create a compelling social media post.`;
         userId: z.string().optional(),
         email: z.string().optional(),
         name: z.string().optional(),
-        tier: z.enum(["basic", "pro", "agency"]).optional(),
+        tier: z.enum(["basic", "pro", "authority"]).optional(),
         status: z.enum(["active", "cancelled", "suspended", "trial"]).optional(),
         stripeCustomerId: z.string().optional(),
         stripeSubscriptionId: z.string().optional(),
@@ -1643,7 +1643,7 @@ Create a compelling social media post.`;
         userId: z.string().optional(),
         email: z.string().optional(),
         name: z.string().optional(),
-        tier: z.enum(["basic", "pro", "agency"]).optional(),
+        tier: z.enum(["basic", "pro", "authority"]).optional(),
         status: z.enum(["active", "cancelled", "suspended", "trial"]).optional(),
         stripeCustomerId: z.string().optional(),
         stripeSubscriptionId: z.string().optional(),

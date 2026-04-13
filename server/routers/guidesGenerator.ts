@@ -7,7 +7,7 @@
  * Supports custom cover photo, CMA data, and custom notes.
  *
  * Access rules:
- *  - Agency tier: unlimited generations (no credit deduction)
+ *  - Authority tier: unlimited generations (no credit deduction)
  *  - Starter / Pro: costs GUIDE_CREDIT_COST credits per generation
  *  - Re-downloads from My Documents: always free
  */
@@ -654,7 +654,7 @@ function getChapterContent(chNum: string, isSeller: boolean, cityArea: string): 
 export const guidesGeneratorRouter = router({
   /**
    * Generate a branded Seller's Manual or Buyer's Guide PDF.
-   * Deducts credits for non-Agency users.
+   * Deducts credits for non-Authority users.
    */
   generate: protectedProcedure
     .input(GenerateGuideInputSchema)

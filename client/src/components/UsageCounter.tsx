@@ -31,7 +31,7 @@ export default function UsageCounter() {
   // Avatar video stats
   const avatarUsed = avatarUsage?.used ?? 0;
   const avatarUnlimited = (avatarUsage?.limit ?? 0) === -1;
-  const isPremiumOrPro = avatarUsage?.tier === "Agency" || avatarUsage?.tier === "Pro" || avatarUsage?.tier === "Premium";
+  const isPremiumOrPro = avatarUsage?.tier === "Authority" || avatarUsage?.tier === "Pro" || avatarUsage?.tier === "Premium";
 
   // Month name for the header
   const monthName = new Date().toLocaleString("default", { month: "long" });
@@ -54,7 +54,7 @@ export default function UsageCounter() {
               <p className="max-w-xs">
                 {tier === "Starter" && "Free trial with limited video generation. Upgrade for unlimited access."}
                 {tier === "Professional" && "Unlimited videos per month. 350 credits included."}
-                {tier === "Agency" && "Unlimited videos per month. 1000 credits included."}
+                {tier === "Authority" && "Unlimited videos per month. 1000 credits included."}
               </p>
             </TooltipContent>
           </Tooltip>
@@ -95,7 +95,7 @@ export default function UsageCounter() {
                 <span className="text-sm font-medium">Avatar Videos</span>
                 {isPremiumOrPro && (
                   <span className="text-[10px] font-semibold uppercase tracking-wide bg-primary/15 text-primary px-1.5 py-0.5 rounded-full">
-                    {avatarUsage?.tier === "Agency" ? "Agency" : "Pro"}
+                    {avatarUsage?.tier === "Authority" ? "Authority" : "Pro"}
                   </span>
                 )}
               </div>
@@ -124,7 +124,7 @@ export default function UsageCounter() {
           {!isPremiumOrPro && (
             <div className="pl-10">
               <p className="text-xs text-muted-foreground">
-                Unlock AI talking-head videos with an Agency plan
+                Unlock AI talking-head videos with an Authority plan
               </p>
             </div>
           )}
@@ -134,7 +134,7 @@ export default function UsageCounter() {
       {tier === "Starter" && (
         <div className="mt-5 p-4 bg-primary/10 rounded-lg">
           <p className="text-sm text-muted-foreground mb-3">
-            Upgrade to Professional or Agency for unlimited video generation and Avatar Videos
+            Upgrade to Pro or Authority for unlimited video generation and Avatar Videos
           </p>
           <Button
             onClick={() => setLocation("/credits")}

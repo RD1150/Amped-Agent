@@ -191,7 +191,7 @@ export default function AdminAnalytics() {
           </div>
           <div className="text-center p-4 bg-muted rounded-lg">
             <p className="text-3xl font-bold">{analytics.premiumUsers}</p>
-            <p className="text-sm text-muted-foreground">Agency ($399)</p>
+            <p className="text-sm text-muted-foreground">Authority ($299)</p>
           </div>
         </div>
         <div className="mt-4 p-4 bg-primary/10 dark:bg-primary/10 rounded-lg">

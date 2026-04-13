@@ -20,7 +20,7 @@ export const CREDIT_COSTS = {
 
 /**
  * How many free video slots each subscription tier gets per month.
- * Agency = -1 means unlimited (no pool check needed).
+ * Authority = -1 means unlimited (no pool check needed).
  */
 export const MONTHLY_POOL_SIZES: Record<string, number> = {
   starter: 10,
@@ -72,7 +72,7 @@ export const CREDIT_PACKAGES = {
     bonus: 50,
   },
   agency: {
-    name: "Agency",
+    name: "Authority",
     credits: 1000,
     price: 39900, // $399.00 in cents
     priceDisplay: "$399",
@@ -323,10 +323,10 @@ async function getUserTier(userId: number): Promise<string> {
     .where(eq(users.id, userId))
     .limit(1);
 
-  if (user?.email === "rdshop70@gmail.com") return "agency";
+  if (user?.email === "rdshop70@gmail.com") return "authority";
 
   const tier = (user?.subscriptionTier ?? "starter").toLowerCase();
-  if (tier.includes("agency")) return "agency";
+  if (tier.includes("authority")) return "authority";
   if (tier.includes("pro")) return "pro";
   return "starter";
 }
@@ -396,7 +396,7 @@ export async function checkAndDeductVideoPool(
   const slotWeight = VIDEO_SLOT_WEIGHTS[videoType] ?? 1;
   const overageCost = OVERAGE_CREDIT_COSTS[videoType] ?? 2;
 
-  // Agency = unlimited
+  // Authority = unlimited
   if (poolSize === -1) {
     return { allowed: true, chargedSlots: 0, chargedCredits: 0, usedPool: false };
   }

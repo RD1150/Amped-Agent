@@ -34,8 +34,8 @@ export const CREDIT_PRODUCTS = {
     stripePriceId: process.env.STRIPE_PRICE_PROFESSIONAL_CREDITS || "",
     popular: true,
   },
-  agency: {
-    name: "Agency Credit Package",
+  authority: {
+    name: "Authority Credit Package",
     description: "1000 credits + 200 bonus credits (1200 total)",
     credits: 1000,
     bonusCredits: 200,

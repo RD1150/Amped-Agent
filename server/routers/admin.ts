@@ -150,7 +150,7 @@ export const adminRouter = router({
     const [agencyUsersResult] = await db
       .select({ count: sql<number>`count(*)` })
       .from(users)
-      .where(eq(users.subscriptionTier, "agency"));
+      .where(eq(users.subscriptionTier, "authority"));
     const premiumUsers = agencyUsersResult?.count || 0;
 
     return {
@@ -332,7 +332,7 @@ export const adminRouter = router({
     .input(z.object({
       subject: z.string().min(1).max(200),
       message: z.string().min(1).max(5000),
-      tier: z.enum(["all", "starter", "pro", "agency"]).default("all"),
+      tier: z.enum(["all", "starter", "pro", "authority"]).default("all"),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
