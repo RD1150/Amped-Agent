@@ -4942,3 +4942,4 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Post-trial conversion modal when trial expires on dashboard
 - [x] trialSource field in DB schema, captured on checkout, shown in admin analytics
 - [x] Move Lead Magnets sidebar nav item into the Attract section
+- [x] Fix Avatar Video keyPoints field 1000-char validation error on market update script generation

@@ -78,7 +78,7 @@ export const fullAvatarVideoRouter = router({
           "open_house",
           "custom",
         ]),
-        keyPoints: z.string().max(1000),
+        keyPoints: z.string().max(5000),
         agentName: z.string().optional(),
         targetLength: z.enum(["30s", "60s", "90s", "2min"]).default("60s"),
         city: z.string().optional(), // For market_update: pull live market data
