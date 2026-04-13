@@ -471,6 +471,21 @@ const menuSections = [
         description: "Re-download your generated guides anytime",
       },
       {
+        icon: Mail,
+        label: "Prospecting Letters",
+        path: "/prospecting-letters",
+        description: "AI-crafted letters for every situation — FSBO, expired, pre-foreclosure, divorce, and more",
+        hoverInfo: {
+          tagline: "Generate empathetic, tone-aware prospecting letters for every situation — from FSBO and expired listings to pre-foreclosure and divorce. Personalized to your brand, editable before sending.",
+          details: [
+            { label: "Letter types", value: "14 types across 4 categories" },
+            { label: "Tone", value: "Empathetic for distressed, confident for listings, warm for referrals" },
+            { label: "Output", value: "Editable full letter — copy or download as .txt" },
+            { label: "Personalized", value: "Auto-filled with your name, phone, email, and brokerage" },
+          ],
+        },
+      },
+      {
         icon: Gift,
         label: "Lead Magnet",
         path: "/lead-magnet",

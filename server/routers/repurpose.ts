@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import * as db from "../db";
+import { generatePostcardPdf } from "./postcardPdf";
 
 /**
  * Auto-Repurpose Engine Router
@@ -152,6 +153,36 @@ ${selectedSchemas}
         reelScript: parsed.reelScript || null,
         postcard: parsed.postcard || null,
       };
+    }),
+
+  /**
+   * Generate a print-ready 4x6 postcard PDF from postcard content.
+   */
+  generatePostcardPdf: protectedProcedure
+    .input(
+      z.object({
+        headline: z.string().min(3),
+        subheadline: z.string().optional(),
+        backBody: z.string().min(10),
+        cta: z.string().min(3),
+        agentTagline: z.string().min(3),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const persona = await db.getPersonaByUserId(ctx.user.id);
+      const agent = {
+        agentName: persona?.agentName || ctx.user.name || "Agent",
+        brokerageName: persona?.brokerageName || persona?.brokerage || undefined,
+        phoneNumber: persona?.phoneNumber || undefined,
+        websiteUrl: persona?.websiteUrl || undefined,
+        bookingUrl: persona?.bookingUrl || undefined,
+        headshotUrl: persona?.headshotUrl || undefined,
+        logoUrl: persona?.logoUrl || undefined,
+        primaryCity: persona?.primaryCity || undefined,
+        primaryColor: persona?.primaryColor || undefined,
+      };
+      const url = await generatePostcardPdf(input, agent, ctx.user.id);
+      return { url };
     }),
 
   /**

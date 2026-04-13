@@ -44,6 +44,7 @@ import { generationFeedbackRouter } from "./routers/generationFeedback";
 import { getStartedRouter } from "./routers/getStarted";
 import { referralRouter } from "./routers/referral";
 import { guidesGeneratorRouter } from "./routers/guidesGenerator";
+import { prospectingLettersRouter } from "./routers/prospectingLetters";
 
 export const appRouter = router({
   system: systemRouter,
@@ -74,6 +75,7 @@ export const appRouter = router({
   getStarted: getStartedRouter,
   referral: referralRouter,
   guidesGenerator: guidesGeneratorRouter,
+  prospectingLetters: prospectingLettersRouter,
 
   support: router({
     chat: publicProcedure
@@ -2087,6 +2089,71 @@ Score criteria:
 
         return analysis;
       }),
+
+    getActivitySummary: protectedProcedure.query(async ({ ctx }) => {
+      const dbInst = await db.getDb();
+      if (!dbInst) return {
+        postsLast30: 0, videosLast30: 0, blogsLast30: 0,
+        totalPosts: 0, totalVideos: 0, totalBlogs: 0,
+        profileScore: 0, creditBalance: 0, subscriptionTier: 'free',
+        agentName: 'Agent', primaryCity: null,
+        hasHeadshot: false, hasBio: false, hasBookingUrl: false,
+      };
+      const { eq, desc } = await import('drizzle-orm');
+      const schema = await import('../drizzle/schema');
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const [persona, contentPostsRows, videosRows, blogPostsRows, userRows] = await Promise.all([
+        db.getPersonaByUserId(ctx.user.id),
+        dbInst.select({ id: schema.contentPosts.id, aiGenerated: schema.contentPosts.aiGenerated, createdAt: schema.contentPosts.createdAt })
+          .from(schema.contentPosts)
+          .where(eq(schema.contentPosts.userId, ctx.user.id))
+          .orderBy(desc(schema.contentPosts.createdAt))
+          .limit(100),
+        dbInst.select({ id: schema.generatedVideos.id, type: schema.generatedVideos.type, status: schema.generatedVideos.status, createdAt: schema.generatedVideos.createdAt })
+          .from(schema.generatedVideos)
+          .where(eq(schema.generatedVideos.userId, ctx.user.id))
+          .orderBy(desc(schema.generatedVideos.createdAt))
+          .limit(50),
+        dbInst.select({ id: schema.blogPosts.id, createdAt: schema.blogPosts.createdAt })
+          .from(schema.blogPosts)
+          .where(eq(schema.blogPosts.userId, ctx.user.id))
+          .orderBy(desc(schema.blogPosts.createdAt))
+          .limit(50),
+        dbInst.select({ creditBalance: schema.users.creditBalance, subscriptionTier: schema.users.subscriptionTier, name: schema.users.name })
+          .from(schema.users)
+          .where(eq(schema.users.id, ctx.user.id))
+          .limit(1),
+      ]);
+      // 30-day counts
+      const postsLast30 = contentPostsRows.filter(p => new Date(p.createdAt) >= thirtyDaysAgo).length;
+      const videosLast30 = videosRows.filter(v => new Date(v.createdAt) >= thirtyDaysAgo).length;
+      const blogsLast30 = blogPostsRows.filter(b => new Date(b.createdAt) >= thirtyDaysAgo).length;
+      // Profile completion score
+      const p = persona;
+      const profileFields = [
+        !!p?.agentName, !!p?.headshotUrl, !!p?.brokerageName, !!p?.phoneNumber,
+        !!p?.websiteUrl, !!p?.bio, !!p?.primaryCity, !!p?.tagline,
+        !!p?.targetAudience, !!p?.logoUrl,
+      ];
+      const profileScore = Math.round((profileFields.filter(Boolean).length / profileFields.length) * 100);
+      const userRow = userRows[0];
+      return {
+        postsLast30,
+        videosLast30,
+        blogsLast30,
+        totalPosts: contentPostsRows.length,
+        totalVideos: videosRows.length,
+        totalBlogs: blogPostsRows.length,
+        profileScore,
+        creditBalance: userRow?.creditBalance ?? 0,
+        subscriptionTier: userRow?.subscriptionTier || 'free',
+        agentName: userRow?.name || p?.agentName || 'Agent',
+        primaryCity: p?.primaryCity || null,
+        hasHeadshot: !!p?.headshotUrl,
+        hasBio: !!p?.bio,
+        hasBookingUrl: !!p?.bookingUrl,
+      };
+    }),
 
     dominanceChat: protectedProcedure
       .input(z.object({

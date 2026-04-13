@@ -4814,3 +4814,55 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Postcard output in Repurpose Engine - frontend platform toggle + output card + backend LLM generation
 - [x] Pricing page copy updated - full platform positioning headline, tier descriptions include Market Dominance Coach and Repurpose Engine
 - [x] Getting Started sidebar checklist - collapsible widget showing Authority Profile, subscription, and social connection status; auto-hides when all done
+
+## Postcard PDF Generator (Apr 2026)
+- [ ] Add qrcode npm package for QR code generation
+- [ ] Build server-side postcard PDF generator using PDFKit (4x6 print-ready, 300dpi)
+- [ ] Front: headline + hero image (agent headshot or property photo) + agent name/brokerage
+- [ ] Back: postcard message body + CTA + agent contact info + QR code linking to booking URL
+- [ ] Add tRPC procedure: repurpose.generatePostcardPdf (takes postcard content + agent profile)
+- [ ] Add Download PDF button to postcard output card in RepurposeEngine
+- [ ] Store generated PDF in S3 and return URL for download
+
+## Market Dominance Coach Activity Context Panel (Apr 2026)
+- [ ] Build getAgentActivitySummary DB helper (last 30 days: videos, posts, blog posts, credits used, profile completion %)
+- [ ] Add coach.getActivitySummary tRPC procedure
+- [ ] Add collapsible "Your Activity Summary" panel in Strategy Chat tab
+- [ ] Show: posts created, videos generated, blog posts, credits used, profile score, top city
+- [ ] Pass activity summary into the LLM system prompt for context-aware coaching
+
+## Branded Guide Generator - Seller's Manual + Buyer's Guide (Apr 2026)
+- [ ] Add generated_guides DB table (user_id, guide_type, client_name, property_address, cover_photo_url, pdf_url, created_at)
+- [ ] Run pnpm db:push to apply schema
+- [ ] Build PDF generation engine using PDFKit that merges agent profile data into guide template
+- [ ] Build /guide-generator page with form (guide type, client name, property/area, cover photo)
+- [ ] Auto-fill from Authority Profile (name, photo, logo, brokerage, phone, cities)
+- [ ] Add hyperlocal market data section (auto-pulled from Market Insights by city)
+- [ ] Add guide generator to CONVERT section in sidebar nav
+- [ ] Build /my-documents page listing all generated guides with re-download
+- [ ] Add credit cost: 5 credits per guide generation
+
+## Prospecting Letter Studio (Apr 2026)
+- [ ] Build /prospecting-letters page in CONVERT section
+- [ ] Add 14 letter types: FSBO, Expired Listing, Withdrawn Listing, Pre-Foreclosure, Foreclosure, Divorce, Probate/Estate, Just Listed, Just Sold, Circle Prospecting, Absentee Owner, New to Neighborhood, Past Client Check-in, Open House Follow-up
+- [ ] Write empathetic, tone-aware AI system prompts per letter type (not generic)
+- [ ] Situation input fields: owner name, property address, city, custom context notes
+- [ ] Editable output with inline text editing, copy, and print/download options
+- [ ] Add tRPC procedure: letters.generate
+- [ ] Add route /prospecting-letters and sidebar nav item in CONVERT section
+- [ ] Auto-fill agent signature block from Authority Profile
+
+## Bug: Live Tour Video Assembly Failure
+- [x] Diagnose "failed to start video assembly" error in Live Tour
+- [x] Check liveTourJobs router for assembly logic and error handling
+- [x] Fix: allow retry from failed state, handle already-processing gracefully
+- [x] Fix: surface actual error message instead of generic toast
+- [x] Fix: show specific message when no clips were saved to server
+
+## Session: Apr 12 2026 — Prospecting Letter Studio + Bug Fixes
+- [x] Fix Live Tour "failed to start video assembly" — allow retry from failed/processing state
+- [x] Surface actual server error message instead of generic toast
+- [x] Add Market Dominance Coach activity context panel (live data from getActivitySummary)
+- [x] Build Prospecting Letter Studio — 14 letter types, 4 categories, tone-aware AI prompts
+- [x] Add Prospecting Letters to CONVERT section in sidebar
+- [x] Register /prospecting-letters route in App.tsx

@@ -174,7 +174,16 @@ export const liveTourRouter = router({
         .limit(1);
 
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
-      if (job.status !== "recording") {
+      // If already processing, return early so client can poll
+      if (job.status === "processing") {
+        return { ok: true, status: "processing" as const };
+      }
+      // If completed, return early
+      if (job.status === "completed") {
+        return { ok: true, status: "completed" as const };
+      }
+      // Allow retry from failed state; only block on unexpected states
+      if (job.status !== "recording" && job.status !== "failed") {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Job is not in recording state" });
       }
 

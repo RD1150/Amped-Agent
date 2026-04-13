@@ -23,6 +23,7 @@ import {
   Clapperboard,
   ChevronDown,
   ChevronUp,
+  Download,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -345,6 +346,15 @@ function ReelScriptCard({ data }: { data: NonNullable<RepurposeResult["reelScrip
 function PostcardCard({ data }: { data: NonNullable<RepurposeResult["postcard"]> }) {
   const frontText = `${data.headline}${data.subheadline ? '\n' + data.subheadline : ''}`;
   const backText = `${data.backBody}\n\n${data.cta}\n\n${data.agentTagline}`;
+  const generatePdf = trpc.repurpose.generatePostcardPdf.useMutation({
+    onSuccess: (result) => {
+      window.open(result.url, "_blank");
+      toast.success("Postcard PDF ready! Opening download in new tab.");
+    },
+    onError: (err) => {
+      toast.error("PDF generation failed: " + err.message);
+    },
+  });
   return (
     <div className="space-y-4">
       {/* Front of Postcard Preview */}
@@ -379,8 +389,28 @@ function PostcardCard({ data }: { data: NonNullable<RepurposeResult["postcard"]>
           <CopyButton text={backText} label="Copy Back" />
         </div>
       </div>
-      <div className="rounded-lg bg-muted/50 border border-border px-4 py-3">
-        <p className="text-xs text-muted-foreground">📬 <strong>Print tip:</strong> This copy is sized for a standard 4×6 or 6×9 postcard. Use a service like VistaPrint, Canva, or PostcardMania to design and print.</p>
+      {/* Download PDF button */}
+      <div className="flex items-center justify-between rounded-lg bg-muted/50 border border-border px-4 py-3">
+        <p className="text-xs text-muted-foreground">📬 <strong>Print tip:</strong> Download a print-ready 4×6 PDF with your agent branding and QR code.</p>
+        <Button
+          size="sm"
+          variant="outline"
+          className="ml-3 shrink-0 gap-1.5 text-xs border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
+          disabled={generatePdf.isPending}
+          onClick={() => generatePdf.mutate({
+            headline: data.headline,
+            subheadline: data.subheadline || undefined,
+            backBody: data.backBody,
+            cta: data.cta,
+            agentTagline: data.agentTagline,
+          })}
+        >
+          {generatePdf.isPending ? (
+            <><Loader2 className="w-3 h-3 animate-spin" /> Generating...</>
+          ) : (
+            <><Download className="w-3 h-3" /> Download PDF</>
+          )}
+        </Button>
       </div>
     </div>
   );

@@ -105,6 +105,8 @@ export default function PerformanceCoach() {
     },
   });
 
+  const activitySummary = trpc.coach.getActivitySummary.useQuery();
+
   const dominanceChat = trpc.coach.dominanceChat.useMutation({
     onSuccess: (data) => {
       const reply = typeof data.reply === 'string' ? data.reply : '';
@@ -388,14 +390,61 @@ export default function PerformanceCoach() {
                 </div>
               </Card>
 
-              <Card className="p-5 bg-primary/5 border-primary/20">
-                <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-primary" />
-                  How this works
+              <Card className="p-5">
+                <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  Your Activity Summary
+                  <Badge variant="outline" className="ml-auto text-xs">Last 30 days</Badge>
                 </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Your coach automatically reviews your last 30 days of activity — videos created, guides generated, presentations built, credits used, and your subscription tier — then gives you advice that's specific to <em>you</em>, not generic tips.
-                </p>
+                {activitySummary.isLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                ) : activitySummary.data ? (
+                  <div className="space-y-3">
+                    {/* Profile Score */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-muted-foreground">Authority Profile</span>
+                        <span className="text-xs font-semibold">{activitySummary.data.profileScore}%</span>
+                      </div>
+                      <Progress value={activitySummary.data.profileScore} className="h-1.5" />
+                    </div>
+                    {/* Activity Stats */}
+                    <div className="grid grid-cols-3 gap-2 pt-1">
+                      <div className="text-center rounded-lg bg-muted/50 px-2 py-2">
+                        <div className="text-lg font-bold text-foreground">{activitySummary.data.postsLast30}</div>
+                        <div className="text-[10px] text-muted-foreground leading-tight">Posts</div>
+                      </div>
+                      <div className="text-center rounded-lg bg-muted/50 px-2 py-2">
+                        <div className="text-lg font-bold text-foreground">{activitySummary.data.videosLast30}</div>
+                        <div className="text-[10px] text-muted-foreground leading-tight">Videos</div>
+                      </div>
+                      <div className="text-center rounded-lg bg-muted/50 px-2 py-2">
+                        <div className="text-lg font-bold text-foreground">{activitySummary.data.blogsLast30}</div>
+                        <div className="text-[10px] text-muted-foreground leading-tight">Blogs</div>
+                      </div>
+                    </div>
+                    {/* Credits + Tier */}
+                    <div className="flex items-center justify-between pt-1 border-t border-border">
+                      <span className="text-xs text-muted-foreground">Credits remaining</span>
+                      <span className="text-xs font-semibold text-primary">{activitySummary.data.creditBalance.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Plan</span>
+                      <Badge variant="outline" className="text-xs capitalize">{activitySummary.data.subscriptionTier}</Badge>
+                    </div>
+                    {/* Quick gaps */}
+                    {(!activitySummary.data.hasHeadshot || !activitySummary.data.hasBio || !activitySummary.data.hasBookingUrl) && (
+                      <div className="pt-1 border-t border-border">
+                        <p className="text-[10px] text-amber-600 font-medium mb-1">Profile gaps your coach sees:</p>
+                        {!activitySummary.data.hasHeadshot && <p className="text-[10px] text-muted-foreground">· No headshot uploaded</p>}
+                        {!activitySummary.data.hasBio && <p className="text-[10px] text-muted-foreground">· No bio written</p>}
+                        {!activitySummary.data.hasBookingUrl && <p className="text-[10px] text-muted-foreground">· No booking link set</p>}
+                      </div>
+                    )}
+                  </div>
+                ) : null}
               </Card>
             </div>
           </div>

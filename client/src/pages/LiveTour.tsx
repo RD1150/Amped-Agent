@@ -342,8 +342,17 @@ export default function LiveTour() {
       stopCamera();
       await assembleMutation.mutateAsync({ jobId: jobId! });
       setPhase("processing");
-    } catch {
-      toast.error("Failed to start video assembly. Please try again.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      // If job was already moved to processing (retry scenario), just show processing view
+      if (msg.includes("recording state") || msg.includes("BAD_REQUEST")) {
+        toast.info("Assembly already in progress — checking status...");
+        setPhase("processing");
+      } else if (msg.includes("No clips recorded")) {
+        toast.error("No clips were saved to the server. Please re-record and accept each room clip before assembling.");
+      } else {
+        toast.error("Assembly failed: " + msg);
+      }
     }
   };
 
