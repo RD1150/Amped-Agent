@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Sparkles, Zap, Crown, ArrowRight, Shield } from "lucide-react";
+import { Check, Sparkles, Zap, Crown, ArrowRight, Shield, Clock, Star, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 type Tier = "starter" | "pro" | "authority";
@@ -89,9 +90,92 @@ const pricingTiers: PricingTier[] = [
   },
 ];
 
+/**
+ * Onboarding welcome hero shown to new users who have never started a trial.
+ * Prominently highlights the 14-day free trial with a single CTA.
+ */
+function OnboardingWelcomeHero({
+  onStartTrial,
+  isLoading,
+}: {
+  onStartTrial: () => void;
+  isLoading: boolean;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-background to-primary/10 p-8 md:p-12 mb-12 text-center">
+      {/* Decorative background glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-primary/10 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative">
+        <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 text-sm font-medium text-primary mb-6">
+          <Star className="h-3.5 w-3.5" />
+          Welcome to Amped Agent
+        </div>
+
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
+          Your 14-Day Free Trial<br />
+          <span className="text-primary">Starts Now</span>
+        </h1>
+
+        <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8">
+          Get full <strong className="text-foreground">Authority tier access</strong> — every feature, no limits.
+          Card required. Cancel anytime before Day 14 and you won't be charged.
+        </p>
+
+        {/* Trust signals */}
+        <div className="flex flex-wrap items-center justify-center gap-6 mb-10 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-4 w-4 text-primary" />
+            <span>14 days free</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Shield className="h-4 w-4 text-primary" />
+            <span>Cancel anytime</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Crown className="h-4 w-4 text-primary" />
+            <span>Full Authority access</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Users className="h-4 w-4 text-primary" />
+            <span>Trusted by 1,200+ agents</span>
+          </div>
+        </div>
+
+        <Button
+          size="lg"
+          onClick={onStartTrial}
+          disabled={isLoading}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-6 text-lg font-semibold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
+        >
+          {isLoading ? "Redirecting to Stripe..." : (
+            <>
+              Start My Free 14-Day Trial
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </>
+          )}
+        </Button>
+
+        <p className="text-xs text-muted-foreground mt-4">
+          After 14 days, you'll be billed $149/month. Cancel before Day 14 to avoid any charge.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function Upgrade() {
+  const { user } = useAuth();
   const [loadingTier, setLoadingTier] = useState<Tier | null>(null);
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
+
+  // A "new user" is someone who has never started a trial and has no active subscription
+  const isNewUser =
+    user &&
+    (user as any).subscriptionStatus === "inactive" &&
+    !(user as any).trialEndsAt;
 
   const createCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation({
     onSuccess: (data) => {
@@ -117,6 +201,14 @@ export default function Upgrade() {
     },
   });
 
+  const handleStartTrial = async () => {
+    setLoadingTier("authority");
+    await createTrialMutation.mutateAsync({
+      successUrl: `${window.location.origin}/?upgrade=success`,
+      cancelUrl: `${window.location.origin}/upgrade?canceled=true`,
+    });
+  };
+
   const handleUpgrade = async (tier: Tier) => {
     setLoadingTier(tier);
     if (tier === 'authority' && billingPeriod === 'monthly') {
@@ -137,8 +229,18 @@ export default function Upgrade() {
 
   return (
     <div className="container mx-auto py-12 px-4">
+      {/* Onboarding welcome hero for brand-new users */}
+      {isNewUser && (
+        <OnboardingWelcomeHero
+          onStartTrial={handleStartTrial}
+          isLoading={loadingTier === "authority" && createTrialMutation.isPending}
+        />
+      )}
+
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
+        <h1 className="text-4xl font-bold mb-4">
+          {isNewUser ? "Or Choose a Plan Directly" : "Choose Your Plan"}
+        </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
           14-day free trial, full Authority access. Card required. Cancel anytime.
         </p>

@@ -120,7 +120,7 @@ export default function AdminUsers() {
       toast.error("No users to export.");
       return;
     }
-    const headers = ["ID", "Name", "Email", "Role", "Tier", "Status", "Signed Up", "Last Active", "Login Method"];
+    const headers = ["ID", "Name", "Email", "Role", "Tier", "Status", "Trial Ends", "Signed Up", "Last Active", "Login Method"];
     const rows = result.users.map((u) => [
       u.id,
       u.name ?? "",
@@ -128,6 +128,7 @@ export default function AdminUsers() {
       u.role ?? "",
       u.subscriptionTier ?? "",
       u.subscriptionStatus ?? "",
+      (u as any).trialEndsAt ? new Date((u as any).trialEndsAt).toISOString() : "",
       u.createdAt ? new Date(u.createdAt).toISOString() : "",
       u.lastSignedIn ? new Date(u.lastSignedIn).toISOString() : "",
       u.loginMethod ?? "",
@@ -241,6 +242,7 @@ export default function AdminUsers() {
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">Email</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">Tier</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Trial Ends</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">Signed Up</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">Last Active</th>
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">Login</th>
@@ -274,6 +276,19 @@ export default function AdminUsers() {
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[u.subscriptionStatus ?? "inactive"] ?? STATUS_COLORS.inactive}`}>
                             {u.subscriptionStatus ?? "inactive"}
                           </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          {(u as any).trialEndsAt ? (
+                            <span className={`text-xs ${
+                              new Date((u as any).trialEndsAt) < new Date()
+                                ? 'text-red-500'
+                                : new Date((u as any).trialEndsAt).getTime() - Date.now() < 3 * 24 * 60 * 60 * 1000
+                                  ? 'text-amber-500 font-medium'
+                                  : 'text-muted-foreground'
+                            }`}>
+                              {new Date((u as any).trialEndsAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </span>
+                          ) : <span className="text-xs text-muted-foreground">—</span>}
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">{formatDate(u.createdAt)}</td>
                         <td className="px-4 py-3 text-muted-foreground">{timeAgo(u.lastSignedIn)}</td>

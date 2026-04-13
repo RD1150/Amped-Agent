@@ -4923,3 +4923,16 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Update all test files to include subscriptionStatus: "active" in mock users
 - [x] Update featureGating.test.ts to test Stripe-backed trial logic
 - [x] All 561 tests passing, TypeScript clean
+
+## Follow-up Features (Apr 2026)
+
+- [ ] Trial-ending email notification 3 days before trialEndsAt (scheduled job or cron)
+- [ ] Onboarding gate for new users with trial CTA (redirect to /upgrade if no trial/subscription)
+- [ ] Admin analytics trial/conversion columns (subscriptionStatus, trialEndsAt, subscriptionTier per user)
+
+## Follow-up Features (Apr 2026)
+- [x] Trial-ending email notification job (3 days before trialEndsAt via node-cron)
+- [x] Onboarding gate for new users - welcome hero on Upgrade page with trial CTA
+- [x] Admin Analytics: Trial Conversion Funnel panel (Active Trials, Ending Soon, Converted, Churned, conversion rate bar)
+- [x] Admin Users: trialEndsAt column with color-coded urgency (amber ≤3 days, red = expired)
+- [x] Admin Users: trialEndsAt included in CSV export

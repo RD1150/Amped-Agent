@@ -10,6 +10,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import uploadEndpoint from "../uploadEndpoint";
 import { recoverStuckCinematicJobs } from "../routers/cinematicWalkthrough";
+import { registerTrialNotificationJob } from "../jobs/trialNotifications";
 import { getDb } from "../db";
 import { listingPresentations } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -553,6 +554,8 @@ async function startServer() {
         console.error("[Startup Recovery] Unexpected error:", err)
       );
     }, 5000);
+    // Register daily trial notification cron job
+    registerTrialNotificationJob();
   });
 }
 

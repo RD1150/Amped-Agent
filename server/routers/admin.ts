@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "../db";
 import { users, propertyTours, creditTransactions, apiUsageLogs } from "../../drizzle/schema";
-import { sql, eq, and, gte, desc } from "drizzle-orm";
+import { sql, eq, and, gte, lte, desc, isNotNull } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { notifyOwner } from "../_core/notification";
 
@@ -153,6 +153,57 @@ export const adminRouter = router({
       .where(eq(users.subscriptionTier, "authority"));
     const premiumUsers = agencyUsersResult?.count || 0;
 
+    // Trial conversion metrics
+    const [trialingUsersResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(eq(users.subscriptionStatus, "trialing"));
+    const trialingUsers = trialingUsersResult?.count || 0;
+
+    // Users whose trial ends in the next 3 days (at-risk of churning)
+    const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+    const [trialEndingSoonResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(
+        and(
+          eq(users.subscriptionStatus, "trialing"),
+          isNotNull(users.trialEndsAt),
+          lte(users.trialEndsAt, threeDaysFromNow),
+          gte(users.trialEndsAt, now)
+        )
+      );
+    const trialEndingSoon = trialEndingSoonResult?.count || 0;
+
+    // Users who converted from trial to active (have trialEndsAt set AND are now active)
+    const [convertedFromTrialResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(
+        and(
+          eq(users.subscriptionStatus, "active"),
+          isNotNull(users.trialEndsAt)
+        )
+      );
+    const convertedFromTrial = convertedFromTrialResult?.count || 0;
+
+    // Users who had a trial but are now inactive (churned)
+    const [churnedAfterTrialResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(
+        and(
+          eq(users.subscriptionStatus, "inactive"),
+          isNotNull(users.trialEndsAt)
+        )
+      );
+    const churnedAfterTrial = churnedAfterTrialResult?.count || 0;
+
+    const totalTrialUsers = trialingUsers + convertedFromTrial + churnedAfterTrial;
+    const trialConversionRate = totalTrialUsers > 0
+      ? Math.round((convertedFromTrial / totalTrialUsers) * 100)
+      : 0;
+
     return {
       totalUsers,
       newUsersToday,
@@ -168,6 +219,12 @@ export const adminRouter = router({
       freeUsers,
       proUsers,
       premiumUsers,
+      // Trial conversion metrics
+      trialingUsers,
+      trialEndingSoon,
+      convertedFromTrial,
+      churnedAfterTrial,
+      trialConversionRate,
     };
   }),
 
@@ -258,6 +315,7 @@ export const adminRouter = router({
           role: users.role,
           subscriptionTier: users.subscriptionTier,
           subscriptionStatus: users.subscriptionStatus,
+          trialEndsAt: users.trialEndsAt,
           createdAt: users.createdAt,
           lastSignedIn: users.lastSignedIn,
           loginMethod: users.loginMethod,
@@ -316,6 +374,7 @@ export const adminRouter = router({
         role: users.role,
         subscriptionTier: users.subscriptionTier,
         subscriptionStatus: users.subscriptionStatus,
+        trialEndsAt: users.trialEndsAt,
         createdAt: users.createdAt,
         lastSignedIn: users.lastSignedIn,
         loginMethod: users.loginMethod,
