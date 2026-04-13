@@ -1,11 +1,12 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { getDb } from "../db";
+import { getDb, promoteUserToAdmin } from "../db";
 import { users, propertyTours, creditTransactions, apiUsageLogs, inviteCodes } from "../../drizzle/schema";
 import { sql, eq, and, gte, lte, desc, isNotNull } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { notifyOwner } from "../_core/notification";
+import { ENV } from "../_core/env";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -513,4 +514,65 @@ export const adminRouter = router({
       await db.delete(inviteCodes).where(eq(inviteCodes.id, input.id));
       return { success: true };
     }),
+
+  /**
+   * Promote any user to admin by user ID (admin only).
+   */
+  promoteUserToAdmin: adminProcedure
+    .input(z.object({ userId: z.number().int() }))
+    .mutation(async ({ input }) => {
+      await promoteUserToAdmin(input.userId);
+      return { success: true };
+    }),
+
+  /**
+   * List all users with basic info (admin only).
+   */
+  listUsers: adminProcedure
+    .input(z.object({
+      limit: z.number().int().min(1).max(200).default(50),
+      offset: z.number().int().min(0).default(0),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const rows = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          role: users.role,
+          subscriptionTier: users.subscriptionTier,
+          subscriptionStatus: users.subscriptionStatus,
+          createdAt: users.createdAt,
+          lastSignedIn: users.lastSignedIn,
+        })
+        .from(users)
+        .orderBy(desc(users.createdAt))
+        .limit(input.limit)
+        .offset(input.offset);
+      return rows;
+    }),
+});
+
+/**
+ * ownerRouter — procedures that only the platform owner can call,
+ * even before they have the admin role in the database.
+ * Used for the one-time self-promotion flow.
+ */
+export const ownerRouter = router({
+  /**
+   * Promote the calling user to admin.
+   * Only works if the caller's openId matches OWNER_OPEN_ID env var.
+   */
+  selfPromoteToAdmin: protectedProcedure.mutation(async ({ ctx }) => {
+    if (!ENV.ownerOpenId || ctx.user.openId !== ENV.ownerOpenId) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Only the platform owner can use this action." });
+    }
+    if (ctx.user.role === "admin") {
+      return { success: true, alreadyAdmin: true };
+    }
+    await promoteUserToAdmin(ctx.user.id);
+    return { success: true, alreadyAdmin: false };
+  }),
 });

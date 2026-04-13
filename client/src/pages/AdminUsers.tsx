@@ -100,6 +100,14 @@ export default function AdminUsers() {
     },
   });
 
+  const promoteToAdminMutation = trpc.admin.promoteUserToAdmin.useMutation({
+    onSuccess: () => {
+      toast.success("User promoted to admin.");
+      utils.admin.getAllUsers.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
   const blastMutation = trpc.admin.emailBlast.useMutation({
     onSuccess: (result) => {
       toast.success(`Notification sent to ${result.sent} user${result.sent !== 1 ? "s" : ""}.`);
@@ -294,20 +302,33 @@ export default function AdminUsers() {
                         <td className="px-4 py-3 text-muted-foreground">{timeAgo(u.lastSignedIn)}</td>
                         <td className="px-4 py-3 text-muted-foreground capitalize">{u.loginMethod ?? "—"}</td>
                         <td className="px-4 py-3">
-                          {u.role !== "admin" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="gap-1.5 text-xs h-7"
-                              onClick={() => {
-                                setImpersonateTarget({ id: u.id, name: u.name, email: u.email });
-                                setImpersonateConfirmOpen(true);
-                              }}
-                            >
-                              <LogIn className="h-3 w-3" />
-                              Impersonate
-                            </Button>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {u.role !== "admin" && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1.5 text-xs h-7"
+                                onClick={() => {
+                                  setImpersonateTarget({ id: u.id, name: u.name, email: u.email });
+                                  setImpersonateConfirmOpen(true);
+                                }}
+                              >
+                                <LogIn className="h-3 w-3" />
+                                Impersonate
+                              </Button>
+                            )}
+                            {u.role !== "admin" && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1.5 text-xs h-7 border-amber-500/40 text-amber-600 hover:bg-amber-500/10"
+                                onClick={() => promoteToAdminMutation.mutate({ userId: u.id })}
+                                disabled={promoteToAdminMutation.isPending}
+                              >
+                                Make Admin
+                              </Button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}

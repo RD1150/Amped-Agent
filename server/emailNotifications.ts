@@ -1,3 +1,12 @@
+/**
+ * emailNotifications.ts — delegates all user-facing emails to emailService (Resend).
+ * Existing call-sites are preserved; only the implementation changes.
+ */
+import {
+  sendEmail,
+  sendTrialExpiryWarning as _sendTrialExpiry,
+  sendLowCreditsWarning,
+} from "./emailService";
 import { notifyOwner } from "./_core/notification";
 
 interface EmailNotificationParams {
@@ -11,114 +20,70 @@ interface EmailNotificationParams {
   daysRemaining?: number;
 }
 
-/**
- * Send email notification to user
- * Currently uses owner notification system as a fallback
- * TODO: Integrate with SendGrid or similar email service
- */
 export async function sendEmailNotification(params: EmailNotificationParams): Promise<boolean> {
-  const { userEmail, userName, type, creditsRemaining, poolSize, overageCost } = params;
+  const { userEmail, userName, type } = params;
 
-  let title = "";
-  let content = "";
+  if (type === "trial_expiry_warning") {
+    return _sendTrialExpiry({
+      userName,
+      userEmail,
+      daysRemaining: params.daysRemaining ?? 3,
+      trialEndsAt: params.trialEndsAt ?? new Date(Date.now() + 3 * 86400000),
+    });
+  }
+
+  if (type === "low_credits") {
+    return sendLowCreditsWarning({
+      userName,
+      userEmail,
+      creditsRemaining: params.creditsRemaining ?? 0,
+    });
+  }
 
   if (type === "rate_limit") {
-    title = "Daily Video Limit Reached";
-    content = `Hi ${userName},\n\nYou've reached your daily limit of 10 property tour videos. This limit resets at midnight UTC.\n\nUpgrade to Professional or Authority tier for unlimited video generation!\n\nVisit https://authoritycontent.co/credits to upgrade.\n\nBest regards,\nAmped Agent Team`;
-  } else if (type === "low_credits") {
-    title = "Low Credits Warning";
-    content = `Hi ${userName},\n\nYour credit balance is running low. You currently have ${creditsRemaining} credits remaining.\n\nPurchase more credits to continue creating amazing property tour videos:\n- Starter: $49 for 100 credits\n- Professional: $149 for 350 credits\n- Authority: $299 for 500 credits\n\nVisit https://authoritycontent.co/credits to purchase.\n\nBest regards,\nAmped Agent Team`;
-  } else if (type === "pool_exhausted") {
-    title = "Monthly Free Video Pool Exhausted";
-    content = `Hi ${userName},\n\nYou've used all ${poolSize ?? 0} of your free videos for this month. Your pool resets in 30 days.\n\nTo keep generating videos right now, add credits to your account — each additional video costs just ${overageCost ?? 2} credits.\n\nVisit https://authoritycontent.co/credits to add credits.\n\nBest regards,\nAmped Agent Team`;
-  } else if (type === "trial_expiry_warning") {
-    const days = params.daysRemaining ?? 3;
-    const expiryDate = params.trialEndsAt
-      ? params.trialEndsAt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
-      : "in 3 days";
-    title = `Your Authority Content Trial Ends in ${days} Day${days !== 1 ? "s" : ""}`;
-    content = `Hi ${userName},\n\nJust a heads-up — your 14-day free trial of Authority Content ends on ${expiryDate}.\n\nDuring your trial you've had full access to:\n• Unlimited Property Tour videos\n• AI Reels & Avatar Videos\n• Live Tour editing\n• Blog Builder & Photo Library\n\nTo keep all of this, upgrade to a paid plan before your trial expires.\n\n👉 Upgrade now: https://authoritycontent.co/upgrade\n\nIf you have any questions, just reply to this email — we're here to help.\n\nBest regards,\nThe Authority Content Team`;
+    return sendEmail({
+      to: userEmail,
+      subject: "Daily video limit reached — Amped Agent",
+      html: `<p>Hi ${userName},</p><p>You've reached your daily video limit. It resets at midnight UTC.</p><p><a href="https://ampedagent.app/settings/billing">Upgrade your plan</a> for unlimited generation.</p>`,
+      fallbackTitle: `Rate limit hit: ${userName} (${userEmail})`,
+    });
   }
 
-  try {
-    if (type === "trial_expiry_warning") {
-      // For trial expiry warnings, send a detailed owner notification that includes
-      // the full user-facing email content so it can be forwarded or used as a template
-      await notifyOwner({
-        title: `[Trial Expiry Warning] ${userName} — ${params.daysRemaining ?? 3} days left`,
-        content: `Send this email to: ${userName} <${userEmail}>\nDays remaining: ${params.daysRemaining ?? 3}\nTrial ends: ${params.trialEndsAt?.toISOString() ?? "unknown"}\n\n--- Email to send ---\nSubject: ${title}\n\n${content}`,
-      });
-    } else {
-      // For now, notify owner about user notifications
-      // This is a temporary solution until proper email service is integrated
-      await notifyOwner({
-        title: `User Notification: ${title}`,
-        content: `User: ${userName} (${userEmail})\n\n${content}`,
-      });
-    }
-
-    // TODO: Replace with actual email sending logic
-    // Example with SendGrid:
-    // const sgMail = require('@sendgrid/mail');
-    // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    // await sgMail.send({
-    //   to: userEmail,
-    //   from: 'notifications@authoritycontent.co',
-    //   subject: title,
-    //   text: content,
-    // });
-
-    console.log(`[Email] Notification queued for ${userEmail}: ${title}`);
-    return true;
-  } catch (error) {
-    console.error(`[Email] Failed to send notification to ${userEmail}:`, error);
-    return false;
+  if (type === "pool_exhausted") {
+    const poolSize = params.poolSize ?? 0;
+    return sendEmail({
+      to: userEmail,
+      subject: "Monthly free video pool exhausted — Amped Agent",
+      html: `<p>Hi ${userName},</p><p>You've used all ${poolSize} of your free videos this month. Add credits to keep creating.</p><p><a href="https://ampedagent.app/settings/billing">Add credits</a></p>`,
+      fallbackTitle: `Pool exhausted: ${userName} (${userEmail})`,
+    });
   }
+
+  return false;
 }
 
-/**
- * Send rate limit notification
- */
+/** Send rate limit notification */
 export async function sendRateLimitNotification(userEmail: string, userName: string): Promise<boolean> {
-  return sendEmailNotification({
-    userEmail,
-    userName,
-    type: "rate_limit",
-  });
+  return sendEmailNotification({ userEmail, userName, type: "rate_limit" });
 }
 
-/**
- * Send pool exhausted notification
- */
+/** Send pool exhausted notification */
 export async function sendPoolExhaustedNotification(
   userEmail: string,
   userName: string,
   poolSize: number,
   overageCost: number
 ): Promise<boolean> {
-  return sendEmailNotification({
-    userEmail,
-    userName,
-    type: "pool_exhausted",
-    poolSize,
-    overageCost,
-  });
+  return sendEmailNotification({ userEmail, userName, type: "pool_exhausted", poolSize, overageCost });
 }
 
-/**
- * Send low credits notification
- */
+/** Send low credits notification */
 export async function sendLowCreditsNotification(
   userEmail: string,
   userName: string,
   creditsRemaining: number
 ): Promise<boolean> {
-  return sendEmailNotification({
-    userEmail,
-    userName,
-    type: "low_credits",
-    creditsRemaining,
-  });
+  return sendEmailNotification({ userEmail, userName, type: "low_credits", creditsRemaining });
 }
 
 /**
@@ -131,11 +96,5 @@ export async function sendTrialExpiryWarning(
   trialEndsAt: Date,
   daysRemaining: number
 ): Promise<boolean> {
-  return sendEmailNotification({
-    userEmail,
-    userName,
-    type: "trial_expiry_warning",
-    trialEndsAt,
-    daysRemaining,
-  });
+  return _sendTrialExpiry({ userName, userEmail, trialEndsAt, daysRemaining });
 }

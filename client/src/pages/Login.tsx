@@ -6,12 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2, Eye, EyeOff, Gift } from "lucide-react";
+import { Loader2, Eye, EyeOff, Gift, Ticket, CheckCircle2, XCircle } from "lucide-react";
 
 export default function Login() {
-  // Read ?ref= and ?tab= from URL
+  // Read ?ref=, ?tab=, and ?invite= from URL
   const params = new URLSearchParams(window.location.search);
   const refCode = params.get("ref") || "";
+  const urlInviteCode = params.get("invite") || "";
   const defaultTab = params.get("tab") === "register" ? "register" : "signin";
 
   useEffect(() => {
@@ -33,6 +34,14 @@ export default function Login() {
   const [regConfirm, setRegConfirm] = useState("");
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [regLoading, setRegLoading] = useState(false);
+
+  // Invite code state
+  const [inviteCode, setInviteCode] = useState(urlInviteCode);
+  const [inviteValidating, setInviteValidating] = useState(false);
+  const [inviteStatus, setInviteStatus] = useState<"idle" | "valid" | "invalid">(
+    urlInviteCode ? "idle" : "idle"
+  );
+  const [inviteLabel, setInviteLabel] = useState<string | null>(null);
 
   const handleGoogleLogin = () => {
     // Pass ref code through state param so callback can apply it
@@ -65,6 +74,40 @@ export default function Login() {
     }
   };
 
+  const validateInviteCode = async (code: string) => {
+    if (!code.trim()) {
+      setInviteStatus("idle");
+      setInviteLabel(null);
+      return;
+    }
+    setInviteValidating(true);
+    try {
+      const res = await fetch("/api/auth/validate-invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setInviteStatus("valid");
+        setInviteLabel(data.label || null);
+      } else {
+        setInviteStatus("invalid");
+        setInviteLabel(null);
+      }
+    } catch {
+      setInviteStatus("idle");
+    } finally {
+      setInviteValidating(false);
+    }
+  };
+
+  const handleInviteCodeBlur = () => {
+    if (inviteCode.trim()) {
+      validateInviteCode(inviteCode);
+    }
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regName || !regEmail || !regPassword || !regConfirm) return;
@@ -82,15 +125,23 @@ export default function Login() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ name: regName, email: regEmail, password: regPassword, referralCode: refCode || undefined }),
+        body: JSON.stringify({
+          name: regName,
+          email: regEmail,
+          password: regPassword,
+          referralCode: refCode || undefined,
+          inviteCode: inviteCode.trim() || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.error || "Something went wrong.");
         return;
       }
-      if (data.referralApplied) {
-        toast.success("🎁 50 bonus credits added — welcome gift from your referral!");
+      if (data.inviteCodeApplied) {
+        toast.success("🎉 Beta invite code accepted — you have full Authority access!");
+      } else if (data.referralApplied) {
+        toast.success("🎁 Bonus credits added — welcome gift from your referral!");
       }
       window.location.href = "/dashboard";
     } catch {
@@ -120,7 +171,15 @@ export default function Login() {
         {refCode && (
           <div className="mb-4 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
             <Gift size={16} className="shrink-0" />
-            <span>You were invited! Create an account to receive <strong>50 free bonus credits</strong>.</span>
+            <span>You were invited! Create an account to receive <strong>bonus credits</strong>.</span>
+          </div>
+        )}
+
+        {/* Beta invite banner (from URL param) */}
+        {urlInviteCode && !refCode && (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
+            <Ticket size={16} className="shrink-0" />
+            <span>You have a <strong>beta invite code</strong>! Create an account to unlock full Authority access.</span>
           </div>
         )}
 
@@ -266,6 +325,55 @@ export default function Login() {
                       autoComplete="new-password"
                     />
                   </div>
+
+                  {/* Beta Invite Code field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-invite" className="flex items-center gap-1.5">
+                      <Ticket size={13} className="text-amber-500" />
+                      Beta Invite Code
+                      <span className="text-muted-foreground font-normal text-xs">(optional)</span>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="reg-invite"
+                        type="text"
+                        placeholder="XXXX-XXXX"
+                        value={inviteCode}
+                        onChange={(e) => {
+                          setInviteCode(e.target.value.toUpperCase());
+                          setInviteStatus("idle");
+                          setInviteLabel(null);
+                        }}
+                        onBlur={handleInviteCodeBlur}
+                        autoComplete="off"
+                        className={`pr-10 font-mono tracking-widest ${
+                          inviteStatus === "valid"
+                            ? "border-green-500 focus-visible:ring-green-500/30"
+                            : inviteStatus === "invalid"
+                            ? "border-red-500 focus-visible:ring-red-500/30"
+                            : ""
+                        }`}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {inviteValidating && <Loader2 size={15} className="animate-spin text-muted-foreground" />}
+                        {!inviteValidating && inviteStatus === "valid" && <CheckCircle2 size={15} className="text-green-500" />}
+                        {!inviteValidating && inviteStatus === "invalid" && <XCircle size={15} className="text-red-500" />}
+                      </div>
+                    </div>
+                    {inviteStatus === "valid" && (
+                      <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                        <CheckCircle2 size={11} />
+                        Valid beta invite{inviteLabel ? ` — ${inviteLabel}` : ""}! You'll get full Authority access.
+                      </p>
+                    )}
+                    {inviteStatus === "invalid" && (
+                      <p className="text-xs text-red-500 flex items-center gap-1">
+                        <XCircle size={11} />
+                        Invalid, expired, or already used invite code.
+                      </p>
+                    )}
+                  </div>
+
                   <Button type="submit" className="w-full h-11" disabled={regLoading}>
                     {regLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     Create Account

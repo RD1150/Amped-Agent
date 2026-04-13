@@ -19,7 +19,7 @@ import { propertyToursRouter } from "./routers/propertyTours";
 import { contentTemplatesRouter } from "./routers/contentTemplates";
 import { creditsRouter } from "./routers/credits";
 import { rateLimitRouter } from "./routers/rateLimit";
-import { adminRouter } from "./routers/admin";
+import { adminRouter, ownerRouter } from "./routers/admin";
 import { draftsRouter } from "./routers/drafts";
 import { reelsRouter } from "./routers/reels";
 import { newsletterRouter } from "./routers/newsletter";
@@ -52,6 +52,7 @@ export const appRouter = router({
   credits: creditsRouter,
   rateLimit: rateLimitRouter,
   admin: adminRouter,
+  owner: ownerRouter,
   drafts: draftsRouter,
   reels: reelsRouter,
   newsletter: newsletterRouter,

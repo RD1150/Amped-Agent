@@ -1,44 +1,18 @@
-import { notifyOwner } from "./notification";
-
+/**
+ * Welcome email — delegates to the central emailService (Resend).
+ * Kept as a thin wrapper so existing call-sites don't need to change.
+ */
 export interface WelcomeEmailData {
   userName: string;
   userEmail: string;
 }
 
-/**
- * Send welcome email to new user after onboarding completion
- */
 export async function sendWelcomeEmail(data: WelcomeEmailData): Promise<boolean> {
-  const { userName, userEmail } = data;
-  
-  const emailContent = `
-🎉 **New User Completed Onboarding!**
-
-**Name:** ${userName}
-**Email:** ${userEmail}
-
-The user has successfully completed the onboarding flow and is ready to start creating content!
-
-**Next Steps for User:**
-- Generate their first Authority Post
-- Create a talking avatar reel
-- Set up social media connections
-- Explore Property Tours
-
----
-*This is an automated notification from Amped Agent*
-  `.trim();
-  
   try {
-    // Notify owner about new user completion
-    const success = await notifyOwner({
-      title: `New User: ${userName} completed onboarding`,
-      content: emailContent,
-    });
-    
-    return success;
+    const { sendWelcomeEmail: send } = await import("../emailService");
+    return await send(data);
   } catch (error) {
-    console.error("[WelcomeEmail] Failed to send:", error);
+    console.error("[WelcomeEmail] Failed:", error);
     return false;
   }
 }

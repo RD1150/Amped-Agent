@@ -4974,3 +4974,18 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Admin procedures: generate, list, revoke invite codes
 - [ ] Invite code validation at signup (grant Authority access on redemption)
 - [ ] Admin UI panel: generate/view/copy invite codes with usage status
+
+## Session Apr 13 2026 — Three Pre-Launch Tasks
+- [x] Beta invite code redemption: add inviteCode field to registration form in Login.tsx
+- [x] Beta invite code redemption: add validateAndRedeemInviteCode DB helper
+- [x] Beta invite code redemption: add redeemInviteCode endpoint in authRoutes.ts (called after registration)
+- [x] Beta invite code redemption: grant Authority subscription on successful redemption
+- [x] Beta invite code redemption: show invite code field with validation feedback in UI
+- [x] Transactional email: install Resend SDK
+- [x] Transactional email: add RESEND_API_KEY secret
+- [x] Transactional email: create server/emailService.ts with sendEmail() helper using Resend
+- [x] Transactional email: wire up welcome email, trial expiry warning, and notification emails
+- [x] Transactional email: write vitest tests for email service
+- [x] Admin self-promotion: add ownerRouter.selfPromoteToAdmin procedure (checks OWNER_OPEN_ID)
+- [x] Admin self-promotion: add OwnerPromoteCard to Settings.tsx (visible only to non-admin owner)
+- [x] Admin self-promotion: add Make Admin button to AdminUsers.tsx actions column

@@ -35,4 +35,6 @@ export const ENV = {
   GAMMA_API_KEY: process.env.GAMMA_API_KEY ?? "",
   googleLoginClientId: process.env.GOOGLE_LOGIN_CLIENT_ID ?? "",
   googleLoginClientSecret: process.env.GOOGLE_LOGIN_CLIENT_SECRET ?? "",
+  resendApiKey: process.env.RESEND_API_KEY ?? "",
+  fromEmail: process.env.FROM_EMAIL ?? "hello@ampedagent.app",
 };

@@ -50,14 +50,35 @@ async function issueSession(req: Request, res: Response, openId: string, name: s
 }
 
 export function registerAuthRoutes(app: Express) {
+  // ── Invite Code Validation (public, pre-registration check) ───────────────
+  app.post("/api/auth/validate-invite", async (req: Request, res: Response) => {
+    try {
+      const { code } = req.body as { code?: string };
+      if (!code || !code.trim()) {
+        res.status(400).json({ valid: false, error: "Invite code is required." });
+        return;
+      }
+      const record = await db.getValidInviteCode(code.trim());
+      if (!record) {
+        res.json({ valid: false, error: "Invalid, expired, or already used invite code." });
+        return;
+      }
+      res.json({ valid: true, label: record.label || null });
+    } catch (error) {
+      console.error("[Auth] Invite code validation failed:", error);
+      res.status(500).json({ valid: false, error: "Validation failed. Please try again." });
+    }
+  });
+
   // ── Email/Password Registration ────────────────────────────────────────────
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
-      const { name, email, password, referralCode } = req.body as {
+      const { name, email, password, referralCode, inviteCode } = req.body as {
         name?: string;
         email?: string;
         password?: string;
         referralCode?: string;
+        inviteCode?: string;
       };
 
       if (!email || !password || !name) {
@@ -103,6 +124,23 @@ export function registerAuthRoutes(app: Express) {
         }
       }
 
+      // Apply beta invite code if provided — grants Authority access
+      let inviteCodeApplied = false;
+      if (inviteCode && inviteCode.trim()) {
+        try {
+          const codeRecord = await db.getValidInviteCode(inviteCode.trim());
+          const newUser = await db.getUserByOpenId(openId);
+          if (codeRecord && newUser) {
+            await db.grantBetaInviteAccess(newUser.id);
+            await db.redeemInviteCode(codeRecord.id, newUser.id);
+            inviteCodeApplied = true;
+            console.log(`[Auth] Beta invite code '${inviteCode.trim()}' redeemed by user ${newUser.id}`);
+          }
+        } catch (e) {
+          console.warn("[Auth] Invite code application failed (non-fatal):", e);
+        }
+      }
+
       // Generate referral code for new user
       try {
         const newUser = await db.getUserByOpenId(openId);
@@ -120,7 +158,7 @@ export function registerAuthRoutes(app: Express) {
       }
 
       await issueSession(req, res, openId, name.trim());
-      res.json({ success: true, referralApplied });
+      res.json({ success: true, referralApplied, inviteCodeApplied });
     } catch (error) {
       console.error("[Auth] Register failed:", error);
       res.status(500).json({ error: "Registration failed. Please try again." });

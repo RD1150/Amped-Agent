@@ -27,6 +27,55 @@ const STYLE_OPTIONS = [
   { value: "casual"       as const, label: "Casual",       desc: "Relaxed & conversational" },
 ];
 
+/**
+ * OwnerPromoteCard — only shown to the platform owner who doesn't yet have admin role.
+ * Lets them claim admin without needing direct DB access.
+ */
+function OwnerPromoteCard() {
+  const utils = trpc.useUtils();
+  const selfPromote = trpc.owner.selfPromoteToAdmin.useMutation({
+    onSuccess: (res) => {
+      if (res.alreadyAdmin) {
+        toast.info("You already have admin access.");
+      } else {
+        toast.success("Admin access granted! Reload to apply.", {
+          action: { label: "Reload", onClick: () => window.location.reload() },
+          duration: 8000,
+        });
+      }
+      utils.auth.me.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  return (
+    <Card className="bg-card border-amber-500/30">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium flex items-center gap-2">
+              <Shield className="h-4 w-4 text-amber-500" />
+              Claim Admin Access
+            </p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              You are the platform owner. Click to promote your account to admin.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-amber-500/40 text-amber-600 hover:bg-amber-500/10"
+            disabled={selfPromote.isPending}
+            onClick={() => selfPromote.mutate()}
+          >
+            {selfPromote.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Claim Admin"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function Settings() {
   const { user, logout } = useAuth();
 
@@ -895,6 +944,9 @@ export default function Settings() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Owner Self-Promotion — only visible to the platform owner who isn't yet admin */}
+      {user && user.role !== "admin" && <OwnerPromoteCard />}
 
       {/* Sign Out */}
       <Card className="bg-card border-border">

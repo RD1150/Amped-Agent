@@ -22,7 +22,8 @@ import {
   contentTemplates, ContentTemplate, InsertContentTemplate,
   drafts, Draft, InsertDraft,
   aiReels, AiReel, InsertAiReel,
-  watchedVideos, WatchedVideo
+  watchedVideos, WatchedVideo,
+  inviteCodes, InviteCode
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1159,4 +1160,78 @@ export async function getReferralStats(userId: number) {
     referralCount: Number(referralCount[0]?.count ?? 0),
     creditsEarned: userRow[0].referralCreditsEarned ?? 0,
   };
+}
+
+
+// ============ INVITE CODE HELPERS ============
+
+/**
+ * Look up an invite code by its code string.
+ * Returns the code record if it exists, is not revoked, not already used, and not expired.
+ */
+export async function getValidInviteCode(code: string): Promise<InviteCode | null> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const now = new Date();
+  const results = await db
+    .select()
+    .from(inviteCodes)
+    .where(eq(inviteCodes.code, code.trim().toUpperCase()))
+    .limit(1);
+
+  if (results.length === 0) return null;
+  const record = results[0];
+
+  if (record.isRevoked) return null;
+  if (record.usedByUserId !== null) return null; // already redeemed
+  if (record.expiresAt && record.expiresAt < now) return null;
+
+  return record;
+}
+
+/**
+ * Mark an invite code as redeemed by a user.
+ */
+export async function redeemInviteCode(codeId: number, userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(inviteCodes)
+    .set({ usedByUserId: userId, usedAt: new Date() })
+    .where(eq(inviteCodes.id, codeId));
+}
+
+/**
+ * Grant a beta invite user Authority access (active subscription, authority tier).
+ * Sets subscriptionStatus to 'active', subscriptionTier to 'authority'.
+ */
+export async function grantBetaInviteAccess(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Set a 1-year subscription end date for beta testers
+  const oneYearFromNow = new Date();
+  oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
+  await db
+    .update(users)
+    .set({
+      subscriptionStatus: "active",
+      subscriptionTier: "authority",
+      subscriptionEndDate: oneYearFromNow,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId));
+}
+
+/**
+ * Set a user's role to admin (owner self-promotion).
+ */
+export async function promoteUserToAdmin(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(users).set({ role: "admin", updatedAt: new Date() }).where(eq(users.id, userId));
 }
