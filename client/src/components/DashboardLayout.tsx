@@ -356,11 +356,11 @@ function VideoPoolDisplay() {
       <HoverCardTrigger asChild>
         <button
           onClick={() => setLocation("/credits")}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
         >
-          <Video className="h-4 w-4 text-white" />
+          <Video className="h-4 w-4 text-gray-500" />
           <span className={`text-sm font-medium ${
-            isExhausted ? 'text-red-400' : isLow ? 'text-amber-400' : 'text-white'
+            isExhausted ? 'text-red-500' : isLow ? 'text-amber-600' : 'text-gray-700'
           }`}>
             {isExhausted ? '0' : remaining} free
           </span>
@@ -414,10 +414,10 @@ function CreditBalanceDisplay() {
   return (
     <button
       onClick={() => setLocation("/credits")}
-      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition-colors"
+      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
     >
-      <CreditCard className="h-4 w-4 text-white" />
-      <span className="text-sm font-medium text-white">
+      <CreditCard className="h-4 w-4 text-gray-500" />
+      <span className="text-sm font-medium text-gray-700">
         {isOwner ? '∞ Unlimited' : credits}
       </span>
       {isLow && (
@@ -924,8 +924,8 @@ function CollapsibleNavSections({
                     <span
                       className={`text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
                         hasActiveChild
-                          ? "text-orange-400"
-                          : "text-sidebar-foreground/50 group-hover/sec:text-sidebar-foreground/80"
+                          ? "text-orange-500"
+                          : "text-gray-400 group-hover/sec:text-gray-600"
                       }`}
                     >
                       {section.title}
@@ -988,7 +988,7 @@ function CollapsibleNavSections({
               // Non-lifecycle sections (HOME, ACCOUNT, ADMIN): plain label, always open
               !isCollapsed && (
                 <div className="px-3 pt-5 pb-1">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/50">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400">
                     {section.title}
                   </span>
                 </div>
@@ -1007,20 +1007,23 @@ function CollapsibleNavSections({
                       isActive={isActive}
                       onClick={() => setLocation(item.path)}
                       tooltip={item.description || item.label}
-                      className={`h-8 transition-all ${
+                      className={`h-8 transition-all relative ${
                         isActive
-                          ? "bg-orange-500/10 rounded-md"
-                          : "hover:bg-sidebar-accent/50"
+                          ? "bg-orange-50 rounded-md"
+                          : "hover:bg-gray-50 rounded-md"
                       }`}
                     >
+                      {isActive && (
+                        <span className="absolute left-0 top-1 bottom-1 w-0.5 bg-orange-500 rounded-full" />
+                      )}
                       <item.icon
                         className={`h-3.5 w-3.5 shrink-0 ${
-                          isActive ? "text-orange-500" : "text-sidebar-foreground/40"
+                          isActive ? "text-orange-500" : "text-gray-400"
                         }`}
                       />
                       <span
                         className={`truncate text-[13px] ${
-                          isActive ? "text-orange-500 font-medium" : "text-sidebar-foreground/70 font-normal"
+                          isActive ? "text-orange-600 font-medium" : "text-gray-600 font-normal"
                         }`}
                       >
                         {item.label}
@@ -1372,7 +1375,7 @@ function DashboardLayoutContent({
       {/* ── Main content area ─────────────────────────────────────────────── */}
       <SidebarInset>
         {/* Top bar */}
-        <div className="flex h-12 items-center gap-4 bg-[#1e2230] px-4 sticky top-0 z-40 border-b border-white/[0.07]">
+        <div className="flex h-12 items-center gap-4 bg-white px-4 sticky top-0 z-40 border-b border-gray-100">
           <div className="flex items-center gap-2 shrink-0">
             {isMobile && (
               <SidebarTrigger className="h-8 w-8 rounded-lg" />
@@ -1390,25 +1393,25 @@ function DashboardLayoutContent({
             <CreditBalanceDisplay />
             <button
               onClick={() => setLocation("/settings")}
-              className="text-sm text-white/60 hover:text-white transition-colors"
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
             >
               Account
             </button>
             <button
               onClick={() => setLocation("/faq")}
-              className="text-sm text-white/60 hover:text-white transition-colors"
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
             >
               FAQ
             </button>
             <button
               onClick={() => setLocation("/contact")}
-              className="text-sm text-white/60 hover:text-white transition-colors"
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
             >
               Contact
             </button>
             <button
               onClick={() => setLocation("/help")}
-              className="text-sm text-white/60 hover:text-white transition-colors"
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
             >
               Help
             </button>

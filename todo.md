@@ -5072,3 +5072,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Switch sidebar to white background with dark text and orange accents
 - [x] Remove gradient and dark chrome from sidebar
 - [x] Update sidebar text/icon colors for legibility on white
+
+## Session: Full Chrome Light Mode Polish (Apr 2026)
+- [x] Lighten top header bar from dark to white/light grey
+- [x] Left orange border active state on nav items (replace bg highlight)
+- [x] Lighter section label text (text-gray-400)
+- [x] Soft right-edge shadow on sidebar panel

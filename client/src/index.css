@@ -205,11 +205,12 @@
   }
 }
 
-/* Sidebar — white, hide scrollbar, right border separator */
+/* Sidebar — white, hide scrollbar, right shadow separator */
 [data-sidebar="sidebar"] {
   overflow: hidden;
   background: #ffffff !important;
-  border-right: 1px solid oklch(0.92 0.005 250);
+  border-right: none;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
 }
 
 [data-sidebar="content"] {
