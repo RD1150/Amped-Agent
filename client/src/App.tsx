@@ -101,6 +101,7 @@ const TestimonialEngine = lazy(() => import("./pages/TestimonialEngine"));
 const OpenHouseManager = lazy(() => import("./pages/OpenHouseManager"));
 const CRMPipeline = lazy(() => import("./pages/CRMPipeline"));
 const DripSequences = lazy(() => import("./pages/DripSequences"));
+const PublicOpenHouseSignIn = lazy(() => import("./pages/PublicOpenHouseSignIn"));
 
 // Fallback spinner shown while a lazy chunk loads
 function PageLoader() {
@@ -155,6 +156,7 @@ function Router() {
         <Route path="/pricing" component={Pricing} />
         <Route path="/subscription" component={Subscription} />
         <Route path="/upgrade" component={Upgrade} />
+        <Route path="/oh/:slug" component={PublicOpenHouseSignIn} />
 
         {/* Dashboard routes */}
         <Route>

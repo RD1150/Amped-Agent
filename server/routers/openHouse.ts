@@ -12,6 +12,7 @@ import { getDb } from "../db";
 import { openHouses, openHouseLeads, crmLeads } from "../../drizzle/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { sendEmail } from "../emailService";
+import { sendSMS, openHouseSMSTemplate, isTwilioConfigured } from "../sms";
 import { getPersonaByUserId } from "../db";
 import { nanoid } from "nanoid";
 
@@ -177,12 +178,21 @@ export const openHouseRouter = router({
           price: openHouses.price,
           isActive: openHouses.isActive,
           agentUserId: openHouses.userId,
+          listingPrice: openHouses.price,
+          bedrooms: openHouses.bedrooms,
+          bathrooms: openHouses.bathrooms,
+          followUpSequence: openHouses.followUpSequence,
         })
         .from(openHouses)
         .where(eq(openHouses.publicSlug, input.slug))
         .limit(1);
-      if (!oh) throw new Error("Open house not found");
-      return oh;
+      if (!oh || !oh.isActive) throw new Error("Open house not found or closed");
+      // Get agent name from persona
+      const persona = await getPersonaByUserId(oh.agentUserId);
+      return {
+        ...oh,
+        agentName: persona?.agentName || "Your Agent",
+      };
     }),
 
   // Public lead capture — no auth required
@@ -195,6 +205,7 @@ export const openHouseRouter = router({
         phone: z.string().optional(),
         timeframe: z.string().optional(),
         preApproved: z.boolean().optional(),
+        smsConsent: z.boolean().optional().default(false), // TCPA consent for SMS follow-up
       })
     )
     .mutation(async ({ input }) => {
@@ -222,6 +233,8 @@ export const openHouseRouter = router({
         preApproved: input.preApproved ?? false,
         followUpStatus: oh.followUpSequence === "none" ? "completed" : "pending",
         nextFollowUpAt: oh.followUpSequence === "none" ? null : nextFollowUp,
+        smsConsent: input.smsConsent ?? false,
+        smsConsentTimestamp: input.smsConsent ? new Date() : null,
       });
 
       // Also add to CRM leads
@@ -320,4 +333,59 @@ export const openHouseRouter = router({
 
       return { success: sent };
     }),
+
+  // Send SMS follow-up to a lead (consent-gated)
+  sendSMSFollowUp: protectedProcedure
+    .input(z.object({ leadId: z.number(), messageNumber: z.union([z.literal(1), z.literal(2), z.literal(3)]) }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      const [lead] = await db
+        .select()
+        .from(openHouseLeads)
+        .where(and(eq(openHouseLeads.id, input.leadId), eq(openHouseLeads.agentUserId, ctx.user.id)))
+        .limit(1);
+      if (!lead) throw new Error("Lead not found");
+      if (!lead.phone) throw new Error("No phone number for this lead");
+      if (!lead.smsConsent) throw new Error("Lead has not consented to SMS");
+      if (lead.smsOptedOut) throw new Error("Lead has opted out of SMS");
+
+      const [oh] = await db
+        .select()
+        .from(openHouses)
+        .where(eq(openHouses.id, lead.openHouseId))
+        .limit(1);
+
+      const persona = await getPersonaByUserId(ctx.user.id);
+      const agentName = persona?.agentName || "Your Agent";
+
+      const body = openHouseSMSTemplate({
+        agentName,
+        visitorName: lead.name,
+        address: oh?.address || "the property",
+        messageNumber: input.messageNumber,
+        bookingUrl: persona?.bookingUrl ?? undefined,
+      });
+
+      const result = await sendSMS({
+        to: lead.phone,
+        body,
+        consentVerified: true,
+      });
+
+      if (result.success) {
+        await db
+          .update(openHouseLeads)
+          .set({ smsSent: (lead.smsSent || 0) + 1 })
+          .where(eq(openHouseLeads.id, input.leadId));
+      }
+
+      return { success: result.success, error: result.error };
+    }),
+
+  // Check if Twilio is configured
+  getTwilioStatus: protectedProcedure.query(async () => {
+    return { configured: isTwilioConfigured() };
+  }),
 });

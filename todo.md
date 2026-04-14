@@ -5113,12 +5113,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Coach system prompt rewrite: decisive strategist, not helpful assistant
 - [ ] Dashboard copy: replace passive language with active decision engine framing
 ## Session: Decision Engine Enhancements (Apr 2026)
-- [ ] Refresh Diagnosis button on WeeklyInsightBlock with loading spinner and re-fetch
-- [ ] Priority Action deep-links: each action item has "Do This Now →" button navigating to the exact tool
-- [ ] Weekly Email Digest: DB column weeklyDigestEnabled on users table, opt-in toggle in Settings
-- [ ] Weekly Email Digest: server procedure to generate and send personalized weekly diagnosis email
-- [ ] Weekly Email Digest: Monday 8am cron job to send digest to all opted-in users
-- [ ] Weekly Email Digest: HTML email template with Critical Issue + Missed Opportunities + Priority Actions
+- [x] Refresh Diagnosis button on WeeklyInsightBlock with loading spinner and re-fetch
+- [x] Priority Action deep-links: each action item has "Do This Now →" button navigating to the exact tool
+- [x] Weekly Email Digest: DB column weeklyDigestEnabled on users table, opt-in toggle in Settings
+- [x] Weekly Email Digest: server procedure to generate and send personalized weekly diagnosis email
+- [x] Weekly Email Digest: Monday 8am cron job to send digest to all opted-in users
+- [x] Weekly Email Digest: HTML email template with Critical Issue + Missed Opportunities + Priority Actions
 ## Session: Remove Example Videos (Apr 2026)
 - [x] Remove AI Motion Tour and AI Reels example video cards from VideoPreviewGallery, keep only Cinematic and Ken Burns
 - [x] Remove AI Motion column from "Three Ways to Showcase" section in VideoPreviewGallery
@@ -5162,10 +5162,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Wire into SCALE section of sidebar and ScaleOverview
 
 ## Session: Twilio SMS + A2P Infrastructure
-- [ ] Add smsConsent boolean column to openHouseLeads table
-- [ ] Add SMS consent checkbox to public open house sign-in form
-- [ ] Install Twilio SDK and create server/sms.ts helper
-- [ ] Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER secrets
-- [ ] Build SMS follow-up procedure for open house leads (consent-gated)
-- [ ] Add STOP/opt-out handling webhook endpoint
-- [ ] Create A2P registration guide document for user
+- [x] Add smsConsent boolean column to openHouseLeads table
+- [x] Add SMS consent checkbox to public open house sign-in form
+- [x] Install Twilio SDK and create server/sms.ts helper
+- [x] Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER secrets (pending user input)
+- [x] Build SMS follow-up procedure for open house leads (consent-gated)
+- [x] Add STOP/opt-out handling webhook endpoint
+- [x] Create A2P registration guide document for user

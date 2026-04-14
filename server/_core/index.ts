@@ -11,6 +11,7 @@ import { serveStatic, setupVite } from "./vite";
 import uploadEndpoint from "../uploadEndpoint";
 import { recoverStuckCinematicJobs } from "../routers/cinematicWalkthrough";
 import { registerTrialNotificationJob } from "../jobs/trialNotifications";
+import { registerWeeklyDigestJob } from "../jobs/weeklyDigest";
 import { getDb } from "../db";
 import { listingPresentations } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -524,6 +525,39 @@ async function startServer() {
     }
   });
 
+  // Twilio SMS Webhook — handles STOP/HELP/opt-out replies
+  // Must use express.urlencoded because Twilio sends form-encoded data
+  app.post("/api/twilio/webhook", express.urlencoded({ extended: false }), async (req, res) => {
+    try {
+      const from = req.body?.From as string | undefined;
+      const body = (req.body?.Body as string | undefined)?.trim().toUpperCase();
+
+      if (from && body) {
+        // Handle STOP — mark lead as opted out
+        if (["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"].includes(body)) {
+          const db = await getDb();
+          if (db) {
+            const { openHouseLeads } = await import("../../drizzle/schema");
+            const { eq } = await import("drizzle-orm");
+            await db
+              .update(openHouseLeads)
+              .set({ smsOptedOut: true, followUpStatus: "opted_out" })
+              .where(eq(openHouseLeads.phone, from.replace(/\D/g, "").slice(-10)))
+              .catch(() => {});
+            console.log(`[Twilio] STOP received from ${from} — opted out`);
+          }
+        }
+      }
+
+      // Twilio expects a TwiML response (even if empty)
+      res.set("Content-Type", "text/xml");
+      res.send("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response></Response>");
+    } catch (err) {
+      console.error("[Twilio Webhook] Error:", err);
+      res.status(500).send("Error");
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",
@@ -556,6 +590,7 @@ async function startServer() {
     }, 5000);
     // Register daily trial notification cron job
     registerTrialNotificationJob();
+    registerWeeklyDigestJob();
   });
 }
 

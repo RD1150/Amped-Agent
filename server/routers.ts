@@ -365,6 +365,30 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
       });
       return { success: true };
     }),
+
+    // Weekly Email Digest opt-in
+    getWeeklyDigest: protectedProcedure.query(async ({ ctx }) => {
+      const dbConn = await db.getDb();
+      if (!dbConn) return { enabled: false };
+      const { users } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const rows = await dbConn.select({ weeklyDigestEnabled: users.weeklyDigestEnabled })
+        .from(users).where(eq(users.id, ctx.user.id)).limit(1);
+      return { enabled: rows[0]?.weeklyDigestEnabled ?? false };
+    }),
+
+    updateWeeklyDigest: protectedProcedure
+      .input(z.object({ enabled: z.boolean() }))
+      .mutation(async ({ ctx, input }) => {
+        const dbConn = await db.getDb();
+        if (!dbConn) throw new Error('Database unavailable');
+        const { users } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        await dbConn.update(users)
+          .set({ weeklyDigestEnabled: input.enabled })
+          .where(eq(users.id, ctx.user.id));
+        return { success: true, enabled: input.enabled };
+      }),
   }),
 
   persona: router({

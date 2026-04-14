@@ -76,6 +76,37 @@ function OwnerPromoteCard() {
   );
 }
 
+function WeeklyDigestToggle() {
+  const { data, isLoading } = trpc.auth.getWeeklyDigest.useQuery();
+  const utils = trpc.useUtils();
+  const updateDigest = trpc.auth.updateWeeklyDigest.useMutation({
+    onSuccess: (res) => {
+      utils.auth.getWeeklyDigest.invalidate();
+      toast.success(res.enabled
+        ? "Weekly Digest enabled — you'll receive your first email next Monday"
+        : "Weekly Digest disabled"
+      );
+    },
+    onError: () => toast.error("Could not update preference — try again"),
+  });
+
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="font-medium">Weekly Diagnosis Email</p>
+        <p className="text-sm text-muted-foreground">
+          Receive your AI-generated weekly strategy briefing every Monday morning
+        </p>
+      </div>
+      <Switch
+        checked={data?.enabled ?? false}
+        disabled={isLoading || updateDigest.isPending}
+        onCheckedChange={(checked) => updateDigest.mutate({ enabled: checked })}
+      />
+    </div>
+  );
+}
+
 export default function Settings() {
   const { user, logout } = useAuth();
 
@@ -404,13 +435,7 @@ export default function Settings() {
             <Switch defaultChecked />
           </div>
           <Separator />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Weekly Summary</p>
-              <p className="text-sm text-muted-foreground">Receive a weekly content performance summary</p>
-            </div>
-            <Switch />
-          </div>
+          <WeeklyDigestToggle />
         </CardContent>
       </Card>
 

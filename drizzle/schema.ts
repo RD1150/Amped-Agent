@@ -61,6 +61,9 @@ export const users = mysqlTable("users", {
   referralCode: varchar("referralCode", { length: 16 }).unique(), // Unique code for this user's referral link
   referredBy: int("referredBy"), // userId of the person who referred this user
   referralCreditsEarned: int("referralCreditsEarned").default(0).notNull(), // Total credits earned from referrals
+  // Weekly Email Digest
+  weeklyDigestEnabled: boolean("weeklyDigestEnabled").default(false).notNull(), // Opt-in for Monday morning diagnosis email
+  weeklyDigestLastSentAt: timestamp("weeklyDigestLastSentAt"), // When the last digest was sent
 });
 
 export type User = typeof users.$inferSelect;
@@ -1359,6 +1362,8 @@ export const openHouses = mysqlTable("open_houses", {
   startTime: varchar("startTime", { length: 16 }),
   endTime: varchar("endTime", { length: 16 }),
   price: varchar("price", { length: 64 }),
+  bedrooms: varchar("bedrooms", { length: 16 }),
+  bathrooms: varchar("bathrooms", { length: 16 }),
   publicSlug: varchar("publicSlug", { length: 64 }).notNull().unique(), // URL-safe ID for QR
   followUpSequence: mysqlEnum("followUpSequence", ["none", "3email", "5email"]).default("3email").notNull(),
   isActive: boolean("isActive").default(true).notNull(),
@@ -1384,6 +1389,10 @@ export const openHouseLeads = mysqlTable("open_house_leads", {
   emailsSent: int("emailsSent").default(0).notNull(),
   nextFollowUpAt: timestamp("nextFollowUpAt"),
   crmLeadId: int("crmLeadId"), // Link to leads table once transferred
+  smsConsent: boolean("smsConsent").default(false).notNull(), // TCPA consent for SMS marketing
+  smsConsentTimestamp: timestamp("smsConsentTimestamp"), // When consent was given (audit log)
+  smsOptedOut: boolean("smsOptedOut").default(false).notNull(), // STOP reply received
+  smsSent: int("smsSent").default(0).notNull(), // Number of SMS messages sent
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type OpenHouseLead = typeof openHouseLeads.$inferSelect;

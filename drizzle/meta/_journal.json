@@ -743,6 +743,27 @@
       "when": 1776185660105,
       "tag": "0105_pink_quentin_quire",
       "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "5",
+      "when": 1776187244864,
+      "tag": "0106_fearless_sugar_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 107,
+      "version": "5",
+      "when": 1776187461928,
+      "tag": "0107_powerful_dark_phoenix",
+      "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "5",
+      "when": 1776197214023,
+      "tag": "0108_magical_stranger",
+      "breakpoints": true
     }
   ]
 }
