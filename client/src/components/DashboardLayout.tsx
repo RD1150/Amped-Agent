@@ -914,9 +914,14 @@ function CollapsibleNavSections({
                 <HoverCardTrigger asChild>
                   <button
                     onClick={() => toggleSection(section.title)}
-                    className={`w-full flex items-center justify-between px-4 pt-4 pb-1.5 group/sec focus:outline-none`}
+                    className={`w-full flex items-start gap-1.5 px-4 pt-4 pb-1.5 group/sec focus:outline-none`}
                   >
-                    <div>
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 mt-0.5 text-sidebar-foreground/40 transition-transform duration-200 shrink-0 ${
+                        isOpen ? "rotate-0" : "-rotate-90"
+                      }`}
+                    />
+                    <div className="text-left">
                       <h3
                         className={`text-[11px] font-bold uppercase tracking-[0.1em] transition-colors ${
                           hasActiveChild
@@ -932,11 +937,6 @@ function CollapsibleNavSections({
                         </p>
                       )}
                     </div>
-                    <ChevronDown
-                      className={`h-3.5 w-3.5 text-sidebar-foreground/40 transition-transform duration-200 ${
-                        isOpen ? "rotate-0" : "-rotate-90"
-                      }`}
-                    />
                   </button>
                 </HoverCardTrigger>
                 {/* Flyout: all tools in this section */}

@@ -5048,3 +5048,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Section auto-expands when active child route is detected
 - [x] Non-lifecycle sections (HOME, ACCOUNT, ADMIN) remain always-open
 - [x] Active section header highlights in orange
+
+## Session: Sidebar Header Alignment Fix (Apr 2026)
+- [x] Left-align sidebar section header titles to match tool items
