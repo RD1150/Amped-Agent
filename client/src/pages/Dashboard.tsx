@@ -691,6 +691,31 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Podcast & Book Builder — New */}
+          <div
+            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+            onClick={() => setLocation("/podcast-builder")}
+          >
+            <div className="h-24 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 relative overflow-hidden">
+              <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
+                <rect x="50" y="12" width="20" height="32" rx="10" fill="white" fillOpacity="0.85"/>
+                <rect x="54" y="16" width="12" height="24" rx="6" fill="#7c3aed" fillOpacity="0.3"/>
+                <path d="M40 44 Q60 56 80 44" stroke="white" strokeWidth="2" strokeOpacity="0.7" fill="none"/>
+                <line x1="60" y1="56" x2="60" y2="68" stroke="white" strokeWidth="2" strokeOpacity="0.7"/>
+                <line x1="48" y1="68" x2="72" y2="68" stroke="white" strokeWidth="2" strokeOpacity="0.7"/>
+                <path d="M30 30 Q25 40 30 50" stroke="white" strokeWidth="1.5" strokeOpacity="0.5" fill="none"/>
+                <path d="M22 26 Q15 40 22 54" stroke="white" strokeWidth="1.5" strokeOpacity="0.3" fill="none"/>
+                <path d="M90 30 Q95 40 90 50" stroke="white" strokeWidth="1.5" strokeOpacity="0.5" fill="none"/>
+                <path d="M98 26 Q105 40 98 54" stroke="white" strokeWidth="1.5" strokeOpacity="0.3" fill="none"/>
+              </svg>
+              <span className="absolute top-2 right-2 text-[10px] font-semibold bg-green-500 text-white px-1.5 py-0.5 rounded-full">New</span>
+            </div>
+            <div className="p-3">
+              <p className="font-semibold text-sm">Podcast & Book Builder</p>
+              <p className="text-xs text-muted-foreground">AI-narrated episodes &amp; avatar videos</p>
+            </div>
+          </div>
+
           {/* Lead Magnet */}
           <div
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"

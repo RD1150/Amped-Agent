@@ -70,6 +70,7 @@ import BrandStory from "./pages/BrandStory";
 import GuideGenerator from "./pages/GuideGenerator";
 import ProspectingLetters from "./pages/ProspectingLetters";
 import LettersEmails from "./pages/LettersEmails";
+import PodcastBuilder from "./pages/PodcastBuilder";
 import MyDocuments from "./pages/MyDocuments";
 import { SupportChatbot } from "./components/SupportChatbot";
 import PublicPresentation from "./pages/PublicPresentation";
@@ -176,6 +177,7 @@ function Router() {
         <Route path="/guide-generator" component={GuideGenerator} />
         <Route path="/prospecting-letters" component={ProspectingLetters} />
         <Route path="/letters-emails" component={LettersEmails} />
+        <Route path="/podcast-builder" component={PodcastBuilder} />
         <Route path="/my-documents" component={MyDocuments} />
         <Route path="/newsletter" component={NewsletterBuilder} />
         <Route path="/drafts" component={Drafts} />

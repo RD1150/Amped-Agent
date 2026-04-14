@@ -1247,3 +1247,50 @@ export const inviteCodes = mysqlTable("invite_codes", {
 });
 export type InviteCode = typeof inviteCodes.$inferSelect;
 export type InsertInviteCode = typeof inviteCodes.$inferInsert;
+
+/**
+ * Podcast / Book Builder — Series (a show or a book)
+ */
+export const podcastSeries = mysqlTable("podcast_series", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  seriesType: mysqlEnum("seriesType", ["podcast", "book"]).default("podcast").notNull(),
+  coverImageUrl: text("coverImageUrl"),
+  authorName: varchar("authorName", { length: 255 }),
+  category: varchar("category", { length: 128 }).default("Real Estate"),
+  episodeCount: int("episodeCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PodcastSeries = typeof podcastSeries.$inferSelect;
+export type InsertPodcastSeries = typeof podcastSeries.$inferInsert;
+
+/**
+ * Podcast / Book Builder — Episodes (individual chapters or episodes)
+ */
+export const podcastEpisodes = mysqlTable("podcast_episodes", {
+  id: int("id").autoincrement().primaryKey(),
+  seriesId: int("seriesId").notNull(),
+  userId: int("userId").notNull(),
+  episodeNumber: int("episodeNumber").default(1).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  rawInput: text("rawInput"),           // Agent's raw notes / chapter text
+  script: text("script"),               // AI-polished narration script
+  outputType: mysqlEnum("outputType", ["audio", "avatar_video"]).default("audio").notNull(),
+  voiceId: varchar("voiceId", { length: 64 }),
+  audioUrl: text("audioUrl"),           // ElevenLabs MP3 URL
+  videoUrl: text("videoUrl"),           // Avatar video URL (if outputType = avatar_video)
+  videoJobId: varchar("videoJobId", { length: 128 }), // HeyGen / D-ID job ID
+  durationSeconds: int("durationSeconds"),
+  status: mysqlEnum("status", ["draft", "generating", "ready", "failed"]).default("draft").notNull(),
+  errorMessage: text("errorMessage"),
+  creditsCost: int("creditsCost").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PodcastEpisode = typeof podcastEpisodes.$inferSelect;
+export type InsertPodcastEpisode = typeof podcastEpisodes.$inferInsert;

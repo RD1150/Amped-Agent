@@ -6,6 +6,8 @@ import {
   Lightbulb,
   Mail,
   Calendar,
+  FileText,
+  Mic,
 } from "lucide-react";
 
 export default function EngageOverview() {
@@ -55,6 +57,20 @@ export default function EngageOverview() {
             label: "Content Calendar",
             path: "/calendar",
             description: "Schedule and publish all your content",
+          },
+          {
+            icon: FileText,
+            label: "Letters & Emails",
+            path: "/letters-emails",
+            description: "60+ pre-written drip series, holiday & prospecting templates",
+            badge: "New",
+          },
+          {
+            icon: Mic,
+            label: "Podcast & Book Builder",
+            path: "/podcast-builder",
+            description: "AI-narrated audio episodes and avatar videos from your expertise",
+            badge: "New",
           },
         ],
       }}

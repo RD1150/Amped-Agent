@@ -351,6 +351,30 @@ const toolVisuals: Record<string, { gradient: string; illustration: React.ReactN
       </svg>
     ),
   },
+  "/podcast-builder": {
+    gradient: "from-violet-600 via-purple-600 to-indigo-700",
+    illustration: (
+      <svg viewBox="0 0 120 80" className="w-full h-full" fill="none">
+        {/* Microphone */}
+        <rect x="50" y="12" width="20" height="32" rx="10" fill="white" fillOpacity="0.85"/>
+        <rect x="54" y="16" width="12" height="24" rx="6" fill="#7c3aed" fillOpacity="0.3"/>
+        {/* Mic stand */}
+        <path d="M40 44 Q60 56 80 44" stroke="white" strokeWidth="2" strokeOpacity="0.7" fill="none"/>
+        <line x1="60" y1="56" x2="60" y2="68" stroke="white" strokeWidth="2" strokeOpacity="0.7"/>
+        <line x1="48" y1="68" x2="72" y2="68" stroke="white" strokeWidth="2" strokeOpacity="0.7"/>
+        {/* Sound waves */}
+        <path d="M30 30 Q25 40 30 50" stroke="white" strokeWidth="1.5" strokeOpacity="0.5" fill="none"/>
+        <path d="M22 26 Q15 40 22 54" stroke="white" strokeWidth="1.5" strokeOpacity="0.3" fill="none"/>
+        <path d="M90 30 Q95 40 90 50" stroke="white" strokeWidth="1.5" strokeOpacity="0.5" fill="none"/>
+        <path d="M98 26 Q105 40 98 54" stroke="white" strokeWidth="1.5" strokeOpacity="0.3" fill="none"/>
+        {/* Book pages hint */}
+        <rect x="5" y="55" width="22" height="16" rx="2" fill="white" fillOpacity="0.4"/>
+        <rect x="8" y="59" width="14" height="1.5" rx="0.5" fill="#7c3aed" fillOpacity="0.5"/>
+        <rect x="8" y="63" width="10" height="1.5" rx="0.5" fill="#94a3b8" fillOpacity="0.4"/>
+        <rect x="8" y="67" width="12" height="1.5" rx="0.5" fill="#94a3b8" fillOpacity="0.3"/>
+      </svg>
+    ),
+  },
   "/guide-generator": {
     gradient: "from-amber-500 via-orange-500 to-red-500",
     illustration: (

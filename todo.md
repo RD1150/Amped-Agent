@@ -5032,3 +5032,12 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add visual gradient banners to Dashboard quick-launch tool cards
 - [x] Use real demo screenshot images for top tools (Property Tour, Avatar Video, AI Reels)
 - [x] Add "New" badge to recently-shipped tools (Letters & Emails, Blog Builder, Lead Magnet)
+
+## Session: Podcast & Book Builder (Apr 2026)
+- [x] DB schema: podcastSeries and podcastEpisodes tables
+- [x] Server procedures: CRUD for series and episodes, ElevenLabs audio generation, avatar video generation
+- [x] Podcast & Book Builder UI: series manager, episode creator, script editor
+- [x] ElevenLabs audio generation wired to episode creation
+- [x] Avatar video generation option for episodes
+- [x] Add to sidebar nav (Engage section), EngageOverview cards, and Dashboard
+- [x] Vitest tests for podcast procedures (6 tests passing)

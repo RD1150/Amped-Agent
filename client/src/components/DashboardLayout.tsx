@@ -79,6 +79,7 @@ import {
   X,
   AlertTriangle,
   Ticket,
+  Mic,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -598,6 +599,13 @@ const menuSections = [
         path: "/letters-emails",
         description: "60+ pre-written drip series, holiday & prospecting templates — auto-personalized",
         badge: "Authority",
+      },
+      {
+        icon: Mic,
+        label: "Podcast & Book Builder",
+        path: "/podcast-builder",
+        description: "Turn your expertise into AI-narrated audio episodes and avatar videos",
+        badge: "New",
       },
     ],
   },
