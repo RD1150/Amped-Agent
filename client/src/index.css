@@ -204,7 +204,7 @@
   }
 }
 
-/* Sidebar — hide scrollbar, add subtle top-to-bottom gradient */
+/* Sidebar — hide scrollbar, gradient, orange top accent, rounded right corners */
 [data-sidebar="sidebar"] {
   overflow: hidden;
   background: linear-gradient(
@@ -213,6 +213,8 @@
     oklch(0.20 0.010 250) 40%,
     oklch(0.17 0.008 250) 100%
   ) !important;
+  border-top: 3px solid oklch(0.65 0.20 45);
+  border-radius: 0 14px 14px 0;
 }
 
 [data-sidebar="content"] {

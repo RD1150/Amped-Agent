@@ -5062,3 +5062,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Lighter sidebar charcoal (oklch 0.20)
 - [x] Subtle top-to-bottom gradient on sidebar
 - [x] Warm-grey top header bar instead of pure white
+
+## Session: Final Chrome Refinements (Apr 2026)
+- [x] Warm off-white content area background (already oklch 0.98 warm cream — confirmed)
+- [x] Orange accent top border on sidebar
+- [x] Rounded right corners on sidebar panel
