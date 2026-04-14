@@ -129,22 +129,22 @@ export default function Dashboard() {
     <div className="space-y-8">
       {/* Beta Banner */}
       {!betaBannerDismissed && (
-        <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
-          <span className="text-[10px] font-bold tracking-widest uppercase bg-orange-500 text-white px-2 py-0.5 rounded-full shrink-0">
+        <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5">
+          <span className="text-[9px] font-bold tracking-widest uppercase bg-slate-800 text-white px-2 py-0.5 rounded shrink-0">
             BETA
           </span>
-          <p className="text-sm text-orange-800 flex-1">
+          <p className="text-sm text-slate-600 flex-1">
             You're using an early beta of Amped Agent. Your feedback shapes the platform —{" "}
             <a
               href="mailto:feedback@ampedagent.app"
-              className="font-semibold underline hover:text-orange-900"
+              className="font-semibold text-slate-800 underline hover:text-slate-900"
             >
               share your thoughts
             </a>.
           </p>
           <button
             onClick={dismissBetaBanner}
-            className="text-orange-400 hover:text-orange-600 transition-colors shrink-0"
+            className="text-slate-400 hover:text-slate-600 transition-colors shrink-0"
             aria-label="Dismiss beta banner"
           >
             <X className="h-4 w-4" />
@@ -176,19 +176,20 @@ export default function Dashboard() {
         {/* Lifecycle Stage Pills */}
         <div className="flex flex-wrap gap-2">
           {([
-            { label: "ATTRACT", sub: "Build your audience", color: "bg-blue-500/10 text-blue-600 border-blue-200", href: "/attract" },
-            { label: "ENGAGE", sub: "Stay top of mind", color: "bg-green-500/10 text-green-600 border-green-200", href: "/engage" },
-            { label: "CONVERT", sub: "Win listings", color: "bg-orange-500/10 text-orange-600 border-orange-200", href: "/convert" },
-            { label: "SCALE", sub: "Multiply output", color: "bg-purple-500/10 text-purple-600 border-purple-200", href: "/scale" },
-            { label: "DOMINATE", sub: "Own your market", color: "bg-red-500/10 text-red-600 border-red-200", href: "/dominate" },
+            { label: "ATTRACT", sub: "Build your audience", dot: "bg-blue-500", pill: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-blue-50 hover:border-blue-200", href: "/attract" },
+            { label: "ENGAGE", sub: "Stay top of mind", dot: "bg-green-500", pill: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-green-50 hover:border-green-200", href: "/engage" },
+            { label: "CONVERT", sub: "Win listings", dot: "bg-orange-500", pill: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-orange-50 hover:border-orange-200", href: "/convert" },
+            { label: "SCALE", sub: "Multiply output", dot: "bg-purple-500", pill: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-purple-50 hover:border-purple-200", href: "/scale" },
+            { label: "DOMINATE", sub: "Own your market", dot: "bg-red-500", pill: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-red-50 hover:border-red-200", href: "/dominate" },
           ] as const).map((stage) => (
             <button
               key={stage.label}
               onClick={() => setLocation(stage.href)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold tracking-wider transition-all hover:scale-105 ${stage.color}`}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold tracking-wide transition-all ${stage.pill}`}
             >
+              <span className={`inline-block w-1.5 h-1.5 rounded-full ${stage.dot} shrink-0`} />
               {stage.label}
-              <span className="font-normal opacity-70 hidden sm:inline">· {stage.sub}</span>
+              <span className="font-normal text-slate-400 hidden sm:inline">· {stage.sub}</span>
             </button>
           ))}
         </div>
@@ -270,24 +271,24 @@ export default function Dashboard() {
         <div className="md:col-span-2">
           <AuthorityScore />
         </div>
-        <Card className="p-6 bg-[#0F0F0F] border-primary/20">
+        <Card className="p-6 border">
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Market Dominance Tips</h3>
-            <ul className="space-y-3 text-sm text-slate-300">
+            <h3 className="text-base font-semibold text-foreground">Market Dominance Tips</h3>
+            <ul className="space-y-2.5 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">→</span>
+                <span className="text-primary font-bold mt-0.5">→</span>
                 <span>Post 3x per week to stay top-of-mind</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">→</span>
+                <span className="text-primary font-bold mt-0.5">→</span>
                 <span>Focus on local market insights</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">→</span>
+                <span className="text-primary font-bold mt-0.5">→</span>
                 <span>Use video to build trust faster</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">→</span>
+                <span className="text-primary font-bold mt-0.5">→</span>
                 <span>Share case studies and wins</span>
               </li>
             </ul>
@@ -499,24 +500,19 @@ export default function Dashboard() {
       </div>
 
       {/* Tips & Resources */}
-      <Card className="p-6 bg-primary/5 border-primary/20">
-        <div className="space-y-3">
-          <h3 className="font-semibold flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Pro Tip
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Post consistently to build your brand! Aim for 3-5 posts per week across different platforms. 
-            Use the Content Calendar to plan your content strategy and schedule posts in advance.
-          </p>
-        </div>
-      </Card>
+      <div className="flex items-start gap-3 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg">
+        <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+        <p className="text-sm text-slate-600">
+          <span className="font-semibold text-slate-800">Pro tip:</span> Post consistently to build your brand. Aim for 3–5 posts per week across platforms and use the Content Calendar to plan ahead.
+        </p>
+      </div>
 
-       {/* Video Tools */}
+      {/* Video Tools */}
       <div className="space-y-4">
-        <div>
-          <h2 className="text-xl font-semibold">Create a Video</h2>
-          <p className="text-sm text-muted-foreground">Choose the right tool for your goal</p>
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-2">Create a Video</h2>
+          <div className="h-px flex-1 bg-border" />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {/* Property Tour */}
@@ -662,9 +658,10 @@ export default function Dashboard() {
 
       {/* Content Tools */}
       <div className="space-y-4">
-        <div>
-          <h2 className="text-xl font-semibold">Content & Outreach</h2>
-          <p className="text-sm text-muted-foreground">Build authority with every touchpoint</p>
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-2">Content & Outreach</h2>
+          <div className="h-px flex-1 bg-border" />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {/* Letters & Emails — New */}

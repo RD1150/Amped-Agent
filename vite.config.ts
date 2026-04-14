@@ -23,6 +23,29 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Core React runtime
+          "vendor-react": ["react", "react-dom"],
+          // Router
+          "vendor-router": ["wouter"],
+          // tRPC + query
+          "vendor-trpc": ["@trpc/client", "@trpc/react-query", "@tanstack/react-query"],
+          // UI components
+          "vendor-ui": ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", "@radix-ui/react-select", "@radix-ui/react-tabs", "@radix-ui/react-tooltip", "@radix-ui/react-popover", "@radix-ui/react-accordion", "@radix-ui/react-label", "@radix-ui/react-slot"],
+          // Icons
+          "vendor-icons": ["lucide-react"],
+          // Charts
+          "vendor-charts": ["recharts"],
+          // Date utilities
+          "vendor-date": ["date-fns"],
+          // Form utilities
+          "vendor-form": ["react-hook-form", "@hookform/resolvers", "zod"],
+        },
+      },
+    },
   },
   server: {
     host: true,

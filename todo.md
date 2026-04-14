@@ -5082,3 +5082,19 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Session: Monochromatic Card Banner Redesign (Apr 2026)
 - [x] Replace rainbow gradient banners in SectionOverview with dark navy + white SVG + category color tag
 - [x] Update Dashboard tool card banners to match dark navy style
+
+## Session: Full Visual Coordination Pass (Apr 2026)
+- [ ] Establish unified design system tokens in index.css (typography scale, spacing, component classes)
+- [ ] Coordinate Dashboard: lifecycle pills, BETA banner, card borders, section headers
+- [ ] Coordinate DashboardLayout chrome: sidebar, header, user profile area
+- [ ] Coordinate all tool page headers to use a consistent page-header pattern
+- [ ] Coordinate all tool form layouts: label sizes, input styles, button hierarchy
+- [ ] Coordinate card styles across all pages (consistent border, shadow, radius)
+- [ ] Coordinate secondary pages: Settings, Credits, Upgrade, FAQ, Contact, Get Started
+- [ ] Ensure all badge/pill styles are consistent (New, Authority, Beta)
+- [ ] Ensure all empty states and loading skeletons are consistent
+
+## Session: Bundle Size Fix (Apr 2026)
+- [x] Vite manualChunks code splitting enabled
+- [x] All 70+ pages converted to React.lazy() for route-level splitting
+- [x] Main bundle: 4.6 MB -> 729 KB (6x reduction) - deployment timeout resolved
