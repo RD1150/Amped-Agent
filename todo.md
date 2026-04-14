@@ -5112,3 +5112,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Market Intelligence strip on Dashboard: snapshot + meaning + what to say
 - [ ] Coach system prompt rewrite: decisive strategist, not helpful assistant
 - [ ] Dashboard copy: replace passive language with active decision engine framing
+## Session: Decision Engine Enhancements (Apr 2026)
+- [ ] Refresh Diagnosis button on WeeklyInsightBlock with loading spinner and re-fetch
+- [ ] Priority Action deep-links: each action item has "Do This Now →" button navigating to the exact tool
+- [ ] Weekly Email Digest: DB column weeklyDigestEnabled on users table, opt-in toggle in Settings
+- [ ] Weekly Email Digest: server procedure to generate and send personalized weekly diagnosis email
+- [ ] Weekly Email Digest: Monday 8am cron job to send digest to all opted-in users
+- [ ] Weekly Email Digest: HTML email template with Critical Issue + Missed Opportunities + Priority Actions
+## Session: Remove Example Videos (Apr 2026)
+- [x] Remove AI Motion Tour and AI Reels example video cards from VideoPreviewGallery, keep only Cinematic and Ken Burns
+- [x] Remove AI Motion column from "Three Ways to Showcase" section in VideoPreviewGallery

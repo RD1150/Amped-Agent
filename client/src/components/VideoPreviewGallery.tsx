@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Mic, Clapperboard } from "lucide-react";
+import { Play, Clapperboard } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import {
@@ -36,27 +36,6 @@ const sampleVideos: VideoSample[] = [
     badge: "Cinematic",
     badgeColor: "default",
   },
-  {
-    id: "2",
-    title: "Modern Home — AI Motion Tour",
-    thumbnail: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/prop2_living_f2b1e396.jpg",
-    videoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/QBiKMspQTQCRQeGf.mp4",
-    description: "AI-generated real camera movement — dolly, crane, orbit — per room",
-    credits: 15,
-    badge: "AI Motion",
-    badgeColor: "outline",
-  },
-  {
-    id: "3",
-    title: "Estate Reel — Social Media Ready",
-    thumbnail: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/prop3_aerial1_1056fc69.jpg",
-    videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/autoreel_b17928e4.mp4",
-    description: "Vertical 9:16 format with hook text, property details, and CTA overlay",
-    credits: 8,
-    badge: "AI Reels",
-    badgeColor: "secondary",
-    isVertical: true,
-  },
 ];
 
 export default function VideoPreviewGallery() {
@@ -67,69 +46,59 @@ export default function VideoPreviewGallery() {
     <>
       <Card className="p-6">
         <div className="mb-6">
-          <h3 className="text-2xl font-bold mb-2">Video Samples</h3>
+          <h3 className="text-2xl font-bold mb-2">Video Sample</h3>
           <p className="text-muted-foreground">
-            Real AI-generated property videos — created with Amped Agent
+            Real AI-generated property video — created with Amped Agent
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {sampleVideos.map((video) => (
-            <div key={video.id} className="group">
-              <div
-                className={`relative rounded-lg overflow-hidden mb-3 cursor-pointer ${
-                  video.isVertical ? "aspect-[9/16] max-h-80" : "aspect-video"
-                }`}
-                onClick={() => setSelectedVideo(video)}
-              >
-                <img
-                  src={video.thumbnail}
-                  alt={video.title}
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg">
-                    <Play className="w-7 h-7 text-black fill-black ml-1" />
-                  </div>
-                </div>
-                <div className="absolute top-3 right-3">
-                  <Badge variant={video.badgeColor as any} className="gap-1 text-xs">
-                    <Play className="w-3 h-3" />
-                    {video.badge}
-                  </Badge>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          {/* Video card */}
+          <div className="group">
+            <div
+              className="relative rounded-lg overflow-hidden mb-3 cursor-pointer aspect-video"
+              onClick={() => setSelectedVideo(sampleVideos[0])}
+            >
+              <img
+                src={sampleVideos[0].thumbnail}
+                alt={sampleVideos[0].title}
+                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <Play className="w-7 h-7 text-black fill-black ml-1" />
                 </div>
               </div>
-
-              <h4 className="font-semibold mb-1 text-sm">{video.title}</h4>
-              <p className="text-xs text-muted-foreground mb-2">{video.description}</p>
-              {video.voice && (
-                <p className="text-xs text-muted-foreground mb-2">
-                  🎙️ {video.voice}
-                </p>
-              )}
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{video.credits} credits</span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setLocation("/property-tours")}
-                >
-                  Try This Style
-                </Button>
+              <div className="absolute top-3 right-3">
+                <Badge variant="default" className="gap-1 text-xs">
+                  <Play className="w-3 h-3" />
+                  Cinematic
+                </Badge>
               </div>
             </div>
-          ))}
-        </div>
+            <h4 className="font-semibold mb-1 text-sm">{sampleVideos[0].title}</h4>
+            <p className="text-xs text-muted-foreground mb-3">{sampleVideos[0].description}</p>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">{sampleVideos[0].credits} credits</span>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setLocation("/property-tours")}
+              >
+                Try This Style
+              </Button>
+            </div>
+          </div>
 
-        <div className="mt-8 p-6 bg-muted rounded-lg">
-          <h4 className="font-semibold mb-3">Three Ways to Showcase a Property</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          {/* Two styles info panel */}
+          <div className="p-5 bg-muted rounded-lg space-y-5">
+            <h4 className="font-semibold text-sm">Two Ways to Showcase a Property</h4>
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Play className="w-4 h-4 text-blue-600" />
-                <span className="font-medium">Ken Burns (5 credits)</span>
+                <span className="font-medium text-sm">Ken Burns (5 credits)</span>
               </div>
-              <ul className="space-y-1 text-muted-foreground">
+              <ul className="space-y-1 text-xs text-muted-foreground">
                 <li>• Slow pan &amp; zoom effects</li>
                 <li>• Smooth crossfade transitions</li>
                 <li>• Professional background music</li>
@@ -139,38 +108,33 @@ export default function VideoPreviewGallery() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Clapperboard className="w-4 h-4 text-primary" />
-                <span className="font-medium">Cinematic (7 credits)</span>
+                <span className="font-medium text-sm">Cinematic (7 credits)</span>
               </div>
-              <ul className="space-y-1 text-muted-foreground">
+              <ul className="space-y-1 text-xs text-muted-foreground">
                 <li>• Diagonal pans &amp; hard cuts</li>
                 <li>• 2.39:1 letterbox bars</li>
                 <li>• Dark vignette &amp; warm grade</li>
                 <li>• Luxury brand aesthetic</li>
               </ul>
             </div>
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Mic className="w-4 h-4 text-purple-600" />
-                <span className="font-medium">AI Motion (15 credits)</span>
-              </div>
-              <ul className="space-y-1 text-muted-foreground">
-                <li>• Real AI camera movement</li>
-                <li>• Dolly, crane, orbit, drone</li>
-                <li>• Per-room motion selection</li>
-                <li>• Powered by Kling AI</li>
-              </ul>
-            </div>
+            <Button
+              size="sm"
+              className="w-full mt-2"
+              onClick={() => setLocation("/property-tours")}
+            >
+              Create a Property Tour
+            </Button>
           </div>
         </div>
       </Card>
 
       <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
-        <DialogContent className={selectedVideo?.isVertical ? "max-w-sm" : "max-w-4xl"}>
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>{selectedVideo?.title}</DialogTitle>
             <DialogDescription>{selectedVideo?.description}</DialogDescription>
           </DialogHeader>
-          <div className={`bg-black rounded-lg overflow-hidden ${selectedVideo?.isVertical ? "aspect-[9/16]" : "aspect-video"}`}>
+          <div className="bg-black rounded-lg overflow-hidden aspect-video">
             {selectedVideo?.videoUrl && (
               <video
                 className="w-full h-full"
