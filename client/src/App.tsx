@@ -85,6 +85,11 @@ import AIDisclaimer from "./pages/AIDisclaimer";
 import FairHousing from "./pages/FairHousing";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import AttractOverview from "./pages/AttractOverview";
+import EngageOverview from "./pages/EngageOverview";
+import ConvertOverview from "./pages/ConvertOverview";
+import ScaleOverview from "./pages/ScaleOverview";
+import DominateOverview from "./pages/DominateOverview";
 
 function Router() {
   return (
@@ -173,6 +178,11 @@ function Router() {
         <Route path="/authority-profile" component={AuthorityProfile} />
         <Route path="/market-stats" component={MarketStats} />
         <Route path="/hooks" component={Hooks} />
+        <Route path="/attract" component={AttractOverview} />
+        <Route path="/engage" component={EngageOverview} />
+        <Route path="/convert" component={ConvertOverview} />
+        <Route path="/scale" component={ScaleOverview} />
+        <Route path="/dominate" component={DominateOverview} />
 
         <Route path="/analytics" component={Analytics} />
         <Route path="/schedules" component={Schedules} />

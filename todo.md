@@ -5000,3 +5000,19 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Live test: create invite code in Admin, register with it in incognito, confirm Authority tier
 - [ ] Live test: confirm Resend domain verified, trigger welcome email via test registration
 - [ ] Live test: claim admin role via Settings Claim Admin button
+
+## Session Apr 13 2026 - Public Blog Site
+- [ ] Add publicBlogSite router with listPublicPosts and getAgentProfile procedures (publicProcedure, by userId)
+- [ ] Create /blog/:userId public route in App.tsx
+- [ ] Build PublicBlogSite.tsx: dark header, blog grid, agent sidebar, social share
+- [ ] Build PublicBlogPost.tsx: full post view with sidebar, social share, back button
+- [ ] Add 'View My Blog Site' link in BlogBuilder.tsx
+
+## Session Apr 13 2026 - Letters & Emails Feature
+- [ ] Create shared/letterTemplates.ts with 50+ templates across all categories
+- [ ] Add lettersSent table to drizzle/schema.ts and push migration
+- [ ] Add lettersRouter with getTemplates, getPersona, saveUsed procedures
+- [ ] Build client/src/pages/LettersEmails.tsx: sidebar filters, card grid, personalization modal
+- [ ] Add route /letters-emails in App.tsx
+- [ ] Add Letters & Emails nav item under Engage section in DashboardLayout.tsx
+- [ ] Write vitest tests for lettersRouter

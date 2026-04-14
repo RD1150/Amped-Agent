@@ -176,11 +176,11 @@ export default function Dashboard() {
         {/* Lifecycle Stage Pills */}
         <div className="flex flex-wrap gap-2">
           {([
-            { label: "ATTRACT", sub: "Build your audience", color: "bg-blue-500/10 text-blue-600 border-blue-200", href: "/property-tours" },
-            { label: "ENGAGE", sub: "Stay top of mind", color: "bg-green-500/10 text-green-600 border-green-200", href: "/generate" },
-            { label: "CONVERT", sub: "Win listings", color: "bg-orange-500/10 text-orange-600 border-orange-200", href: "/listing-presentation" },
-            { label: "SCALE", sub: "Multiply output", color: "bg-purple-500/10 text-purple-600 border-purple-200", href: "/youtube-video-builder" },
-            { label: "DOMINATE", sub: "Own your market", color: "bg-red-500/10 text-red-600 border-red-200", href: "/coach" },
+            { label: "ATTRACT", sub: "Build your audience", color: "bg-blue-500/10 text-blue-600 border-blue-200", href: "/attract" },
+            { label: "ENGAGE", sub: "Stay top of mind", color: "bg-green-500/10 text-green-600 border-green-200", href: "/engage" },
+            { label: "CONVERT", sub: "Win listings", color: "bg-orange-500/10 text-orange-600 border-orange-200", href: "/convert" },
+            { label: "SCALE", sub: "Multiply output", color: "bg-purple-500/10 text-purple-600 border-purple-200", href: "/scale" },
+            { label: "DOMINATE", sub: "Own your market", color: "bg-red-500/10 text-red-600 border-red-200", href: "/dominate" },
           ] as const).map((stage) => (
             <button
               key={stage.label}
