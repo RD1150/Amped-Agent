@@ -5027,3 +5027,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Recently Used shortcuts on all 5 lifecycle overview pages (Attract, Engage, Convert, Scale, Dominate)
 - [x] useRecentTools hook — localStorage-based visit tracking, deduplication, max 20 entries
 - [x] recentTools.test.ts — 5 passing vitest tests
+
+## Session: Dashboard Visual Cards + New Badges (Apr 2026)
+- [x] Add visual gradient banners to Dashboard quick-launch tool cards
+- [x] Use real demo screenshot images for top tools (Property Tour, Avatar Video, AI Reels)
+- [x] Add "New" badge to recently-shipped tools (Letters & Emails, Blog Builder, Lead Magnet)

@@ -519,92 +519,223 @@ export default function Dashboard() {
           <p className="text-sm text-muted-foreground">Choose the right tool for your goal</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <Card
-            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+          {/* Property Tour */}
+          <div
+            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/property-tours")}
           >
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <div className="p-2 rounded-lg bg-blue-500/10">
-                  <Building2 className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Listing</span>
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Property Tour</p>
-                <p className="text-xs text-muted-foreground">Cinematic tour video · 5 credits</p>
-              </div>
+            <div className="h-24 bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-700 relative overflow-hidden">
+              <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
+                <polygon points="60,15 90,38 30,38" fill="white" fillOpacity="0.9"/>
+                <rect x="35" y="38" width="50" height="30" fill="white" fillOpacity="0.85"/>
+                <rect x="52" y="52" width="16" height="16" rx="2" fill="#3b82f6" fillOpacity="0.7"/>
+                <rect x="38" y="43" width="10" height="10" rx="1" fill="#bfdbfe" fillOpacity="0.9"/>
+                <rect x="72" y="43" width="10" height="10" rx="1" fill="#bfdbfe" fillOpacity="0.9"/>
+                <circle cx="18" cy="16" r="7" fill="#fbbf24" fillOpacity="0.7"/>
+                <circle cx="98" cy="18" r="10" fill="white" fillOpacity="0.2"/>
+                <rect x="92" y="14" width="12" height="9" rx="1.5" fill="white" fillOpacity="0.8"/>
+                <circle cx="98" cy="18.5" r="3" fill="#3b82f6" fillOpacity="0.8"/>
+              </svg>
+              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">Listing</span>
             </div>
-          </Card>
+            <div className="p-3 bg-background">
+              <p className="font-semibold text-sm">Property Tour</p>
+              <p className="text-xs text-muted-foreground">Cinematic tour video · 5 credits</p>
+            </div>
+          </div>
 
-          <Card
-            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+          {/* Live Tour */}
+          <div
+            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/live-tour")}
           >
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <div className="p-2 rounded-lg bg-red-500/10">
-                  <Smartphone className="h-5 w-5 text-red-500" />
-                </div>
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-green-700 bg-green-50 px-1.5 py-0.5 rounded">New</span>
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Live Tour</p>
-                <p className="text-xs text-muted-foreground">Record room-by-room · 8 credits</p>
-              </div>
+            <div className="h-24 bg-gradient-to-br from-violet-500 via-purple-600 to-fuchsia-700 relative overflow-hidden">
+              <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
+                <rect x="42" y="10" width="36" height="60" rx="6" fill="white" fillOpacity="0.85"/>
+                <rect x="46" y="16" width="28" height="44" rx="2" fill="#7c3aed" fillOpacity="0.3"/>
+                <circle cx="60" cy="38" r="8" fill="#ef4444" fillOpacity="0.8"/>
+                <circle cx="60" cy="38" r="4" fill="white" fillOpacity="0.9"/>
+                <circle cx="60" cy="38" r="13" stroke="white" strokeOpacity="0.4" strokeWidth="1.5" fill="none"/>
+                <circle cx="60" cy="38" r="18" stroke="white" strokeOpacity="0.2" strokeWidth="1" fill="none"/>
+                <rect x="50" y="60" width="20" height="7" rx="3" fill="#ef4444" fillOpacity="0.8"/>
+                <text x="60" y="65.5" textAnchor="middle" fill="white" fontSize="5" fontWeight="bold">LIVE</text>
+              </svg>
+              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-green-400/90 text-white px-1.5 py-0.5 rounded">New</span>
             </div>
-          </Card>
-          <Card
-            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+            <div className="p-3 bg-background">
+              <p className="font-semibold text-sm">Live Tour</p>
+              <p className="text-xs text-muted-foreground">Record room-by-room · 8 credits</p>
+            </div>
+          </div>
+
+          {/* AI Reels */}
+          <div
+            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/autoreels")}
           >
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <div className="p-2 rounded-lg bg-pink-500/10">
-                  <Video className="h-5 w-5 text-pink-600" />
-                </div>
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Social</span>
-              </div>
-              <div>
-                <p className="font-semibold text-sm">AI Reels</p>
-                <p className="text-xs text-muted-foreground">Short avatar clips · 5 credits</p>
-              </div>
+            <div className="h-24 bg-gradient-to-br from-pink-500 via-rose-500 to-orange-500 relative overflow-hidden">
+              <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
+                <rect x="45" y="8" width="30" height="64" rx="5" fill="white" fillOpacity="0.85"/>
+                <rect x="49" y="14" width="22" height="48" rx="2" fill="#f43f5e" fillOpacity="0.25"/>
+                <circle cx="60" cy="38" r="12" fill="white" fillOpacity="0.3"/>
+                <polygon points="56,32 56,44 68,38" fill="white" fillOpacity="0.9"/>
+                <text x="85" y="28" fill="white" fontSize="18" fillOpacity="0.7">♪</text>
+                <text x="22" y="50" fill="white" fontSize="14" fillOpacity="0.5">♫</text>
+              </svg>
+              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">Social</span>
             </div>
-          </Card>
-          <Card
-            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+            <div className="p-3 bg-background">
+              <p className="font-semibold text-sm">AI Reels</p>
+              <p className="text-xs text-muted-foreground">Short avatar clips · 5 credits</p>
+            </div>
+          </div>
+
+          {/* Avatar Video */}
+          <div
+            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/full-avatar-video")}
           >
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <div className="p-2 rounded-lg bg-indigo-500/10">
-                  <UserCircle className="h-5 w-5 text-indigo-600" />
-                </div>
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Social</span>
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Avatar Video</p>
-                <p className="text-xs text-muted-foreground">Talking-head from script · 15 credits</p>
-              </div>
+            <div className="h-24 bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 relative overflow-hidden">
+              <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
+                <circle cx="60" cy="26" r="14" fill="white" fillOpacity="0.85"/>
+                <ellipse cx="60" cy="62" rx="22" ry="16" fill="white" fillOpacity="0.75"/>
+                <circle cx="55" cy="24" r="2" fill="#f97316" fillOpacity="0.8"/>
+                <circle cx="65" cy="24" r="2" fill="#f97316" fillOpacity="0.8"/>
+                <path d="M54 31 Q60 36 66 31" stroke="#f97316" strokeWidth="1.5" strokeOpacity="0.8" fill="none" strokeLinecap="round"/>
+                <rect x="97" y="30" width="8" height="14" rx="4" fill="white" fillOpacity="0.8"/>
+                <path d="M93 40 Q93 50 101 50 Q109 50 109 40" stroke="white" strokeWidth="1.5" fill="none" strokeOpacity="0.7"/>
+                <text x="10" y="30" fill="white" fontSize="14" fillOpacity="0.6">✦</text>
+              </svg>
+              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">Social</span>
             </div>
-          </Card>
-          <Card
-            className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all group"
+            <div className="p-3 bg-background">
+              <p className="font-semibold text-sm">Avatar Video</p>
+              <p className="text-xs text-muted-foreground">Talking-head from script · 15 credits</p>
+            </div>
+          </div>
+
+          {/* YouTube Builder */}
+          <div
+            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/youtube-video-builder")}
           >
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <div className="p-2 rounded-lg bg-red-500/10">
-                  <Youtube className="h-5 w-5 text-red-600" />
-                </div>
-                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Social</span>
-              </div>
-              <div>
-                <p className="font-semibold text-sm">YouTube Builder</p>
-                <p className="text-xs text-muted-foreground">Long-form avatar video · 20 credits</p>
-              </div>
+            <div className="h-24 bg-gradient-to-br from-red-600 via-rose-600 to-red-700 relative overflow-hidden">
+              <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
+                <rect x="15" y="18" width="90" height="50" rx="10" fill="white" fillOpacity="0.2"/>
+                <rect x="25" y="25" width="70" height="36" rx="6" fill="white" fillOpacity="0.85"/>
+                <circle cx="60" cy="43" r="14" fill="#ef4444" fillOpacity="0.8"/>
+                <polygon points="55,37 55,49 69,43" fill="white"/>
+              </svg>
+              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">YouTube</span>
             </div>
-          </Card>
+            <div className="p-3 bg-background">
+              <p className="font-semibold text-sm">YouTube Builder</p>
+              <p className="text-xs text-muted-foreground">Long-form avatar video · 20 credits</p>
+            </div>
+          </div>
+
+          {/* Blog Builder — New */}
+          <div
+            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+            onClick={() => setLocation("/blog-builder")}
+          >
+            <div className="h-24 bg-gradient-to-br from-teal-500 via-cyan-600 to-blue-600 relative overflow-hidden">
+              <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
+                <rect x="30" y="10" width="50" height="60" rx="4" fill="white" fillOpacity="0.85"/>
+                <rect x="38" y="22" width="34" height="3" rx="1.5" fill="#0891b2" fillOpacity="0.6"/>
+                <rect x="38" y="30" width="28" height="2.5" rx="1.5" fill="#94a3b8" fillOpacity="0.5"/>
+                <rect x="38" y="36" width="32" height="2.5" rx="1.5" fill="#94a3b8" fillOpacity="0.5"/>
+                <rect x="38" y="42" width="25" height="2.5" rx="1.5" fill="#94a3b8" fillOpacity="0.5"/>
+                <circle cx="88" cy="22" r="10" stroke="white" strokeWidth="2" fill="none" strokeOpacity="0.8"/>
+                <line x1="95" y1="29" x2="103" y2="37" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.8"/>
+                <text x="83" y="25" fill="white" fontSize="8" fillOpacity="0.8">SEO</text>
+              </svg>
+              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-green-400/90 text-white px-1.5 py-0.5 rounded">New</span>
+            </div>
+            <div className="p-3 bg-background">
+              <p className="font-semibold text-sm">Blog Builder</p>
+              <p className="text-xs text-muted-foreground">SEO blog posts · 3 credits</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Tools */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold">Content & Outreach</h2>
+          <p className="text-sm text-muted-foreground">Build authority with every touchpoint</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {/* Letters & Emails — New */}
+          <div
+            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+            onClick={() => setLocation("/letters-emails")}
+          >
+            <div className="h-24 bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-600 relative overflow-hidden">
+              <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
+                <rect x="20" y="25" width="70" height="45" rx="4" fill="white" fillOpacity="0.85"/>
+                <polyline points="20,25 55,50 90,25" stroke="#3b82f6" strokeWidth="2" strokeOpacity="0.5" fill="none"/>
+                <polygon points="20,25 55,10 90,25" fill="white" fillOpacity="0.6"/>
+                <rect x="33" y="18" width="44" height="30" rx="2" fill="white" fillOpacity="0.9"/>
+                <rect x="38" y="23" width="30" height="2.5" rx="1" fill="#3b82f6" fillOpacity="0.5"/>
+                <rect x="38" y="28" width="24" height="2" rx="1" fill="#94a3b8" fillOpacity="0.5"/>
+                <rect x="38" y="33" width="28" height="2" rx="1" fill="#94a3b8" fillOpacity="0.4"/>
+                <text x="88" y="22" fill="#ef4444" fontSize="14" fillOpacity="0.7">♥</text>
+              </svg>
+              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-green-400/90 text-white px-1.5 py-0.5 rounded">New</span>
+            </div>
+            <div className="p-3 bg-background">
+              <p className="font-semibold text-sm">Letters & Emails</p>
+              <p className="text-xs text-muted-foreground">60+ templates · personalized</p>
+            </div>
+          </div>
+
+          {/* Lead Magnet */}
+          <div
+            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+            onClick={() => setLocation("/lead-magnet")}
+          >
+            <div className="h-24 bg-gradient-to-br from-indigo-500 via-blue-600 to-cyan-600 relative overflow-hidden">
+              <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
+                <rect x="35" y="10" width="42" height="55" rx="4" fill="white" fillOpacity="0.85"/>
+                <rect x="35" y="10" width="42" height="14" rx="4" fill="#4f46e5" fillOpacity="0.6"/>
+                <text x="56" y="21" textAnchor="middle" fill="white" fontSize="7" fontWeight="bold">PDF</text>
+                <rect x="42" y="30" width="28" height="2.5" rx="1" fill="#94a3b8" fillOpacity="0.6"/>
+                <rect x="42" y="36" width="22" height="2.5" rx="1" fill="#94a3b8" fillOpacity="0.5"/>
+                <rect x="42" y="42" width="26" height="2.5" rx="1" fill="#94a3b8" fillOpacity="0.5"/>
+                <path d="M88 20 Q100 20 100 32 Q100 44 88 44" stroke="white" strokeWidth="4" fill="none" strokeOpacity="0.8" strokeLinecap="round"/>
+                <line x1="88" y1="20" x2="88" y2="26" stroke="#ef4444" strokeWidth="4" strokeOpacity="0.8" strokeLinecap="round"/>
+                <line x1="88" y1="38" x2="88" y2="44" stroke="#3b82f6" strokeWidth="4" strokeOpacity="0.8" strokeLinecap="round"/>
+              </svg>
+              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">Authority</span>
+            </div>
+            <div className="p-3 bg-background">
+              <p className="font-semibold text-sm">Lead Magnet</p>
+              <p className="text-xs text-muted-foreground">Branded PDF for Facebook ads</p>
+            </div>
+          </div>
+
+          {/* Authority Post Builder */}
+          <div
+            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+            onClick={() => setLocation("/generate")}
+          >
+            <div className="h-24 bg-gradient-to-br from-violet-500 via-purple-600 to-pink-600 relative overflow-hidden">
+              <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
+                <text x="30" y="50" fill="white" fontSize="36" fillOpacity="0.7">✦</text>
+                <text x="70" y="35" fill="white" fontSize="24" fillOpacity="0.5">✦</text>
+                <text x="90" y="60" fill="white" fontSize="16" fillOpacity="0.4">✦</text>
+                <circle cx="60" cy="40" r="20" stroke="white" strokeOpacity="0.3" strokeWidth="1.5" fill="none"/>
+                <circle cx="60" cy="40" r="12" stroke="white" strokeOpacity="0.2" strokeWidth="1" fill="none"/>
+              </svg>
+              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">AI</span>
+            </div>
+            <div className="p-3 bg-background">
+              <p className="font-semibold text-sm">Authority Post Builder</p>
+              <p className="text-xs text-muted-foreground">AI posts that convert · 1 credit</p>
+            </div>
+          </div>
         </div>
       </div>
       {/* Referral Incentive Card */}
