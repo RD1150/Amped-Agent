@@ -5054,3 +5054,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Session: Sidebar Typography Polish (Apr 2026)
 - [x] Calm sidebar: refined font weight, size, spacing, and alignment
+
+## Session: Sidebar Color Softening (Apr 2026)
+- [x] Soften sidebar background from pure black to warm dark charcoal
