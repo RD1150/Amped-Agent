@@ -5041,3 +5041,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Avatar video generation option for episodes
 - [x] Add to sidebar nav (Engage section), EngageOverview cards, and Dashboard
 - [x] Vitest tests for podcast procedures (6 tests passing)
+
+## Session: Sidebar Collapsible Dropdowns + Hover Flyouts (Apr 2026)
+- [x] Replace flat sidebar nav with collapsible section dropdowns (ATTRACT, ENGAGE, CONVERT, SCALE, DOMINATE)
+- [x] Add hover flyout panel on section headers showing all tools with descriptions
+- [x] Section auto-expands when active child route is detected
+- [x] Non-lifecycle sections (HOME, ACCOUNT, ADMIN) remain always-open
+- [x] Active section header highlights in orange

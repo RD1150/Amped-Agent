@@ -846,6 +846,264 @@ const DEFAULT_WIDTH = 260;
 const MIN_WIDTH = 200;
 const MAX_WIDTH = 480;
 
+// Section color map for flyout header accents
+const SECTION_COLORS: Record<string, string> = {
+  ATTRACT: "from-sky-600 to-blue-700",
+  ENGAGE: "from-green-600 to-emerald-700",
+  CONVERT: "from-violet-600 to-purple-700",
+  SCALE: "from-orange-500 to-amber-600",
+  DOMINATE: "from-rose-600 to-red-700",
+  HOME: "from-slate-600 to-slate-700",
+  ACCOUNT: "from-slate-600 to-slate-700",
+  ADMIN: "from-slate-600 to-slate-700",
+};
+
+type MenuSection = (typeof menuSections)[number];
+type MenuItem = MenuSection["items"][number];
+
+function CollapsibleNavSections({
+  sections,
+  userRole,
+  location,
+  setLocation,
+  isCollapsed,
+}: {
+  sections: typeof menuSections;
+  userRole?: string;
+  location: string;
+  setLocation: (path: string) => void;
+  isCollapsed: boolean;
+}) {
+  // Track which sections are open; lifecycle sections start open if any child is active
+  const lifecycleSections = ["ATTRACT", "ENGAGE", "CONVERT", "SCALE", "DOMINATE"];
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    sections.forEach((s) => {
+      if (!lifecycleSections.includes(s.title)) {
+        init[s.title] = true; // HOME, ACCOUNT, ADMIN always open
+      } else {
+        // Open the section whose child is currently active
+        init[s.title] = s.items.some((item) => item.path === location);
+      }
+    });
+    return init;
+  });
+
+  const toggleSection = (title: string) => {
+    setOpenSections((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
+
+  const filtered = sections.filter(
+    (s) => !s.adminOnly || userRole === "admin"
+  );
+
+  return (
+    <>
+      {filtered.map((section) => {
+        const isLifecycle = lifecycleSections.includes(section.title);
+        const isOpen = openSections[section.title] ?? true;
+        const gradient = SECTION_COLORS[section.title] ?? "from-slate-600 to-slate-700";
+        const hasActiveChild = section.items.some((i) => i.path === location);
+
+        return (
+          <div key={section.title} className="mb-0">
+            {/* ── Section header ── */}
+            {isLifecycle && !isCollapsed ? (
+              // Lifecycle sections: clickable collapsible header + hover flyout
+              <HoverCard openDelay={400} closeDelay={150}>
+                <HoverCardTrigger asChild>
+                  <button
+                    onClick={() => toggleSection(section.title)}
+                    className={`w-full flex items-center justify-between px-4 pt-4 pb-1.5 group/sec focus:outline-none`}
+                  >
+                    <div>
+                      <h3
+                        className={`text-[11px] font-bold uppercase tracking-[0.1em] transition-colors ${
+                          hasActiveChild
+                            ? "text-orange-400"
+                            : "text-sidebar-foreground/75 group-hover/sec:text-sidebar-foreground"
+                        }`}
+                      >
+                        {section.title}
+                      </h3>
+                      {"subtitle" in section && section.subtitle && (
+                        <p className="text-[10px] text-sidebar-foreground/40 mt-0.5 leading-tight">
+                          {section.subtitle}
+                        </p>
+                      )}
+                    </div>
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 text-sidebar-foreground/40 transition-transform duration-200 ${
+                        isOpen ? "rotate-0" : "-rotate-90"
+                      }`}
+                    />
+                  </button>
+                </HoverCardTrigger>
+                {/* Flyout: all tools in this section */}
+                <HoverCardContent
+                  side="right"
+                  align="start"
+                  sideOffset={4}
+                  className="w-64 p-0 shadow-2xl border border-border/60 rounded-xl overflow-hidden"
+                >
+                  <div className={`bg-gradient-to-r ${gradient} px-4 py-3`}>
+                    <p className="text-xs font-bold text-white uppercase tracking-widest">{section.title}</p>
+                    {"subtitle" in section && section.subtitle && (
+                      <p className="text-[11px] text-white/70 mt-0.5">{section.subtitle}</p>
+                    )}
+                  </div>
+                  <div className="py-1">
+                    {section.items.map((item) => (
+                      <button
+                        key={item.path}
+                        onClick={() => setLocation(item.path)}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-accent transition-colors ${
+                          location === item.path ? "bg-orange-500/10" : ""
+                        }`}
+                      >
+                        <item.icon
+                          className={`h-3.5 w-3.5 shrink-0 ${
+                            location === item.path ? "text-orange-500" : "text-muted-foreground"
+                          }`}
+                        />
+                        <div className="min-w-0">
+                          <p
+                            className={`text-xs font-medium truncate ${
+                              location === item.path ? "text-orange-500" : "text-foreground"
+                            }`}
+                          >
+                            {item.label}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground truncate leading-tight">
+                            {item.description}
+                          </p>
+                        </div>
+                        {"badge" in item && item.badge && (
+                          <Badge
+                            variant="secondary"
+                            className="ml-auto text-[9px] px-1 py-0 h-3.5 shrink-0"
+                          >
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            ) : (
+              // Non-lifecycle sections (HOME, ACCOUNT, ADMIN): plain label, always open
+              !isCollapsed && (
+                <div className="px-4 pt-4 pb-1">
+                  <h3 className="text-[11px] font-bold text-sidebar-foreground/75 uppercase tracking-[0.1em]">
+                    {section.title}
+                  </h3>
+                  {"subtitle" in section && section.subtitle && (
+                    <p className="text-[10px] text-sidebar-foreground/40 mt-0.5 leading-tight">
+                      {section.subtitle}
+                    </p>
+                  )}
+                </div>
+              )
+            )}
+
+            {/* ── Items list (collapsible for lifecycle sections) ── */}
+            {(isOpen || !isLifecycle || isCollapsed) && (
+              <SidebarMenu className="px-2">
+                {section.items.map((item) => {
+                  const isActive = location === item.path;
+                  const hi = "hoverInfo" in item ? item.hoverInfo : null;
+
+                  const menuBtn = (
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      onClick={() => setLocation(item.path)}
+                      tooltip={item.description || item.label}
+                      className={`h-9 transition-all font-normal ${
+                        isActive
+                          ? "bg-orange-500/15 text-orange-500 rounded-md"
+                          : "hover:bg-sidebar-accent/70"
+                      }`}
+                    >
+                      <item.icon
+                        className={`h-4 w-4 shrink-0 ${
+                          isActive ? "text-orange-500" : "text-sidebar-foreground/55"
+                        }`}
+                      />
+                      <span
+                        className={`truncate text-sm ${
+                          isActive ? "text-orange-500 font-medium" : "text-sidebar-foreground/80"
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                      {"badge" in item && item.badge && (
+                        <Badge
+                          variant="secondary"
+                          className="ml-auto text-[10px] px-1.5 py-0 h-4"
+                        >
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </SidebarMenuButton>
+                  );
+
+                  return (
+                    <SidebarMenuItem key={item.path}>
+                      {hi && !isCollapsed ? (
+                        <HoverCard openDelay={300} closeDelay={100}>
+                          <HoverCardTrigger asChild>{menuBtn}</HoverCardTrigger>
+                          <HoverCardContent
+                            side="right"
+                            align="start"
+                            sideOffset={8}
+                            className="w-72 p-0 shadow-xl border border-border/60 rounded-xl overflow-hidden"
+                          >
+                            <div className="bg-[#0F0F0F] px-4 py-3 flex items-center gap-2">
+                              <item.icon className="h-4 w-4 text-orange-400 shrink-0" />
+                              <span className="text-sm font-semibold text-white">{item.label}</span>
+                              {"badge" in item && item.badge && (
+                                <Badge className="ml-auto text-[10px] px-1.5 py-0 h-4 bg-white/20 text-white border-0">
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="px-4 py-3 space-y-3">
+                              <p className="text-xs text-muted-foreground leading-relaxed">
+                                {hi.tagline}
+                              </p>
+                              <div className="space-y-1.5">
+                                {hi.details.map((d) => (
+                                  <div key={d.label} className="flex items-start gap-2 text-xs">
+                                    <span className="text-muted-foreground/70 shrink-0 w-20 font-medium">{d.label}</span>
+                                    <span className="text-foreground/80">{d.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <button
+                                onClick={() => setLocation(item.path)}
+                                className="w-full mt-1 text-xs font-medium text-primary hover:underline text-left"
+                              >
+                                Open {item.label} →
+                              </button>
+                            </div>
+                          </HoverCardContent>
+                        </HoverCard>
+                      ) : (
+                        menuBtn
+                      )}
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
 function ThemeToggleMenuItem() {
   const { theme, toggleTheme } = useTheme();
 
@@ -1050,123 +1308,13 @@ function DashboardLayoutContent({
 
           {/* ── Nav Items ─────────────────────────────────────────────── */}
           <SidebarContent className="gap-0 py-1">
-            {menuSections
-              .filter(
-                (section) =>
-                  !section.adminOnly || user?.role === "admin"
-              )
-              .map((section) => (
-                <div key={section.title} className="mb-0">
-                  {/* Section label */}
-                  <div className="px-4 pt-4 pb-1">
-                    <h3 className="text-[11px] font-bold text-sidebar-foreground/75 uppercase tracking-[0.1em]">
-                      {section.title}
-                    </h3>
-                    {"subtitle" in section && section.subtitle && !isCollapsed && (
-                      <p className="text-[10px] text-sidebar-foreground/40 mt-0.5 leading-tight">
-                        {section.subtitle}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Items */}
-                  <SidebarMenu className="px-2">
-                    {section.items.map((item) => {
-                      const isActive = location === item.path;
-                      const hi = "hoverInfo" in item ? item.hoverInfo : null;
-
-                      const menuBtn = (
-                        <SidebarMenuButton
-                          isActive={isActive}
-                          onClick={() => setLocation(item.path)}
-                          tooltip={item.description || item.label}
-                          className={`h-9 transition-all font-normal ${
-                            isActive
-                              ? "bg-orange-500/15 text-orange-500 rounded-md"
-                              : "hover:bg-sidebar-accent/70"
-                          }`}
-                        >
-                          <item.icon
-                            className={`h-4 w-4 shrink-0 ${
-                              isActive
-                                ? "text-orange-500"
-                                : "text-sidebar-foreground/55"
-                            }`}
-                          />
-                          <span
-                            className={`truncate text-sm ${
-                              isActive
-                                ? "text-orange-500 font-medium"
-                                : "text-sidebar-foreground/80"
-                            }`}
-                          >
-                            {item.label}
-                          </span>
-                          {"badge" in item && item.badge && (
-                            <Badge
-                              variant="secondary"
-                              className="ml-auto text-[10px] px-1.5 py-0 h-4"
-                            >
-                              {item.badge}
-                            </Badge>
-                          )}
-                        </SidebarMenuButton>
-                      );
-
-                      return (
-                        <SidebarMenuItem key={item.path}>
-                          {hi && !isCollapsed ? (
-                            <HoverCard openDelay={300} closeDelay={100}>
-                              <HoverCardTrigger asChild>
-                                {menuBtn}
-                              </HoverCardTrigger>
-                              <HoverCardContent
-                                side="right"
-                                align="start"
-                                sideOffset={8}
-                                className="w-72 p-0 shadow-xl border border-border/60 rounded-xl overflow-hidden"
-                              >
-                                {/* Header */}
-                                <div className="bg-[#0F0F0F] px-4 py-3 flex items-center gap-2">
-                                  <item.icon className="h-4 w-4 text-orange-400 shrink-0" />
-                                  <span className="text-sm font-semibold text-white">{item.label}</span>
-                                  {"badge" in item && item.badge && (
-                                    <Badge className="ml-auto text-[10px] px-1.5 py-0 h-4 bg-white/20 text-white border-0">
-                                      {item.badge}
-                                    </Badge>
-                                  )}
-                                </div>
-                                {/* Body */}
-                                <div className="px-4 py-3 space-y-3">
-                                  <p className="text-xs text-muted-foreground leading-relaxed">
-                                    {hi.tagline}
-                                  </p>
-                                  <div className="space-y-1.5">
-                                    {hi.details.map((d) => (
-                                      <div key={d.label} className="flex items-start gap-2 text-xs">
-                                        <span className="text-muted-foreground/70 shrink-0 w-20 font-medium">{d.label}</span>
-                                        <span className="text-foreground/80">{d.value}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                  <button
-                                    onClick={() => setLocation(item.path)}
-                                    className="w-full mt-1 text-xs font-medium text-primary hover:underline text-left"
-                                  >
-                                    Open {item.label} →
-                                  </button>
-                                </div>
-                              </HoverCardContent>
-                            </HoverCard>
-                          ) : (
-                            menuBtn
-                          )}
-                        </SidebarMenuItem>
-                      );
-                    })}
-                  </SidebarMenu>
-                </div>
-              ))}
+            <CollapsibleNavSections
+              sections={menuSections}
+              userRole={user?.role}
+              location={location}
+              setLocation={setLocation}
+              isCollapsed={isCollapsed}
+            />
           </SidebarContent>
 
           {/* ── Getting Started Checklist ─────────────────────────────── */}
