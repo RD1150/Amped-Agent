@@ -5098,3 +5098,17 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Vite manualChunks code splitting enabled
 - [x] All 70+ pages converted to React.lazy() for route-level splitting
 - [x] Main bundle: 4.6 MB -> 729 KB (6x reduction) - deployment timeout resolved
+
+## Session: 3 Improvements (Apr 2026)
+- [ ] Full visual coordination: BETA banner, lifecycle pills, card bottom borders, consistent palette
+- [ ] Split AIGenerate chunk into lazy sub-components (target <100KB)
+- [ ] Add page-level loading skeleton to DashboardLayout for lazy navigation
+
+## Session: Decision Engine Evolution (Apr 2026)
+- [ ] Activity->Insight Engine: server procedure analyzing agent activity (posts, videos, blogs, lead magnets)
+- [ ] Weekly Insight Block on Dashboard: 1 Critical Issue + 2 Missed Opportunities + 3 Priority Actions
+- [ ] Coach page: context selection buttons (Market shift, Listing appt, Buyer consult, Lead follow-up, Content strategy)
+- [ ] Coach 3-part output: Strategy + Talk Track + Action Steps
+- [ ] Market Intelligence strip on Dashboard: snapshot + meaning + what to say
+- [ ] Coach system prompt rewrite: decisive strategist, not helpful assistant
+- [ ] Dashboard copy: replace passive language with active decision engine framing

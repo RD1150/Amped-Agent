@@ -33,6 +33,8 @@ import UsageCounter from "@/components/UsageCounter";
 import VideoPreviewGallery from "@/components/VideoPreviewGallery";
 import AuthorityScore from "@/components/AuthorityScore";
 import ReferralCard from "@/components/ReferralCard";
+import WeeklyInsightBlock from "@/components/WeeklyInsightBlock";
+import MarketIntelligenceStrip from "@/components/MarketIntelligenceStrip";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { X, MessageSquare } from "lucide-react";
@@ -263,6 +265,12 @@ export default function Dashboard() {
         </Card>
       )}
 
+      {/* Weekly Insight Block — Decision Engine */}
+      <WeeklyInsightBlock />
+
+      {/* Market Intelligence Strip */}
+      <MarketIntelligenceStrip />
+
       {/* Usage Counter */}
       <UsageCounter />
 
@@ -271,24 +279,28 @@ export default function Dashboard() {
         <div className="md:col-span-2">
           <AuthorityScore />
         </div>
-        <Card className="p-6 border">
-          <div className="space-y-4">
-            <h3 className="text-base font-semibold text-foreground">Market Dominance Tips</h3>
-            <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold mt-0.5">→</span>
-                <span>Post 3x per week to stay top-of-mind</span>
+        <Card className="overflow-hidden border border-slate-200 shadow-sm">
+          {/* Navy header */}
+          <div className="bg-[#0f172a] px-5 py-4">
+            <h3 className="text-sm font-semibold text-white tracking-wide">Market Dominance Tips</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">Quick wins to grow your score</p>
+          </div>
+          <div className="p-5">
+            <ul className="space-y-3 text-sm text-slate-600">
+              <li className="flex items-start gap-2.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0f172a] mt-1.5 shrink-0" />
+                <span>Post 3× per week to stay top-of-mind</span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold mt-0.5">→</span>
+              <li className="flex items-start gap-2.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0f172a] mt-1.5 shrink-0" />
                 <span>Focus on local market insights</span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold mt-0.5">→</span>
+              <li className="flex items-start gap-2.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0f172a] mt-1.5 shrink-0" />
                 <span>Use video to build trust faster</span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold mt-0.5">→</span>
+              <li className="flex items-start gap-2.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0f172a] mt-1.5 shrink-0" />
                 <span>Share case studies and wins</span>
               </li>
             </ul>

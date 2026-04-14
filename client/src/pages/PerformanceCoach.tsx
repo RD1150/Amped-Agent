@@ -2,14 +2,13 @@ import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import {
   Loader2, Sparkles, TrendingUp, Target, MessageSquare,
-  CheckCircle2, Award, Upload, Image, Video, X, AlertCircle,
-  FileText, Send, Bot, User, Zap
+  CheckCircle2, Award, Upload, Image, X, AlertCircle,
+  FileText, Send, Bot, User, Zap, ChevronRight, ArrowRight,
+  BarChart2, Home, Users, Phone, Video, Lightbulb, RefreshCw
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,157 +22,206 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface CoachFeedback {
-  overallScore: number;
-  scores: {
-    engagement: number;
-    clarity: number;
-    cta: number;
-    authority: number;
-    avatarAlignment?: number;
-    brandAlignment?: number;
-    marketRelevance?: number;
-  };
-  strengths: string[];
-  improvements: string[];
-  rewriteSuggestion: string;
-}
-
-interface VisualFeedback {
-  overallScore: number;
-  summary: string;
-  strengths: string[];
-  improvements: string[];
-  priorityAction: string;
-}
-
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
 }
 
-const ANALYSIS_TYPES = [
-  { value: "headshot", label: "Professional Headshot", description: "Evaluate your profile photo for authority and approachability" },
-  { value: "listing_photo", label: "Listing Photo", description: "Get feedback on composition, lighting, and staging" },
-  { value: "social_post_screenshot", label: "Social Post Screenshot", description: "Analyze a screenshot of your Instagram or Facebook post" },
-  { value: "video_reel", label: "Video / Reel", description: "Review your video for hook strength, presence, and engagement" },
-  { value: "general", label: "General", description: "Any image or video for general marketing feedback" },
+interface ContextOutput {
+  strategy: string;
+  talkTrack: string;
+  actionSteps: string[];
+}
+
+// ── Context selection options ──────────────────────────────────────────────
+const CONTEXTS = [
+  {
+    id: "market_shift",
+    icon: BarChart2,
+    label: "Market Shift",
+    description: "Rates changed, inventory shifted, or buyer sentiment moved",
+    color: "text-blue-600",
+    bg: "bg-blue-50 hover:bg-blue-100 border-blue-200",
+    activeBg: "bg-blue-600 text-white border-blue-600",
+    prompt: "The market has shifted. Give me a decisive strategy for how to position myself, what to say to clients, and the 3 most important actions I should take right now.",
+  },
+  {
+    id: "listing_appointment",
+    icon: Home,
+    label: "Listing Appointment",
+    description: "Prep me to win a listing appointment this week",
+    color: "text-emerald-600",
+    bg: "bg-emerald-50 hover:bg-emerald-100 border-emerald-200",
+    activeBg: "bg-emerald-600 text-white border-emerald-600",
+    prompt: "I have a listing appointment coming up. Based on my activity and authority level, give me a decisive strategy to win it, the exact talk track I should use, and the 3 most important things I need to prepare.",
+  },
+  {
+    id: "buyer_consultation",
+    icon: Users,
+    label: "Buyer Consultation",
+    description: "Set expectations and convert a buyer into a committed client",
+    color: "text-violet-600",
+    bg: "bg-violet-50 hover:bg-violet-100 border-violet-200",
+    activeBg: "bg-violet-600 text-white border-violet-600",
+    prompt: "I have a buyer consultation. Give me a decisive strategy to convert them into a committed client, the exact talk track I should use, and the 3 most important actions to take before and during the meeting.",
+  },
+  {
+    id: "lead_followup",
+    icon: Phone,
+    label: "Lead Follow-Up",
+    description: "Re-engage a cold lead or convert a warm one",
+    color: "text-orange-600",
+    bg: "bg-orange-50 hover:bg-orange-100 border-orange-200",
+    activeBg: "bg-orange-600 text-white border-orange-600",
+    prompt: "I need to follow up with leads. Give me a decisive strategy for re-engaging cold leads and converting warm ones, the exact words to say, and the 3 most effective follow-up actions I should take this week.",
+  },
+  {
+    id: "content_strategy",
+    icon: Video,
+    label: "Content Strategy",
+    description: "Tell me exactly what content to create this week",
+    color: "text-pink-600",
+    bg: "bg-pink-50 hover:bg-pink-100 border-pink-200",
+    activeBg: "bg-pink-600 text-white border-pink-600",
+    prompt: "Tell me exactly what content I should create this week based on my current activity gaps and market position. Give me a decisive content plan, the specific messages I should be sending, and the 3 highest-leverage content actions I can take right now.",
+  },
 ];
 
-const STARTER_PROMPTS = [
-  "What should I focus on this week to win more listings?",
-  "How do I build more authority in my local market?",
-  "What content strategy will get me the most leads?",
-  "How do I stand out against bigger teams in my area?",
-  "What's the fastest way to grow my sphere of influence?",
+const ANALYSIS_TYPES = [
+  { value: "headshot", label: "Professional Headshot" },
+  { value: "listing_photo", label: "Listing Photo" },
+  { value: "social_post_screenshot", label: "Social Post Screenshot" },
+  { value: "video_reel", label: "Video / Reel" },
+  { value: "general", label: "General" },
 ];
 
 export default function PerformanceCoach() {
-  const [postContent, setPostContent] = useState("");
-  const [feedback, setFeedback] = useState<CoachFeedback | null>(null);
-
-  // Visual analysis state
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [analysisType, setAnalysisType] = useState<string>("general");
-  const [additionalContext, setAdditionalContext] = useState("");
-  const [visualFeedback, setVisualFeedback] = useState<VisualFeedback | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Dominance Chat state
+  const [activeTab, setActiveTab] = useState("strategy");
+  const [selectedContext, setSelectedContext] = useState<string | null>(null);
+  const [contextOutput, setContextOutput] = useState<ContextOutput | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const analyzePost = trpc.coach.analyze.useMutation({
-    onSuccess: (data: CoachFeedback) => {
-      setFeedback(data);
-      toast.success("Analysis complete!");
-    },
-    onError: (error: any) => {
-      toast.error(`Analysis failed: ${error.message}`);
-    },
-  });
+  // Post analysis
+  const [postContent, setPostContent] = useState("");
+  const [feedback, setFeedback] = useState<any>(null);
 
-  const analyzeVisual = trpc.coach.analyzeVisual.useMutation({
-    onSuccess: (data: VisualFeedback) => {
-      setVisualFeedback(data);
-      toast.success("Visual analysis complete!");
-    },
-    onError: (error: any) => {
-      toast.error(`Visual analysis failed: ${error.message}`);
-    },
-  });
+  // Visual analysis
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [analysisType, setAnalysisType] = useState("general");
+  const [additionalContext, setAdditionalContext] = useState("");
+  const [visualFeedback, setVisualFeedback] = useState<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const activitySummary = trpc.coach.getActivitySummary.useQuery();
 
   const dominanceChat = trpc.coach.dominanceChat.useMutation({
     onSuccess: (data) => {
-      const reply = typeof data.reply === 'string' ? data.reply : '';
-      setChatMessages(prev => [...prev, { role: "assistant", content: reply }]);
+      const reply = typeof data.reply === "string" ? data.reply : "";
+      setChatMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     },
     onError: (error: any) => {
       toast.error(`Coach unavailable: ${error.message}`);
-      // Remove the optimistic user message on error
-      setChatMessages(prev => prev.slice(0, -1));
+      setChatMessages((prev) => prev.slice(0, -1));
     },
+  });
+
+  const analyzePost = trpc.coach.analyze.useMutation({
+    onSuccess: (data: any) => {
+      setFeedback(data);
+      toast.success("Analysis complete!");
+    },
+    onError: (error: any) => toast.error(`Analysis failed: ${error.message}`),
+  });
+
+  const analyzeVisual = trpc.coach.analyzeVisual.useMutation({
+    onSuccess: (data: any) => {
+      setVisualFeedback(data);
+      toast.success("Visual analysis complete!");
+    },
+    onError: (error: any) => toast.error(`Visual analysis failed: ${error.message}`),
   });
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
-  const handleAnalyze = () => {
-    if (!postContent.trim()) {
-      toast.error("Please enter post content to analyze");
-      return;
-    }
-    if (postContent.length < 50) {
-      toast.error("Post content is too short. Please enter at least 50 characters.");
-      return;
-    }
-    analyzePost.mutate({ content: postContent });
+  // ── Context selection handler ──────────────────────────────────────────
+  const handleContextSelect = (contextId: string) => {
+    const ctx = CONTEXTS.find((c) => c.id === contextId);
+    if (!ctx) return;
+    setSelectedContext(contextId);
+    setContextOutput(null);
+
+    const userMsg: ChatMessage = { role: "user", content: ctx.prompt };
+    const msgs = [userMsg];
+    setChatMessages(msgs);
+
+    dominanceChat.mutate({ messages: msgs }, {
+      onSuccess: (data) => {
+        const reply = typeof data.reply === "string" ? data.reply : "";
+        // Parse the 3-part output from the reply
+        const strategyMatch = reply.match(/##?\s*Strategy[:\s]*([\s\S]*?)(?=##?\s*Talk Track|##?\s*Action|$)/i);
+        const talkMatch = reply.match(/##?\s*Talk Track[:\s]*([\s\S]*?)(?=##?\s*Action|$)/i);
+        const actionsMatch = reply.match(/##?\s*Action Steps?[:\s]*([\s\S]*?)$/i);
+
+        if (strategyMatch || talkMatch || actionsMatch) {
+          const rawActions = actionsMatch?.[1]?.trim() ?? "";
+          const actionLines = rawActions
+            .split(/\n/)
+            .map((l) => l.replace(/^[-*\d.]+\s*/, "").trim())
+            .filter((l) => l.length > 10)
+            .slice(0, 5);
+
+          setContextOutput({
+            strategy: strategyMatch?.[1]?.trim() ?? reply,
+            talkTrack: talkMatch?.[1]?.trim() ?? "",
+            actionSteps: actionLines.length > 0 ? actionLines : ["Review your current pipeline", "Post one piece of content today", "Follow up with 3 leads"],
+          });
+        } else {
+          // Fallback: show full reply as strategy
+          setContextOutput({
+            strategy: reply,
+            talkTrack: "",
+            actionSteps: [],
+          });
+        }
+        setChatMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      },
+    });
+  };
+
+  const handleChatSend = (message?: string) => {
+    const text = message ?? chatInput.trim();
+    if (!text) return;
+    const newMsg: ChatMessage = { role: "user", content: text };
+    const updated = [...chatMessages, newMsg];
+    setChatMessages(updated);
+    setChatInput("");
+    dominanceChat.mutate({ messages: updated });
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // 16MB limit
-    if (file.size > 16 * 1024 * 1024) {
-      toast.error("File too large. Maximum size is 16MB.");
-      return;
-    }
-
+    if (file.size > 16 * 1024 * 1024) { toast.error("File too large. Max 16MB."); return; }
     const isImage = file.type.startsWith("image/");
     const isVideo = file.type.startsWith("video/");
-    if (!isImage && !isVideo) {
-      toast.error("Please upload an image (JPG, PNG, WebP) or video (MP4, MOV, WebM).");
-      return;
-    }
-
+    if (!isImage && !isVideo) { toast.error("Please upload an image or video."); return; }
     setSelectedFile(file);
     setVisualFeedback(null);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-
-    // Auto-set analysis type based on file type
-    if (isVideo && analysisType === "general") {
-      setAnalysisType("video_reel");
-    }
+    setPreviewUrl(URL.createObjectURL(file));
+    if (isVideo && analysisType === "general") setAnalysisType("video_reel");
   };
 
   const handleVisualAnalyze = () => {
-    if (!selectedFile) {
-      toast.error("Please upload a photo or video first.");
-      return;
-    }
-
+    if (!selectedFile) { toast.error("Please upload a file first."); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
-      const fileData = e.target?.result as string;
       analyzeVisual.mutate({
-        fileData,
+        fileData: e.target?.result as string,
         mimeType: selectedFile.type,
         fileName: selectedFile.name,
         analysisType: analysisType as any,
@@ -183,92 +231,50 @@ export default function PerformanceCoach() {
     reader.readAsDataURL(selectedFile);
   };
 
-  const clearFile = () => {
-    setSelectedFile(null);
-    setPreviewUrl(null);
-    setVisualFeedback(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const handleChatSend = (message?: string) => {
-    const text = message ?? chatInput.trim();
-    if (!text) return;
-
-    const newMessage: ChatMessage = { role: "user", content: text };
-    const updatedMessages = [...chatMessages, newMessage];
-    setChatMessages(updatedMessages);
-    setChatInput("");
-
-    dominanceChat.mutate({
-      messages: updatedMessages,
-    });
-  };
-
-  const handleChatKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleChatSend();
-    }
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-primary";
-    if (score >= 60) return "text-primary/70";
-    return "text-red-600";
-  };
-
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return "Excellent";
-    if (score >= 60) return "Good";
-    return "Needs Work";
-  };
-
-  const getScoreBg = (score: number) => {
-    if (score >= 80) return "bg-green-50 border-green-200";
-    if (score >= 60) return "bg-primary/5 border-primary/20";
-    return "bg-red-50 border-red-200";
-  };
-
   return (
     <div className="container max-w-6xl py-8">
-      {/* Hero Banner */}
-      <div className="relative mb-10 rounded-2xl overflow-hidden bg-[#0F0F0F] border border-primary/30 shadow-xl">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-        <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-center gap-6">
+      {/* ── Hero Banner ─────────────────────────────────────────────────── */}
+      <div className="relative mb-8 rounded-2xl overflow-hidden bg-[#0f172a] shadow-xl">
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        <div className="relative px-8 py-8 flex flex-col md:flex-row md:items-center gap-6">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/30">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">
                 <Award className="h-3.5 w-3.5" />
                 Authority Feature
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/30">
                 <Zap className="h-3.5 w-3.5" />
-                Personalized to your activity
+                Knows your activity
               </span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
+            <h1 className="text-3xl font-extrabold text-white mb-2 leading-tight">
               Market Dominance Coach
             </h1>
-            <p className="text-lg text-primary font-medium mb-1">
-              Your unfair advantage in any market.
+            <p className="text-base text-orange-400 font-semibold mb-1">
+              Here's what I'd focus on if I were you.
             </p>
-            <p className="text-sm text-white/60 max-w-xl">
-              Analyze your posts, headshots, listing photos, and videos — or chat directly with your AI coach for personalized strategy based on your actual platform activity.
+            <p className="text-sm text-white/50 max-w-xl">
+              I analyze your activity and tell you exactly what to do to win listings. Choose what you're working on and I'll give you a strategy, a talk track, and your next 3 actions.
             </p>
           </div>
-          <div className="hidden md:flex flex-col items-center justify-center w-36 h-36 rounded-2xl bg-primary/10 border border-primary/30 shrink-0">
-            <Award className="h-14 w-14 text-primary/80 mb-2" />
-            <span className="text-xs text-slate-400 text-center leading-tight">AI Strategy<br/>Scoring</span>
+          <div className="hidden md:flex flex-col items-center justify-center w-32 h-32 rounded-2xl bg-orange-500/10 border border-orange-500/20 shrink-0">
+            <Target className="h-12 w-12 text-orange-400 mb-1.5" />
+            <span className="text-[10px] text-slate-400 text-center leading-tight">Decisive<br/>Strategist</span>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="chat" className="w-full">
+      {/* ── Tabs ────────────────────────────────────────────────────────── */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-6 w-full max-w-2xl">
+          <TabsTrigger value="strategy" className="flex-1 flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Strategy Session
+          </TabsTrigger>
           <TabsTrigger value="chat" className="flex-1 flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
-            Strategy Chat
+            Open Chat
           </TabsTrigger>
           <TabsTrigger value="text" className="flex-1 flex items-center gap-2">
             <FileText className="h-4 w-4" />
@@ -276,64 +282,168 @@ export default function PerformanceCoach() {
           </TabsTrigger>
           <TabsTrigger value="visual" className="flex-1 flex items-center gap-2">
             <Image className="h-4 w-4" />
-            Analyze Photo / Video
+            Analyze Visual
           </TabsTrigger>
         </TabsList>
 
-        {/* ── STRATEGY CHAT TAB ── */}
+        {/* ── STRATEGY SESSION TAB ──────────────────────────────────────── */}
+        <TabsContent value="strategy">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Left: Context selection */}
+            <div className="md:col-span-1 space-y-3">
+              <div className="mb-4">
+                <h2 className="text-base font-bold text-slate-800 mb-1">Choose what you're working on</h2>
+                <p className="text-xs text-slate-500">I'll give you a strategy, talk track, and action steps — specific to your situation.</p>
+              </div>
+              {CONTEXTS.map((ctx) => {
+                const Icon = ctx.icon;
+                const isActive = selectedContext === ctx.id;
+                return (
+                  <button
+                    key={ctx.id}
+                    onClick={() => handleContextSelect(ctx.id)}
+                    disabled={dominanceChat.isPending}
+                    className={`w-full text-left rounded-xl border px-4 py-3.5 transition-all duration-150 ${
+                      isActive ? ctx.activeBg + " shadow-sm" : ctx.bg + " text-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-white" : ctx.color}`} />
+                      <div>
+                        <div className={`text-sm font-semibold ${isActive ? "text-white" : "text-slate-800"}`}>{ctx.label}</div>
+                        <div className={`text-xs mt-0.5 leading-snug ${isActive ? "text-white/70" : "text-slate-500"}`}>{ctx.description}</div>
+                      </div>
+                      <ChevronRight className={`h-4 w-4 ml-auto shrink-0 ${isActive ? "text-white/70" : "text-slate-300"}`} />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Right: 3-part output */}
+            <div className="md:col-span-2">
+              {!selectedContext && !dominanceChat.isPending && (
+                <div className="h-full flex flex-col items-center justify-center text-center py-16 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+                  <Target className="h-12 w-12 text-slate-300 mb-4" />
+                  <h3 className="text-base font-semibold text-slate-600 mb-2">Select a situation on the left</h3>
+                  <p className="text-sm text-slate-400 max-w-xs">
+                    I'll analyze your activity and give you a decisive strategy — not generic advice.
+                  </p>
+                </div>
+              )}
+
+              {dominanceChat.isPending && !contextOutput && (
+                <div className="h-full flex flex-col items-center justify-center text-center py-16 rounded-2xl border border-slate-200 bg-white">
+                  <Loader2 className="h-10 w-10 animate-spin text-orange-500 mb-4" />
+                  <p className="text-sm font-semibold text-slate-700 mb-1">Analyzing your activity...</p>
+                  <p className="text-xs text-slate-400">Building your personalized strategy</p>
+                </div>
+              )}
+
+              {contextOutput && (
+                <div className="space-y-4">
+                  {/* Strategy */}
+                  <Card className="overflow-hidden">
+                    <div className="bg-[#0f172a] px-5 py-3 flex items-center gap-2">
+                      <Lightbulb className="h-4 w-4 text-orange-400" />
+                      <span className="text-xs font-bold uppercase tracking-widest text-orange-400">Strategy</span>
+                    </div>
+                    <div className="p-5">
+                      <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{contextOutput.strategy}</p>
+                    </div>
+                  </Card>
+
+                  {/* Talk Track */}
+                  {contextOutput.talkTrack && (
+                    <Card className="overflow-hidden">
+                      <div className="bg-slate-800 px-5 py-3 flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4 text-slate-300" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Talk Track</span>
+                        <span className="ml-auto text-[10px] text-slate-500">Exact words to use</span>
+                      </div>
+                      <div className="p-5 bg-slate-50">
+                        <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap italic">"{contextOutput.talkTrack}"</p>
+                      </div>
+                    </Card>
+                  )}
+
+                  {/* Action Steps */}
+                  {contextOutput.actionSteps.length > 0 && (
+                    <Card className="overflow-hidden">
+                      <div className="bg-emerald-700 px-5 py-3 flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-200" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-emerald-200">Your Next Actions</span>
+                        <span className="ml-auto text-[10px] text-emerald-400">Do these today</span>
+                      </div>
+                      <div className="p-5 space-y-3">
+                        {contextOutput.actionSteps.map((step, i) => (
+                          <div key={i} className="flex items-start gap-3">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#0f172a] text-white text-xs font-bold shrink-0 mt-0.5">
+                              {i + 1}
+                            </span>
+                            <p className="text-sm text-slate-700 leading-snug">{step}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  )}
+
+                  <button
+                    onClick={() => { setSelectedContext(null); setContextOutput(null); setChatMessages([]); }}
+                    className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    Start a new session
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* ── OPEN CHAT TAB ─────────────────────────────────────────────── */}
         <TabsContent value="chat">
           <div className="grid md:grid-cols-3 gap-6">
-            {/* Chat Window */}
             <div className="md:col-span-2 flex flex-col">
               <Card className="flex flex-col h-[540px]">
                 <div className="px-5 py-4 border-b flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Bot className="h-5 w-5 text-primary" />
+                  <div className="w-9 h-9 rounded-full bg-[#0f172a] flex items-center justify-center">
+                    <Bot className="h-5 w-5 text-orange-400" />
                   </div>
                   <div>
                     <div className="font-semibold text-sm">Market Dominance Coach</div>
-                    <div className="text-xs text-muted-foreground">Knows your activity · Gives real advice</div>
+                    <div className="text-xs text-muted-foreground">Decisive · Opinionated · Personalized</div>
                   </div>
-                  <Badge variant="outline" className="ml-auto text-xs text-green-600 border-green-300 bg-green-50">
-                    Live
-                  </Badge>
+                  <Badge variant="outline" className="ml-auto text-xs text-green-600 border-green-300 bg-green-50">Live</Badge>
                 </div>
 
                 <ScrollArea className="flex-1 px-5 py-4">
                   {chatMessages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center py-8">
-                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                        <Bot className="h-8 w-8 text-primary/60" />
+                      <div className="w-16 h-16 rounded-full bg-[#0f172a] flex items-center justify-center mb-4">
+                        <Bot className="h-8 w-8 text-orange-400" />
                       </div>
+                      <p className="font-semibold text-slate-700 mb-2">What are you trying to win?</p>
                       <p className="text-muted-foreground text-sm max-w-xs">
-                        Your coach has reviewed your platform activity and is ready to give you specific, personalized strategy. Ask anything.
+                        I've reviewed your activity. Ask me anything and I'll give you a direct answer — not a list of options.
                       </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {chatMessages.map((msg, i) => (
                         <div key={i} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                            msg.role === "assistant" ? "bg-primary/10" : "bg-slate-100"
-                          }`}>
-                            {msg.role === "assistant"
-                              ? <Bot className="h-4 w-4 text-primary" />
-                              : <User className="h-4 w-4 text-slate-500" />
-                            }
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === "assistant" ? "bg-[#0f172a]" : "bg-slate-100"}`}>
+                            {msg.role === "assistant" ? <Bot className="h-4 w-4 text-orange-400" /> : <User className="h-4 w-4 text-slate-500" />}
                           </div>
-                          <div className={`rounded-2xl px-4 py-3 max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap ${
-                            msg.role === "assistant"
-                              ? "bg-muted text-foreground"
-                              : "bg-primary text-primary-foreground"
-                          }`}>
+                          <div className={`rounded-2xl px-4 py-3 max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "assistant" ? "bg-muted text-foreground" : "bg-[#0f172a] text-white"}`}>
                             {msg.content}
                           </div>
                         </div>
                       ))}
                       {dominanceChat.isPending && (
                         <div className="flex gap-3">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                            <Bot className="h-4 w-4 text-primary" />
+                          <div className="w-8 h-8 rounded-full bg-[#0f172a] flex items-center justify-center shrink-0">
+                            <Bot className="h-4 w-4 text-orange-400" />
                           </div>
                           <div className="rounded-2xl px-4 py-3 bg-muted">
                             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -348,19 +458,14 @@ export default function PerformanceCoach() {
                 <div className="px-5 py-4 border-t">
                   <div className="flex gap-2">
                     <Textarea
-                      placeholder="Ask your coach anything about your market strategy..."
+                      placeholder="Ask your coach anything..."
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
-                      onKeyDown={handleChatKeyDown}
+                      onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleChatSend(); } }}
                       rows={2}
                       className="resize-none text-sm"
                     />
-                    <Button
-                      onClick={() => handleChatSend()}
-                      disabled={dominanceChat.isPending || !chatInput.trim()}
-                      size="icon"
-                      className="h-auto"
-                    >
+                    <Button onClick={() => handleChatSend()} disabled={dominanceChat.isPending || !chatInput.trim()} size="icon" className="h-auto bg-[#0f172a] hover:bg-slate-800">
                       <Send className="h-4 w-4" />
                     </Button>
                   </div>
@@ -369,20 +474,26 @@ export default function PerformanceCoach() {
               </Card>
             </div>
 
-            {/* Starter Prompts */}
+            {/* Sidebar: contextual prompts + activity */}
             <div className="space-y-4">
               <Card className="p-5">
                 <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Ask your coach
+                  <Sparkles className="h-4 w-4 text-orange-500" />
+                  Contextual prompts
                 </h3>
                 <div className="space-y-2">
-                  {STARTER_PROMPTS.map((prompt, i) => (
+                  {[
+                    "Fix my pipeline",
+                    "Prep me for a listing appointment",
+                    "Turn my activity into content",
+                    "What's my biggest gap right now?",
+                    "Give me one leverage move for this week",
+                  ].map((prompt, i) => (
                     <button
                       key={i}
                       onClick={() => handleChatSend(prompt)}
                       disabled={dominanceChat.isPending}
-                      className="w-full text-left text-xs px-3 py-2.5 rounded-lg border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors text-muted-foreground hover:text-foreground"
+                      className="w-full text-left text-xs px-3 py-2.5 rounded-lg border border-border hover:border-orange-300 hover:bg-orange-50 transition-colors text-muted-foreground hover:text-foreground"
                     >
                       {prompt}
                     </button>
@@ -392,17 +503,14 @@ export default function PerformanceCoach() {
 
               <Card className="p-5">
                 <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                  Your Activity Summary
-                  <Badge variant="outline" className="ml-auto text-xs">Last 30 days</Badge>
+                  <TrendingUp className="h-4 w-4 text-orange-500" />
+                  Your Activity
+                  <Badge variant="outline" className="ml-auto text-xs">30 days</Badge>
                 </h3>
                 {activitySummary.isLoading ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  </div>
+                  <div className="flex items-center justify-center py-4"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
                 ) : activitySummary.data ? (
                   <div className="space-y-3">
-                    {/* Profile Score */}
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs text-muted-foreground">Authority Profile</span>
@@ -410,39 +518,18 @@ export default function PerformanceCoach() {
                       </div>
                       <Progress value={activitySummary.data.profileScore} className="h-1.5" />
                     </div>
-                    {/* Activity Stats */}
                     <div className="grid grid-cols-3 gap-2 pt-1">
-                      <div className="text-center rounded-lg bg-muted/50 px-2 py-2">
-                        <div className="text-lg font-bold text-foreground">{activitySummary.data.postsLast30}</div>
-                        <div className="text-[10px] text-muted-foreground leading-tight">Posts</div>
-                      </div>
-                      <div className="text-center rounded-lg bg-muted/50 px-2 py-2">
-                        <div className="text-lg font-bold text-foreground">{activitySummary.data.videosLast30}</div>
-                        <div className="text-[10px] text-muted-foreground leading-tight">Videos</div>
-                      </div>
-                      <div className="text-center rounded-lg bg-muted/50 px-2 py-2">
-                        <div className="text-lg font-bold text-foreground">{activitySummary.data.blogsLast30}</div>
-                        <div className="text-[10px] text-muted-foreground leading-tight">Blogs</div>
-                      </div>
+                      {[
+                        { val: activitySummary.data.postsLast30, label: "Posts" },
+                        { val: activitySummary.data.videosLast30, label: "Videos" },
+                        { val: activitySummary.data.blogsLast30, label: "Blogs" },
+                      ].map((s) => (
+                        <div key={s.label} className="text-center rounded-lg bg-muted/50 px-2 py-2">
+                          <div className="text-lg font-bold text-foreground">{s.val}</div>
+                          <div className="text-[10px] text-muted-foreground">{s.label}</div>
+                        </div>
+                      ))}
                     </div>
-                    {/* Credits + Tier */}
-                    <div className="flex items-center justify-between pt-1 border-t border-border">
-                      <span className="text-xs text-muted-foreground">Credits remaining</span>
-                      <span className="text-xs font-semibold text-primary">{activitySummary.data.creditBalance.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Plan</span>
-                      <Badge variant="outline" className="text-xs capitalize">{activitySummary.data.subscriptionTier}</Badge>
-                    </div>
-                    {/* Quick gaps */}
-                    {(!activitySummary.data.hasHeadshot || !activitySummary.data.hasBio || !activitySummary.data.hasBookingUrl) && (
-                      <div className="pt-1 border-t border-border">
-                        <p className="text-[10px] text-amber-600 font-medium mb-1">Profile gaps your coach sees:</p>
-                        {!activitySummary.data.hasHeadshot && <p className="text-[10px] text-muted-foreground">· No headshot uploaded</p>}
-                        {!activitySummary.data.hasBio && <p className="text-[10px] text-muted-foreground">· No bio written</p>}
-                        {!activitySummary.data.hasBookingUrl && <p className="text-[10px] text-muted-foreground">· No booking link set</p>}
-                      </div>
-                    )}
                   </div>
                 ) : null}
               </Card>
@@ -450,255 +537,192 @@ export default function PerformanceCoach() {
           </div>
         </TabsContent>
 
-        {/* ── TEXT ANALYSIS TAB ── */}
+        {/* ── ANALYZE POST TAB ──────────────────────────────────────────── */}
         <TabsContent value="text">
           <div className="grid md:grid-cols-2 gap-6">
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Your Post</h2>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="postContent">Post Content</Label>
-                  <Textarea
-                    id="postContent"
-                    placeholder="Paste your post content here for analysis..."
-                    value={postContent}
-                    onChange={(e) => setPostContent(e.target.value)}
-                    rows={12}
-                    className="mt-1.5"
-                  />
-                  <p className="text-sm text-muted-foreground mt-1">{postContent.length} characters</p>
-                </div>
-                <Button onClick={handleAnalyze} disabled={analyzePost.isPending} className="w-full" size="lg">
-                  {analyzePost.isPending ? (
-                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>
-                  ) : (
-                    <><Sparkles className="mr-2 h-4 w-4" />Analyze Post</>
-                  )}
+            <div className="space-y-4">
+              <Card className="p-6">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-orange-500" />
+                  Paste your post content
+                </h3>
+                <Textarea
+                  placeholder="Paste your social media post, email, or any marketing copy here..."
+                  value={postContent}
+                  onChange={(e) => setPostContent(e.target.value)}
+                  rows={8}
+                  className="resize-none text-sm mb-3"
+                />
+                <Button
+                  onClick={() => {
+                    if (!postContent.trim() || postContent.length < 50) { toast.error("Post must be at least 50 characters."); return; }
+                    analyzePost.mutate({ content: postContent });
+                  }}
+                  disabled={analyzePost.isPending}
+                  className="w-full bg-[#0f172a] hover:bg-slate-800"
+                >
+                  {analyzePost.isPending ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Analyzing...</> : <><Sparkles className="h-4 w-4 mr-2" />Analyze Post</>}
                 </Button>
-              </div>
-            </Card>
+              </Card>
+            </div>
 
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Performance Analysis</h2>
+            <div>
               {feedback ? (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className={`text-5xl font-bold ${getScoreColor(feedback.overallScore)}`}>{feedback.overallScore}</div>
-                    <div className="text-sm text-muted-foreground mt-1">{getScoreLabel(feedback.overallScore)}</div>
+                <Card className="p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold">Analysis Results</h3>
+                    <span className={`text-2xl font-bold ${feedback.overallScore >= 80 ? "text-green-600" : feedback.overallScore >= 60 ? "text-orange-500" : "text-red-600"}`}>
+                      {feedback.overallScore}/100
+                    </span>
                   </div>
-                  <div className="space-y-3">
-                    {[
-                      { label: "Engagement Potential", key: "engagement" },
-                      { label: "Clarity & Readability", key: "clarity" },
-                      { label: "Call-to-Action Strength", key: "cta" },
-                      { label: "Authority & Credibility", key: "authority" },
-                    ].map(({ label, key }) => (
-                      <div key={key}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>{label}</span>
-                          <span className={getScoreColor((feedback.scores as any)[key])}>{(feedback.scores as any)[key]}/100</span>
+                  {feedback.strengths?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wide text-green-600 mb-2">Strengths</p>
+                      {feedback.strengths.map((s: string, i: number) => (
+                        <div key={i} className="flex items-start gap-2 text-sm text-slate-700 mb-1">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
+                          {s}
                         </div>
-                        <Progress value={(feedback.scores as any)[key]} className="h-2" />
-                      </div>
-                    ))}
-                    {feedback.scores.avatarAlignment !== undefined && (
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Avatar Alignment</span>
-                          <span className={getScoreColor(feedback.scores.avatarAlignment)}>{feedback.scores.avatarAlignment}/100</span>
+                      ))}
+                    </div>
+                  )}
+                  {feedback.improvements?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wide text-red-600 mb-2">Improvements</p>
+                      {feedback.improvements.map((s: string, i: number) => (
+                        <div key={i} className="flex items-start gap-2 text-sm text-slate-700 mb-1">
+                          <AlertCircle className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
+                          {s}
                         </div>
-                        <Progress value={feedback.scores.avatarAlignment} className="h-2" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="space-y-3">
-                    {feedback.strengths.length > 0 && (
-                      <div className="rounded-lg bg-green-50 border border-green-200 p-3">
-                        <div className="text-xs font-semibold text-green-700 mb-1 flex items-center gap-1">
-                          <CheckCircle2 className="h-3.5 w-3.5" />Strengths
-                        </div>
-                        <ul className="text-xs text-green-800 space-y-1">
-                          {feedback.strengths.map((s, i) => <li key={i}>• {s}</li>)}
-                        </ul>
-                      </div>
-                    )}
-                    {feedback.improvements.length > 0 && (
-                      <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
-                        <div className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1">
-                          <Target className="h-3.5 w-3.5" />Improvements
-                        </div>
-                        <ul className="text-xs text-amber-800 space-y-1">
-                          {feedback.improvements.map((s, i) => <li key={i}>• {s}</li>)}
-                        </ul>
-                      </div>
-                    )}
-                    {feedback.rewriteSuggestion && (
-                      <div className="rounded-lg bg-primary/5 border border-primary/20 p-3">
-                        <div className="text-xs font-semibold text-primary mb-1 flex items-center gap-1">
-                          <Sparkles className="h-3.5 w-3.5" />Suggested Rewrite
-                        </div>
-                        <p className="text-xs text-foreground/80 leading-relaxed">{feedback.rewriteSuggestion}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                      ))}
+                    </div>
+                  )}
+                  {feedback.rewriteSuggestion && (
+                    <div className="bg-slate-50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Suggested Rewrite</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{feedback.rewriteSuggestion}</p>
+                    </div>
+                  )}
+                </Card>
               ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <TrendingUp className="h-12 w-12 text-muted-foreground/30 mb-3" />
-                  <p className="text-muted-foreground text-sm">Your performance analysis will appear here after you analyze a post.</p>
+                <div className="h-full flex flex-col items-center justify-center text-center py-16 rounded-2xl border-2 border-dashed border-slate-200">
+                  <FileText className="h-10 w-10 text-slate-300 mb-3" />
+                  <p className="text-sm text-slate-400">Your analysis will appear here</p>
                 </div>
               )}
-            </Card>
+            </div>
           </div>
         </TabsContent>
 
-        {/* ── VISUAL ANALYSIS TAB ── */}
+        {/* ── ANALYZE VISUAL TAB ────────────────────────────────────────── */}
         <TabsContent value="visual">
           <div className="grid md:grid-cols-2 gap-6">
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Upload Photo or Video</h2>
-              <div className="space-y-4">
-                <div>
-                  <Label>Analysis Type</Label>
-                  <Select value={analysisType} onValueChange={setAnalysisType}>
-                    <SelectTrigger className="mt-1.5">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ANALYSIS_TYPES.map(t => (
-                        <SelectItem key={t.value} value={t.value}>
-                          <div>
-                            <div className="font-medium">{t.label}</div>
-                            <div className="text-xs text-muted-foreground">{t.description}</div>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+            <div className="space-y-4">
+              <Card className="p-6">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Image className="h-4 w-4 text-orange-500" />
+                  Upload photo or video
+                </h3>
+                <Select value={analysisType} onValueChange={setAnalysisType}>
+                  <SelectTrigger className="mb-3 text-sm">
+                    <SelectValue placeholder="Select analysis type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ANALYSIS_TYPES.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
                 {!selectedFile ? (
                   <div
-                    className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                    className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-colors"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <Upload className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">JPG, PNG, WebP, MP4, MOV, WebM · Max 16MB</p>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*,video/*"
-                      className="hidden"
-                      onChange={handleFileSelect}
-                    />
+                    <Upload className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                    <p className="text-sm text-slate-500">Click to upload image or video</p>
+                    <p className="text-xs text-slate-400 mt-1">JPG, PNG, WebP, MP4, MOV · Max 16MB</p>
                   </div>
                 ) : (
-                  <div className="relative rounded-xl overflow-hidden border border-border">
+                  <div className="relative rounded-xl overflow-hidden border border-slate-200">
                     {selectedFile.type.startsWith("image/") ? (
                       <img src={previewUrl!} alt="Preview" className="w-full h-48 object-cover" />
                     ) : (
                       <video src={previewUrl!} className="w-full h-48 object-cover" controls />
                     )}
-                    <button
-                      onClick={clearFile}
-                      className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition-colors"
-                    >
-                      <X className="h-3.5 w-3.5 text-white" />
+                    <button onClick={() => { setSelectedFile(null); setPreviewUrl(null); setVisualFeedback(null); if (fileInputRef.current) fileInputRef.current.value = ""; }} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80">
+                      <X className="h-3.5 w-3.5" />
                     </button>
-                    <div className="p-3 bg-muted/50">
-                      <p className="text-xs text-muted-foreground truncate">{selectedFile.name}</p>
-                    </div>
                   </div>
                 )}
 
-                <div>
-                  <Label htmlFor="additionalContext">Additional Context (optional)</Label>
-                  <Textarea
-                    id="additionalContext"
-                    placeholder="e.g. This is for Instagram, targeting first-time buyers in Austin..."
-                    value={additionalContext}
-                    onChange={(e) => setAdditionalContext(e.target.value)}
-                    rows={3}
-                    className="mt-1.5"
-                  />
-                </div>
+                <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFileSelect} className="hidden" />
+
+                <Textarea
+                  placeholder="Optional: add context (e.g., 'This is for Instagram')"
+                  value={additionalContext}
+                  onChange={(e) => setAdditionalContext(e.target.value)}
+                  rows={2}
+                  className="resize-none text-sm mt-3"
+                />
 
                 <Button
                   onClick={handleVisualAnalyze}
                   disabled={analyzeVisual.isPending || !selectedFile}
-                  className="w-full"
-                  size="lg"
+                  className="w-full mt-3 bg-[#0f172a] hover:bg-slate-800"
                 >
-                  {analyzeVisual.isPending ? (
-                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>
-                  ) : (
-                    <><Sparkles className="mr-2 h-4 w-4" />Analyze {selectedFile?.type.startsWith("video/") ? "Video" : "Photo"}</>
-                  )}
+                  {analyzeVisual.isPending ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Analyzing...</> : <><Sparkles className="h-4 w-4 mr-2" />Analyze Visual</>}
                 </Button>
-              </div>
-            </Card>
+              </Card>
+            </div>
 
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Visual Analysis</h2>
+            <div>
               {visualFeedback ? (
-                <div className="space-y-5">
-                  <div className={`rounded-xl border p-4 text-center ${getScoreBg(visualFeedback.overallScore)}`}>
-                    <div className={`text-4xl font-bold ${getScoreColor(visualFeedback.overallScore)}`}>{visualFeedback.overallScore}</div>
-                    <div className="text-sm text-muted-foreground mt-1">{getScoreLabel(visualFeedback.overallScore)}</div>
+                <Card className="p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold">Visual Analysis</h3>
+                    <span className={`text-2xl font-bold ${visualFeedback.overallScore >= 80 ? "text-green-600" : visualFeedback.overallScore >= 60 ? "text-orange-500" : "text-red-600"}`}>
+                      {visualFeedback.overallScore}/100
+                    </span>
                   </div>
-                  <div className="rounded-lg bg-muted/50 p-3">
-                    <p className="text-sm leading-relaxed">{visualFeedback.summary}</p>
-                  </div>
-                  {visualFeedback.strengths.length > 0 && (
-                    <div className="rounded-lg bg-green-50 border border-green-200 p-3">
-                      <div className="text-xs font-semibold text-green-700 mb-1 flex items-center gap-1">
-                        <CheckCircle2 className="h-3.5 w-3.5" />Strengths
-                      </div>
-                      <ul className="text-xs text-green-800 space-y-1">
-                        {visualFeedback.strengths.map((s, i) => <li key={i}>• {s}</li>)}
-                      </ul>
+                  {visualFeedback.summary && <p className="text-sm text-slate-600 leading-relaxed">{visualFeedback.summary}</p>}
+                  {visualFeedback.strengths?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wide text-green-600 mb-2">Strengths</p>
+                      {visualFeedback.strengths.map((s: string, i: number) => (
+                        <div key={i} className="flex items-start gap-2 text-sm text-slate-700 mb-1">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />{s}
+                        </div>
+                      ))}
                     </div>
                   )}
-                  {visualFeedback.improvements.length > 0 && (
-                    <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
-                      <div className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1">
-                        <Target className="h-3.5 w-3.5" />Improvements
-                      </div>
-                      <ul className="text-xs text-amber-800 space-y-1">
-                        {visualFeedback.improvements.map((s, i) => <li key={i}>• {s}</li>)}
-                      </ul>
+                  {visualFeedback.improvements?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wide text-red-600 mb-2">Improvements</p>
+                      {visualFeedback.improvements.map((s: string, i: number) => (
+                        <div key={i} className="flex items-start gap-2 text-sm text-slate-700 mb-1">
+                          <AlertCircle className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />{s}
+                        </div>
+                      ))}
                     </div>
                   )}
                   {visualFeedback.priorityAction && (
-                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-3">
-                      <div className="text-xs font-semibold text-primary mb-1 flex items-center gap-1">
-                        <Zap className="h-3.5 w-3.5" />Priority Action
-                      </div>
-                      <p className="text-xs text-foreground/80 leading-relaxed">{visualFeedback.priorityAction}</p>
+                    <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wide text-orange-600 mb-1">Priority Action</p>
+                      <p className="text-sm text-slate-700">{visualFeedback.priorityAction}</p>
                     </div>
                   )}
-                </div>
+                </Card>
               ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <Image className="h-12 w-12 text-muted-foreground/30 mb-3" />
-                  <p className="text-muted-foreground text-sm">Upload a photo or video to get AI-powered visual feedback.</p>
+                <div className="h-full flex flex-col items-center justify-center text-center py-16 rounded-2xl border-2 border-dashed border-slate-200">
+                  <Image className="h-10 w-10 text-slate-300 mb-3" />
+                  <p className="text-sm text-slate-400">Your visual analysis will appear here</p>
                 </div>
               )}
-            </Card>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* Tips Section */}
-      <Card className="mt-6 p-6">
-        <h3 className="font-semibold mb-3">💡 Market Dominance Tips</h3>
-        <div className="grid md:grid-cols-3 gap-4 text-sm">
-          <div><strong>Hook in first line:</strong> Grab attention immediately with a question, stat, or bold statement.</div>
-          <div><strong>Clear CTA:</strong> Tell readers exactly what to do next — DM, comment, visit link, etc.</div>
-          <div><strong>Show authority:</strong> Include specific numbers, local knowledge, or unique insights to build credibility.</div>
-        </div>
-      </Card>
     </div>
   );
 }

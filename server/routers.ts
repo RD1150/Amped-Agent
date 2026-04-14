@@ -2169,6 +2169,182 @@ Score criteria:
       };
     }),
 
+    weeklyDiagnosis: protectedProcedure.query(async ({ ctx }) => {
+      // Gather all activity data
+      const dbInst = await db.getDb();
+      if (!dbInst) throw new Error('Database unavailable');
+      const { eq, desc } = await import('drizzle-orm');
+      const schema = await import('../drizzle/schema');
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      const [persona, contentPostsRows, videosRows, blogPostsRows, leadMagnetsRows, userRows, podcastRows] = await Promise.all([
+        db.getPersonaByUserId(ctx.user.id),
+        dbInst.select({ id: schema.contentPosts.id, createdAt: schema.contentPosts.createdAt })
+          .from(schema.contentPosts).where(eq(schema.contentPosts.userId, ctx.user.id))
+          .orderBy(desc(schema.contentPosts.createdAt)).limit(200),
+        dbInst.select({ id: schema.generatedVideos.id, type: schema.generatedVideos.type, createdAt: schema.generatedVideos.createdAt })
+          .from(schema.generatedVideos).where(eq(schema.generatedVideos.userId, ctx.user.id))
+          .orderBy(desc(schema.generatedVideos.createdAt)).limit(100),
+        dbInst.select({ id: schema.blogPosts.id, createdAt: schema.blogPosts.createdAt })
+          .from(schema.blogPosts).where(eq(schema.blogPosts.userId, ctx.user.id))
+          .orderBy(desc(schema.blogPosts.createdAt)).limit(100),
+        dbInst.select({ id: schema.leadMagnets.id, createdAt: schema.leadMagnets.createdAt })
+          .from(schema.leadMagnets).where(eq(schema.leadMagnets.userId, ctx.user.id))
+          .orderBy(desc(schema.leadMagnets.createdAt)).limit(50),
+        dbInst.select({ creditBalance: schema.users.creditBalance, subscriptionTier: schema.users.subscriptionTier, name: schema.users.name })
+          .from(schema.users).where(eq(schema.users.id, ctx.user.id)).limit(1),
+        dbInst.select({ id: schema.podcastEpisodes.id, createdAt: schema.podcastEpisodes.createdAt })
+          .from(schema.podcastEpisodes).where(eq(schema.podcastEpisodes.userId, ctx.user.id))
+          .orderBy(desc(schema.podcastEpisodes.createdAt)).limit(50),
+      ]);
+
+      const postsLast7 = contentPostsRows.filter(p => new Date(p.createdAt) >= sevenDaysAgo).length;
+      const postsLast30 = contentPostsRows.filter(p => new Date(p.createdAt) >= thirtyDaysAgo).length;
+      const videosLast30 = videosRows.filter(v => new Date(v.createdAt) >= thirtyDaysAgo).length;
+      const blogsTotal = blogPostsRows.length;
+      const blogsLast30 = blogPostsRows.filter(b => new Date(b.createdAt) >= thirtyDaysAgo).length;
+      const leadMagnetsTotal = leadMagnetsRows.length;
+      const podcastsTotal = podcastRows.length;
+      const userRow = userRows[0];
+      const agentName = userRow?.name || persona?.agentName || 'Agent';
+      const primaryCity = persona?.primaryCity || 'your market';
+      const hasHeadshot = !!persona?.headshotUrl;
+      const hasBio = !!persona?.bio;
+      const hasBookingUrl = !!persona?.bookingUrl;
+      const profileScore = (() => {
+        const fields = [!!persona?.agentName, hasHeadshot, !!persona?.brokerageName, !!persona?.phoneNumber, !!persona?.websiteUrl, hasBio, !!persona?.primaryCity, !!persona?.tagline, !!persona?.targetAudience, !!persona?.logoUrl];
+        return Math.round((fields.filter(Boolean).length / fields.length) * 100);
+      })();
+
+      const activitySummary = [
+        `Posts created (last 7 days): ${postsLast7}`,
+        `Posts created (last 30 days): ${postsLast30}`,
+        `Total posts ever: ${contentPostsRows.length}`,
+        `Videos generated (last 30 days): ${videosLast30}`,
+        `Total videos ever: ${videosRows.length}`,
+        `Blog posts total: ${blogsTotal} (${blogsLast30} in last 30 days)`,
+        `Lead magnets created: ${leadMagnetsTotal}`,
+        `Podcast episodes created: ${podcastsTotal}`,
+        `Profile completion: ${profileScore}%`,
+        `Has professional headshot: ${hasHeadshot}`,
+        `Has bio: ${hasBio}`,
+        `Has booking URL: ${hasBookingUrl}`,
+        `Primary market: ${primaryCity}`,
+        `Subscription tier: ${userRow?.subscriptionTier || 'free'}`,
+      ].join('\n');
+
+      const response = await invokeLLM({
+        messages: [
+          {
+            role: 'system',
+            content: `You are a decisive real estate business strategist. You analyze agent activity data and produce a weekly diagnosis — not suggestions, but directives. Be blunt, specific, and urgent. Every insight must include: what is happening, why it matters, and exactly what to do about it. Do not hedge. Do not say "consider" or "you might want to". Say "Do this" and "Fix this".`,
+          },
+          {
+            role: 'user',
+            content: `Agent: ${agentName} | Market: ${primaryCity}\n\nACTIVITY DATA:\n${activitySummary}\n\nGenerate a weekly diagnosis with:\n1. One critical issue (the single biggest problem holding them back right now)\n2. Two missed opportunities (high-leverage things they are not doing that would move the needle)\n3. Three priority actions (specific, executable tasks to do THIS WEEK, in order of impact)\n4. One leverage insight (a pattern in their data that reveals an untapped opportunity)\n5. Weekly focus statement (one bold sentence that captures what they should be laser-focused on this week)`,
+          },
+        ],
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'weekly_diagnosis',
+            strict: true,
+            schema: {
+              type: 'object',
+              properties: {
+                criticalIssue: {
+                  type: 'object',
+                  properties: {
+                    title: { type: 'string' },
+                    whatIsHappening: { type: 'string' },
+                    consequence: { type: 'string' },
+                    action: { type: 'string' },
+                  },
+                  required: ['title', 'whatIsHappening', 'consequence', 'action'],
+                  additionalProperties: false,
+                },
+                missedOpportunities: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      title: { type: 'string' },
+                      insight: { type: 'string' },
+                      action: { type: 'string' },
+                    },
+                    required: ['title', 'insight', 'action'],
+                    additionalProperties: false,
+                  },
+                },
+                priorityActions: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      rank: { type: 'number' },
+                      action: { type: 'string' },
+                      tool: { type: 'string' },
+                      href: { type: 'string' },
+                    },
+                    required: ['rank', 'action', 'tool', 'href'],
+                    additionalProperties: false,
+                  },
+                },
+                leverageInsight: { type: 'string' },
+                weeklyFocus: { type: 'string' },
+              },
+              required: ['criticalIssue', 'missedOpportunities', 'priorityActions', 'leverageInsight', 'weeklyFocus'],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      const content = response.choices[0].message.content;
+      return JSON.parse(typeof content === 'string' ? content : '{}');
+    }),
+
+    marketIntelligence: protectedProcedure.query(async ({ ctx }) => {
+      const persona = await db.getPersonaByUserId(ctx.user.id);
+      const primaryCity = persona?.primaryCity || 'the United States';
+
+      const response = await invokeLLM({
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a real estate market intelligence analyst. Generate a concise, actionable market insight for today. Be specific, data-informed, and translate every stat into a client-facing talking point.',
+          },
+          {
+            role: 'user',
+            content: `Generate today\'s market intelligence snapshot for a real estate agent in ${primaryCity}. Include a specific market stat or trend, what it means for buyers and sellers, and exactly what the agent should say to clients about it today.`,
+          },
+        ],
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'market_intelligence',
+            strict: true,
+            schema: {
+              type: 'object',
+              properties: {
+                headline: { type: 'string' },
+                snapshot: { type: 'string' },
+                whatItMeans: { type: 'string' },
+                whatToSay: { type: 'string' },
+                urgency: { type: 'string', enum: ['high', 'medium', 'low'] },
+              },
+              required: ['headline', 'snapshot', 'whatItMeans', 'whatToSay', 'urgency'],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      const content = response.choices[0].message.content;
+      return JSON.parse(typeof content === 'string' ? content : '{}');
+    }),
+
     dominanceChat: protectedProcedure
       .input(z.object({
         messages: z.array(z.object({
@@ -2236,14 +2412,21 @@ Score criteria:
           `Subscription tier: ${subscriptionTier}`,
         ].join('\n');
 
-        const systemPrompt = `You are the Market Dominance Coach for Amped Agent - a strategic advisor helping real estate agents build authority, win more listings, and dominate their local market.
+        const systemPrompt = `You are the Market Dominance Coach for Amped Agent. You are not a helpful assistant. You are a decisive, opinionated strategist who tells agents exactly what to do to win listings and dominate their market.
 
 You are talking to ${agentName}.${personaContext}
 
-Here is what they have been working on in the platform over the last 30 days:
+Here is what they have been working on in the platform:
 ${activityContext}
 
-Use this context to give specific, personalized, actionable coaching. Reference what they have actually been doing. If they have not used a feature that would help them, suggest it specifically. Be direct, honest, and strategic - not generic. Think like a high-performance real estate business coach who knows their numbers and their habits.`;
+RULES:
+- Never say "consider" or "you might want to" — say "Do this" and "Here's what to say"
+- Every response must include: (1) a direct strategic assessment, (2) specific talk tracks or scripts, (3) 2-3 executable action steps
+- Reference their actual activity data. Call out gaps bluntly.
+- If they haven't used a tool that would help them, tell them to use it and explain exactly why
+- Think like a coach who has seen 1,000 agents fail and knows exactly what separates the top 1%
+- Lead with your opinion: "Here's what I'd focus on if I were you this week..."
+- End every response with one bold directive: the single most important thing they should do in the next 24 hours`;
 
         const response = await invokeLLM({
           messages: [
