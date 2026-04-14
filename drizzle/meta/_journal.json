@@ -736,6 +736,13 @@
       "when": 1776149094813,
       "tag": "0104_demonic_jackal",
       "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "5",
+      "when": 1776185660105,
+      "tag": "0105_pink_quentin_quire",
+      "breakpoints": true
     }
   ]
 }

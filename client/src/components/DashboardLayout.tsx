@@ -80,6 +80,10 @@ import {
   AlertTriangle,
   Ticket,
   Mic,
+  Rocket,
+  MessageSquareQuote,
+  QrCode,
+  GitBranch,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -607,6 +611,13 @@ const menuSections = [
         description: "Turn your expertise into AI-narrated audio episodes and avatar videos",
         badge: "New",
       },
+      {
+        icon: GitBranch,
+        label: "Email Drip Sequences",
+        path: "/drip-sequences",
+        description: "Automated multi-step email sequences that nurture leads while you sleep",
+        badge: "New",
+      },
     ],
   },
   {
@@ -690,6 +701,34 @@ const menuSections = [
             { label: "Features", value: "Share links, view counts, filter by type" },
           ],
         },
+      },
+      {
+        icon: Rocket,
+        label: "Listing Launch Kit",
+        path: "/listing-launch-kit",
+        description: "One address → social posts, email blast, and more in seconds",
+        badge: "New",
+      },
+      {
+        icon: MessageSquareQuote,
+        label: "Testimonial Engine",
+        path: "/testimonials",
+        description: "Request reviews and turn them into branded social posts automatically",
+        badge: "New",
+      },
+      {
+        icon: QrCode,
+        label: "Open House Manager",
+        path: "/open-house",
+        description: "QR sign-in sheet + automated follow-up emails for every visitor",
+        badge: "New",
+      },
+      {
+        icon: Users,
+        label: "CRM Pipeline",
+        path: "/crm",
+        description: "5-stage lead pipeline from first contact to closed deal",
+        badge: "New",
       },
     ],
   },

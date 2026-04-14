@@ -96,6 +96,11 @@ const ConvertOverview = lazy(() => import("./pages/ConvertOverview"));
 const ScaleOverview = lazy(() => import("./pages/ScaleOverview"));
 const DominateOverview = lazy(() => import("./pages/DominateOverview"));
 const Upgrade = lazy(() => import("./pages/Upgrade"));
+const ListingLaunchKit = lazy(() => import("./pages/ListingLaunchKit"));
+const TestimonialEngine = lazy(() => import("./pages/TestimonialEngine"));
+const OpenHouseManager = lazy(() => import("./pages/OpenHouseManager"));
+const CRMPipeline = lazy(() => import("./pages/CRMPipeline"));
+const DripSequences = lazy(() => import("./pages/DripSequences"));
 
 // Fallback spinner shown while a lazy chunk loads
 function PageLoader() {
@@ -210,6 +215,11 @@ function Router() {
                 <Route path="/get-started" component={GetStarted} />
                 <Route path="/faq" component={FAQ} />
                 <Route path="/contact" component={Contact} />
+                <Route path="/listing-launch-kit" component={ListingLaunchKit} />
+                <Route path="/testimonials" component={TestimonialEngine} />
+                <Route path="/open-house" component={OpenHouseManager} />
+                <Route path="/crm" component={CRMPipeline} />
+                <Route path="/drip-sequences" component={DripSequences} />
                 <Route path="/404" component={NotFound} />
                 <Route component={NotFound} />
               </Switch>

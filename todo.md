@@ -5122,3 +5122,50 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Session: Remove Example Videos (Apr 2026)
 - [x] Remove AI Motion Tour and AI Reels example video cards from VideoPreviewGallery, keep only Cinematic and Ken Burns
 - [x] Remove AI Motion column from "Three Ways to Showcase" section in VideoPreviewGallery
+## Session: Marketing Platform Gap Closure (Apr 2026)
+
+### Listing Launch Kit
+- [ ] DB schema: listingKits table (address, price, beds, baths, sqft, description, photos, status, generatedAssets JSON)
+- [ ] Server router: listingKit.create, listingKit.generate (orchestrates all tools), listingKit.list, listingKit.get
+- [ ] UI: ListingLaunchKit.tsx — address form, photo upload, one-click Generate Everything button
+- [ ] UI: Kit results page — property tour video, 5 social posts, email blast draft, listing presentation link, lead magnet PDF
+- [ ] Wire into ATTRACT section of sidebar and AttractOverview
+
+### Testimonial Engine
+- [ ] DB schema: testimonials table (clientName, clientEmail, reviewText, rating, source, socialPostUrl, status)
+- [ ] Server router: testimonials.request (sends Resend email), testimonials.save, testimonials.generatePost, testimonials.list
+- [ ] UI: TestimonialEngine.tsx — request form, testimonial list, auto-generate social post/story graphic
+- [ ] Email template: branded review request with Google + Zillow links
+- [ ] Wire into SCALE section of sidebar and ScaleOverview
+
+### Open House QR + Lead Capture
+- [ ] DB schema: openHouses table (address, date, agentId), openHouseLeads table (name, email, phone, openHouseId, followUpStatus)
+- [ ] Server router: openHouse.create, openHouse.getLeads, openHouse.capturePublicLead (public endpoint)
+- [ ] UI: OpenHouseManager.tsx — create open house, generate QR code, view leads
+- [ ] Public page: /open-house/[id] — mobile-optimized sign-in form (no auth required)
+- [ ] Auto-queue 3-email follow-up sequence on lead capture
+- [ ] Wire into CONVERT section of sidebar and ConvertOverview
+
+### Lightweight CRM Pipeline
+- [ ] DB schema: leads table (name, email, phone, source, stage, lastContactedAt, notes, agentId, sourceRef)
+- [ ] Server router: leads.list, leads.create, leads.updateStage, leads.addNote, leads.getByStage
+- [ ] UI: CRMPipeline.tsx — 5-column kanban (New → Contacted → Nurturing → Appointment Set → Closed)
+- [ ] Lead cards: source badge, last content sent, days since contact, one-click generate follow-up message
+- [ ] Decision Engine integration: surface stale leads in Weekly Diagnosis
+- [ ] Wire into CONVERT section of sidebar and ConvertOverview
+
+### Email Drip Sequences
+- [ ] DB schema: dripSequences table, dripEnrollments table (contactEmail, sequenceId, currentStep, nextSendAt, status)
+- [ ] Server router: drip.createSequence, drip.enroll, drip.getEnrollments, drip.processQueue (cron)
+- [ ] UI: EmailDrip.tsx — sequence builder (pick templates, set intervals), contact upload, enrollment management
+- [ ] Cron job: daily drip processor — sends next email in sequence for all active enrollments
+- [ ] Wire into SCALE section of sidebar and ScaleOverview
+
+## Session: Twilio SMS + A2P Infrastructure
+- [ ] Add smsConsent boolean column to openHouseLeads table
+- [ ] Add SMS consent checkbox to public open house sign-in form
+- [ ] Install Twilio SDK and create server/sms.ts helper
+- [ ] Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER secrets
+- [ ] Build SMS follow-up procedure for open house leads (consent-gated)
+- [ ] Add STOP/opt-out handling webhook endpoint
+- [ ] Create A2P registration guide document for user

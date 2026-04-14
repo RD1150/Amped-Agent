@@ -1294,3 +1294,170 @@ export const podcastEpisodes = mysqlTable("podcast_episodes", {
 
 export type PodcastEpisode = typeof podcastEpisodes.$inferSelect;
 export type InsertPodcastEpisode = typeof podcastEpisodes.$inferInsert;
+
+/**
+ * Listing Launch Kit — one listing → full asset bundle
+ */
+export const listingKits = mysqlTable("listing_kits", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  address: varchar("address", { length: 500 }).notNull(),
+  city: varchar("city", { length: 255 }),
+  state: varchar("state", { length: 100 }),
+  price: varchar("price", { length: 64 }),
+  bedrooms: int("bedrooms"),
+  bathrooms: varchar("bathrooms", { length: 16 }),
+  sqft: int("sqft"),
+  description: text("description"),
+  photoUrls: text("photoUrls"), // JSON array of S3 URLs
+  status: mysqlEnum("status", ["draft", "generating", "ready", "failed"]).default("draft").notNull(),
+  // Generated asset references
+  socialPosts: text("socialPosts"),       // JSON array of post strings
+  emailBlast: text("emailBlast"),         // Email subject + body
+  presentationUrl: text("presentationUrl"), // Gamma listing presentation URL
+  propertyTourJobId: varchar("propertyTourJobId", { length: 128 }),
+  propertyTourVideoUrl: text("propertyTourVideoUrl"),
+  leadMagnetUrl: text("leadMagnetUrl"),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type ListingKit = typeof listingKits.$inferSelect;
+export type InsertListingKit = typeof listingKits.$inferInsert;
+
+/**
+ * Testimonials — client reviews and auto-generated social posts
+ */
+export const testimonials = mysqlTable("testimonials", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  clientName: varchar("clientName", { length: 255 }).notNull(),
+  clientEmail: varchar("clientEmail", { length: 320 }),
+  reviewText: text("reviewText"),
+  rating: int("rating").default(5), // 1-5
+  source: mysqlEnum("source", ["google", "zillow", "realtor", "manual", "other"]).default("manual").notNull(),
+  requestSentAt: timestamp("requestSentAt"),
+  receivedAt: timestamp("receivedAt"),
+  socialPostText: text("socialPostText"),   // AI-generated social post from review
+  storyImageUrl: text("storyImageUrl"),     // Branded story graphic URL
+  status: mysqlEnum("status", ["requested", "received", "published"]).default("requested").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Testimonial = typeof testimonials.$inferSelect;
+export type InsertTestimonial = typeof testimonials.$inferInsert;
+
+/**
+ * Open Houses — agent-created open house events
+ */
+export const openHouses = mysqlTable("open_houses", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  address: varchar("address", { length: 500 }).notNull(),
+  city: varchar("city", { length: 255 }),
+  date: timestamp("date").notNull(),
+  startTime: varchar("startTime", { length: 16 }),
+  endTime: varchar("endTime", { length: 16 }),
+  price: varchar("price", { length: 64 }),
+  publicSlug: varchar("publicSlug", { length: 64 }).notNull().unique(), // URL-safe ID for QR
+  followUpSequence: mysqlEnum("followUpSequence", ["none", "3email", "5email"]).default("3email").notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type OpenHouse = typeof openHouses.$inferSelect;
+export type InsertOpenHouse = typeof openHouses.$inferInsert;
+
+/**
+ * Open House Leads — visitors who signed in at an open house
+ */
+export const openHouseLeads = mysqlTable("open_house_leads", {
+  id: int("id").autoincrement().primaryKey(),
+  openHouseId: int("openHouseId").notNull(),
+  agentUserId: int("agentUserId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }),
+  phone: varchar("phone", { length: 32 }),
+  timeframe: varchar("timeframe", { length: 128 }), // "3-6 months", "just looking", etc.
+  preApproved: boolean("preApproved").default(false),
+  notes: text("notes"),
+  followUpStatus: mysqlEnum("followUpStatus", ["pending", "in_progress", "completed", "opted_out"]).default("pending").notNull(),
+  emailsSent: int("emailsSent").default(0).notNull(),
+  nextFollowUpAt: timestamp("nextFollowUpAt"),
+  crmLeadId: int("crmLeadId"), // Link to leads table once transferred
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type OpenHouseLead = typeof openHouseLeads.$inferSelect;
+export type InsertOpenHouseLead = typeof openHouseLeads.$inferInsert;
+
+/**
+ * CRM Leads — lightweight pipeline for all lead sources
+ */
+export const crmLeads = mysqlTable("crm_leads", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }),
+  phone: varchar("phone", { length: 32 }),
+  stage: mysqlEnum("stage", ["new", "contacted", "nurturing", "appointment_set", "closed"]).default("new").notNull(),
+  source: mysqlEnum("source", ["open_house", "lead_magnet", "referral", "social", "website", "manual", "other"]).default("manual").notNull(),
+  sourceRef: varchar("sourceRef", { length: 255 }), // e.g. open house address, lead magnet title
+  lastContactedAt: timestamp("lastContactedAt"),
+  notes: text("notes"),
+  tags: varchar("tags", { length: 500 }), // comma-separated
+  isArchived: boolean("isArchived").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CrmLead = typeof crmLeads.$inferSelect;
+export type InsertCrmLead = typeof crmLeads.$inferInsert;
+
+/**
+ * CRM Lead Notes — activity log per lead
+ */
+export const crmLeadNotes = mysqlTable("crm_lead_notes", {
+  id: int("id").autoincrement().primaryKey(),
+  leadId: int("leadId").notNull(),
+  userId: int("userId").notNull(),
+  content: text("content").notNull(),
+  noteType: mysqlEnum("noteType", ["note", "call", "email", "meeting", "ai_suggestion"]).default("note").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CrmLeadNote = typeof crmLeadNotes.$inferSelect;
+export type InsertCrmLeadNote = typeof crmLeadNotes.$inferInsert;
+
+/**
+ * Email Drip Sequences — reusable multi-step email campaigns
+ */
+export const dripSequences = mysqlTable("drip_sequences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  sequenceType: mysqlEnum("sequenceType", ["seller_nurture", "buyer_nurture", "past_client", "open_house", "custom"]).default("custom").notNull(),
+  steps: text("steps").notNull(), // JSON: [{subject, body, delayDays}]
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type DripSequence = typeof dripSequences.$inferSelect;
+export type InsertDripSequence = typeof dripSequences.$inferInsert;
+
+/**
+ * Email Drip Enrollments — contacts enrolled in a drip sequence
+ */
+export const dripEnrollments = mysqlTable("drip_enrollments", {
+  id: int("id").autoincrement().primaryKey(),
+  sequenceId: int("sequenceId").notNull(),
+  userId: int("userId").notNull(),
+  contactName: varchar("contactName", { length: 255 }),
+  contactEmail: varchar("contactEmail", { length: 320 }).notNull(),
+  currentStep: int("currentStep").default(0).notNull(), // 0-indexed step number
+  nextSendAt: timestamp("nextSendAt"),
+  status: mysqlEnum("status", ["active", "completed", "paused", "unsubscribed"]).default("active").notNull(),
+  enrolledAt: timestamp("enrolledAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  lastEmailSentAt: timestamp("lastEmailSentAt"),
+  emailsSent: int("emailsSent").default(0).notNull(),
+});
+export type DripEnrollment = typeof dripEnrollments.$inferSelect;
+export type InsertDripEnrollment = typeof dripEnrollments.$inferInsert;

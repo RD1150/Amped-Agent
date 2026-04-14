@@ -48,6 +48,11 @@ import { prospectingLettersRouter } from "./routers/prospectingLetters";
 import { letterPdfRouter } from "./routers/letterPdf";
 import { lettersEmailsRouter } from "./routers/lettersEmails";
 import { podcastRouter } from "./routers/podcast";
+import { listingKitRouter } from "./routers/listingKit";
+import { testimonialsRouter } from "./routers/testimonials";
+import { openHouseRouter } from "./routers/openHouse";
+import { crmRouter } from "./routers/crm";
+import { dripRouter } from "./routers/drip";
 
 export const appRouter = router({
   system: systemRouter,
@@ -83,6 +88,11 @@ export const appRouter = router({
   letterPdf: letterPdfRouter,
   lettersEmails: lettersEmailsRouter,
   podcast: podcastRouter,
+  listingKit: listingKitRouter,
+  testimonials: testimonialsRouter,
+  openHouse: openHouseRouter,
+  crm: crmRouter,
+  drip: dripRouter,
 
   support: router({
     chat: publicProcedure
