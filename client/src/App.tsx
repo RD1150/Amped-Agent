@@ -69,9 +69,11 @@ import BlogBuilder from "./pages/BlogBuilder";
 import BrandStory from "./pages/BrandStory";
 import GuideGenerator from "./pages/GuideGenerator";
 import ProspectingLetters from "./pages/ProspectingLetters";
+import LettersEmails from "./pages/LettersEmails";
 import MyDocuments from "./pages/MyDocuments";
 import { SupportChatbot } from "./components/SupportChatbot";
 import PublicPresentation from "./pages/PublicPresentation";
+import { PublicAgentBlog, PublicAgentBlogPost } from "./pages/PublicAgentBlog";
 import PublicBuyerPresentation from "./pages/PublicBuyerPresentation";
 import Login from "./pages/Login";
 
@@ -128,6 +130,8 @@ function Router() {
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/agent-onboarding" component={AgentOnboarding} />
       <Route path="/p/:id" component={PublicPresentation} />
+      <Route path="/blog/:slug/:postId" component={PublicAgentBlogPost} />
+      <Route path="/blog/:slug" component={PublicAgentBlog} />
       <Route path="/bp/:id" component={PublicBuyerPresentation} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/subscription" component={Subscription} />
@@ -171,6 +175,7 @@ function Router() {
         <Route path="/brand-story" component={BrandStory} />
         <Route path="/guide-generator" component={GuideGenerator} />
         <Route path="/prospecting-letters" component={ProspectingLetters} />
+        <Route path="/letters-emails" component={LettersEmails} />
         <Route path="/my-documents" component={MyDocuments} />
         <Route path="/newsletter" component={NewsletterBuilder} />
         <Route path="/drafts" component={Drafts} />

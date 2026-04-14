@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { protectedProcedure, router } from "../_core/trpc";
+import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { blogPosts } from "../../drizzle/schema";
+import { blogPosts, personas } from "../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { getMarketData } from "../marketStatsHelper";
@@ -240,5 +240,86 @@ Return ONLY valid JSON in this exact format:
       if (!post || post.userId !== ctx.user.id) throw new Error("Not found");
       await database!.delete(blogPosts).where(eq(blogPosts.id, input.id));
       return { success: true };
+    }),
+
+  /**
+   * Public: get agent blog page by slug (derived from agentName)
+   * Slug format: "reena-dutta" from agentName "Reena Dutta"
+   */
+  getPublicBlog: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      const database = await getDb();
+      if (!database) throw new Error("Database unavailable");
+      const allPersonas = await database
+        .select({
+          userId: personas.userId,
+          agentName: personas.agentName,
+          brokerageName: personas.brokerageName,
+          brokerageDRE: personas.brokerageDRE,
+          licenseNumber: personas.licenseNumber,
+          phoneNumber: personas.phoneNumber,
+          headshotUrl: personas.headshotUrl,
+          primaryCity: personas.primaryCity,
+          primaryState: personas.primaryState,
+          tagline: personas.tagline,
+          bio: personas.bio,
+          websiteUrl: personas.websiteUrl,
+          emailAddress: personas.emailAddress,
+          bookingUrl: personas.bookingUrl,
+          primaryColor: personas.primaryColor,
+          logoUrl: personas.logoUrl,
+        })
+        .from(personas)
+        .where(eq(personas.isCompleted, true));
+      const persona = allPersonas.find((p) => {
+        if (!p.agentName) return false;
+        const s = p.agentName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        return s === input.slug;
+      });
+      if (!persona) throw new Error("Blog not found");
+      const posts = await database
+        .select()
+        .from(blogPosts)
+        .where(eq(blogPosts.userId, persona.userId))
+        .orderBy(desc(blogPosts.createdAt))
+        .limit(50);
+      return { persona, posts };
+    }),
+
+  /**
+   * Public: get a single blog post by ID for the public blog
+   */
+  getPublicPost: publicProcedure
+    .input(z.object({ postId: z.number() }))
+    .query(async ({ input }) => {
+      const database = await getDb();
+      if (!database) throw new Error("Database unavailable");
+      const [post] = await database
+        .select()
+        .from(blogPosts)
+        .where(eq(blogPosts.id, input.postId))
+        .limit(1);
+      if (!post) throw new Error("Post not found");
+      const [persona] = await database
+        .select({
+          agentName: personas.agentName,
+          brokerageName: personas.brokerageName,
+          licenseNumber: personas.licenseNumber,
+          phoneNumber: personas.phoneNumber,
+          headshotUrl: personas.headshotUrl,
+          primaryCity: personas.primaryCity,
+          primaryState: personas.primaryState,
+          tagline: personas.tagline,
+          bio: personas.bio,
+          websiteUrl: personas.websiteUrl,
+          emailAddress: personas.emailAddress,
+          bookingUrl: personas.bookingUrl,
+          primaryColor: personas.primaryColor,
+        })
+        .from(personas)
+        .where(eq(personas.userId, post.userId))
+        .limit(1);
+      return { post, persona: persona || null };
     }),
 });

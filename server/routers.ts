@@ -46,6 +46,7 @@ import { referralRouter } from "./routers/referral";
 import { guidesGeneratorRouter } from "./routers/guidesGenerator";
 import { prospectingLettersRouter } from "./routers/prospectingLetters";
 import { letterPdfRouter } from "./routers/letterPdf";
+import { lettersEmailsRouter } from "./routers/lettersEmails";
 
 export const appRouter = router({
   system: systemRouter,
@@ -79,6 +80,7 @@ export const appRouter = router({
   guidesGenerator: guidesGeneratorRouter,
   prospectingLetters: prospectingLettersRouter,
   letterPdf: letterPdfRouter,
+  lettersEmails: lettersEmailsRouter,
 
   support: router({
     chat: publicProcedure

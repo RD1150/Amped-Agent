@@ -141,11 +141,24 @@ export default function BlogBuilder() {
     <>
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Blog Builder</h1>
-        <p className="text-muted-foreground mt-1">
-          Generate SEO-optimized blog posts that position you as the local real estate expert.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Blog Builder</h1>
+          <p className="text-muted-foreground mt-1">
+            Generate SEO-optimized blog posts that position you as the local real estate expert.
+          </p>
+        </div>
+        {persona && (persona as any)?.agentName && (() => {
+          const slug = (persona as any).agentName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          return (
+            <a href={`/blog/${slug}`} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" className="flex items-center gap-2">
+                <ExternalLink className="w-4 h-4" />
+                View My Public Blog
+              </Button>
+            </a>
+          );
+        })()}
       </div>
 
       {/* Generator Form */}

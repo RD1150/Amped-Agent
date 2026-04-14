@@ -592,6 +592,13 @@ const menuSections = [
         path: "/calendar",
         description: "Schedule and publish all your content",
       },
+      {
+        icon: FileText,
+        label: "Letters & Emails",
+        path: "/letters-emails",
+        description: "60+ pre-written drip series, holiday & prospecting templates — auto-personalized",
+        badge: "Authority",
+      },
     ],
   },
   {

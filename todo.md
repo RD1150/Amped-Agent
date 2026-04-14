@@ -5016,3 +5016,14 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add route /letters-emails in App.tsx
 - [ ] Add Letters & Emails nav item under Engage section in DashboardLayout.tsx
 - [ ] Write vitest tests for lettersRouter
+
+## Session: Public Blog, Letters & Emails, Recently Used Shortcuts (Apr 2026)
+- [x] Public Agent Blog page (/blog/:slug) — dark header, agent sidebar, post grid, social share
+- [x] Public Single Post page (/blog/:slug/:postId) — full article with agent sidebar and share buttons
+- [x] Register /blog/:slug and /blog/:slug/:postId as public routes in App.tsx
+- [x] "View My Public Blog" button added to Blog Builder header
+- [x] Letters & Emails template library — 60+ templates, sidebar filters, personalization modal
+- [x] Letters & Emails tRPC router (lettersEmailsRouter) wired to main router
+- [x] Recently Used shortcuts on all 5 lifecycle overview pages (Attract, Engage, Convert, Scale, Dominate)
+- [x] useRecentTools hook — localStorage-based visit tracking, deduplication, max 20 entries
+- [x] recentTools.test.ts — 5 passing vitest tests

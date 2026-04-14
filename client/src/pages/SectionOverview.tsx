@@ -2,8 +2,9 @@ import { useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Lock } from "lucide-react";
+import { ArrowRight, Clock, Lock } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useRecentTools, recordToolVisit } from "@/hooks/useRecentTools";
 import type { LucideIcon } from "lucide-react";
 
 export interface SectionTool {
@@ -40,6 +41,19 @@ export function SectionOverview({ section }: SectionOverviewProps) {
   const { user } = useAuth();
   const isAuthority = user?.subscriptionTier === "authority" || user?.subscriptionTier === "pro";
   const c = colorMap[section.color] ?? colorMap.blue;
+  const { entries: recentEntries } = useRecentTools();
+
+  // Filter recent entries to only those belonging to this section's tools
+  const sectionPaths = new Set(section.tools.map((t) => t.path));
+  const recentInSection = recentEntries
+    .filter((e) => sectionPaths.has(e.path))
+    .slice(0, 3);
+
+  const handleOpen = (tool: SectionTool, isLocked: boolean) => {
+    if (isLocked) return;
+    recordToolVisit(tool.path, tool.label);
+    setLocation(tool.path);
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
@@ -56,6 +70,42 @@ export function SectionOverview({ section }: SectionOverviewProps) {
         </p>
       </div>
 
+      {/* Recently Used shortcuts — only shown if the agent has used tools in this section */}
+      {recentInSection.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Recently Used
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {recentInSection.map((entry) => {
+              const tool = section.tools.find((t) => t.path === entry.path);
+              if (!tool) return null;
+              const Icon = tool.icon;
+              const isLocked = tool.badge === "Authority" && !isAuthority;
+              return (
+                <button
+                  key={entry.path}
+                  onClick={() => handleOpen(tool, isLocked)}
+                  disabled={isLocked}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-all
+                    ${isLocked
+                      ? "opacity-50 cursor-not-allowed border-border bg-muted text-muted-foreground"
+                      : `${c.bg} ${c.border} ${c.text} hover:shadow-sm hover:scale-[1.02]`
+                    }`}
+                >
+                  <Icon className="h-3.5 w-3.5 flex-shrink-0" />
+                  {tool.label}
+                  {isLocked && <Lock className="h-3 w-3 ml-1" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Tool grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {section.tools.map((tool) => {
@@ -66,7 +116,7 @@ export function SectionOverview({ section }: SectionOverviewProps) {
               className={`group relative cursor-pointer transition-all hover:shadow-md border ${
                 tool.highlight ? `${c.border} shadow-sm` : "border-border"
               } ${isLocked ? "opacity-75" : ""}`}
-              onClick={() => !isLocked && setLocation(tool.path)}
+              onClick={() => handleOpen(tool, isLocked)}
             >
               {tool.highlight && (
                 <div className={`absolute top-0 left-0 right-0 h-0.5 rounded-t-xl ${c.btn}`} />
@@ -111,7 +161,7 @@ export function SectionOverview({ section }: SectionOverviewProps) {
                     <Button
                       size="sm"
                       className={`w-full text-xs gap-1.5 text-white ${c.btn} group-hover:gap-2 transition-all`}
-                      onClick={(e) => { e.stopPropagation(); setLocation(tool.path); }}
+                      onClick={(e) => { e.stopPropagation(); handleOpen(tool, false); }}
                     >
                       Open {tool.label}
                       <ArrowRight className="h-3 w-3" />
