@@ -5051,3 +5051,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Session: Sidebar Header Alignment Fix (Apr 2026)
 - [x] Left-align sidebar section header titles to match tool items
+
+## Session: Sidebar Typography Polish (Apr 2026)
+- [x] Calm sidebar: refined font weight, size, spacing, and alignment

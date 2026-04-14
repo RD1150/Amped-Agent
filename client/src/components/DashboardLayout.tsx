@@ -914,29 +914,22 @@ function CollapsibleNavSections({
                 <HoverCardTrigger asChild>
                   <button
                     onClick={() => toggleSection(section.title)}
-                    className={`w-full flex items-start gap-1.5 px-4 pt-4 pb-1.5 group/sec focus:outline-none`}
+                    className={`w-full flex items-center gap-2 px-3 pt-5 pb-1 group/sec focus:outline-none`}
                   >
                     <ChevronDown
-                      className={`h-3.5 w-3.5 mt-0.5 text-sidebar-foreground/40 transition-transform duration-200 shrink-0 ${
+                      className={`h-3 w-3 text-sidebar-foreground/30 transition-transform duration-200 shrink-0 ${
                         isOpen ? "rotate-0" : "-rotate-90"
                       }`}
                     />
-                    <div className="text-left">
-                      <h3
-                        className={`text-[11px] font-bold uppercase tracking-[0.1em] transition-colors ${
-                          hasActiveChild
-                            ? "text-orange-400"
-                            : "text-sidebar-foreground/75 group-hover/sec:text-sidebar-foreground"
-                        }`}
-                      >
-                        {section.title}
-                      </h3>
-                      {"subtitle" in section && section.subtitle && (
-                        <p className="text-[10px] text-sidebar-foreground/40 mt-0.5 leading-tight">
-                          {section.subtitle}
-                        </p>
-                      )}
-                    </div>
+                    <span
+                      className={`text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
+                        hasActiveChild
+                          ? "text-orange-400"
+                          : "text-sidebar-foreground/50 group-hover/sec:text-sidebar-foreground/80"
+                      }`}
+                    >
+                      {section.title}
+                    </span>
                   </button>
                 </HoverCardTrigger>
                 {/* Flyout: all tools in this section */}
@@ -994,22 +987,17 @@ function CollapsibleNavSections({
             ) : (
               // Non-lifecycle sections (HOME, ACCOUNT, ADMIN): plain label, always open
               !isCollapsed && (
-                <div className="px-4 pt-4 pb-1">
-                  <h3 className="text-[11px] font-bold text-sidebar-foreground/75 uppercase tracking-[0.1em]">
+                <div className="px-3 pt-5 pb-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/50">
                     {section.title}
-                  </h3>
-                  {"subtitle" in section && section.subtitle && (
-                    <p className="text-[10px] text-sidebar-foreground/40 mt-0.5 leading-tight">
-                      {section.subtitle}
-                    </p>
-                  )}
+                  </span>
                 </div>
               )
             )}
 
             {/* ── Items list (collapsible for lifecycle sections) ── */}
             {(isOpen || !isLifecycle || isCollapsed) && (
-              <SidebarMenu className="px-2">
+              <SidebarMenu className="px-2 mt-0.5">
                 {section.items.map((item) => {
                   const isActive = location === item.path;
                   const hi = "hoverInfo" in item ? item.hoverInfo : null;
@@ -1019,20 +1007,20 @@ function CollapsibleNavSections({
                       isActive={isActive}
                       onClick={() => setLocation(item.path)}
                       tooltip={item.description || item.label}
-                      className={`h-9 transition-all font-normal ${
+                      className={`h-8 transition-all ${
                         isActive
-                          ? "bg-orange-500/15 text-orange-500 rounded-md"
-                          : "hover:bg-sidebar-accent/70"
+                          ? "bg-orange-500/10 rounded-md"
+                          : "hover:bg-sidebar-accent/50"
                       }`}
                     >
                       <item.icon
-                        className={`h-4 w-4 shrink-0 ${
-                          isActive ? "text-orange-500" : "text-sidebar-foreground/55"
+                        className={`h-3.5 w-3.5 shrink-0 ${
+                          isActive ? "text-orange-500" : "text-sidebar-foreground/40"
                         }`}
                       />
                       <span
-                        className={`truncate text-sm ${
-                          isActive ? "text-orange-500 font-medium" : "text-sidebar-foreground/80"
+                        className={`truncate text-[13px] ${
+                          isActive ? "text-orange-500 font-medium" : "text-sidebar-foreground/70 font-normal"
                         }`}
                       >
                         {item.label}
@@ -1040,7 +1028,11 @@ function CollapsibleNavSections({
                       {"badge" in item && item.badge && (
                         <Badge
                           variant="secondary"
-                          className="ml-auto text-[10px] px-1.5 py-0 h-4"
+                          className={`ml-auto text-[9px] px-1.5 py-0 h-3.5 font-medium ${
+                            item.badge === "New" ? "bg-green-500/15 text-green-600 border-0" :
+                            item.badge === "Authority" ? "bg-orange-500/10 text-orange-500 border-0" :
+                            ""
+                          }`}
                         >
                           {item.badge}
                         </Badge>
