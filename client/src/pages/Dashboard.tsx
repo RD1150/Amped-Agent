@@ -524,7 +524,7 @@ export default function Dashboard() {
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/property-tours")}
           >
-            <div className="h-24 bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-700 relative overflow-hidden">
+            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <polygon points="60,15 90,38 30,38" fill="white" fillOpacity="0.9"/>
                 <rect x="35" y="38" width="50" height="30" fill="white" fillOpacity="0.85"/>
@@ -549,7 +549,7 @@ export default function Dashboard() {
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/live-tour")}
           >
-            <div className="h-24 bg-gradient-to-br from-violet-500 via-purple-600 to-fuchsia-700 relative overflow-hidden">
+            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="42" y="10" width="36" height="60" rx="6" fill="white" fillOpacity="0.85"/>
                 <rect x="46" y="16" width="28" height="44" rx="2" fill="#7c3aed" fillOpacity="0.3"/>
@@ -573,7 +573,7 @@ export default function Dashboard() {
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/autoreels")}
           >
-            <div className="h-24 bg-gradient-to-br from-pink-500 via-rose-500 to-orange-500 relative overflow-hidden">
+            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="45" y="8" width="30" height="64" rx="5" fill="white" fillOpacity="0.85"/>
                 <rect x="49" y="14" width="22" height="48" rx="2" fill="#f43f5e" fillOpacity="0.25"/>
@@ -595,7 +595,7 @@ export default function Dashboard() {
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/full-avatar-video")}
           >
-            <div className="h-24 bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 relative overflow-hidden">
+            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <circle cx="60" cy="26" r="14" fill="white" fillOpacity="0.85"/>
                 <ellipse cx="60" cy="62" rx="22" ry="16" fill="white" fillOpacity="0.75"/>
@@ -619,7 +619,7 @@ export default function Dashboard() {
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/youtube-video-builder")}
           >
-            <div className="h-24 bg-gradient-to-br from-red-600 via-rose-600 to-red-700 relative overflow-hidden">
+            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="15" y="18" width="90" height="50" rx="10" fill="white" fillOpacity="0.2"/>
                 <rect x="25" y="25" width="70" height="36" rx="6" fill="white" fillOpacity="0.85"/>
@@ -639,7 +639,7 @@ export default function Dashboard() {
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/blog-builder")}
           >
-            <div className="h-24 bg-gradient-to-br from-teal-500 via-cyan-600 to-blue-600 relative overflow-hidden">
+            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="30" y="10" width="50" height="60" rx="4" fill="white" fillOpacity="0.85"/>
                 <rect x="38" y="22" width="34" height="3" rx="1.5" fill="#0891b2" fillOpacity="0.6"/>
@@ -672,7 +672,7 @@ export default function Dashboard() {
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/letters-emails")}
           >
-            <div className="h-24 bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-600 relative overflow-hidden">
+            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="20" y="25" width="70" height="45" rx="4" fill="white" fillOpacity="0.85"/>
                 <polyline points="20,25 55,50 90,25" stroke="#3b82f6" strokeWidth="2" strokeOpacity="0.5" fill="none"/>
@@ -696,7 +696,7 @@ export default function Dashboard() {
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/podcast-builder")}
           >
-            <div className="h-24 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 relative overflow-hidden">
+            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="50" y="12" width="20" height="32" rx="10" fill="white" fillOpacity="0.85"/>
                 <rect x="54" y="16" width="12" height="24" rx="6" fill="#7c3aed" fillOpacity="0.3"/>
@@ -721,7 +721,7 @@ export default function Dashboard() {
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/lead-magnet")}
           >
-            <div className="h-24 bg-gradient-to-br from-indigo-500 via-blue-600 to-cyan-600 relative overflow-hidden">
+            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="35" y="10" width="42" height="55" rx="4" fill="white" fillOpacity="0.85"/>
                 <rect x="35" y="10" width="42" height="14" rx="4" fill="#4f46e5" fillOpacity="0.6"/>
@@ -746,7 +746,7 @@ export default function Dashboard() {
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
             onClick={() => setLocation("/generate")}
           >
-            <div className="h-24 bg-gradient-to-br from-violet-500 via-purple-600 to-pink-600 relative overflow-hidden">
+            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <text x="30" y="50" fill="white" fontSize="36" fillOpacity="0.7">✦</text>
                 <text x="70" y="35" fill="white" fontSize="24" fillOpacity="0.5">✦</text>

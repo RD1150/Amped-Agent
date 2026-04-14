@@ -5078,3 +5078,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Left orange border active state on nav items (replace bg highlight)
 - [x] Lighter section label text (text-gray-400)
 - [x] Soft right-edge shadow on sidebar panel
+
+## Session: Monochromatic Card Banner Redesign (Apr 2026)
+- [x] Replace rainbow gradient banners in SectionOverview with dark navy + white SVG + category color tag
+- [x] Update Dashboard tool card banners to match dark navy style
