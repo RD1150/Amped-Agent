@@ -1372,7 +1372,7 @@ function DashboardLayoutContent({
       {/* ── Main content area ─────────────────────────────────────────────── */}
       <SidebarInset>
         {/* Top bar */}
-        <div className="flex h-12 items-center gap-4 bg-[#0F0F0F] px-4 sticky top-0 z-40 border-b border-white/10">
+        <div className="flex h-12 items-center gap-4 bg-[#1e2230] px-4 sticky top-0 z-40 border-b border-white/[0.07]">
           <div className="flex items-center gap-2 shrink-0">
             {isMobile && (
               <SidebarTrigger className="h-8 w-8 rounded-lg" />

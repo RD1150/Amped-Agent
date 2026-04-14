@@ -5057,3 +5057,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Session: Sidebar Color Softening (Apr 2026)
 - [x] Soften sidebar background from pure black to warm dark charcoal
+
+## Session: App Chrome Polish (Apr 2026)
+- [x] Lighter sidebar charcoal (oklch 0.20)
+- [x] Subtle top-to-bottom gradient on sidebar
+- [x] Warm-grey top header bar instead of pure white
