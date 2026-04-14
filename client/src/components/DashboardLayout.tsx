@@ -1051,7 +1051,7 @@ function CollapsibleNavSections({
                             sideOffset={8}
                             className="w-72 p-0 shadow-xl border border-border/60 rounded-xl overflow-hidden"
                           >
-                            <div className="bg-[#0F0F0F] px-4 py-3 flex items-center gap-2">
+                            <div className="bg-gray-900 px-4 py-3 flex items-center gap-2">
                               <item.icon className="h-4 w-4 text-orange-400 shrink-0" />
                               <span className="text-sm font-semibold text-white">{item.label}</span>
                               {"badge" in item && item.badge && (
@@ -1261,7 +1261,7 @@ function DashboardLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar collapsible="icon" disableTransition={isResizing}>
           {/* ── Logo / Header ─────────────────────────────────────────── */}
-          <SidebarHeader className="p-0 gap-0 border-b border-white/10">
+          <SidebarHeader className="p-0 gap-0 border-b border-gray-100">
             {/* Expanded: full-width logo — white bg to match logo, height exactly matches h-12 top navbar */}
             {!isCollapsed ? (
               <div className="relative w-full h-12 flex items-center bg-white overflow-hidden">
@@ -1275,10 +1275,10 @@ function DashboardLayoutContent({
                 </span>
                 <button
                   onClick={toggleSidebar}
-                  className="absolute right-2 h-7 w-7 flex items-center justify-center hover:bg-black/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  className="absolute right-2 h-7 w-7 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
                   aria-label="Toggle navigation"
                 >
-                  <PanelLeft className="h-4 w-4 text-black/30" />
+                  <PanelLeft className="h-4 w-4 text-gray-400" />
                 </button>
               </div>
             ) : (
@@ -1286,10 +1286,10 @@ function DashboardLayoutContent({
               <div className="flex flex-col items-center gap-2 py-3">
                 <button
                   onClick={toggleSidebar}
-                  className="h-8 w-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  className="h-8 w-8 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
                   aria-label="Toggle navigation"
                 >
-                  <PanelLeft className="h-4 w-4 text-white/60" />
+                  <PanelLeft className="h-4 w-4 text-gray-400" />
                 </button>
                 <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
                   <span className="text-xs font-bold text-white">A</span>
@@ -1315,7 +1315,7 @@ function DashboardLayoutContent({
           )}
 
           {/* ── Footer / User ─────────────────────────────────────────── */}
-          <SidebarFooter className="p-3 border-t border-sidebar-border/60">
+          <SidebarFooter className="p-3 border-t border-gray-100">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1.5 hover:bg-sidebar-accent transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">

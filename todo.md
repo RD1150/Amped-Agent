@@ -5067,3 +5067,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Warm off-white content area background (already oklch 0.98 warm cream — confirmed)
 - [x] Orange accent top border on sidebar
 - [x] Rounded right corners on sidebar panel
+
+## Session: White Sidebar Redesign (Apr 2026)
+- [x] Switch sidebar to white background with dark text and orange accents
+- [x] Remove gradient and dark chrome from sidebar
+- [x] Update sidebar text/icon colors for legibility on white
