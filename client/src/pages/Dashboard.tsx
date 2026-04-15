@@ -155,46 +155,72 @@ export default function Dashboard() {
       )}
 
       {/* Welcome Header */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {greeting}, {persona?.agentName || user?.name || "Agent"}!
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              This platform runs your entire real estate business.
-            </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {greeting}, {persona?.agentName || user?.name || "Agent"}!
+          </h1>
+          <p className="text-muted-foreground mt-0.5 text-sm">
+            Here's what needs your attention today.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => startDashboardTour()}
+          className="gap-2 hidden sm:flex"
+        >
+          <HelpCircle className="h-4 w-4" />
+          Tour
+        </Button>
+      </div>
+
+      {/* ── WEEKLY DIAGNOSIS — TOP PRIORITY ── */}
+      <WeeklyInsightBlock />
+
+      {/* ── QUICK CREATE BAR ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button
+          onClick={() => setLocation("/generate")}
+          className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-all text-left group"
+        >
+          <div className="p-2 rounded-lg bg-primary text-white shrink-0">
+            <Sparkles className="h-5 w-5" />
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => startDashboardTour()}
-            className="gap-2"
-          >
-            <HelpCircle className="h-4 w-4" />
-            Start Tour
-          </Button>
-        </div>
-        {/* Lifecycle Stage Pills */}
-        <div className="flex flex-wrap gap-2">
-          {([
-            { label: "ATTRACT", sub: "Build your audience", dot: "bg-blue-500", pill: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-blue-50 hover:border-blue-200", href: "/attract" },
-            { label: "ENGAGE", sub: "Stay top of mind", dot: "bg-green-500", pill: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-green-50 hover:border-green-200", href: "/engage" },
-            { label: "CONVERT", sub: "Win listings", dot: "bg-orange-500", pill: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-orange-50 hover:border-orange-200", href: "/convert" },
-            { label: "SCALE", sub: "Multiply output", dot: "bg-purple-500", pill: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-purple-50 hover:border-purple-200", href: "/scale" },
-            { label: "DOMINATE", sub: "Own your market", dot: "bg-red-500", pill: "bg-slate-50 border-slate-200 text-slate-700 hover:bg-red-50 hover:border-red-200", href: "/dominate" },
-          ] as const).map((stage) => (
-            <button
-              key={stage.label}
-              onClick={() => setLocation(stage.href)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold tracking-wide transition-all ${stage.pill}`}
-            >
-              <span className={`inline-block w-1.5 h-1.5 rounded-full ${stage.dot} shrink-0`} />
-              {stage.label}
-              <span className="font-normal text-slate-400 hidden sm:inline">· {stage.sub}</span>
-            </button>
-          ))}
-        </div>
+          <div>
+            <p className="font-semibold text-sm text-foreground">Write a Post</p>
+            <p className="text-xs text-muted-foreground">AI post in 60 seconds</p>
+          </div>
+          <ChevronRight className="h-4 w-4 text-primary ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+        </button>
+
+        <button
+          onClick={() => setLocation("/youtube-video-builder")}
+          className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-slate-200 hover:border-primary/40 hover:bg-slate-50 transition-all text-left group"
+        >
+          <div className="p-2 rounded-lg bg-slate-800 text-white shrink-0">
+            <Video className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="font-semibold text-sm text-foreground">Make a Video</p>
+            <p className="text-xs text-muted-foreground">Your face, your voice</p>
+          </div>
+          <ChevronRight className="h-4 w-4 text-primary ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+        </button>
+
+        <button
+          onClick={() => setLocation("/letters-emails")}
+          className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-slate-200 hover:border-primary/40 hover:bg-slate-50 transition-all text-left group"
+        >
+          <div className="p-2 rounded-lg bg-slate-800 text-white shrink-0">
+            <MessageSquare className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="font-semibold text-sm text-foreground">Send an Email</p>
+            <p className="text-xs text-muted-foreground">60+ proven templates</p>
+          </div>
+          <ChevronRight className="h-4 w-4 text-primary ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+        </button>
       </div>
 
       {/* Authority Profile Summary Strip */}
@@ -264,9 +290,6 @@ export default function Dashboard() {
           </div>
         </Card>
       )}
-
-      {/* Weekly Insight Block — Decision Engine */}
-      <WeeklyInsightBlock />
 
       {/* Market Intelligence Strip */}
       <MarketIntelligenceStrip />

@@ -1,171 +1,252 @@
 /**
  * Stripe Product Configuration for Amped Agent
- * Defines the 3 subscription tiers with pricing and features
- *
- * Pricing (updated Apr 2026):
- *   Starter  $79/mo  — solo agents, 50 credits/mo included
- *   Pro      $149/mo — active agents, 150 credits/mo included
- *   Authority $299/mo — top producers & teams, 500 credits/mo included
+ * 5 subscription tiers (updated Apr 2026):
+ *   Agent         $79/mo  — solo agents
+ *   Top Producer  $149/mo — active agents scaling their brand
+ *   Market Leader $249/mo — dominant solo agents, full suite
+ *   Team          $399/mo — agent teams (2–5 seats)
+ *   Brokerage     Custom  — 10+ agents, contact sales
  */
 
 export interface StripeProduct {
   name: string;
   description: string;
-  tier: "starter" | "pro" | "authority";
+  tier: "agent" | "top-producer" | "market-leader" | "team" | "brokerage";
   priceMonthly: number; // in cents
-  priceYearly: number; // in cents (2 months free = 10× monthly)
-  priceIdMonthly?: string; // Will be set after creating in Stripe
-  priceIdYearly?: string; // Will be set after creating in Stripe
-  productId?: string; // Will be set after creating in Stripe
+  priceYearly: number; // in cents (~20% off = 10× monthly)
+  priceIdMonthly?: string;
+  priceIdYearly?: string;
+  productId?: string;
   trialDays: number;
-  monthlyCredits: number; // Credits included with monthly subscription
   features: {
-    contentGeneration: boolean;
-    templates: number;
-    scheduling: boolean;
-    facebookIntegration: boolean;
-    instagramIntegration: boolean;
-    aiVideos: number; // -1 = unlimited
-    listingPhotoVideos: boolean;
-    listingPresentation: boolean;
-    voiceCloning: boolean;
-    teamSeats: number;
+    kenBurnsVideos: boolean;       // Property Tour (Ken Burns) — all tiers
+    aiReels: boolean;              // Short-form reels — all tiers
+    avatarVideos: number;          // -1 = unlimited, 0 = none
+    cinematicTours: boolean;       // Runway AI cinematic tours
+    liveTour: boolean;             // Record + auto-edit walkthrough
+    voiceCloning: boolean;         // Custom voice clone
+    listingLaunchKit: boolean;     // One-click listing marketing package
+    emailDrip: boolean;            // Drip sequences
+    crmPipeline: boolean;          // Lead kanban
+    openHouseQR: boolean;          // QR sign-in + follow-up
+    testimonialEngine: boolean;    // Review requests + social post gen
+    performanceCoach: boolean;     // Decision Engine / weekly diagnosis
+    teamSeats: number;             // 1 = solo
+    sharedContentLibrary: boolean;
     whiteLabel: boolean;
     apiAccess: boolean;
     support: string;
   };
-  featureList: string[]; // For display on pricing page
+  featureList: string[];
   recommended?: boolean;
+  contactSales?: boolean;
 }
 
 export const STRIPE_PRODUCTS: StripeProduct[] = [
   {
-    name: "Amped Agent Starter",
-    description: "The complete AI content suite for solo agents ready to dominate their market",
-    tier: "starter",
-    priceMonthly: 7900, // $79/month
-    priceYearly: 79000, // $790/year (2 months free)
+    name: "Agent",
+    description: "Start showing up consistently and build your brand",
+    tier: "agent",
+    priceMonthly: 7900,   // $79/month
+    priceYearly: 63200,   // $632/year (~$63/mo, save ~20%)
     priceIdMonthly: "price_1SwEkxIg7t2mT914l2lYhLh7",
     priceIdYearly: "price_1SwEkxIg7t2mT914U85UGQZQ",
     productId: "prod_Tu2qUnne3JxuKt",
     trialDays: 14,
-    monthlyCredits: 50,
     features: {
-      contentGeneration: true,
-      templates: 50,
-      scheduling: true,
-      facebookIntegration: true,
-      instagramIntegration: true,
-      aiVideos: 5,
-      listingPhotoVideos: true,
-      listingPresentation: true,
+      kenBurnsVideos: true,
+      aiReels: true,
+      avatarVideos: 0,
+      cinematicTours: false,
+      liveTour: false,
       voiceCloning: false,
+      listingLaunchKit: false,
+      emailDrip: false,
+      crmPipeline: false,
+      openHouseQR: false,
+      testimonialEngine: false,
+      performanceCoach: false,
       teamSeats: 1,
+      sharedContentLibrary: false,
       whiteLabel: false,
       apiAccess: false,
       support: "email-48hr",
     },
     featureList: [
-      "50 AI credits included every month",
-      "Unlimited text & image posts",
-      "5 AI avatar videos/month",
-      "Property Tour videos",
-      "Listing Presentation builder (Gamma AI)",
-      "AI Reels & short-form video scripts",
-      "50+ professional templates",
-      "Post & Blog Builder with city rotation",
-      "Market Insights with auto-populated stats",
+      "Property Tour videos (Ken Burns style)",
+      "Short-form reels for Instagram & TikTok",
+      "Daily AI-written posts — market updates, tips, listings",
+      "Listing Presentation builder",
       "Lead Magnet generator",
-      "Post scheduling",
-      "Facebook & Instagram integration",
+      "Market Insights with live stats",
+      "Blog Builder with city rotation",
+      "Content calendar & post scheduling",
+      "3 social media connections",
       "Email support (48hr)",
     ],
   },
   {
-    name: "Amped Agent Pro",
-    description: "For active agents who post consistently and want to be the authority in their market",
-    tier: "pro",
-    priceMonthly: 14900, // $149/month
-    priceYearly: 149000, // $1,490/year (2 months free)
+    name: "Top Producer",
+    description: "Dominate your market with video and advanced content tools",
+    tier: "top-producer",
+    priceMonthly: 14900,  // $149/month
+    priceYearly: 119200,  // $1,192/year (~$119/mo, save ~20%)
     priceIdMonthly: "price_1SwEkzIg7t2mT914CiNdZgkd",
     priceIdYearly: "price_1SwEkzIg7t2mT914ZibEMRwS",
     productId: "prod_Tu2qEpQy3NGNdY",
     trialDays: 14,
     recommended: true,
-    monthlyCredits: 150,
     features: {
-      contentGeneration: true,
-      templates: 100,
-      scheduling: true,
-      facebookIntegration: true,
-      instagramIntegration: true,
-      aiVideos: 20,
-      listingPhotoVideos: true,
-      listingPresentation: true,
+      kenBurnsVideos: true,
+      aiReels: true,
+      avatarVideos: 10,
+      cinematicTours: true,
+      liveTour: false,
       voiceCloning: false,
+      listingLaunchKit: true,
+      emailDrip: true,
+      crmPipeline: true,
+      openHouseQR: true,
+      testimonialEngine: true,
+      performanceCoach: true,
       teamSeats: 1,
+      sharedContentLibrary: false,
       whiteLabel: false,
       apiAccess: false,
       support: "email-24hr",
     },
     featureList: [
-      "Everything in Starter, plus:",
-      "150 AI credits included every month",
-      "20 AI avatar videos per month",
-      "AI-Enhanced Property Tours (Runway B-roll)",
+      "Everything in Agent, plus:",
+      "10 videos with your face per month — no camera needed",
+      "Cinematic property tours with AI motion",
+      "Listing Launch Kit — one address, full marketing package",
+      "Email drip sequences — automated follow-up",
+      "CRM pipeline — track leads from open house to close",
+      "Open house QR sign-in with auto follow-up",
+      "Testimonial engine — turn closings into social proof",
+      "Performance Coach — weekly AI strategy briefing",
       "3 hook options per reel",
-      "AI script generation",
       "Auto-generated captions with CTA",
-      "Smooth transitions & background music",
-      "No watermarks",
-      "Batch Blog Builder (all cities at once)",
+      "Unlimited social media connections",
       "Priority support (24hr)",
     ],
   },
   {
-    name: "Amped Agent Authority",
-    description: "The complete authority marketing suite for top producers and teams",
-    tier: "authority",
-    priceMonthly: 29900, // $299/month
-    priceYearly: 299000, // $2,990/year (2 months free)
+    name: "Market Leader",
+    description: "The complete authority marketing suite — own your city",
+    tier: "market-leader",
+    priceMonthly: 24900,  // $249/month
+    priceYearly: 199200,  // $1,992/year (~$199/mo, save ~20%)
     priceIdMonthly: "price_1SwEl1Ig7t2mT914iDGqGZ40",
     priceIdYearly: "price_1SwEl2Ig7t2mT914uAb8Wm9i",
     productId: "prod_Tu2qRnlGJmcZu8",
     trialDays: 14,
-    monthlyCredits: 500,
     features: {
-      contentGeneration: true,
-      templates: 100,
-      scheduling: true,
-      facebookIntegration: true,
-      instagramIntegration: true,
-      aiVideos: -1, // unlimited
-      listingPhotoVideos: true,
-      listingPresentation: true,
+      kenBurnsVideos: true,
+      aiReels: true,
+      avatarVideos: 20,
+      cinematicTours: true,
+      liveTour: true,
       voiceCloning: true,
-      teamSeats: 3,
-      whiteLabel: true,
-      apiAccess: true,
-      support: "phone-4hr",
+      listingLaunchKit: true,
+      emailDrip: true,
+      crmPipeline: true,
+      openHouseQR: true,
+      testimonialEngine: true,
+      performanceCoach: true,
+      teamSeats: 1,
+      sharedContentLibrary: false,
+      whiteLabel: false,
+      apiAccess: false,
+      support: "priority-4hr",
     },
     featureList: [
-      "Everything in Pro, plus:",
-      "500 AI credits included every month",
-      "UNLIMITED AI avatar videos",
-      "Full AI Cinematic Property Tours (Kling AI)",
-      "Voice cloning (1 custom voice)",
-      "Multiple avatar looks (3 styles)",
-      "Custom branding overlays",
-      "3 team member seats",
-      "Shared content library",
-      "Team approval workflow",
-      "White-label branding",
-      "Custom domain",
-      "API access",
-      "Advanced analytics",
+      "Everything in Top Producer, plus:",
+      "20 videos with your face per month",
+      "Record a walkthrough — we edit it automatically",
+      "Your voice, cloned — narrate any video without recording",
+      "3 different looks for your digital twin",
+      "Custom branding overlays on all content",
+      "Advanced analytics & reporting",
       "Priority rendering",
-      "Phone support (4hr)",
+      "Phone support (4hr response)",
+    ],
+  },
+  {
+    name: "Team",
+    description: "One platform for your entire team — consistent brand, more deals",
+    tier: "team",
+    priceMonthly: 39900,  // $399/month
+    priceYearly: 319200,  // $3,192/year (~$319/mo, save ~20%)
+    trialDays: 14,
+    features: {
+      kenBurnsVideos: true,
+      aiReels: true,
+      avatarVideos: -1, // unlimited across team
+      cinematicTours: true,
+      liveTour: true,
+      voiceCloning: true,
+      listingLaunchKit: true,
+      emailDrip: true,
+      crmPipeline: true,
+      openHouseQR: true,
+      testimonialEngine: true,
+      performanceCoach: true,
+      teamSeats: 5,
+      sharedContentLibrary: true,
+      whiteLabel: false,
+      apiAccess: false,
+      support: "priority-same-day",
+    },
+    featureList: [
+      "Everything in Market Leader, plus:",
+      "Up to 5 agent seats — each with their own login",
+      "Shared content library — team templates, one brand",
+      "Team admin dashboard — see all agent activity",
+      "Unlimited videos with your face across the team",
+      "Bulk listing launch — multiple listings at once",
+      "Same-day priority support",
+      "Team onboarding call included",
+    ],
+  },
+  {
+    name: "Brokerage",
+    description: "Custom platform for brokerages with 10+ agents",
+    tier: "brokerage",
+    priceMonthly: 0, // custom pricing
+    priceYearly: 0,
+    trialDays: 14,
+    contactSales: true,
+    features: {
+      kenBurnsVideos: true,
+      aiReels: true,
+      avatarVideos: -1,
+      cinematicTours: true,
+      liveTour: true,
+      voiceCloning: true,
+      listingLaunchKit: true,
+      emailDrip: true,
+      crmPipeline: true,
+      openHouseQR: true,
+      testimonialEngine: true,
+      performanceCoach: true,
+      teamSeats: -1, // unlimited
+      sharedContentLibrary: true,
+      whiteLabel: true,
+      apiAccess: true,
+      support: "dedicated-account-manager",
+    },
+    featureList: [
+      "Everything in Team, plus:",
+      "Unlimited agent seats",
+      "Brokerage-wide branding — every agent, one brand",
+      "White-label option — your name, not ours",
+      "Broker admin view — all agent activity in one dashboard",
+      "Bulk listing launch across all agents",
+      "API access for MLS & CRM integration",
       "Dedicated account manager",
+      "Custom onboarding for all agents",
+      "Custom pricing based on team size",
     ],
   },
 ];
@@ -173,14 +254,18 @@ export const STRIPE_PRODUCTS: StripeProduct[] = [
 /**
  * Get product by tier
  */
-export function getProductByTier(tier: "starter" | "pro" | "authority"): StripeProduct | undefined {
+export function getProductByTier(
+  tier: "agent" | "top-producer" | "market-leader" | "team" | "brokerage"
+): StripeProduct | undefined {
   return STRIPE_PRODUCTS.find((p) => p.tier === tier);
 }
 
 /**
  * Get tier by price ID
  */
-export function getTierByPriceId(priceId: string): "starter" | "pro" | "authority" | undefined {
+export function getTierByPriceId(
+  priceId: string
+): "agent" | "top-producer" | "market-leader" | "team" | "brokerage" | undefined {
   const product = STRIPE_PRODUCTS.find(
     (p) => p.priceIdMonthly === priceId || p.priceIdYearly === priceId
   );
@@ -191,102 +276,64 @@ export function getTierByPriceId(priceId: string): "starter" | "pro" | "authorit
  * Check if user has access to a feature based on their tier
  */
 export function hasFeatureAccess(
-  userTier: "starter" | "pro" | "authority",
+  userTier: string,
   feature: keyof StripeProduct["features"]
 ): boolean {
-  const product = getProductByTier(userTier);
+  const product = getProductByTier(userTier as any);
   if (!product) return false;
-  return Boolean(product.features[feature]);
+  const val = product.features[feature];
+  if (typeof val === "boolean") return val;
+  if (typeof val === "number") return val !== 0;
+  return false;
 }
 
 /**
- * Get video limit for a tier
+ * Get avatar video limit for a tier (-1 = unlimited, 0 = none)
  */
-export function getVideoLimit(tier: "starter" | "pro" | "authority"): number {
-  const product = getProductByTier(tier);
+export function getAvatarVideoLimit(tier: string): number {
+  const product = getProductByTier(tier as any);
   if (!product) return 0;
-  return product.features.aiVideos;
+  return product.features.avatarVideos;
 }
 
 /**
- * Get monthly credit allowance for a tier
+ * Create new Stripe products for Team tier
+ * Run once: npx tsx server/stripe-products.ts
  */
-export function getMonthlyCredits(tier: "starter" | "pro" | "authority"): number {
-  const product = getProductByTier(tier);
-  return product?.monthlyCredits ?? 0;
-}
-
-/**
- * Create Stripe products and prices
- * Run this script once: npx tsx server/stripe-products.ts
- */
-export async function createStripeProducts() {
+export async function createTeamProduct() {
   const Stripe = (await import("stripe")).default;
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-  for (const product of STRIPE_PRODUCTS) {
-    console.log(`Creating product: ${product.name}`);
+  const teamProduct = STRIPE_PRODUCTS.find((p) => p.tier === "team")!;
 
-    // Create product
-    const stripeProduct = await stripe.products.create({
-      name: product.name,
-      description: product.description,
-      metadata: {
-        tier: product.tier,
-        aiVideos: product.features.aiVideos.toString(),
-        teamSeats: product.features.teamSeats.toString(),
-        monthlyCredits: product.monthlyCredits.toString(),
-      },
-    });
+  const stripeProduct = await stripe.products.create({
+    name: teamProduct.name,
+    description: teamProduct.description,
+    metadata: { tier: teamProduct.tier, teamSeats: "5" },
+  });
 
-    // Create monthly price
-    const monthlyPrice = await stripe.prices.create({
-      product: stripeProduct.id,
-      unit_amount: product.priceMonthly,
-      currency: "usd",
-      recurring: {
-        interval: "month",
-        trial_period_days: product.trialDays,
-      },
-      metadata: {
-        tier: product.tier,
-        billing_period: "monthly",
-      },
-    });
+  const monthlyPrice = await stripe.prices.create({
+    product: stripeProduct.id,
+    unit_amount: teamProduct.priceMonthly,
+    currency: "usd",
+    recurring: { interval: "month" },
+    metadata: { tier: teamProduct.tier, billing_period: "monthly" },
+  });
 
-    // Create yearly price
-    const yearlyPrice = await stripe.prices.create({
-      product: stripeProduct.id,
-      unit_amount: product.priceYearly,
-      currency: "usd",
-      recurring: {
-        interval: "year",
-        trial_period_days: product.trialDays,
-      },
-      metadata: {
-        tier: product.tier,
-        billing_period: "yearly",
-      },
-    });
+  const yearlyPrice = await stripe.prices.create({
+    product: stripeProduct.id,
+    unit_amount: teamProduct.priceYearly,
+    currency: "usd",
+    recurring: { interval: "year" },
+    metadata: { tier: teamProduct.tier, billing_period: "yearly" },
+  });
 
-    console.log(`✅ Created ${product.name}`);
-    console.log(`   Product ID: ${stripeProduct.id}`);
-    console.log(`   Monthly Price ID: ${monthlyPrice.id}`);
-    console.log(`   Yearly Price ID: ${yearlyPrice.id}`);
-    console.log("");
-
-    // Update the product object with IDs (you'll need to manually add these to the config)
-    product.productId = stripeProduct.id;
-    product.priceIdMonthly = monthlyPrice.id;
-    product.priceIdYearly = yearlyPrice.id;
-  }
-
-  console.log("🎉 All products created successfully!");
-  console.log("\n📝 Copy these IDs back into your stripe-products.ts file:");
-  console.log(JSON.stringify(STRIPE_PRODUCTS, null, 2));
+  console.log("✅ Team product created:");
+  console.log(`   productId: "${stripeProduct.id}",`);
+  console.log(`   priceIdMonthly: "${monthlyPrice.id}",`);
+  console.log(`   priceIdYearly: "${yearlyPrice.id}",`);
 }
 
-// Run if executed directly (ES module check)
 if (import.meta.url === `file://${process.argv[1]}`) {
-  createStripeProducts().catch(console.error);
+  createTeamProduct().catch(console.error);
 }

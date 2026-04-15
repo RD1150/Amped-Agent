@@ -5169,3 +5169,78 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Build SMS follow-up procedure for open house leads (consent-gated)
 - [x] Add STOP/opt-out handling webhook endpoint
 - [x] Create A2P registration guide document for user
+
+## Session: Title & Tags on All Videos and Posts (Apr 2026)
+- [ ] Add title (varchar 255) and tags (text, comma-separated) columns to generatedVideos table
+- [ ] Add title and tags columns to contentPosts table
+- [ ] Add title and tags columns to blogPosts table
+- [ ] Add title and tags columns to podcastEpisodes table
+- [ ] Push all schema migrations
+- [ ] Add title + tags input fields to Property Tours creation UI
+- [ ] Add title + tags input fields to Avatar Video creation UI
+- [ ] Add title + tags input fields to AI Reels creation UI
+- [ ] Add title + tags input fields to YouTube Builder creation UI
+- [ ] Add title + tags input fields to Post Builder creation UI
+- [ ] Add title + tags input fields to Blog Builder creation UI
+- [ ] Add title + tags input fields to Podcast Builder creation UI
+- [ ] Update server procedures to accept and store title and tags
+- [ ] Add tag filter chips and title search to My Videos page
+- [ ] Add tag filter to content library / calendar view
+
+## Session: Video Card Tooltips (Apr 2026)
+- [ ] Add hover tooltips to Download, Share, Open/Preview, and Delete buttons on My Videos cards
+
+## Session: Avatar Video ↔ YouTube Builder Integration (Apr 2026)
+- [ ] YouTube Builder: add "Generate Avatar Video from this script" button that navigates to Avatar Video tool with script pre-filled
+- [ ] My Videos: add "Use in YouTube Builder" button on avatar video cards that opens YouTube Builder with that video pre-selected as intro
+- [ ] YouTube Builder: show selected intro avatar video preview when coming from My Videos
+- [ ] Store script-to-avatar handoff via URL params or sessionStorage
+
+## Session: Realtor-Easy UX Redesign (Apr 2026)
+- [ ] Dashboard: move Weekly Diagnosis block to top, full width, above all other content
+- [ ] Dashboard: add Quick Create bar with 3 one-tap actions (Write a Post, Make a Video, Send an Email)
+- [ ] Dashboard: collapse advanced tool grid below fold, keep top section clean
+- [ ] All tool pages: collapse advanced options behind a "Customize" toggle, show only essential fields by default
+- [ ] Build unified "Make a YouTube Video" page: single topic input → auto-generates script + avatar video in one 3-step flow
+- [ ] Hide YouTube Builder / Avatar Video split from the unified flow (seamless behind the scenes)
+- [ ] Add "Make a YouTube Video" to Quick Create bar and sidebar nav
+- [ ] Add tooltips to My Videos card buttons (Download, Share, Open, Delete)
+- [ ] Avatar Video cards in My Videos: add "Use in YouTube Builder" button
+- [ ] YouTube Builder: add "Generate Avatar Video from this script" button
+
+## 5-Day Beta Sprint (Apr 2026)
+- [ ] Wire /make-youtube-video route in App.tsx
+- [ ] Add hover tooltips to My Videos card buttons (Download, Share, Open, Delete)
+- [ ] Listing Launch Kit: one-click orchestration (posts + email + video + lead magnet from one address)
+- [ ] Email Drip cron processor: daily job sends next sequence email to enrolled contacts
+- [ ] CRM full kanban: drag-and-drop lead cards with source badge, days-since-contact, generate follow-up message
+- [ ] AfterCallPro integration: research API, build lead push button on CRM and open house leads
+- [ ] New-user onboarding audit: fix friction points found during walkthrough
+- [ ] Mobile layout check and fixes
+- [ ] Confirm Stripe tier gates are correct for beta pricing
+- [ ] Final checkpoint and deploy before beta opens
+
+## Session: Pricing Page Rebuild (Apr 2026)
+- [ ] Rebuild pricing page with 5 tiers: Agent $79, Top Producer $149, Market Leader $249, Team $399, Brokerage custom
+- [ ] Use agent-friendly language (no "AI credits", no developer jargon)
+- [ ] Add annual/monthly toggle with savings callout
+- [ ] Add video feature tier breakdown table
+- [ ] Update stripe-products.ts with new tier names and prices
+- [ ] Create new Stripe products/prices for Team tier ($399)
+- [ ] Wire Brokerage tier to "Contact Us" flow instead of Stripe checkout
+
+## Session: Checkpoint Before New Chat (Apr 2026)
+- [x] Pricing page rebuilt with 5 tiers: Agent $79, Top Producer $149, Market Leader $249, Team $399, Brokerage custom
+- [x] Agent-friendly language throughout (no "AI credits", no developer jargon)
+- [x] Annual/monthly toggle with savings callout (Save 20%)
+- [x] Video feature tier breakdown table added
+- [x] stripe-products.ts already had 5-tier structure (agent, top-producer, market-leader, team, brokerage)
+- [x] stripe router updated to accept all tier IDs including legacy names (starter→agent, pro→top-producer, authority→market-leader)
+- [x] Brokerage tier wired to /contact route instead of Stripe checkout
+- [x] TypeScript errors resolved — dev server clean
+- [ ] NEXT: Beta video credit system (twinVideoCredits counter, 3 credits for beta, gate + upgrade prompt)
+- [ ] NEXT: CRM full kanban with @dnd-kit drag-and-drop (5 columns, lead source badge, follow-up message gen)
+- [ ] NEXT: Email Drip cron processor (daily job, Resend, open rate tracking)
+- [ ] NEXT: Avatar upload flow ("Upload My Avatar Video" → HeyGen consent video upload)
+- [ ] NEXT: New-user onboarding audit and mobile layout check
+- [ ] NEXT: Final beta deploy checkpoint
