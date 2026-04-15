@@ -396,72 +396,91 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* CONVERT Platform */}
-          <div className="relative rounded-xl overflow-hidden">
-            <div className="absolute inset-0 bg-[#0A1628]" />
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(225deg, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-            <div className="absolute top-0 left-0 w-72 h-72 bg-[#FF6A00]/10 rounded-full blur-3xl" />
-            <div className="relative px-7 py-6">
-              <div className="flex flex-col md:flex-row md:items-start gap-5 mb-5">
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#FF6A00]/20 border border-[#FF6A00]/30 shrink-0">
-                  <Rocket className="h-6 w-6 text-orange-400" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold text-orange-400 uppercase tracking-wider">CONVERT &mdash; Marketing Platform</span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
-                      <FileCheck className="h-2.5 w-2.5" />4 Tools
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-1 leading-snug">Your Full Lead-to-Close Pipeline</h3>
-                  <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
-                    Capture every lead at the door, keep them warm with automated follow-ups, manage your pipeline, and turn happy clients into social proof.
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {[
-                  { icon: Rocket, label: "Listing Launch Kit", sub: "1 address → full marketing package", path: "/listing-launch-kit", badge: null },
-                  { icon: QrCode, label: "Open House Manager", sub: "QR sign-in + auto follow-up", path: "/open-house", badge: openHouseZapierActive ? "Zapier" : null },
-                  { icon: Users, label: "CRM Pipeline", sub: "5-stage lead kanban", path: "/crm", badge: crmConnected ? "CRM" : null },
-                  { icon: MessageSquareQuote, label: "Testimonial Engine", sub: "Reviews → social posts", path: "/testimonials", badge: null },
-                ].map(({ icon: Icon, label, sub, path, badge }) => (
-                  <button
-                    key={label}
-                    onClick={() => setLocation(path)}
-                    className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#FF6A00]/30 transition-all text-left"
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <Icon className="h-5 w-5 text-orange-400" />
-                      {badge && (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded-full">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          {badge}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-white leading-snug">{label}</div>
-                      <div className="text-[11px] text-slate-400 mt-0.5 leading-tight">{sub}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
-                <div className="flex items-center gap-2">
-                  <GitBranch className="h-4 w-4 text-orange-400/70" />
-                  <span className="text-xs text-slate-400">Also in ENGAGE: <button onClick={() => setLocation('/drip-sequences')} className="text-orange-400 hover:text-orange-300 underline underline-offset-2">Email Drip Sequences</button></span>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={() => setLocation("/convert")}
-                  className="bg-[#FF6A00] hover:bg-[#e05e00] text-white font-semibold gap-1.5 transition-all"
-                >
-                  See All CONVERT Tools
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
+      {/* CONVERT Featured Card - Marketing Platform */}
+      <div className="relative rounded-2xl overflow-hidden">
+        {/* Deep navy background */}
+        <div className="absolute inset-0 bg-[#0A1628]" />
+        {/* Subtle diagonal grid */}
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(225deg, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        {/* Orange glow accent */}
+        <div className="absolute top-0 left-0 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
+        <div className="relative px-8 py-7">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-start gap-6 mb-6">
+            <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-orange-500/20 border border-orange-500/30 shrink-0">
+              <Rocket className="h-7 w-7 text-orange-400" />
             </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-semibold text-orange-400/90 uppercase tracking-wider">CONVERT &mdash; Marketing Platform</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
+                  <FileCheck className="h-2.5 w-2.5" />4 New Tools
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-1">Your Full Lead-to-Close Pipeline</h3>
+              <p className="text-sm text-slate-300 max-w-xl">
+                Capture every lead at the door, keep them warm with automated follow-ups, manage your pipeline, and turn happy clients into social proof &mdash; all in one place.
+              </p>
+            </div>
+          </div>
+          {/* Tool grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <button
+              onClick={() => setLocation("/listing-launch-kit")}
+              className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all text-left group"
+            >
+              <Rocket className="h-5 w-5 text-orange-400" />
+              <div>
+                <div className="text-sm font-semibold text-white">Listing Launch Kit</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">1 address → full marketing package</div>
+              </div>
+            </button>
+            <button
+              onClick={() => setLocation("/open-house")}
+              className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all text-left group"
+            >
+              <QrCode className="h-5 w-5 text-orange-400" />
+              <div>
+                <div className="text-sm font-semibold text-white">Open House Manager</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">QR sign-in + auto follow-up</div>
+              </div>
+            </button>
+            <button
+              onClick={() => setLocation("/crm")}
+              className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all text-left group"
+            >
+              <Users className="h-5 w-5 text-orange-400" />
+              <div>
+                <div className="text-sm font-semibold text-white">CRM Pipeline</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">5-stage lead kanban</div>
+              </div>
+            </button>
+            <button
+              onClick={() => setLocation("/testimonials")}
+              className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all text-left group"
+            >
+              <MessageSquareQuote className="h-5 w-5 text-orange-400" />
+              <div>
+                <div className="text-sm font-semibold text-white">Testimonial Engine</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">Reviews → social posts</div>
+              </div>
+            </button>
+          </div>
+          {/* Secondary CTA row */}
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
+            <div className="flex items-center gap-2">
+              <GitBranch className="h-4 w-4 text-orange-400/70" />
+              <span className="text-xs text-slate-400">Also in ENGAGE: <button onClick={() => setLocation('/drip-sequences')} className="text-orange-400 hover:text-orange-300 underline underline-offset-2">Email Drip Sequences</button></span>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => setLocation("/convert")}
+              className="bg-orange-500 hover:bg-orange-400 text-white font-semibold gap-1.5 hover:shadow-lg hover:shadow-orange-500/20 transition-all"
+            >
+              See All CONVERT Tools
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>
