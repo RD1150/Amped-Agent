@@ -20,8 +20,6 @@ import {
   Clock,
   CheckCircle2,
   ExternalLink,
-  GitBranch,
-  Zap,
 } from "lucide-react";
 import {
   Select,
@@ -147,17 +145,6 @@ export default function OpenHouseManager() {
                 >
                   <ExternalLink className="w-3 h-3" />
                   View in CRM
-                </Button>
-              )}
-              {lead.email && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1 text-xs h-7 border-purple-200 text-purple-700 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-950/30"
-                  onClick={() => { setDripDialog({ lead }); setSelectedSeqId(""); }}
-                >
-                  <GitBranch className="w-3 h-3" />
-                  Drip
                 </Button>
               )}
             </div>
