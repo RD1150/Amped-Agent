@@ -477,7 +477,11 @@ export default function FullAvatarVideo() {
       toast.success("Your avatar video is ready!");
       refetchVideos();
     } catch (err: any) {
-      toast.error(err.message || "Generation failed. Please try again.");
+      if (err.message?.includes('BETA_CREDITS_EXHAUSTED')) {
+        toast.error("You've used all 3 beta avatar videos. Upgrade to Top Producer to get 10/month.");
+      } else {
+        toast.error(err.message || "Generation failed. Please try again.");
+      }
     } finally {
       setIsGenerating(false);
       setGenerationStep("");
@@ -1563,26 +1567,62 @@ export default function FullAvatarVideo() {
           )}
         </div>
 
-        <Button
-          onClick={handleGenerate}
-          disabled={
-            isGenerating ||
-            !script.trim() ||
-            (mode === "quick" && (!selectedAvatarId || isLoadingAvatars)) ||
-            (mode === "custom" && twinStatus?.status !== "ready")
+        {/* Beta credit counter */}
+        {(() => {
+          const credits = currentUser?.twinVideoCredits ?? 3;
+          if (credits <= 0) {
+            return (
+              <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 text-center space-y-3">
+                <div className="text-2xl">🎬</div>
+                <p className="font-semibold text-gray-900">You've used all 3 beta avatar videos</p>
+                <p className="text-sm text-gray-600">Upgrade to Top Producer to get 10 face videos per month — no camera needed.</p>
+                <Button
+                  onClick={() => window.location.href = '/pricing'}
+                  className="bg-orange-500 hover:bg-orange-600 text-white w-full"
+                >
+                  <Crown className="mr-2 h-4 w-4" />Upgrade to Top Producer
+                </Button>
+              </div>
+            );
           }
-          className="w-full bg-muted0 hover:bg-primary text-black font-semibold h-12 text-base"
-        >
-          {isGenerating ? (
-            <><Loader2 className="mr-2 h-5 w-5 animate-spin" />{generationStep || "Generating…"}</>
-          ) : (
-            <><Sparkles className="mr-2 h-5 w-5" />Generate Avatar Video</>
-          )}
-        </Button>
+          return (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Beta avatar videos remaining</span>
+                <span className={`font-bold ${credits === 1 ? 'text-orange-500' : 'text-gray-900'}`}>{credits} of 3</span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-1.5">
+                <div
+                  className={`h-1.5 rounded-full transition-all ${credits === 1 ? 'bg-orange-400' : 'bg-orange-500'}`}
+                  style={{ width: `${(credits / 3) * 100}%` }}
+                />
+              </div>
+              <Button
+                onClick={handleGenerate}
+                disabled={
+                  isGenerating ||
+                  !script.trim() ||
+                  (mode === "quick" && (!selectedAvatarId || isLoadingAvatars)) ||
+                  (mode === "custom" && twinStatus?.status !== "ready")
+                }
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold h-12 text-base"
+              >
+                {isGenerating ? (
+                  <><Loader2 className="mr-2 h-5 w-5 animate-spin" />{generationStep || "Generating…"}</>
+                ) : (
+                  <><Sparkles className="mr-2 h-5 w-5" />Generate Avatar Video</>  
+                )}
+              </Button>
+              {credits === 1 && (
+                <p className="text-xs text-orange-500 text-center">This is your last beta video. <a href="/pricing" className="underline font-medium">Upgrade</a> to get 10/month.</p>
+              )}
+            </div>
+          );
+        })()}
 
         {isGenerating && (
           <div className="text-center text-xs text-muted-foreground">
-    Your AI avatar video is being created and synced with your voice. This takes 1–5 minutes depending on script length.
+            Your AI avatar video is being created and synced with your voice. This takes 1–5 minutes depending on script length.
           </div>
         )}
       </Card>

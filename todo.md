@@ -5244,3 +5244,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] NEXT: Avatar upload flow ("Upload My Avatar Video" → HeyGen consent video upload)
 - [ ] NEXT: New-user onboarding audit and mobile layout check
 - [ ] NEXT: Final beta deploy checkpoint
+
+## Session: Beta Sprint Continuation
+
+- [x] Fix beta banner feedback link -> mailto:support@ampedagent.app?subject=AmpedAgent%20Beta%20Feedback
+- [x] Beta video credit system: twinVideoCredits (default 3) added to schema, db:push run, gate in both generate mutations, credit counter + upgrade prompt UI in FullAvatarVideo.tsx
+- [x] CRM kanban: full @dnd-kit drag-and-drop, DroppableColumn + Draggable LeadCard, DragOverlay ghost card, colored source badges, stale lead highlighting
+- [x] Email Drip cron processor: server/jobs/dripEmailProcessor.ts registered at 8 AM UTC daily, wired into server startup in _core/index.ts

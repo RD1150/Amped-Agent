@@ -285,13 +285,13 @@ Requirements:
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      // ── Premium gate ────────────────────────────────────────────────────────
-      const [userRow] = await db.select({ tier: users.subscriptionTier }).from(users).where(eq(users.id, ctx.user.id));
-      const tier = userRow?.tier ?? "starter";
-      if (tier !== "authority" && tier !== "pro") {
+      // ── Beta credit gate ────────────────────────────────────────────────────
+      const [userRow] = await db.select({ tier: users.subscriptionTier, twinVideoCredits: users.twinVideoCredits }).from(users).where(eq(users.id, ctx.user.id));
+      const betaCredits = userRow?.twinVideoCredits ?? 0;
+      if (betaCredits <= 0) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Full Avatar Video is a Premium feature. Please upgrade your plan to access this feature.",
+          message: "BETA_CREDITS_EXHAUSTED",
         });
       }
 
@@ -358,11 +358,16 @@ Requirements:
         }
         const s3Key = `full-avatar-videos/${ctx.user.id}/${videoId}-${Date.now()}.mp4`;
         const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
+        // Decrement beta credit on success
+        await db
+          .update(users)
+          .set({ twinVideoCredits: sql`GREATEST(0, ${users.twinVideoCredits} - 1)` })
+          .where(eq(users.id, ctx.user.id));
         await db
           .update(fullAvatarVideos)
           .set({ videoUrl: s3Url, s3Key, status: "completed" })
           .where(eq(fullAvatarVideos.id, videoId));
-        return { videoId, videoUrl: s3Url, duration, expiresAt: expiresAt.toISOString() };;
+        return { videoId, videoUrl: s3Url, duration, expiresAt: expiresAt.toISOString() };
       } catch (err) {
         await db
           .update(fullAvatarVideos)
@@ -755,13 +760,13 @@ Requirements:
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      // ── Premium gate ────────────────────────────────────────────────────────
-      const [userRow2] = await db.select({ tier: users.subscriptionTier }).from(users).where(eq(users.id, ctx.user.id));
-      const tier2 = userRow2?.tier ?? "starter";
-      if (tier2 !== "authority" && tier2 !== "pro") {
+      // ── Beta credit gate ────────────────────────────────────────────────────
+      const [userRow2] = await db.select({ twinVideoCredits: users.twinVideoCredits }).from(users).where(eq(users.id, ctx.user.id));
+      const betaCredits2 = userRow2?.twinVideoCredits ?? 0;
+      if (betaCredits2 <= 0) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Full Avatar Video is a Premium feature. Please upgrade your plan to access this feature.",
+          message: "BETA_CREDITS_EXHAUSTED",
         });
       }
 
@@ -842,6 +847,11 @@ Requirements:
         }
         const s3Key = `full-avatar-videos/${ctx.user.id}/${videoId}-custom-${Date.now()}.mp4`;
         const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
+        // Decrement beta credit on success
+        await db
+          .update(users)
+          .set({ twinVideoCredits: sql`GREATEST(0, ${users.twinVideoCredits} - 1)` })
+          .where(eq(users.id, ctx.user.id));
         await db
           .update(fullAvatarVideos)
           .set({ videoUrl: s3Url, s3Key, status: "completed" })

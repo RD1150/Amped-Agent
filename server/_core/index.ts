@@ -12,6 +12,7 @@ import uploadEndpoint from "../uploadEndpoint";
 import { recoverStuckCinematicJobs } from "../routers/cinematicWalkthrough";
 import { registerTrialNotificationJob } from "../jobs/trialNotifications";
 import { registerWeeklyDigestJob } from "../jobs/weeklyDigest";
+import { registerDripEmailJob } from "../jobs/dripEmailProcessor";
 import { getDb } from "../db";
 import { listingPresentations } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -591,6 +592,8 @@ async function startServer() {
     // Register daily trial notification cron job
     registerTrialNotificationJob();
     registerWeeklyDigestJob();
+    // Register daily drip email processor
+    registerDripEmailJob();
   });
 }
 

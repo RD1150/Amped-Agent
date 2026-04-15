@@ -138,7 +138,7 @@ export default function Dashboard() {
           <p className="text-sm text-slate-600 flex-1">
             You're using an early beta of Amped Agent. Your feedback shapes the platform —{" "}
             <a
-              href="mailto:feedback@ampedagent.app"
+              href="mailto:support@ampedagent.app?subject=AmpedAgent%20Beta%20Feedback"
               className="font-semibold text-slate-800 underline hover:text-slate-900"
             >
               share your thoughts

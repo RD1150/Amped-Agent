@@ -64,6 +64,8 @@ export const users = mysqlTable("users", {
   // Weekly Email Digest
   weeklyDigestEnabled: boolean("weeklyDigestEnabled").default(false).notNull(), // Opt-in for Monday morning diagnosis email
   weeklyDigestLastSentAt: timestamp("weeklyDigestLastSentAt"), // When the last digest was sent
+  // Beta video credits (avatar/twin videos during beta period)
+  twinVideoCredits: int("twinVideoCredits").default(3).notNull(), // Beta users start with 3 free avatar video credits
 });
 
 export type User = typeof users.$inferSelect;
