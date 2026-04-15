@@ -99,7 +99,7 @@ export default function Dashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
-  // Profile completion score
+  // Profile completion score — key fields that power AI output quality
   const profileFields = [
     { label: "Agent name", done: !!persona?.agentName, href: "/authority-profile" },
     { label: "Primary city & state", done: !!(persona?.primaryCity && persona?.primaryState), href: "/authority-profile" },
@@ -122,8 +122,7 @@ export default function Dashboard() {
     setProfileNudgeDismissed(true);
   };
 
-  // Top Actions — hero section (3 cards, equal height, CTA pinned to bottom)
-  const topActions = [
+  const quickActions = [
     {
       title: "Authority Post Builder",
       description: "Create AI-powered social posts that position you as the go-to local expert. One click, ready to publish.",
@@ -148,14 +147,79 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-12 pb-16">
+    <div className="space-y-8">
+      {/* Profile Completion Nudge */}
+      {profileIncomplete && !profileNudgeDismissed && (
+        <div className="relative flex items-start gap-4 rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-800/40 dark:bg-amber-950/20 px-5 py-4">
+          <div className="flex-shrink-0 mt-0.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
+              <Zap className="h-4.5 w-4.5 text-amber-600 dark:text-amber-400" />
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 mb-1.5">
+              <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                Your AI outputs are only as good as your profile — {profilePct}% complete
+              </p>
+              <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
+                {profileDoneCount}/{profileFields.length} key fields
+              </span>
+            </div>
+            <Progress value={profilePct} className="h-1.5 mb-2 bg-amber-200 dark:bg-amber-800/40 [&>div]:bg-amber-500" />
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
+              {profileFields.filter((f) => !f.done).map((f) => (
+                <span key={f.label} className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
+                  {f.label}
+                </span>
+              ))}
+            </div>
+            <Button
+              size="sm"
+              className="bg-amber-600 hover:bg-amber-700 text-white border-0 h-8 text-xs font-semibold"
+              onClick={() => setLocation("/authority-profile")}
+            >
+              Complete My Profile
+            </Button>
+          </div>
+          <button
+            onClick={dismissProfileNudge}
+            className="absolute top-3 right-3 p-1 rounded-full text-amber-400 hover:text-amber-600 dark:text-amber-600 dark:hover:text-amber-400 transition-colors"
+            aria-label="Dismiss"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
 
-      {/* ══════════════════════════════════════════════════════════════════════
-          SECTION 1 — HEADER
-      ══════════════════════════════════════════════════════════════════════ */}
-      <div>
-        {/* Welcome row */}
-        <div className="flex items-start justify-between mb-4">
+      {/* Beta Banner */}
+      {!betaBannerDismissed && (
+        <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5">
+          <span className="text-[9px] font-bold tracking-widest uppercase bg-slate-800 text-white px-2 py-0.5 rounded shrink-0">
+            BETA
+          </span>
+          <p className="text-sm text-slate-600 flex-1">
+            You're using an early beta of Amped Agent. Your feedback shapes the platform —{" "}
+            <a
+              href="mailto:feedback@ampedagent.app"
+              className="font-semibold text-slate-800 underline hover:text-slate-900"
+            >
+              share your thoughts
+            </a>.
+          </p>
+          <button
+            onClick={dismissBetaBanner}
+            className="text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+            aria-label="Dismiss beta banner"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Welcome Header */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-[#111111] leading-tight">
               {greeting}, {persona?.agentName || user?.name || "Agent"}
