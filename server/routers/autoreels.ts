@@ -15,13 +15,12 @@ const depthEnum = z.enum(["standard", "deep"]).default("standard");
  * Build persona context string from an agent's Authority Profile.
  * Used to inject local market, audience, and brand context into every LLM call.
  */
-function buildPersonaContext(persona: Awaited<ReturnType<typeof db.getPersonaByUserId>>): { contextBlock: string; city: string; audienceType: string; highlights: string[] } {
+function buildPersonaContext(persona: Awaited<ReturnType<typeof db.getPersonaByUserId>>): { contextBlock: string; city: string; audienceType: string } {
   let contextBlock = "";
   let city = "";
   let audienceType = "";
-  let highlights: string[] = [];
 
-  if (!persona) return { contextBlock, city, audienceType, highlights };
+  if (!persona) return { contextBlock, city, audienceType };
 
   if (persona.primaryCity) {
     city = persona.primaryCity;
@@ -32,18 +31,6 @@ function buildPersonaContext(persona: Awaited<ReturnType<typeof db.getPersonaByU
   if (persona.tagline) contextBlock += `\nAgent Tagline: ${persona.tagline}`;
   if (persona.brandValues) contextBlock += `\nBrand Values: ${persona.brandValues}`;
   if (persona.marketContext) contextBlock += `\nMarket Context: ${persona.marketContext}`;
-
-  // Local highlights: amenities, schools, landmarks, lifestyle features
-  const rawHighlights = (persona as any).localHighlights;
-  if (rawHighlights) {
-    try {
-      const parsed = JSON.parse(rawHighlights);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        highlights = parsed;
-        contextBlock += `\nLocal Highlights & Amenities (MUST weave these into content naturally): ${parsed.join(", ")}`;
-      }
-    } catch { /* ignore */ }
-  }
 
   if (persona.customerAvatar) {
     try {
@@ -75,7 +62,7 @@ function buildPersonaContext(persona: Awaited<ReturnType<typeof db.getPersonaByU
     }
   }
 
-  return { contextBlock, city, audienceType, highlights };
+  return { contextBlock, city, audienceType };
 }
 
 export const autoreelsRouter = router({
@@ -198,9 +185,9 @@ export const autoreelsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { inputText, inputMethod, videoLength, tone, niche, depth } = input;
 
-         // Load persona for context injection
+      // Load persona for context injection
       const persona = await db.getPersonaByUserId(ctx.user.id);
-      const { contextBlock, city, audienceType, highlights } = buildPersonaContext(persona);
+      const { contextBlock, city, audienceType } = buildPersonaContext(persona);
       
       // Moderate input content
       const moderation = await moderateContent(inputText, true);
@@ -233,6 +220,18 @@ export const autoreelsRouter = router({
       const personaSystemAddition = contextBlock
         ? `\n\nAGENT CONTEXT (use this to personalize every output):\n${contextBlock}${highlightsBlock}`
         : highlightsBlock ? `\n\nLOCAL CONTEXT:${highlightsBlock}` : "";
+
+      // Build depth-aware context strings
+      const locationRef = city || "this market";
+      const audienceRef = audienceType || "your audience";
+
+      const depthInstructions = depth === "deep"
+        ? `\n\nDEEP DIVE MODE — MANDATORY RULES:\n- Reference specific neighborhoods, zip codes, or streets in ${locationRef} by name\n- Include concrete price ranges, percentages, or timeframes (e.g. "homes under $450K", "3-4 weeks", "12% below asking")\n- Name real local dynamics: school districts, commute corridors, development projects, seasonal patterns\n- Share an expert opinion or contrarian take that only a local agent with real experience would know\n- Avoid ANY generic advice ("work with a professional", "the market is changing", "do your research")\n- Every sentence must contain information that could not have been written by someone who doesn't know ${locationRef}`
+        : "";
+
+      const personaSystemAddition = contextBlock
+        ? `\n\nAGENT CONTEXT (use this to personalize every output):\n${contextBlock}`
+        : "";
 
       // Step 1: Generate 3 hook options
       const hooksResponse = await invokeLLM({
@@ -367,9 +366,10 @@ CTA options:
         throw new Error(`Content moderation: ${moderation.reason}`);
       }
 
-         // Load persona for context injection
+      // Load persona for context injection
       const persona = await db.getPersonaByUserId(ctx.user.id);
-      const { contextBlock, city, audienceType, highlights } = buildPersonaContext(persona);
+      const { contextBlock, city, audienceType } = buildPersonaContext(persona);
+
       const contentTypeDescriptions = {
         bullets: "bullet points",
         caption: "long-form caption",
@@ -394,6 +394,17 @@ CTA options:
       const personaSystemAddition = contextBlock
         ? `\n\nAGENT CONTEXT (use this to personalize every output):\n${contextBlock}${highlightsBlock}`
         : highlightsBlock ? `\n\nLOCAL CONTEXT:${highlightsBlock}` : "";
+
+      const locationRef = city || "this market";
+      const audienceRef = audienceType || "your audience";
+
+      const depthInstructions = depth === "deep"
+        ? `\n\nDEEP DIVE MODE — MANDATORY RULES:\n- Reference specific neighborhoods, zip codes, or streets in ${locationRef} by name\n- Include concrete price ranges, percentages, or timeframes\n- Name real local dynamics: school districts, commute corridors, development projects, seasonal patterns\n- Share an expert opinion or contrarian take that only a local agent with real experience would know\n- Avoid ANY generic advice\n- Every sentence must contain information that could not have been written by someone who doesn't know ${locationRef}`
+        : "";
+
+      const personaSystemAddition = contextBlock
+        ? `\n\nAGENT CONTEXT (use this to personalize every output):\n${contextBlock}`
+        : "";
 
       const hooksResponse = await invokeLLM({
         messages: [
