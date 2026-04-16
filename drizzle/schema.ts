@@ -49,6 +49,9 @@ export const users = mysqlTable("users", {
   // Terms of Service acceptance
   hasAcceptedTerms: boolean("hasAcceptedTerms").default(false).notNull(),
   termsAcceptedAt: timestamp("termsAcceptedAt"),
+  // Beta Tester Agreement
+  hasAcceptedBetaAgreement: boolean("hasAcceptedBetaAgreement").default(false).notNull(),
+  betaAgreementAcceptedAt: timestamp("betaAgreementAcceptedAt"),
   // Voiceover preferences (saved from PropertyTours / AutoReels)
   preferredVoiceId: varchar("preferredVoiceId", { length: 64 }).default("21m00Tcm4TlvDq8ikWAM"),
   preferredVoiceoverStyle: mysqlEnum("preferredVoiceoverStyle", ["professional", "warm", "luxury", "casual"]).default("professional"),

@@ -247,6 +247,21 @@ export async function acceptTermsOfService(userId: number) {
   return { success: true };
 }
 
+export async function acceptBetaAgreement(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(users)
+    .set({ 
+      hasAcceptedBetaAgreement: true, 
+      betaAgreementAcceptedAt: new Date(),
+      updatedAt: new Date() 
+    })
+    .where(eq(users.id, userId));
+  
+  return { success: true };
+}
+
 // ============ PERSONA HELPERS ============
 
 export async function getPersonaByUserId(userId: number) {

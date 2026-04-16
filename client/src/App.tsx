@@ -252,8 +252,10 @@ function Router() {
 function AppWithOnboarding() {
   const { data: user, refetch } = trpc.auth.me.useQuery();
   const showOnboarding = !!(user && !user.hasCompletedOnboarding);
-  // Show welcome screen only after onboarding is done (so it doesn't stack)
-  const showWelcome = !!(user && user.hasCompletedOnboarding);
+  // Show beta agreement after onboarding is complete but before the app is usable
+  const showBetaAgreement = !!(user && user.hasCompletedOnboarding && !user.hasAcceptedBetaAgreement);
+  // Show welcome screen only after onboarding AND beta agreement are both done
+  const showWelcome = !!(user && user.hasCompletedOnboarding && user.hasAcceptedBetaAgreement);
 
   return (
     <>
@@ -261,6 +263,10 @@ function AppWithOnboarding() {
       <OnboardingModal
         open={showOnboarding}
         onComplete={() => refetch()}
+      />
+      <BetaAgreementModal
+        open={showBetaAgreement}
+        onAccepted={() => refetch()}
       />
       {showWelcome && <WelcomeScreen userName={user?.name ?? undefined} />}
       <SupportChatbot />
