@@ -60,6 +60,9 @@ export const users = mysqlTable("users", {
   clonedVoiceName: varchar("clonedVoiceName", { length: 128 }),
   // Email/password auth (null for OAuth-only users)
   passwordHash: varchar("passwordHash", { length: 255 }),
+  // Password reset
+  passwordResetToken: varchar("passwordResetToken", { length: 128 }),
+  passwordResetExpiresAt: timestamp("passwordResetExpiresAt"),
   // Referral system
   referralCode: varchar("referralCode", { length: 16 }).unique(), // Unique code for this user's referral link
   referredBy: int("referredBy"), // userId of the person who referred this user

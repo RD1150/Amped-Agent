@@ -303,4 +303,78 @@ export function registerAuthRoutes(app: Express) {
       res.redirect(302, "/login?error=google_failed");
     }
   });
+
+  // ── Forgot Password — Send Reset Email ────────────────────────────────────
+  app.post("/api/auth/forgot-password", async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body as { email?: string };
+      if (!email) {
+        res.status(400).json({ error: "Email is required." });
+        return;
+      }
+      const normalizedEmail = email.toLowerCase().trim();
+      const user = await db.getUserByEmail(normalizedEmail);
+
+      // Always return success to prevent user enumeration
+      if (!user || !user.passwordHash) {
+        res.json({ success: true });
+        return;
+      }
+
+      // Generate a secure random token
+      const crypto = require("crypto");
+      const token = crypto.randomBytes(32).toString("hex");
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      // Store token on user record
+      await db.setPasswordResetToken(user.id, token, expiresAt);
+
+      // Send reset email (non-fatal)
+      try {
+        const { sendPasswordResetEmail } = await import("../emailService");
+        await sendPasswordResetEmail({
+          userName: user.name || "there",
+          userEmail: normalizedEmail,
+          resetToken: token,
+        });
+      } catch (e) {
+        console.warn("[Auth] Password reset email failed (non-fatal):", e);
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Auth] Forgot password failed:", error);
+      res.status(500).json({ error: "Something went wrong. Please try again." });
+    }
+  });
+
+  // ── Reset Password — Validate Token & Set New Password ───────────────────
+  app.post("/api/auth/reset-password", async (req: Request, res: Response) => {
+    try {
+      const { token, password } = req.body as { token?: string; password?: string };
+      if (!token || !password) {
+        res.status(400).json({ error: "Token and new password are required." });
+        return;
+      }
+      if (password.length < 8) {
+        res.status(400).json({ error: "Password must be at least 8 characters." });
+        return;
+      }
+
+      const user = await db.getUserByResetToken(token);
+      if (!user || !user.passwordResetExpiresAt || new Date(user.passwordResetExpiresAt) < new Date()) {
+        res.status(400).json({ error: "This reset link is invalid or has expired. Please request a new one." });
+        return;
+      }
+
+      const bcrypt = require("bcryptjs");
+      const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+      await db.resetUserPassword(user.id, passwordHash);
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Auth] Reset password failed:", error);
+      res.status(500).json({ error: "Something went wrong. Please try again." });
+    }
+  });
 }

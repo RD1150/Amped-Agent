@@ -1251,26 +1251,16 @@ export async function promoteUserToAdmin(userId: number): Promise<void> {
   await db.update(users).set({ role: "admin", updatedAt: new Date() }).where(eq(users.id, userId));
 }
 
-/**
- * Accept the beta agreement for a user.
- */
-export async function acceptBetaAgreement(userId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(users)
-    .set({
-      hasAcceptedBetaAgreement: true,
-      betaAgreementAcceptedAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(users.id, userId));
-  return { success: true };
-}
+// ============ PASSWORD RESET HELPERS ============
 
 /**
- * Store a password reset token for a user.
+ * Store a password reset token and expiry on a user record.
  */
-export async function setPasswordResetToken(userId: number, token: string, expiresAt: Date): Promise<void> {
+export async function setPasswordResetToken(
+  userId: number,
+  token: string,
+  expiresAt: Date
+): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db
@@ -1291,18 +1281,6 @@ export async function getUserByResetToken(token: string) {
     .where(eq(users.passwordResetToken, token))
     .limit(1);
   return rows[0] ?? null;
-}
-
-/**
- * Set (or update) a password for any user — used by Settings page for Google OAuth users.
- */
-export async function setUserPassword(userId: number, passwordHash: string): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db
-    .update(users)
-    .set({ passwordHash, updatedAt: new Date() })
-    .where(eq(users.id, userId));
 }
 
 /**
