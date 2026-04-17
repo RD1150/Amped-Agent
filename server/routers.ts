@@ -278,6 +278,27 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
       .mutation(async ({ ctx }) => {
         return db.acceptBetaAgreement(ctx.user.id);
       }),
+    setPassword: authOnlyProcedure
+      .input(z.object({
+        password: z.string().min(8, "Password must be at least 8 characters"),
+        currentPassword: z.string().optional(), // Required if user already has a password
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const bcrypt = await import("bcryptjs");
+        // If user already has a password, verify current password first
+        if (ctx.user.passwordHash) {
+          if (!input.currentPassword) {
+            throw new Error("Current password is required to set a new one.");
+          }
+          const valid = await bcrypt.compare(input.currentPassword, ctx.user.passwordHash);
+          if (!valid) {
+            throw new Error("Current password is incorrect.");
+          }
+        }
+        const hash = await bcrypt.hash(input.password, 12);
+        await db.setUserPassword(ctx.user.id, hash);
+        return { success: true };
+      }),
     getVoicePreference: protectedProcedure.query(async ({ ctx }) => {
       const dbConn = await db.getDb();
       if (!dbConn) return { voiceId: "21m00Tcm4TlvDq8ikWAM", voiceoverStyle: "professional" as const };

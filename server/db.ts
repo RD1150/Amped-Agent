@@ -1284,6 +1284,18 @@ export async function getUserByResetToken(token: string) {
 }
 
 /**
+ * Set (or update) a password for any user — used by Settings page for Google OAuth users.
+ */
+export async function setUserPassword(userId: number, passwordHash: string): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .update(users)
+    .set({ passwordHash, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+}
+
+/**
  * Set a new password hash and clear the reset token fields.
  */
 export async function resetUserPassword(userId: number, passwordHash: string): Promise<void> {
