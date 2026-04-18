@@ -883,12 +883,6 @@ const menuSections = [
         description: "Add AI voiceover & captions to any video",
       },
       {
-        icon: Type,
-        label: "Teleprompter",
-        path: "/teleprompter",
-        description: "Film yourself while your script scrolls live",
-      },
-      {
         icon: Users,
         label: "Referrals",
         path: "/dashboard",

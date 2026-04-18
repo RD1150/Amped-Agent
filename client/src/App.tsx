@@ -108,9 +108,6 @@ const CRMPipeline = lazy(() => import("./pages/CRMPipeline"));
 const DripSequences = lazy(() => import("./pages/DripSequences"));
 const PublicOpenHouseSignIn = lazy(() => import("./pages/PublicOpenHouseSignIn"));
 const VideoVoiceover = lazy(() => import("./pages/VideoVoiceover"));
-const Teleprompter = lazy(() => import("./pages/Teleprompter"));
-const CRMIntegrations = lazy(() => import("./pages/CRMIntegrations"));
-const ZapierWebhooks = lazy(() => import("./pages/ZapierWebhooks"));
 
 // Fallback spinner shown while a lazy chunk loads
 function PageLoader() {
@@ -203,7 +200,6 @@ function Router() {
                 <Route path="/my-reels" component={MyReels} />
                 <Route path="/my-videos" component={MyVideos} />
                 <Route path="/video-voiceover" component={VideoVoiceover} />
-                <Route path="/teleprompter" component={Teleprompter} />
                 <Route path="/my-content" component={MyContent} />
                 <Route path="/blog-builder" component={BlogBuilder} />
                 <Route path="/brand-story" component={BrandStory} />
