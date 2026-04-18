@@ -251,9 +251,9 @@ export const openHouseRouter = router({
             source: "open_house",
             sourceRef: oh.address,
           });
-          const crmLeadId = (crmResult as any).insertId;
+          const crmLeadId = (crmResult as any)?.id;
           if (crmLeadId) {
-            const leadId = (leadResult as any).insertId;
+            const leadId = (leadResult as any)?.id;
             await db
               .update(openHouseLeads)
               .set({ crmLeadId })

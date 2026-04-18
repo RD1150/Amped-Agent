@@ -72,8 +72,8 @@ export const videoScriptBuilderRouter = router({
         scenes: JSON.stringify(input.scenes),
         fullScript,
         status: "draft",
-      });
-      return { id: Number(insertResult[0].insertId) };
+      }).returning();
+      return { id: (result as any)?.id };
     }),
 
   /**

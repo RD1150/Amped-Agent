@@ -102,17 +102,7 @@ export const crmRouter = router({
         tags: input.tags,
         isArchived: false,
       });
-      const newLeadId = (result as any)?.insertId ?? (result as any)?.id;
-      // Fire Zapier webhook for new CRM lead (non-blocking)
-      fireZapierWebhook(ctx.user.id, "new_crm_lead", {
-        leadId: newLeadId,
-        name: input.name,
-        email: input.email || "",
-        phone: input.phone || "",
-        stage: input.stage,
-        source: input.source,
-      }).catch(() => {});
-      return { id: newLeadId };
+      return { id: (result as any)?.id };
     }),
 
   updateStage: protectedProcedure

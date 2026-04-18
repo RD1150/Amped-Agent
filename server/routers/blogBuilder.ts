@@ -195,9 +195,9 @@ Return ONLY valid JSON in this exact format:
         wordCount: parsed.wordCount,
         seoKeywords: JSON.stringify(parsed.seoKeywords),
         metaDescription: parsed.metaDescription,
-      });
-      const insertedId = Number(insertResult[0].insertId);
-      const newPost = await database!.select().from(blogPosts).where(eq(blogPosts.id, insertedId)).limit(1);
+      }).returning();
+
+      const newPost = await database!.select().from(blogPosts).where(eq(blogPosts.id, inserted[0]?.id)).limit(1);
       return newPost[0];
     }),
 
