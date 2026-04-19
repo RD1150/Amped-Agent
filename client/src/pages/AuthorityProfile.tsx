@@ -1282,7 +1282,7 @@ export default function AuthorityProfile() {
                   ))}
                 </div>
               )}
-               <p className="text-xs text-muted-foreground">Up to 10 ZIP codes. Press Enter or click Add.</p>
+              <p className="text-xs text-muted-foreground">Up to 10 ZIP codes total.</p>
             </div>
             {/* Local Highlights */}
             <div className="space-y-3">
