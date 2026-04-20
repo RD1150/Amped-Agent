@@ -5251,3 +5251,19 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Beta video credit system: twinVideoCredits (default 3) added to schema, db:push run, gate in both generate mutations, credit counter + upgrade prompt UI in FullAvatarVideo.tsx
 - [x] CRM kanban: full @dnd-kit drag-and-drop, DroppableColumn + Draggable LeadCard, DragOverlay ghost card, colored source badges, stale lead highlighting
 - [x] Email Drip cron processor: server/jobs/dripEmailProcessor.ts registered at 8 AM UTC daily, wired into server startup in _core/index.ts
+
+## Video Editor Feature
+
+- [ ] Database schema: video_edit_projects table (userId, baseVideoUrl, baseVideoKey, title, status, outputUrl, outputKey, editConfig JSON)
+- [ ] Server: videoEditor router with createProject, getProject, getAll, updateConfig, renderProject procedures
+- [ ] Creatomate render procedure: base video + B-roll overlays + music + text + logo
+- [ ] VideoEditor.tsx page: timeline UI with base video track
+- [ ] B-roll layer: pick from image library or upload, set start/end seconds
+- [ ] Music track: pick from music library, auto-duck under voice
+- [ ] Text overlay track: add captions/headlines at specific timestamps
+- [ ] Logo/watermark: auto-applied from brand profile
+- [ ] Format selector: 9:16, 16:9, 1:1
+- [ ] YouTube optimization: AI-generated title, description, timestamps, tags
+- [ ] YouTube thumbnail generator: agent face + headline text
+- [ ] One-click publish to YouTube (via existing YouTube integration)
+- [ ] Wire navigation: add Video Editor to sidebar under ENGAGE or SCALE

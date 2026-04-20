@@ -1474,3 +1474,37 @@ export const dripEnrollments = mysqlTable("drip_enrollments", {
 });
 export type DripEnrollment = typeof dripEnrollments.$inferSelect;
 export type InsertDripEnrollment = typeof dripEnrollments.$inferInsert;
+
+/**
+ * Video Edit Projects — user-created video editing sessions
+ */
+export const videoEditProjects = mysqlTable("video_edit_projects", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull().default("Untitled Edit"),
+  // Source video
+  baseVideoUrl: text("baseVideoUrl").notNull(), // URL of the base video (teleprompter, live tour, etc.)
+  baseVideoKey: varchar("baseVideoKey", { length: 512 }), // S3 key if stored in S3
+  baseVideoDuration: decimal("baseVideoDuration", { precision: 10, scale: 2 }).default("0"), // seconds
+  // Trim points
+  trimStart: decimal("trimStart", { precision: 10, scale: 2 }).default("0"), // seconds from start
+  trimEnd: decimal("trimEnd", { precision: 10, scale: 2 }), // seconds from start (null = end of video)
+  // Edit config (JSON blob for all tracks)
+  editConfig: text("editConfig"), // JSON: { brollLayers, textLayers, musicTrack, logoEnabled, captions, format }
+  // Output
+  status: mysqlEnum("status", ["draft", "rendering", "done", "failed"]).default("draft").notNull(),
+  outputUrl: text("outputUrl"), // Rendered video URL
+  outputKey: varchar("outputKey", { length: 512 }), // S3 key of rendered video
+  renderJobId: varchar("renderJobId", { length: 255 }), // Creatomate render job ID
+  // YouTube optimization
+  ytTitle: text("ytTitle"),
+  ytDescription: text("ytDescription"),
+  ytTags: text("ytTags"), // JSON array of strings
+  ytThumbnailUrl: text("ytThumbnailUrl"),
+  ytPublishedAt: timestamp("ytPublishedAt"),
+  // Timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type VideoEditProject = typeof videoEditProjects.$inferSelect;
+export type InsertVideoEditProject = typeof videoEditProjects.$inferInsert;

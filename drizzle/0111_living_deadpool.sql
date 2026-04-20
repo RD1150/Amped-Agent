@@ -1,0 +1,23 @@
+CREATE TABLE `video_edit_projects` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`title` varchar(255) NOT NULL DEFAULT 'Untitled Edit',
+	`baseVideoUrl` text NOT NULL,
+	`baseVideoKey` varchar(512),
+	`baseVideoDuration` decimal(10,2) DEFAULT '0',
+	`trimStart` decimal(10,2) DEFAULT '0',
+	`trimEnd` decimal(10,2),
+	`editConfig` text,
+	`status` enum('draft','rendering','done','failed') NOT NULL DEFAULT 'draft',
+	`outputUrl` text,
+	`outputKey` varchar(512),
+	`renderJobId` varchar(255),
+	`ytTitle` text,
+	`ytDescription` text,
+	`ytTags` text,
+	`ytThumbnailUrl` text,
+	`ytPublishedAt` timestamp,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `video_edit_projects_id` PRIMARY KEY(`id`)
+);

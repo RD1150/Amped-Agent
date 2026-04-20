@@ -54,6 +54,7 @@ import { openHouseRouter } from "./routers/openHouse";
 import { crmRouter } from "./routers/crm";
 import { dripRouter } from "./routers/drip";
 import { zapierRouter } from "./routers/zapier";
+import { videoEditorRouter } from "./routers/videoEditor";
 
 export const appRouter = router({
   system: systemRouter,
@@ -95,6 +96,7 @@ export const appRouter = router({
   crm: crmRouter,
   drip: dripRouter,
   zapier: zapierRouter,
+  videoEditor: videoEditorRouter,
 
   support: router({
     chat: publicProcedure

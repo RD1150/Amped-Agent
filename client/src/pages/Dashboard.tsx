@@ -298,103 +298,9 @@ export default function Dashboard() {
       <UsageCounter />
 
       {/* Market Dominance Score */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="md:col-span-2">
-          <AuthorityScore />
-        </div>
-        <Card className="overflow-hidden border border-slate-200 shadow-sm">
-          {/* Navy header */}
-          <div className="bg-[#0f172a] px-5 py-4">
-            <h3 className="text-sm font-semibold text-white tracking-wide">Market Dominance Tips</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">Quick wins to grow your score</p>
-          </div>
-          <div className="p-5">
-            <ul className="space-y-3 text-sm text-slate-600">
-              <li className="flex items-start gap-2.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0f172a] mt-1.5 shrink-0" />
-                <span>Post 3× per week to stay top-of-mind</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0f172a] mt-1.5 shrink-0" />
-                <span>Focus on local market insights</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0f172a] mt-1.5 shrink-0" />
-                <span>Use video to build trust faster</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0f172a] mt-1.5 shrink-0" />
-                <span>Share case studies and wins</span>
-              </li>
-            </ul>
-          </div>
-        </Card>
-      </div>
+      <AuthorityScore />
 
-      {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-3">
-        {quickActions.map((action) => {
-          const Icon = action.icon;
-          return (
-            <Card
-              key={action.title}
-              className="p-6 cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => setLocation(action.href)}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-lg ${action.color}`}>
-                  <Icon className="h-6 w-6" />
-                </div>
-                <div className="flex-1 space-y-1">
-                  <h3 className="font-semibold">{action.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {action.description}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
 
-      {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-primary/10">
-              <FileText className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Posts This Month</p>
-              <p className="text-2xl font-bold">0</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-primary/10">
-              <Clock className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Scheduled Posts</p>
-              <p className="text-2xl font-bold">0</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-primary/10">
-              <TrendingUp className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Reach</p>
-              <p className="text-2xl font-bold">-</p>
-            </div>
-          </div>
-        </Card>
-      </div>
 
       {/* Getting Started Guide */}
       {!persona?.isCompleted && (
@@ -549,7 +455,7 @@ export default function Dashboard() {
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-2">Create a Video</h2>
           <div className="h-px flex-1 bg-border" />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {/* Property Tour */}
           <div
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
@@ -698,7 +604,7 @@ export default function Dashboard() {
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-2">Content & Outreach</h2>
           <div className="h-px flex-1 bg-border" />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {/* Letters & Emails — New */}
           <div
             className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
