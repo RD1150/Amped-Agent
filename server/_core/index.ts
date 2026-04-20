@@ -100,6 +100,10 @@ async function runMigrations() {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  // Trust the first proxy (Cloud Run / Render load balancer).
+  // This allows Express to correctly read x-forwarded-proto and x-forwarded-for,
+  // which is required for HTTPS redirect URIs and secure session cookies.
+  app.set("trust proxy", 1);
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "100mb" }));
   app.use(express.urlencoded({ limit: "100mb", extended: true }));

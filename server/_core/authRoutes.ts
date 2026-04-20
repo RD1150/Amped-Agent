@@ -23,6 +23,32 @@ function getGoogleClient() {
 }
 
 /**
+ * Returns the canonical origin (scheme + host) for this deployment.
+ * Priority:
+ *   1. APP_URL env var (most reliable — set this in your hosting dashboard)
+ *   2. x-forwarded-proto + host headers (works after `trust proxy` is set)
+ *   3. req.protocol + req.hostname (local dev fallback)
+ *
+ * In production, always forces https.
+ */
+function getOrigin(req: Request): string {
+  if (ENV.appUrl) {
+    return ENV.appUrl;
+  }
+  // After `app.set('trust proxy', 1)`, req.protocol correctly reflects
+  // x-forwarded-proto, so this branch works on Cloud Run / Render.
+  const host = req.headers.host || req.hostname;
+  const proto = req.protocol || (ENV.isProduction ? "https" : "http");
+  // Always force https in production, even if proxy header is missing
+  const scheme = ENV.isProduction ? "https" : proto;
+  const origin = `${scheme}://${host}`;
+  if (ENV.isProduction) {
+    console.log(`[Auth] getOrigin (no APP_URL set) → ${origin}`);
+  }
+  return origin;
+}
+
+/**
  * Generate a stable openId for email/password users based on their email.
  * Prefixed with "email_" to distinguish from Manus OAuth openIds.
  */
@@ -202,17 +228,7 @@ export function registerAuthRoutes(app: Express) {
   // ── Google OAuth — Redirect to Google ─────────────────────────────────────
   app.get("/api/auth/google", (req: Request, res: Response) => {
     const client = getGoogleClient();
-    // Use the canonical APP_URL env var if set (most reliable for production).
-    // Falls back to building from request headers (for local dev).
-    let origin: string;
-    if (ENV.appUrl) {
-      origin = ENV.appUrl;
-    } else {
-      const host = req.headers.host || req.hostname;
-      const proto = (req.headers["x-forwarded-proto"] as string) || (host.startsWith("localhost") ? "http" : "https");
-      origin = `${proto}://${host}`;
-    }
-    const redirectUri = `${origin}/api/auth/google/callback`;
+    const redirectUri = `${getOrigin(req)}/api/auth/google/callback`;
 
     // Pass referral code via state param (format: ref_CODE)
     const stateParam = req.query.state as string | undefined;
@@ -227,7 +243,7 @@ export function registerAuthRoutes(app: Express) {
     res.redirect(302, url);
   });
 
-  //  // ── Google OAuth — Callback ────────────────────────────────────────────
+  // ── Google OAuth — Callback ────────────────────────────────────────────
   app.get("/api/auth/google/callback", async (req: Request, res: Response) => {
     try {
       const code = req.query.code as string | undefined;
@@ -236,15 +252,7 @@ export function registerAuthRoutes(app: Express) {
         return;
       }
       // Must use the same redirect URI as the initial auth request.
-      let origin: string;
-      if (ENV.appUrl) {
-        origin = ENV.appUrl;
-      } else {
-        const host = req.headers.host || req.hostname;
-        const proto = (req.headers["x-forwarded-proto"] as string) || (host.startsWith("localhost") ? "http" : "https");
-        origin = `${proto}://${host}`;
-      }
-      const redirectUri = `${origin}/api/auth/google/callback`;
+      const redirectUri = `${getOrigin(req)}/api/auth/google/callback`;
 
       const client = getGoogleClient();
       const { tokens } = await client.getToken({ code, redirect_uri: redirectUri });
