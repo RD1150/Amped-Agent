@@ -178,9 +178,9 @@ export default function WeeklyInsightBlock() {
       </div>
 
       {/* Three-column diagnosis grid */}
-      <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+      <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-300">
         {/* Critical Issue */}
-        <div className="p-5 space-y-3">
+        <div className="p-7 space-y-4">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-100">
               <AlertCircle className="h-3 w-3 text-red-600" />
@@ -189,21 +189,21 @@ export default function WeeklyInsightBlock() {
               Critical Issue
             </span>
           </div>
-          <p className="text-sm font-semibold text-slate-800 leading-snug">
+          <p className="text-base font-semibold text-slate-800 leading-snug">
             {displayCritical.title}
           </p>
           {displayCritical.whatIsHappening && (
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <p className="text-sm text-slate-500 leading-relaxed">
               {displayCritical.whatIsHappening}
             </p>
           )}
           {displayCritical.consequence && (
-            <p className="text-xs text-red-500 font-medium leading-relaxed">
+            <p className="text-sm text-red-500 font-medium leading-relaxed">
               {displayCritical.consequence}
             </p>
           )}
           {displayCritical.action && (
-            <p className="text-xs text-slate-600 leading-relaxed border-l-2 border-red-200 pl-2">
+            <p className="text-sm text-slate-600 leading-relaxed border-l-2 border-red-300 pl-3 mt-2">
               {displayCritical.action}
             </p>
           )}
@@ -218,7 +218,7 @@ export default function WeeklyInsightBlock() {
         </div>
 
         {/* Missed Opportunities */}
-        <div className="p-5 space-y-4">
+        <div className="p-7 space-y-4">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100">
               <Lightbulb className="h-3 w-3 text-amber-600" />
@@ -230,12 +230,12 @@ export default function WeeklyInsightBlock() {
           <div className="space-y-4">
             {displayOpps.map((opp: any, i: number) => (
               <div key={i} className="space-y-1">
-                <p className="text-sm font-semibold text-slate-800 leading-snug">{opp.title}</p>
+                <p className="text-base font-semibold text-slate-800 leading-snug">{opp.title}</p>
                 {opp.insight && (
-                  <p className="text-xs text-slate-500 leading-relaxed">{opp.insight}</p>
+                  <p className="text-sm text-slate-500 leading-relaxed mt-1">{opp.insight}</p>
                 )}
                 {opp.action && (
-                  <p className="text-xs text-slate-600 leading-relaxed border-l-2 border-amber-200 pl-2">
+                  <p className="text-sm text-slate-600 leading-relaxed border-l-2 border-amber-300 pl-3 mt-2">
                     {opp.action}
                   </p>
                 )}
@@ -253,7 +253,7 @@ export default function WeeklyInsightBlock() {
         </div>
 
         {/* Priority Actions */}
-        <div className="p-5 space-y-4">
+        <div className="p-7 space-y-4 bg-slate-50">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100">
               <CheckCircle2 className="h-3 w-3 text-green-600" />
@@ -271,9 +271,9 @@ export default function WeeklyInsightBlock() {
                     {act.rank ?? i + 1}
                   </span>
                   <div className="space-y-0.5 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 leading-snug">{act.action}</p>
+                    <p className="text-base font-semibold text-slate-800 leading-snug">{act.action}</p>
                     {act.tool && (
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">{act.tool}</p>
+                      <p className="text-xs text-slate-400 uppercase tracking-wide mt-0.5">{act.tool}</p>
                     )}
                     {dest ? (
                       <button

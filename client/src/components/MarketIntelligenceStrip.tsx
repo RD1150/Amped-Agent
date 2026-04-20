@@ -47,29 +47,29 @@ export default function MarketIntelligenceStrip() {
       </div>
 
       {/* Body */}
-      <div className="px-5 py-4 grid md:grid-cols-3 gap-4">
+      <div className="divide-y md:divide-y-0 md:divide-x divide-slate-300 grid md:grid-cols-3">
         {/* Snapshot */}
-        <div className="md:col-span-1">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-1">Snapshot</p>
-          <p className="text-sm font-semibold text-slate-800 leading-snug">{data.snapshot}</p>
+        <div className="px-7 py-6">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Snapshot</p>
+          <p className="text-base font-semibold text-slate-800 leading-relaxed">{data.snapshot}</p>
         </div>
 
         {/* What it means */}
-        <div className="md:col-span-1">
-          <div className="flex items-center gap-1.5 mb-1">
-            <AlertCircle className="h-3 w-3 text-orange-500" />
-            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">What It Means</p>
+        <div className="px-7 py-6">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle className="h-3.5 w-3.5 text-orange-500 shrink-0" />
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">What It Means</p>
           </div>
-          <p className="text-sm text-slate-600 leading-snug">{data.whatItMeans}</p>
+          <p className="text-sm text-slate-600 leading-relaxed">{data.whatItMeans}</p>
         </div>
 
         {/* What to say */}
-        <div className="md:col-span-1">
-          <div className="flex items-center gap-1.5 mb-1">
-            <MessageSquare className="h-3 w-3 text-emerald-600" />
-            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">What to Say</p>
+        <div className="px-7 py-6 bg-slate-50">
+          <div className="flex items-center gap-2 mb-3">
+            <MessageSquare className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">What to Say</p>
           </div>
-          <p className="text-sm text-slate-600 leading-snug italic">"{data.whatToSay}"</p>
+          <p className="text-sm text-slate-700 leading-relaxed italic">"{data.whatToSay}"</p>
         </div>
       </div>
     </div>
