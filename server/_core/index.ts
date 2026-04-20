@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
+import path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerAuthRoutes } from "./authRoutes";
@@ -36,12 +37,32 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
+async function runMigrations() {
+  if (!process.env.DATABASE_URL) {
+    console.warn("[Migrations] DATABASE_URL not set — skipping migrations");
+    return;
+  }
+  try {
+    const { drizzle } = await import("drizzle-orm/node-postgres");
+    const { migrate } = await import("drizzle-orm/node-postgres/migrator");
+    const db = drizzle(process.env.DATABASE_URL);
+    const migrationsFolder = path.resolve(process.cwd(), "drizzle");
+    console.log("[Migrations] Running pending migrations from", migrationsFolder);
+    await migrate(db, { migrationsFolder });
+    console.log("[Migrations] All migrations applied successfully");
+  } catch (err) {
+    console.error("[Migrations] Migration failed (non-fatal):", err);
+  }
+}
+
 async function startServer() {
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "100mb" }));
   app.use(express.urlencoded({ limit: "100mb", extended: true }));
+  // Run DB migrations before starting routes
+  await runMigrations();
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   registerAuthRoutes(app);
