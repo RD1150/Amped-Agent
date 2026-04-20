@@ -60,7 +60,7 @@ export default function MarketIntelligenceStrip() {
             <AlertCircle className="h-3 w-3 text-orange-500" />
             <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">What It Means</p>
           </div>
-          <p className="text-sm text-slate-600 leading-snug">{data.meaning}</p>
+          <p className="text-sm text-slate-600 leading-snug">{data.whatItMeans}</p>
         </div>
 
         {/* What to say */}
