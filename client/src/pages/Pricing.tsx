@@ -174,10 +174,11 @@ export default function Pricing() {
           <span>{TRIAL_DAYS}-day free trial — no credit card required</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-          The marketing platform built for real estate agents
+          Stop paying for tools.<br className="hidden md:block" />
+          <span className="text-orange-500">Start paying for results.</span>
         </h1>
         <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-8">
-          Stop paying a marketing assistant $3,000/month. AmpedAgent does it all — posts, videos, emails, lead follow-up — every day, every channel.
+          While other agents are learning how to use AI, yours is already working. Posts, videos, emails, lead follow-up — every day, every channel, on autopilot.
         </p>
         <div className="inline-flex items-center bg-gray-100 rounded-full p-1 gap-1">
           <button
