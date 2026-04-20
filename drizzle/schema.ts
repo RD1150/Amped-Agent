@@ -66,6 +66,8 @@ export const users = mysqlTable("users", {
   weeklyDigestLastSentAt: timestamp("weeklyDigestLastSentAt"), // When the last digest was sent
   // Beta video credits (avatar/twin videos during beta period)
   twinVideoCredits: int("twinVideoCredits").default(3).notNull(), // Beta users start with 3 free avatar video credits
+  // Zapier / webhook integration
+  zapierWebhookKey: varchar("zapierWebhookKey", { length: 64 }), // Unique key for inbound Zapier webhooks
 });
 
 export type User = typeof users.$inferSelect;

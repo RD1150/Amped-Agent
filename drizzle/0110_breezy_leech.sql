@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `zapierWebhookKey` varchar(64);
