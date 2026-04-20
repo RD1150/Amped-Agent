@@ -99,7 +99,7 @@ export default function Dashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
-  // Profile completion score — key fields that power AI output quality
+  // Profile completion score
   const profileFields = [
     { label: "Agent name", done: !!persona?.agentName, href: "/authority-profile" },
     { label: "Primary city & state", done: !!(persona?.primaryCity && persona?.primaryState), href: "/authority-profile" },
@@ -122,7 +122,8 @@ export default function Dashboard() {
     setProfileNudgeDismissed(true);
   };
 
-  const quickActions = [
+  // Top Actions — hero section (3 cards, equal height, CTA pinned to bottom)
+  const topActions = [
     {
       title: "Authority Post Builder",
       description: "Create AI-powered social posts that position you as the go-to local expert. One click, ready to publish.",
@@ -147,148 +148,58 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-12 pb-16">
 
-      {/* ── Welcome Header ─────────────────────────────────────────── */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {greeting}, {persona?.agentName || user?.name || "Agent"}!
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Here's where you left off.
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => startDashboardTour()}
-          className="gap-2 hidden sm:flex"
-        >
-          <HelpCircle className="h-4 w-4" />
-          Tour
-        </Button>
-      </div>
-
-      {/* ── Beta Banner (dismissible) ──────────────────────────────── */}
-      {!betaBannerDismissed && (
-        <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5">
-          <span className="text-[9px] font-bold tracking-widest uppercase bg-slate-800 text-white px-2 py-0.5 rounded shrink-0">
-            BETA
-          </span>
-          <p className="text-sm text-slate-600 flex-1">
-            You're in early beta — your feedback shapes the platform.{" "}
-            <a href="mailto:ampedagent@gmail.com" className="font-semibold text-slate-800 underline hover:text-slate-900">
-              Share your thoughts
-            </a>.
-          </p>
-          <button onClick={dismissBetaBanner} className="text-slate-400 hover:text-slate-600 transition-colors shrink-0" aria-label="Dismiss">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {/* ── Profile Completion Nudge (dismissible) ────────────────── */}
-      {profileIncomplete && !profileNudgeDismissed && (
-        <div className="relative flex items-start gap-4 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
-          <div className="flex-shrink-0 mt-0.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100">
-              <Zap className="h-4 w-4 text-amber-600" />
-            </div>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-amber-900">
-              Profile {profilePct}% complete — better profiles = better AI output
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 1 — HEADER
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div>
+        {/* Welcome row */}
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#111111] leading-tight">
+              {greeting}, {persona?.agentName || user?.name || "Agent"}
+            </h1>
+            <p className="text-sm text-[#6B7280] mt-1 leading-relaxed">
+              Here's your command center. Pick up where you left off.
             </p>
-            <Progress value={profilePct} className="h-1.5 my-2 bg-amber-200 [&>div]:bg-amber-500" />
-            <Button
-              size="sm"
-              className="bg-amber-600 hover:bg-amber-700 text-white border-0 h-7 text-xs font-semibold"
-              onClick={() => setLocation("/authority-profile")}
-            >
-              Complete My Profile
-            </Button>
           </div>
-          <button onClick={dismissProfileNudge} className="absolute top-3 right-3 p-1 rounded-full text-amber-400 hover:text-amber-600 transition-colors" aria-label="Dismiss">
-            <X className="h-3.5 w-3.5" />
-          </button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => startDashboardTour()}
+            className="gap-2 hidden sm:flex border-[#E5E7EB] text-[#6B7280] hover:text-[#111111] hover:border-[#111111] transition-colors"
+          >
+            <HelpCircle className="h-4 w-4" />
+            Tour
+          </Button>
         </div>
-      )}
 
-      {/* ── Today's Top Priority ──────────────────────────────────── */}
-      <WeeklyInsightBlock />
+        {/* Beta Banner (dismissible) */}
+        {!betaBannerDismissed && (
+          <div className="flex items-center gap-3 bg-white border border-[#E5E7EB] rounded-xl px-4 py-3 mb-4">
+            <span className="text-[9px] font-bold tracking-widest uppercase bg-[#111111] text-white px-2 py-0.5 rounded shrink-0">
+              BETA
+            </span>
+            <p className="text-sm text-[#6B7280] flex-1 leading-relaxed">
+              You're in early beta — your feedback shapes the platform.{" "}
+              <a href="mailto:ampedagent@gmail.com" className="font-semibold text-[#111111] underline hover:text-[#FF6A00] transition-colors">
+                Share your thoughts
+              </a>.
+            </p>
+            <button onClick={dismissBetaBanner} className="text-[#6B7280] hover:text-[#111111] transition-colors shrink-0" aria-label="Dismiss">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
-      {/* ── Quick Actions ─────────────────────────────────────────── */}
-      <div className="grid gap-3 md:grid-cols-3">
-        {quickActions.map((action) => {
-          const Icon = action.icon;
-          return (
-            <Card
-              key={action.title}
-              className="p-5 cursor-pointer hover:shadow-md hover:border-primary/30 transition-all"
-              onClick={() => setLocation(action.href)}
-            >
-              <div className="flex items-center gap-3">
-                <div className={`p-2.5 rounded-lg ${action.color}`}>
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm">{action.title}</h3>
-                  <p className="text-xs text-muted-foreground truncate">{action.description}</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+        {/* Profile Completion Nudge (dismissible) */}
+        {profileIncomplete && !profileNudgeDismissed && (
+          <div className="relative flex items-start gap-4 rounded-xl border border-[#E5E7EB] bg-white px-5 py-4 shadow-sm">
+            <div className="flex-shrink-0 mt-0.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FFF3E8]">
+                <Zap className="h-4 w-4 text-[#FF6A00]" />
               </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* ── Authority Profile Strip ───────────────────────────────── */}
-      {!personaLoading && (
-        <Card
-          className="p-4 cursor-pointer hover:border-primary/50 transition-colors border"
-          onClick={() => setLocation("/authority-profile")}
-        >
-          <div className="flex items-center gap-4">
-            <div className="flex-shrink-0">
-              {persona?.headshotUrl ? (
-                <img src={persona.headshotUrl} alt={persona.agentName || "Agent"} className="w-12 h-12 rounded-full object-cover border-2 border-primary/30" />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-primary/10 border-2 border-dashed border-primary/30 flex items-center justify-center">
-                  <UserCircle className="h-6 w-6 text-primary/50" />
-                </div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-sm">{persona?.agentName || user?.name || "Complete your Authority Profile"}</span>
-                {persona?.brokerageName && <span className="text-xs text-muted-foreground">&middot; {persona.brokerageName}</span>}
-                {(() => {
-                  const cities = (() => { try { return persona?.serviceCities ? JSON.parse(persona.serviceCities as string) as string[] : null; } catch { return null; } })();
-                  if (cities && cities.length > 0) return cities.slice(0, 2).map((c: string, i: number) => <Badge key={i} variant="outline" className="text-xs">{c}</Badge>);
-                  return persona?.primaryCity ? <Badge variant="outline" className="text-xs">{persona.primaryCity}</Badge> : null;
-                })()}
-              </div>
-              {persona?.tagline ? (
-                <p className="text-xs text-muted-foreground truncate mt-0.5 italic">&ldquo;{persona.tagline}&rdquo;</p>
-              ) : (
-                <p className="text-xs text-primary/70 mt-0.5">Add your tagline &rarr;</p>
-              )}
-              {(() => {
-                const fields = [persona?.agentName, persona?.headshotUrl, persona?.tagline, persona?.bio, persona?.brokerageName, persona?.primaryCity];
-                const filled = fields.filter(Boolean).length;
-                const pct = Math.round((filled / fields.length) * 100);
-                return (
-                  <div className="flex items-center gap-2 mt-1">
-                    <Progress value={pct} className="h-1 flex-1 max-w-[120px]" />
-                    <span className="text-xs text-muted-foreground">{pct}% complete</span>
-                  </div>
-                );
-              })()}
-            </div>
-            <div className="flex-shrink-0 flex items-center gap-1 text-xs text-primary font-medium">
-              <span className="hidden sm:inline">Edit</span>
-              <ChevronRight className="h-4 w-4" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-[#111111] leading-snug">
@@ -310,124 +221,239 @@ export default function Dashboard() {
               <X className="h-3.5 w-3.5" />
             </button>
           </div>
-        </Card>
-      )}
+        )}
+      </div>
 
-      {/* ── Market Intelligence + Usage ───────────────────────────── */}
-      <MarketIntelligenceStrip />
-      <UsageCounter />
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 2 — TOP ACTIONS (hero section)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div>
+        <div className="mb-5">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B7280]">Start Here</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {topActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <div
+                key={action.title}
+                className="flex flex-col bg-white rounded-xl border border-[#E5E7EB] shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 cursor-pointer p-6"
+                onClick={() => setLocation(action.href)}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FFF3E8]">
+                    <Icon className="h-5 w-5 text-[#FF6A00]" />
+                  </div>
+                  <h3 className="font-semibold text-[#111111] leading-snug">{action.title}</h3>
+                </div>
+                <p className="text-sm text-[#6B7280] leading-relaxed flex-1">{action.description}</p>
+                <div className="mt-5">
+                  <Button
+                    size="sm"
+                    className="w-full bg-[#FF6A00] hover:bg-[#e05e00] text-white font-semibold border-0 h-9"
+                    onClick={(e) => { e.stopPropagation(); setLocation(action.href); }}
+                  >
+                    {action.cta}
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-      {/* Market Dominance Coach Featured Card */}
-      <div
-        className="relative rounded-2xl overflow-hidden cursor-pointer group"
-        onClick={() => setLocation("/coach")}
-      >
-        {/* Dark gradient background */}
-        <div className="absolute inset-0 bg-[#0F0F0F]" />
-        {/* Grid overlay */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-        {/* Glow accent */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
-        <div className="relative px-8 py-7 flex flex-col md:flex-row md:items-center gap-6">
-          {/* Icon */}
-          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-white/10 border border-white/20 shrink-0">
-            <Award className="h-7 w-7 text-white" />
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 3 — PROGRESS + BLOCKER (2-col)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div>
+        <div className="mb-5">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B7280]">Your Progress</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Weekly Insight / Today's Priority */}
+          <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm overflow-hidden">
+            <WeeklyInsightBlock />
           </div>
-          {/* Text */}
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-primary/80 uppercase tracking-wider">Market Dominance Coach</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
-                <Zap className="h-2.5 w-2.5" />Authority
-              </span>
+
+          {/* Authority Profile strip */}
+          {!personaLoading && (
+            <div
+              className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm p-6 cursor-pointer hover:-translate-y-0.5 hover:shadow-md transition-all duration-200"
+              onClick={() => setLocation("/authority-profile")}
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  {persona?.headshotUrl ? (
+                    <img src={persona.headshotUrl} alt={persona.agentName || "Agent"} className="w-14 h-14 rounded-full object-cover border-2 border-[#E5E7EB]" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-[#F9FAFB] border-2 border-dashed border-[#E5E7EB] flex items-center justify-center">
+                      <UserCircle className="h-7 w-7 text-[#6B7280]" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="font-semibold text-sm text-[#111111]">{persona?.agentName || user?.name || "Complete your Authority Profile"}</span>
+                    {persona?.brokerageName && <span className="text-xs text-[#6B7280]">&middot; {persona.brokerageName}</span>}
+                    {(() => {
+                      const cities = (() => { try { return persona?.serviceCities ? JSON.parse(persona.serviceCities as string) as string[] : null; } catch { return null; } })();
+                      if (cities && cities.length > 0) return cities.slice(0, 2).map((c: string, i: number) => <Badge key={i} variant="outline" className="text-xs border-[#E5E7EB] text-[#6B7280]">{c}</Badge>);
+                      return persona?.primaryCity ? <Badge variant="outline" className="text-xs border-[#E5E7EB] text-[#6B7280]">{persona.primaryCity}</Badge> : null;
+                    })()}
+                  </div>
+                  {persona?.tagline ? (
+                    <p className="text-xs text-[#6B7280] truncate mt-0.5 italic leading-relaxed">&ldquo;{persona.tagline}&rdquo;</p>
+                  ) : (
+                    <p className="text-xs text-[#FF6A00] mt-0.5">Add your tagline &rarr;</p>
+                  )}
+                  {(() => {
+                    const fields = [persona?.agentName, persona?.headshotUrl, persona?.tagline, persona?.bio, persona?.brokerageName, persona?.primaryCity];
+                    const filled = fields.filter(Boolean).length;
+                    const pct = Math.round((filled / fields.length) * 100);
+                    return (
+                      <div className="flex items-center gap-2 mt-3">
+                        <Progress value={pct} className="h-1.5 flex-1 max-w-[140px] bg-[#F3F4F6] [&>div]:bg-[#FF6A00]" />
+                        <span className="text-xs text-[#6B7280]">{pct}% complete</span>
+                      </div>
+                    );
+                  })()}
+                </div>
+                <div className="flex-shrink-0 flex items-center gap-1 text-xs text-[#6B7280] font-medium">
+                  <span className="hidden sm:inline">Edit</span>
+                  <ChevronRight className="h-4 w-4" />
+                </div>
+              </div>
+
+              {/* Profile field checklist (collapsed view) */}
+              <div className="mt-4 pt-4 border-t border-[#F3F4F6]">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                  {profileFields.slice(0, 6).map((field) => (
+                    <div key={field.label} className="flex items-center gap-1.5">
+                      {field.done ? (
+                        <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
+                      ) : (
+                        <div className="h-3 w-3 rounded-full border border-[#E5E7EB] shrink-0" />
+                      )}
+                      <span className={`text-xs leading-tight ${field.done ? "text-[#6B7280]" : "text-[#111111]"}`}>{field.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 4 — MARKET INTELLIGENCE + USAGE
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div className="space-y-4">
+        <MarketIntelligenceStrip />
+        <UsageCounter />
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 5 — OPPORTUNITIES (Market Dominance Coach + CONVERT Platform)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div>
+        <div className="mb-5">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B7280]">Opportunities</h2>
+        </div>
+        <div className="space-y-4">
+          {/* Market Dominance Coach */}
+          <div
+            className="relative rounded-xl overflow-hidden cursor-pointer group"
+            onClick={() => setLocation("/coach")}
+          >
+            <div className="absolute inset-0 bg-[#0F0F0F]" />
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF6A00]/10 rounded-full blur-3xl" />
+            <div className="relative px-7 py-6 flex flex-col md:flex-row md:items-center gap-5">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 border border-white/20 shrink-0">
+                <Award className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-semibold text-[#FF6A00] uppercase tracking-wider">Market Dominance Coach</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
+                    <Zap className="h-2.5 w-2.5" />Authority
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-white mb-1 leading-snug">This Week's Challenge</h3>
+                <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
+                  Write a post that positions you as the go-to expert in your city. Lead with a bold market stat, share your take, and end with a call to action.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  className="bg-white hover:bg-white/90 text-black font-semibold gap-1.5 group-hover:shadow-lg transition-all"
+                >
+                  Open Coach
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
-      {/* CONVERT Featured Card - Marketing Platform */}
-      <div className="relative rounded-2xl overflow-hidden">
-        {/* Deep navy background */}
-        <div className="absolute inset-0 bg-[#0A1628]" />
-        {/* Subtle diagonal grid */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(225deg, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-        {/* Orange glow accent */}
-        <div className="absolute top-0 left-0 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
-        <div className="relative px-8 py-7">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-start gap-6 mb-6">
-            <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-orange-500/20 border border-orange-500/30 shrink-0">
-              <Rocket className="h-7 w-7 text-orange-400" />
+          {/* CONVERT Platform */}
+          <div className="relative rounded-xl overflow-hidden">
+            <div className="absolute inset-0 bg-[#0A1628]" />
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(225deg, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+            <div className="absolute top-0 left-0 w-72 h-72 bg-[#FF6A00]/10 rounded-full blur-3xl" />
+            <div className="relative px-7 py-6">
+              <div className="flex flex-col md:flex-row md:items-start gap-5 mb-5">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#FF6A00]/20 border border-[#FF6A00]/30 shrink-0">
+                  <Rocket className="h-6 w-6 text-orange-400" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-semibold text-orange-400 uppercase tracking-wider">CONVERT &mdash; Marketing Platform</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
+                      <FileCheck className="h-2.5 w-2.5" />4 Tools
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-1 leading-snug">Your Full Lead-to-Close Pipeline</h3>
+                  <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
+                    Capture every lead at the door, keep them warm with automated follow-ups, manage your pipeline, and turn happy clients into social proof.
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { icon: Rocket, label: "Listing Launch Kit", sub: "1 address → full marketing package", path: "/listing-launch-kit" },
+                  { icon: QrCode, label: "Open House Manager", sub: "QR sign-in + auto follow-up", path: "/open-house" },
+                  { icon: Users, label: "CRM Pipeline", sub: "5-stage lead kanban", path: "/crm" },
+                  { icon: MessageSquareQuote, label: "Testimonial Engine", sub: "Reviews → social posts", path: "/testimonials" },
+                ].map(({ icon: Icon, label, sub, path }) => (
+                  <button
+                    key={label}
+                    onClick={() => setLocation(path)}
+                    className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#FF6A00]/30 transition-all text-left"
+                  >
+                    <Icon className="h-5 w-5 text-orange-400" />
+                    <div>
+                      <div className="text-sm font-semibold text-white leading-snug">{label}</div>
+                      <div className="text-[11px] text-slate-400 mt-0.5 leading-tight">{sub}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
+                <div className="flex items-center gap-2">
+                  <GitBranch className="h-4 w-4 text-orange-400/70" />
+                  <span className="text-xs text-slate-400">Also in ENGAGE: <button onClick={() => setLocation('/drip-sequences')} className="text-orange-400 hover:text-orange-300 underline underline-offset-2">Email Drip Sequences</button></span>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => setLocation("/convert")}
+                  className="bg-[#FF6A00] hover:bg-[#e05e00] text-white font-semibold gap-1.5 transition-all"
+                >
+                  See All CONVERT Tools
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-semibold text-orange-400/90 uppercase tracking-wider">CONVERT &mdash; Marketing Platform</span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
-                  <FileCheck className="h-2.5 w-2.5" />4 New Tools
-                </span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-1">Your Full Lead-to-Close Pipeline</h3>
-              <p className="text-sm text-slate-300 max-w-xl">
-                Capture every lead at the door, keep them warm with automated follow-ups, manage your pipeline, and turn happy clients into social proof &mdash; all in one place.
-              </p>
-            </div>
-          </div>
-          {/* Tool grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <button
-              onClick={() => setLocation("/listing-launch-kit")}
-              className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all text-left group"
-            >
-              <Rocket className="h-5 w-5 text-orange-400" />
-              <div>
-                <div className="text-sm font-semibold text-white">Listing Launch Kit</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">1 address → full marketing package</div>
-              </div>
-            </button>
-            <button
-              onClick={() => setLocation("/open-house")}
-              className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all text-left group"
-            >
-              <QrCode className="h-5 w-5 text-orange-400" />
-              <div>
-                <div className="text-sm font-semibold text-white">Open House Manager</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">QR sign-in + auto follow-up</div>
-              </div>
-            </button>
-            <button
-              onClick={() => setLocation("/crm")}
-              className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all text-left group"
-            >
-              <Users className="h-5 w-5 text-orange-400" />
-              <div>
-                <div className="text-sm font-semibold text-white">CRM Pipeline</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">5-stage lead kanban</div>
-              </div>
-            </button>
-            <button
-              onClick={() => setLocation("/testimonials")}
-              className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all text-left group"
-            >
-              <MessageSquareQuote className="h-5 w-5 text-orange-400" />
-              <div>
-                <div className="text-sm font-semibold text-white">Testimonial Engine</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">Reviews → social posts</div>
-              </div>
-            </button>
-          </div>
-          {/* Secondary CTA row */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
-            <div className="flex items-center gap-2">
-              <GitBranch className="h-4 w-4 text-orange-400/70" />
-              <span className="text-xs text-slate-400">Also in ENGAGE: <button onClick={() => setLocation('/drip-sequences')} className="text-orange-400 hover:text-orange-300 underline underline-offset-2">Email Drip Sequences</button></span>
-            </div>
-            <Button
-              size="sm"
-              onClick={() => setLocation("/convert")}
-              className="bg-orange-500 hover:bg-orange-400 text-white font-semibold gap-1.5 hover:shadow-lg hover:shadow-orange-500/20 transition-all"
-            >
-              See All CONVERT Tools
-              <ChevronRight className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </div>
@@ -655,63 +681,6 @@ export default function Dashboard() {
               </svg>
             }
           />
-        </div>
-      </div>
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          SECTION 6b — AUTOMATION STATUS (Zapier Summary)
-      ══════════════════════════════════════════════════════════════════════ */}
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-[#FF6A00]/10">
-              <Zap className="h-4 w-4 text-[#FF6A00]" />
-            </div>
-            <h2 className="text-sm font-bold text-foreground">Automation Status</h2>
-          </div>
-          <button
-            onClick={() => setLocation("/settings/zapier")}
-            className="text-xs text-[#FF6A00] font-semibold hover:underline underline-offset-2"
-          >
-            Manage Zapier
-          </button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {[
-            { label: "Open House Lead", event: "open_house_lead" },
-            { label: "Lead Magnet Download", event: "lead_magnet_download" },
-            { label: "New CRM Lead", event: "new_crm_lead" },
-          ].map(({ label, event }) => {
-            const hook = (zapierHooks as Array<{ eventType: string; configured: boolean; isEnabled: boolean }> | undefined)
-              ?.find((w) => w.eventType === event);
-            const isActive = hook?.configured && hook?.isEnabled;
-            const isConfigured = hook?.configured;
-            return (
-              <div
-                key={event}
-                className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all hover:shadow-sm ${
-                  isActive
-                    ? "border-emerald-200 bg-emerald-50"
-                    : isConfigured
-                    ? "border-amber-200 bg-amber-50"
-                    : "border-border bg-muted/30"
-                }`}
-                onClick={() => setLocation("/settings/zapier")}
-              >
-                <span className={`h-2 w-2 rounded-full shrink-0 ${
-                  isActive ? "bg-emerald-500 animate-pulse" : isConfigured ? "bg-amber-400" : "bg-slate-300"
-                }`} />
-                <span className={`text-xs font-medium ${
-                  isActive ? "text-emerald-800" : isConfigured ? "text-amber-800" : "text-muted-foreground"
-                }`}>{label}</span>
-                <span className={`ml-auto text-[10px] font-semibold shrink-0 ${
-                  isActive ? "text-emerald-600" : isConfigured ? "text-amber-600" : "text-slate-400"
-                }`}>
-                  {isActive ? "Active" : isConfigured ? "Paused" : "Not set"}
-                </span>
-              </div>
-            );
-          })}
         </div>
       </div>
 
