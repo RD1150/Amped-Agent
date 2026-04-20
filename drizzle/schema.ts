@@ -1534,66 +1534,11 @@ export type DripEnrollment = typeof dripEnrollments.$inferSelect;
 export type InsertDripEnrollment = typeof dripEnrollments.$inferInsert;
 
 /**
- * Video Edit Projects — user-created video editing sessions
+ * CRM Integrations — stores API keys for external CRM platforms (Lofty, Follow Up Boss, kvCORE)
  */
-export const videoEditProjects = mysqlTable("video_edit_projects", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  title: varchar("title", { length: 255 }).notNull().default("Untitled Edit"),
-  // Source video
-  baseVideoUrl: text("baseVideoUrl").notNull(), // URL of the base video (teleprompter, live tour, etc.)
-  baseVideoKey: varchar("baseVideoKey", { length: 512 }), // S3 key if stored in S3
-  baseVideoDuration: decimal("baseVideoDuration", { precision: 10, scale: 2 }).default("0"), // seconds
-  // Trim points
-  trimStart: decimal("trimStart", { precision: 10, scale: 2 }).default("0"), // seconds from start
-  trimEnd: decimal("trimEnd", { precision: 10, scale: 2 }), // seconds from start (null = end of video)
-  // Edit config (JSON blob for all tracks)
-  editConfig: text("editConfig"), // JSON: { brollLayers, textLayers, musicTrack, logoEnabled, captions, format }
-  // Output
-  status: mysqlEnum("status", ["draft", "rendering", "done", "failed"]).default("draft").notNull(),
-  outputUrl: text("outputUrl"), // Rendered video URL
-  outputKey: varchar("outputKey", { length: 512 }), // S3 key of rendered video
-  renderJobId: varchar("renderJobId", { length: 255 }), // Creatomate render job ID
-  // YouTube optimization
-  ytTitle: text("ytTitle"),
-  ytDescription: text("ytDescription"),
-  ytTags: text("ytTags"), // JSON array of strings
-  ytThumbnailUrl: text("ytThumbnailUrl"),
-  ytPublishedAt: timestamp("ytPublishedAt"),
-  // Timestamps
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type VideoEditProject = typeof videoEditProjects.$inferSelect;
-export type InsertVideoEditProject = typeof videoEditProjects.$inferInsert;
-
-/**
- * B-roll Library — user-uploaded video clips and photos for use in the Video Editor
- */
-export const brollLibrary = mysqlTable("broll_library", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
-  url: text("url").notNull(),                          // S3 public URL
-  s3Key: varchar("s3Key", { length: 512 }).notNull(),  // S3 key for deletion
-  mediaType: mysqlEnum("mediaType", ["video", "image"]).notNull(),
-  tags: text("tags"),                                  // JSON array of tag strings
-  fileSize: int("fileSize"),                           // bytes
-  duration: decimal("duration", { precision: 10, scale: 2 }), // seconds (video only)
-  thumbnailUrl: text("thumbnailUrl"),                  // first-frame thumbnail for videos
-  mimeType: varchar("mimeType", { length: 100 }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type BrollLibraryItem = typeof brollLibrary.$inferSelect;
-export type InsertBrollLibraryItem = typeof brollLibrary.$inferInsert;
-
-/**
- * CRM Integrations — stores per-user CRM API keys and connection status
- */
-export const crmIntegrations = mysqlTable("crm_integrations", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
+export const crmIntegrations = pgTable("crm_integrations", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
   platform: varchar("platform", { length: 50 }).notNull(), // "lofty" | "followupboss" | "kvcore"
   apiKey: text("apiKey"), // encrypted API key
   isEnabled: boolean("isEnabled").default(true).notNull(),
@@ -1601,24 +1546,7 @@ export const crmIntegrations = mysqlTable("crm_integrations", {
   lastTestStatus: varchar("lastTestStatus", { length: 20 }), // "success" | "failed"
   lastTestMessage: text("lastTestMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 export type CrmIntegration = typeof crmIntegrations.$inferSelect;
 export type InsertCrmIntegration = typeof crmIntegrations.$inferInsert;
-
-/**
- * Zapier Webhooks — stores per-user Zapier webhook URLs for each event type
- */
-export const zapierWebhooks = mysqlTable("zapier_webhooks", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  eventType: varchar("eventType", { length: 100 }).notNull(), // "open_house_lead" | "lead_magnet_download" | "new_crm_lead"
-  webhookUrl: text("webhookUrl").notNull(),
-  isEnabled: boolean("isEnabled").default(true).notNull(),
-  lastFiredAt: timestamp("lastFiredAt"),
-  lastFireStatus: varchar("lastFireStatus", { length: 20 }), // "success" | "failed"
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type ZapierWebhook = typeof zapierWebhooks.$inferSelect;
-export type InsertZapierWebhook = typeof zapierWebhooks.$inferInsert;

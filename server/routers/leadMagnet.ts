@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { pushLeadToAllCrms } from "../crmService";
-import { fireZapierWebhook } from "../zapierService";
 import { invokeLLM } from "../_core/llm";
 import * as db from "../db";
 import { createContentPost } from "../db";
@@ -246,15 +245,6 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
         lastName: recipientName ? (recipientName.split(" ").slice(1).join(" ") || undefined) : undefined,
         email: recipientEmail,
         source: "Lead Magnet",
-        message: `Downloaded lead magnet: ${magnetLabel}`,
-      }).catch(() => {});
-      // Fire Zapier webhook for lead magnet download — non-blocking
-      fireZapierWebhook(ctx.user.id, "lead_magnet_download", {
-        firstName: recipientName ? recipientName.split(" ")[0] : "Lead",
-        lastName: recipientName ? (recipientName.split(" ").slice(1).join(" ") || undefined) : undefined,
-        email: recipientEmail,
-        source: "Lead Magnet",
-        magnetTitle: magnetLabel,
         message: `Downloaded lead magnet: ${magnetLabel}`,
       }).catch(() => {});
       return { success: true, sentTo: recipientEmail };

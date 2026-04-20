@@ -16,7 +16,6 @@ import { sendSMS, openHouseSMSTemplate, isTwilioConfigured } from "../sms";
 import { getPersonaByUserId } from "../db";
 import { nanoid } from "nanoid";
 import { pushLeadToAllCrms } from "../crmService";
-import { fireZapierWebhook } from "../zapierService";
 
 const SITE_URL = "https://ampedagent.app";
 const BRAND_COLOR = "#f97316";
@@ -274,17 +273,6 @@ export const openHouseRouter = router({
         source: "Open House",
         message: `Open house visitor at ${oh.address}`,
         propertyAddress: oh.address,
-      }).catch(() => {});
-
-      // Fire Zapier webhook for open house lead — non-blocking
-      fireZapierWebhook(oh.userId, "open_house_lead", {
-        firstName: input.name.split(" ")[0],
-        lastName: input.name.split(" ").slice(1).join(" ") || undefined,
-        email: input.email,
-        phone: input.phone,
-        source: "Open House",
-        propertyAddress: oh.address,
-        message: `Open house visitor at ${oh.address}`,
       }).catch(() => {});
 
       // Send immediate follow-up email if email provided and sequence is active
