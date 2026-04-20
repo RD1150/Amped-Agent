@@ -643,6 +643,26 @@ export default function Integrations() {
         apiKeyPlaceholder="Paste your kvCORE API key here"
         helpUrl="https://apidocs.kvcore.com/"
       />
+
+      {/* Coming soon CRM cards */}
+      <ComingSoonCrmCard
+        displayName="Go High Level"
+        description="Push leads into your GHL pipeline — ideal for teams and brokerages"
+      />
+      <ComingSoonCrmCard
+        displayName="HubSpot"
+        description="Sync leads and contacts with your HubSpot CRM"
+      />
+
+      {/* ─── Zapier Section ──────────────────────────────────────────── */}
+      <div>
+        <h2 className="text-xl font-bold text-foreground mt-4">Zapier Integration</h2>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Connect Amped Agent to 7,000+ apps via Zapier. Set a webhook URL for each event and your Zap handles the rest.
+        </p>
+      </div>
+
+      <ZapierSection />
     </div>
   );
 }
@@ -864,5 +884,210 @@ function CrmIntegrationCard({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// ─── Coming Soon CRM Card ────────────────────────────────────────────────────
+function ComingSoonCrmCard({ displayName, description }: { displayName: string; description: string }) {
+  return (
+    <Card className="border border-dashed border-muted-foreground/30 opacity-70">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+              <Building2 className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div>
+              <CardTitle className="text-muted-foreground">{displayName}</CardTitle>
+              <CardDescription>{description}</CardDescription>
+            </div>
+          </div>
+          <Badge variant="secondary" className="bg-muted/50 text-muted-foreground">
+            Coming Soon
+          </Badge>
+        </div>
+      </CardHeader>
+    </Card>
+  );
+}
+
+// ─── Zapier Section Component ─────────────────────────────────────────────────
+const ZAPIER_EVENTS = [
+  {
+    eventType: "open_house_lead" as const,
+    label: "Open House Lead",
+    description: "Fires when a visitor signs in at an open house",
+    example: { firstName: "Jane", lastName: "Smith", email: "jane@example.com", phone: "555-123-4567", propertyAddress: "123 Main St", source: "Open House" },
+  },
+  {
+    eventType: "lead_magnet_download" as const,
+    label: "Lead Magnet Download",
+    description: "Fires when you send a lead magnet PDF to a recipient",
+    example: { firstName: "John", lastName: "Doe", email: "john@example.com", magnetTitle: "First-Time Buyer Guide", source: "Lead Magnet" },
+  },
+  {
+    eventType: "new_crm_lead" as const,
+    label: "New CRM Lead",
+    description: "Fires when any new lead is added to your Amped Agent CRM",
+    example: { firstName: "Alex", lastName: "Johnson", email: "alex@example.com", phone: "555-987-6543", source: "Website" },
+  },
+];
+
+function ZapierSection() {
+  const { data: webhooks, refetch } = trpc.zapierWebhooks.getAll.useQuery();
+
+  return (
+    <Card className="border-2 border-orange-500/20">
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="h-12 w-12 rounded-lg bg-orange-500/10 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="h-6 w-6 fill-orange-500" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 1.97a3.824 3.824 0 0 0-1.108-.628l-.464-2.752a5.989 5.989 0 0 1 3.542 1.41zm-3.93-1.658.464 2.752a3.838 3.838 0 0 0-1.096 0l-.464-2.752a5.968 5.968 0 0 1 1.096 0zM8.37 6.59l-.464 2.752a3.824 3.824 0 0 0-1.108.628L4.83 8.001A5.989 5.989 0 0 1 8.37 6.59zM4.438 9.438l1.97 1.97a3.838 3.838 0 0 0 0 1.184l-1.97 1.97a5.989 5.989 0 0 1 0-5.124zm.392 6.314 1.97-1.97c.314.25.665.452 1.108.628l.464 2.752a5.989 5.989 0 0 1-3.542-1.41zm3.93 1.658-.464-2.752a3.838 3.838 0 0 0 1.096 0l.464 2.752a5.968 5.968 0 0 1-1.096 0zm3.632.248-.464-2.752a3.824 3.824 0 0 0 1.108-.628l1.97 1.97a5.989 5.989 0 0 1-3.614 1.41zm3.93-1.906-1.97-1.97c.25-.314.452-.665.628-1.108l2.752.464a5.989 5.989 0 0 1-1.41 2.614zm1.658-3.93-2.752-.464a3.838 3.838 0 0 0 0-1.096l2.752-.464a5.968 5.968 0 0 1 0 1.024z"/>
+            </svg>
+          </div>
+          <div>
+            <CardTitle>Zapier Webhooks</CardTitle>
+            <CardDescription>
+              Connect to 7,000+ apps. Each event below fires a webhook — set up a Zap to route leads anywhere.
+            </CardDescription>
+          </div>
+        </div>
+        <div className="mt-3 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+          <strong className="text-foreground">How it works:</strong> Copy a webhook URL from Zapier (Webhooks by Zapier → Catch Hook), paste it below for the event you want, then build your Zap to create contacts in any CRM, send Slack notifications, add rows to Google Sheets, and more.{" "}
+          <a href="https://zapier.com/apps/webhook/integrations" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            Get started with Zapier →
+          </a>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {ZAPIER_EVENTS.map((event) => {
+          const hook = webhooks?.find((w) => w.eventType === event.eventType);
+          return (
+            <ZapierEventRow
+              key={event.eventType}
+              event={event}
+              hook={hook}
+              onSaved={refetch}
+            />
+          );
+        })}
+      </CardContent>
+    </Card>
+  );
+}
+
+interface ZapierEventRowProps {
+  event: typeof ZAPIER_EVENTS[number];
+  hook?: { eventType: string; webhookUrl: string; isEnabled: boolean; lastFiredAt: Date | null; lastFireStatus: string | null; configured: boolean } | null;
+  onSaved: () => void;
+}
+
+function ZapierEventRow({ event, hook, onSaved }: ZapierEventRowProps) {
+  const [urlInput, setUrlInput] = useState(hook?.webhookUrl ?? "");
+  const [isEditing, setIsEditing] = useState(false);
+
+  const saveMutation = trpc.zapierWebhooks.save.useMutation({
+    onSuccess: () => { toast.success(`Webhook saved for "${event.label}"`); setIsEditing(false); onSaved(); },
+    onError: (err) => toast.error(err.message || "Failed to save webhook"),
+  });
+
+  const removeMutation = trpc.zapierWebhooks.remove.useMutation({
+    onSuccess: () => { toast.success("Webhook removed"); onSaved(); },
+    onError: (err) => toast.error(err.message || "Failed to remove"),
+  });
+
+  const toggleMutation = trpc.zapierWebhooks.toggle.useMutation({
+    onSuccess: () => onSaved(),
+    onError: (err) => toast.error(err.message || "Failed to update"),
+  });
+
+  const testMutation = trpc.zapierWebhooks.test.useMutation({
+    onSuccess: (result) => {
+      if (result.success) toast.success(`✓ Test payload sent to Zapier!`);
+      else toast.error(`Test failed: ${result.message}`);
+      onSaved();
+    },
+    onError: (err) => toast.error(err.message || "Test failed"),
+  });
+
+  const isConfigured = hook?.configured;
+
+  return (
+    <div className="border border-border rounded-lg p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <p className="font-medium text-sm">{event.label}</p>
+          <p className="text-xs text-muted-foreground">{event.description}</p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {isConfigured && (
+            <>
+              <Switch
+                checked={hook?.isEnabled ?? true}
+                onCheckedChange={(checked) =>
+                  toggleMutation.mutate({ eventType: event.eventType, isEnabled: checked })
+                }
+              />
+              <span className="text-xs text-muted-foreground">{hook?.isEnabled ? "On" : "Off"}</span>
+            </>
+          )}
+          {isConfigured ? (
+            <Badge variant="default" className="bg-primary/15 text-green-400 border-primary/20 text-xs">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Set
+            </Badge>
+          ) : (
+            <Badge variant="secondary" className="text-xs">Not set</Badge>
+          )}
+        </div>
+      </div>
+
+      {isConfigured && !isEditing ? (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 p-2 bg-muted/50 rounded text-xs font-mono text-muted-foreground break-all">
+            {hook?.webhookUrl}
+          </div>
+          {hook?.lastFiredAt && (
+            <p className={`text-xs ${hook.lastFireStatus === "success" ? "text-green-500" : "text-red-500"}`}>
+              Last fired: {hook.lastFireStatus === "success" ? "✓" : "✗"} {new Date(hook.lastFiredAt).toLocaleDateString()}
+            </p>
+          )}
+          <div className="flex gap-2 flex-wrap">
+            <Button size="sm" variant="outline" onClick={() => testMutation.mutate({ eventType: event.eventType })} disabled={testMutation.isPending}>
+              {testMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <FlaskConical className="h-3 w-3 mr-1" />}
+              Test
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => { setUrlInput(hook?.webhookUrl ?? ""); setIsEditing(true); }}>
+              Edit URL
+            </Button>
+            <Button size="sm" variant="outline" className="text-destructive hover:text-destructive" onClick={() => removeMutation.mutate({ eventType: event.eventType })} disabled={removeMutation.isPending}>
+              Remove
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <Input
+            placeholder="https://hooks.zapier.com/hooks/catch/..."
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+          />
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              onClick={() => saveMutation.mutate({ eventType: event.eventType, webhookUrl: urlInput })}
+              disabled={!urlInput.trim() || saveMutation.isPending}
+              className="flex-1"
+            >
+              {saveMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : null}
+              Save Webhook
+            </Button>
+            {isEditing && (
+              <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

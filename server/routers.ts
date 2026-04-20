@@ -53,6 +53,7 @@ import { testimonialsRouter } from "./routers/testimonials";
 import { openHouseRouter } from "./routers/openHouse";
 import { crmRouter } from "./routers/crm";
 import { crmIntegrationsRouter } from "./routers/crmIntegrations";
+import { zapierWebhooksRouter } from "./routers/zapierWebhooks";
 import { dripRouter } from "./routers/drip";
 import { videoVoiceoverRouter } from "./routers/videoVoiceover";
 
@@ -95,6 +96,7 @@ export const appRouter = router({
   openHouse: openHouseRouter,
   crm: crmRouter,
   crmIntegrations: crmIntegrationsRouter,
+  zapierWebhooks: zapierWebhooksRouter,
   drip: dripRouter,
   videoVoiceover: videoVoiceoverRouter,
 

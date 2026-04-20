@@ -1550,3 +1550,20 @@ export const crmIntegrations = pgTable("crm_integrations", {
 });
 export type CrmIntegration = typeof crmIntegrations.$inferSelect;
 export type InsertCrmIntegration = typeof crmIntegrations.$inferInsert;
+
+/**
+ * Zapier Webhooks — stores per-user Zapier webhook URLs for each event type
+ */
+export const zapierWebhooks = pgTable("zapier_webhooks", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
+  eventType: varchar("eventType", { length: 100 }).notNull(), // "open_house_lead" | "lead_magnet_download" | "new_crm_lead"
+  webhookUrl: text("webhookUrl").notNull(),
+  isEnabled: boolean("isEnabled").default(true).notNull(),
+  lastFiredAt: timestamp("lastFiredAt"),
+  lastFireStatus: varchar("lastFireStatus", { length: 20 }), // "success" | "failed"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+export type ZapierWebhook = typeof zapierWebhooks.$inferSelect;
+export type InsertZapierWebhook = typeof zapierWebhooks.$inferInsert;
