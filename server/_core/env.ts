@@ -37,6 +37,8 @@ export const ENV = {
   googleLoginClientSecret: process.env.GOOGLE_LOGIN_CLIENT_SECRET ?? "",
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   fromEmail: process.env.FROM_EMAIL ?? "hello@ampedagent.app",
-  ownerEmail: process.env.OWNER_EMAIL ?? "",
-  ownerName: process.env.OWNER_NAME ?? "",
+  // Canonical public URL of this deployment — used for OAuth redirect URIs.
+  // Set APP_URL in Render env vars (e.g. https://amped-agent.onrender.com).
+  // Falls back to RENDER_EXTERNAL_URL (auto-set by Render).
+  appUrl: (process.env.APP_URL ?? process.env.RENDER_EXTERNAL_URL ?? "").replace(/\/$/, ""),
 };

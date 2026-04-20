@@ -202,10 +202,16 @@ export function registerAuthRoutes(app: Express) {
   // ── Google OAuth — Redirect to Google ─────────────────────────────────────
   app.get("/api/auth/google", (req: Request, res: Response) => {
     const client = getGoogleClient();
-    // Use host header (always present) rather than origin (absent on browser redirects)
-    const host = req.headers.host || req.hostname;
-    const proto = (req.headers["x-forwarded-proto"] as string) || (host.startsWith("localhost") ? "http" : "https");
-    const origin = `${proto}://${host}`;
+    // Use the canonical APP_URL env var if set (most reliable for production).
+    // Falls back to building from request headers (for local dev).
+    let origin: string;
+    if (ENV.appUrl) {
+      origin = ENV.appUrl;
+    } else {
+      const host = req.headers.host || req.hostname;
+      const proto = (req.headers["x-forwarded-proto"] as string) || (host.startsWith("localhost") ? "http" : "https");
+      origin = `${proto}://${host}`;
+    }
     const redirectUri = `${origin}/api/auth/google/callback`;
 
     // Pass referral code via state param (format: ref_CODE)
@@ -221,7 +227,7 @@ export function registerAuthRoutes(app: Express) {
     res.redirect(302, url);
   });
 
-  // ── Google OAuth — Callback ────────────────────────────────────────────────
+  //  // ── Google OAuth — Callback ────────────────────────────────────────────
   app.get("/api/auth/google/callback", async (req: Request, res: Response) => {
     try {
       const code = req.query.code as string | undefined;
@@ -229,10 +235,15 @@ export function registerAuthRoutes(app: Express) {
         res.status(400).json({ error: "Missing authorization code." });
         return;
       }
-
-      const host = req.headers.host || req.hostname;
-      const proto = (req.headers["x-forwarded-proto"] as string) || (host.startsWith("localhost") ? "http" : "https");
-      const origin = `${proto}://${host}`;
+      // Must use the same redirect URI as the initial auth request.
+      let origin: string;
+      if (ENV.appUrl) {
+        origin = ENV.appUrl;
+      } else {
+        const host = req.headers.host || req.hostname;
+        const proto = (req.headers["x-forwarded-proto"] as string) || (host.startsWith("localhost") ? "http" : "https");
+        origin = `${proto}://${host}`;
+      }
       const redirectUri = `${origin}/api/auth/google/callback`;
 
       const client = getGoogleClient();
