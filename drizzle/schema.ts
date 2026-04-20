@@ -1508,3 +1508,24 @@ export const videoEditProjects = mysqlTable("video_edit_projects", {
 });
 export type VideoEditProject = typeof videoEditProjects.$inferSelect;
 export type InsertVideoEditProject = typeof videoEditProjects.$inferInsert;
+
+/**
+ * B-roll Library — user-uploaded video clips and photos for use in the Video Editor
+ */
+export const brollLibrary = mysqlTable("broll_library", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  url: text("url").notNull(),                          // S3 public URL
+  s3Key: varchar("s3Key", { length: 512 }).notNull(),  // S3 key for deletion
+  mediaType: mysqlEnum("mediaType", ["video", "image"]).notNull(),
+  tags: text("tags"),                                  // JSON array of tag strings
+  fileSize: int("fileSize"),                           // bytes
+  duration: decimal("duration", { precision: 10, scale: 2 }), // seconds (video only)
+  thumbnailUrl: text("thumbnailUrl"),                  // first-frame thumbnail for videos
+  mimeType: varchar("mimeType", { length: 100 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type BrollLibraryItem = typeof brollLibrary.$inferSelect;
+export type InsertBrollLibraryItem = typeof brollLibrary.$inferInsert;

@@ -55,6 +55,7 @@ import { crmRouter } from "./routers/crm";
 import { dripRouter } from "./routers/drip";
 import { zapierRouter } from "./routers/zapier";
 import { videoEditorRouter } from "./routers/videoEditor";
+import { brollLibraryRouter } from "./routers/brollLibrary";
 
 export const appRouter = router({
   system: systemRouter,
@@ -97,6 +98,7 @@ export const appRouter = router({
   drip: dripRouter,
   zapier: zapierRouter,
   videoEditor: videoEditorRouter,
+  brollLibrary: brollLibraryRouter,
 
   support: router({
     chat: publicProcedure

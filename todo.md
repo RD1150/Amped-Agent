@@ -5267,3 +5267,20 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] YouTube thumbnail generator: agent face + headline text
 - [ ] One-click publish to YouTube (via existing YouTube integration)
 - [ ] Wire navigation: add Video Editor to sidebar under ENGAGE or SCALE
+
+## B-roll Library Feature
+
+- [ ] Database schema: brollLibrary table (userId, title, url, s3Key, mediaType, tags, fileSize, duration, thumbnailUrl, createdAt)
+- [ ] Server: brollLibrary router (upload presigned URL, list, tag, delete)
+- [ ] BrollLibrary.tsx page: upload zone, grid view, tag filter, preview modal, delete
+- [ ] Wire navigation: add B-roll Library under ENGAGE or Video Editor section
+- [ ] Video Editor integration: B-roll picker pulls from user's library
+
+## Launch Pad & Playbook
+
+- [x] Schema: add launchPadStep (0-5) and launchPadCompletedAt to users table
+- [x] Server: launchPad router (getProgress, completeStep, reset)
+- [x] LaunchPad.tsx: 5-step guided onboarding with progress bar, "why this matters" copy, and smart redirect on completion
+- [x] Playbook.tsx: 30-day authority blueprint, Attract→Engage→Convert→Scale→Dominate flowchart, quick-start checklists
+- [x] Smart redirect: new users (launchPadStep < 5) land on /launch-pad, returning users land on /dashboard
+- [x] Add Playbook to sidebar navigation under HOME

@@ -457,6 +457,18 @@ const menuSections = [
         description: "Video walkthroughs for every feature",
       },
       {
+        icon: Rocket,
+        label: "Launch Pad",
+        path: "/launch-pad",
+        description: "5-step guided setup — start here if you're new",
+      },
+      {
+        icon: BookOpen,
+        label: "Playbook",
+        path: "/playbook",
+        description: "30-day authority blueprint & quick-start checklists",
+      },
+      {
         icon: User,
         label: "Authority Profile",
         path: "/authority-profile",
