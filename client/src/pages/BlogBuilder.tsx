@@ -455,16 +455,17 @@ export default function BlogBuilder() {
                         Edit
                       </button>
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         title="Edit post"
+                        className="text-xs px-2 h-7"
                         onClick={() => {
                           setEditingPostId(post.id);
                           setEditDraft({ title: post.title, content: post.content, metaDescription: post.metaDescription || "" });
                           setExpandedPost(post.id);
                         }}
                       >
-                        <Pencil className="h-4 w-4" />
+                        Edit
                       </Button>
                       <Button
                         variant="ghost"
