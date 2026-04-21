@@ -2839,9 +2839,9 @@ RULES:
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const persona = await db.getPersonaByUserId(ctx.user.id);
-        const agentName = ctx.user.name || "";
-        const market = persona?.primaryCity || "";
+        const profile = await db.getProfileByUserId(ctx.user.id);
+        const agentName = profile?.fullName || ctx.user.name || "";
+        const market = profile?.targetCity || "";
 
         const formatLabels: Record<string, string> = {
           instagram_square: "Instagram square (1080×1080)",
@@ -2875,23 +2875,15 @@ RULES:
               ],
             },
           ],
-          response_format: {
-            type: "json_schema" as const,
-            json_schema: {
-              name: "ad_copy",
-              strict: true,
-              schema: {
-                type: "object",
-                properties: {
-                  headline: { type: "string" },
-                  primaryText: { type: "string" },
-                  cta: { type: "string" },
-                  imagePrompt: { type: "string" },
-                },
-                required: ["headline", "primaryText", "cta", "imagePrompt"],
-                additionalProperties: false,
-              },
+          outputSchema: {
+            type: "object",
+            properties: {
+              headline: { type: "string" },
+              primaryText: { type: "string" },
+              cta: { type: "string" },
+              imagePrompt: { type: "string" },
             },
+            required: ["headline", "primaryText", "cta", "imagePrompt"],
           },
         });
 

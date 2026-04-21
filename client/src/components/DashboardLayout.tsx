@@ -734,6 +734,21 @@ const menuSections = [
         },
       },
       {
+        icon: Megaphone,
+        label: "Ad Generator",
+        path: "/ad-generator",
+        description: "Paste any URL + photos → AI generates a polished, ready-to-run ad",
+        badge: "New",
+        hoverInfo: {
+          tagline: "Paste any URL — a listing, your book, a service, anything — upload 2 photos, and get a complete ad with headline, copy, CTA, and image.",
+          details: [
+            { label: "Output", value: "Headline + ad copy + CTA + generated ad image" },
+            { label: "Formats", value: "Instagram Square, Story, Facebook Feed, Banner" },
+            { label: "Time", value: "Under 60 seconds" },
+          ],
+        },
+      },
+      {
         icon: MessageSquareQuote,
         label: "Testimonial Engine",
         path: "/testimonials",
