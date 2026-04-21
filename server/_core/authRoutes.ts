@@ -315,11 +315,74 @@ export function registerAuthRoutes(app: Express) {
         }
       }
 
-      await issueSession(req, res, openId, name);
-      res.redirect(302, "/");
+      // Issue the session token
+      const sessionToken = await sdk.createSessionToken(openId, {
+        name,
+        expiresInMs: ONE_YEAR_MS,
+      });
+
+      // Instead of setting the cookie on the redirect response (which Chrome
+      // blocks in cross-site redirect chains), we return a tiny HTML bridge
+      // page that runs a same-origin fetch to /api/auth/session/set.
+      // This ensures the cookie is set in a first-party same-origin context.
+      const destination = isNewUser ? "/onboarding" : "/dashboard";
+      const encodedToken = encodeURIComponent(sessionToken);
+      const encodedDest = encodeURIComponent(destination);
+
+      res.setHeader("Content-Type", "text/html");
+      res.send(`<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Signing in...</title></head>
+<body>
+<script>
+(async function() {
+  try {
+    const r = await fetch('/api/auth/session/set', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: '${encodedToken}', destination: '${encodedDest}' })
+    });
+    const d = await r.json();
+    window.location.href = d.destination || '/';
+  } catch(e) {
+    window.location.href = '/login?error=session_failed';
+  }
+})();
+</script>
+<p>Signing you in...</p>
+</body>
+</html>`);
     } catch (error) {
       console.error("[Auth] Google callback failed:", error);
       res.redirect(302, "/login?error=google_failed");
+    }
+  });
+
+  // ── Session Set — Exchange token for cookie (same-origin) ─────────────────
+  // Called by the OAuth bridge HTML page to set the session cookie in a
+  // first-party same-origin context, bypassing cross-site cookie restrictions.
+  app.post("/api/auth/session/set", async (req: Request, res: Response) => {
+    try {
+      const { token, destination } = req.body as { token?: string; destination?: string };
+      if (!token) {
+        res.status(400).json({ error: "Missing token" });
+        return;
+      }
+
+      // Verify the token is valid before setting it as a cookie
+      const session = await sdk.verifySession(decodeURIComponent(token));
+      if (!session) {
+        res.status(401).json({ error: "Invalid token" });
+        return;
+      }
+
+      const cookieOptions = getSessionCookieOptions(req);
+      res.cookie(COOKIE_NAME, decodeURIComponent(token), { ...cookieOptions, maxAge: ONE_YEAR_MS });
+      res.json({ destination: destination ? decodeURIComponent(destination) : "/dashboard" });
+    } catch (error) {
+      console.error("[Auth] Session set failed:", error);
+      res.status(500).json({ error: "Session setup failed" });
     }
   });
 
