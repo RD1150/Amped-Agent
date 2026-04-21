@@ -236,9 +236,10 @@ export default function WeeklyInsightBlock() {
     <div className="p-5 space-y-0">
       {/* ── Header row ─────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[#6B7280]">
-          Your Coach Says
-        </p>
+        <div>
+          <p className="text-base font-semibold text-[#111111] leading-tight">Your Coach Says</p>
+          <p className="text-xs text-[#6B7280] mt-0.5">Based on your activity this week</p>
+        </div>
         <div className="flex items-center gap-1.5">
           <button
             onClick={handleRefresh}
