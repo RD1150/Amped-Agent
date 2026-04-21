@@ -457,6 +457,18 @@ export default function BlogBuilder() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        title="Edit post"
+                        onClick={() => {
+                          setEditingPostId(post.id);
+                          setEditDraft({ title: post.title, content: post.content, metaDescription: post.metaDescription || "" });
+                          setExpandedPost(post.id);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                         title={expandedPost === post.id ? "Collapse" : "Expand"}
                       >
@@ -560,8 +572,8 @@ export default function BlogBuilder() {
                             </div>
                           </div>
                         ) : (
-                        <div className="bg-muted/40 rounded-lg p-4 text-sm text-foreground leading-relaxed max-h-[500px] overflow-y-auto prose prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-li:text-foreground">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
+                        <div className="bg-muted/40 rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap leading-relaxed max-h-[500px] overflow-y-auto font-mono text-xs">
+                          {post.content}
                         </div>
                         )}
                         {editingPostId !== post.id && (<div className="space-y-3">

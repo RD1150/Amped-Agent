@@ -249,8 +249,7 @@ Return ONLY valid JSON in this exact format:
       if (input.title !== undefined) updateData.title = input.title;
       if (input.content !== undefined) updateData.content = input.content;
       if (input.metaDescription !== undefined) updateData.metaDescription = input.metaDescription;
-      await database!.update(blogPosts).set(updateData).where(eq(blogPosts.id, input.id));
-      const [updated] = await database!.select().from(blogPosts).where(eq(blogPosts.id, input.id)).limit(1);
+      const [updated] = await database!.update(blogPosts).set(updateData).where(eq(blogPosts.id, input.id)).returning();
       return updated;
     }),
 
