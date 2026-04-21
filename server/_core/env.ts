@@ -40,5 +40,5 @@ export const ENV = {
   // Canonical public URL of this deployment — used for OAuth redirect URIs.
   // Set APP_URL in Render env vars (e.g. https://amped-agent.onrender.com).
   // Falls back to RENDER_EXTERNAL_URL (auto-set by Render).
-  appUrl: (process.env.APP_URL ?? process.env.RENDER_EXTERNAL_URL ?? "").replace(/\/$/, ""),
+  appUrl: (process.env.APP_URL ?? process.env.RENDER_EXTERNAL_URL ?? "").trim().replace(/\/$/, ""),
 };

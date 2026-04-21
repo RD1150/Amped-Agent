@@ -33,7 +33,7 @@ function getGoogleClient() {
  */
 function getOrigin(req: Request): string {
   if (ENV.appUrl) {
-    return ENV.appUrl;
+    return ENV.appUrl.trim().replace(/\/$/, "");
   }
   // After `app.set('trust proxy', 1)`, req.protocol correctly reflects
   // x-forwarded-proto, so this branch works on Cloud Run / Render.
