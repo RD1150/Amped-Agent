@@ -2839,9 +2839,9 @@ RULES:
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const profile = await db.getProfileByUserId(ctx.user.id);
-        const agentName = profile?.fullName || ctx.user.name || "";
-        const market = profile?.targetCity || "";
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+        const agentName = ctx.user.name || "";
+        const market = persona?.primaryCity || "";
 
         const formatLabels: Record<string, string> = {
           instagram_square: "Instagram square (1080×1080)",
