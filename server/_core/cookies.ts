@@ -1,6 +1,5 @@
 import type { CookieOptions, Request } from "express";
 
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
 
 function isIpAddress(host: string) {
@@ -13,19 +12,28 @@ function isLocalRequest(req: Request): boolean {
   return LOCAL_HOSTS.has(host) || isIpAddress(host);
 }
 
+/**
+ * Detect if this is a hosted deployment (Render, Cloud Run, etc.).
+ * We use the presence of APP_URL or RENDER_EXTERNAL_URL as the signal
+ * rather than NODE_ENV, because NODE_ENV can be unreliable on some hosts.
+ */
+function isHostedDeployment(): boolean {
+  return !!(process.env.APP_URL || process.env.RENDER_EXTERNAL_URL);
+}
+
 export function getSessionCookieOptions(
   req: Request
 ): Pick<CookieOptions, "domain" | "httpOnly" | "path" | "sameSite" | "secure"> {
-  // In production, always set secure=true — the app is always served over HTTPS
-  // on Render/Cloud Run. We cannot rely on req.protocol because trust proxy
-  // may not be configured on all deployments.
-  // In local dev, only set secure=true if actually on HTTPS (rare).
-  const secure = IS_PRODUCTION ? true : !isLocalRequest(req);
+  // On hosted deployments (Render / Cloud Run), always use secure=true.
+  // These platforms always serve over HTTPS, and secure=false causes browsers
+  // to silently drop the session cookie, breaking login.
+  // On local dev (no APP_URL / RENDER_EXTERNAL_URL), use request-based detection.
+  const secure = isHostedDeployment() ? true : !isLocalRequest(req);
 
   return {
     httpOnly: true,
     path: "/",
-    // sameSite:"none" requires secure:true — always satisfied in production above
+    // sameSite:"none" requires secure:true — guaranteed above for hosted deploys
     sameSite: secure ? "none" : "lax",
     secure,
   };
