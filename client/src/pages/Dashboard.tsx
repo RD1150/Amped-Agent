@@ -296,8 +296,8 @@ export default function Dashboard() {
                     <span className="font-semibold text-sm text-[#111111]">{persona?.agentName || user?.name || "Complete your Authority Profile"}</span>
                     {persona?.brokerageName && <span className="text-xs text-[#6B7280]">&middot; {persona.brokerageName}</span>}
                     {(() => {
-                      const cities = (() => { try { return persona?.serviceCities ? JSON.parse(persona.serviceCities as string) as string[] : null; } catch { return null; } })();
-                      if (cities && cities.length > 0) return cities.slice(0, 2).map((c: string, i: number) => <Badge key={i} variant="outline" className="text-xs border-[#E5E7EB] text-[#6B7280]">{c}</Badge>);
+                      const cities = (() => { try { const raw = persona?.serviceCities; if (!raw) return null; const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw; return Array.isArray(parsed) ? parsed : null; } catch { return null; } })();
+                      if (cities && cities.length > 0) return cities.slice(0, 2).map((c: any, i: number) => { const label = typeof c === 'string' ? c : (c?.city ? `${c.city}${c.state ? ', ' + c.state : ''}` : ''); return label ? <Badge key={i} variant="outline" className="text-xs border-[#E5E7EB] text-[#6B7280]">{label}</Badge> : null; });
                       return persona?.primaryCity ? <Badge variant="outline" className="text-xs border-[#E5E7EB] text-[#6B7280]">{persona.primaryCity}</Badge> : null;
                     })()}
                   </div>
