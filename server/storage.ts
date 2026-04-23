@@ -2,13 +2,12 @@
  * Storage helpers — Cloudflare R2 via S3-compatible API (AWS SDK v3).
  *
  * Required environment variables:
- *   R2_ACCOUNT_ID        — Cloudflare account ID
- *   R2_ACCESS_KEY_ID     — R2 API token Access Key ID
+ *   R2_ACCOUNT_ID      — Cloudflare account ID
+ *   R2_ACCESS_KEY_ID   — R2 API token Access Key ID
  *   R2_SECRET_ACCESS_KEY — R2 API token Secret Access Key
- *   R2_BUCKET_NAME       — R2 bucket name (default: amped-agent-storage)
- *   R2_PUBLIC_URL        — Optional custom public URL for the bucket (if public access enabled)
+ *   R2_BUCKET_NAME     — R2 bucket name (default: amped-agent-storage)
+ *   R2_PUBLIC_URL      — Optional custom public URL for the bucket (if public access enabled)
  *
- * Files are uploaded to R2 and served via presigned GET URLs (1-hour expiry).
  * Falls back to Manus forge proxy if R2 env vars are not set (for local dev).
  */
 
@@ -31,36 +30,27 @@ function getR2Config() {
   return { accountId, accessKeyId, secretAccessKey, bucket, endpoint, publicUrl };
 }
 
-// ─── Shared S3Client factory ──────────────────────────────────────────────────
-
-async function getS3Client() {
-  const cfg = getR2Config();
-  if (!cfg) throw new Error('R2 not configured');
-  const { S3Client } = await import('@aws-sdk/client-s3');
-  return {
-    client: new S3Client({
-      region: 'auto',
-      endpoint: cfg.endpoint,
-      credentials: {
-        accessKeyId: cfg.accessKeyId,
-        secretAccessKey: cfg.secretAccessKey,
-      },
-      requestChecksumCalculation: 'WHEN_REQUIRED',
-      responseChecksumValidation: 'WHEN_REQUIRED',
-    }),
-    cfg,
-  };
-}
-
-// ─── R2 upload ────────────────────────────────────────────────────────────────
+// ─── R2 upload via S3-compatible presigned PUT ────────────────────────────────
 
 async function r2Put(
   key: string,
   data: Buffer | Uint8Array | string,
   contentType: string
 ): Promise<{ key: string; url: string }> {
-  const { client, cfg } = await getS3Client();
-  const { PutObjectCommand } = await import('@aws-sdk/client-s3');
+  const cfg = getR2Config();
+  if (!cfg) throw new Error('R2 not configured');
+
+  // Use AWS SDK v3 S3Client
+  const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
+
+  const client = new S3Client({
+    region: 'auto',
+    endpoint: cfg.endpoint,
+    credentials: {
+      accessKeyId: cfg.accessKeyId,
+      secretAccessKey: cfg.secretAccessKey,
+    },
+  });
 
   const body = typeof data === 'string' ? Buffer.from(data) : data;
 
@@ -70,30 +60,19 @@ async function r2Put(
       Key: key,
       Body: body,
       ContentType: contentType,
-      ChecksumAlgorithm: undefined,
     })
   );
 
-  // Always use presigned GET URLs — the public URL bucket is rate-limited/blocked.
-  // Presigned URLs work for all consumers including ElevenLabs, HeyGen, etc.
-  // Use 24-hour expiry so downstream services have plenty of time to fetch.
-  const url = await r2PresignedGet(key, 86400);
+  // Build public URL
+  let url: string;
+  if (cfg.publicUrl) {
+    url = `${cfg.publicUrl}/${key}`;
+  } else {
+    // Use the R2 endpoint URL directly (works if bucket has public access or via signed URL)
+    url = `${cfg.endpoint}/${cfg.bucket}/${key}`;
+  }
+
   return { key, url };
-}
-
-// ─── R2 presigned GET URL ─────────────────────────────────────────────────────
-
-async function r2PresignedGet(key: string, expiresInSeconds = 3600): Promise<string> {
-  const { client, cfg } = await getS3Client();
-  const { GetObjectCommand } = await import('@aws-sdk/client-s3');
-  const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
-
-  const command = new GetObjectCommand({
-    Bucket: cfg.bucket,
-    Key: key,
-  });
-
-  return getSignedUrl(client, command, { expiresIn: expiresInSeconds });
 }
 
 // ─── Forge proxy fallback (Manus local dev) ───────────────────────────────────
@@ -155,11 +134,6 @@ async function forgePut(relKey: string, data: Buffer | Uint8Array | string, cont
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-/**
- * Upload a file to storage and return its accessible URL.
- * For R2: returns a presigned GET URL (1-hour expiry) unless a public URL is configured.
- * For Forge: returns the forge download URL.
- */
 export async function storagePut(
   relKey: string,
   data: Buffer | Uint8Array | string,
@@ -176,20 +150,18 @@ export async function storagePut(
   return forgePut(key, data, contentType);
 }
 
-/**
- * Get a readable URL for an existing storage object.
- * For R2: generates a fresh presigned GET URL (1-hour expiry) unless a public URL is configured.
- */
 export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
   const key = normalizeKey(relKey);
   const cfg = getR2Config();
 
   if (cfg) {
+    // For R2, return the direct URL (assumes public bucket or pre-signed URL not needed for reads)
+    let url: string;
     if (cfg.publicUrl) {
-      return { key, url: `${cfg.publicUrl}/${key}` };
+      url = `${cfg.publicUrl}/${key}`;
+    } else {
+      url = `${cfg.endpoint}/${cfg.bucket}/${key}`;
     }
-    // Generate a presigned GET URL
-    const url = await r2PresignedGet(key, 3600);
     return { key, url };
   }
 
