@@ -1424,8 +1424,8 @@ export default function FullAvatarVideo() {
           </Label>
           {/* Music library picker */}
           <MusicLibrary
-            onSelectTrack={(trackId, trackUrl) => { setMusicUrl(trackUrl); setMusicFileName(null); setSelectedMusicTrackId(trackId); }}
-            selectedTrackId={selectedMusicTrackId || undefined}
+            onSelectTrack={(_trackId, trackUrl) => { setMusicUrl(trackUrl); setMusicFileName(null); }}
+            selectedTrackId={musicUrl || undefined}
             showVolumeControl={false}
           />
           {/* Divider */}
