@@ -45,6 +45,8 @@ async function getS3Client() {
         accessKeyId: cfg.accessKeyId,
         secretAccessKey: cfg.secretAccessKey,
       },
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
     }),
     cfg,
   };
@@ -68,7 +70,9 @@ async function r2Put(
       Key: key,
       Body: body,
       ContentType: contentType,
-    })
+      ChecksumAlgorithm: undefined,
+    }),
+    { requestHandler: undefined }
   );
 
   // If a custom public URL is configured, use it directly (fast, no expiry)
