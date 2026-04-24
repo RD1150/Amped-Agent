@@ -445,12 +445,6 @@ export default function AuthorityProfile() {
     },
   });
 
-  // Save voice ID to DB after direct clone
-  const saveClonedVoiceMutation = trpc.persona.cloneVoice.useMutation({
-    onSuccess: () => { refetchPersona(); },
-    onError: () => {},
-  });
-
   const deleteVoiceMutation = trpc.persona.deleteVoiceClone.useMutation({
     onSuccess: () => {
       toast.success("Cloned voice removed.");
