@@ -75,13 +75,10 @@ async function r2Put(
     { requestHandler: undefined }
   );
 
-  // If a custom public URL is configured, use it directly (fast, no expiry)
-  if (cfg.publicUrl) {
-    return { key, url: `${cfg.publicUrl}/${key}` };
-  }
-
-  // Otherwise generate a presigned GET URL (1 hour expiry)
-  const url = await r2PresignedGet(key, 3600);
+  // Always use presigned GET URLs — the public URL bucket is rate-limited/blocked.
+  // Presigned URLs work for all consumers including ElevenLabs, HeyGen, etc.
+  // Use 24-hour expiry so downstream services have plenty of time to fetch.
+  const url = await r2PresignedGet(key, 86400);
   return { key, url };
 }
 
