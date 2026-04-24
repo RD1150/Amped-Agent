@@ -587,24 +587,12 @@ export default function AuthorityProfile() {
     setIsCloningVoice(true);
 
     try {
-      // Use direct clone endpoint — sends audio straight to ElevenLabs, no R2 middleman
-      const recMime = (source instanceof Blob ? source.type : "") || "audio/webm";
-      const recExt = recMime.includes("mp4") ? "mp4" : recMime.includes("ogg") ? "ogg" : "webm";
-      const filename = voiceFile ? voiceFile.name : `voice-recording.${recExt}`;
-      const resolvedVoiceName = voiceName.trim() || "Reena's Voice";
-
-      const formData = new FormData();
-      formData.append("audio", source, filename);
-      formData.append("voiceName", resolvedVoiceName);
-
-      const response = await fetch("/api/clone-voice-direct", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({ error: "Unknown error" }));
-        throw new Error(err.error || `Server error ${response.status}`);
+      if (!url) {
+        const recMime = recordedBlob?.type || "audio/webm";
+        const recExt = recMime.includes("mp4") ? "mp4" : recMime.includes("ogg") ? "ogg" : "webm";
+        const filename = voiceFile ? voiceFile.name : `voice-recording.${recExt}`;
+        url = await uploadAudioFile(source, filename);
+        setVoiceUploadUrl(url);
       }
 
       const data = await response.json();
