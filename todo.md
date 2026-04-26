@@ -5299,3 +5299,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 - [x] Add "X of 10 credits remaining" indicator on AI Twin Video page
 - [x] Run SQL to bump all existing users with twinVideoCredits < 10 up to 10
+
+## Bug - Persona & Brand Save
+
+- [x] Fix "Save Brand Settings" button not working on Persona & Brand page

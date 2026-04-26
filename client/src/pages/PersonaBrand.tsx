@@ -58,8 +58,11 @@ export default function PersonaBrand() {
       utils.persona.get.invalidate();
       toast.success("Brand settings saved successfully");
     },
-    onError: () => {
-      toast.error("Failed to save brand settings");
+    onError: (err) => {
+      const msg = err.message?.includes('SUBSCRIPTION_REQUIRED')
+        ? 'Please subscribe to save your brand settings.'
+        : `Failed to save: ${err.message || 'Unknown error'}`;
+      toast.error(msg);
     },
   });
 

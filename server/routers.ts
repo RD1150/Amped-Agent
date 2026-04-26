@@ -398,11 +398,11 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
   }),
 
   persona: router({
-    get: protectedProcedure.query(async ({ ctx }) => {
+    get: authOnlyProcedure.query(async ({ ctx }) => {
       return db.getPersonaByUserId(ctx.user.id);
     }),
     
-    upsert: protectedProcedure
+    upsert: authOnlyProcedure
       .input(z.object({
         agentName: z.string().optional(),
         licenseNumber: z.string().optional(),
@@ -442,7 +442,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         return db.upsertPersona(ctx.user.id, input);
       }),
     
-    updateAuthorityProfile: protectedProcedure
+    updateAuthorityProfile: authOnlyProcedure
       .input(z.object({
         customerAvatar: z.string().optional(),
         brandValues: z.string().optional(),
