@@ -38,8 +38,6 @@ export default function PersonaBrand() {
     phoneNumber: "",
     emailAddress: "",
     socialHandles: "",
-    klingAvatarHeadshotUrl: "",
-    klingAvatarVoiceUrl: "",
   });
   const [headshotOffsetY, setHeadshotOffsetY] = useState(50);
   const [headshotZoom, setHeadshotZoom] = useState(100);
@@ -48,8 +46,7 @@ export default function PersonaBrand() {
   const dragStartY = useRef(0);
   const dragStartOffset = useRef(50);
   const [isUploadingHeadshot, setIsUploadingHeadshot] = useState(false);
-  const [isUploadingAvatarHeadshot, setIsUploadingAvatarHeadshot] = useState(false);
-  const [isUploadingAvatarVoice, setIsUploadingAvatarVoice] = useState(false);
+
   const [voiceSampleUrl, setVoiceSampleUrl] = useState("");
   const [isUploadingVoiceSample, setIsUploadingVoiceSample] = useState(false);
 
@@ -124,8 +121,7 @@ export default function PersonaBrand() {
         phoneNumber: persona.phoneNumber || "",
         emailAddress: persona.emailAddress || "",
         socialHandles: persona.socialHandles || "",
-        klingAvatarHeadshotUrl: (persona as any).klingAvatarHeadshotUrl || "",
-        klingAvatarVoiceUrl: (persona as any).klingAvatarVoiceUrl || "",
+
       });
       setVoiceSampleUrl((persona as any).voiceSampleUrl || "");
       setHeadshotOffsetY((persona as any).headshotOffsetY ?? 50);
@@ -704,116 +700,21 @@ export default function PersonaBrand() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Camera className="h-5 w-5 text-primary" />
-            AI Agent Avatar Setup
+            <Mic className="h-5 w-5 text-primary" />
+            AI Voice Clone
           </CardTitle>
           <CardDescription>
-            Upload your headshot and a voice recording to enable the AI Avatar Overlay on property tour videos.
-            Your AI twin will appear in the corner narrating tours in your voice.
+            Clone your voice with ElevenLabs AI. Once cloned, your AI twin will narrate property tours and videos in your actual voice automatically.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Camera className="h-4 w-4" /> Avatar Headshot</Label>
-            <p className="text-xs text-muted-foreground">Upload a clear, front-facing photo (JPG or PNG). This will be used to generate your AI twin.</p>
-            {formData.klingAvatarHeadshotUrl && (
-              <img src={formData.klingAvatarHeadshotUrl} alt="Avatar headshot" className="w-24 h-24 rounded-full object-cover border-2 border-primary" />
-            )}
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="hidden"
-              id="avatarHeadshotInput"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setIsUploadingAvatarHeadshot(true);
-                try {
-                  const fd = new FormData();
-                  fd.append("images", file);
-                  const res = await fetch("/api/upload-images", { method: "POST", body: fd });
-                  const data = await res.json();
-                  const url = data.urls?.[0];
-                  if (!url) throw new Error("No URL returned");
-                  setFormData(prev => ({ ...prev, klingAvatarHeadshotUrl: url }));
-                  // Immediately persist to DB so it survives page navigation
-                  autoSavePersona.mutate({ klingAvatarHeadshotUrl: url });
-                  toast.success("Avatar headshot uploaded");
-                } catch {
-                  toast.error("Failed to upload headshot");
-                } finally {
-                  setIsUploadingAvatarHeadshot(false);
-                }
-              }}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => document.getElementById("avatarHeadshotInput")?.click()}
-              disabled={isUploadingAvatarHeadshot}
-            >
-              {isUploadingAvatarHeadshot ? "Uploading..." : formData.klingAvatarHeadshotUrl ? "Change Headshot" : "Upload Headshot"}
-            </Button>
-          </div>
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Mic className="h-4 w-4" /> Voice Recording (for AI Avatar)</Label>
-            <p className="text-xs text-muted-foreground">Upload a 15–30 second audio clip of your voice (MP3 or WAV). Used for the AI avatar overlay animation.</p>
-            {formData.klingAvatarVoiceUrl && (
-              <audio controls src={formData.klingAvatarVoiceUrl} className="w-full mt-1" />
-            )}
-            <input
-              type="file"
-              accept="audio/mpeg,audio/wav,audio/mp4,audio/webm"
-              className="hidden"
-              id="avatarVoiceInput"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setIsUploadingAvatarVoice(true);
-                try {
-                  const fd = new FormData();
-                  fd.append("images", file);
-                  const res = await fetch("/api/upload-images", { method: "POST", body: fd });
-                  const data = await res.json();
-                  const url = data.urls?.[0];
-                  if (!url) throw new Error("No URL returned");
-                  setFormData(prev => ({ ...prev, klingAvatarVoiceUrl: url }));
-                  // Immediately persist to DB so it survives page navigation
-                  autoSavePersona.mutate({ klingAvatarVoiceUrl: url });
-                  toast.success("Voice recording uploaded");
-                } catch {
-                  toast.error("Failed to upload voice recording");
-                } finally {
-                  setIsUploadingAvatarVoice(false);
-                }
-              }}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => document.getElementById("avatarVoiceInput")?.click()}
-              disabled={isUploadingAvatarVoice}
-            >
-              {isUploadingAvatarVoice ? "Uploading..." : formData.klingAvatarVoiceUrl ? "Change Recording" : "Upload Voice Recording"}
-            </Button>
-          </div>
-
-          {/* AI Voice Clone Section */}
-          <div className="border-t pt-4 space-y-3">
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div>
-                <Label className="flex items-center gap-2 text-sm font-semibold">
-                  <Mic className="h-4 w-4 text-primary" />
-                  AI Voice Clone (for Voiceover Narration)
-                </Label>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Upload a 15-second to 5-minute voice sample. Our AI will clone your voice and use it to narrate property tours automatically.
-                </p>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Upload a 15-second to 5-minute voice sample (MP3, WAV, or M4A). Our AI will clone your voice and use it to narrate property tours automatically.
+              </p>
               {(persona as any)?.elevenlabsVoiceId && (
-                <Badge variant="outline" className="text-primary border-green-600 flex items-center gap-1 shrink-0">
+                <Badge variant="outline" className="text-primary border-green-600 flex items-center gap-1 shrink-0 ml-4">
                   <CheckCircle2 className="h-3 w-3" /> Voice Cloned
                 </Badge>
               )}
