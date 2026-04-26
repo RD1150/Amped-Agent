@@ -257,6 +257,7 @@ Requirements:
       }> = [
         { id: "8af060c7963346b99fbe442c99492c03", name: "Purple Podcast", gender: "female", previewImageUrl: "", previewVideoUrl: null, pinned: true },
         { id: "842a8e943c4e478c84cf06be4f17ee48", name: "Pink Shirt Denim Blazer Green Mirror", gender: "female", previewImageUrl: "", previewVideoUrl: null, pinned: true },
+        { id: "887d9c1656464de7b833055fd8dadab3", name: "Blue Sweater", gender: "female", previewImageUrl: "", previewVideoUrl: null, pinned: true },
       ];
       // Enrich pinned avatars with live preview images if HeyGen returns them
       for (const pinned of PINNED_AVATARS) {
