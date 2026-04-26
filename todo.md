@@ -5294,3 +5294,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Credit Default Update
 
 - [x] Update twinVideoCredits default from 3 to 10 in schema.ts and push migration
+
+## Credits Indicator & Beta User Backfill
+
+- [x] Add "X of 10 credits remaining" indicator on AI Twin Video page
+- [x] Run SQL to bump all existing users with twinVideoCredits < 10 up to 10

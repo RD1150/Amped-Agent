@@ -1569,13 +1569,13 @@ export default function FullAvatarVideo() {
 
         {/* Beta credit counter */}
         {(() => {
-          const credits = currentUser?.twinVideoCredits ?? 3;
+          const credits = currentUser?.twinVideoCredits ?? 10;
           if (credits <= 0) {
             return (
               <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 text-center space-y-3">
                 <div className="text-2xl">🎬</div>
-                <p className="font-semibold text-gray-900">You've used all 3 beta avatar videos</p>
-                <p className="text-sm text-gray-600">Upgrade to Top Producer to get 10 face videos per month — no camera needed.</p>
+                <p className="font-semibold text-gray-900">You've used all 10 beta avatar videos</p>
+                <p className="text-sm text-gray-600">Upgrade to Top Producer to get unlimited face videos per month — no camera needed.</p>
                 <Button
                   onClick={() => window.location.href = '/pricing'}
                   className="bg-orange-500 hover:bg-orange-600 text-white w-full"
@@ -1589,12 +1589,12 @@ export default function FullAvatarVideo() {
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Beta avatar videos remaining</span>
-                <span className={`font-bold ${credits === 1 ? 'text-orange-500' : 'text-gray-900'}`}>{credits} of 3</span>
+                <span className={`font-bold ${credits <= 2 ? 'text-orange-500' : 'text-gray-900'}`}>{credits} of 10</span>
               </div>
               <div className="w-full bg-gray-100 rounded-full h-1.5">
                 <div
-                  className={`h-1.5 rounded-full transition-all ${credits === 1 ? 'bg-orange-400' : 'bg-orange-500'}`}
-                  style={{ width: `${(credits / 3) * 100}%` }}
+                  className={`h-1.5 rounded-full transition-all ${credits <= 2 ? 'bg-orange-400' : 'bg-primary'}`}
+                  style={{ width: `${(credits / 10) * 100}%` }}
                 />
               </div>
               <Button
@@ -1613,8 +1613,8 @@ export default function FullAvatarVideo() {
                   <><Sparkles className="mr-2 h-5 w-5" />Generate Avatar Video</>  
                 )}
               </Button>
-              {credits === 1 && (
-                <p className="text-xs text-orange-500 text-center">This is your last beta video. <a href="/pricing" className="underline font-medium">Upgrade</a> to get 10/month.</p>
+              {credits <= 2 && credits > 0 && (
+                <p className="text-xs text-orange-500 text-center">{credits === 1 ? 'This is your last beta video.' : 'Only 2 beta videos left.'} <a href="/pricing" className="underline font-medium">Upgrade</a> for unlimited.</p>
               )}
             </div>
           );
