@@ -5284,3 +5284,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Playbook.tsx: 30-day authority blueprint, Attract→Engage→Convert→Scale→Dominate flowchart, quick-start checklists
 - [x] Smart redirect: new users (launchPadStep < 5) land on /launch-pad, returning users land on /dashboard
 - [x] Add Playbook to sidebar navigation under HOME
+
+## Bug Fixes - Persona & Brand Upload Flows
+
+- [x] Audit and fix professional headshot upload persistence
+- [x] Audit and fix avatar headshot upload persistence
+- [x] Audit and fix voice recording upload persistence

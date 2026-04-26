@@ -66,6 +66,13 @@ export default function PersonaBrand() {
     },
   });
 
+  // Silent auto-save mutation (no toast — used for immediate persistence after uploads)
+  const autoSavePersona = trpc.persona.upsert.useMutation({
+    onSuccess: () => {
+      utils.persona.get.invalidate();
+    },
+  });
+
   const cloneVoiceMutation = trpc.persona.cloneVoice.useMutation({
     onSuccess: (data) => {
       utils.persona.get.invalidate();
@@ -226,6 +233,7 @@ export default function PersonaBrand() {
       headshotOffsetY,
       headshotZoom,
       isCompleted: true,
+      voiceSampleUrl: voiceSampleUrl || undefined,
       primaryCity: validCities[0]?.city || formData.serviceAreas.split(",")[0]?.trim() || "",
       primaryState: validCities[0]?.state || "",
       serviceCities: validCities.length > 0 ? JSON.stringify(validCities) : undefined,
@@ -725,7 +733,11 @@ export default function PersonaBrand() {
                   fd.append("images", file);
                   const res = await fetch("/api/upload-images", { method: "POST", body: fd });
                   const data = await res.json();
-                  setFormData(prev => ({ ...prev, klingAvatarHeadshotUrl: data.urls[0] }));
+                  const url = data.urls?.[0];
+                  if (!url) throw new Error("No URL returned");
+                  setFormData(prev => ({ ...prev, klingAvatarHeadshotUrl: url }));
+                  // Immediately persist to DB so it survives page navigation
+                  autoSavePersona.mutate({ klingAvatarHeadshotUrl: url });
                   toast.success("Avatar headshot uploaded");
                 } catch {
                   toast.error("Failed to upload headshot");
@@ -764,7 +776,11 @@ export default function PersonaBrand() {
                   fd.append("images", file);
                   const res = await fetch("/api/upload-images", { method: "POST", body: fd });
                   const data = await res.json();
-                  setFormData(prev => ({ ...prev, klingAvatarVoiceUrl: data.urls[0] }));
+                  const url = data.urls?.[0];
+                  if (!url) throw new Error("No URL returned");
+                  setFormData(prev => ({ ...prev, klingAvatarVoiceUrl: url }));
+                  // Immediately persist to DB so it survives page navigation
+                  autoSavePersona.mutate({ klingAvatarVoiceUrl: url });
                   toast.success("Voice recording uploaded");
                 } catch {
                   toast.error("Failed to upload voice recording");
@@ -828,7 +844,11 @@ export default function PersonaBrand() {
                     fd.append("images", file);
                     const res = await fetch("/api/upload-images", { method: "POST", body: fd });
                     const data = await res.json();
-                    setVoiceSampleUrl(data.urls[0]);
+                    const voiceUrl = data.urls?.[0];
+                    if (!voiceUrl) throw new Error("No URL returned");
+                    setVoiceSampleUrl(voiceUrl);
+                    // Immediately persist to DB so it survives page navigation
+                    autoSavePersona.mutate({ voiceSampleUrl: voiceUrl });
                     toast.success("Voice sample uploaded — click \"Clone My Voice\" to create your AI voice.");
                   } catch {
                     toast.error("Failed to upload voice sample");
