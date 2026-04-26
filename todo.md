@@ -5290,3 +5290,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Audit and fix professional headshot upload persistence
 - [x] Audit and fix avatar headshot upload persistence
 - [x] Audit and fix voice recording upload persistence
+
+## Credit Default Update
+
+- [x] Update twinVideoCredits default from 3 to 10 in schema.ts and push migration

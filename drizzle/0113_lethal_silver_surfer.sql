@@ -1,0 +1,1 @@
+ALTER TABLE `users` MODIFY COLUMN `twinVideoCredits` int NOT NULL DEFAULT 10;
