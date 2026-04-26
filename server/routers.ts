@@ -1132,6 +1132,9 @@ Focus on creating compelling, shareable content that drives engagement.`;
           category: "image",
         });
         
+        // Persist headshotUrl to persona so it survives page reloads
+        await db.upsertPersona(ctx.user.id, { headshotUrl: url });
+        
         return { url };
       }),
     
