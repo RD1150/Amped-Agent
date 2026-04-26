@@ -249,17 +249,37 @@ Requirements:
       };
       // Strictly use data.avatars — never talking_photos
       const avatars = data.data?.avatars ?? [];
-      // Return only free (non-premium) stock avatars
-      return avatars
-        .filter((a) => !a.premium && a.avatar_id)
+
+      // ── Pinned featured avatars (always shown at top, regardless of premium flag) ──
+      const PINNED_AVATARS: Array<{
+        id: string; name: string; gender: "male" | "female";
+        previewImageUrl: string; previewVideoUrl: string | null; pinned: boolean;
+      }> = [
+        { id: "8af060c7963346b99fbe442c99492c03", name: "Purple Podcast", gender: "female", previewImageUrl: "", previewVideoUrl: null, pinned: true },
+        { id: "842a8e943c4e478c84cf06be4f17ee48", name: "Pink Shirt Denim Blazer Green Mirror", gender: "female", previewImageUrl: "", previewVideoUrl: null, pinned: true },
+      ];
+      // Enrich pinned avatars with live preview images if HeyGen returns them
+      for (const pinned of PINNED_AVATARS) {
+        const match = avatars.find((a) => a.avatar_id === pinned.id);
+        if (match) {
+          pinned.previewImageUrl = match.preview_image_url ?? "";
+          pinned.previewVideoUrl = match.preview_video_url ?? null;
+        }
+      }
+      // Return pinned first, then free (non-premium) stock avatars (excluding pinned IDs)
+      const pinnedIds = new Set(PINNED_AVATARS.map((p) => p.id));
+      const freeAvatars = avatars
+        .filter((a) => !a.premium && a.avatar_id && !pinnedIds.has(a.avatar_id))
         .map((a) => ({
           id: a.avatar_id,
           name: a.avatar_name,
           gender: a.gender as "male" | "female",
           previewImageUrl: a.preview_image_url,
           previewVideoUrl: a.preview_video_url ?? null,
+          pinned: false,
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
+      return [...PINNED_AVATARS, ...freeAvatars];
     }),
 
   /**
