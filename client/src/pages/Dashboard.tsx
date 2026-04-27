@@ -38,6 +38,7 @@ import MarketIntelligenceStrip from "@/components/MarketIntelligenceStrip";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { X, MessageSquare } from "lucide-react";
+import HeyGenCreditsWidget from "@/components/HeyGenCreditsWidget";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -703,6 +704,8 @@ export default function Dashboard() {
       </div>
       {/* Referral Incentive Card */}
       <ReferralCard />
+      {/* HeyGen API Credits — Admin Only */}
+      {user?.role === "admin" && <HeyGenCreditsWidget />}
       {/* YouTube Channel Analytics */}
       <YouTubeAnalyticsWidget />
       {/* Video Preview Gallery */}

@@ -553,6 +553,20 @@ export const adminRouter = router({
         .offset(input.offset);
       return rows;
     }),
+
+  /**
+   * Get remaining HeyGen API credits (admin only).
+   */
+  getHeyGenCredits: adminProcedure.query(async () => {
+    const res = await fetch("https://api.heygen.com/v2/user/remaining_quota", {
+      headers: { "X-Api-Key": process.env.HEYGEN_API_KEY || "" },
+    });
+    if (!res.ok) {
+      return { credits: null, error: "Unable to fetch HeyGen credits" };
+    }
+    const data = await res.json() as { data?: { remaining_quota?: number } };
+    return { credits: data?.data?.remaining_quota ?? 0, error: null };
+  }),
 });
 
 /**

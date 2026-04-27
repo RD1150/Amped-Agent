@@ -5316,3 +5316,13 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Bug - Quick Avatar Script Generation
 
 - [ ] Fix Quick Avatar script generation — spinner shows once then stops silently with no result
+
+## HeyGen Credit Balance Indicator
+
+- [x] Add tRPC procedure to fetch HeyGen remaining credits
+- [x] Add HeyGen credit balance widget to Dashboard page
+
+## HeyGen Credit Balance Indicator (Admin Only)
+
+- [x] Add admin-only tRPC procedure to fetch HeyGen remaining credits
+- [x] Add admin-only HeyGen credit balance widget to Dashboard page
