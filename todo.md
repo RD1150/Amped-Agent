@@ -5303,3 +5303,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Bug - Persona & Brand Save
 
 - [x] Fix "Save Brand Settings" button not working on Persona & Brand page
+
+## Auth-Only Procedure Audit & Paywall Banner
+
+- [x] Audit all account-setup procedures and switch to authOnlyProcedure
+- [x] Add dismissible paywall banner on Persona & Brand for users without active subscription

@@ -13,8 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Check, User, Palette, Globe, Phone, Mail, Mic, Camera, Loader2, CheckCircle2, Trash2, X, Plus, MapPin } from "lucide-react";
+import { Check, User, Palette, Globe, Phone, Mail, Mic, Camera, Loader2, CheckCircle2, Trash2, X, Plus, MapPin, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Link } from "wouter";
 
 type BrandVoice = "professional" | "friendly" | "luxury" | "casual" | "authoritative";
 
@@ -50,6 +52,8 @@ export default function PersonaBrand() {
   const [voiceSampleUrl, setVoiceSampleUrl] = useState("");
   const [isUploadingVoiceSample, setIsUploadingVoiceSample] = useState(false);
 
+  const { user } = useAuth();
+  const hasAccess = !user || user.subscriptionStatus === 'active' || user.subscriptionStatus === 'trialing' || user.role === 'admin';
   const { data: persona, isLoading } = trpc.persona.get.useQuery();
   const utils = trpc.useUtils();
 
@@ -271,6 +275,24 @@ export default function PersonaBrand() {
           </Badge>
         )}
       </div>
+
+      {/* Paywall Banner — shown when user has no active subscription or trial */}
+      {!hasAccess && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+          <AlertCircle className="h-5 w-5 text-amber-400 mt-0.5 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-amber-300">Your trial has ended</p>
+            <p className="text-xs text-amber-400/80 mt-0.5">
+              You can still update your profile, but features like content generation and video creation require an active subscription.
+            </p>
+          </div>
+          <Link href="/settings/billing">
+            <Button size="sm" className="shrink-0 bg-amber-500 hover:bg-amber-400 text-black font-semibold">
+              Subscribe
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Business Information */}
       <Card className="bg-card border-border">

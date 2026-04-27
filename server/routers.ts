@@ -373,7 +373,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
     }),
 
     // Weekly Email Digest opt-in
-    getWeeklyDigest: protectedProcedure.query(async ({ ctx }) => {
+    getWeeklyDigest: authOnlyProcedure.query(async ({ ctx }) => {
       const dbConn = await db.getDb();
       if (!dbConn) return { enabled: false };
       const { users } = await import("../drizzle/schema");
@@ -383,7 +383,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
       return { enabled: rows[0]?.weeklyDigestEnabled ?? false };
     }),
 
-    updateWeeklyDigest: protectedProcedure
+    updateWeeklyDigest: authOnlyProcedure
       .input(z.object({ enabled: z.boolean() }))
       .mutation(async ({ ctx, input }) => {
         const dbConn = await db.getDb();
@@ -1100,7 +1100,7 @@ Focus on creating compelling, shareable content that drives engagement.`;
       return db.getUploadsByUserId(ctx.user.id);
     }),
     
-    uploadHeadshot: protectedProcedure
+    uploadHeadshot: authOnlyProcedure
       .input(z.object({
         fileName: z.string(),
         fileData: z.string(), // base64 encoded
