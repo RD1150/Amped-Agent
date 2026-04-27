@@ -109,6 +109,8 @@ const DripSequences = lazy(() => import("./pages/DripSequences"));
 const PublicOpenHouseSignIn = lazy(() => import("./pages/PublicOpenHouseSignIn"));
 const VideoVoiceover = lazy(() => import("./pages/VideoVoiceover"));
 const Teleprompter = lazy(() => import("./pages/Teleprompter"));
+const CRMIntegrations = lazy(() => import("./pages/CRMIntegrations"));
+const ZapierWebhooks = lazy(() => import("./pages/ZapierWebhooks"));
 
 // Fallback spinner shown while a lazy chunk loads
 function PageLoader() {
@@ -234,6 +236,8 @@ function Router() {
                 <Route path="/open-house" component={OpenHouseManager} />
                 <Route path="/crm" component={CRMPipeline} />
                 <Route path="/drip-sequences" component={DripSequences} />
+                <Route path="/settings/crm" component={CRMIntegrations} />
+                <Route path="/settings/zapier" component={ZapierWebhooks} />
                 <Route path="/404" component={NotFound} />
                 <Route component={NotFound} />
               </Switch>

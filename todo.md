@@ -5352,3 +5352,22 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] server/routers/zapierWebhooks.test.ts - 7 tests covering all procedures, URL validation, and fireZapierWebhook runtime fix
 - [x] server/uploadEndpoint.buffer.test.ts - 5 tests verifying Buffer.from() fix for voice cloning
 - [x] server/propertyTours.integration.test.ts - marked as .skip (live API test, consumes Creatomate credits)
+
+## CRM Integrations UI (New)
+- [x] Build /settings/crm page with Lofty, Follow Up Boss, KvCore cards
+- [x] API key input with masked display after save
+- [x] Enable/disable toggle per platform
+- [x] Test Connection button with success/failure feedback
+- [x] Register route in App.tsx under Convert section
+
+## Zapier Webhooks UI (New)
+- [x] Build /settings/zapier page with 3 event type cards
+- [x] Webhook URL input with save/update
+- [x] Enable/disable toggle per event type
+- [x] Test webhook button with live response feedback
+- [x] Register route in App.tsx
+- [x] Add CRM Integrations and Zapier Webhooks to SCALE sidebar nav
+
+## Creatomate Credits (New)
+- [x] Investigate Creatomate account credit status
+- [x] Surface credit balance info and top-up link to user

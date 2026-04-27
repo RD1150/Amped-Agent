@@ -854,6 +854,18 @@ const menuSections = [
         path: "/integrations",
         description: "Connect Facebook, Instagram, LinkedIn, GBP",
       },
+      {
+        icon: GitBranch,
+        label: "CRM Integrations",
+        path: "/settings/crm",
+        description: "Push leads to Lofty, Follow Up Boss, kvCORE",
+      },
+      {
+        icon: Zap,
+        label: "Zapier Webhooks",
+        path: "/settings/zapier",
+        description: "Trigger 6,000+ Zapier automations from lead events",
+      },
     ],
   },
   {
