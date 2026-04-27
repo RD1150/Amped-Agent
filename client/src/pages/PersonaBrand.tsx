@@ -99,11 +99,13 @@ export default function PersonaBrand() {
 
   const uploadHeadshot = trpc.uploads.uploadHeadshot.useMutation({
     onSuccess: (result) => {
-      setFormData({ ...formData, headshotUrl: result.url });
+      setFormData(prev => ({ ...prev, headshotUrl: result.url }));
+      setIsUploadingHeadshot(false);
       toast.success('Headshot uploaded successfully!');
     },
-    onError: () => {
-      toast.error('Failed to upload headshot');
+    onError: (err) => {
+      setIsUploadingHeadshot(false);
+      toast.error(`Failed to upload headshot: ${err.message || 'Unknown error'}`);
     },
   });
 
@@ -172,10 +174,13 @@ export default function PersonaBrand() {
     try {
       // Convert file to base64
       const reader = new FileReader();
-      reader.onloadend = async () => {
+      reader.onerror = () => {
+        setIsUploadingHeadshot(false);
+        toast.error('Failed to read file');
+      };
+      reader.onloadend = () => {
         const base64 = reader.result as string;
-        
-        // Upload to S3 via tRPC
+        // Upload to S3 via tRPC (loading state cleared in mutation callbacks)
         uploadHeadshot.mutate({
           fileName: file.name,
           fileData: base64,
@@ -185,9 +190,8 @@ export default function PersonaBrand() {
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('Failed to upload headshot');
-    } finally {
       setIsUploadingHeadshot(false);
+      toast.error('Failed to upload headshot');
     }
   };
 

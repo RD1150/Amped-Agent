@@ -5308,3 +5308,11 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 - [x] Audit all account-setup procedures and switch to authOnlyProcedure
 - [x] Add dismissible paywall banner on Persona & Brand for users without active subscription
+
+## Bug - Avatar/Headshot Upload on Persona & Brand
+
+- [ ] Fix avatar/headshot upload not working on Persona & Brand page
+
+## Bug - Quick Avatar Script Generation
+
+- [ ] Fix Quick Avatar script generation — spinner shows once then stops silently with no result
