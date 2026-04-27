@@ -68,6 +68,12 @@ export const users = mysqlTable("users", {
   twinVideoCredits: int("twinVideoCredits").default(10).notNull(), // Beta users start with 10 free avatar video credits
   // Zapier / webhook integration
   zapierWebhookKey: varchar("zapierWebhookKey", { length: 64 }), // Unique key for inbound Zapier webhooks
+  // Beta agreement
+  hasAcceptedBetaAgreement: boolean("hasAcceptedBetaAgreement").default(false).notNull(),
+  betaAgreementAcceptedAt: timestamp("betaAgreementAcceptedAt"),
+  // Password reset (email/password auth)
+  passwordResetToken: varchar("passwordResetToken", { length: 128 }),
+  passwordResetExpiresAt: timestamp("passwordResetExpiresAt"),
 });
 
 export type User = typeof users.$inferSelect;
@@ -134,6 +140,7 @@ export const personas = mysqlTable("personas", {
   bookingUrl: varchar("bookingUrl", { length: 500 }), // Calendly / CRM booking link shown on presentation landing pages
   targetNeighborhoods: text("targetNeighborhoods"), // JSON: string[] - specific neighborhoods/subdivisions to dominate (e.g. ["Mueller", "Tarrytown"])
   targetZipCodes: text("targetZipCodes"), // JSON: string[] - target ZIP codes for hyperlocal SEO (e.g. ["78704", "78745"])
+  localHighlights: text("localHighlights"), // JSON: string[] - local amenities, landmarks, schools, lifestyle features
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -1529,3 +1536,38 @@ export const brollLibrary = mysqlTable("broll_library", {
 });
 export type BrollLibraryItem = typeof brollLibrary.$inferSelect;
 export type InsertBrollLibraryItem = typeof brollLibrary.$inferInsert;
+
+/**
+ * CRM Integrations — stores per-user CRM API keys and connection status
+ */
+export const crmIntegrations = mysqlTable("crm_integrations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  platform: varchar("platform", { length: 50 }).notNull(), // "lofty" | "followupboss" | "kvcore"
+  apiKey: text("apiKey"), // encrypted API key
+  isEnabled: boolean("isEnabled").default(true).notNull(),
+  lastTestedAt: timestamp("lastTestedAt"),
+  lastTestStatus: varchar("lastTestStatus", { length: 20 }), // "success" | "failed"
+  lastTestMessage: text("lastTestMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CrmIntegration = typeof crmIntegrations.$inferSelect;
+export type InsertCrmIntegration = typeof crmIntegrations.$inferInsert;
+
+/**
+ * Zapier Webhooks — stores per-user Zapier webhook URLs for each event type
+ */
+export const zapierWebhooks = mysqlTable("zapier_webhooks", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  eventType: varchar("eventType", { length: 100 }).notNull(), // "open_house_lead" | "lead_magnet_download" | "new_crm_lead"
+  webhookUrl: text("webhookUrl").notNull(),
+  isEnabled: boolean("isEnabled").default(true).notNull(),
+  lastFiredAt: timestamp("lastFiredAt"),
+  lastFireStatus: varchar("lastFireStatus", { length: 20 }), // "success" | "failed"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type ZapierWebhook = typeof zapierWebhooks.$inferSelect;
+export type InsertZapierWebhook = typeof zapierWebhooks.$inferInsert;

@@ -2,6 +2,7 @@ import { getDb } from "./db";
 import { users, creditTransactions } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 import { sendLowCreditsNotification, sendPoolExhaustedNotification } from "./emailNotifications";
+import { ENV } from "./_core/env";
 
 /**
  * Credit costs for different video types (legacy — kept for compatibility)
@@ -95,7 +96,7 @@ export async function getCreditBalance(userId: number): Promise<number> {
     .from(users)
     .where(eq(users.id, userId));
 
-  if (user?.email === "rdshop70@gmail.com") {
+  if (user?.email === ENV.ownerEmail) {
     return 999999;
   }
 
@@ -135,7 +136,7 @@ export async function deductCredits(params: {
     .where(eq(users.id, userId))
     .limit(1);
 
-  if (user?.email === "rdshop70@gmail.com") {
+  if (user?.email === ENV.ownerEmail) {
     await db.insert(creditTransactions).values({
       userId,
       type: "usage",
@@ -323,7 +324,7 @@ async function getUserTier(userId: number): Promise<string> {
     .where(eq(users.id, userId))
     .limit(1);
 
-  if (user?.email === "rdshop70@gmail.com") return "authority";
+  if (user?.email === ENV.ownerEmail) return "authority";
 
   const tier = (user?.subscriptionTier ?? "starter").toLowerCase();
   if (tier.includes("authority")) return "authority";

@@ -117,7 +117,7 @@ Return ONLY valid JSON in this exact format:
         const [updated] = await database!.select().from(brandStories).where(eq(brandStories.userId, ctx.user.id)).limit(1);
         return updated;
       } else {
-        const [inserted] = await database!.insert(brandStories).values({
+        const insertResult = await database!.insert(brandStories).values({
           userId: ctx.user.id,
           whyRealEstate: input.whyRealEstate,
           mostMemorableWin: input.mostMemorableWin,
@@ -131,7 +131,8 @@ Return ONLY valid JSON in this exact format:
           socialCaption: parsed.socialCaption,
           linkedinSummary: parsed.linkedinSummary,
         });
-        const [newStory] = await database!.select().from(brandStories).where(eq(brandStories.id, inserted.insertId)).limit(1);
+        const insertedId = Number(insertResult[0].insertId);
+        const [newStory] = await database!.select().from(brandStories).where(eq(brandStories.id, insertedId)).limit(1);
         return newStory;
       }
     }),

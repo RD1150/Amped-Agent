@@ -6,13 +6,17 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import DashboardLayout from "./components/DashboardLayout";
 import { trpc } from "./lib/trpc";
 import { OnboardingModal } from "./components/OnboardingModal";
+import { BetaAgreementModal } from "./components/BetaAgreementModal";
 import { SupportChatbot } from "./components/SupportChatbot";
+import WelcomeScreen from "./components/WelcomeScreen";
 
 // Eagerly loaded (small, always needed)
 import NotFound from "@/pages/NotFound";
 import Login from "./pages/Login";
 import Landing from "./pages/Landing";
 import { PublicAgentBlog, PublicAgentBlogPost } from "./pages/PublicAgentBlog";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 // Lazy-loaded pages — each becomes its own chunk
 const ContentCalendar = lazy(() => import("./pages/ContentCalendar"));
@@ -97,14 +101,14 @@ const ScaleOverview = lazy(() => import("./pages/ScaleOverview"));
 const DominateOverview = lazy(() => import("./pages/DominateOverview"));
 const Upgrade = lazy(() => import("./pages/Upgrade"));
 const ListingLaunchKit = lazy(() => import("./pages/ListingLaunchKit"));
+const AdGenerator = lazy(() => import("./pages/AdGenerator"));
 const TestimonialEngine = lazy(() => import("./pages/TestimonialEngine"));
 const OpenHouseManager = lazy(() => import("./pages/OpenHouseManager"));
 const CRMPipeline = lazy(() => import("./pages/CRMPipeline"));
 const DripSequences = lazy(() => import("./pages/DripSequences"));
 const PublicOpenHouseSignIn = lazy(() => import("./pages/PublicOpenHouseSignIn"));
-const MakeYouTubeVideo = lazy(() => import("./pages/MakeYouTubeVideo"));
-const LaunchPad = lazy(() => import("./pages/LaunchPad"));
-const Playbook = lazy(() => import("./pages/Playbook"));
+const VideoVoiceover = lazy(() => import("./pages/VideoVoiceover"));
+const Teleprompter = lazy(() => import("./pages/Teleprompter"));
 
 // Fallback spinner shown while a lazy chunk loads
 function PageLoader() {
@@ -160,6 +164,8 @@ function Router() {
         <Route path="/subscription" component={Subscription} />
         <Route path="/upgrade" component={Upgrade} />
         <Route path="/oh/:slug" component={PublicOpenHouseSignIn} />
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/reset-password" component={ResetPassword} />
 
         {/* Dashboard routes */}
         <Route>
@@ -194,6 +200,8 @@ function Router() {
                 <Route path="/script-to-reel" component={ScriptToReel} />
                 <Route path="/my-reels" component={MyReels} />
                 <Route path="/my-videos" component={MyVideos} />
+                <Route path="/video-voiceover" component={VideoVoiceover} />
+                <Route path="/teleprompter" component={Teleprompter} />
                 <Route path="/my-content" component={MyContent} />
                 <Route path="/blog-builder" component={BlogBuilder} />
                 <Route path="/brand-story" component={BrandStory} />
@@ -221,13 +229,11 @@ function Router() {
                 <Route path="/faq" component={FAQ} />
                 <Route path="/contact" component={Contact} />
                 <Route path="/listing-launch-kit" component={ListingLaunchKit} />
+                <Route path="/ad-generator" component={AdGenerator} />
                 <Route path="/testimonials" component={TestimonialEngine} />
                 <Route path="/open-house" component={OpenHouseManager} />
                 <Route path="/crm" component={CRMPipeline} />
                 <Route path="/drip-sequences" component={DripSequences} />
-                <Route path="/launch-pad" component={LaunchPad} />
-                <Route path="/playbook" component={Playbook} />
-                <Route path="/make-youtube-video" component={MakeYouTubeVideo} />
                 <Route path="/404" component={NotFound} />
                 <Route component={NotFound} />
               </Switch>
@@ -242,6 +248,10 @@ function Router() {
 function AppWithOnboarding() {
   const { data: user, refetch } = trpc.auth.me.useQuery();
   const showOnboarding = !!(user && !user.hasCompletedOnboarding);
+  // Show beta agreement after onboarding is complete but before the app is usable
+  const showBetaAgreement = !!(user && user.hasCompletedOnboarding && !user.hasAcceptedBetaAgreement);
+  // Show welcome screen only after onboarding AND beta agreement are both done
+  const showWelcome = !!(user && user.hasCompletedOnboarding && user.hasAcceptedBetaAgreement);
 
   return (
     <>
@@ -250,6 +260,11 @@ function AppWithOnboarding() {
         open={showOnboarding}
         onComplete={() => refetch()}
       />
+      <BetaAgreementModal
+        open={showBetaAgreement}
+        onAccepted={() => refetch()}
+      />
+      {showWelcome && <WelcomeScreen userName={user?.name ?? undefined} />}
       <SupportChatbot />
     </>
   );

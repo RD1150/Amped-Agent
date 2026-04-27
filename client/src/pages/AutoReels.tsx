@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save, Mic, Play, Square, Repeat2, Image as ImageIcon, CalendarPlus } from "lucide-react";
+import { Loader2, Video, Sparkles, Download, Copy, RefreshCw, Upload, User, Plus, X, Edit2, Share2, Pencil, Save, Mic, Play, Square, Repeat2, Image as ImageIcon, CalendarPlus, Zap, BookOpen } from "lucide-react";
 import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -22,6 +22,7 @@ type InputMethod = "bullets" | "caption" | "blog" | "listing";
 type ScheduleData = { content: string; title: string } | null;
 type VideoLength = "30" | "60";
 type Tone = "calm" | "bold" | "authoritative" | "warm";
+type Depth = "standard" | "deep";
 type CaptionSize = "normal" | "large";
 type CaptionStyle = "white" | "yellow" | "gold" | "none";
 
@@ -37,6 +38,7 @@ export default function AutoReels() {
   const [scheduleData, setScheduleData] = useState<ScheduleData>(null);
   const [videoLength, setVideoLength] = useState<VideoLength>("30");
   const [tone, setTone] = useState<Tone>("authoritative");
+  const [depth, setDepth] = useState<Depth>("standard");
   const [niche] = useState("real estate");
   
   const [isGenerating, setIsGenerating] = useState(false);
@@ -408,7 +410,8 @@ export default function AutoReels() {
         inputMethod,
         videoLength,
         tone,
-        niche: "real estate"
+        niche: "real estate",
+        depth,
       });
       
       setHooks(result.hooks);
@@ -827,18 +830,24 @@ export default function AutoReels() {
                   </Dialog>
                 </div>
                 
+                <div className="space-y-3">
+                  {/* Section label */}
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Example Topics — click to use</p>
                 <div className="flex flex-wrap gap-2">
                   {/* Default templates */}
                   {[
-                    { label: "Market Update", prompt: "__MARKET_UPDATE__" },
-                    { label: "Listing Promo", prompt: "Create a promotional post for a new luxury listing" },
-                    { label: "Buyer Tips", prompt: "Share 3 essential tips for first-time home buyers" },
-                    { label: "Seller Advice", prompt: "Explain how to prepare a home for sale to maximize value" },
-                    { label: "Neighborhood Spotlight", prompt: "Highlight the best features of a desirable neighborhood" },
-                    { label: "Local Business Spotlight", prompt: "Spotlight a local business (shop, restaurant, or service) that makes our community special" },
-                    { label: "Local Events", prompt: "Highlight upcoming local events, festivals, or community gatherings in my area" },
-                    { label: "Community Charity", prompt: "Spotlight a local charity, nonprofit, or community cause that's making a difference" },
-                    { label: "Hidden Gems", prompt: "Share hidden gems and lesser-known spots in my market that locals love" }
+                    { label: "📊 Market Update", prompt: "__MARKET_UPDATE__" },
+                    { label: "🏡 Why buyers keep losing here", prompt: "Why buyers keep losing bidding wars in my market right now — and the 3 things winning buyers are doing differently" },
+                    { label: "📍 Why people move here", prompt: "The real reasons people move to my area — beyond the obvious. The lifestyle, the schools, the community, the hidden perks most people never talk about" },
+                    { label: "💰 What your money buys here", prompt: "What your money actually buys in my market right now — a realistic breakdown of what different price points get you and where the best value is hiding" },
+                    { label: "🏘️ Neighborhood deep dive", prompt: "A deep dive into one of my favorite neighborhoods — what makes it special, who it's perfect for, and why I keep recommending it to my clients" },
+                    { label: "📉 Biggest seller mistakes", prompt: "The biggest mistakes I see sellers make in my market that cost them tens of thousands of dollars — and how to avoid every single one" },
+                    { label: "🎓 School district breakdown", prompt: "Breaking down the school districts in my area — what parents need to know before choosing a neighborhood, and which areas offer the best options" },
+                    { label: "🌊 Lifestyle pitch", prompt: "Why living in my market isn't just about the house — it's about the lifestyle. The amenities, the community, the access to everything that makes life better" },
+                    { label: "📆 Timing the market", prompt: "Is now a good time to buy or sell in my market? Here's my honest take based on what I'm seeing on the ground right now — not just the headlines" },
+                    { label: "🔑 First-time buyer roadmap", prompt: "The step-by-step roadmap for first-time buyers in my market — what's different here, what to expect, and the insider moves that give you an edge" },
+                    { label: "🏆 Hidden gem neighborhoods", prompt: "The hidden gem neighborhoods in my market that most people overlook — undervalued, up-and-coming, and perfect for buyers who want more for their money" },
+                    { label: "🤝 Local Business Spotlight", prompt: "Spotlight a local business, restaurant, or community gem that makes our area special — and why it's one of the reasons people love living here" }
                   ].map((template) => (
                     <Button
                       key={template.label}
@@ -889,6 +898,7 @@ export default function AutoReels() {
                       </Button>
                     </div>
                   ))}
+                </div>
                 </div>
               </div>
               
@@ -1016,10 +1026,46 @@ export default function AutoReels() {
                     <RadioGroupItem value="warm" id="tone-warm" />
                     <Label htmlFor="tone-warm" className="font-normal cursor-pointer">Warm</Label>
                   </div>
-                </RadioGroup>
+                 </RadioGroup>
+              </div>
+              {/* Content Depth */}
+              <div>
+                <Label className="text-base font-semibold mb-1 block">Content Depth</Label>
+                <p className="text-xs text-muted-foreground mb-3">Deep Dive uses your Authority Profile to generate hyperlocal, niche-specific scripts with concrete data and named neighborhoods.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDepth("standard")}
+                    className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-all ${
+                      depth === "standard"
+                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        : "border-border bg-background text-muted-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    <BookOpen className="h-4 w-4 shrink-0" />
+                    <div className="text-left">
+                      <div className="font-medium leading-tight">Standard</div>
+                      <div className="text-xs opacity-70">Engaging &amp; clear</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDepth("deep")}
+                    className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-all ${
+                      depth === "deep"
+                        ? "border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium"
+                        : "border-border bg-background text-muted-foreground hover:border-amber-500/40"
+                    }`}
+                  >
+                    <Zap className="h-4 w-4 shrink-0" />
+                    <div className="text-left">
+                      <div className="font-medium leading-tight">Deep Dive</div>
+                      <div className="text-xs opacity-70">Hyperlocal &amp; specific</div>
+                    </div>
+                  </button>
+                </div>
               </div>
             </div>
-
             {/* Caption Controls */}
             <div className="border rounded-xl p-5 space-y-5 bg-gradient-to-br from-sky-500/5 to-sky-500/10 border-sky-500/20 mb-6">
               <div className="flex items-center justify-between">

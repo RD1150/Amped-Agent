@@ -6,6 +6,10 @@ import {
   FolderOpen,
   Mail,
   LayoutGrid,
+  Rocket,
+  MessageSquareQuote,
+  QrCode,
+  Users,
 } from "lucide-react";
 
 export default function ConvertOverview() {
@@ -15,7 +19,7 @@ export default function ConvertOverview() {
         title: "CONVERT",
         subtitle: "Win listings and close buyers",
         tagline:
-          "Walk into every appointment with a polished presentation, branded guides, and proven prospecting letters that make you look like the obvious choice.",
+          "Walk into every appointment with a polished presentation, branded guides, and proven prospecting letters that make you look like the obvious choice. Then capture every lead and keep them moving toward the close.",
         color: "orange",
         tools: [
           {
@@ -54,6 +58,34 @@ export default function ConvertOverview() {
             label: "Assets Hub",
             path: "/assets",
             description: "All your presentations and shareable assets in one place",
+          },
+          {
+            icon: Rocket,
+            label: "Listing Launch Kit",
+            path: "/listing-launch-kit",
+            description: "One address → 5 social posts, email blast, and more in seconds",
+            badge: "New",
+          },
+          {
+            icon: MessageSquareQuote,
+            label: "Testimonial Engine",
+            path: "/testimonials",
+            description: "Request reviews and turn them into branded social posts automatically",
+            badge: "New",
+          },
+          {
+            icon: QrCode,
+            label: "Open House Manager",
+            path: "/open-house",
+            description: "QR sign-in + automated follow-up emails for every visitor",
+            badge: "New",
+          },
+          {
+            icon: Users,
+            label: "CRM Pipeline",
+            path: "/crm",
+            description: "5-stage lead pipeline from first contact to closed deal",
+            badge: "New",
           },
         ],
       }}

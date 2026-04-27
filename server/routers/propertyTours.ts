@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
+import { ENV } from "../_core/env";
 import * as db from "../db";
 import * as credits from "../credits";
 import * as rateLimit from "../rateLimit";
@@ -129,8 +130,8 @@ export const propertyToursRouter = router({
         );
       }
 
-      // Check monthly Cinematic limit for full-ai mode (unlimited for rdshop70@gmail.com)
-      if (tour.videoMode === 'ai-enhanced' && ctx.user.email !== 'rdshop70@gmail.com') {
+      // Check monthly Cinematic limit for full-ai mode (unlimited for owner)
+      if (tour.videoMode === 'ai-enhanced' && ctx.user.email !== ENV.ownerEmail) {
         const dbConn = await getDb();
         if (!dbConn) throw new Error("Database not available");
         const [user] = await dbConn.select().from(users).where(eq(users.id, ctx.user.id)).limit(1);

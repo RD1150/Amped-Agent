@@ -78,7 +78,7 @@ export const stripeRouter = router({
   createCheckoutSession: authOnlyProcedure
     .input(
       z.object({
-        tier: z.enum(['starter', 'pro', 'authority', 'agent', 'top-producer', 'market-leader', 'team', 'brokerage']),
+        tier: z.enum(['starter', 'pro', 'authority']),
         billingPeriod: z.enum(['monthly', 'annual']).default('monthly'),
         successUrl: z.string(),
         cancelUrl: z.string(),
@@ -87,14 +87,7 @@ export const stripeRouter = router({
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user.id;
       const userEmail = ctx.user.email;
-      const { billingPeriod } = input;
-      // Normalize legacy tier names to new IDs
-      const tierMap: Record<string, 'agent' | 'top-producer' | 'market-leader' | 'team' | 'brokerage'> = {
-        starter: 'agent', pro: 'top-producer', authority: 'market-leader',
-        agent: 'agent', 'top-producer': 'top-producer', 'market-leader': 'market-leader',
-        team: 'team', brokerage: 'brokerage',
-      };
-      const tier = tierMap[input.tier] ?? 'agent';
+      const { tier, billingPeriod } = input;
 
       const product = getProductByTier(tier);
       if (!product) {

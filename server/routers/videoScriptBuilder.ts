@@ -65,7 +65,7 @@ export const videoScriptBuilderRouter = router({
       const fullScript = input.scenes.map((s) => s.spokenScript).join("\n\n");
       const drizzleDb = await getDb();
       if (!drizzleDb) throw new Error("Database unavailable");
-      const [result] = await drizzleDb.insert(videoScripts).values({
+      const insertResult = await drizzleDb.insert(videoScripts).values({
         userId: ctx.user.id,
         title: input.title,
         description: input.description ?? null,
@@ -73,7 +73,7 @@ export const videoScriptBuilderRouter = router({
         fullScript,
         status: "draft",
       });
-      return { id: (result as any).insertId };
+      return { id: Number(insertResult[0].insertId) };
     }),
 
   /**

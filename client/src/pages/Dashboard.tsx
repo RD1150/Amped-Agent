@@ -27,6 +27,10 @@ import {
   CheckCircle2,
   BookOpen,
   FileCheck,
+  Rocket,
+  QrCode,
+  MessageSquareQuote,
+  GitBranch,
 } from "lucide-react";
 import { startDashboardTour, shouldShowTour } from "@/lib/productTour";
 import UsageCounter from "@/components/UsageCounter";
@@ -38,7 +42,14 @@ import MarketIntelligenceStrip from "@/components/MarketIntelligenceStrip";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { X, MessageSquare } from "lucide-react";
-import HeyGenCreditsWidget from "@/components/HeyGenCreditsWidget";
+
+// ─── Design tokens ────────────────────────────────────────────────────────────
+// bg: #F9FAFB  card: #FFFFFF  border: #E5E7EB
+// title: #111111  secondary: #6B7280  accent: #FF6A00
+// card radius: rounded-xl (12px)  shadow: shadow-sm
+// hover: hover:-translate-y-0.5 hover:shadow-md transition-all duration-200
+// section gap: space-y-12 (48px)  card gap: gap-8 (32px)  card padding: p-6/p-7
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -66,7 +77,6 @@ export default function Dashboard() {
   // Auto-start tour for first-time users
   useEffect(() => {
     if (shouldShowTour()) {
-      // Delay to ensure DOM is ready
       setTimeout(() => {
         startDashboardTour();
       }, 1000);
@@ -77,392 +87,382 @@ export default function Dashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
-  const quickActions = [
+  // Profile completion score
+  const profileFields = [
+    { label: "Agent name", done: !!persona?.agentName, href: "/authority-profile" },
+    { label: "Primary city & state", done: !!(persona?.primaryCity && persona?.primaryState), href: "/authority-profile" },
+    { label: "Target audience", done: !!persona?.targetAudience, href: "/authority-profile" },
+    { label: "Brand tagline", done: !!persona?.tagline, href: "/authority-profile" },
+    { label: "Market context", done: !!persona?.marketContext, href: "/authority-profile" },
+    { label: "Local highlights & amenities", done: (() => { try { return !!(persona?.localHighlights && JSON.parse(persona.localHighlights as string).length > 0); } catch { return false; } })(), href: "/authority-profile" },
+    { label: "Target neighborhoods", done: (() => { try { return !!(persona?.targetNeighborhoods && JSON.parse(persona.targetNeighborhoods as string).length > 0); } catch { return false; } })(), href: "/authority-profile" },
+    { label: "Headshot uploaded", done: !!persona?.headshotUrl, href: "/authority-profile" },
+  ];
+  const profileDoneCount = profileFields.filter((f) => f.done).length;
+  const profilePct = Math.round((profileDoneCount / profileFields.length) * 100);
+  const profileIncomplete = !personaLoading && profilePct < 100;
+  const profileNudgeDismissKey = "ampd_profile_nudge_dismissed_v1";
+  const [profileNudgeDismissed, setProfileNudgeDismissed] = useState(
+    () => localStorage.getItem(profileNudgeDismissKey) === "1"
+  );
+  const dismissProfileNudge = () => {
+    localStorage.setItem(profileNudgeDismissKey, "1");
+    setProfileNudgeDismissed(true);
+  };
+
+  // Top Actions — hero section (3 cards, equal height, CTA pinned to bottom)
+  const topActions = [
     {
       title: "Authority Post Builder",
-      description: "Build positioning power that converts",
+      description: "Create AI-powered social posts that position you as the go-to local expert. One click, ready to publish.",
       icon: Sparkles,
       href: "/generate",
-      color: "bg-primary/10 text-primary"
+      cta: "Create a Post",
     },
     {
-      title: "Content Calendar",
-      description: "View and manage your scheduled posts",
-      icon: Calendar,
-      href: "/",
-      color: "bg-primary/10 text-primary"
+      title: "Property Tour Video",
+      description: "Turn listing photos into a cinematic tour video in under 2 minutes. Stops the scroll every time.",
+      icon: Building2,
+      href: "/property-tours",
+      cta: "Make a Video",
     },
     {
-      title: "Upload Content",
-      description: "Import property listings or images",
-      icon: Upload,
-      href: "/uploads",
-      color: "bg-primary/10 text-primary"
-    }
-  ];
-
-  const gettingStartedSteps = [
-    {
-      title: "Complete Your Profile",
-      description: "Add your headshot, DRE info, and branding",
-      completed: persona?.isCompleted,
-      href: "/persona"
+      title: "Open House Manager",
+      description: "QR sign-in sheet, instant follow-up emails, and CRM sync — all automated from one link.",
+      icon: QrCode,
+      href: "/open-house",
+      cta: "Set Up Open House",
     },
-    {
-      title: "Connect Social Accounts",
-      description: "Link LinkedIn, Facebook, and Instagram",
-      completed: false, // TODO: Check if integrations are connected
-      href: "/integrations"
-    },
-    {
-      title: "Generate Your First Post",
-      description: "Create professional content in minutes",
-      completed: false, // TODO: Check if user has generated posts
-      href: "/generate"
-    },
-    {
-      title: "Set Up Your AI Avatar",
-      description: "Upload your headshot to create your personal talking avatar",
-      completed: twinStatus?.status === "ready",
-      href: "/full-avatar-video"
-    }
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Beta Banner */}
-      {!betaBannerDismissed && (
-        <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5">
-          <span className="text-[9px] font-bold tracking-widest uppercase bg-slate-800 text-white px-2 py-0.5 rounded shrink-0">
-            BETA
-          </span>
-          <p className="text-sm text-slate-600 flex-1">
-            You're using an early beta of Amped Agent. Your feedback shapes the platform —{" "}
-            <a
-              href="mailto:support@ampedagent.app?subject=AmpedAgent%20Beta%20Feedback"
-              className="font-semibold text-slate-800 underline hover:text-slate-900"
-            >
-              share your thoughts
-            </a>.
-          </p>
-          <button
-            onClick={dismissBetaBanner}
-            className="text-slate-400 hover:text-slate-600 transition-colors shrink-0"
-            aria-label="Dismiss beta banner"
+    <div className="space-y-12 pb-16">
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 1 — HEADER
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div>
+        {/* Welcome row */}
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#111111] leading-tight">
+              {greeting}, {persona?.agentName || user?.name || "Agent"}
+            </h1>
+            <p className="text-sm text-[#6B7280] mt-1 leading-relaxed">
+              Here's your command center. Pick up where you left off.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => startDashboardTour()}
+            className="gap-2 hidden sm:flex border-[#E5E7EB] text-[#6B7280] hover:text-[#111111] hover:border-[#111111] transition-colors"
           >
-            <X className="h-4 w-4" />
-          </button>
+            <HelpCircle className="h-4 w-4" />
+            Tour
+          </Button>
         </div>
-      )}
 
-      {/* Welcome Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {greeting}, {persona?.agentName || user?.name || "Agent"}!
-          </h1>
-          <p className="text-muted-foreground mt-0.5 text-sm">
-            Here's what needs your attention today.
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => startDashboardTour()}
-          className="gap-2 hidden sm:flex"
-        >
-          <HelpCircle className="h-4 w-4" />
-          Tour
-        </Button>
-      </div>
+        {/* Beta Banner (dismissible) */}
+        {!betaBannerDismissed && (
+          <div className="flex items-center gap-3 bg-white border border-[#E5E7EB] rounded-xl px-4 py-3 mb-4">
+            <span className="text-[9px] font-bold tracking-widest uppercase bg-[#111111] text-white px-2 py-0.5 rounded shrink-0">
+              BETA
+            </span>
+            <p className="text-sm text-[#6B7280] flex-1 leading-relaxed">
+              You're in early beta — your feedback shapes the platform.{" "}
+              <a href="mailto:ampedagent@gmail.com" className="font-semibold text-[#111111] underline hover:text-[#FF6A00] transition-colors">
+                Share your thoughts
+              </a>.
+            </p>
+            <button onClick={dismissBetaBanner} className="text-[#6B7280] hover:text-[#111111] transition-colors shrink-0" aria-label="Dismiss">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
-      {/* ── WEEKLY DIAGNOSIS — TOP PRIORITY ── */}
-      <WeeklyInsightBlock />
-
-      {/* ── QUICK CREATE BAR ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <button
-          onClick={() => setLocation("/generate")}
-          className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-all text-left group"
-        >
-          <div className="p-2 rounded-lg bg-primary text-white shrink-0">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="font-semibold text-sm text-foreground">Write a Post</p>
-            <p className="text-xs text-muted-foreground">AI post in 60 seconds</p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-primary ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-        </button>
-
-        <button
-          onClick={() => setLocation("/youtube-video-builder")}
-          className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-slate-200 hover:border-primary/40 hover:bg-slate-50 transition-all text-left group"
-        >
-          <div className="p-2 rounded-lg bg-slate-800 text-white shrink-0">
-            <Video className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="font-semibold text-sm text-foreground">Make a Video</p>
-            <p className="text-xs text-muted-foreground">Your face, your voice</p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-primary ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-        </button>
-
-        <button
-          onClick={() => setLocation("/letters-emails")}
-          className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-slate-200 hover:border-primary/40 hover:bg-slate-50 transition-all text-left group"
-        >
-          <div className="p-2 rounded-lg bg-slate-800 text-white shrink-0">
-            <MessageSquare className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="font-semibold text-sm text-foreground">Send an Email</p>
-            <p className="text-xs text-muted-foreground">60+ proven templates</p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-primary ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-        </button>
-      </div>
-
-      {/* Authority Profile Summary Strip */}
-      {!personaLoading && (
-        <Card
-          className="p-4 cursor-pointer hover:border-primary/50 transition-colors border"
-          onClick={() => setLocation("/authority-profile")}
-        >
-          <div className="flex items-center gap-4">
-            {/* Headshot */}
-            <div className="flex-shrink-0">
-              {persona?.headshotUrl ? (
-                <img
-                  src={persona.headshotUrl}
-                  alt={persona.agentName || "Agent"}
-                  className="w-14 h-14 rounded-full object-cover border-2 border-primary/30"
-                />
-              ) : (
-                <div className="w-14 h-14 rounded-full bg-primary/10 border-2 border-dashed border-primary/30 flex items-center justify-center">
-                  <UserCircle className="h-7 w-7 text-primary/50" />
-                </div>
-              )}
-            </div>
-            {/* Name + Tagline + Completion */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-base">
-                  {persona?.agentName || user?.name || "Complete your Authority Profile"}
-                </span>
-                {persona?.brokerageName && (
-                  <span className="text-xs text-muted-foreground">&middot; {persona.brokerageName}</span>
-                )}
-{(() => {
-                  const cities = (() => {
-                    try { return persona?.serviceCities ? JSON.parse(persona.serviceCities as string) as string[] : null; } catch { return null; }
-                  })();
-                  if (cities && cities.length > 0) {
-                    return cities.map((c: string, i: number) => (
-                      <Badge key={i} variant="outline" className="text-xs">{c}</Badge>
-                    ));
-                  }
-                  return persona?.primaryCity ? <Badge variant="outline" className="text-xs">{persona.primaryCity}</Badge> : null;
-                })()}
+        {/* Profile Completion Nudge (dismissible) */}
+        {profileIncomplete && !profileNudgeDismissed && (
+          <div className="relative flex items-start gap-4 rounded-xl border border-[#E5E7EB] bg-white px-5 py-4 shadow-sm">
+            <div className="flex-shrink-0 mt-0.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FFF3E8]">
+                <Zap className="h-4 w-4 text-[#FF6A00]" />
               </div>
-              {persona?.tagline ? (
-                <p className="text-sm text-muted-foreground truncate mt-0.5 italic">&ldquo;{persona.tagline}&rdquo;</p>
-              ) : (
-                <p className="text-sm text-primary/70 mt-0.5">Add your tagline &rarr;</p>
-              )}
-              {(() => {
-                const fields = [persona?.agentName, persona?.headshotUrl, persona?.tagline, persona?.bio, persona?.brokerageName, persona?.primaryCity];
-                const filled = fields.filter(Boolean).length;
-                const pct = Math.round((filled / fields.length) * 100);
-                return (
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <Progress value={pct} className="h-1.5 flex-1 max-w-[140px]" />
-                    <span className="text-xs text-muted-foreground">{pct}% profile complete</span>
-                  </div>
-                );
-              })()}
             </div>
-            {/* CTA arrow */}
-            <div className="flex-shrink-0 flex items-center gap-1 text-xs text-primary font-medium">
-              <span className="hidden sm:inline">Edit Profile</span>
-              <ChevronRight className="h-4 w-4" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[#111111] leading-snug">
+                Profile {profilePct}% complete
+              </p>
+              <p className="text-xs text-[#6B7280] mt-0.5 mb-2 leading-relaxed">
+                A complete profile means better AI output — more relevant posts, better hooks, stronger positioning.
+              </p>
+              <Progress value={profilePct} className="h-1.5 mb-3 bg-[#F3F4F6] [&>div]:bg-[#FF6A00]" />
+              <Button
+                size="sm"
+                className="bg-[#FF6A00] hover:bg-[#e05e00] text-white border-0 h-8 text-xs font-semibold px-4"
+                onClick={() => setLocation("/authority-profile")}
+              >
+                Complete My Profile
+              </Button>
             </div>
+            <button onClick={dismissProfileNudge} className="absolute top-3 right-3 p-1 rounded-full text-[#6B7280] hover:text-[#111111] transition-colors" aria-label="Dismiss">
+              <X className="h-3.5 w-3.5" />
+            </button>
           </div>
-        </Card>
-      )}
+        )}
+      </div>
 
-      {/* Market Intelligence Strip */}
-      <MarketIntelligenceStrip />
-
-      {/* Usage Counter */}
-      <UsageCounter />
-
-      {/* Market Dominance Score */}
-      <AuthorityScore />
-
-
-
-      {/* Getting Started Guide */}
-      {!persona?.isCompleted && (
-        <Card className="p-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Getting Started</h2>
-              <span className="text-sm text-muted-foreground">
-                {gettingStartedSteps.filter(s => s.completed).length} of {gettingStartedSteps.length} completed
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              {gettingStartedSteps.map((step, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 p-4 rounded-lg border hover:bg-accent/50 cursor-pointer transition-colors"
-                  onClick={() => setLocation(step.href)}
-                >
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                    step.completed 
-                      ? 'bg-green-500 text-white' 
-                      : 'bg-muted text-muted-foreground'
-                  }`}>
-                    {step.completed ? '✓' : index + 1}
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 2 — TOP ACTIONS (hero section)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div>
+        <div className="mb-5">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B7280]">Start Here</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {topActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <div
+                key={action.title}
+                className="flex flex-col bg-white rounded-xl border border-[#E5E7EB] shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 cursor-pointer p-6"
+                onClick={() => setLocation(action.href)}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FFF3E8]">
+                    <Icon className="h-5 w-5 text-[#FF6A00]" />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground">{step.description}</p>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    {step.completed ? 'Review' : 'Start'} →
+                  <h3 className="font-semibold text-[#111111] leading-snug">{action.title}</h3>
+                </div>
+                <p className="text-sm text-[#6B7280] leading-relaxed flex-1">{action.description}</p>
+                <div className="mt-5">
+                  <Button
+                    size="sm"
+                    className="w-full bg-[#FF6A00] hover:bg-[#e05e00] text-white font-semibold border-0 h-9"
+                    onClick={(e) => { e.stopPropagation(); setLocation(action.href); }}
+                  >
+                    {action.cta}
                   </Button>
                 </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Market Dominance Coach Featured Card */}
-      <div
-        className="relative rounded-2xl overflow-hidden cursor-pointer group"
-        onClick={() => setLocation("/coach")}
-      >
-        {/* Dark gradient background */}
-        <div className="absolute inset-0 bg-[#0F0F0F]" />
-        {/* Grid overlay */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-        {/* Glow accent */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
-        <div className="relative px-8 py-7 flex flex-col md:flex-row md:items-center gap-6">
-          {/* Icon */}
-          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-white/10 border border-white/20 shrink-0">
-            <Award className="h-7 w-7 text-white" />
-          </div>
-          {/* Text */}
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-primary/80 uppercase tracking-wider">Market Dominance Coach</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
-                <Zap className="h-2.5 w-2.5" />Authority
-              </span>
-            </div>
-            <h3 className="text-xl font-bold text-white mb-1">This Week's Challenge</h3>
-            <p className="text-sm text-slate-300 max-w-xl">
-              Write a post that positions you as the go-to expert in your city. Lead with a bold market stat, share your take, and end with a call to action. Then run it through the Coach to see your Market Dominance Score.
-            </p>
-          </div>
-          {/* CTA */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              size="sm"
-              className="bg-white hover:bg-white/90 text-black font-semibold gap-1.5 group-hover:shadow-lg transition-all"
-            >
-              Open Coach
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* CONVERT Featured Card - Listing Presentation Toolkit */}
-      <div
-        className="relative rounded-2xl overflow-hidden cursor-pointer group"
-        onClick={() => setLocation("/listing-presentation")}
-      >
-        {/* Deep navy background */}
-        <div className="absolute inset-0 bg-[#0A1628]" />
-        {/* Subtle diagonal grid */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(225deg, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-        {/* Orange glow accent */}
-        <div className="absolute top-0 left-0 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
-        <div className="relative px-8 py-7 flex flex-col md:flex-row md:items-center gap-6">
-          {/* Icon */}
-          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-orange-500/20 border border-orange-500/30 shrink-0">
-            <BookOpen className="h-7 w-7 text-orange-400" />
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 3 — PROGRESS + BLOCKER (2-col)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div>
+        <div className="mb-5">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B7280]">Your Progress</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Weekly Insight / Today's Priority */}
+          <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm overflow-hidden">
+            <WeeklyInsightBlock />
           </div>
-          {/* Text */}
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-orange-400/90 uppercase tracking-wider">CONVERT &mdash; Listing Presentation Toolkit</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
-                <FileCheck className="h-2.5 w-2.5" />Print-Ready
-              </span>
-            </div>
-            <h3 className="text-xl font-bold text-white mb-1">Win More Listing Appointments</h3>
-            <p className="text-sm text-slate-300 max-w-xl">
-              Generate a fully branded Seller&apos;s Manual or Buyer&apos;s Guide in minutes &mdash; your name, photo, logo, and brokerage on every page. Print it before the appointment. Walk in looking like the most prepared agent in the room.
-            </p>
-            <div className="flex flex-wrap gap-3 mt-3">
-              <span className="flex items-center gap-1 text-xs text-slate-400">
-                <CheckCircle2 className="h-3.5 w-3.5 text-orange-400" /> Branded Seller&apos;s Manual
-              </span>
-              <span className="flex items-center gap-1 text-xs text-slate-400">
-                <CheckCircle2 className="h-3.5 w-3.5 text-orange-400" /> Branded Buyer&apos;s Guide
-              </span>
-              <span className="flex items-center gap-1 text-xs text-slate-400">
-                <CheckCircle2 className="h-3.5 w-3.5 text-orange-400" /> Hyperlocal Market Data
-              </span>
-              <span className="flex items-center gap-1 text-xs text-slate-400">
-                <CheckCircle2 className="h-3.5 w-3.5 text-orange-400" /> CMA Builder
-              </span>
-            </div>
-          </div>
-          {/* CTA */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              size="sm"
-              className="bg-orange-500 hover:bg-orange-400 text-white font-semibold gap-1.5 group-hover:shadow-lg group-hover:shadow-orange-500/20 transition-all"
+
+          {/* Authority Profile strip */}
+          {!personaLoading && (
+            <div
+              className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm p-6 cursor-pointer hover:-translate-y-0.5 hover:shadow-md transition-all duration-200"
+              onClick={() => setLocation("/authority-profile")}
             >
-              Build Your Guide
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  {persona?.headshotUrl ? (
+                    <img src={persona.headshotUrl} alt={persona.agentName || "Agent"} className="w-14 h-14 rounded-full object-cover border-2 border-[#E5E7EB]" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-[#F9FAFB] border-2 border-dashed border-[#E5E7EB] flex items-center justify-center">
+                      <UserCircle className="h-7 w-7 text-[#6B7280]" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="font-semibold text-sm text-[#111111]">{persona?.agentName || user?.name || "Complete your Authority Profile"}</span>
+                    {persona?.brokerageName && <span className="text-xs text-[#6B7280]">&middot; {persona.brokerageName}</span>}
+                    {(() => {
+                      const cities = (() => { try { const raw = persona?.serviceCities; if (!raw) return null; const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw; return Array.isArray(parsed) ? parsed : null; } catch { return null; } })();
+                      if (cities && cities.length > 0) return cities.slice(0, 2).map((c: any, i: number) => { const label = typeof c === 'string' ? c : (c?.city ? `${c.city}${c.state ? ', ' + c.state : ''}` : ''); return label ? <Badge key={i} variant="outline" className="text-xs border-[#E5E7EB] text-[#6B7280]">{label}</Badge> : null; });
+                      return persona?.primaryCity ? <Badge variant="outline" className="text-xs border-[#E5E7EB] text-[#6B7280]">{persona.primaryCity}</Badge> : null;
+                    })()}
+                  </div>
+                  {persona?.tagline ? (
+                    <p className="text-xs text-[#6B7280] truncate mt-0.5 italic leading-relaxed">&ldquo;{persona.tagline}&rdquo;</p>
+                  ) : (
+                    <p className="text-xs text-[#FF6A00] mt-0.5">Add your tagline &rarr;</p>
+                  )}
+                  {(() => {
+                    const fields = [persona?.agentName, persona?.headshotUrl, persona?.tagline, persona?.bio, persona?.brokerageName, persona?.primaryCity];
+                    const filled = fields.filter(Boolean).length;
+                    const pct = Math.round((filled / fields.length) * 100);
+                    return (
+                      <div className="flex items-center gap-2 mt-3">
+                        <Progress value={pct} className="h-1.5 flex-1 max-w-[140px] bg-[#F3F4F6] [&>div]:bg-[#FF6A00]" />
+                        <span className="text-xs text-[#6B7280]">{pct}% complete</span>
+                      </div>
+                    );
+                  })()}
+                </div>
+                <div className="flex-shrink-0 flex items-center gap-1 text-xs text-[#6B7280] font-medium">
+                  <span className="hidden sm:inline">Edit</span>
+                  <ChevronRight className="h-4 w-4" />
+                </div>
+              </div>
+
+              {/* Profile field checklist (collapsed view) */}
+              <div className="mt-4 pt-4 border-t border-[#F3F4F6]">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                  {profileFields.slice(0, 6).map((field) => (
+                    <div key={field.label} className="flex items-center gap-1.5">
+                      {field.done ? (
+                        <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
+                      ) : (
+                        <div className="h-3 w-3 rounded-full border border-[#E5E7EB] shrink-0" />
+                      )}
+                      <span className={`text-xs leading-tight ${field.done ? "text-[#6B7280]" : "text-[#111111]"}`}>{field.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Tips & Resources */}
-      <div className="flex items-start gap-3 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg">
-        <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-        <p className="text-sm text-slate-600">
-          <span className="font-semibold text-slate-800">Pro tip:</span> Post consistently to build your brand. Aim for 3–5 posts per week across platforms and use the Content Calendar to plan ahead.
-        </p>
-      </div>
-
-      {/* Video Tools */}
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 4 — MARKET INTELLIGENCE + USAGE
+      ══════════════════════════════════════════════════════════════════════ */}
       <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-2">Create a Video</h2>
-          <div className="h-px flex-1 bg-border" />
+        <MarketIntelligenceStrip />
+        <UsageCounter />
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 5 — OPPORTUNITIES (Market Dominance Coach + CONVERT Platform)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div>
+        <div className="mb-5">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B7280]">Opportunities</h2>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {/* Property Tour */}
+        <div className="space-y-4">
+          {/* Market Dominance Coach */}
           <div
-            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
-            onClick={() => setLocation("/property-tours")}
+            className="relative rounded-xl overflow-hidden cursor-pointer group"
+            onClick={() => setLocation("/coach")}
           >
-            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
+            <div className="absolute inset-0 bg-[#0F0F0F]" />
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF6A00]/10 rounded-full blur-3xl" />
+            <div className="relative px-7 py-6 flex flex-col md:flex-row md:items-center gap-5">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 border border-white/20 shrink-0">
+                <Award className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-semibold text-[#FF6A00] uppercase tracking-wider">Market Dominance Coach</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
+                    <Zap className="h-2.5 w-2.5" />Authority
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-white mb-1 leading-snug">This Week's Challenge</h3>
+                <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
+                  Write a post that positions you as the go-to expert in your city. Lead with a bold market stat, share your take, and end with a call to action.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  className="bg-white hover:bg-white/90 text-black font-semibold gap-1.5 group-hover:shadow-lg transition-all"
+                >
+                  Open Coach
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* CONVERT Platform */}
+          <div className="relative rounded-xl overflow-hidden">
+            <div className="absolute inset-0 bg-[#0A1628]" />
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(225deg, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+            <div className="absolute top-0 left-0 w-72 h-72 bg-[#FF6A00]/10 rounded-full blur-3xl" />
+            <div className="relative px-7 py-6">
+              <div className="flex flex-col md:flex-row md:items-start gap-5 mb-5">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#FF6A00]/20 border border-[#FF6A00]/30 shrink-0">
+                  <Rocket className="h-6 w-6 text-orange-400" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-semibold text-orange-400 uppercase tracking-wider">CONVERT &mdash; Marketing Platform</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20">
+                      <FileCheck className="h-2.5 w-2.5" />4 Tools
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-1 leading-snug">Your Full Lead-to-Close Pipeline</h3>
+                  <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
+                    Capture every lead at the door, keep them warm with automated follow-ups, manage your pipeline, and turn happy clients into social proof.
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { icon: Rocket, label: "Listing Launch Kit", sub: "1 address → full marketing package", path: "/listing-launch-kit" },
+                  { icon: QrCode, label: "Open House Manager", sub: "QR sign-in + auto follow-up", path: "/open-house" },
+                  { icon: Users, label: "CRM Pipeline", sub: "5-stage lead kanban", path: "/crm" },
+                  { icon: MessageSquareQuote, label: "Testimonial Engine", sub: "Reviews → social posts", path: "/testimonials" },
+                ].map(({ icon: Icon, label, sub, path }) => (
+                  <button
+                    key={label}
+                    onClick={() => setLocation(path)}
+                    className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#FF6A00]/30 transition-all text-left"
+                  >
+                    <Icon className="h-5 w-5 text-orange-400" />
+                    <div>
+                      <div className="text-sm font-semibold text-white leading-snug">{label}</div>
+                      <div className="text-[11px] text-slate-400 mt-0.5 leading-tight">{sub}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
+                <div className="flex items-center gap-2">
+                  <GitBranch className="h-4 w-4 text-orange-400/70" />
+                  <span className="text-xs text-slate-400">Also in ENGAGE: <button onClick={() => setLocation('/drip-sequences')} className="text-orange-400 hover:text-orange-300 underline underline-offset-2">Email Drip Sequences</button></span>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => setLocation("/convert")}
+                  className="bg-[#FF6A00] hover:bg-[#e05e00] text-white font-semibold gap-1.5 transition-all"
+                >
+                  See All CONVERT Tools
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 6 — QUICK WINS (Video & Content Tools)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B7280]">Create a Video</h2>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {/* Property Tour */}
+          <ToolCard
+            title="Property Tour"
+            sub="Cinematic tour video · 5 credits"
+            badge="Listing"
+            badgeColor="bg-white/20 text-white"
+            bgColor="#0f172a"
+            onClick={() => setLocation("/property-tours")}
+            svg={
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <polygon points="60,15 90,38 30,38" fill="white" fillOpacity="0.9"/>
                 <rect x="35" y="38" width="50" height="30" fill="white" fillOpacity="0.85"/>
@@ -470,48 +470,40 @@ export default function Dashboard() {
                 <rect x="38" y="43" width="10" height="10" rx="1" fill="#bfdbfe" fillOpacity="0.9"/>
                 <rect x="72" y="43" width="10" height="10" rx="1" fill="#bfdbfe" fillOpacity="0.9"/>
                 <circle cx="18" cy="16" r="7" fill="#fbbf24" fillOpacity="0.7"/>
-                <circle cx="98" cy="18" r="10" fill="white" fillOpacity="0.2"/>
                 <rect x="92" y="14" width="12" height="9" rx="1.5" fill="white" fillOpacity="0.8"/>
                 <circle cx="98" cy="18.5" r="3" fill="#3b82f6" fillOpacity="0.8"/>
               </svg>
-              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">Listing</span>
-            </div>
-            <div className="p-3 bg-background">
-              <p className="font-semibold text-sm">Property Tour</p>
-              <p className="text-xs text-muted-foreground">Cinematic tour video · 5 credits</p>
-            </div>
-          </div>
-
+            }
+          />
           {/* Live Tour */}
-          <div
-            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+          <ToolCard
+            title="Live Tour"
+            sub="Record room-by-room · 8 credits"
+            badge="New"
+            badgeColor="bg-green-400/90 text-white"
+            bgColor="#0f172a"
             onClick={() => setLocation("/live-tour")}
-          >
-            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
+            svg={
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="42" y="10" width="36" height="60" rx="6" fill="white" fillOpacity="0.85"/>
                 <rect x="46" y="16" width="28" height="44" rx="2" fill="#7c3aed" fillOpacity="0.3"/>
                 <circle cx="60" cy="38" r="8" fill="#ef4444" fillOpacity="0.8"/>
                 <circle cx="60" cy="38" r="4" fill="white" fillOpacity="0.9"/>
                 <circle cx="60" cy="38" r="13" stroke="white" strokeOpacity="0.4" strokeWidth="1.5" fill="none"/>
-                <circle cx="60" cy="38" r="18" stroke="white" strokeOpacity="0.2" strokeWidth="1" fill="none"/>
                 <rect x="50" y="60" width="20" height="7" rx="3" fill="#ef4444" fillOpacity="0.8"/>
                 <text x="60" y="65.5" textAnchor="middle" fill="white" fontSize="5" fontWeight="bold">LIVE</text>
               </svg>
-              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-green-400/90 text-white px-1.5 py-0.5 rounded">New</span>
-            </div>
-            <div className="p-3 bg-background">
-              <p className="font-semibold text-sm">Live Tour</p>
-              <p className="text-xs text-muted-foreground">Record room-by-room · 8 credits</p>
-            </div>
-          </div>
-
+            }
+          />
           {/* AI Reels */}
-          <div
-            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+          <ToolCard
+            title="AI Reels"
+            sub="Short avatar clips · 5 credits"
+            badge="Social"
+            badgeColor="bg-white/20 text-white"
+            bgColor="#0f172a"
             onClick={() => setLocation("/autoreels")}
-          >
-            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
+            svg={
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="45" y="8" width="30" height="64" rx="5" fill="white" fillOpacity="0.85"/>
                 <rect x="49" y="14" width="22" height="48" rx="2" fill="#f43f5e" fillOpacity="0.25"/>
@@ -520,20 +512,17 @@ export default function Dashboard() {
                 <text x="85" y="28" fill="white" fontSize="18" fillOpacity="0.7">♪</text>
                 <text x="22" y="50" fill="white" fontSize="14" fillOpacity="0.5">♫</text>
               </svg>
-              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">Social</span>
-            </div>
-            <div className="p-3 bg-background">
-              <p className="font-semibold text-sm">AI Reels</p>
-              <p className="text-xs text-muted-foreground">Short avatar clips · 5 credits</p>
-            </div>
-          </div>
-
+            }
+          />
           {/* Avatar Video */}
-          <div
-            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+          <ToolCard
+            title="Avatar Video"
+            sub="Talking-head from script · 15 credits"
+            badge="Social"
+            badgeColor="bg-white/20 text-white"
+            bgColor="#0f172a"
             onClick={() => setLocation("/full-avatar-video")}
-          >
-            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
+            svg={
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <circle cx="60" cy="26" r="14" fill="white" fillOpacity="0.85"/>
                 <ellipse cx="60" cy="62" rx="22" ry="16" fill="white" fillOpacity="0.75"/>
@@ -542,42 +531,35 @@ export default function Dashboard() {
                 <path d="M54 31 Q60 36 66 31" stroke="#f97316" strokeWidth="1.5" strokeOpacity="0.8" fill="none" strokeLinecap="round"/>
                 <rect x="97" y="30" width="8" height="14" rx="4" fill="white" fillOpacity="0.8"/>
                 <path d="M93 40 Q93 50 101 50 Q109 50 109 40" stroke="white" strokeWidth="1.5" fill="none" strokeOpacity="0.7"/>
-                <text x="10" y="30" fill="white" fontSize="14" fillOpacity="0.6">✦</text>
               </svg>
-              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">Social</span>
-            </div>
-            <div className="p-3 bg-background">
-              <p className="font-semibold text-sm">Avatar Video</p>
-              <p className="text-xs text-muted-foreground">Talking-head from script · 15 credits</p>
-            </div>
-          </div>
-
+            }
+          />
           {/* YouTube Builder */}
-          <div
-            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+          <ToolCard
+            title="YouTube Builder"
+            sub="Long-form avatar video · 20 credits"
+            badge="YouTube"
+            badgeColor="bg-white/20 text-white"
+            bgColor="#0f172a"
             onClick={() => setLocation("/youtube-video-builder")}
-          >
-            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
+            svg={
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="15" y="18" width="90" height="50" rx="10" fill="white" fillOpacity="0.2"/>
                 <rect x="25" y="25" width="70" height="36" rx="6" fill="white" fillOpacity="0.85"/>
                 <circle cx="60" cy="43" r="14" fill="#ef4444" fillOpacity="0.8"/>
                 <polygon points="55,37 55,49 69,43" fill="white"/>
               </svg>
-              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">YouTube</span>
-            </div>
-            <div className="p-3 bg-background">
-              <p className="font-semibold text-sm">YouTube Builder</p>
-              <p className="text-xs text-muted-foreground">Long-form avatar video · 20 credits</p>
-            </div>
-          </div>
-
-          {/* Blog Builder — New */}
-          <div
-            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+            }
+          />
+          {/* Blog Builder */}
+          <ToolCard
+            title="Blog Builder"
+            sub="SEO blog posts · 3 credits"
+            badge="New"
+            badgeColor="bg-green-400/90 text-white"
+            bgColor="#0f172a"
             onClick={() => setLocation("/blog-builder")}
-          >
-            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
+            svg={
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="30" y="10" width="50" height="60" rx="4" fill="white" fillOpacity="0.85"/>
                 <rect x="38" y="22" width="34" height="3" rx="1.5" fill="#0891b2" fillOpacity="0.6"/>
@@ -588,30 +570,26 @@ export default function Dashboard() {
                 <line x1="95" y1="29" x2="103" y2="37" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.8"/>
                 <text x="83" y="25" fill="white" fontSize="8" fillOpacity="0.8">SEO</text>
               </svg>
-              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-green-400/90 text-white px-1.5 py-0.5 rounded">New</span>
-            </div>
-            <div className="p-3 bg-background">
-              <p className="font-semibold text-sm">Blog Builder</p>
-              <p className="text-xs text-muted-foreground">SEO blog posts · 3 credits</p>
-            </div>
-          </div>
+            }
+          />
         </div>
       </div>
 
-      {/* Content Tools */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-2">Content & Outreach</h2>
-          <div className="h-px flex-1 bg-border" />
+      {/* Content & Outreach Tools */}
+      <div>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B7280]">Content & Outreach</h2>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {/* Letters & Emails — New */}
-          <div
-            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {/* Letters & Emails */}
+          <ToolCard
+            title="Letters & Emails"
+            sub="60+ templates · personalized"
+            badge="New"
+            badgeColor="bg-green-400/90 text-white"
+            bgColor="#0f172a"
             onClick={() => setLocation("/letters-emails")}
-          >
-            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
+            svg={
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="20" y="25" width="70" height="45" rx="4" fill="white" fillOpacity="0.85"/>
                 <polyline points="20,25 55,50 90,25" stroke="#3b82f6" strokeWidth="2" strokeOpacity="0.5" fill="none"/>
@@ -622,20 +600,17 @@ export default function Dashboard() {
                 <rect x="38" y="33" width="28" height="2" rx="1" fill="#94a3b8" fillOpacity="0.4"/>
                 <text x="88" y="22" fill="#ef4444" fontSize="14" fillOpacity="0.7">♥</text>
               </svg>
-              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-green-400/90 text-white px-1.5 py-0.5 rounded">New</span>
-            </div>
-            <div className="p-3 bg-background">
-              <p className="font-semibold text-sm">Letters & Emails</p>
-              <p className="text-xs text-muted-foreground">60+ templates · personalized</p>
-            </div>
-          </div>
-
-          {/* Podcast & Book Builder — New */}
-          <div
-            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+            }
+          />
+          {/* Podcast & Book Builder */}
+          <ToolCard
+            title="Podcast & Book Builder"
+            sub="AI-narrated episodes & avatar videos"
+            badge="New"
+            badgeColor="bg-green-500 text-white"
+            bgColor="#0f172a"
             onClick={() => setLocation("/podcast-builder")}
-          >
-            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
+            svg={
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="50" y="12" width="20" height="32" rx="10" fill="white" fillOpacity="0.85"/>
                 <rect x="54" y="16" width="12" height="24" rx="6" fill="#7c3aed" fillOpacity="0.3"/>
@@ -647,20 +622,17 @@ export default function Dashboard() {
                 <path d="M90 30 Q95 40 90 50" stroke="white" strokeWidth="1.5" strokeOpacity="0.5" fill="none"/>
                 <path d="M98 26 Q105 40 98 54" stroke="white" strokeWidth="1.5" strokeOpacity="0.3" fill="none"/>
               </svg>
-              <span className="absolute top-2 right-2 text-[10px] font-semibold bg-green-500 text-white px-1.5 py-0.5 rounded-full">New</span>
-            </div>
-            <div className="p-3">
-              <p className="font-semibold text-sm">Podcast & Book Builder</p>
-              <p className="text-xs text-muted-foreground">AI-narrated episodes &amp; avatar videos</p>
-            </div>
-          </div>
-
+            }
+          />
           {/* Lead Magnet */}
-          <div
-            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+          <ToolCard
+            title="Lead Magnet"
+            sub="Branded PDF for Facebook ads"
+            badge="Authority"
+            badgeColor="bg-white/20 text-white"
+            bgColor="#0f172a"
             onClick={() => setLocation("/lead-magnet")}
-          >
-            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
+            svg={
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
                 <rect x="35" y="10" width="42" height="55" rx="4" fill="white" fillOpacity="0.85"/>
                 <rect x="35" y="10" width="42" height="14" rx="4" fill="#4f46e5" fillOpacity="0.6"/>
@@ -672,48 +644,91 @@ export default function Dashboard() {
                 <line x1="88" y1="20" x2="88" y2="26" stroke="#ef4444" strokeWidth="4" strokeOpacity="0.8" strokeLinecap="round"/>
                 <line x1="88" y1="38" x2="88" y2="44" stroke="#3b82f6" strokeWidth="4" strokeOpacity="0.8" strokeLinecap="round"/>
               </svg>
-              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">Authority</span>
-            </div>
-            <div className="p-3 bg-background">
-              <p className="font-semibold text-sm">Lead Magnet</p>
-              <p className="text-xs text-muted-foreground">Branded PDF for Facebook ads</p>
-            </div>
-          </div>
-
+            }
+          />
           {/* Authority Post Builder */}
-          <div
-            className="rounded-xl border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+          <ToolCard
+            title="Authority Post Builder"
+            sub="AI posts that convert · 1 credit"
+            badge="AI"
+            badgeColor="bg-white/20 text-white"
+            bgColor="#0f172a"
             onClick={() => setLocation("/generate")}
-          >
-            <div className="h-24 bg-[#0f172a] relative overflow-hidden">
+            svg={
               <svg viewBox="0 0 120 80" className="absolute inset-0 w-full h-full" fill="none">
-                <text x="30" y="50" fill="white" fontSize="36" fillOpacity="0.7">✦</text>
+                <rect x="20" y="15" width="80" height="55" rx="8" fill="white" fillOpacity="0.1"/>
+                <rect x="28" y="22" width="64" height="40" rx="4" fill="white" fillOpacity="0.85"/>
+                <rect x="34" y="28" width="40" height="3" rx="1.5" fill="#6366f1" fillOpacity="0.6"/>
+                <rect x="34" y="35" width="52" height="2.5" rx="1.5" fill="#94a3b8" fillOpacity="0.5"/>
+                <rect x="34" y="41" width="44" height="2.5" rx="1.5" fill="#94a3b8" fillOpacity="0.5"/>
+                <rect x="34" y="47" width="36" height="2.5" rx="1.5" fill="#94a3b8" fillOpacity="0.4"/>
                 <text x="70" y="35" fill="white" fontSize="24" fillOpacity="0.5">✦</text>
                 <text x="90" y="60" fill="white" fontSize="16" fillOpacity="0.4">✦</text>
                 <circle cx="60" cy="40" r="20" stroke="white" strokeOpacity="0.3" strokeWidth="1.5" fill="none"/>
                 <circle cx="60" cy="40" r="12" stroke="white" strokeOpacity="0.2" strokeWidth="1" fill="none"/>
               </svg>
-              <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide bg-white/20 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">AI</span>
-            </div>
-            <div className="p-3 bg-background">
-              <p className="font-semibold text-sm">Authority Post Builder</p>
-              <p className="text-xs text-muted-foreground">AI posts that convert · 1 credit</p>
-            </div>
-          </div>
+            }
+          />
         </div>
       </div>
-      {/* Referral Incentive Card */}
-      <ReferralCard />
-      {/* HeyGen API Credits — Admin Only */}
-      {user?.role === "admin" && <HeyGenCreditsWidget />}
-      {/* YouTube Channel Analytics */}
-      <YouTubeAnalyticsWidget />
-      {/* Video Preview Gallery */}
-      <VideoPreviewGallery />
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 7 — RECENT ACTIVITY (Referral + YouTube)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div>
+        <div className="mb-5">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-[#6B7280]">Recent Activity</h2>
+        </div>
+        <div className="space-y-4">
+          {/* Referral Incentive Card */}
+          <ReferralCard />
+          {/* YouTube Channel Analytics */}
+          <YouTubeAnalyticsWidget />
+          {/* Video Preview Gallery */}
+          <VideoPreviewGallery />
+        </div>
+      </div>
+
     </div>
   );
 }
 
+// ─── Reusable ToolCard component ─────────────────────────────────────────────
+function ToolCard({
+  title,
+  sub,
+  badge,
+  badgeColor,
+  bgColor,
+  svg,
+  onClick,
+}: {
+  title: string;
+  sub: string;
+  badge: string;
+  badgeColor: string;
+  bgColor: string;
+  svg: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      className="rounded-xl border border-[#E5E7EB] overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 bg-white"
+      onClick={onClick}
+    >
+      <div className="h-24 relative overflow-hidden" style={{ backgroundColor: bgColor }}>
+        {svg}
+        <span className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${badgeColor}`}>{badge}</span>
+      </div>
+      <div className="p-3">
+        <p className="font-semibold text-sm text-[#111111] leading-snug">{title}</p>
+        <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">{sub}</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── YouTube Analytics Widget ─────────────────────────────────────────────────
 function YouTubeAnalyticsWidget() {
   const [, setLocation] = useLocation();
   const { data: analytics, isLoading } = trpc.youtube.getChannelAnalytics.useQuery(undefined, {
@@ -725,93 +740,85 @@ function YouTubeAnalyticsWidget() {
 
   if (!analytics) {
     return (
-      <Card className="p-6 border-dashed border-2 border-muted">
+      <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-red-500/10">
               <Youtube className="h-5 w-5 text-red-500" />
             </div>
             <div>
-              <p className="font-semibold text-sm">YouTube Channel</p>
-              <p className="text-xs text-muted-foreground">Connect your channel to see analytics</p>
+              <p className="font-semibold text-sm text-[#111111]">YouTube Channel</p>
+              <p className="text-xs text-[#6B7280] mt-0.5">Connect your channel to see analytics</p>
             </div>
           </div>
-          <Button size="sm" variant="outline" onClick={() => setLocation("/integrations")} className="gap-1.5">
+          <Button size="sm" variant="outline" onClick={() => setLocation("/integrations")} className="gap-1.5 border-[#E5E7EB] text-[#6B7280] hover:text-[#111111]">
             <Link2 className="h-3.5 w-3.5" />
             Connect
           </Button>
         </div>
-      </Card>
+      </div>
     );
   }
 
   const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `${(n / 1_000).toFixed(1)}K` : String(n);
 
   return (
-    <Card className="p-6 space-y-4">
+    <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-red-500/10">
             <Youtube className="h-5 w-5 text-red-500" />
           </div>
           <div>
-            <p className="font-semibold">{analytics.channelTitle}</p>
-            <p className="text-xs text-muted-foreground">YouTube Channel</p>
+            <p className="font-semibold text-[#111111]">{analytics.channelTitle}</p>
+            <p className="text-xs text-[#6B7280] mt-0.5">YouTube Channel</p>
           </div>
         </div>
-        <Button size="sm" variant="ghost" className="gap-1.5 text-xs"
+        <Button size="sm" variant="ghost" className="gap-1.5 text-xs text-[#6B7280] hover:text-[#111111]"
           onClick={() => window.open(`https://studio.youtube.com`, "_blank")}>
           <ExternalLink className="h-3 w-3" /> Studio
         </Button>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <div className="text-center p-3 rounded-lg bg-muted/50">
-          <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
-            <Eye className="h-3.5 w-3.5" />
-            <span className="text-xs">Views</span>
+        {[
+          { icon: Eye, label: "Views", value: fmt(analytics.stats.views) },
+          { icon: Users, label: "Subscribers", value: fmt(analytics.stats.subscribers) },
+          { icon: Video, label: "Videos", value: fmt(analytics.stats.videos) },
+        ].map(({ icon: Icon, label, value }) => (
+          <div key={label} className="text-center p-3 rounded-lg bg-[#F9FAFB] border border-[#F3F4F6]">
+            <div className="flex items-center justify-center gap-1 text-[#6B7280] mb-1">
+              <Icon className="h-3.5 w-3.5" />
+              <span className="text-xs">{label}</span>
+            </div>
+            <p className="text-xl font-bold text-[#111111]">{value}</p>
           </div>
-          <p className="text-xl font-bold">{fmt(analytics.stats.views)}</p>
-        </div>
-        <div className="text-center p-3 rounded-lg bg-muted/50">
-          <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
-            <Users className="h-3.5 w-3.5" />
-            <span className="text-xs">Subscribers</span>
-          </div>
-          <p className="text-xl font-bold">{fmt(analytics.stats.subscribers)}</p>
-        </div>
-        <div className="text-center p-3 rounded-lg bg-muted/50">
-          <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
-            <Video className="h-3.5 w-3.5" />
-            <span className="text-xs">Videos</span>
-          </div>
-          <p className="text-xl font-bold">{fmt(analytics.stats.videos)}</p>
-        </div>
+        ))}
       </div>
 
       {analytics.recentVideos.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recent Videos</p>
+          <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">Recent Videos</p>
           <div className="space-y-2">
             {analytics.recentVideos.slice(0, 3).map((v) => (
               <div key={v.id}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer transition-colors"
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#F9FAFB] cursor-pointer transition-colors"
                 onClick={() => window.open(`https://www.youtube.com/watch?v=${v.id}`, "_blank")}>
                 {v.thumbnail && <img src={v.thumbnail} alt={v.title} className="w-16 h-9 rounded object-cover shrink-0" />}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{v.title}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(v.publishedAt).toLocaleDateString()}</p>
+                  <p className="text-sm font-medium text-[#111111] truncate leading-snug">{v.title}</p>
+                  <p className="text-xs text-[#6B7280] mt-0.5">{new Date(v.publishedAt).toLocaleDateString()}</p>
                 </div>
-                <ExternalLink className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <ExternalLink className="h-3.5 w-3.5 text-[#6B7280] shrink-0" />
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <Button size="sm" className="w-full" variant="outline" onClick={() => setLocation("/youtube-video-builder")}>
+      <Button size="sm" className="w-full bg-[#FF6A00] hover:bg-[#e05e00] text-white font-semibold border-0" onClick={() => setLocation("/youtube-video-builder")}>
         <Youtube className="h-3.5 w-3.5 mr-1.5" /> Create YouTube Video
       </Button>
-    </Card>
+    </div>
   );
 }

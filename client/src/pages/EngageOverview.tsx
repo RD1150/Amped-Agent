@@ -8,6 +8,7 @@ import {
   Calendar,
   FileText,
   Mic,
+  GitBranch,
 } from "lucide-react";
 
 export default function EngageOverview() {
@@ -63,13 +64,20 @@ export default function EngageOverview() {
             label: "Letters & Emails",
             path: "/letters-emails",
             description: "60+ pre-written drip series, holiday & prospecting templates",
-            badge: "New",
+            badge: "Authority",
           },
           {
             icon: Mic,
             label: "Podcast & Book Builder",
             path: "/podcast-builder",
             description: "AI-narrated audio episodes and avatar videos from your expertise",
+            badge: "New",
+          },
+          {
+            icon: GitBranch,
+            label: "Email Drip Sequences",
+            path: "/drip-sequences",
+            description: "Automated multi-step email sequences that nurture leads while you sleep",
             badge: "New",
           },
         ],

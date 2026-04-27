@@ -17,6 +17,7 @@ import { VideoPostingDialog } from "@/components/VideoPostingDialog";
 import { GenerationRatingPrompt } from "@/components/GenerationRatingPrompt";
 import { trpc } from "@/lib/trpc";
 import HeadshotCropper from "@/components/HeadshotCropper";
+import { MusicLibrary } from "@/components/MusicLibrary";
 
 // Voice options are loaded live from the AI engine
 
@@ -197,6 +198,7 @@ export default function FullAvatarVideo() {
   const [isUploadingBg, setIsUploadingBg] = useState(false);
   const bgUploadRef = useRef<HTMLInputElement>(null);
   const [musicUrl, setMusicUrl] = useState<string | null>(null);
+  const [selectedMusicTrackId, setSelectedMusicTrackId] = useState<string | null>(null);
   const [musicFileName, setMusicFileName] = useState<string | null>(null);
   const [bgmVolume, setBgmVolume] = useState(12); // percent 5-25
   const [isUploadingMusic, setIsUploadingMusic] = useState(false);
@@ -250,6 +252,7 @@ export default function FullAvatarVideo() {
   const { data: twinStatus, refetch: refetchTwin } = trpc.fullAvatarVideo.getCustomAvatarStatus.useQuery(undefined, {
     refetchInterval: (query) => (query.state.data?.status === "training" ? 8000 : false),
   });
+  const { data: allCustomAvatars = [] } = trpc.fullAvatarVideo.getAllCustomAvatars.useQuery();
   const { data: pastVideos = [], refetch: refetchVideos } = trpc.fullAvatarVideo.list.useQuery();
   const generateV2Mutation = trpc.fullAvatarVideo.generate.useMutation();
   const { data: stockAvatars = [], isLoading: isLoadingAvatars } = trpc.fullAvatarVideo.getAvatars.useQuery();
@@ -477,11 +480,7 @@ export default function FullAvatarVideo() {
       toast.success("Your avatar video is ready!");
       refetchVideos();
     } catch (err: any) {
-      if (err.message?.includes('BETA_CREDITS_EXHAUSTED')) {
-        toast.error("You've used all 3 beta avatar videos. Upgrade to Top Producer to get 10/month.");
-      } else {
-        toast.error(err.message || "Generation failed. Please try again.");
-      }
+      toast.error(err.message || "Generation failed. Please try again.");
     } finally {
       setIsGenerating(false);
       setGenerationStep("");
@@ -722,8 +721,42 @@ export default function FullAvatarVideo() {
           ) : (
             <div className="max-h-64 overflow-y-auto">
               <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pr-1">
-                {/* User's Photo Avatar — always first if ready */}
-                {photoAvatarEntry && (
+                {/* User's Custom Avatars — all shown first if any are ready */}
+                {allCustomAvatars.filter(a => a.status === "ready").map((twin) => (
+                  <button
+                    key={`custom-${twin.id}`}
+                    onClick={() => { setSelectedAvatarId(twin.didAvatarId); setSelectedAvatarPreviewUrl(twin.thumbnailUrl || ""); }}
+                    className={`relative rounded-xl overflow-hidden border-2 transition-all aspect-[3/4] ${
+                      selectedAvatarId === twin.didAvatarId
+                        ? "border-primary ring-2 ring-primary/30"
+                        : "border-green-500 hover:border-primary/30"
+                    }`}
+                    title={twin.nickname || "Your Avatar"}
+                  >
+                    {twin.thumbnailUrl ? (
+                      <img
+                        src={twin.thumbnailUrl}
+                        alt={twin.nickname || "Your Avatar"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-primary/15 flex items-center justify-center">
+                        <User className="h-6 w-6 text-primary" />
+                      </div>
+                    )}
+                    {/* Your Avatar badge */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white text-[9px] font-bold text-center py-0.5 leading-tight truncate px-0.5">
+                      {twin.nickname || "YOUR AVATAR"}
+                    </div>
+                    {selectedAvatarId === twin.didAvatarId && (
+                      <div className="absolute top-1 right-1 bg-muted0 rounded-full p-0.5">
+                        <CheckCircle2 className="h-3 w-3 text-black" />
+                      </div>
+                    )}
+                  </button>
+                ))}
+                {/* Fallback: legacy single photo avatar slot */}
+                {allCustomAvatars.length === 0 && photoAvatarEntry && (
                   <button
                     key="__photo_avatar__"
                     onClick={() => { setSelectedAvatarId("__photo_avatar__"); setSelectedAvatarPreviewUrl(photoAvatarEntry.previewImageUrl); }}
@@ -735,24 +768,15 @@ export default function FullAvatarVideo() {
                     title="Your Photo Avatar"
                   >
                     {photoAvatarEntry.previewImageUrl ? (
-                      <img
-                        src={photoAvatarEntry.previewImageUrl}
-                        alt="Your Photo Avatar"
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={photoAvatarEntry.previewImageUrl} alt="Your Photo Avatar" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-primary/15 flex items-center justify-center">
                         <User className="h-6 w-6 text-primary" />
                       </div>
                     )}
-                    {/* Your Avatar badge */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white text-[9px] font-bold text-center py-0.5 leading-tight">
-                      YOUR AVATAR
-                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white text-[9px] font-bold text-center py-0.5 leading-tight">YOUR AVATAR</div>
                     {selectedAvatarId === "__photo_avatar__" && (
-                      <div className="absolute top-1 right-1 bg-muted0 rounded-full p-0.5">
-                        <CheckCircle2 className="h-3 w-3 text-black" />
-                      </div>
+                      <div className="absolute top-1 right-1 bg-muted0 rounded-full p-0.5"><CheckCircle2 className="h-3 w-3 text-black" /></div>
                     )}
                   </button>
                 )}
@@ -1393,18 +1417,29 @@ export default function FullAvatarVideo() {
           />
         </div>
 
-        {/* Background Music upload */}
-        <div className="flex items-center justify-between rounded-lg border p-3 bg-muted/30">
-          <div className="space-y-0.5 flex-1 min-w-0">
-            <Label className="text-sm font-medium flex items-center gap-2">
-              🎵 Background Music
-            </Label>
+        {/* Background Music — library + upload */}
+        <div className="rounded-lg border p-3 bg-muted/30 space-y-3">
+          <Label className="text-sm font-medium flex items-center gap-2">
+            🎵 Background Music
+          </Label>
+          {/* Music library picker */}
+          <MusicLibrary
+            onSelectTrack={(trackId, trackUrl) => { setMusicUrl(trackUrl); setMusicFileName(null); setSelectedMusicTrackId(trackId); }}
+            selectedTrackId={selectedMusicTrackId || undefined}
+            showVolumeControl={false}
+          />
+          {/* Divider */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex-1 h-px bg-border" />
+            <span>or upload your own</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+          <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
               {musicFileName
                 ? <span className="text-primary font-medium truncate block max-w-[220px]">{musicFileName}</span>
                 : "Upload an MP3 or WAV to play softly behind your avatar's voice."}
             </p>
-          </div>
           <div className="flex items-center gap-2 shrink-0 ml-3">
             {musicUrl && (
               <button
@@ -1429,6 +1464,7 @@ export default function FullAvatarVideo() {
                 <><Upload className="mr-1 h-3 w-3" />{musicUrl ? "Change" : "Upload"}</>
               )}
             </Button>
+          </div>
           </div>
           <input
             ref={musicUploadRef}
@@ -1567,62 +1603,26 @@ export default function FullAvatarVideo() {
           )}
         </div>
 
-        {/* Beta credit counter */}
-        {(() => {
-          const credits = currentUser?.twinVideoCredits ?? 10;
-          if (credits <= 0) {
-            return (
-              <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 text-center space-y-3">
-                <div className="text-2xl">🎬</div>
-                <p className="font-semibold text-gray-900">You've used all 10 beta avatar videos</p>
-                <p className="text-sm text-gray-600">Upgrade to Top Producer to get unlimited face videos per month — no camera needed.</p>
-                <Button
-                  onClick={() => window.location.href = '/pricing'}
-                  className="bg-orange-500 hover:bg-orange-600 text-white w-full"
-                >
-                  <Crown className="mr-2 h-4 w-4" />Upgrade to Top Producer
-                </Button>
-              </div>
-            );
+        <Button
+          onClick={handleGenerate}
+          disabled={
+            isGenerating ||
+            !script.trim() ||
+            (mode === "quick" && (!selectedAvatarId || isLoadingAvatars)) ||
+            (mode === "custom" && twinStatus?.status !== "ready")
           }
-          return (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Beta avatar videos remaining</span>
-                <span className={`font-bold ${credits <= 2 ? 'text-orange-500' : 'text-gray-900'}`}>{credits} of 10</span>
-              </div>
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
-                <div
-                  className={`h-1.5 rounded-full transition-all ${credits <= 2 ? 'bg-orange-400' : 'bg-primary'}`}
-                  style={{ width: `${(credits / 10) * 100}%` }}
-                />
-              </div>
-              <Button
-                onClick={handleGenerate}
-                disabled={
-                  isGenerating ||
-                  !script.trim() ||
-                  (mode === "quick" && (!selectedAvatarId || isLoadingAvatars)) ||
-                  (mode === "custom" && twinStatus?.status !== "ready")
-                }
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold h-12 text-base"
-              >
-                {isGenerating ? (
-                  <><Loader2 className="mr-2 h-5 w-5 animate-spin" />{generationStep || "Generating…"}</>
-                ) : (
-                  <><Sparkles className="mr-2 h-5 w-5" />Generate Avatar Video</>  
-                )}
-              </Button>
-              {credits <= 2 && credits > 0 && (
-                <p className="text-xs text-orange-500 text-center">{credits === 1 ? 'This is your last beta video.' : 'Only 2 beta videos left.'} <a href="/pricing" className="underline font-medium">Upgrade</a> for unlimited.</p>
-              )}
-            </div>
-          );
-        })()}
+          className="w-full bg-muted0 hover:bg-primary text-black font-semibold h-12 text-base"
+        >
+          {isGenerating ? (
+            <><Loader2 className="mr-2 h-5 w-5 animate-spin" />{generationStep || "Generating…"}</>
+          ) : (
+            <><Sparkles className="mr-2 h-5 w-5" />Generate Avatar Video</>
+          )}
+        </Button>
 
         {isGenerating && (
           <div className="text-center text-xs text-muted-foreground">
-            Your AI avatar video is being created and synced with your voice. This takes 1–5 minutes depending on script length.
+    Your AI avatar video is being created and synced with your voice. This takes 1–5 minutes depending on script length.
           </div>
         )}
       </Card>

@@ -101,7 +101,7 @@ export const crmRouter = router({
         tags: input.tags,
         isArchived: false,
       });
-      return { id: (result as any).insertId };
+      return { id: (result as any)?.id };
     }),
 
   updateStage: protectedProcedure
@@ -196,7 +196,7 @@ export const crmRouter = router({
           .where(eq(crmLeads.id, input.leadId));
       }
 
-      return { id: (result as any).insertId };
+      return { id: (result as any)?.id };
     }),
 
   generateFollowUp: protectedProcedure

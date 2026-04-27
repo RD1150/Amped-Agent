@@ -22,6 +22,7 @@ interface RenderTemplateParams {
   ctaText?: string;
   width?: number;
   height?: number;
+  showBrandingOverlay?: boolean; // When false, skip the agent branding card entirely
 }
 
 const colorSchemeColors: Record<string, { primary: string; secondary: string; text: string }> = {
@@ -64,6 +65,7 @@ export async function renderTemplate(params: RenderTemplateParams): Promise<stri
     ctaText,
     width = 1080,
     height = 1080,
+    showBrandingOverlay = true,
   } = params;
 
   // Get color scheme
@@ -83,19 +85,21 @@ export async function renderTemplate(params: RenderTemplateParams): Promise<stri
   // Add main content text (centered headline with overlay)
   renderMainContent(ctx, template, postText, customHook, width, height);
 
-  // Add bottom-left branding card
-  await renderBrandingCard(
-    ctx,
-    brandColor,
-    headshotUrl,
-    phone,
-    agentName,
-    licenseNumber,
-    brokerageName,
-    brokerageDRE,
-    width,
-    height
-  );
+  // Add bottom-left branding card (only if showBrandingOverlay is true)
+  if (showBrandingOverlay !== false) {
+    await renderBrandingCard(
+      ctx,
+      brandColor,
+      headshotUrl,
+      phone,
+      agentName,
+      licenseNumber,
+      brokerageName,
+      brokerageDRE,
+      width,
+      height
+    );
+  }
 
   // Add CTA text if provided
   if (ctaText) {

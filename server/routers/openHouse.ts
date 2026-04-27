@@ -15,6 +15,8 @@ import { sendEmail } from "../emailService";
 import { sendSMS, openHouseSMSTemplate, isTwilioConfigured } from "../sms";
 import { getPersonaByUserId } from "../db";
 import { nanoid } from "nanoid";
+import { pushLeadToAllCrms } from "../crmService";
+import { fireZapierWebhook } from "../zapierService";
 
 const SITE_URL = "https://ampedagent.app";
 const BRAND_COLOR = "#f97316";
@@ -144,7 +146,7 @@ export const openHouseRouter = router({
         followUpSequence: input.followUpSequence,
         isActive: true,
       });
-      const id = (result as any).insertId;
+      const id = (result as any)?.id;
       const qrUrl = `${SITE_URL}/open-house/${slug}`;
       return { id, slug, qrUrl };
     }),
@@ -237,18 +239,53 @@ export const openHouseRouter = router({
         smsConsentTimestamp: input.smsConsent ? new Date() : null,
       });
 
-      // Also add to CRM leads
+      // Also add to CRM leads and back-link the ID
       if (input.email || input.phone) {
-        await db.insert(crmLeads).values({
-          userId: oh.userId,
-          name: input.name,
-          email: input.email,
-          phone: input.phone,
-          stage: "new",
-          source: "open_house",
-          sourceRef: oh.address,
-        }).catch(() => {}); // Non-blocking
+        try {
+          const [crmResult] = await db.insert(crmLeads).values({
+            userId: oh.userId,
+            name: input.name,
+            email: input.email,
+            phone: input.phone,
+            stage: "new",
+            source: "open_house",
+            sourceRef: oh.address,
+          });
+          const crmLeadId = (crmResult as any)?.id;
+          if (crmLeadId) {
+            const leadId = (leadResult as any)?.id;
+            await db
+              .update(openHouseLeads)
+              .set({ crmLeadId })
+              .where(eq(openHouseLeads.id, leadId))
+              .catch(() => {});
+          }
+        } catch {
+          // Non-blocking — CRM insert failure should not break sign-in
+        }
       }
+
+      // Push lead to external CRMs (Lofty, Follow Up Boss, kvCORE) — non-blocking
+      pushLeadToAllCrms(oh.userId, {
+        firstName: input.name.split(" ")[0],
+        lastName: input.name.split(" ").slice(1).join(" ") || undefined,
+        email: input.email,
+        phone: input.phone,
+        source: "Open House",
+        message: `Open house visitor at ${oh.address}`,
+        propertyAddress: oh.address,
+      }).catch(() => {});
+
+      // Fire Zapier webhook for open house lead — non-blocking
+      fireZapierWebhook(oh.userId, "open_house_lead", {
+        firstName: input.name.split(" ")[0],
+        lastName: input.name.split(" ").slice(1).join(" ") || undefined,
+        email: input.email,
+        phone: input.phone,
+        source: "Open House",
+        propertyAddress: oh.address,
+        message: `Open house visitor at ${oh.address}`,
+      }).catch(() => {});
 
       // Send immediate follow-up email if email provided and sequence is active
       if (input.email && oh.followUpSequence !== "none") {
@@ -280,7 +317,7 @@ export const openHouseRouter = router({
         await db
           .update(openHouseLeads)
           .set({ emailsSent: 1 })
-          .where(eq(openHouseLeads.id, (leadResult as any).insertId))
+          .where(eq(openHouseLeads.id, (leadResult as any)?.id))
           .catch(() => {});
       }
 

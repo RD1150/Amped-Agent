@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { getManusLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -34,6 +34,9 @@ export default function Login() {
   const [regConfirm, setRegConfirm] = useState("");
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [regLoading, setRegLoading] = useState(false);
+
+  // Beta agreement checkbox
+  const [agreedToBeta, setAgreedToBeta] = useState(false);
 
   // Invite code state
   const [inviteCode, setInviteCode] = useState(urlInviteCode);
@@ -257,6 +260,14 @@ export default function Login() {
                       </button>
                     </div>
                   </div>
+                  <div className="flex justify-end">
+                    <a
+                      href="/forgot-password"
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
                   <Button type="submit" className="w-full h-11" disabled={signInLoading}>
                     {signInLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     Sign In
@@ -374,28 +385,41 @@ export default function Login() {
                     )}
                   </div>
 
-                  <Button type="submit" className="w-full h-11" disabled={regLoading}>
+                  {/* Beta Tester Agreement checkbox */}
+                  <div className="flex items-start gap-3 rounded-lg border border-border/60 bg-muted/30 p-3">
+                    <Checkbox
+                      id="reg-beta-agree"
+                      checked={agreedToBeta}
+                      onCheckedChange={(v) => setAgreedToBeta(!!v)}
+                      className="mt-0.5"
+                    />
+                    <Label
+                      htmlFor="reg-beta-agree"
+                      className="text-xs leading-snug cursor-pointer text-muted-foreground"
+                    >
+                      I agree to the{" "}
+                      <a
+                        href="/terms-of-service"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary underline hover:text-primary/80"
+                      >
+                        Beta Tester Agreement &amp; Terms of Service
+                      </a>
+                      , including confidentiality, no reverse-engineering, and feedback ownership clauses.
+                    </Label>
+                  </div>
+
+                  <Button type="submit" className="w-full h-11" disabled={regLoading || !agreedToBeta}>
                     {regLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     Create Account
                   </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    By creating an account you agree to our{" "}
-                    <a href="/terms-of-service" className="underline hover:text-foreground">Terms of Service</a>
-                    {" "}and{" "}
-                    <a href="/privacy-policy" className="underline hover:text-foreground">Privacy Policy</a>.
-                  </p>
                 </form>
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Also available:{" "}
-          <a href={getManusLoginUrl()} className="underline hover:text-foreground">
-            Sign in with Manus
-          </a>
-        </p>
       </div>
     </div>
   );

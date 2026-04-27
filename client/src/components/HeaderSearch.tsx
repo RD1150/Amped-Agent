@@ -29,6 +29,7 @@ const ALL_PAGES = [
   { icon: Heart,       label: "Brand Story",             path: "/brand-story",          section: "GROW",    description: "Craft your authentic brand story" },
   { icon: Youtube,     label: "YouTube Thumbnails",      path: "/thumbnails",           section: "GROW",    description: "Generate click-worthy thumbnails" },
   { icon: User,        label: "Authority Profile",       path: "/authority-profile",    section: "ACCOUNT", description: "Your branding, bio, headshot" },
+  { icon: UserCircle,  label: "Persona & Brand",          path: "/persona",              section: "ACCOUNT", description: "Bio, brand voice, service cities, headshot" },
   { icon: CreditCard,  label: "Credits",                 path: "/credits",              section: "ACCOUNT", description: "View usage and upgrade" },
   { icon: Settings,    label: "Settings",                path: "/settings",             section: "ACCOUNT", description: "App preferences" },
   { icon: BarChart3,   label: "Admin Analytics",         path: "/admin/analytics",      section: "ADMIN",   description: "Platform analytics" },

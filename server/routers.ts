@@ -52,10 +52,10 @@ import { listingKitRouter } from "./routers/listingKit";
 import { testimonialsRouter } from "./routers/testimonials";
 import { openHouseRouter } from "./routers/openHouse";
 import { crmRouter } from "./routers/crm";
+import { crmIntegrationsRouter } from "./routers/crmIntegrations";
+import { zapierWebhooksRouter } from "./routers/zapierWebhooks";
 import { dripRouter } from "./routers/drip";
-import { zapierRouter } from "./routers/zapier";
-import { videoEditorRouter } from "./routers/videoEditor";
-import { brollLibraryRouter } from "./routers/brollLibrary";
+import { videoVoiceoverRouter } from "./routers/videoVoiceover";
 
 export const appRouter = router({
   system: systemRouter,
@@ -95,10 +95,10 @@ export const appRouter = router({
   testimonials: testimonialsRouter,
   openHouse: openHouseRouter,
   crm: crmRouter,
+  crmIntegrations: crmIntegrationsRouter,
+  zapierWebhooks: zapierWebhooksRouter,
   drip: dripRouter,
-  zapier: zapierRouter,
-  videoEditor: videoEditorRouter,
-  brollLibrary: brollLibraryRouter,
+  videoVoiceover: videoVoiceoverRouter,
 
   support: router({
     chat: publicProcedure
@@ -253,7 +253,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         primaryCity: z.string().min(1).max(255),
         primaryState: z.string().min(1).max(100),
         yearsExperience: z.number().int().min(0).max(60),
-        serviceCities: z.array(z.object({ city: z.string().min(1).max(255), state: z.string().max(100) })).min(1).max(5).optional(),
+        serviceCities: z.array(z.object({ city: z.string().min(1).max(255), state: z.string().max(100) })).min(1).max(10).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         // Save to persona (brokerage, city, state, years)
@@ -273,6 +273,31 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
     acceptTerms: authOnlyProcedure
       .mutation(async ({ ctx }) => {
         return db.acceptTermsOfService(ctx.user.id);
+      }),
+    acceptBetaAgreement: authOnlyProcedure
+      .mutation(async ({ ctx }) => {
+        return db.acceptBetaAgreement(ctx.user.id);
+      }),
+    setPassword: authOnlyProcedure
+      .input(z.object({
+        password: z.string().min(8, "Password must be at least 8 characters"),
+        currentPassword: z.string().optional(), // Required if user already has a password
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const bcrypt = await import("bcryptjs");
+        // If user already has a password, verify current password first
+        if (ctx.user.passwordHash) {
+          if (!input.currentPassword) {
+            throw new Error("Current password is required to set a new one.");
+          }
+          const valid = await bcrypt.compare(input.currentPassword, ctx.user.passwordHash);
+          if (!valid) {
+            throw new Error("Current password is incorrect.");
+          }
+        }
+        const hash = await bcrypt.hash(input.password, 12);
+        await db.setUserPassword(ctx.user.id, hash);
+        return { success: true };
       }),
     getVoicePreference: protectedProcedure.query(async ({ ctx }) => {
       const dbConn = await db.getDb();
@@ -437,12 +462,13 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         headshotZoom: z.number().int().min(100).max(200).optional(),
         targetNeighborhoods: z.string().optional(), // JSON-encoded string[]
         targetZipCodes: z.string().optional(), // JSON-encoded string[]
+        localHighlights: z.string().optional(), // JSON-encoded string[]
       }))
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);
       }),
     
-    updateAuthorityProfile: authOnlyProcedure
+    updateAuthorityProfile: protectedProcedure
       .input(z.object({
         customerAvatar: z.string().optional(),
         brandValues: z.string().optional(),
@@ -450,9 +476,100 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         bookingUrl: z.string().url().optional().or(z.literal("")),
         targetNeighborhoods: z.string().optional(), // JSON-encoded string[]
         targetZipCodes: z.string().optional(), // JSON-encoded string[]
+        localHighlights: z.string().optional(), // JSON-encoded string[]
       }))
       .mutation(async ({ ctx, input }) => {
         return db.upsertPersona(ctx.user.id, input);
+      }),
+
+    /**
+     * Research local highlights for the agent's market area using Google Places + LLM synthesis.
+     * Returns a list of suggested highlight strings ready to add to localHighlights.
+     */
+    suggestLocalHighlights: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+        const city = persona?.primaryCity || "";
+        const state = persona?.primaryState || "";
+        if (!city) throw new Error("Please set your Primary City in your profile first.");
+
+        const locationQuery = state ? `${city}, ${state}` : city;
+
+        // Categories to search for
+        const searchQueries = [
+          { query: `country clubs golf courses near ${locationQuery}`, label: "Country Clubs & Golf" },
+          { query: `top rated schools school districts ${locationQuery}`, label: "Schools" },
+          { query: `parks nature reserves hiking ${locationQuery}`, label: "Parks & Nature" },
+          { query: `beaches lakes waterfront ${locationQuery}`, label: "Waterfront" },
+          { query: `luxury shopping dining restaurants ${locationQuery}`, label: "Dining & Shopping" },
+          { query: `landmarks attractions things to do ${locationQuery}`, label: "Attractions" },
+          { query: `hospitals medical centers ${locationQuery}`, label: "Healthcare" },
+          { query: `community centers recreation ${locationQuery}`, label: "Recreation" },
+        ];
+
+        // Run up to 4 Places searches in parallel (rate limit friendly)
+        const { makeRequest } = await import("./_core/map");
+        const searchBatches = [
+          searchQueries.slice(0, 4),
+          searchQueries.slice(4, 8),
+        ];
+
+        const allPlaces: string[] = [];
+        for (const batch of searchBatches) {
+          const results = await Promise.allSettled(
+            batch.map(({ query }) =>
+              makeRequest<{ results: Array<{ name: string; types: string[]; rating?: number }> }>(
+                "/maps/api/place/textsearch/json",
+                { query, language: "en" }
+              )
+            )
+          );
+          for (const result of results) {
+            if (result.status === "fulfilled" && result.value?.results) {
+              const topPlaces = result.value.results
+                .filter((p) => p.name && !p.types.includes("lodging"))
+                .slice(0, 5)
+                .map((p) => p.name);
+              allPlaces.push(...topPlaces);
+            }
+          }
+        }
+
+        if (allPlaces.length === 0) {
+          throw new Error(`No local data found for ${locationQuery}. Try adding highlights manually.`);
+        }
+
+        // Use LLM to synthesize raw place names into clean, content-ready highlight strings
+        const llmResponse = await invokeLLM({
+          messages: [
+            {
+              role: "system",
+              content: `You are a real estate content strategist. Your job is to turn raw Google Places data into clean, natural-sounding highlight phrases that a real estate agent can use in social media scripts and reels to showcase why their market is desirable.
+
+Rules:
+- Each highlight should be a short, punchy phrase (3-10 words) that sounds natural when spoken in a video
+- Focus on lifestyle appeal: schools, recreation, luxury amenities, nature, convenience
+- For schools: use the district name if well-known, e.g. "Award-winning Las Virgenes Unified schools"
+- For country clubs/golf: use the proper name, e.g. "North Ranch Country Club"
+- For beaches/nature: include distance if obvious, e.g. "Minutes from Malibu beaches"
+- For dining/shopping: summarize rather than list, e.g. "World-class dining in Westlake Village"
+- Remove duplicates, generic chains (Starbucks, McDonald's), and anything that doesn't add lifestyle value
+- Return ONLY a JSON array of strings, no explanation, no markdown`,
+            },
+            {
+              role: "user",
+              content: `Market: ${locationQuery}\n\nRaw place names from Google:\n${allPlaces.join("\n")}\n\nReturn 10-15 clean highlight phrases as a JSON array of strings.`,
+            },
+          ],
+        });
+
+        const raw = llmResponse.choices?.[0]?.message?.content ?? "";
+        const text = typeof raw === "string" ? raw : "";
+        // Extract JSON array from response
+        const match = text.match(/\[[\s\S]*\]/);
+        if (!match) throw new Error("Could not parse suggestions. Please try again.");
+        const suggestions: string[] = JSON.parse(match[0]);
+        return { suggestions: suggestions.filter((s) => typeof s === "string" && s.trim().length > 0) };
       }),
 
     /**
@@ -461,30 +578,51 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
      */
     cloneVoice: protectedProcedure
       .input(z.object({
-        voiceSampleUrl: z.string().url(),
+        voiceSampleUrl: z.string().min(1), // accepts URLs or 'direct-clone:{voice_id}'
         voiceName: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const { cloneVoice } = await import("./_core/elevenLabs");
         const persona = await db.getPersonaByUserId(ctx.user.id);
         const agentName = persona?.agentName || `Agent ${ctx.user.id}`;
         const voiceName = input.voiceName || `${agentName}'s Voice`;
 
-        // If there's an existing cloned voice, delete it first to avoid accumulation
-        if (persona?.elevenlabsVoiceId) {
-          try {
-            const { deleteVoice } = await import("./_core/elevenLabs");
-            await deleteVoice(persona.elevenlabsVoiceId);
-          } catch (e) {
-            console.warn("[VoiceClone] Could not delete old voice:", e);
-          }
-        }
+        let voice_id: string;
 
-        const { voice_id } = await cloneVoice({
-          name: voiceName,
-          audioUrl: input.voiceSampleUrl,
-          description: `Voice clone for ${agentName} - Amped Agent`,
-        });
+        // If audio was already cloned directly (via /api/clone-voice-direct), just save the ID
+        if (input.voiceSampleUrl.startsWith("direct-clone:")) {
+          voice_id = input.voiceSampleUrl.replace("direct-clone:", "");
+          console.log(`[VoiceClone] Saving pre-cloned voice ID: ${voice_id}`);
+
+          // Delete old voice if exists
+          if (persona?.elevenlabsVoiceId && persona.elevenlabsVoiceId !== voice_id) {
+            try {
+              const { deleteVoice } = await import("./_core/elevenLabs");
+              await deleteVoice(persona.elevenlabsVoiceId);
+            } catch (e) {
+              console.warn("[VoiceClone] Could not delete old voice:", e);
+            }
+          }
+        } else {
+          // Legacy path: clone from URL
+          const { cloneVoice } = await import("./_core/elevenLabs");
+
+          // If there's an existing cloned voice, delete it first
+          if (persona?.elevenlabsVoiceId) {
+            try {
+              const { deleteVoice } = await import("./_core/elevenLabs");
+              await deleteVoice(persona.elevenlabsVoiceId);
+            } catch (e) {
+              console.warn("[VoiceClone] Could not delete old voice:", e);
+            }
+          }
+
+          const result = await cloneVoice({
+            name: voiceName,
+            audioUrl: input.voiceSampleUrl,
+            description: `Voice clone for ${agentName} - Amped Agent`,
+          });
+          voice_id = result.voice_id;
+        }
 
         await db.upsertPersona(ctx.user.id, {
           elevenlabsVoiceId: voice_id,
@@ -594,6 +732,7 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         tone: z.enum(["professional", "friendly", "luxury", "casual", "authoritative"]).optional(),
         ctaText: z.string().optional(),
         location: z.string().optional(), // For market_report: city/area for real data lookup
+        showBrandingOverlay: z.boolean().optional().default(true), // Whether to render agent branding card on the post image
       }))
       .mutation(async ({ ctx, input }) => {
         // Moderate input content
@@ -650,6 +789,18 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         }
         audienceContext += hyperlocalContext;
 
+        // Build local highlights context from agent's saved amenities/landmarks
+        let highlightsContext = "";
+        if (persona?.localHighlights) {
+          try {
+            const highlights: string[] = JSON.parse(persona.localHighlights);
+            if (highlights.length > 0) {
+              highlightsContext = `\n\nLOCAL HIGHLIGHTS TO WEAVE IN: Your market features these specific amenities and lifestyle draws — reference them by name where relevant: ${highlights.join(", ")}. These are real local features that make your market desirable. Use them naturally to add credibility and local flavor.`;
+            }
+          } catch {}
+        }
+        audienceContext += highlightsContext;
+
         // Fetch real market data for market_report content type
         let realMarketData: any = null;
         if (input.contentType === 'market_report') {
@@ -667,9 +818,12 @@ Keep responses concise — 2-4 sentences max unless the user asks for detail. Us
         let systemPrompt = "";
         let userPrompt = "";
         
+        // Depth instruction — appended to all system prompts
+        const depthInstruction = `\n\nCONTENT DEPTH RULES:\n- Be specific, not generic. Name real places, real price ranges, real local dynamics.\n- Every piece of advice should feel like it came from someone who actually works this market every day.\n- Avoid any sentence that could appear in a generic real estate article. If it could be written by someone in any city, rewrite it.\n- Reference the agent's local highlights, neighborhoods, and market context wherever natural.\n- Lead with insight, not tips. "Here's what I'm seeing" beats "Here are 3 tips."\n- Speak to the specific audience type and their real concerns, not a generic homebuyer.`;
+
         if (input.format === "carousel") {
           systemPrompt = `You are a real estate content creator specializing in carousel posts. Create engaging multi-slide content for Instagram/Facebook carousels.
-Use a ${tone} tone.${audienceContext}
+Use a ${tone} tone.${audienceContext}${depthInstruction}
 
 Format your response as:
 
@@ -699,7 +853,9 @@ FINAL SLIDE (CTA):
 Make each slide concise (2-3 sentences max), use emojis, and ensure the content flows naturally from slide to slide.`;
         } else if (input.format === "reel_script") {
           systemPrompt = `You are a real estate content creator specializing in short-form video scripts (Reels/TikTok/YouTube Shorts).
-Use a ${tone} tone.${audienceContext} Create a 30-60 second video script formatted EXACTLY like this:
+Use a ${tone} tone.${audienceContext}${depthInstruction}
+
+Create a 30-60 second video script formatted EXACTLY like this:
 
 🎬 REEL SCRIPT: [Catchy Title]
 
@@ -734,7 +890,9 @@ CTA (28-30s):
 Use emojis, be specific about what to show on camera, and make the hook IRRESISTIBLE.`;
         } else {
           systemPrompt = `You are a real estate content creator. Create engaging social media content for real estate professionals.
-Use a ${tone} tone.${audienceContext} Generate 3 different caption variations without labeling them:
+Use a ${tone} tone.${audienceContext}${depthInstruction}
+
+Generate 3 different caption variations without labeling them:
 - First variation: long-form and emotional
 - Second variation: medium length and value-focused
 - Third variation: short and CTA-driven
@@ -857,17 +1015,19 @@ ${formatInstructions}`;
             const title = firstLine.replace(/^#+\s*/, '').substring(0, 100);
             
             // Render template with user branding
+            const showBranding = input.showBrandingOverlay !== false;
             imageUrl = await renderTemplate({
               template,
               postText: title,
-              headshotUrl: persona?.headshotUrl || undefined,
+              headshotUrl: (showBranding && persona?.headshotUrl) ? persona.headshotUrl : undefined,
               primaryColor: persona?.primaryColor || undefined,
-              phone: persona?.phoneNumber || undefined,
-              agentName: persona?.agentName || undefined,
-              licenseNumber: persona?.licenseNumber || undefined,
-              brokerageName: persona?.brokerageName || undefined,
-              brokerageDRE: persona?.brokerageDRE || undefined,
+              phone: showBranding ? (persona?.phoneNumber || undefined) : undefined,
+              agentName: showBranding ? (persona?.agentName || undefined) : undefined,
+              licenseNumber: showBranding ? (persona?.licenseNumber || undefined) : undefined,
+              brokerageName: showBranding ? (persona?.brokerageName || undefined) : undefined,
+              brokerageDRE: showBranding ? (persona?.brokerageDRE || undefined) : undefined,
               ctaText: input.ctaText,
+              showBrandingOverlay: showBranding,
             });
           } catch (error) {
             console.error('Template rendering failed:', error);
@@ -1100,7 +1260,7 @@ Focus on creating compelling, shareable content that drives engagement.`;
       return db.getUploadsByUserId(ctx.user.id);
     }),
     
-    uploadHeadshot: authOnlyProcedure
+    uploadHeadshot: protectedProcedure
       .input(z.object({
         fileName: z.string(),
         fileData: z.string(), // base64 encoded
@@ -1131,9 +1291,6 @@ Focus on creating compelling, shareable content that drives engagement.`;
           fileSize: buffer.length,
           category: "image",
         });
-        
-        // Persist headshotUrl to persona so it survives page reloads
-        await db.upsertPersona(ctx.user.id, { headshotUrl: url });
         
         return { url };
       }),
@@ -2221,7 +2378,7 @@ Score criteria:
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-      const [persona, contentPostsRows, videosRows, blogPostsRows, leadMagnetsRows, userRows, podcastRows] = await Promise.all([
+      const [persona, contentPostsRows, videosRows, blogPostsRows, leadMagnetsRows, userRows, podcastRows, crmLeadsRows, openHouseRows, dripEnrollmentRows] = await Promise.all([
         db.getPersonaByUserId(ctx.user.id),
         dbInst.select({ id: schema.contentPosts.id, createdAt: schema.contentPosts.createdAt })
           .from(schema.contentPosts).where(eq(schema.contentPosts.userId, ctx.user.id))
@@ -2240,6 +2397,13 @@ Score criteria:
         dbInst.select({ id: schema.podcastEpisodes.id, createdAt: schema.podcastEpisodes.createdAt })
           .from(schema.podcastEpisodes).where(eq(schema.podcastEpisodes.userId, ctx.user.id))
           .orderBy(desc(schema.podcastEpisodes.createdAt)).limit(50),
+        // Marketing platform data
+        dbInst.select({ id: schema.crmLeads.id, stage: schema.crmLeads.stage, lastContactedAt: schema.crmLeads.lastContactedAt, createdAt: schema.crmLeads.createdAt })
+          .from(schema.crmLeads).where(eq(schema.crmLeads.userId, ctx.user.id)).limit(200),
+        dbInst.select({ id: schema.openHouses.id, createdAt: schema.openHouses.createdAt })
+          .from(schema.openHouses).where(eq(schema.openHouses.userId, ctx.user.id)).limit(50),
+        dbInst.select({ id: schema.dripEnrollments.id, status: schema.dripEnrollments.status, enrolledAt: schema.dripEnrollments.enrolledAt })
+          .from(schema.dripEnrollments).where(eq(schema.dripEnrollments.userId, ctx.user.id)).limit(200),
       ]);
 
       const postsLast7 = contentPostsRows.filter(p => new Date(p.createdAt) >= sevenDaysAgo).length;
@@ -2249,6 +2413,22 @@ Score criteria:
       const blogsLast30 = blogPostsRows.filter(b => new Date(b.createdAt) >= thirtyDaysAgo).length;
       const leadMagnetsTotal = leadMagnetsRows.length;
       const podcastsTotal = podcastRows.length;
+      // CRM metrics
+      const crmTotal = crmLeadsRows.length;
+      const crmNew = crmLeadsRows.filter(l => l.stage === 'new').length;
+      const crmNurturing = crmLeadsRows.filter(l => l.stage === 'nurturing').length;
+      const crmClosed = crmLeadsRows.filter(l => l.stage === 'closed').length;
+      const staleThreshold = 14 * 24 * 60 * 60 * 1000;
+      const crmStale = crmLeadsRows.filter(l => {
+        const last = l.lastContactedAt ? new Date(l.lastContactedAt).getTime() : new Date(l.createdAt).getTime();
+        return Date.now() - last > staleThreshold && l.stage !== 'closed';
+      }).length;
+      // Open house metrics
+      const openHousesTotal = openHouseRows.length;
+      const openHousesLast30 = openHouseRows.filter(o => new Date(o.createdAt) >= thirtyDaysAgo).length;
+      // Drip enrollment metrics
+      const dripActiveEnrollments = dripEnrollmentRows.filter(e => e.status === 'active').length;
+      const dripTotalEnrollments = dripEnrollmentRows.length;
       const userRow = userRows[0];
       const agentName = userRow?.name || persona?.agentName || 'Agent';
       const primaryCity = persona?.primaryCity || 'your market';
@@ -2275,17 +2455,40 @@ Score criteria:
         `Has booking URL: ${hasBookingUrl}`,
         `Primary market: ${primaryCity}`,
         `Subscription tier: ${userRow?.subscriptionTier || 'free'}`,
+        // Marketing platform signals
+        `CRM pipeline: ${crmTotal} total leads (${crmNew} new, ${crmNurturing} nurturing, ${crmClosed} closed, ${crmStale} stale >14 days)`,
+        `Open houses hosted (last 30 days): ${openHousesLast30} (total: ${openHousesTotal})`,
+        `Email drip enrollments: ${dripActiveEnrollments} active, ${dripTotalEnrollments} total`,
       ].join('\n');
 
       const response = await invokeLLM({
         messages: [
           {
             role: 'system',
-            content: `You are a decisive real estate business strategist. You analyze agent activity data and produce a weekly diagnosis — not suggestions, but directives. Be blunt, specific, and urgent. Every insight must include: what is happening, why it matters, and exactly what to do about it. Do not hedge. Do not say "consider" or "you might want to". Say "Do this" and "Fix this".`,
+            content: `You are a supportive, encouraging business coach for real estate agents using the Amped Agent platform. Your role is to help agents see their progress clearly, feel confident about their next step, and stay motivated.
+
+Your tone is:
+- Warm and direct, like a trusted advisor
+- Positive and forward-looking — focus on what's possible, not what's wrong
+- Specific and actionable — no vague advice
+- Calm and grounded — never alarming, never dramatic
+
+When identifying issues, frame them as opportunities: "You're close to unlocking X" not "You're failing at Y." When something is missing, say "Adding X will help you Y" not "You lack X."
+
+The CLEAR Method guides your thinking:
+- C (Clarity): Help agents know who they serve and how they guide them
+- L (Leverage): Strategic positioning over loud presence
+- E (Expression): Consistent content that reinforces a genuine perspective
+- A (Authority): Built through pattern and consistency over time
+- R (Resilience): Sustainable pace aligned with the agent's nature
+
+Your job is to identify the single highest-leverage next step and frame it as an exciting opportunity. Celebrate what's working. Point to one clear gap as the next unlock — not a failure.
+
+CRITICAL RULE: You MUST use ONLY the exact numbers provided in the ACTIVITY DATA. Do NOT invent, round, or estimate any statistics. Every statistic you mention must come verbatim from the activity data provided. Never fabricate counts.`,
           },
           {
             role: 'user',
-            content: `Agent: ${agentName} | Market: ${primaryCity}\n\nACTIVITY DATA:\n${activitySummary}\n\nGenerate a weekly diagnosis with:\n1. One critical issue (the single biggest problem holding them back right now)\n2. Two missed opportunities (high-leverage things they are not doing that would move the needle)\n3. Three priority actions (specific, executable tasks to do THIS WEEK, in order of impact)\n4. One leverage insight (a pattern in their data that reveals an untapped opportunity)\n5. Weekly focus statement (one bold sentence that captures what they should be laser-focused on this week)`,
+            content: `Agent: ${agentName} | Market: ${primaryCity}\n\nACTIVITY DATA (use these exact numbers — do not invent or round any figures):\n${activitySummary}\n\nGenerate a weekly coaching session with:\n1. One key focus area (the single highest-leverage thing they can do this week — frame it as an opportunity, not a problem)\n2. Two growth opportunities (things they're not yet doing that would meaningfully move their business forward — frame positively)\n3. Three priority actions (specific, executable tasks for THIS WEEK, in order of impact — use encouraging, action-oriented language)\n4. One momentum insight (a positive pattern in their data that shows what's working or what's ready to be unlocked)\n5. Weekly focus statement (one energizing sentence about what they're building this week — forward-looking and motivating)\n\nTone: warm, direct, encouraging. Never say catastrophic, failure, or alarming language. Frame gaps as next unlocks.\n\nRemember: only cite numbers that appear in the ACTIVITY DATA above. Do not fabricate any statistics.`,
           },
         ],
         response_format: {
@@ -2455,21 +2658,34 @@ Score criteria:
           `Subscription tier: ${subscriptionTier}`,
         ].join('\n');
 
-        const systemPrompt = `You are the Market Dominance Coach for Amped Agent. You are not a helpful assistant. You are a decisive, opinionated strategist who tells agents exactly what to do to win listings and dominate their market.
+        const systemPrompt = `You are the Market Dominance Coach for Amped Agent, trained on the CLEAR Method — a framework for building a referral-based real estate business through clarity, not volume. You were developed from the teachings of Reena Dutta, a real estate coach and author who believes the fastest path to sustainable growth is not more tactics — it is clarity about what you are building and why.
 
 You are talking to ${agentName}.${personaContext}
 
 Here is what they have been working on in the platform:
 ${activityContext}
 
+The CLEAR Method framework you coach through:
+- C (Clarity): Internal orientation before external tactics. Who does this agent serve best? How do they actually guide people through decisions? Without this, all content is performance.
+- L (Leverage / Positioning): "Presence says I'm here. Positioning says I'm here for this." Clearly positioned agents convert 70-85% of consultations. Scattered agents convert 30%. The difference is not skill — it is selection.
+- E (Expression): Consistency in message, not just frequency. People need to encounter the same perspective 7+ times before it lands. Changing topics constantly means no one understands what the agent stands for. The goal is to explore the same territory from different angles — not invent something new every week.
+- A (Authority): Recognized through pattern, not claimed through credentials. Authority settles over time when an agent explains trade-offs without dramatizing them, holds steady under pressure, and guides without pushing. It is never announced — it accumulates.
+- R (Resilience): Sustainable pace aligned with the agent's nature. Burnout is usually misalignment, not overwork. The goal is not to hustle harder — it is to work in a way that fits who they actually are.
+
+Your coaching philosophy:
+- The problem is rarely effort. It is that agents have been given strategy without clarity.
+- You do not give generic marketing advice. You diagnose the specific CLEAR gap holding this agent back.
+- You speak to the deeper issue: Are they visible but not positioned? Consistent in frequency but invisible in message? Performing expertise rather than expressing it? Chasing attention instead of building connection?
+- You believe the best persuaders do not use tactics — they change the environment so the right decision becomes obvious. That is what clarity does.
+- You believe marketing should feel like an extension of actual client work — not a performance of a version of themselves they do not recognize.
+
 RULES:
 - Never say "consider" or "you might want to" — say "Do this" and "Here's what to say"
-- Every response must include: (1) a direct strategic assessment, (2) specific talk tracks or scripts, (3) 2-3 executable action steps
-- Reference their actual activity data. Call out gaps bluntly.
-- If they haven't used a tool that would help them, tell them to use it and explain exactly why
-- Think like a coach who has seen 1,000 agents fail and knows exactly what separates the top 1%
+- Every response must include: (1) a CLEAR-lens diagnosis of where they are, (2) specific talk tracks or content angles rooted in their actual perspective, (3) 2-3 executable action steps
+- Reference their actual activity data. Call out gaps through the CLEAR framework.
 - Lead with your opinion: "Here's what I'd focus on if I were you this week..."
-- End every response with one bold directive: the single most important thing they should do in the next 24 hours`;
+- End every response with one bold directive: the single most important thing they should do in the next 24 hours
+- Speak like Reena Dutta would: warm but direct, strategic but human, never generic`;
 
         const response = await invokeLLM({
           messages: [
@@ -2543,6 +2759,165 @@ RULES:
           imageUrl: result.url,
           mainText: finalMainText,
           subText: finalSubText,
+        };
+      }),
+  }),
+
+  // ── Ad Generator ─────────────────────────────────────────────────────────────
+  adGenerator: router({
+    /**
+     * Scrape a URL and return structured brand/content data for ad generation.
+     */
+    scrapeUrl: protectedProcedure
+      .input(z.object({ url: z.string().url() }))
+      .mutation(async ({ input }) => {
+        const { load } = await import("cheerio");
+        let html = "";
+        try {
+          const res = await fetch(input.url, {
+            headers: { "User-Agent": "Mozilla/5.0 (compatible; AmpedAgent/1.0)" },
+            signal: AbortSignal.timeout(10_000),
+          });
+          html = await res.text();
+        } catch {
+          return { title: "", description: "", bodyText: "", ogImage: "" };
+        }
+        const $ = load(html);
+        const title =
+          $("title").first().text().trim() ||
+          $("h1").first().text().trim() ||
+          "";
+        const description =
+          $("meta[name='description']").attr("content") ||
+          $("meta[property='og:description']").attr("content") ||
+          $("p").first().text().trim().slice(0, 300) ||
+          "";
+        const ogImage =
+          $("meta[property='og:image']").attr("content") || "";
+        $("script, style, nav, footer, header").remove();
+        const bodyText = $("body").text().replace(/\s+/g, " ").trim().slice(0, 1500);
+        return { title, description, bodyText, ogImage };
+      }),
+
+    /**
+     * Upload a photo for ad generation — returns S3 URL.
+     */
+    uploadPhoto: protectedProcedure
+      .input(
+        z.object({
+          fileName: z.string(),
+          fileData: z.string(),
+          mimeType: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { storagePut } = await import("./storage");
+        const base64Data = input.fileData.includes(",")
+          ? input.fileData.split(",")[1]
+          : input.fileData;
+        const buffer = Buffer.from(base64Data, "base64");
+        const ext = input.fileName.split(".").pop() || "jpg";
+        const fileKey = `ad-photos/${ctx.user.id}/${Date.now()}.${ext}`;
+        const { url } = await storagePut(fileKey, buffer, input.mimeType);
+        return { url };
+      }),
+
+    /**
+     * Generate ad copy + ad image from URL data + uploaded photos.
+     */
+    generate: protectedProcedure
+      .input(
+        z.object({
+          pageTitle: z.string(),
+          pageDescription: z.string(),
+          pageBodyText: z.string(),
+          photo1Url: z.string(),
+          photo2Url: z.string().optional(),
+          adFormat: z.enum(["instagram_square", "instagram_story", "facebook_feed", "banner"]).default("instagram_square"),
+          tone: z.enum(["professional", "friendly", "urgent", "inspirational"]).default("professional"),
+          goal: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const persona = await db.getPersonaByUserId(ctx.user.id);
+        const agentName = ctx.user.name || "";
+        const market = persona?.primaryCity || "";
+
+        const formatLabels: Record<string, string> = {
+          instagram_square: "Instagram square (1080×1080)",
+          instagram_story: "Instagram Story (1080×1920)",
+          facebook_feed: "Facebook feed (1200×628)",
+          banner: "Web banner (728×90)",
+        };
+        const formatLabel = formatLabels[input.adFormat];
+
+        const imageMessages = [
+          { type: "image_url" as const, image_url: { url: input.photo1Url, detail: "high" as const } },
+          ...(input.photo2Url
+            ? [{ type: "image_url" as const, image_url: { url: input.photo2Url, detail: "high" as const } }]
+            : []),
+        ];
+
+        const copyResponse = await invokeLLM({
+          messages: [
+            {
+              role: "system",
+              content: `You are an expert advertising copywriter specializing in real estate and personal brand marketing. Agent name: ${agentName}. Market: ${market}. Write compelling, concise ad copy that drives action. Never use hype, exaggeration, or prohibited content. Always write in a warm, professional, trustworthy voice.`,
+            },
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text" as const,
+                  text: `Create ad copy for a ${formatLabel} ad.\n\nPage content:\nTitle: ${input.pageTitle}\nDescription: ${input.pageDescription}\nBody: ${input.pageBodyText.slice(0, 800)}\n\nAd goal: ${input.goal || "drive engagement and leads"}\nTone: ${input.tone}\n\nAnalyze the uploaded photos and incorporate relevant visual details.\n\nReturn JSON with exactly these fields:\n{\n  "headline": "short punchy headline (max 8 words)",\n  "primaryText": "main ad body copy (2-3 sentences, max 125 chars)",\n  "cta": "call to action button text (2-4 words)",\n  "imagePrompt": "detailed prompt for generating the ad image layout incorporating the uploaded photos, agent branding, and ad message for a ${formatLabel} ad"\n}`,
+                },
+                ...imageMessages,
+              ],
+            },
+          ],
+          response_format: {
+            type: "json_schema" as const,
+            json_schema: {
+              name: "ad_copy",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  headline: { type: "string" },
+                  primaryText: { type: "string" },
+                  cta: { type: "string" },
+                  imagePrompt: { type: "string" },
+                },
+                required: ["headline", "primaryText", "cta", "imagePrompt"],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+
+        const content = copyResponse.choices[0].message.content;
+        const adCopy = JSON.parse(typeof content === "string" ? content : JSON.stringify(content)) as {
+          headline: string;
+          primaryText: string;
+          cta: string;
+          imagePrompt: string;
+        };
+
+        const fullImagePrompt = `${adCopy.imagePrompt} Professional advertising photography style. Clean, modern layout. No watermarks. ${formatLabel} format.`;
+        const imageResult = await generateImage({
+          prompt: fullImagePrompt,
+          originalImages: [
+            { url: input.photo1Url },
+            ...(input.photo2Url ? [{ url: input.photo2Url }] : []),
+          ],
+        });
+
+        return {
+          headline: adCopy.headline,
+          primaryText: adCopy.primaryText,
+          cta: adCopy.cta,
+          adImageUrl: imageResult.url || "",
+          imagePrompt: adCopy.imagePrompt,
         };
       }),
   }),

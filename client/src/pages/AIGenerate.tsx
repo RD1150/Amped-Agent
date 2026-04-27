@@ -71,6 +71,7 @@ export default function AIGenerate() {
   const [copied, setCopied] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<SelectedTemplate>(null);
   const [includeHeadshot, setIncludeHeadshot] = useState(true);
+  const [showBrandingOverlay, setShowBrandingOverlay] = useState(true);
   const [customMessage, setCustomMessage] = useState("");
   const [customHook, setCustomHook] = useState(prefillHook);
   const [includeCTA, setIncludeCTA] = useState(false);
@@ -184,6 +185,7 @@ export default function AIGenerate() {
       } : undefined,
       ctaText: includeCTA ? ctaText : undefined,
       location: contentType === "market_report" && marketLocation.trim() ? marketLocation.trim() : undefined,
+      showBrandingOverlay,
     });
   };
 
@@ -787,7 +789,23 @@ export default function AIGenerate() {
                       </p>
                     </div>
 
-                    {persona?.headshotUrl && (
+                    <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
+                        <input
+                          type="checkbox"
+                          id="showBrandingOverlay"
+                          checked={showBrandingOverlay}
+                          onChange={(e) => setShowBrandingOverlay(e.target.checked)}
+                          className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                        />
+                        <label htmlFor="showBrandingOverlay" className="text-sm cursor-pointer flex-1">
+                          Show agent branding overlay
+                        </label>
+                        {!showBrandingOverlay && (
+                          <span className="text-xs text-muted-foreground">💡 Branded posts get more engagement</span>
+                        )}
+                      </div>
+
+                    {persona?.headshotUrl && showBrandingOverlay && (
                       <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
                         <input
                           type="checkbox"
@@ -799,9 +817,6 @@ export default function AIGenerate() {
                         <label htmlFor="includeHeadshot" className="text-sm cursor-pointer flex-1">
                           Include my headshot on this post
                         </label>
-                        {!includeHeadshot && (
-                          <span className="text-xs text-muted-foreground">💡 Branded posts get more engagement</span>
-                        )}
                       </div>
                     )}
 

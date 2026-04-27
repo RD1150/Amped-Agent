@@ -39,6 +39,8 @@ import {
   Calendar,
   MapPin,
   ExternalLink,
+  Search,
+  PlusCircle,
 } from "lucide-react";
 
 function PhotoAvatarCard() {
@@ -286,6 +288,7 @@ export default function AuthorityProfile() {
     "move-up-buyers": "Growing families or professionals, 32-48 years old, ready to trade up from their starter home to a larger or more desirable property. Value equity guidance, timing strategy, and school district knowledge.",
   };
 
+  const [bio, setBio] = useState("");
   const [avatarType, setAvatarType] = useState("");
   const [avatarDescription, setAvatarDescription] = useState("");
   
@@ -308,6 +311,11 @@ export default function AuthorityProfile() {
   const [targetZipCodes, setTargetZipCodes] = useState<string[]>([]);
   const [newNeighborhood, setNewNeighborhood] = useState("");
   const [newZipCode, setNewZipCode] = useState("");
+  // Local Highlights (amenities, schools, landmarks for AI content)
+  const [localHighlights, setLocalHighlights] = useState<string[]>([]);
+  const [newHighlight, setNewHighlight] = useState("");
+  const [suggestedHighlights, setSuggestedHighlights] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Voice Cloning state
   const [voiceFile, setVoiceFile] = useState<File | null>(null);
@@ -350,6 +358,9 @@ export default function AuthorityProfile() {
         }
       }
       
+      // Bio
+      setBio(persona.bio || "");
+
       // Booking URL
       setBookingUrl(persona.bookingUrl || "");
 
@@ -364,6 +375,12 @@ export default function AuthorityProfile() {
         try {
           const zips = JSON.parse(persona.targetZipCodes);
           setTargetZipCodes(Array.isArray(zips) ? zips : []);
+        } catch (e) { /* ignore */ }
+      }
+      if ((persona as any).localHighlights) {
+        try {
+          const highlights = JSON.parse((persona as any).localHighlights);
+          setLocalHighlights(Array.isArray(highlights) ? highlights : []);
         } catch (e) { /* ignore */ }
       }
 
@@ -382,6 +399,11 @@ export default function AuthorityProfile() {
     }
   }, [persona]);
 
+  const saveBio = trpc.persona.upsert.useMutation({
+    onSuccess: () => toast.success("Bio saved!"),
+    onError: (error: any) => toast.error(`Failed to save bio: ${error.message}`),
+  });
+
   const updateProfile = trpc.persona.updateAuthorityProfile.useMutation({
     onSuccess: () => {
       toast.success("Authority Profile updated!");
@@ -390,6 +412,8 @@ export default function AuthorityProfile() {
       toast.error(`Update failed: ${error.message}`);
     },
   });
+
+  const suggestMutation = trpc.persona.suggestLocalHighlights.useMutation();
 
   const cloneVoiceMutation = trpc.persona.cloneVoice.useMutation({
     onSuccess: async (data) => {
@@ -452,6 +476,7 @@ export default function AuthorityProfile() {
       bookingUrl: bookingUrl || undefined,
       targetNeighborhoods: JSON.stringify(targetNeighborhoods),
       targetZipCodes: JSON.stringify(targetZipCodes),
+      localHighlights: JSON.stringify(localHighlights),
     });
   };
 
@@ -481,7 +506,10 @@ export default function AuthorityProfile() {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      // Pick a MIME type the current browser actually supports (Safari needs mp4/aac)
+      const preferredTypes = ["audio/webm", "audio/mp4", "audio/ogg", ""];
+      const supportedMime = preferredTypes.find((t) => !t || MediaRecorder.isTypeSupported(t)) ?? "";
+      const mediaRecorder = new MediaRecorder(stream, supportedMime ? { mimeType: supportedMime } : undefined);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -490,7 +518,8 @@ export default function AuthorityProfile() {
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        const blobType = mediaRecorderRef.current?.mimeType || "audio/webm";
+        const blob = new Blob(audioChunksRef.current, { type: blobType });
         setRecordedBlob(blob);
         const url = URL.createObjectURL(blob);
         setRecordedBlobUrl(url);
@@ -555,27 +584,42 @@ export default function AuthorityProfile() {
     }
 
     setIsUploadingVoice(true);
-    let url = voiceUploadUrl;
-    try {
-      if (!url) {
-        const filename = voiceFile ? voiceFile.name : "voice-recording.webm";
-        url = await uploadAudioFile(source, filename);
-        setVoiceUploadUrl(url);
-      }
-    } catch (err: any) {
-      toast.error(`Upload failed: ${err.message}`);
-      setIsUploadingVoice(false);
-      return;
-    }
-    setIsUploadingVoice(false);
-
     setIsCloningVoice(true);
+
     try {
-      await cloneVoiceMutation.mutateAsync({
-        voiceSampleUrl: url,
-        voiceName: voiceName.trim() || undefined,
+      // Use direct clone endpoint — sends audio straight to ElevenLabs, no R2 middleman
+      const recMime = (source instanceof Blob ? source.type : "") || "audio/webm";
+      const recExt = recMime.includes("mp4") ? "mp4" : recMime.includes("ogg") ? "ogg" : "webm";
+      const filename = voiceFile ? voiceFile.name : `voice-recording.${recExt}`;
+      const resolvedVoiceName = voiceName.trim() || "Reena's Voice";
+
+      const formData = new FormData();
+      formData.append("audio", source, filename);
+      formData.append("voiceName", resolvedVoiceName);
+
+      const response = await fetch("/api/clone-voice-direct", {
+        method: "POST",
+        body: formData,
       });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(err.error || `Server error ${response.status}`);
+      }
+
+      const data = await response.json();
+      const { voice_id } = data;
+
+      // Save voice ID to persona in DB
+      await cloneVoiceMutation.mutateAsync({
+        voiceSampleUrl: `direct-clone:${voice_id}`,
+        voiceName: resolvedVoiceName,
+      });
+
+    } catch (err: any) {
+      toast.error(`Voice cloning failed: ${err.message}`);
     } finally {
+      setIsUploadingVoice(false);
       setIsCloningVoice(false);
     }
   };
@@ -609,6 +653,31 @@ export default function AuthorityProfile() {
       </div>
 
       <div className="space-y-6">
+        {/* Bio / About — shown first so it's easy to find */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-1 flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Bio / About
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Your personal bio is used across all AI-generated content. Keep it authentic and specific to your market.
+          </p>
+          <Textarea
+            placeholder="Tell us about yourself, your experience, and why clients choose you..."
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            className="bg-secondary border-border min-h-[120px] mb-3"
+          />
+          <Button
+            size="sm"
+            onClick={() => saveBio.mutate({ bio })}
+            disabled={saveBio.isPending}
+          >
+            {saveBio.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+            Save Bio
+          </Button>
+        </Card>
+
         {/* AI Photo Avatar Status */}
         <PhotoAvatarCard />
 
@@ -1140,9 +1209,36 @@ export default function AuthorityProfile() {
             {/* ZIP Codes */}
             <div className="space-y-2">
               <Label>Target ZIP Codes</Label>
+              {/* Bulk paste textarea */}
+              <div className="space-y-1">
+                <textarea
+                  className="w-full min-h-[72px] rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+                  placeholder="Paste a list of ZIP codes here — separate by commas, spaces, or new lines (e.g. 91360, 91362, 91320)"
+                  onPaste={(e) => {
+                    e.preventDefault();
+                    const pasted = e.clipboardData.getData("text");
+                    const parsed = pasted
+                      .split(/[,\s\n]+/)
+                      .map((z) => z.replace(/[^0-9]/g, "").slice(0, 10))
+                      .filter((z) => z.length >= 4);
+                    setTargetZipCodes((prev) => {
+                      const merged = [...prev];
+                      for (const z of parsed) {
+                        if (!merged.includes(z) && merged.length < 10) merged.push(z);
+                      }
+                      return merged;
+                    });
+                  }}
+                  onChange={() => {}}
+                  value=""
+                  readOnly
+                />
+                <p className="text-xs text-muted-foreground">Paste a list to add multiple ZIP codes at once.</p>
+              </div>
+              {/* Single add */}
               <div className="flex gap-2">
                 <Input
-                  placeholder="e.g. 78704, 78745"
+                  placeholder="Or type one ZIP code and press Enter"
                   value={newZipCode}
                   onChange={(e) => setNewZipCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
                   onKeyDown={(e) => {
@@ -1186,11 +1282,124 @@ export default function AuthorityProfile() {
                   ))}
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Up to 10 ZIP codes. Press Enter or click Add.</p>
+              <p className="text-xs text-muted-foreground">Up to 10 ZIP codes total.</p>
+            </div>
+            {/* Local Highlights */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Local Highlights &amp; Amenities</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-xs gap-1.5"
+                  disabled={suggestMutation.isPending}
+                  onClick={() => {
+                    suggestMutation.mutate(undefined, {
+                      onSuccess: (data) => {
+                        setSuggestedHighlights(data.suggestions.filter((s) => !localHighlights.includes(s)));
+                        setShowSuggestions(true);
+                      },
+                      onError: (e: any) => toast.error(e.message),
+                    });
+                  }}
+                >
+                  {suggestMutation.isPending ? (
+                    <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Researching…</>
+                  ) : (
+                    <><Search className="h-3.5 w-3.5" /> Research My Market</>
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Add the amenities, landmarks, schools, and lifestyle features you want the AI to mention in your content — or click <strong>Research My Market</strong> to auto-discover them.</p>
+
+              {/* AI Suggestions panel */}
+              {showSuggestions && suggestedHighlights.length > 0 && (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      AI found {suggestedHighlights.length} highlights for your market — click to add
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowSuggestions(false)}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {suggestedHighlights.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => {
+                          if (!localHighlights.includes(s) && localHighlights.length < 20) {
+                            setLocalHighlights([...localHighlights, s]);
+                            setSuggestedHighlights(suggestedHighlights.filter((_, idx) => idx !== i));
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-xs font-medium px-2.5 py-1 rounded-full border border-amber-500/20 transition-colors"
+                      >
+                        <PlusCircle className="h-3 w-3" />
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Input
+                  placeholder="e.g. North Ranch Country Club, Award-winning Conejo Valley schools"
+                  value={newHighlight}
+                  onChange={(e) => setNewHighlight(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = newHighlight.trim();
+                      if (val && !localHighlights.includes(val) && localHighlights.length < 20) {
+                        setLocalHighlights([...localHighlights, val]);
+                        setNewHighlight("");
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const val = newHighlight.trim();
+                    if (val && !localHighlights.includes(val) && localHighlights.length < 20) {
+                      setLocalHighlights([...localHighlights, val]);
+                      setNewHighlight("");
+                    }
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+              {localHighlights.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {localHighlights.map((highlight, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-medium px-2.5 py-1 rounded-full border border-amber-500/20">
+                      {highlight}
+                      <button
+                        type="button"
+                        onClick={() => setLocalHighlights(localHighlights.filter((_, idx) => idx !== i))}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">Up to 20 highlights. Press Enter or click Add. These are woven into AI Reels, posts, and scripts automatically.</p>
             </div>
           </div>
         </Card>
-
         {/* Save Button */}
         <Button
           onClick={handleSave}

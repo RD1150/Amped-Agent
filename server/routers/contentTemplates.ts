@@ -482,7 +482,7 @@ export const contentTemplatesRouter = router({
               aiGenerated: true,
             });
 
-            const postId = Number((post as any).insertId ?? 0);
+            const postId = Number((post as any)?.id ?? 0);
 
             await db.updateContentTemplate(template.id, {
               status: 'generated',

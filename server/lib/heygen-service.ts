@@ -192,6 +192,7 @@ export async function generateStockAvatarVideo(opts: {
   avatarId: string;
   script: string;
   voiceId?: string;
+  audioUrl?: string; // When set, use this audio URL instead of TTS (for cloned ElevenLabs voices)
   title?: string;
   landscape?: boolean;
   caption?: boolean; // When true, HeyGen burns styled CC subtitles into the video
@@ -241,11 +242,9 @@ export async function generateStockAvatarVideo(opts: {
       video_inputs: [
         {
           character,
-          voice: {
-            type: "text",
-            input_text: script,
-            voice_id: voiceId,
-          },
+          voice: opts.audioUrl
+            ? { type: "audio", audio_url: opts.audioUrl }
+            : { type: "text", input_text: script, voice_id: voiceId },
           background,
         },
       ],

@@ -107,7 +107,7 @@ export const testimonialsRouter = router({
         status: "requested",
         requestSentAt: new Date(),
       });
-      const testimonialId = (result as any).insertId;
+      const testimonialId = (result as any)?.id;
 
       // Send review request email
       const html = reviewRequestEmail({
@@ -167,7 +167,7 @@ export const testimonialsRouter = router({
           status: "received",
           receivedAt: new Date(),
         });
-        return { id: (result as any).insertId };
+        return { id: (result as any)?.id };
       }
     }),
 

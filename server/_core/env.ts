@@ -37,4 +37,6 @@ export const ENV = {
   googleLoginClientSecret: process.env.GOOGLE_LOGIN_CLIENT_SECRET ?? "",
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   fromEmail: process.env.FROM_EMAIL ?? "hello@ampedagent.app",
+  ownerEmail: process.env.OWNER_EMAIL ?? "",
+  ownerName: process.env.OWNER_NAME ?? "",
 };

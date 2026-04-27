@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 import {
   Home,
   Plus,
@@ -18,6 +19,8 @@ import {
   Phone,
   Clock,
   CheckCircle2,
+  ExternalLink,
+  GitBranch,
 } from "lucide-react";
 import {
   Select,
@@ -35,6 +38,7 @@ import {
 } from "@/components/ui/dialog";
 
 export default function OpenHouseManager() {
+  const [, setLocation] = useLocation();
   const [showForm, setShowForm] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [qrDialog, setQrDialog] = useState<{ url: string; address: string } | null>(null);
@@ -79,6 +83,14 @@ export default function OpenHouseManager() {
   // Leads sub-component
   function LeadsPanel({ openHouseId }: { openHouseId: number }) {
     const { data: leads, isLoading } = trpc.openHouse.getLeads.useQuery({ openHouseId });
+    const { data: sequences } = trpc.drip.listSequences.useQuery();
+    const enrollMutation = trpc.drip.enroll.useMutation({
+      onSuccess: (data) => toast(`Enrolled in drip sequence — ${data.enrolled} contact(s) added.`),
+      onError: (err) => toast.error("Enroll failed", { description: err.message }),
+    });
+    type LeadRow = NonNullable<typeof leads>[number];
+    const [dripDialog, setDripDialog] = useState<{ lead: LeadRow } | null>(null);
+    const [selectedSeqId, setSelectedSeqId] = useState<string>("");
 
     if (isLoading) return <div className="p-4 text-center"><Loader2 className="w-4 h-4 animate-spin mx-auto" /></div>;
     if (!leads?.length) return (
@@ -88,6 +100,7 @@ export default function OpenHouseManager() {
     );
 
     return (
+      <>
       <div className="divide-y">
         {leads.map((lead) => (
           <div key={lead.id} className="p-4 flex items-center justify-between gap-3">
@@ -119,10 +132,89 @@ export default function OpenHouseManager() {
                   Follow Up
                 </Button>
               )}
+              {lead.crmLeadId && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 text-xs h-7 border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30"
+                  onClick={() => setLocation(`/crm?lead=${lead.crmLeadId}`)}
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  View in CRM
+                </Button>
+              )}
+              {lead.email && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 text-xs h-7 border-purple-200 text-purple-700 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-950/30"
+                  onClick={() => { setDripDialog({ lead }); setSelectedSeqId(""); }}
+                >
+                  <GitBranch className="w-3 h-3" />
+                  Drip
+                </Button>
+              )}
             </div>
           </div>
         ))}
       </div>
+
+      {/* Drip Enrollment Dialog */}
+      {dripDialog && (
+        <Dialog open onOpenChange={() => setDripDialog(null)}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <GitBranch className="w-4 h-4 text-purple-500" />
+                Enroll in Drip Sequence
+              </DialogTitle>
+              <DialogDescription>
+                Add <strong>{dripDialog.lead.name}</strong> to an email nurture sequence.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              {!sequences?.length ? (
+                <p className="text-sm text-muted-foreground">
+                  No sequences yet.{" "}
+                  <button className="underline text-purple-600" onClick={() => { setDripDialog(null); setLocation("/drip-sequences"); }}>Create one first</button>
+                </p>
+              ) : (
+                <>
+                  <Select value={selectedSeqId} onValueChange={setSelectedSeqId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a sequence…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sequences.map((s) => (
+                        <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" size="sm" onClick={() => setDripDialog(null)}>Cancel</Button>
+                    <Button
+                      size="sm"
+                      disabled={!selectedSeqId || enrollMutation.isPending}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                      onClick={() => {
+                        if (!selectedSeqId || !dripDialog.lead.email) return;
+                        enrollMutation.mutate({
+                          sequenceId: Number(selectedSeqId),
+                          contacts: [{ name: dripDialog.lead.name, email: dripDialog.lead.email! }],
+                          startImmediately: true,
+                        }, { onSuccess: () => setDripDialog(null) });
+                      }}
+                    >
+                      {enrollMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : "Enroll"}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+      </>
     );
   }
 

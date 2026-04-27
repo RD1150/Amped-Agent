@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { User, Bell, Shield, Palette, LogOut, Mic, Play, Loader2, Trash2, CheckCircle, AlertCircle, Square, Upload, Video, AlertTriangle, RefreshCw, Info } from "lucide-react";
+import { User, Bell, Shield, Palette, LogOut, Mic, Play, Loader2, Trash2, CheckCircle, AlertCircle, Square, Upload, Video, AlertTriangle, RefreshCw, Info, Eye, EyeOff, KeyRound } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRef } from "react";
 import { toast } from "sonner";
@@ -26,6 +26,112 @@ const STYLE_OPTIONS = [
   { value: "luxury"       as const, label: "Luxury",       desc: "Elegant & exclusive" },
   { value: "casual"       as const, label: "Casual",       desc: "Relaxed & conversational" },
 ];
+
+/**
+ * SetPasswordCard — lets Google OAuth users add a password, or existing email users change theirs.
+ */
+function SetPasswordCard({ user }: { user?: { passwordHash?: string | null; loginMethod?: string | null; email?: string | null } | null }) {
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [showNew, setShowNew] = useState(false);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const hasPassword = !!user?.passwordHash;
+
+  const setPasswordMutation = trpc.auth.setPassword.useMutation({
+    onSuccess: () => {
+      toast.success(hasPassword ? "Password updated successfully!" : "Password set! You can now sign in with your email and password.");
+      setNewPassword("");
+      setConfirmPassword("");
+      setCurrentPassword("");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 8) { toast.error("Password must be at least 8 characters."); return; }
+    if (newPassword !== confirmPassword) { toast.error("Passwords don't match."); return; }
+    setPasswordMutation.mutate({ password: newPassword, currentPassword: currentPassword || undefined });
+  };
+
+  return (
+    <Card className="bg-card border-border">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <KeyRound className="h-5 w-5 text-primary" />
+          {hasPassword ? "Change Password" : "Set a Password"}
+        </CardTitle>
+        <CardDescription>
+          {hasPassword
+            ? "Update your account password."
+            : "Add email/password login to your account so you can sign in without Google."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {!hasPassword && (
+          <div className="mb-4 rounded-lg bg-primary/10 border border-primary/20 px-4 py-3 text-sm">
+            <p className="font-medium">Your account uses Google sign-in.</p>
+            <p className="text-muted-foreground mt-0.5">Set a password below to also be able to sign in with <strong>{user?.email}</strong> + password.</p>
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {hasPassword && (
+            <div className="space-y-2">
+              <Label htmlFor="current-password">Current Password</Label>
+              <div className="relative">
+                <Input
+                  id="current-password"
+                  type={showCurrent ? "text" : "password"}
+                  placeholder="Enter current password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="pr-10"
+                  autoComplete="current-password"
+                />
+                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" onClick={() => setShowCurrent(!showCurrent)}>
+                  {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="set-new-password">{hasPassword ? "New Password" : "Password"}</Label>
+            <div className="relative">
+              <Input
+                id="set-new-password"
+                type={showNew ? "text" : "password"}
+                placeholder="Min. 8 characters"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="pr-10"
+                autoComplete="new-password"
+              />
+              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" onClick={() => setShowNew(!showNew)}>
+                {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-set-password">Confirm Password</Label>
+            <Input
+              id="confirm-set-password"
+              type="password"
+              placeholder="Re-enter password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+          </div>
+          <Button type="submit" className="w-full h-11" disabled={setPasswordMutation.isPending}>
+            {setPasswordMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            {hasPassword ? "Update Password" : "Set Password"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
 
 /**
  * OwnerPromoteCard — only shown to the platform owner who doesn't yet have admin role.
@@ -502,6 +608,9 @@ export default function Settings() {
         </CardContent>
       </Card>
 
+      {/* Set / Change Password */}
+      <SetPasswordCard user={currentUser} />
+
       {/* Voice Cloning */}
       <Card className="bg-card border-border">
         <CardHeader>
@@ -545,6 +654,24 @@ export default function Settings() {
               <li>• Aim for 30–60 seconds (minimum 15s required)</li>
               <li>• Read a property description or market update aloud</li>
             </ul>
+          </div>
+
+          {/* Voice Sample Script */}
+          <div className="bg-muted/40 border border-border rounded-lg p-4">
+            <p className="text-xs font-semibold text-foreground mb-2 uppercase tracking-wide">📖 Read this script aloud when recording:</p>
+            <p className="text-sm text-muted-foreground leading-relaxed italic">
+              "Hi, I'm [your name], a real estate agent serving [your city or area]. I help buyers and sellers navigate one of the biggest decisions of their lives — and I take that seriously.
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed italic mt-2">
+              Whether you're a first-time buyer trying to understand the market, or a seller who wants to maximize what you walk away with, my job is to make the process feel clear and manageable — not overwhelming.
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed italic mt-2">
+              I've been working in this market for several years, and what I love most is helping people find not just a house, but the right fit for where they are in life right now.
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed italic mt-2">
+              If you're thinking about buying or selling, I'd love to have a conversation. No pressure — just clarity."
+            </p>
+            <p className="text-xs text-muted-foreground mt-3">Using this script ensures consistent pronunciation and voice quality every time.</p>
           </div>
 
           {/* Recorder */}

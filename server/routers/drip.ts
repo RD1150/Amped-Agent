@@ -87,7 +87,7 @@ export const dripRouter = router({
         steps: JSON.stringify(starter.steps),
         isActive: true,
       });
-      return { id: (result as any).insertId };
+      return { id: (result as any)?.id };
     }),
 
   createCustom: protectedProcedure
@@ -116,7 +116,7 @@ export const dripRouter = router({
         steps: JSON.stringify(input.steps),
         isActive: true,
       });
-      return { id: (result as any).insertId };
+      return { id: (result as any)?.id };
     }),
 
   listEnrollments: protectedProcedure

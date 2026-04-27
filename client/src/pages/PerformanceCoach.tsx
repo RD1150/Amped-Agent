@@ -288,100 +288,94 @@ export default function PerformanceCoach() {
 
         {/* ── STRATEGY SESSION TAB ──────────────────────────────────────── */}
         <TabsContent value="strategy">
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Left: Context selection */}
-            <div className="md:col-span-1 space-y-3">
-              <div className="mb-4">
-                <h2 className="text-base font-bold text-slate-800 mb-1">Choose what you're working on</h2>
-                <p className="text-xs text-slate-500">I'll give you a strategy, talk track, and action steps — specific to your situation.</p>
+          <div className="space-y-6">
+            {/* Context picker — horizontal grid */}
+            <div>
+              <h2 className="text-sm font-semibold text-[#111111] mb-3">What are you working on?</h2>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {CONTEXTS.map((ctx) => {
+                  const Icon = ctx.icon;
+                  const isActive = selectedContext === ctx.id;
+                  return (
+                    <button
+                      key={ctx.id}
+                      onClick={() => handleContextSelect(ctx.id)}
+                      disabled={dominanceChat.isPending}
+                      className={`text-left rounded-xl border px-4 py-3.5 transition-all duration-150 ${
+                        isActive ? ctx.activeBg + " shadow-sm" : "bg-white border-[#E5E7EB] hover:border-[#FF6A00]/40 hover:bg-[#FFF3E8]"
+                      }`}
+                    >
+                      <Icon className={`h-5 w-5 mb-2 ${isActive ? "text-white" : ctx.color}`} />
+                      <div className={`text-sm font-semibold leading-tight ${isActive ? "text-white" : "text-[#111111]"}`}>{ctx.label}</div>
+                      <div className={`text-xs mt-1 leading-snug ${isActive ? "text-white/70" : "text-[#6B7280]"}`}>{ctx.description}</div>
+                    </button>
+                  );
+                })}
               </div>
-              {CONTEXTS.map((ctx) => {
-                const Icon = ctx.icon;
-                const isActive = selectedContext === ctx.id;
-                return (
-                  <button
-                    key={ctx.id}
-                    onClick={() => handleContextSelect(ctx.id)}
-                    disabled={dominanceChat.isPending}
-                    className={`w-full text-left rounded-xl border px-4 py-3.5 transition-all duration-150 ${
-                      isActive ? ctx.activeBg + " shadow-sm" : ctx.bg + " text-slate-700"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-white" : ctx.color}`} />
-                      <div>
-                        <div className={`text-sm font-semibold ${isActive ? "text-white" : "text-slate-800"}`}>{ctx.label}</div>
-                        <div className={`text-xs mt-0.5 leading-snug ${isActive ? "text-white/70" : "text-slate-500"}`}>{ctx.description}</div>
-                      </div>
-                      <ChevronRight className={`h-4 w-4 ml-auto shrink-0 ${isActive ? "text-white/70" : "text-slate-300"}`} />
-                    </div>
-                  </button>
-                );
-              })}
             </div>
 
-            {/* Right: 3-part output */}
-            <div className="md:col-span-2">
+            {/* Output area — full width */}
+            <div>
               {!selectedContext && !dominanceChat.isPending && (
-                <div className="h-full flex flex-col items-center justify-center text-center py-16 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
-                  <Target className="h-12 w-12 text-slate-300 mb-4" />
-                  <h3 className="text-base font-semibold text-slate-600 mb-2">Select a situation on the left</h3>
-                  <p className="text-sm text-slate-400 max-w-xs">
-                    I'll analyze your activity and give you a decisive strategy — not generic advice.
+                <div className="flex flex-col items-center justify-center text-center py-16 rounded-2xl border-2 border-dashed border-[#E5E7EB] bg-[#F9FAFB]">
+                  <Target className="h-10 w-10 text-[#E5E7EB] mb-3" />
+                  <h3 className="text-sm font-semibold text-[#6B7280] mb-1">Select a situation above</h3>
+                  <p className="text-xs text-[#9CA3AF] max-w-xs">
+                    I'll analyze your activity and give you a clear strategy, talk track, and next steps.
                   </p>
                 </div>
               )}
 
               {dominanceChat.isPending && !contextOutput && (
-                <div className="h-full flex flex-col items-center justify-center text-center py-16 rounded-2xl border border-slate-200 bg-white">
-                  <Loader2 className="h-10 w-10 animate-spin text-orange-500 mb-4" />
-                  <p className="text-sm font-semibold text-slate-700 mb-1">Analyzing your activity...</p>
-                  <p className="text-xs text-slate-400">Building your personalized strategy</p>
+                <div className="flex flex-col items-center justify-center text-center py-16 rounded-2xl border border-[#E5E7EB] bg-white">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#FF6A00] mb-3" />
+                  <p className="text-sm font-semibold text-[#111111] mb-1">Building your strategy...</p>
+                  <p className="text-xs text-[#6B7280]">Analyzing your activity data</p>
                 </div>
               )}
 
               {contextOutput && (
                 <div className="space-y-4">
                   {/* Strategy */}
-                  <Card className="overflow-hidden">
-                    <div className="bg-[#0f172a] px-5 py-3 flex items-center gap-2">
-                      <Lightbulb className="h-4 w-4 text-orange-400" />
-                      <span className="text-xs font-bold uppercase tracking-widest text-orange-400">Strategy</span>
+                  <Card className="overflow-hidden border-[#E5E7EB]">
+                    <div className="px-5 py-3 flex items-center gap-2 border-b border-[#E5E7EB] bg-[#F9FAFB]">
+                      <Lightbulb className="h-4 w-4 text-[#FF6A00]" />
+                      <span className="text-sm font-semibold text-[#111111]">Your Strategy</span>
                     </div>
                     <div className="p-5">
-                      <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{contextOutput.strategy}</p>
+                      <p className="text-sm text-[#374151] leading-relaxed whitespace-pre-wrap">{contextOutput.strategy}</p>
                     </div>
                   </Card>
 
                   {/* Talk Track */}
                   {contextOutput.talkTrack && (
-                    <Card className="overflow-hidden">
-                      <div className="bg-slate-800 px-5 py-3 flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4 text-slate-300" />
-                        <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Talk Track</span>
-                        <span className="ml-auto text-[10px] text-slate-500">Exact words to use</span>
+                    <Card className="overflow-hidden border-[#E5E7EB]">
+                      <div className="px-5 py-3 flex items-center gap-2 border-b border-[#E5E7EB] bg-[#F9FAFB]">
+                        <MessageSquare className="h-4 w-4 text-[#6B7280]" />
+                        <span className="text-sm font-semibold text-[#111111]">Talk Track</span>
+                        <span className="ml-auto text-xs text-[#6B7280]">Exact words to use</span>
                       </div>
-                      <div className="p-5 bg-slate-50">
-                        <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap italic">"{contextOutput.talkTrack}"</p>
+                      <div className="p-5 bg-[#FAFAFA]">
+                        <p className="text-sm text-[#374151] leading-relaxed whitespace-pre-wrap italic">"{contextOutput.talkTrack}"</p>
                       </div>
                     </Card>
                   )}
 
                   {/* Action Steps */}
                   {contextOutput.actionSteps.length > 0 && (
-                    <Card className="overflow-hidden">
-                      <div className="bg-emerald-700 px-5 py-3 flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-200" />
-                        <span className="text-xs font-bold uppercase tracking-widest text-emerald-200">Your Next Actions</span>
-                        <span className="ml-auto text-[10px] text-emerald-400">Do these today</span>
+                    <Card className="overflow-hidden border-[#E5E7EB]">
+                      <div className="px-5 py-3 flex items-center gap-2 border-b border-[#E5E7EB] bg-[#F9FAFB]">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                        <span className="text-sm font-semibold text-[#111111]">Your Next Actions</span>
+                        <span className="ml-auto text-xs text-[#6B7280]">Do these today</span>
                       </div>
                       <div className="p-5 space-y-3">
                         {contextOutput.actionSteps.map((step, i) => (
                           <div key={i} className="flex items-start gap-3">
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#0f172a] text-white text-xs font-bold shrink-0 mt-0.5">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#FF6A00] text-white text-xs font-bold shrink-0 mt-0.5">
                               {i + 1}
                             </span>
-                            <p className="text-sm text-slate-700 leading-snug">{step}</p>
+                            <p className="text-sm text-[#374151] leading-snug">{step}</p>
                           </div>
                         ))}
                       </div>
@@ -390,7 +384,7 @@ export default function PerformanceCoach() {
 
                   <button
                     onClick={() => { setSelectedContext(null); setContextOutput(null); setChatMessages([]); }}
-                    className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+                    className="flex items-center gap-1.5 text-xs text-[#6B7280] hover:text-[#111111] transition-colors"
                   >
                     <RefreshCw className="h-3 w-3" />
                     Start a new session

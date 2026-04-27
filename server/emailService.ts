@@ -271,3 +271,31 @@ export async function sendLowCreditsWarning(params: {
     fallbackTitle: `Low credits: ${userName} has ${creditsRemaining} credits`,
   });
 }
+
+// ─── Password Reset ───────────────────────────────────────────────────────────
+
+export async function sendPasswordResetEmail(params: {
+  userName: string;
+  userEmail: string;
+  resetToken: string;
+}): Promise<boolean> {
+  const { userName, userEmail, resetToken } = params;
+  const resetUrl = `${SITE_URL}/reset-password?token=${resetToken}`;
+
+  const html = emailShell(
+    "Reset your Amped Agent password",
+    `${greeting(userName)}
+    <p style="margin:0 0 16px;">We received a request to reset your password. Click the button below to choose a new one.</p>
+    <p style="margin:0 0 16px;">This link expires in <strong>1 hour</strong>. If you didn't request a password reset, you can safely ignore this email.</p>
+    ${btn("Reset My Password", resetUrl)}
+    <p style="margin:16px 0 0;font-size:13px;color:#999;">Or copy and paste this URL into your browser:<br/><span style="color:#f97316;">${resetUrl}</span></p>
+    ${signature()}`
+  );
+
+  return sendEmail({
+    to: userEmail,
+    subject: "Reset your Amped Agent password",
+    html,
+    fallbackTitle: `Password reset requested by ${userName} (${userEmail})`,
+  });
+}

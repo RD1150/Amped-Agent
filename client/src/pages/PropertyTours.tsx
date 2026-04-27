@@ -1196,66 +1196,7 @@ export default function PropertyTours() {
 
 
 
-            {/* Video Mode Selection */}
-            <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-sm font-semibold">Video Style</Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">Choose how your property tour is animated</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setVideoMode("standard")}
-                  className={`p-3 rounded-lg border-2 text-left transition-all ${
-                    videoMode === "standard"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-background hover:border-primary/50"
-                  }`}
-                >
-                  <div className="text-sm font-semibold mb-1">🎬 Ken Burns</div>
-                  <div className="text-xs text-muted-foreground">Classic slow zoom &amp; pan on photos</div>
-                  <div className="text-xs text-primary font-medium mt-1">Fast · 5 credits</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setVideoMode("cinematic")}
-                  className={`p-3 rounded-lg border-2 text-left transition-all ${
-                    videoMode === "cinematic"
-                      ? "border-amber-500 bg-amber-500/10"
-                      : "border-border bg-background hover:border-amber-500/50"
-                  }`}
-                >
-                  <div className="text-sm font-semibold mb-1">🎞️ Cinematic</div>
-                  <div className="text-xs text-muted-foreground">Fast cuts, vignette &amp; letterbox bars</div>
-                  <div className="text-xs text-amber-500 font-medium mt-1">Fast · 7 credits</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setVideoMode("ai-enhanced")}
-                  className={`p-3 rounded-lg border-2 text-left transition-all ${
-                    videoMode === "ai-enhanced"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-background hover:border-primary/50"
-                  }`}
-                >
-                  <div className="text-sm font-semibold mb-1">✨ AI Motion</div>
-                  <div className="text-xs text-muted-foreground">AI generates real camera movement</div>
-                  <div className="text-xs text-primary font-medium mt-1">~5 min · 15 credits</div>
-                </button>
-              </div>
-              {videoMode === "cinematic" && (
-                <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded p-2">
-                  🎞️ Cinematic mode uses aggressive diagonal pans, hard cuts, dark vignette edges, and 2.39:1 letterbox bars for a true film look. Renders in ~2 minutes.
-                </p>
-              )}
-              {videoMode === "ai-enhanced" && (
-                <p className="text-xs text-muted-foreground bg-muted dark:bg-primary/10 border border-primary/20 dark:border-primary/50 rounded p-2">
-                  🤖 AI Motion generates real camera movement (dolly push, arc turns, crane shots) for your best 3–5 photos. Takes ~5 minutes to generate.
-                </p>
-              )}
-            </div>
+            {/* Video Mode locked to Ken Burns */}
             {/* Movement Speed Preset */}
             <div className="space-y-2">
               <Label htmlFor="movementSpeed">Camera Movement Speed</Label>

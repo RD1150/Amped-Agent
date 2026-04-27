@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
+import { pushLeadToAllCrms } from "../crmService";
+import { fireZapierWebhook } from "../zapierService";
 import { invokeLLM } from "../_core/llm";
 import * as db from "../db";
 import { createContentPost } from "../db";
@@ -238,6 +240,23 @@ Write authoritative, helpful, and locally relevant content. Return ONLY valid JS
         title: `Lead Magnet Sent: ${magnetLabel} → ${recipientEmail}`,
         content: `Agent ${agentName} (${ctx.user.email}) sent a lead magnet to ${recipientEmail}${recipientName ? ` (${recipientName})` : ""}\n\nMagnet: ${magnetLabel}\nPDF URL: ${pdfUrl}\n\n--- Email sent to recipient ---\n${greeting}\n\n${agentName} has shared a free resource with you:\n\n📄 ${magnetLabel}\n\nDownload your copy here:\n${pdfUrl}\n\nThis guide was created specifically for your local market. Feel free to reach out to ${agentName} with any questions.\n\nBest regards,\n${agentName}`,
       });
+      // Push recipient as a lead to external CRMs — non-blocking
+      pushLeadToAllCrms(ctx.user.id, {
+        firstName: recipientName ? recipientName.split(" ")[0] : "Lead",
+        lastName: recipientName ? (recipientName.split(" ").slice(1).join(" ") || undefined) : undefined,
+        email: recipientEmail,
+        source: "Lead Magnet",
+        message: `Downloaded lead magnet: ${magnetLabel}`,
+      }).catch(() => {});
+      // Fire Zapier webhook for lead magnet download — non-blocking
+      fireZapierWebhook(ctx.user.id, "lead_magnet_download", {
+        firstName: recipientName ? recipientName.split(" ")[0] : "Lead",
+        lastName: recipientName ? (recipientName.split(" ").slice(1).join(" ") || undefined) : undefined,
+        email: recipientEmail,
+        source: "Lead Magnet",
+        magnetTitle: magnetLabel,
+        message: `Downloaded lead magnet: ${magnetLabel}`,
+      }).catch(() => {});
       return { success: true, sentTo: recipientEmail };
     }),
 });

@@ -13,10 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Check, User, Palette, Globe, Phone, Mail, Mic, Camera, Loader2, CheckCircle2, Trash2, X, Plus, MapPin, AlertCircle } from "lucide-react";
+import { Check, User, Palette, Globe, Phone, Mail, Mic, Camera, Loader2, CheckCircle2, Trash2, X, Plus, MapPin } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { Link } from "wouter";
 
 type BrandVoice = "professional" | "friendly" | "luxury" | "casual" | "authoritative";
 
@@ -40,6 +38,8 @@ export default function PersonaBrand() {
     phoneNumber: "",
     emailAddress: "",
     socialHandles: "",
+    klingAvatarHeadshotUrl: "",
+    klingAvatarVoiceUrl: "",
   });
   const [headshotOffsetY, setHeadshotOffsetY] = useState(50);
   const [headshotZoom, setHeadshotZoom] = useState(100);
@@ -48,12 +48,11 @@ export default function PersonaBrand() {
   const dragStartY = useRef(0);
   const dragStartOffset = useRef(50);
   const [isUploadingHeadshot, setIsUploadingHeadshot] = useState(false);
-
+  const [isUploadingAvatarHeadshot, setIsUploadingAvatarHeadshot] = useState(false);
+  const [isUploadingAvatarVoice, setIsUploadingAvatarVoice] = useState(false);
   const [voiceSampleUrl, setVoiceSampleUrl] = useState("");
   const [isUploadingVoiceSample, setIsUploadingVoiceSample] = useState(false);
 
-  const { user } = useAuth();
-  const hasAccess = !user || user.subscriptionStatus === 'active' || user.subscriptionStatus === 'trialing' || user.role === 'admin';
   const { data: persona, isLoading } = trpc.persona.get.useQuery();
   const utils = trpc.useUtils();
 
@@ -62,18 +61,8 @@ export default function PersonaBrand() {
       utils.persona.get.invalidate();
       toast.success("Brand settings saved successfully");
     },
-    onError: (err) => {
-      const msg = err.message?.includes('SUBSCRIPTION_REQUIRED')
-        ? 'Please subscribe to save your brand settings.'
-        : `Failed to save: ${err.message || 'Unknown error'}`;
-      toast.error(msg);
-    },
-  });
-
-  // Silent auto-save mutation (no toast — used for immediate persistence after uploads)
-  const autoSavePersona = trpc.persona.upsert.useMutation({
-    onSuccess: () => {
-      utils.persona.get.invalidate();
+    onError: () => {
+      toast.error("Failed to save brand settings");
     },
   });
 
@@ -99,13 +88,11 @@ export default function PersonaBrand() {
 
   const uploadHeadshot = trpc.uploads.uploadHeadshot.useMutation({
     onSuccess: (result) => {
-      setFormData(prev => ({ ...prev, headshotUrl: result.url }));
-      setIsUploadingHeadshot(false);
+      setFormData({ ...formData, headshotUrl: result.url });
       toast.success('Headshot uploaded successfully!');
     },
-    onError: (err) => {
-      setIsUploadingHeadshot(false);
-      toast.error(`Failed to upload headshot: ${err.message || 'Unknown error'}`);
+    onError: () => {
+      toast.error('Failed to upload headshot');
     },
   });
 
@@ -130,7 +117,8 @@ export default function PersonaBrand() {
         phoneNumber: persona.phoneNumber || "",
         emailAddress: persona.emailAddress || "",
         socialHandles: persona.socialHandles || "",
-
+        klingAvatarHeadshotUrl: (persona as any).klingAvatarHeadshotUrl || "",
+        klingAvatarVoiceUrl: (persona as any).klingAvatarVoiceUrl || "",
       });
       setVoiceSampleUrl((persona as any).voiceSampleUrl || "");
       setHeadshotOffsetY((persona as any).headshotOffsetY ?? 50);
@@ -174,13 +162,10 @@ export default function PersonaBrand() {
     try {
       // Convert file to base64
       const reader = new FileReader();
-      reader.onerror = () => {
-        setIsUploadingHeadshot(false);
-        toast.error('Failed to read file');
-      };
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const base64 = reader.result as string;
-        // Upload to S3 via tRPC (loading state cleared in mutation callbacks)
+        
+        // Upload to S3 via tRPC
         uploadHeadshot.mutate({
           fileName: file.name,
           fileData: base64,
@@ -190,8 +175,9 @@ export default function PersonaBrand() {
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Upload error:', error);
-      setIsUploadingHeadshot(false);
       toast.error('Failed to upload headshot');
+    } finally {
+      setIsUploadingHeadshot(false);
     }
   };
 
@@ -240,7 +226,6 @@ export default function PersonaBrand() {
       headshotOffsetY,
       headshotZoom,
       isCompleted: true,
-      voiceSampleUrl: voiceSampleUrl || undefined,
       primaryCity: validCities[0]?.city || formData.serviceAreas.split(",")[0]?.trim() || "",
       primaryState: validCities[0]?.state || "",
       serviceCities: validCities.length > 0 ? JSON.stringify(validCities) : undefined,
@@ -279,24 +264,6 @@ export default function PersonaBrand() {
           </Badge>
         )}
       </div>
-
-      {/* Paywall Banner — shown when user has no active subscription or trial */}
-      {!hasAccess && (
-        <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
-          <AlertCircle className="h-5 w-5 text-amber-400 mt-0.5 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-amber-300">Your trial has ended</p>
-            <p className="text-xs text-amber-400/80 mt-0.5">
-              You can still update your profile, but features like content generation and video creation require an active subscription.
-            </p>
-          </div>
-          <Link href="/settings/billing">
-            <Button size="sm" className="shrink-0 bg-amber-500 hover:bg-amber-400 text-black font-semibold">
-              Subscribe
-            </Button>
-          </Link>
-        </div>
-      )}
 
       {/* Business Information */}
       <Card className="bg-card border-border">
@@ -511,7 +478,7 @@ export default function PersonaBrand() {
             <Label className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
               Service Cities / Counties
-              <span className="text-xs text-muted-foreground font-normal ml-1">(up to 5 — used for AI content)</span>
+              <span className="text-xs text-muted-foreground font-normal ml-1">(up to 10 — used for AI content)</span>
             </Label>
             <div className="space-y-2">
               {serviceCities.map((entry, idx) => (
@@ -561,7 +528,7 @@ export default function PersonaBrand() {
                 </div>
               ))}
             </div>
-            {serviceCities.length < 5 && (
+            {serviceCities.length < 10 && (
               <button
                 type="button"
                 onClick={() => setServiceCities([...serviceCities, { city: "", state: "" }])}
@@ -729,21 +696,108 @@ export default function PersonaBrand() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Mic className="h-5 w-5 text-primary" />
-            AI Voice Clone
+            <Camera className="h-5 w-5 text-primary" />
+            AI Agent Avatar Setup
           </CardTitle>
           <CardDescription>
-            Clone your voice with ElevenLabs AI. Once cloned, your AI twin will narrate property tours and videos in your actual voice automatically.
+            Upload your headshot and a voice recording to enable the AI Avatar Overlay on property tour videos.
+            Your AI twin will appear in the corner narrating tours in your voice.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><Camera className="h-4 w-4" /> Avatar Headshot</Label>
+            <p className="text-xs text-muted-foreground">Upload a clear, front-facing photo (JPG or PNG). This will be used to generate your AI twin.</p>
+            {formData.klingAvatarHeadshotUrl && (
+              <img src={formData.klingAvatarHeadshotUrl} alt="Avatar headshot" className="w-24 h-24 rounded-full object-cover border-2 border-primary" />
+            )}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              id="avatarHeadshotInput"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setIsUploadingAvatarHeadshot(true);
+                try {
+                  const fd = new FormData();
+                  fd.append("images", file);
+                  const res = await fetch("/api/upload-images", { method: "POST", body: fd });
+                  const data = await res.json();
+                  setFormData(prev => ({ ...prev, klingAvatarHeadshotUrl: data.urls[0] }));
+                  toast.success("Avatar headshot uploaded");
+                } catch {
+                  toast.error("Failed to upload headshot");
+                } finally {
+                  setIsUploadingAvatarHeadshot(false);
+                }
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById("avatarHeadshotInput")?.click()}
+              disabled={isUploadingAvatarHeadshot}
+            >
+              {isUploadingAvatarHeadshot ? "Uploading..." : formData.klingAvatarHeadshotUrl ? "Change Headshot" : "Upload Headshot"}
+            </Button>
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><Mic className="h-4 w-4" /> Voice Recording (for AI Avatar)</Label>
+            <p className="text-xs text-muted-foreground">Upload a 15–30 second audio clip of your voice (MP3 or WAV). Used for the AI avatar overlay animation.</p>
+            {formData.klingAvatarVoiceUrl && (
+              <audio controls src={formData.klingAvatarVoiceUrl} className="w-full mt-1" />
+            )}
+            <input
+              type="file"
+              accept="audio/mpeg,audio/wav,audio/mp4,audio/webm"
+              className="hidden"
+              id="avatarVoiceInput"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setIsUploadingAvatarVoice(true);
+                try {
+                  const fd = new FormData();
+                  fd.append("images", file);
+                  const res = await fetch("/api/upload-images", { method: "POST", body: fd });
+                  const data = await res.json();
+                  setFormData(prev => ({ ...prev, klingAvatarVoiceUrl: data.urls[0] }));
+                  toast.success("Voice recording uploaded");
+                } catch {
+                  toast.error("Failed to upload voice recording");
+                } finally {
+                  setIsUploadingAvatarVoice(false);
+                }
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById("avatarVoiceInput")?.click()}
+              disabled={isUploadingAvatarVoice}
+            >
+              {isUploadingAvatarVoice ? "Uploading..." : formData.klingAvatarVoiceUrl ? "Change Recording" : "Upload Voice Recording"}
+            </Button>
+          </div>
+
+          {/* AI Voice Clone Section */}
+          <div className="border-t pt-4 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Upload a 15-second to 5-minute voice sample (MP3, WAV, or M4A). Our AI will clone your voice and use it to narrate property tours automatically.
-              </p>
+              <div>
+                <Label className="flex items-center gap-2 text-sm font-semibold">
+                  <Mic className="h-4 w-4 text-primary" />
+                  AI Voice Clone (for Voiceover Narration)
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Upload a 15-second to 5-minute voice sample. Our AI will clone your voice and use it to narrate property tours automatically.
+                </p>
+              </div>
               {(persona as any)?.elevenlabsVoiceId && (
-                <Badge variant="outline" className="text-primary border-green-600 flex items-center gap-1 shrink-0 ml-4">
+                <Badge variant="outline" className="text-primary border-green-600 flex items-center gap-1 shrink-0">
                   <CheckCircle2 className="h-3 w-3" /> Voice Cloned
                 </Badge>
               )}
@@ -774,11 +828,7 @@ export default function PersonaBrand() {
                     fd.append("images", file);
                     const res = await fetch("/api/upload-images", { method: "POST", body: fd });
                     const data = await res.json();
-                    const voiceUrl = data.urls?.[0];
-                    if (!voiceUrl) throw new Error("No URL returned");
-                    setVoiceSampleUrl(voiceUrl);
-                    // Immediately persist to DB so it survives page navigation
-                    autoSavePersona.mutate({ voiceSampleUrl: voiceUrl });
+                    setVoiceSampleUrl(data.urls[0]);
                     toast.success("Voice sample uploaded — click \"Clone My Voice\" to create your AI voice.");
                   } catch {
                     toast.error("Failed to upload voice sample");

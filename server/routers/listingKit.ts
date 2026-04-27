@@ -73,7 +73,7 @@ export const listingKitRouter = router({
         photoUrls: input.photoUrls ? JSON.stringify(input.photoUrls) : null,
         status: "draft",
       });
-      return { id: (result as any).insertId };
+      return { id: (result as any)?.id };
     }),
 
   generate: protectedProcedure

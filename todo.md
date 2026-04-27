@@ -5326,3 +5326,23 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 - [x] Add admin-only tRPC procedure to fetch HeyGen remaining credits
 - [x] Add admin-only HeyGen credit balance widget to Dashboard page
+
+## GitHub UI Sync
+
+- [ ] Clone RD1150/Amped-Agent and inspect updated Dashboard/coach UI
+- [ ] Merge updated Dashboard cards and coach section into Manus project
+
+## TypeScript Migration Fixes (MySQL Compatibility)
+- [x] Add crmIntegrations and zapierWebhooks tables to schema.ts
+- [x] Add acceptBetaAgreement, setUserPassword, resetUserPassword, getUserByResetToken to db.ts
+- [x] Fix .returning() calls in blogBuilder.ts (MySQL doesn't support .returning())
+- [x] Fix .returning() calls in brandStory.ts
+- [x] Fix .returning() calls in guidesGenerator.ts
+- [x] Fix .returning() calls in myVideos.ts
+- [x] Fix .returning() calls in videoScriptBuilder.ts
+- [x] Add ownerEmail and ownerName to env.ts
+- [x] Fix onConflictDoUpdate → onDuplicateKeyUpdate in marketStatsHelper.ts
+- [x] Fix outputSchema → response_format json_schema in routers.ts
+- [x] Fix requestHandler option removed from storage.ts S3 send()
+- [x] Fix Buffer type error in uploadEndpoint.ts
+- [x] Fix unknown type error in zapierService.ts fullName field

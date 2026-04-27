@@ -153,6 +153,7 @@ router.post("/live-tour/upload", upload.single("file"), async (req, res) => {
 });
 
 // Audio/voice sample upload endpoint (for ElevenLabs voice cloning)
+// Also stores to R2 for backup, but returns a presigned URL
 router.post("/upload-audio", upload.single("audio"), async (req, res) => {
   try {
     if (!req.file) {
@@ -173,6 +174,66 @@ router.post("/upload-audio", upload.single("audio"), async (req, res) => {
   } catch (error) {
     console.error("Audio upload error:", error);
     res.status(500).json({ error: error instanceof Error ? error.message : "Upload failed" });
+  }
+});
+
+// Direct voice clone endpoint — sends audio straight to ElevenLabs without R2 middleman
+// This avoids R2 public URL issues (rate-limiting, CORS, access denied)
+router.post("/clone-voice-direct", upload.single("audio"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No audio file uploaded" });
+    }
+    const file = req.file;
+    const mimeType = file.mimetype || "audio/webm";
+    const voiceName = (req.body?.voiceName as string) || "Agent Voice Clone";
+    const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+    if (!ELEVENLABS_API_KEY) {
+      return res.status(500).json({ error: "ElevenLabs not configured" });
+    }
+
+    console.log(`🎤 Direct voice clone: ${file.size} bytes, mime: ${mimeType}, name: ${voiceName}`);
+
+    // Determine file extension
+    const ext = file.originalname?.split(".").pop()?.toLowerCase() ||
+      (mimeType.includes("mp4") ? "mp4" : mimeType.includes("ogg") ? "ogg" : "webm");
+
+    // Send directly to ElevenLabs
+    const formData = new FormData();
+    formData.append("name", voiceName);
+    formData.append("description", `Cloned voice for real estate agent - Amped Agent`);
+    formData.append(
+      "files",
+      new Blob([Buffer.from(file.buffer)], { type: mimeType }),
+      `voice-sample.${ext}`
+    );
+
+    const response = await fetch("https://api.elevenlabs.io/v1/voices/add", {
+      method: "POST",
+      headers: { "xi-api-key": ELEVENLABS_API_KEY },
+      body: formData,
+    });
+
+    const responseText = await response.text();
+    if (!response.ok) {
+      console.error(`❌ ElevenLabs error ${response.status}:`, responseText);
+      return res.status(500).json({ error: `ElevenLabs error: ${response.status} - ${responseText}` });
+    }
+
+    const data = JSON.parse(responseText);
+    console.log(`✅ Voice cloned successfully: ${data.voice_id}`);
+
+    // Also save to R2 for backup (non-blocking)
+    storagePut(
+      `voice-samples/${Date.now()}-${randomBytes(8).toString("hex")}.${ext}`,
+      file.buffer,
+      mimeType
+    ).catch(e => console.warn("R2 backup failed (non-critical):", e.message));
+
+    res.json({ voice_id: data.voice_id, voiceName });
+  } catch (error) {
+    console.error("Direct voice clone error:", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : "Voice clone failed" });
   }
 });
 

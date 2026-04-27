@@ -303,7 +303,7 @@ export async function getMarketData(location: string): Promise<MarketStatsData> 
       const now = new Date();
       const expiresAt = new Date(now.getTime() + CACHE_DURATION_HOURS * 60 * 60 * 1000);
 
-      // Upsert into DB cache
+      // Upsert into DB cache (MySQL uses onDuplicateKeyUpdate instead of onConflictDoUpdate)
       await db
         .insert(marketDataCache)
         .values({

@@ -185,7 +185,7 @@ Return ONLY valid JSON in this exact format:
 
       // Save to database
       const database = await getDb();
-      const [inserted] = await database!.insert(blogPosts).values({
+      const insertResult = await database!.insert(blogPosts).values({
         userId: ctx.user.id,
         title: parsed.title,
         content: parsed.content,
@@ -196,8 +196,8 @@ Return ONLY valid JSON in this exact format:
         seoKeywords: JSON.stringify(parsed.seoKeywords),
         metaDescription: parsed.metaDescription,
       });
-
-      const newPost = await database!.select().from(blogPosts).where(eq(blogPosts.id, inserted.insertId)).limit(1);
+      const insertedId = Number(insertResult[0].insertId);
+      const newPost = await database!.select().from(blogPosts).where(eq(blogPosts.id, insertedId)).limit(1);
       return newPost[0];
     }),
 
@@ -227,6 +227,31 @@ Return ONLY valid JSON in this exact format:
         .limit(1);
       if (!post || post.userId !== ctx.user.id) throw new Error("Not found");
       return post;
+    }),
+
+  /**
+   * Update a blog post (title, content, metaDescription)
+   */
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        title: z.string().min(1).max(500).optional(),
+        content: z.string().min(1).optional(),
+        metaDescription: z.string().max(300).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const database = await getDb();
+      const [post] = await database!.select().from(blogPosts).where(eq(blogPosts.id, input.id)).limit(1);
+      if (!post || post.userId !== ctx.user.id) throw new Error("Not found");
+      const updateData: Record<string, any> = {};
+      if (input.title !== undefined) updateData.title = input.title;
+      if (input.content !== undefined) updateData.content = input.content;
+      if (input.metaDescription !== undefined) updateData.metaDescription = input.metaDescription;
+      await database!.update(blogPosts).set(updateData).where(eq(blogPosts.id, input.id));
+      const [updated] = await database!.select().from(blogPosts).where(eq(blogPosts.id, input.id)).limit(1);
+      return updated;
     }),
 
   /**

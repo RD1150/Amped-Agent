@@ -34,33 +34,51 @@ export const fullAvatarVideoRouter = router({
    * Fetch English voices from HeyGen for the voice picker (cached 30 min)
    */
   getVoices: protectedProcedure
-    .query(async () => {
-      // Return cached result if still fresh
-      if (_voiceCache && Date.now() - _voiceCacheAt < VOICE_CACHE_TTL) {
-        return _voiceCache;
+    .query(async ({ ctx }) => {
+      // Fetch HeyGen voices (cached)
+      if (!_voiceCache || Date.now() - _voiceCacheAt >= VOICE_CACHE_TTL) {
+        const apiKey = process.env.HEYGEN_API_KEY;
+        if (!apiKey) throw new Error("Avatar API key not configured");
+        const res = await fetch("https://api.heygen.com/v2/voices", {
+          headers: { "X-Api-Key": apiKey },
+          signal: AbortSignal.timeout(15000),
+        });
+        if (!res.ok) throw new Error(`Voice list fetch failed: ${res.status}`);
+        const data = await res.json() as { data?: { voices?: Array<{ voice_id: string; name: string; gender: string; language: string; preview_audio?: string }> } };
+        const voices = (data.data?.voices ?? []) as Array<{ voice_id: string; name: string; gender: string; language: string; preview_audio?: string }>;
+        _voiceCache = voices
+          .filter((v) => v.language === "English" && v.name?.trim())
+          .map((v) => ({
+            id: v.voice_id,
+            name: v.name.trim(),
+            gender: v.gender as "male" | "female",
+            previewUrl: v.preview_audio ?? null,
+            isCloned: false,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        _voiceCacheAt = Date.now();
       }
-      const apiKey = process.env.HEYGEN_API_KEY;
-      if (!apiKey) throw new Error("Avatar API key not configured");
-      const res = await fetch("https://api.heygen.com/v2/voices", {
-        headers: { "X-Api-Key": apiKey },
-        signal: AbortSignal.timeout(15000), // 15s timeout
-      });
-      if (!res.ok) throw new Error(`Voice list fetch failed: ${res.status}`);
-      const data = await res.json() as { data?: { voices?: Array<{ voice_id: string; name: string; gender: string; language: string; preview_audio?: string }> } };
-      const voices = (data.data?.voices ?? []) as Array<{ voice_id: string; name: string; gender: string; language: string; preview_audio?: string }>;
-      const result = voices
-        .filter((v) => v.language === "English" && v.name?.trim())
-        .map((v) => ({
-          id: v.voice_id,
-          name: v.name.trim(),
-          gender: v.gender as "male" | "female",
-          previewUrl: v.preview_audio ?? null,
-        }))
-        .sort((a, b) => a.name.localeCompare(b.name));
-      // Store in cache
-      _voiceCache = result;
-      _voiceCacheAt = Date.now();
-      return result;
+
+      // Prepend user's cloned ElevenLabs voice if available
+      const db = await getDb();
+      const clonedVoiceEntry: Array<{ id: string; name: string; gender: "male" | "female"; previewUrl: string | null; isCloned: boolean }> = [];
+      if (db) {
+        const [userRow] = await db.select({ clonedVoiceId: users.clonedVoiceId, clonedVoiceName: users.clonedVoiceName })
+          .from(users)
+          .where(eq(users.id, ctx.user.id))
+          .limit(1);
+        if (userRow?.clonedVoiceId) {
+          clonedVoiceEntry.push({
+            id: `elevenlabs:${userRow.clonedVoiceId}`,
+            name: `${userRow.clonedVoiceName || "Your Voice"} (Cloned)`,
+            gender: "female",
+            previewUrl: null,
+            isCloned: true,
+          });
+        }
+      }
+
+      return [...clonedVoiceEntry, ...(_voiceCache ?? [])];
     }),
 
   /**
@@ -249,38 +267,17 @@ Requirements:
       };
       // Strictly use data.avatars — never talking_photos
       const avatars = data.data?.avatars ?? [];
-
-      // ── Pinned featured avatars (always shown at top, regardless of premium flag) ──
-      const PINNED_AVATARS: Array<{
-        id: string; name: string; gender: "male" | "female";
-        previewImageUrl: string; previewVideoUrl: string | null; pinned: boolean;
-      }> = [
-        { id: "8af060c7963346b99fbe442c99492c03", name: "Purple Podcast", gender: "female", previewImageUrl: "", previewVideoUrl: null, pinned: true },
-        { id: "842a8e943c4e478c84cf06be4f17ee48", name: "Pink Shirt Denim Blazer Green Mirror", gender: "female", previewImageUrl: "", previewVideoUrl: null, pinned: true },
-        { id: "887d9c1656464de7b833055fd8dadab3", name: "Blue Sweater", gender: "female", previewImageUrl: "", previewVideoUrl: null, pinned: true },
-      ];
-      // Enrich pinned avatars with live preview images if HeyGen returns them
-      for (const pinned of PINNED_AVATARS) {
-        const match = avatars.find((a) => a.avatar_id === pinned.id);
-        if (match) {
-          pinned.previewImageUrl = match.preview_image_url ?? "";
-          pinned.previewVideoUrl = match.preview_video_url ?? null;
-        }
-      }
-      // Return pinned first, then free (non-premium) stock avatars (excluding pinned IDs)
-      const pinnedIds = new Set(PINNED_AVATARS.map((p) => p.id));
-      const freeAvatars = avatars
-        .filter((a) => !a.premium && a.avatar_id && !pinnedIds.has(a.avatar_id))
+      // Return only free (non-premium) stock avatars
+      return avatars
+        .filter((a) => !a.premium && a.avatar_id)
         .map((a) => ({
           id: a.avatar_id,
           name: a.avatar_name,
           gender: a.gender as "male" | "female",
           previewImageUrl: a.preview_image_url,
           previewVideoUrl: a.preview_video_url ?? null,
-          pinned: false,
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
-      return [...PINNED_AVATARS, ...freeAvatars];
     }),
 
   /**
@@ -306,13 +303,13 @@ Requirements:
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      // ── Beta credit gate ────────────────────────────────────────────────────
-      const [userRow] = await db.select({ tier: users.subscriptionTier, twinVideoCredits: users.twinVideoCredits }).from(users).where(eq(users.id, ctx.user.id));
-      const betaCredits = userRow?.twinVideoCredits ?? 0;
-      if (betaCredits <= 0) {
+      // ── Premium gate ────────────────────────────────────────────────────────
+      const [userRow] = await db.select({ tier: users.subscriptionTier }).from(users).where(eq(users.id, ctx.user.id));
+      const tier = userRow?.tier ?? "starter";
+      if (tier !== "authority" && tier !== "pro") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "BETA_CREDITS_EXHAUSTED",
+          message: "Full Avatar Video is a Premium feature. Please upgrade your plan to access this feature.",
         });
       }
 
@@ -339,11 +336,27 @@ Requirements:
       const videoId = record.id;
 
       try {
-            // Submit video generation job using stock avatar_id
+        // ── ElevenLabs cloned voice handling ────────────────────────────────────
+        // If voiceId starts with 'elevenlabs:', generate audio via ElevenLabs TTS
+        // and pass the resulting audio URL to HeyGen instead of a voice_id
+        let heygenAudioUrl: string | undefined;
+        let effectiveVoiceId = input.voiceId;
+        if (input.voiceId.startsWith("elevenlabs:")) {
+          const elevenLabsVoiceId = input.voiceId.replace("elevenlabs:", "");
+          const { textToSpeech } = await import("../_core/elevenLabs");
+          const audioBuffer = await textToSpeech({ text: input.script, voice_id: elevenLabsVoiceId });
+          const audioKey = `voice-audio/${ctx.user.id}/${videoId}-${Date.now()}.mp3`;
+          const { storagePut } = await import("../storage");
+          const { url: audioStorageUrl } = await storagePut(audioKey, audioBuffer, "audio/mpeg");
+          heygenAudioUrl = audioStorageUrl;
+          effectiveVoiceId = "1bd001e7e50f421d891986aad5158bc8"; // fallback (unused when audioUrl set)
+        }
+        // Submit video generation job using stock avatar_id
         const heygenVideoId = await generateStockAvatarVideo({
           avatarId: input.avatarId,
           script: input.script,
-          voiceId: input.voiceId,
+          voiceId: effectiveVoiceId,
+          audioUrl: heygenAudioUrl,
           title: input.title,
           landscape: input.landscape,
           caption: input.captionsEnabled,
@@ -379,16 +392,11 @@ Requirements:
         }
         const s3Key = `full-avatar-videos/${ctx.user.id}/${videoId}-${Date.now()}.mp4`;
         const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
-        // Decrement beta credit on success
-        await db
-          .update(users)
-          .set({ twinVideoCredits: sql`GREATEST(0, ${users.twinVideoCredits} - 1)` })
-          .where(eq(users.id, ctx.user.id));
         await db
           .update(fullAvatarVideos)
           .set({ videoUrl: s3Url, s3Key, status: "completed" })
           .where(eq(fullAvatarVideos.id, videoId));
-        return { videoId, videoUrl: s3Url, duration, expiresAt: expiresAt.toISOString() };
+        return { videoId, videoUrl: s3Url, duration, expiresAt: expiresAt.toISOString() };;
       } catch (err) {
         await db
           .update(fullAvatarVideos)
@@ -512,6 +520,38 @@ Requirements:
 
       return { avatarId, status: initialStatus };
     }),
+
+  /**
+   * Get all custom avatar twins for the current user (with thumbnails synced from HeyGen)
+   */
+  getAllCustomAvatars: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    const twins = await db
+      .select()
+      .from(customAvatarTwins)
+      .where(eq(customAvatarTwins.userId, ctx.user.id))
+      .orderBy(customAvatarTwins.isDefault, customAvatarTwins.createdAt);
+    if (twins.length === 0) return [];
+
+    // For any ready avatars missing thumbnails, try to fetch from HeyGen
+    const apiKey = process.env.HEYGEN_API_KEY;
+    if (apiKey) {
+      const needsThumbnail = twins.filter(t => t.status === "ready" && !t.thumbnailUrl);
+      for (const twin of needsThumbnail) {
+        try {
+          const { previewImageUrl } = await getCustomAvatarStatus(twin.didAvatarId);
+          if (previewImageUrl) {
+            await db.update(customAvatarTwins)
+              .set({ thumbnailUrl: previewImageUrl })
+              .where(eq(customAvatarTwins.id, twin.id));
+            twin.thumbnailUrl = previewImageUrl;
+          }
+        } catch { /* non-blocking */ }
+      }
+    }
+    return twins;
+  }),
 
   /**
    * Check training status of the user's custom avatar twin
@@ -781,13 +821,13 @@ Requirements:
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      // ── Beta credit gate ────────────────────────────────────────────────────
-      const [userRow2] = await db.select({ twinVideoCredits: users.twinVideoCredits }).from(users).where(eq(users.id, ctx.user.id));
-      const betaCredits2 = userRow2?.twinVideoCredits ?? 0;
-      if (betaCredits2 <= 0) {
+      // ── Premium gate ────────────────────────────────────────────────────────
+      const [userRow2] = await db.select({ tier: users.subscriptionTier }).from(users).where(eq(users.id, ctx.user.id));
+      const tier2 = userRow2?.tier ?? "starter";
+      if (tier2 !== "authority" && tier2 !== "pro") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "BETA_CREDITS_EXHAUSTED",
+          message: "Full Avatar Video is a Premium feature. Please upgrade your plan to access this feature.",
         });
       }
 
@@ -868,11 +908,6 @@ Requirements:
         }
         const s3Key = `full-avatar-videos/${ctx.user.id}/${videoId}-custom-${Date.now()}.mp4`;
         const { url: s3Url } = await storagePut(s3Key, videoBuffer, "video/mp4");
-        // Decrement beta credit on success
-        await db
-          .update(users)
-          .set({ twinVideoCredits: sql`GREATEST(0, ${users.twinVideoCredits} - 1)` })
-          .where(eq(users.id, ctx.user.id));
         await db
           .update(fullAvatarVideos)
           .set({ videoUrl: s3Url, s3Key, status: "completed" })

@@ -756,7 +756,7 @@ export const guidesGeneratorRouter = router({
           s3Key,
           creditsCost: GUIDE_CREDIT_COST,
         });
-      const insertedId = (insertResult as unknown as { insertId: number }).insertId ?? 0;
+      const insertedId = Number(insertResult[0].insertId);
 
       return {
         id: insertedId,

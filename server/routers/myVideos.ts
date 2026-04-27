@@ -231,7 +231,7 @@ export const myVideosRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      const [result] = await db!.insert(generatedVideos).values({
+      const insertResult = await db!.insert(generatedVideos).values({
         userId: ctx.user.id,
         title: input.title,
         type: input.type,
@@ -244,7 +244,7 @@ export const myVideosRouter = router({
         creditsCost: input.creditsCost ?? 0,
         metadata: input.metadata ? JSON.stringify(input.metadata) : null,
       });
-      return { id: (result as any).insertId as number, success: true };
+      return { id: Number(insertResult[0].insertId), success: true };
     }),
 
   // Update video status and URL when render completes

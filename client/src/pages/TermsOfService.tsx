@@ -1,10 +1,12 @@
+import React from "react";
+
 export default function TermsOfService() {
   return (
     <div className="container max-w-4xl py-12">
       <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
       
       <div className="prose prose-slate max-w-none space-y-6">
-        <p className="text-muted-foreground">Last Updated: April 8, 2026</p>
+        <p className="text-muted-foreground">Last Updated: April 22, 2026</p>
 
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">1. Acceptance of Terms</h2>
@@ -52,6 +54,11 @@ export default function TermsOfService() {
           <p>
             As a real estate marketing platform, you acknowledge that all content must comply with the Fair Housing Act. You agree not to create content that discriminates based on race, color, religion, national origin, sex, familial status, or disability. While our system includes automated compliance checks, you remain solely responsible for ensuring your content meets all legal requirements.
           </p>
+
+          <h3 className="text-xl font-semibold mt-6 mb-3">3.4 FTC Advertising Guidelines</h3>
+          <p>
+            You are responsible for ensuring that all marketing materials and Generated Content comply with the Federal Trade Commission (FTC) guidelines concerning the use of endorsements and testimonials in advertising, as well as any other applicable advertising regulations.
+          </p>
         </section>
 
         <section>
@@ -75,7 +82,7 @@ export default function TermsOfService() {
           
           <h3 className="text-xl font-semibold mt-6 mb-3">5.1 Generated Content</h3>
           <p>
-            You retain all rights to Generated Content created using the Service. Amped Agent claims no ownership over your Generated Content.
+            You retain all rights to the final Generated Content created using the Service. Amped Agent claims no ownership over your Generated Content. However, Amped Agent retains all rights, title, and interest in and to the underlying AI models, algorithms, templates, and the Service itself.
           </p>
 
           <h3 className="text-xl font-semibold mt-6 mb-3">5.2 Service Content</h3>
@@ -87,10 +94,22 @@ export default function TermsOfService() {
           <p>
             Music tracks provided through our library are licensed for use within the Service. You may use these tracks in Generated Content for commercial purposes on social media platforms. Redistribution of music files outside of Generated Content is prohibited.
           </p>
+
+          <h3 className="text-xl font-semibold mt-6 mb-3">5.4 Video Content Rights</h3>
+          <p>
+            For any video content generated through the Service, including AI-generated videos, property tour videos, and reels, you are granted a non-exclusive, worldwide, royalty-free license to use, distribute, and display the final video output for your real estate marketing purposes. You may not extract, reverse engineer, or reuse the underlying AI avatars, voices, or proprietary templates outside of the final generated video file.
+          </p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">6. Indemnification</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">6. Social Networking Services Integration</h2>
+          <p>
+            The Service may allow you to connect to and post content directly to third-party social networking services (e.g., Facebook, Instagram, LinkedIn, X). By connecting your accounts, you authorize Amped Agent to access and use your account information in accordance with our Privacy Policy and the terms of the respective social networking service. You are solely responsible for complying with the terms and policies of any third-party social networking service you use in connection with Amped Agent.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">7. Indemnification</h2>
           <p>
             You agree to indemnify, defend, and hold harmless Amped Agent, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable legal fees, arising out of or in any way connected with:
           </p>
@@ -104,9 +123,9 @@ export default function TermsOfService() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">7. Limitation of Liability</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">8. Limitation of Liability</h2>
           <p>
-            TO THE MAXIMUM EXTENT PERMITTED BY LAW, AUTHORITY CONTENT SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES RESULTING FROM:
+            TO THE MAXIMUM EXTENT PERMITTED BY LAW, AMPED AGENT SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES RESULTING FROM:
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Your use or inability to use the Service</li>
@@ -117,9 +136,9 @@ export default function TermsOfService() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">8. Disclaimer of Warranties</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">9. Disclaimer of Warranties</h2>
           <p>
-            THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. AUTHORITY CONTENT DOES NOT WARRANT THAT:
+            THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. AMPED AGENT DOES NOT WARRANT THAT:
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>The Service will meet your requirements</li>
@@ -130,7 +149,7 @@ export default function TermsOfService() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">9. Account Termination</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">10. Account Termination</h2>
           <p>
             We reserve the right to suspend or terminate your account at any time for:
           </p>
@@ -143,43 +162,43 @@ export default function TermsOfService() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">10. Subscription Plans and Billing</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">11. Subscription Plans and Billing</h2>
 
-          <h3 className="text-xl font-semibold mt-6 mb-3">10.1 Paid Plans</h3>
+          <h3 className="text-xl font-semibold mt-6 mb-3">11.1 Paid Plans</h3>
           <p>Amped Agent offers subscription-based plans with varying features and usage limits. Subscription fees are billed in advance on a monthly or annual basis depending on your selected plan.</p>
 
-          <h3 className="text-xl font-semibold mt-6 mb-3">10.2 Free Trial</h3>
-          <p>We may offer a free trial period for new users. At the end of the trial, your account will automatically convert to a paid plan unless you cancel before the trial ends.</p>
+          <h3 className="text-xl font-semibold mt-6 mb-3">11.2 Free Trial</h3>
+          <p>We may offer a free trial period for new users. At the end of the trial, your account will automatically convert to a paid plan unless you cancel before the trial ends. You may be required to provide payment information to start a free trial.</p>
 
-          <h3 className="text-xl font-semibold mt-6 mb-3">10.3 Cancellation and Refunds</h3>
+          <h3 className="text-xl font-semibold mt-6 mb-3">11.3 Cancellation and Refunds</h3>
           <p>You may cancel your subscription at any time. Cancellation takes effect at the end of the current billing period. We do not provide refunds for partial billing periods, except where required by applicable law.</p>
 
-          <h3 className="text-xl font-semibold mt-6 mb-3">10.4 Price Changes</h3>
+          <h3 className="text-xl font-semibold mt-6 mb-3">11.4 Price Changes</h3>
           <p>We reserve the right to change subscription prices with at least 30 days' notice. Continued use of the Service after a price change constitutes your acceptance of the new pricing.</p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">11. AI Avatar and Likeness Rights</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">12. AI Avatar and Likeness Rights</h2>
           <p>When you upload a photo or video of yourself to create an AI avatar, you grant Amped Agent the right to process that media solely for generating your personal avatar. We do not use your likeness to train AI models or share your avatar with other users. You are responsible for ensuring you have the right to use any photos or videos you upload.</p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">12. Changes to Terms</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">13. Changes to Terms</h2>
           <p>We reserve the right to modify these Terms of Service at any time. We will notify users of material changes via email or through the Service. Your continued use of the Service after such modifications constitutes acceptance of the updated terms.</p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">13. Governing Law and Dispute Resolution</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">14. Governing Law and Dispute Resolution</h2>
           <p>These Terms are governed by the laws of the State of Texas, without regard to conflict of law principles. Any disputes arising under these Terms shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association, except that either party may seek injunctive relief in a court of competent jurisdiction.</p>
           <p className="mt-3">You waive any right to participate in a class action lawsuit or class-wide arbitration.</p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">14. Contact Information</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">15. Contact Information</h2>
           <p>For questions about these Terms of Service, please contact us at:</p>
           <ul className="list-disc pl-6 space-y-2 mt-2">
             <li><strong>Email:</strong> support@ampedagent.com</li>
-            <li><strong>Website:</strong> Amped Agent.com</li>
+            <li><strong>Website:</strong> ampedagent.app</li>
           </ul>
         </section>
 

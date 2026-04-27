@@ -9,6 +9,74 @@ import * as db from "../db";
 const inputMethodEnum = z.enum(["bullets", "caption", "blog", "listing"]);
 const videoLengthEnum = z.enum(["30", "60"]);
 const toneEnum = z.enum(["calm", "bold", "authoritative", "warm"]);
+const depthEnum = z.enum(["standard", "deep"]).default("standard");
+
+/**
+ * Build persona context string from an agent's Authority Profile.
+ * Used to inject local market, audience, and brand context into every LLM call.
+ */
+function buildPersonaContext(persona: Awaited<ReturnType<typeof db.getPersonaByUserId>>): { contextBlock: string; city: string; audienceType: string; highlights: string[] } {
+  let contextBlock = "";
+  let city = "";
+  let audienceType = "";
+  let highlights: string[] = [];
+
+  if (!persona) return { contextBlock, city, audienceType, highlights };
+
+  if (persona.primaryCity) {
+    city = persona.primaryCity;
+    contextBlock += `\nAgent's Primary Market: ${persona.primaryCity}`;
+  }
+  if (persona.agentName) contextBlock += `\nAgent Name: ${persona.agentName}`;
+  if (persona.brokerageName) contextBlock += `\nBrokerage: ${persona.brokerageName}`;
+  if (persona.tagline) contextBlock += `\nAgent Tagline: ${persona.tagline}`;
+  if (persona.brandValues) contextBlock += `\nBrand Values: ${persona.brandValues}`;
+  if (persona.marketContext) contextBlock += `\nMarket Context: ${persona.marketContext}`;
+
+  // Local highlights: amenities, schools, landmarks, lifestyle features
+  const rawHighlights = (persona as any).localHighlights;
+  if (rawHighlights) {
+    try {
+      const parsed = JSON.parse(rawHighlights);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        highlights = parsed;
+        contextBlock += `\nLocal Highlights & Amenities (MUST weave these into content naturally): ${parsed.join(", ")}`;
+      }
+    } catch { /* ignore */ }
+  }
+
+  if (persona.customerAvatar) {
+    try {
+      const avatarObj = JSON.parse(persona.customerAvatar);
+      const audienceLabels: Record<string, string> = {
+        "first-time-buyers": "First-Time Home Buyers",
+        "luxury-sellers": "Luxury Sellers",
+        "investors": "Real Estate Investors",
+        "relocators": "Relocating Families",
+        "downsizers": "Downsizers/Empty Nesters",
+        "move-up-buyers": "Move-Up Buyers",
+      };
+      const audienceToneGuide: Record<string, string> = {
+        "first-time-buyers": "Use encouraging, educational language. Demystify the process. Avoid jargon. Speak to their anxiety and excitement.",
+        "luxury-sellers": "Use sophisticated, discreet language. Emphasize exclusivity, track record, and white-glove service. Avoid anything that feels mass-market.",
+        "investors": "Use data-driven, ROI-focused language. Lead with numbers, cap rates, and market opportunity. Be direct and analytical.",
+        "relocators": "Use warm, reassuring language. Emphasize local expertise, seamless coordination, and making a new place feel like home.",
+        "downsizers": "Use empathetic, lifestyle-focused language. Acknowledge the emotional weight of the transition. Emphasize freedom and simplicity.",
+        "move-up-buyers": "Use aspirational, strategic language. Speak to equity, timing, and the next chapter. Balance excitement with practical guidance.",
+      };
+      if (avatarObj.type) {
+        audienceType = audienceLabels[avatarObj.type] || avatarObj.type;
+        contextBlock += `\nTarget Audience: ${audienceType}`;
+        if (avatarObj.description) contextBlock += `\nAudience Profile: ${avatarObj.description}`;
+        if (audienceToneGuide[avatarObj.type]) contextBlock += `\nAudience Tone Guidance: ${audienceToneGuide[avatarObj.type]}`;
+      }
+    } catch {
+      contextBlock += `\nTarget Audience: ${persona.customerAvatar}`;
+    }
+  }
+
+  return { contextBlock, city, audienceType, highlights };
+}
 
 export const autoreelsRouter = router({
   /**
@@ -92,21 +160,21 @@ export const autoreelsRouter = router({
 
       // Generate content based on input method
       const contentTypeInstructions = {
-        bullets: "Create 3-5 bullet points that can be used for a reel script. Each bullet should be a key point or tip.",
-        caption: "Write a long-form caption (150-250 words) suitable for a social media post that will be turned into a reel.",
-        blog: "Write a short blog-style paragraph (200-300 words) that explains the topic in depth.",
-        listing: "Write a property listing-style description that highlights key features and benefits."
+        bullets: "Create 4-6 bullet points for a reel script. Each bullet must be a specific, concrete insight — not a generic tip. Include real numbers, local references, or named scenarios wherever possible. Avoid vague advice like 'work with a professional' or 'do your research'.",
+        caption: "Write a long-form caption (200-300 words) for a social media post that will become a reel. Go deep: include specific data points, local market context, named neighborhoods or price ranges, and a clear opinion or insight that only a local expert would know. Avoid generic real estate advice.",
+        blog: "Write a substantive blog-style piece (300-450 words) that goes beyond surface-level advice. Include specific local market context, concrete numbers, real scenarios, and an expert opinion or prediction. This should read like something only a local expert with real experience would write — not a generic real estate article.",
+        listing: "Write a compelling property description that goes beyond standard features. Include neighborhood context, lifestyle benefits, proximity to specific local landmarks or amenities, and a clear picture of who this home is perfect for."
       };
       
       const response = await invokeLLM({
         messages: [
           {
             role: "system",
-            content: `You are a real estate content strategist helping agents create authentic, authority-building content.${contextPrompt}\n\nCreate content that aligns with their target audience, brand values, and market context.`
+            content: `You are a real estate content strategist helping agents create authentic, authority-building content that positions them as the definitive local expert.${contextPrompt}\n\nRules:\n- NEVER write generic advice (e.g., "work with a professional", "do your research", "the market is changing")\n- ALWAYS include specific details: price ranges, neighborhood names, local landmarks, concrete timelines, real numbers\n- Write as if you are the agent speaking directly to their specific audience in their specific market\n- Every sentence should contain information that only a local expert would know`
           },
           {
             role: "user",
-            content: `Topic: ${topic}${marketDataBlock}\n\n${contentTypeInstructions[inputMethod]}\n\nMake it specific, valuable, and aligned with the agent's authority profile.${marketDataBlock ? " Use the LIVE MARKET DATA numbers above — do not invent statistics." : ""}`
+            content: `Topic: ${topic}${marketDataBlock}\n\n${contentTypeInstructions[inputMethod]}\n\nMake it hyperlocal, specific, and deeply valuable.${marketDataBlock ? " Use the LIVE MARKET DATA numbers above — do not invent statistics." : ""}`
           }
         ]
       });
@@ -125,16 +193,20 @@ export const autoreelsRouter = router({
       videoLength: videoLengthEnum,
       tone: toneEnum,
       niche: z.string().default("real estate"),
+      depth: depthEnum,
     }))
-    .mutation(async ({ input }) => {
-      const { inputText, inputMethod, videoLength, tone, niche } = input;
+    .mutation(async ({ ctx, input }) => {
+      const { inputText, inputMethod, videoLength, tone, niche, depth } = input;
+
+         // Load persona for context injection
+      const persona = await db.getPersonaByUserId(ctx.user.id);
+      const { contextBlock, city, audienceType, highlights } = buildPersonaContext(persona);
       
       // Moderate input content
       const moderation = await moderateContent(inputText, true);
       if (!moderation.allowed) {
         throw new Error(`Content moderation: ${moderation.reason}`);
       }
-
       // Determine content type description
       const contentTypeDescriptions = {
         bullets: "bullet points",
@@ -142,57 +214,55 @@ export const autoreelsRouter = router({
         blog: "blog post or article",
         listing: "property listing description"
       };
-
       const toneDescriptions = {
         calm: "calm, soothing, and reassuring",
         bold: "bold, confident, and attention-grabbing",
         authoritative: "authoritative, expert, and trustworthy",
         warm: "warm, friendly, and approachable"
       };
+      // Build depth-aware context strings
+      const locationRef = city || "this market";
+      const audienceRef = audienceType || "your audience";
+      // Build local highlights instruction block
+      const highlightsBlock = highlights.length > 0
+        ? `\n\nLOCAL HIGHLIGHTS — naturally weave at least 1-2 of these into the content where relevant:\n${highlights.map(h => `- ${h}`).join("\n")}`
+        : "";
+      const depthInstructions = depth === "deep"
+        ? `\n\nDEEP DIVE MODE — MANDATORY RULES:\n- Reference specific neighborhoods, zip codes, or streets in ${locationRef} by name\n- Include concrete price ranges, percentages, or timeframes (e.g. "homes under $450K", "3-4 weeks", "12% below asking")\n- Name real local dynamics: school districts, commute corridors, development projects, seasonal patterns\n- Share an expert opinion or contrarian take that only a local agent with real experience would know\n- Avoid ANY generic advice ("work with a professional", "the market is changing", "do your research")\n- Every sentence must contain information that could not have been written by someone who doesn't know ${locationRef}`
+        : "";
+      const personaSystemAddition = contextBlock
+        ? `\n\nAGENT CONTEXT (use this to personalize every output):\n${contextBlock}${highlightsBlock}`
+        : highlightsBlock ? `\n\nLOCAL CONTEXT:${highlightsBlock}` : "";
 
       // Step 1: Generate 3 hook options
       const hooksResponse = await invokeLLM({
         messages: [
           {
             role: "system",
-            content: `You are an expert social media copywriter specializing in ${niche} content. Your job is to create scroll-stopping hooks for short-form vertical videos (Reels, TikTok, Shorts) that drive LEADS - not just views.
+            content: `You are an expert social media copywriter specializing in ${niche} content for real estate agents. Your job is to create scroll-stopping hooks for short-form vertical videos (Reels, TikTok, Shorts) that drive LEADS — not just views.${personaSystemAddition}
 
 Your PRIMARY GOAL: Get viewers to comment, DM, or click for more information.
 
-A great ${niche} hook:
+A great hook:
 - Stops the scroll in the first 2 seconds with a bold statement, question, or pattern interrupt
-- Creates curiosity, urgency, or FOMO (fear of missing out)
-- Is short and punchy (under 10 words)
-- Speaks directly to the target audience's pain points or desires
+- Creates curiosity, urgency, or FOMO
+- Is short and punchy (under 12 words)
+- Speaks directly to ${audienceRef}'s pain points or desires
 - Uses power words, numbers, or emotional triggers
-- Avoids generic phrases like "Did you know" or "Here's why"
-- ENDS with a clear call-to-action or cliffhanger that demands engagement
+- Avoids generic openers like "Did you know" or "Here's why"
 
-Real estate-specific hook formulas that GENERATE LEADS:
-- "[Number] [mistake/secret/tip] about [topic] - DM me so this doesn't happen to you"
-- "Stop [doing X] if you want [desired outcome] - comment [word] for the full list"
-- "This [property/market/strategy] will [bold claim] - save this before it's too late"
-- "Why [surprising fact] in [location] - buyers are panicking"
-- "[Controversial opinion] about [topic] - agents hate me for sharing this"
-- "If you're [doing X], you're losing [money/time/opportunity] - DM me to fix it"
-- "[Shocking statistic] that [consequence] - comment YES if you want to know more"
+Hook formulas that GENERATE LEADS:
+- "[Number] [mistake/secret/insight] about [topic in ${locationRef}] — DM me before you [action]"
+- "Stop [doing X] if you want [outcome] in ${locationRef} — comment [word] for the full breakdown"
+- "Why [surprising local fact] is happening right now — ${audienceRef} need to see this"
+- "[Controversial local opinion] — most agents won't tell you this"
+- "[Specific local stat or scenario] — here's what it actually means for you"
 
-Lead-generation techniques to use:
-- Create information gaps ("The #1 mistake is...") that require engagement to fill
-- Use pattern interrupts ("Stop scrolling if you're...") to grab attention
-- Add urgency ("Before it's too late", "Right now", "This week only")
-- Include clear CTAs ("DM me", "Comment below", "Save this", "Tag someone")
-- Make it personal ("You're making this mistake", "This is costing YOU")
-
-The tone should be: ${toneDescriptions[tone]}`
+The tone should be: ${toneDescriptions[tone]}${depthInstructions}`
           },
           {
             role: "user",
-            content: `Create 3 different scroll-stopping hooks for a ${videoLength}-second ${niche} video based on these ${contentTypeDescriptions[inputMethod]}:
-
-${inputText}
-
-Return ONLY the 3 hooks, one per line, numbered 1-3. No additional explanation.`
+            content: `Create 3 different scroll-stopping hooks for a ${videoLength}-second ${niche} video based on these ${contentTypeDescriptions[inputMethod]}:\n\n${inputText}\n\nReturn ONLY the 3 hooks, one per line, numbered 1-3. No additional explanation.`
           }
         ]
       });
@@ -207,28 +277,26 @@ Return ONLY the 3 hooks, one per line, numbered 1-3. No additional explanation.`
         .slice(0, 3);
 
       // Step 2: Generate script
+      const wordTarget = Math.floor(parseInt(videoLength) * 2.5);
       const scriptResponse = await invokeLLM({
         messages: [
           {
             role: "system",
-            content: `You are an expert scriptwriter for short-form vertical videos. Your scripts are:
-- Conversational and natural (not robotic)
-- Written in short, punchy sentences (perfect for subtitles)
-- ${videoLength} seconds when read aloud (approximately ${Math.floor(parseInt(videoLength) * 2.5)} words)
-- Engaging and valuable
-- Tone: ${toneDescriptions[tone]}
+            content: `You are an expert scriptwriter for short-form vertical videos. You write for real estate agents who want to be seen as the definitive local authority.${personaSystemAddition}
 
-Write scripts that sound like a real person talking, not reading from a teleprompter.`
+Script requirements:
+- Conversational and natural — sounds like a real person talking, not a teleprompter
+- Short, punchy sentences (ideal for subtitle display)
+- Target length: ~${wordTarget} words (${videoLength} seconds at natural speaking pace)
+- Tone: ${toneDescriptions[tone]}
+- Do NOT include the hook (it will be prepended separately)
+- Do NOT include stage directions, formatting, or section labels
+
+${depth === "deep" ? `DEEP DIVE MODE — every line must earn its place:\n- Name specific neighborhoods, streets, or landmarks in ${locationRef}\n- Use real numbers: price ranges, days on market, percentages, timelines\n- Include at least one insight that only a local expert would know\n- End with a clear, specific call to action tied to the topic\n- Zero generic filler — if a sentence could appear in any real estate video anywhere, cut it` : `Make every sentence specific and valuable. Avoid generic advice. Include at least one concrete detail (number, local reference, or specific scenario) that makes this feel local and expert.`}`
           },
           {
             role: "user",
-            content: `Write a ${videoLength}-second script for a ${niche} video based on this content:
-
-${inputText}
-
-The hook will be: "${hooks[0]}"
-
-Write ONLY the script body (not including the hook). Keep it conversational and perfect for subtitle display. No stage directions or formatting.`
+            content: `Write a ${videoLength}-second script body for a ${niche} video based on this content:\n\n${inputText}\n\nThe hook will be: "${hooks[0]}"\n\nWrite ONLY the script body. No hook, no stage directions, no formatting.`
           }
         ]
       });
@@ -241,32 +309,27 @@ Write ONLY the script body (not including the hook). Keep it conversational and 
         messages: [
           {
             role: "system",
-            content: `You are an expert Instagram caption writer for ${niche} professionals. Your captions are:
-- Instagram-ready (2-4 short paragraphs)
-- Include relevant emojis (but not excessive)
-- End with a clear call-to-action
-- Engaging and authentic
-- Tone: ${toneDescriptions[tone]}
-- NO HASHTAGS (keep it clean)
+            content: `You are an expert Instagram caption writer for ${niche} professionals.${personaSystemAddition}
 
-CTA options to choose from:
-- "Follow for more [topic] tips"
-- "DM me 'INFO' to learn more"
-- "Save this for later"
-- "Share this with someone who needs to see it"
-- "Comment [word] below for [resource]"`
+Caption requirements:
+- 2-4 short paragraphs, Instagram-ready
+- Relevant emojis (not excessive)
+- End with a strong, specific call-to-action
+- Tone: ${toneDescriptions[tone]}
+- NO HASHTAGS
+- Expand on the video with additional depth — the caption should add value beyond what's in the script
+${depth === "deep" ? `- Include at least one specific local detail (neighborhood, price range, local stat) not mentioned in the script\n- CTA should be specific: not just "DM me" but "DM me '[keyword]' and I'll send you [specific resource]"` : ""}
+
+CTA options:
+- "DM me '[keyword]' for [specific resource]"
+- "Follow for weekly ${locationRef} market updates"
+- "Save this — you'll need it when [specific scenario]"
+- "Tag someone who's [doing X in locationRef]"
+- "Comment '[word]' below and I'll send you [specific thing]"`
           },
           {
             role: "user",
-            content: `Write an Instagram caption for this ${niche} video:
-
-Hook: "${hooks[0]}"
-Script: "${script}"
-
-Original content:
-${inputText}
-
-Write a caption that expands on the video content and includes a strong CTA. NO HASHTAGS.`
+            content: `Write an Instagram caption for this ${niche} video:\n\nHook: "${hooks[0]}"\nScript: "${script}"\n\nOriginal content:\n${inputText}\n\nWrite a caption that adds depth beyond the video. NO HASHTAGS.`
           }
         ]
       });
@@ -292,10 +355,11 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
       videoLength: videoLengthEnum,
       tone: toneEnum,
       niche: z.string().default("real estate"),
+      depth: depthEnum,
     }))
-    .mutation(async ({ input }) => {
-      // Regenerate uses the same logic as generate
-      const { inputText, inputMethod, videoLength, tone, niche } = input;
+    .mutation(async ({ ctx, input }) => {
+      // Regenerate uses the same upgraded logic as generate
+      const { inputText, inputMethod, videoLength, tone, niche, depth } = input;
       
       // Moderate input content
       const moderation = await moderateContent(inputText, true);
@@ -303,62 +367,43 @@ Write a caption that expands on the video content and includes a strong CTA. NO 
         throw new Error(`Content moderation: ${moderation.reason}`);
       }
 
+         // Load persona for context injection
+      const persona = await db.getPersonaByUserId(ctx.user.id);
+      const { contextBlock, city, audienceType, highlights } = buildPersonaContext(persona);
       const contentTypeDescriptions = {
         bullets: "bullet points",
         caption: "long-form caption",
         blog: "blog post or article",
         listing: "property listing description"
       };
-
       const toneDescriptions = {
         calm: "calm, soothing, and reassuring",
         bold: "bold, confident, and attention-grabbing",
         authoritative: "authoritative, expert, and trustworthy",
         warm: "warm, friendly, and approachable"
       };
+      const locationRef = city || "this market";
+      const audienceRef = audienceType || "your audience";
+      // Build local highlights instruction block
+      const highlightsBlock = highlights.length > 0
+        ? `\n\nLOCAL HIGHLIGHTS — naturally weave at least 1-2 of these into the content where relevant:\n${highlights.map((h: string) => `- ${h}`).join("\n")}`
+        : "";
+      const depthInstructions = depth === "deep"
+        ? `\n\nDEEP DIVE MODE — MANDATORY RULES:\n- Reference specific neighborhoods, zip codes, or streets in ${locationRef} by name\n- Include concrete price ranges, percentages, or timeframes\n- Name real local dynamics: school districts, commute corridors, development projects, seasonal patterns\n- Share an expert opinion or contrarian take that only a local agent with real experience would know\n- Avoid ANY generic advice\n- Every sentence must contain information that could not have been written by someone who doesn't know ${locationRef}`
+        : "";
+      const personaSystemAddition = contextBlock
+        ? `\n\nAGENT CONTEXT (use this to personalize every output):\n${contextBlock}${highlightsBlock}`
+        : highlightsBlock ? `\n\nLOCAL CONTEXT:${highlightsBlock}` : "";
 
       const hooksResponse = await invokeLLM({
         messages: [
           {
             role: "system",
-            content: `You are an expert social media copywriter specializing in ${niche} content. Your job is to create scroll-stopping hooks for short-form vertical videos (Reels, TikTok, Shorts) that drive LEADS - not just views.
-
-Your PRIMARY GOAL: Get viewers to comment, DM, or click for more information.
-
-A great ${niche} hook:
-- Stops the scroll in the first 2 seconds with a bold statement, question, or pattern interrupt
-- Creates curiosity, urgency, or FOMO (fear of missing out)
-- Is short and punchy (under 10 words)
-- Speaks directly to the target audience's pain points or desires
-- Uses power words, numbers, or emotional triggers
-- Avoids generic phrases like "Did you know" or "Here's why"
-- ENDS with a clear call-to-action or cliffhanger that demands engagement
-
-Real estate-specific hook formulas that GENERATE LEADS:
-- "[Number] [mistake/secret/tip] about [topic] - DM me so this doesn't happen to you"
-- "Stop [doing X] if you want [desired outcome] - comment [word] for the full list"
-- "This [property/market/strategy] will [bold claim] - save this before it's too late"
-- "Why [surprising fact] in [location] - buyers are panicking"
-- "[Controversial opinion] about [topic] - agents hate me for sharing this"
-- "If you're [doing X], you're losing [money/time/opportunity] - DM me to fix it"
-- "[Shocking statistic] that [consequence] - comment YES if you want to know more"
-
-Lead-generation techniques to use:
-- Create information gaps ("The #1 mistake is...") that require engagement to fill
-- Use pattern interrupts ("Stop scrolling if you're...") to grab attention
-- Add urgency ("Before it's too late", "Right now", "This week only")
-- Include clear CTAs ("DM me", "Comment below", "Save this", "Tag someone")
-- Make it personal ("You're making this mistake", "This is costing YOU")
-
-The tone should be: ${toneDescriptions[tone]}`
+            content: `You are an expert social media copywriter specializing in ${niche} content for real estate agents. Your job is to create scroll-stopping hooks for short-form vertical videos that drive LEADS.${personaSystemAddition}\n\nSpeak directly to ${audienceRef}. Use specific references to ${locationRef} when possible.\n\nHook formulas:\n- "[Number] [mistake/secret/insight] about [topic in ${locationRef}] — DM me before you [action]"\n- "Stop [doing X] if you want [outcome] in ${locationRef}"\n- "Why [surprising local fact] is happening right now"\n- "[Controversial local opinion] — most agents won't tell you this"\n- "[Specific local stat] — here's what it actually means for you"\n\nTone: ${toneDescriptions[tone]}${depthInstructions}`
           },
           {
             role: "user",
-            content: `Create 3 different scroll-stopping hooks for a ${videoLength}-second ${niche} video based on these ${contentTypeDescriptions[inputMethod]}:
-
-${inputText}
-
-Return ONLY the 3 hooks, one per line, numbered 1-3. No additional explanation.`
+            content: `Create 3 DIFFERENT scroll-stopping hooks for a ${videoLength}-second ${niche} video based on these ${contentTypeDescriptions[inputMethod]}:\n\n${inputText}\n\nReturn ONLY the 3 hooks, one per line, numbered 1-3. No additional explanation.`
           }
         ]
       });
@@ -372,28 +417,16 @@ Return ONLY the 3 hooks, one per line, numbered 1-3. No additional explanation.`
         .filter((line: string) => line.length > 0)
         .slice(0, 3);
 
+      const wordTarget = Math.floor(parseInt(videoLength) * 2.5);
       const scriptResponse = await invokeLLM({
         messages: [
           {
             role: "system",
-            content: `You are an expert scriptwriter for short-form vertical videos. Your scripts are:
-- Conversational and natural (not robotic)
-- Written in short, punchy sentences (perfect for subtitles)
-- ${videoLength} seconds when read aloud (approximately ${Math.floor(parseInt(videoLength) * 2.5)} words)
-- Engaging and valuable
-- Tone: ${toneDescriptions[tone]}
-
-Write scripts that sound like a real person talking, not reading from a teleprompter.`
+            content: `You are an expert scriptwriter for short-form vertical videos for real estate agents.${personaSystemAddition}\n\nScript requirements:\n- Conversational and natural — sounds like a real person talking\n- Short, punchy sentences (ideal for subtitle display)\n- Target length: ~${wordTarget} words (${videoLength} seconds)\n- Tone: ${toneDescriptions[tone]}\n- Do NOT include the hook\n- Do NOT include stage directions or formatting\n\n${depth === "deep" ? `DEEP DIVE MODE:\n- Name specific neighborhoods, streets, or landmarks in ${locationRef}\n- Use real numbers: price ranges, days on market, percentages, timelines\n- Include at least one insight that only a local expert would know\n- End with a specific call to action tied to the topic\n- Zero generic filler` : `Include at least one concrete detail (number, local reference, or specific scenario) that makes this feel local and expert.`}`
           },
           {
             role: "user",
-            content: `Write a ${videoLength}-second script for a ${niche} video based on this content:
-
-${inputText}
-
-The hook will be: "${hooks[0]}"
-
-Write ONLY the script body (not including the hook). Keep it conversational and perfect for subtitle display. No stage directions or formatting.`
+            content: `Write a ${videoLength}-second script body for a ${niche} video based on this content:\n\n${inputText}\n\nThe hook will be: "${hooks[0]}"\n\nWrite ONLY the script body. No hook, no stage directions, no formatting.`
           }
         ]
       });
@@ -405,32 +438,11 @@ Write ONLY the script body (not including the hook). Keep it conversational and 
         messages: [
           {
             role: "system",
-            content: `You are an expert Instagram caption writer for ${niche} professionals. Your captions are:
-- Instagram-ready (2-4 short paragraphs)
-- Include relevant emojis (but not excessive)
-- End with a clear call-to-action
-- Engaging and authentic
-- Tone: ${toneDescriptions[tone]}
-- NO HASHTAGS (keep it clean)
-
-CTA options to choose from:
-- "Follow for more [topic] tips"
-- "DM me 'INFO' to learn more"
-- "Save this for later"
-- "Share this with someone who needs to see it"
-- "Comment [word] below for [resource]"`
+            content: `You are an expert Instagram caption writer for ${niche} professionals.${personaSystemAddition}\n\nCaption requirements:\n- 2-4 short paragraphs, Instagram-ready\n- Relevant emojis (not excessive)\n- End with a strong, specific call-to-action\n- Tone: ${toneDescriptions[tone]}\n- NO HASHTAGS\n- Expand on the video with additional depth\n${depth === "deep" ? `- Include at least one specific local detail not in the script\n- CTA should be specific: "DM me '[keyword]' and I'll send you [specific resource]"` : ""}`
           },
           {
             role: "user",
-            content: `Write an Instagram caption for this ${niche} video:
-
-Hook: "${hooks[0]}"
-Script: "${script}"
-
-Original content:
-${inputText}
-
-Write a caption that expands on the video content and includes a strong CTA. NO HASHTAGS.`
+            content: `Write an Instagram caption for this ${niche} video:\n\nHook: "${hooks[0]}"\nScript: "${script}"\n\nOriginal content:\n${inputText}\n\nWrite a caption that adds depth beyond the video. NO HASHTAGS.`
           }
         ]
       });

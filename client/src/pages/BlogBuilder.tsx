@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import ScheduleToCalendarModal from "@/components/ScheduleToCalendarModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
-import { Loader2, FileText, Copy, Trash2, ChevronDown, ChevronUp, Sparkles, Search, Repeat2, ExternalLink, CalendarPlus, RefreshCw } from "lucide-react";
+import { Loader2, FileText, Copy, Trash2, ChevronDown, ChevronUp, Sparkles, Search, Repeat2, ExternalLink, CalendarPlus, RefreshCw, Pencil, Check, X } from "lucide-react";
 
 const TOPIC_SUGGESTIONS = [
   "5 Things First-Time Buyers Wish They Knew Before Buying",
@@ -65,6 +68,10 @@ export default function BlogBuilder() {
   const [schedulePost, setSchedulePost] = useState<{ title: string; content: string } | null>(null);
   const [batchProgress, setBatchProgress] = useState<{ current: number; total: number } | null>(null);
 
+  // Edit state: track which post is being edited and its draft values
+  const [editingPostId, setEditingPostId] = useState<number | null>(null);
+  const [editDraft, setEditDraft] = useState<{ title: string; content: string; metaDescription: string }>({ title: "", content: "", metaDescription: "" });
+
   const utils = trpc.useUtils();
 
   const { data: posts, isLoading: postsLoading } = trpc.blogBuilder.list.useQuery();
@@ -77,6 +84,17 @@ export default function BlogBuilder() {
     },
     onError: (err) => {
       toast.error(`Generation failed: ${err.message}`);
+    },
+  });
+
+  const updateMutation = trpc.blogBuilder.update.useMutation({
+    onSuccess: () => {
+      toast.success("Post saved!");
+      utils.blogBuilder.list.invalidate();
+      setEditingPostId(null);
+    },
+    onError: (err) => {
+      toast.error(`Save failed: ${err.message}`);
     },
   });
 
@@ -425,6 +443,17 @@ export default function BlogBuilder() {
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
+                      <button
+                        title="Edit post"
+                        style={{ fontSize: '12px', padding: '2px 10px', border: '1px solid #FF6A00', color: '#FF6A00', borderRadius: '6px', background: 'white', cursor: 'pointer' }}
+                        onClick={() => {
+                          setEditingPostId(post.id);
+                          setEditDraft({ title: post.title, content: post.content, metaDescription: post.metaDescription || "" });
+                          setExpandedPost(post.id);
+                        }}
+                      >
+                        Edit
+                      </button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -463,19 +492,79 @@ export default function BlogBuilder() {
                       <Separator className="my-4" />
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-muted-foreground">Full Post</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => copyToClipboard(post.content, "Blog post")}
-                          >
-                            <Copy className="h-3.5 w-3.5 mr-1.5" />
-                            {copiedField === "Blog post" ? "Copied!" : "Copy All"}
-                          </Button>
+                          <span className="text-sm font-medium text-muted-foreground">
+                            {editingPostId === post.id ? "Editing Post" : "Full Post"}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {editingPostId === post.id ? (
+                              <>
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  className="gap-1.5 bg-[#FF6A00] hover:bg-[#e55f00] text-white"
+                                  disabled={updateMutation.isPending}
+                                  onClick={() => updateMutation.mutate({ id: post.id, title: editDraft.title, content: editDraft.content, metaDescription: editDraft.metaDescription })}
+                                >
+                                  {updateMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                                  Save
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="gap-1.5"
+                                  onClick={() => setEditingPostId(null)}
+                                >
+                                  <X className="h-3.5 w-3.5" />
+                                  Cancel
+                                </Button>
+                              </>
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => copyToClipboard(post.content, "Blog post")}
+                              >
+                                <Copy className="h-3.5 w-3.5 mr-1.5" />
+                                {copiedField === "Blog post" ? "Copied!" : "Copy All"}
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                        <div className="bg-muted/40 rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap leading-relaxed max-h-[500px] overflow-y-auto font-mono text-xs">
-                          {post.content}
+                        {editingPostId === post.id ? (
+                          <div className="space-y-3">
+                            <div className="space-y-1">
+                              <Label className="text-xs text-muted-foreground uppercase tracking-wide">Title</Label>
+                              <Input
+                                value={editDraft.title}
+                                onChange={(e) => setEditDraft(d => ({ ...d, title: e.target.value }))}
+                                className="font-semibold"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs text-muted-foreground uppercase tracking-wide">Content (Markdown)</Label>
+                              <Textarea
+                                value={editDraft.content}
+                                onChange={(e) => setEditDraft(d => ({ ...d, content: e.target.value }))}
+                                className="min-h-[400px] font-mono text-xs leading-relaxed resize-y"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs text-muted-foreground uppercase tracking-wide">SEO Meta Description</Label>
+                              <Input
+                                value={editDraft.metaDescription}
+                                onChange={(e) => setEditDraft(d => ({ ...d, metaDescription: e.target.value }))}
+                                maxLength={300}
+                                placeholder="150-160 characters recommended"
+                              />
+                              <p className="text-xs text-muted-foreground text-right">{editDraft.metaDescription.length}/300</p>
+                            </div>
+                          </div>
+                        ) : (
+                        <div className="bg-muted/40 rounded-lg p-4 text-sm text-foreground leading-relaxed max-h-[500px] overflow-y-auto prose prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-li:text-foreground">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
                         </div>
+                        )}
+                        {editingPostId !== post.id && (<div className="space-y-3">
                         <div className="flex gap-2 flex-wrap">
                           <Button
                             variant="outline"
@@ -541,6 +630,7 @@ export default function BlogBuilder() {
                             <p className="text-sm text-muted-foreground bg-muted/40 rounded p-2">{post.metaDescription}</p>
                           </div>
                         )}
+                        </div>)}
                       </div>
                     </>
                   )}

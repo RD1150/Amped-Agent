@@ -1,3 +1,4 @@
+// nav-version: 2026-04-22-persona-brand
 import { useAuth } from "@/_core/hooks/useAuth";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { trpc } from "@/lib/trpc";
@@ -84,6 +85,7 @@ import {
   MessageSquareQuote,
   QrCode,
   GitBranch,
+  Type,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -457,22 +459,16 @@ const menuSections = [
         description: "Video walkthroughs for every feature",
       },
       {
-        icon: Rocket,
-        label: "Launch Pad",
-        path: "/launch-pad",
-        description: "5-step guided setup — start here if you're new",
-      },
-      {
-        icon: BookOpen,
-        label: "Playbook",
-        path: "/playbook",
-        description: "30-day authority blueprint & quick-start checklists",
-      },
-      {
         icon: User,
         label: "Authority Profile",
         path: "/authority-profile",
         description: "Your branding, bio, headshot — powers all content",
+      },
+      {
+        icon: UserCircle,
+        label: "Persona & Brand",
+        path: "/persona",
+        description: "Bio, brand voice, service cities, headshot",
       },
     ],
   },
@@ -629,6 +625,14 @@ const menuSections = [
         path: "/drip-sequences",
         description: "Automated multi-step email sequences that nurture leads while you sleep",
         badge: "New",
+        hoverInfo: {
+          tagline: "Enroll any contact into a multi-step email sequence. Pre-built sequences for seller nurture, buyer nurture, and past client check-ins — or build your own.",
+          details: [
+            { label: "Starter sequences", value: "Seller Nurture (4 emails), Buyer Nurture (4 emails), Past Client (3 emails)" },
+            { label: "Automation", value: "Emails send automatically on your schedule" },
+            { label: "Enroll", value: "Paste a list of contacts — bulk or one at a time" },
+          ],
+        },
       },
     ],
   },
@@ -720,6 +724,29 @@ const menuSections = [
         path: "/listing-launch-kit",
         description: "One address → social posts, email blast, and more in seconds",
         badge: "New",
+        hoverInfo: {
+          tagline: "Enter a listing address and instantly generate a complete marketing package — social posts, email blast draft, and more.",
+          details: [
+            { label: "Output", value: "5 social posts + email blast + listing presentation link" },
+            { label: "Best for", value: "New listings, price reductions, just-sold announcements" },
+            { label: "Time", value: "Under 60 seconds" },
+          ],
+        },
+      },
+      {
+        icon: Megaphone,
+        label: "Ad Generator",
+        path: "/ad-generator",
+        description: "Paste any URL + photos → AI generates a polished, ready-to-run ad",
+        badge: "New",
+        hoverInfo: {
+          tagline: "Paste any URL — a listing, your book, a service, anything — upload 2 photos, and get a complete ad with headline, copy, CTA, and image.",
+          details: [
+            { label: "Output", value: "Headline + ad copy + CTA + generated ad image" },
+            { label: "Formats", value: "Instagram Square, Story, Facebook Feed, Banner" },
+            { label: "Time", value: "Under 60 seconds" },
+          ],
+        },
       },
       {
         icon: MessageSquareQuote,
@@ -727,6 +754,14 @@ const menuSections = [
         path: "/testimonials",
         description: "Request reviews and turn them into branded social posts automatically",
         badge: "New",
+        hoverInfo: {
+          tagline: "Send branded review requests to past clients, then turn their 5-star reviews into social posts and story graphics automatically.",
+          details: [
+            { label: "Request", value: "Branded email with Google, Zillow, and Realtor.com links" },
+            { label: "Generate", value: "AI turns any review into a polished social post" },
+            { label: "Best for", value: "Building social proof and Google ranking" },
+          ],
+        },
       },
       {
         icon: QrCode,
@@ -734,6 +769,15 @@ const menuSections = [
         path: "/open-house",
         description: "QR sign-in sheet + automated follow-up emails for every visitor",
         badge: "New",
+        hoverInfo: {
+          tagline: "Replace paper sign-in sheets with a QR code. Every visitor gets captured in your CRM and enrolled in an automated follow-up sequence.",
+          details: [
+            { label: "Sign-in", value: "Mobile-optimized form — visitors scan QR at the door" },
+            { label: "Follow-up", value: "3 or 5-email automated sequence starts immediately" },
+            { label: "CRM sync", value: "Every lead auto-added to your pipeline" },
+            { label: "SMS", value: "Optional TCPA-compliant text follow-up" },
+          ],
+        },
       },
       {
         icon: Users,
@@ -741,6 +785,15 @@ const menuSections = [
         path: "/crm",
         description: "5-stage lead pipeline from first contact to closed deal",
         badge: "New",
+        hoverInfo: {
+          tagline: "A lightweight 5-stage kanban pipeline that keeps every lead moving from first contact to closed deal — with AI follow-up generation built in.",
+          details: [
+            { label: "Stages", value: "New → Contacted → Nurturing → Appointment Set → Closed" },
+            { label: "Sources", value: "Open house, lead magnet, referral, social, manual" },
+            { label: "AI assist", value: "One-click generate a personalized follow-up message" },
+            { label: "Decision Engine", value: "Stale leads surface in your Weekly Diagnosis" },
+          ],
+        },
       },
     ],
   },
@@ -825,6 +878,18 @@ const menuSections = [
         label: "My Videos",
         path: "/my-videos",
         description: "Your complete video library",
+      },
+      {
+        icon: Mic,
+        label: "Video Voiceover",
+        path: "/video-voiceover",
+        description: "Add AI voiceover & captions to any video",
+      },
+      {
+        icon: Type,
+        label: "Teleprompter",
+        path: "/teleprompter",
+        description: "Film yourself while your script scrolls live",
       },
       {
         icon: Users,
@@ -1048,7 +1113,7 @@ function CollapsibleNavSections({
 
             {/* ── Items list (collapsible for lifecycle sections) ── */}
             {(isOpen || !isLifecycle || isCollapsed) && (
-              <SidebarMenu className="px-2 mt-0.5">
+              <SidebarMenu className="px-2 mt-1 space-y-0.5">
                 {section.items.map((item) => {
                   const isActive = location === item.path;
                   const hi = "hoverInfo" in item ? item.hoverInfo : null;
@@ -1058,23 +1123,23 @@ function CollapsibleNavSections({
                       isActive={isActive}
                       onClick={() => setLocation(item.path)}
                       tooltip={item.description || item.label}
-                      className={`h-8 transition-all relative ${
+                      className={`h-9 transition-all duration-150 relative ${
                         isActive
-                          ? "bg-orange-50 rounded-md"
-                          : "hover:bg-gray-50 rounded-md"
+                          ? "bg-[#FFF3E8] rounded-lg"
+                          : "hover:bg-[#F9FAFB] rounded-lg"
                       }`}
                     >
                       {isActive && (
-                        <span className="absolute left-0 top-1 bottom-1 w-0.5 bg-orange-500 rounded-full" />
+                        <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-[#FF6A00] rounded-full" />
                       )}
                       <item.icon
                         className={`h-3.5 w-3.5 shrink-0 ${
-                          isActive ? "text-orange-500" : "text-gray-400"
+                          isActive ? "text-[#FF6A00]" : "text-[#6B7280]"
                         }`}
                       />
                       <span
-                        className={`truncate text-[13px] ${
-                          isActive ? "text-orange-600 font-medium" : "text-gray-600 font-normal"
+                        className={`truncate text-[13px] leading-snug ${
+                          isActive ? "text-[#FF6A00] font-semibold" : "text-[#374151] font-normal"
                         }`}
                       >
                         {item.label}
@@ -1353,7 +1418,7 @@ function DashboardLayoutContent({
           </SidebarHeader>
 
           {/* ── Nav Items ─────────────────────────────────────────────── */}
-          <SidebarContent className="gap-0 py-1">
+          <SidebarContent className="gap-0 py-2">
             <CollapsibleNavSections
               sections={menuSections}
               userRole={user?.role}
@@ -1472,7 +1537,7 @@ function DashboardLayoutContent({
         {/* Trial countdown banner */}
         <TrialCountdownBanner user={user} setLocation={setLocation} />
         {/* Page content */}
-        <main className="flex-1 p-3 md:p-5">{children}</main>
+        <main className="flex-1 p-4 md:p-6 bg-[#F9FAFB] min-h-screen">{children}</main>
       </SidebarInset>
     </>
   );

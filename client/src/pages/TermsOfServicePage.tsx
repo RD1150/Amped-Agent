@@ -74,9 +74,12 @@ export default function TermsOfServicePage() {
             <li>Impersonate any person, business, or entity</li>
             <li>Upload content that infringes on the intellectual property rights of others</li>
             <li>Use the Service to spam, harass, or harm other individuals</li>
-            <li>Attempt to reverse-engineer, scrape, or extract data from the Service</li>
-            <li>Use automated tools to access the Service in ways that exceed normal usage patterns</li>
-            <li>Resell or sublicense access to the Service without our written consent</li>
+            <li>Attempt to reverse-engineer, decompile, disassemble, scrape, or extract any part of the Service, including its AI prompts, system logic, workflows, data models, or underlying technology</li>
+            <li>Use automated tools, bots, or scripts to access the Service in ways that exceed normal usage patterns or to harvest data</li>
+            <li>Resell, sublicense, or white-label access to the Service without our prior written consent</li>
+            <li>Use the Service to gather competitive intelligence, benchmark features, or inform the development of a competing product or service</li>
+            <li>Share, publish, or disclose non-public information about the Service's features, functionality, AI behavior, or technology to any third party, including during any beta or trial period</li>
+            <li>Access the Service for the purpose of building a product or service that competes with Amped Agent</li>
           </ul>
           <p>
             We reserve the right to remove any content and suspend or terminate any account that violates these guidelines, without prior notice.
@@ -98,7 +101,17 @@ export default function TermsOfServicePage() {
 
           <h3 className="text-xl font-semibold mt-6 mb-3">6.3 Amped Agent Intellectual Property</h3>
           <p>
-            The Service, including its software, design, trademarks, and underlying technology, is owned by Amped Agent and protected by applicable intellectual property laws. You may not copy, modify, distribute, or create derivative works of the Service without our written permission.
+            The Service, including its software, design, trademarks, underlying technology, AI prompt systems, persona frameworks, decision engine logic, and all associated intellectual property, is owned exclusively by Amped Agent and protected by applicable intellectual property laws, including copyright, trade secret, and trademark law. You may not copy, modify, distribute, reverse-engineer, or create derivative works of the Service or any portion thereof without our express prior written permission.
+          </p>
+
+          <h3 className="text-xl font-semibold mt-6 mb-3">6.5 Trade Secrets and Proprietary Technology</h3>
+          <p>
+            The Service contains proprietary technology, AI systems, prompt architectures, workflow designs, and business logic that constitute trade secrets of Amped Agent. By accessing the Service, you acknowledge that this information is confidential and proprietary. You agree not to disclose, replicate, or exploit any such information for any purpose other than your authorized use of the Service. This obligation survives termination of your account.
+          </p>
+
+          <h3 className="text-xl font-semibold mt-6 mb-3">6.6 Beta and Pre-Release Confidentiality</h3>
+          <p>
+            If you access the Service during a beta, trial, or pre-release period, you acknowledge that the Service contains non-public, confidential features and technology. You agree to keep all aspects of the beta experience strictly confidential, including but not limited to: feature descriptions, AI output quality, system capabilities, pricing structures, and any non-public roadmap information. You may not publicly post, publish, broadcast, or share screenshots, recordings, or descriptions of beta features without our prior written consent.
           </p>
 
           <h3 className="text-xl font-semibold mt-6 mb-3">6.4 AI-Generated Avatar and Video Content</h3>

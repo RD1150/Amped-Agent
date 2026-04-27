@@ -47,12 +47,12 @@ export default function HomePage() {
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-5xl mx-auto space-y-8">
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
-            While other agents are learning
-            <span className="block text-primary mt-2">how to use AI, yours is already working.</span>
+            This Platform Runs
+            <span className="block text-primary mt-2">Your Entire Real Estate Business.</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Amped Agent is the complete AI marketing platform built exclusively for real estate agents &mdash; from your next Instagram reel to your next listing appointment, fully on autopilot.
+            From your next Instagram reel to your next listing appointment &mdash; Amped Agent is the complete marketing platform built exclusively for real estate agents.
           </p>
 
           {/* Lifecycle Pills */}

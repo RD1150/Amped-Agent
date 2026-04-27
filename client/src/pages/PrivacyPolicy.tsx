@@ -21,7 +21,7 @@ export default function PrivacyPolicy() {
           </p>
           <p>
             Amped Agent is a premium real estate content AI platform that helps real estate professionals create, schedule, and publish 
-            engaging social media content. By using our service, you agree to the collection and use of information in accordance with this policy.
+            engaging social media content, including AI-generated videos and property tours. By using our service, you agree to the collection and use of information in accordance with this policy.
           </p>
         </CardContent>
       </Card>
@@ -43,12 +43,13 @@ export default function PrivacyPolicy() {
           </div>
 
           <div>
-            <h3 className="text-foreground font-semibold mb-2">Content Data</h3>
+            <h3 className="text-foreground font-semibold mb-2">Content and Media Data</h3>
             <p>We collect and store:</p>
             <ul className="list-disc list-inside ml-4 space-y-1 mt-2">
               <li>Content you create or generate using our AI tools</li>
               <li>Property listings and market data you input</li>
-              <li>Images and media files you upload</li>
+              <li>Images, audio, and video files you upload</li>
+              <li>Voice recordings and likeness data for AI avatar generation</li>
               <li>Scheduling preferences and calendar data</li>
             </ul>
           </div>
@@ -83,7 +84,8 @@ export default function PrivacyPolicy() {
         <CardContent className="space-y-4 text-muted-foreground">
           <p>We use your information to:</p>
           <ul className="list-disc list-inside ml-4 space-y-2">
-            <li><strong className="text-foreground">Provide Services:</strong> Generate AI content, schedule posts, manage your social media presence</li>
+            <li><strong className="text-foreground">Provide Services:</strong> Generate AI content, process videos and audio, schedule posts, manage your social media presence</li>
+            <li><strong className="text-foreground">AI Processing:</strong> Process your uploaded media to generate personalized AI avatars and voice clones solely for your use</li>
             <li><strong className="text-foreground">Personalization:</strong> Customize content based on your brand voice and preferences</li>
             <li><strong className="text-foreground">Analytics:</strong> Track post performance and provide engagement insights</li>
             <li><strong className="text-foreground">Communication:</strong> Send service updates, feature announcements, and support responses</li>
@@ -101,15 +103,16 @@ export default function PrivacyPolicy() {
           <p>We do not sell your personal information. We may share your data with:</p>
           
           <div>
-            <h3 className="text-foreground font-semibold mb-2">Service Providers</h3>
+            <h3 className="text-foreground font-semibold mb-2">Service Providers and AI Partners</h3>
             <ul className="list-disc list-inside ml-4 space-y-1">
               <li>Cloud hosting providers (for data storage)</li>
-              <li>AI service providers (for content generation)</li>
+              <li>Third-party AI service providers (for content, image, voice, and video generation)</li>
               <li>Analytics services (for platform improvement)</li>
             </ul>
+            <p className="mt-2 text-sm">Note: When we use third-party AI services, we only share the specific data necessary to generate your requested content. We do not allow third-party AI providers to use your personal data or uploaded media to train their foundational models.</p>
           </div>
 
-          <div>
+          <div className="mt-4">
             <h3 className="text-foreground font-semibold mb-2">Social Media Platforms</h3>
             <p>
               When you authorize us to post on your behalf, we share content with Facebook, Instagram, LinkedIn, and X 
@@ -117,12 +120,34 @@ export default function PrivacyPolicy() {
             </p>
           </div>
 
-          <div>
+          <div className="mt-4">
             <h3 className="text-foreground font-semibold mb-2">Legal Requirements</h3>
             <p>
               We may disclose your information if required by law, court order, or to protect our rights, property, or safety.
             </p>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle>Cookies and Tracking Technologies</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 text-muted-foreground">
+          <p>
+            We use cookies and similar tracking technologies to track activity on our platform and hold certain information. Cookies are files with a small amount of data which may include an anonymous unique identifier.
+          </p>
+          <p>
+            We use cookies for:
+          </p>
+          <ul className="list-disc list-inside ml-4 space-y-1">
+            <li><strong>Authentication:</strong> To remember your login state and keep you logged in.</li>
+            <li><strong>Preferences:</strong> To remember your settings and preferences.</li>
+            <li><strong>Analytics:</strong> To understand how you use our platform so we can improve it.</li>
+          </ul>
+          <p>
+            You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our platform.
+          </p>
         </CardContent>
       </Card>
 
@@ -163,7 +188,7 @@ export default function PrivacyPolicy() {
             <li><strong className="text-foreground">Opt-out:</strong> Unsubscribe from marketing communications</li>
           </ul>
           <p className="mt-4">
-            To exercise these rights, contact us at <a href="mailto:sold@reenadutta.com" className="text-primary hover:underline">sold@reenadutta.com</a>
+            To exercise these rights, contact us at <a href="mailto:support@ampedagent.com" className="text-primary hover:underline">support@ampedagent.com</a>
           </p>
         </CardContent>
       </Card>
@@ -252,7 +277,7 @@ export default function PrivacyPolicy() {
             If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
           </p>
           <div className="mt-4 space-y-1">
-            <p><strong className="text-foreground">Email:</strong> <a href="mailto:sold@reenadutta.com" className="text-primary hover:underline">sold@reenadutta.com</a></p>
+            <p><strong className="text-foreground">Email:</strong> <a href="mailto:support@ampedagent.com" className="text-primary hover:underline">support@ampedagent.com</a></p>
             <p><strong className="text-foreground">Data Deletion:</strong> <a href="/data-deletion" className="text-primary hover:underline">Submit a data deletion request</a></p>
           </div>
         </CardContent>

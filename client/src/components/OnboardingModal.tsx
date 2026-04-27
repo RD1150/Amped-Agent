@@ -41,7 +41,7 @@ const EXPERIENCE_OPTIONS = [
   { value: "21", label: "20+ years" },
 ];
 
-const MAX_CITIES = 5;
+const MAX_CITIES = 10;
 
 interface CityEntry { city: string; state: string; }
 

@@ -387,7 +387,7 @@ Write only the letter — no preamble, no explanation.`;
         content: input.content,
         pdfUrl: input.pdfUrl ?? null,
       });
-      return { id: (result as { insertId: number }).insertId };
+      return { id: (result as any)?.id };
     }),
 
   /** List all saved letters for the current user */

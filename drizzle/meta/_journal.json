@@ -799,6 +799,13 @@
       "when": 1777176973793,
       "tag": "0113_lethal_silver_surfer",
       "breakpoints": true
+    },
+    {
+      "idx": 114,
+      "version": "5",
+      "when": 1777325786662,
+      "tag": "0114_special_jackal",
+      "breakpoints": true
     }
   ]
 }

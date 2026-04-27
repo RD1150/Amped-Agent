@@ -42,6 +42,7 @@ export const facebookRouter = router({
     .input(
       z.object({
         redirectUri: z.string(),
+        nonce: z.string().optional(), // cache-buster — ignored server-side
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -72,6 +73,7 @@ export const facebookRouter = router({
       // Note: These permissions work for both Instagram Business and Creator accounts
       // Creator accounts must be connected to a Facebook Page (same as Business)
 
+      console.log("[Facebook OAuth] Using App ID:", ENV.facebookAppId, "| ENV raw:", process.env.FACEBOOK_APP_ID);
       const authUrl = new URL("https://www.facebook.com/v18.0/dialog/oauth");
       authUrl.searchParams.set("client_id", ENV.facebookAppId);
       authUrl.searchParams.set("redirect_uri", redirectUri);
