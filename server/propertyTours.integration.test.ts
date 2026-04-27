@@ -1,8 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { generatePropertyTourVideo, checkRenderStatus } from "./videoGenerator";
 
+// NOTE: This is a live integration test that calls the Creatomate API and consumes credits.
+// It is skipped in CI to avoid burning credits. Run manually with:
+//   npx vitest run server/propertyTours.integration.test.ts
 describe("Property Tours - Shotstack Integration", () => {
-  it("should generate property tour video successfully", async () => {
+  it.skip("should generate property tour video successfully", async () => {
     console.log("\n=== Property Tours Integration Test ===\n");
 
     // Test data - using public Unsplash images

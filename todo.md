@@ -5332,7 +5332,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Clone RD1150/Amped-Agent and inspect updated Dashboard/coach UI
 - [ ] Merge updated Dashboard cards and coach section into Manus project
 
-## TypeScript Migration Fixes (MySQL Compatibility)
+## TypeScript Migration Fixes (MySQL Compatibility) - All Tests Passing ✅
 - [x] Add crmIntegrations and zapierWebhooks tables to schema.ts
 - [x] Add acceptBetaAgreement, setUserPassword, resetUserPassword, getUserByResetToken to db.ts
 - [x] Fix .returning() calls in blogBuilder.ts (MySQL doesn't support .returning())
@@ -5346,3 +5346,9 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix requestHandler option removed from storage.ts S3 send()
 - [x] Fix Buffer type error in uploadEndpoint.ts
 - [x] Fix unknown type error in zapierService.ts fullName field
+
+## New Tests Added
+- [x] server/routers/crmIntegrations.test.ts - 7 tests covering all procedures and input validation
+- [x] server/routers/zapierWebhooks.test.ts - 7 tests covering all procedures, URL validation, and fireZapierWebhook runtime fix
+- [x] server/uploadEndpoint.buffer.test.ts - 5 tests verifying Buffer.from() fix for voice cloning
+- [x] server/propertyTours.integration.test.ts - marked as .skip (live API test, consumes Creatomate credits)
