@@ -5381,3 +5381,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add CRM Connected badge to CRM Pipeline dashboard card (shows when any CRM integration is active)
 - [x] Wire fireZapierWebhook("lead_magnet_download") in lead magnet submission handler — already wired in leadMagnet.ts
 - [x] Add Zapier status banner to Open House Manager page with link to /settings/zapier
+
+## Zapier Integration Round 3 (New)
+- [x] Add three-state Zapier status banner to Lead Magnet page
+- [x] Wire fireZapierWebhook("new_crm_lead") when a lead is added to CRM Pipeline
+- [x] Add Zapier automation summary card to SCALE section of dashboard

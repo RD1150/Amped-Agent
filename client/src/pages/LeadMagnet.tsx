@@ -31,6 +31,7 @@ import {
   Repeat2,
   Mail,
   Palette,
+  Zap,
 } from "lucide-react";
 
 type MagnetType = "buyer_guide" | "neighborhood_report" | "market_update";
@@ -313,6 +314,11 @@ export default function LeadMagnet() {
 
   const { data: user } = trpc.auth.me.useQuery();
   const { data: persona } = trpc.persona.get.useQuery();
+  const { data: zapierHooks } = trpc.zapierWebhooks.getAll.useQuery(undefined, { retry: false });
+  const leadMagnetZapierActive = (zapierHooks as Array<{ eventType: string; configured: boolean; isEnabled: boolean }> | undefined)
+    ?.some((w) => w.eventType === "lead_magnet_download" && w.configured && w.isEnabled) ?? false;
+  const leadMagnetZapierConfigured = (zapierHooks as Array<{ eventType: string; configured: boolean }> | undefined)
+    ?.some((w) => w.eventType === "lead_magnet_download" && w.configured) ?? false;
 
   const effectiveName = agentName || (persona as any)?.agentName || user?.name || "";
 
@@ -450,6 +456,43 @@ export default function LeadMagnet() {
           </Button>
         )}
       </div>
+
+      {/* Zapier Status Banner */}
+      {!leadMagnetZapierActive && (
+        <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-sm ${
+          leadMagnetZapierConfigured
+            ? "bg-amber-50 border-amber-200 text-amber-800"
+            : "bg-slate-50 border-slate-200 text-slate-600"
+        }`}>
+          <Zap className={`h-4 w-4 shrink-0 ${leadMagnetZapierConfigured ? "text-amber-500" : "text-slate-400"}`} />
+          <span className="flex-1">
+            {leadMagnetZapierConfigured
+              ? "Zapier webhook is configured but currently disabled. Enable it to auto-send downloads to your CRM."
+              : "Connect Zapier to automatically send every lead magnet download to your CRM or email tool."}
+          </span>
+          <button
+            onClick={() => navigate("/settings/zapier")}
+            className={`font-semibold underline underline-offset-2 shrink-0 hover:opacity-80 transition-opacity ${
+              leadMagnetZapierConfigured ? "text-amber-700" : "text-[#FF6A00]"
+            }`}
+          >
+            {leadMagnetZapierConfigured ? "Re-enable" : "Set Up Zapier"}
+          </button>
+        </div>
+      )}
+      {leadMagnetZapierActive && (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+          <Zap className="h-4 w-4 text-emerald-600 shrink-0" />
+          <span className="flex-1">Zapier is active — every download will be sent to your connected app automatically.</span>
+          <button
+            onClick={() => navigate("/settings/zapier")}
+            className="text-emerald-700 font-semibold underline underline-offset-2 shrink-0 hover:opacity-80 transition-opacity"
+          >
+            Manage
+          </button>
+        </div>
+      )}
 
       {/* Value Prop */}
       {!result && (

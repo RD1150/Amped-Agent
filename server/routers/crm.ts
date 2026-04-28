@@ -11,6 +11,7 @@ import { crmLeads, crmLeadNotes } from "../../drizzle/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { getPersonaByUserId } from "../db";
+import { fireZapierWebhook } from "../zapierService";
 
 const STAGES = ["new", "contacted", "nurturing", "appointment_set", "closed"] as const;
 const SOURCES = ["open_house", "lead_magnet", "referral", "social", "website", "manual", "other"] as const;
@@ -101,7 +102,17 @@ export const crmRouter = router({
         tags: input.tags,
         isArchived: false,
       });
-      return { id: (result as any)?.id };
+      const newLeadId = (result as any)?.insertId ?? (result as any)?.id;
+      // Fire Zapier webhook for new CRM lead (non-blocking)
+      fireZapierWebhook(ctx.user.id, "new_crm_lead", {
+        leadId: newLeadId,
+        name: input.name,
+        email: input.email || "",
+        phone: input.phone || "",
+        stage: input.stage,
+        source: input.source,
+      }).catch(() => {});
+      return { id: newLeadId };
     }),
 
   updateStage: protectedProcedure

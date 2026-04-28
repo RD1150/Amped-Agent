@@ -693,6 +693,63 @@ export default function Dashboard() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
+          SECTION 6b — AUTOMATION STATUS (Zapier Summary)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-[#FF6A00]/10">
+              <Zap className="h-4 w-4 text-[#FF6A00]" />
+            </div>
+            <h2 className="text-sm font-bold text-foreground">Automation Status</h2>
+          </div>
+          <button
+            onClick={() => setLocation("/settings/zapier")}
+            className="text-xs text-[#FF6A00] font-semibold hover:underline underline-offset-2"
+          >
+            Manage Zapier
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[
+            { label: "Open House Lead", event: "open_house_lead" },
+            { label: "Lead Magnet Download", event: "lead_magnet_download" },
+            { label: "New CRM Lead", event: "new_crm_lead" },
+          ].map(({ label, event }) => {
+            const hook = (zapierHooks as Array<{ eventType: string; configured: boolean; isEnabled: boolean }> | undefined)
+              ?.find((w) => w.eventType === event);
+            const isActive = hook?.configured && hook?.isEnabled;
+            const isConfigured = hook?.configured;
+            return (
+              <div
+                key={event}
+                className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all hover:shadow-sm ${
+                  isActive
+                    ? "border-emerald-200 bg-emerald-50"
+                    : isConfigured
+                    ? "border-amber-200 bg-amber-50"
+                    : "border-border bg-muted/30"
+                }`}
+                onClick={() => setLocation("/settings/zapier")}
+              >
+                <span className={`h-2 w-2 rounded-full shrink-0 ${
+                  isActive ? "bg-emerald-500 animate-pulse" : isConfigured ? "bg-amber-400" : "bg-slate-300"
+                }`} />
+                <span className={`text-xs font-medium ${
+                  isActive ? "text-emerald-800" : isConfigured ? "text-amber-800" : "text-muted-foreground"
+                }`}>{label}</span>
+                <span className={`ml-auto text-[10px] font-semibold shrink-0 ${
+                  isActive ? "text-emerald-600" : isConfigured ? "text-amber-600" : "text-slate-400"
+                }`}>
+                  {isActive ? "Active" : isConfigured ? "Paused" : "Not set"}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════════════
           SECTION 7 — RECENT ACTIVITY (Referral + YouTube)
       ══════════════════════════════════════════════════════════════════════ */}
       <div>
