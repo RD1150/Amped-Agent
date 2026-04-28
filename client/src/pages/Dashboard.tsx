@@ -73,6 +73,12 @@ export default function Dashboard() {
     undefined,
     { enabled: !!user, retry: false }
   );
+  const { data: zapierHooks } = trpc.zapierWebhooks.getAll.useQuery(
+    undefined,
+    { enabled: !!user, retry: false }
+  );
+  const openHouseZapierActive = (zapierHooks as Array<{ eventType: string; configured: boolean; isEnabled: boolean }> | undefined)
+    ?.some((w) => w.eventType === "open_house_lead" && w.configured && w.isEnabled) ?? false;
 
   // Auto-start tour for first-time users
   useEffect(() => {
@@ -409,17 +415,25 @@ export default function Dashboard() {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { icon: Rocket, label: "Listing Launch Kit", sub: "1 address → full marketing package", path: "/listing-launch-kit" },
-                  { icon: QrCode, label: "Open House Manager", sub: "QR sign-in + auto follow-up", path: "/open-house" },
-                  { icon: Users, label: "CRM Pipeline", sub: "5-stage lead kanban", path: "/crm" },
-                  { icon: MessageSquareQuote, label: "Testimonial Engine", sub: "Reviews → social posts", path: "/testimonials" },
-                ].map(({ icon: Icon, label, sub, path }) => (
+                  { icon: Rocket, label: "Listing Launch Kit", sub: "1 address → full marketing package", path: "/listing-launch-kit", badge: null },
+                  { icon: QrCode, label: "Open House Manager", sub: "QR sign-in + auto follow-up", path: "/open-house", badge: openHouseZapierActive ? "Zapier" : null },
+                  { icon: Users, label: "CRM Pipeline", sub: "5-stage lead kanban", path: "/crm", badge: null },
+                  { icon: MessageSquareQuote, label: "Testimonial Engine", sub: "Reviews → social posts", path: "/testimonials", badge: null },
+                ].map(({ icon: Icon, label, sub, path, badge }) => (
                   <button
                     key={label}
                     onClick={() => setLocation(path)}
                     className="flex flex-col items-start gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#FF6A00]/30 transition-all text-left"
                   >
-                    <Icon className="h-5 w-5 text-orange-400" />
+                    <div className="flex items-center justify-between w-full">
+                      <Icon className="h-5 w-5 text-orange-400" />
+                      {badge && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded-full">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          {badge}
+                        </span>
+                      )}
+                    </div>
                     <div>
                       <div className="text-sm font-semibold text-white leading-snug">{label}</div>
                       <div className="text-[11px] text-slate-400 mt-0.5 leading-tight">{sub}</div>

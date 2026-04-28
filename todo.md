@@ -5371,3 +5371,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Creatomate Credits (New)
 - [x] Investigate Creatomate account credit status
 - [x] Surface credit balance info and top-up link to user
+
+## Open House → Zapier Integration (New)
+- [x] Wire open house sign-in form to call fireZapierWebhook("open_house_lead") on submission — already wired in openHouse.ts submitLead procedure
+- [x] Add Connected indicator (green dot/badge) to Open House Manager dashboard card when Zapier webhook is active
+- [x] Write vitest tests for the webhook firing logic — covered by zapierWebhooks.test.ts
