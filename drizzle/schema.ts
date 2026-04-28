@@ -140,7 +140,7 @@ export const personas = mysqlTable("personas", {
   bookingUrl: varchar("bookingUrl", { length: 500 }), // Calendly / CRM booking link shown on presentation landing pages
   targetNeighborhoods: text("targetNeighborhoods"), // JSON: string[] - specific neighborhoods/subdivisions to dominate (e.g. ["Mueller", "Tarrytown"])
   targetZipCodes: text("targetZipCodes"), // JSON: string[] - target ZIP codes for hyperlocal SEO (e.g. ["78704", "78745"])
-  localHighlights: text("localHighlights"), // JSON: string[] - local amenities, landmarks, schools, lifestyle features
+  localHighlights: text("localHighlights"), // JSON: string[] - local amenities, landmarks, schools, lifestyle features to mention in AI content (e.g. ["North Ranch Country Club", "Award-winning Conejo Valley schools", "15 min to Malibu beaches"])
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

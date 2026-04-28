@@ -314,8 +314,6 @@ export default function AuthorityProfile() {
   // Local Highlights (amenities, schools, landmarks for AI content)
   const [localHighlights, setLocalHighlights] = useState<string[]>([]);
   const [newHighlight, setNewHighlight] = useState("");
-  const [suggestedHighlights, setSuggestedHighlights] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Voice Cloning state
   const [voiceFile, setVoiceFile] = useState<File | null>(null);
@@ -1282,74 +1280,12 @@ export default function AuthorityProfile() {
                   ))}
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Up to 10 ZIP codes total.</p>
+               <p className="text-xs text-muted-foreground">Up to 10 ZIP codes. Press Enter or click Add.</p>
             </div>
             {/* Local Highlights */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label>Local Highlights &amp; Amenities</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="text-xs gap-1.5"
-                  disabled={suggestMutation.isPending}
-                  onClick={() => {
-                    suggestMutation.mutate(undefined, {
-                      onSuccess: (data) => {
-                        setSuggestedHighlights(data.suggestions.filter((s) => !localHighlights.includes(s)));
-                        setShowSuggestions(true);
-                      },
-                      onError: (e: any) => toast.error(e.message),
-                    });
-                  }}
-                >
-                  {suggestMutation.isPending ? (
-                    <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Researching…</>
-                  ) : (
-                    <><Search className="h-3.5 w-3.5" /> Research My Market</>
-                  )}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">Add the amenities, landmarks, schools, and lifestyle features you want the AI to mention in your content — or click <strong>Research My Market</strong> to auto-discover them.</p>
-
-              {/* AI Suggestions panel */}
-              {showSuggestions && suggestedHighlights.length > 0 && (
-                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      AI found {suggestedHighlights.length} highlights for your market — click to add
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setShowSuggestions(false)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      Dismiss
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {suggestedHighlights.map((s, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => {
-                          if (!localHighlights.includes(s) && localHighlights.length < 20) {
-                            setLocalHighlights([...localHighlights, s]);
-                            setSuggestedHighlights(suggestedHighlights.filter((_, idx) => idx !== i));
-                          }
-                        }}
-                        className="inline-flex items-center gap-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-xs font-medium px-2.5 py-1 rounded-full border border-amber-500/20 transition-colors"
-                      >
-                        <PlusCircle className="h-3 w-3" />
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
+            <div className="space-y-2">
+              <Label>Local Highlights &amp; Amenities</Label>
+              <p className="text-xs text-muted-foreground">Add the amenities, landmarks, schools, and lifestyle features you want the AI to mention in your content — country clubs, school districts, beaches, parks, dining, etc.</p>
               <div className="flex gap-2">
                 <Input
                   placeholder="e.g. North Ranch Country Club, Award-winning Conejo Valley schools"
