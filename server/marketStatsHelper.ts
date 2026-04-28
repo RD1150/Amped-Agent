@@ -312,8 +312,7 @@ export async function getMarketData(location: string): Promise<MarketStatsData> 
           cachedAt: now,
           expiresAt,
         })
-        .onConflictDoUpdate({
-          target: marketDataCache.locationKey,
+        .onDuplicateKeyUpdate({
           set: {
             data: JSON.stringify(data),
             cachedAt: now,

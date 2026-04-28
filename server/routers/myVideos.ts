@@ -243,8 +243,8 @@ export const myVideosRouter = router({
         hasVoiceover: input.hasVoiceover ?? false,
         creditsCost: input.creditsCost ?? 0,
         metadata: input.metadata ? JSON.stringify(input.metadata) : null,
-      }).returning();
-      return { id: (result as any)?.id as number, success: true };
+      });
+      return { id: Number(insertResult[0].insertId), success: true };
     }),
 
   // Update video status and URL when render completes

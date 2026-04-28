@@ -195,9 +195,9 @@ Return ONLY valid JSON in this exact format:
         wordCount: parsed.wordCount,
         seoKeywords: JSON.stringify(parsed.seoKeywords),
         metaDescription: parsed.metaDescription,
-      }).returning();
-
-      const newPost = await database!.select().from(blogPosts).where(eq(blogPosts.id, inserted[0]?.id)).limit(1);
+      });
+      const insertedId = Number(insertResult[0].insertId);
+      const newPost = await database!.select().from(blogPosts).where(eq(blogPosts.id, insertedId)).limit(1);
       return newPost[0];
     }),
 
@@ -249,7 +249,8 @@ Return ONLY valid JSON in this exact format:
       if (input.title !== undefined) updateData.title = input.title;
       if (input.content !== undefined) updateData.content = input.content;
       if (input.metaDescription !== undefined) updateData.metaDescription = input.metaDescription;
-      const [updated] = await database!.update(blogPosts).set(updateData).where(eq(blogPosts.id, input.id)).returning();
+      await database!.update(blogPosts).set(updateData).where(eq(blogPosts.id, input.id));
+      const [updated] = await database!.select().from(blogPosts).where(eq(blogPosts.id, input.id)).limit(1);
       return updated;
     }),
 

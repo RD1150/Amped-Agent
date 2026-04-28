@@ -109,6 +109,8 @@ const DripSequences = lazy(() => import("./pages/DripSequences"));
 const PublicOpenHouseSignIn = lazy(() => import("./pages/PublicOpenHouseSignIn"));
 const VideoVoiceover = lazy(() => import("./pages/VideoVoiceover"));
 const Teleprompter = lazy(() => import("./pages/Teleprompter"));
+const CRMIntegrations = lazy(() => import("./pages/CRMIntegrations"));
+const ZapierWebhooks = lazy(() => import("./pages/ZapierWebhooks"));
 
 // Fallback spinner shown while a lazy chunk loads
 function PageLoader() {

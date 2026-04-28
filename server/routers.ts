@@ -2875,15 +2875,23 @@ RULES:
               ],
             },
           ],
-          outputSchema: {
-            type: "object",
-            properties: {
-              headline: { type: "string" },
-              primaryText: { type: "string" },
-              cta: { type: "string" },
-              imagePrompt: { type: "string" },
+          response_format: {
+            type: "json_schema" as const,
+            json_schema: {
+              name: "ad_copy",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  headline: { type: "string" },
+                  primaryText: { type: "string" },
+                  cta: { type: "string" },
+                  imagePrompt: { type: "string" },
+                },
+                required: ["headline", "primaryText", "cta", "imagePrompt"],
+                additionalProperties: false,
+              },
             },
-            required: ["headline", "primaryText", "cta", "imagePrompt"],
           },
         });
 

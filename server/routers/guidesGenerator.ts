@@ -755,7 +755,7 @@ export const guidesGeneratorRouter = router({
           pdfUrl,
           s3Key,
           creditsCost: GUIDE_CREDIT_COST,
-        }).returning();
+        }).$returningId();
       const insertedId = (insertResult as any)?.[0]?.id ?? 0;
 
       return {

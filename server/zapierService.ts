@@ -61,11 +61,12 @@ export async function fireZapierWebhook(
 
     if (!hooks.length) return;
 
+    const computedFullName = [payload.firstName, payload.lastName].filter(Boolean).join(" ") || (payload.fullName as string | undefined);
     const fullPayload: ZapierLeadPayload = {
       event: eventType,
       timestamp: new Date().toISOString(),
       ...payload,
-      fullName: [payload.firstName, payload.lastName].filter(Boolean).join(" ") || payload.fullName,
+      fullName: computedFullName,
     };
 
     // Fire all matching webhooks in parallel

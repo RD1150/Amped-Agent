@@ -2,7 +2,6 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
-import path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerAuthRoutes } from "./authRoutes";
@@ -13,7 +12,7 @@ import uploadEndpoint from "../uploadEndpoint";
 import { recoverStuckCinematicJobs } from "../routers/cinematicWalkthrough";
 import { registerTrialNotificationJob } from "../jobs/trialNotifications";
 import { registerWeeklyDigestJob } from "../jobs/weeklyDigest";
-import { registerDripProcessorJob } from "../jobs/dripProcessor";
+import { registerDripEmailJob } from "../jobs/dripEmailProcessor";
 import { getDb } from "../db";
 import { listingPresentations } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -37,78 +36,12 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
-async function runMigrations() {
-  if (!process.env.DATABASE_URL) {
-    console.warn("[Migrations] DATABASE_URL not set — skipping migrations");
-    return;
-  }
-  try {
-    const { Pool } = await import("pg");
-    const { drizzle } = await import("drizzle-orm/node-postgres");
-    const { migrate } = await import("drizzle-orm/node-postgres/migrator");
-
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const client = await pool.connect();
-
-    try {
-      // Ensure the drizzle migrations schema and table exist
-      await client.query(`CREATE SCHEMA IF NOT EXISTS drizzle`);
-      await client.query(`
-        CREATE TABLE IF NOT EXISTS drizzle.__drizzle_migrations (
-          id SERIAL PRIMARY KEY,
-          hash text NOT NULL,
-          created_at bigint
-        )
-      `);
-
-      // Check if there are any applied migrations recorded
-      const { rows } = await client.query(
-        `SELECT created_at FROM drizzle.__drizzle_migrations ORDER BY created_at DESC LIMIT 1`
-      );
-
-      // If no migrations have been recorded yet, pre-seed with a sentinel entry
-      // representing migration 0108 (the last MySQL-syntax migration).
-      // This tells the Drizzle migrator to skip all migrations up to and including
-      // 0108 (which are MySQL-syntax and would fail on PostgreSQL), and only run
-      // 0109+ which are PostgreSQL-syntax.
-      // The folderMillis for 0108 is 1776197214023 (from _journal.json).
-      if (rows.length === 0) {
-        console.log("[Migrations] No migrations recorded — pre-seeding sentinel for migrations 0000–0108 (MySQL-syntax, already applied via initial PostgreSQL setup)");
-        await client.query(
-          `INSERT INTO drizzle.__drizzle_migrations (hash, created_at) VALUES ($1, $2)`,
-          ['legacy_mysql_migrations_0000_to_0108', 1776197214023]
-        );
-        console.log("[Migrations] Sentinel inserted — Drizzle migrator will now only run 0109+");
-      } else {
-        console.log("[Migrations] Existing migration record found at created_at:", rows[0].created_at);
-      }
-    } finally {
-      client.release();
-      await pool.end();
-    }
-
-    const db = drizzle(process.env.DATABASE_URL);
-    const migrationsFolder = path.resolve(process.cwd(), "drizzle");
-    console.log("[Migrations] Running pending migrations from", migrationsFolder);
-    await migrate(db, { migrationsFolder });
-    console.log("[Migrations] All migrations applied successfully");
-  } catch (err) {
-    console.error("[Migrations] Migration failed (non-fatal):", err);
-  }
-}
-
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  // Trust the first proxy (Cloud Run / Render load balancer).
-  // This allows Express to correctly read x-forwarded-proto and x-forwarded-for,
-  // which is required for HTTPS redirect URIs and secure session cookies.
-  app.set("trust proxy", 1);
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "100mb" }));
   app.use(express.urlencoded({ limit: "100mb", extended: true }));
-  // Run DB migrations before starting routes
-  await runMigrations();
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   registerAuthRoutes(app);
@@ -660,7 +593,7 @@ async function startServer() {
     registerTrialNotificationJob();
     registerWeeklyDigestJob();
     // Register daily drip email processor
-    registerDripProcessorJob();
+    registerDripEmailJob();
   });
 }
 

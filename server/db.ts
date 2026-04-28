@@ -1,5 +1,5 @@
 import { eq, desc, and, gte, lte, sql, inArray } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users, 
   InsertPersona, personas,
@@ -90,10 +90,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     if (user.role !== undefined) {
       values.role = user.role;
       updateSet.role = user.role;
-    } else if (
-      (ENV.ownerOpenId && user.openId === ENV.ownerOpenId) ||
-      (ENV.ownerEmail && user.email?.toLowerCase().trim() === ENV.ownerEmail)
-    ) {
+    } else if (user.openId === ENV.ownerOpenId) {
       values.role = 'admin';
       updateSet.role = 'admin';
     }
@@ -106,8 +103,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
-    await db.insert(users).values(values).onConflictDoUpdate({
-      target: users.openId,
+    await db.insert(users).values(values).onDuplicateKeyUpdate({
       set: updateSet,
     });
   } catch (error) {
@@ -251,21 +247,6 @@ export async function acceptTermsOfService(userId: number) {
   return { success: true };
 }
 
-export async function acceptBetaAgreement(userId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  await db.update(users)
-    .set({ 
-      hasAcceptedBetaAgreement: true, 
-      betaAgreementAcceptedAt: new Date(),
-      updatedAt: new Date() 
-    })
-    .where(eq(users.id, userId));
-  
-  return { success: true };
-}
-
 // ============ PERSONA HELPERS ============
 
 export async function getPersonaByUserId(userId: number) {
@@ -284,8 +265,8 @@ export async function upsertPersona(userId: number, data: Partial<InsertPersona>
     await db.update(personas).set({ ...data, updatedAt: new Date() }).where(eq(personas.userId, userId));
     return { ...existing, ...data };
   } else {
-    const result = await db.insert(personas).values({ ...data, userId }).returning();
-    return { id: Number(result[0]?.id ?? 0), userId, ...data };
+    const result = await db.insert(personas).values({ ...data, userId });
+    return { id: Number(result[0].insertId), userId, ...data };
   }
 }
 
@@ -358,8 +339,8 @@ export async function getContentPostById(id: number) {
 export async function createContentPost(data: InsertContentPost) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(contentPosts).values(data).returning();
-  return { id: Number(result[0]?.id ?? 0), ...data };
+  const result = await db.insert(contentPosts).values(data);
+  return { id: Number(result[0].insertId), ...data };
 }
 
 export async function updateContentPost(id: number, data: Partial<InsertContentPost>) {
@@ -399,8 +380,8 @@ export async function getCalendarEventsByUserId(userId: number, startDate?: Date
 export async function createCalendarEvent(data: InsertCalendarEvent) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(calendarEvents).values(data).returning();
-  return { id: Number(result[0]?.id ?? 0), ...data };
+  const result = await db.insert(calendarEvents).values(data);
+  return { id: Number(result[0].insertId), ...data };
 }
 
 export async function updateCalendarEvent(id: number, data: Partial<InsertCalendarEvent>) {
@@ -435,8 +416,8 @@ export async function upsertIntegration(userId: number, platform: "facebook" | "
     await db.update(integrations).set({ ...data, updatedAt: new Date() }).where(eq(integrations.id, existing[0].id));
     return { ...existing[0], ...data };
   } else {
-    const result = await db.insert(integrations).values({ ...data, userId, platform }).returning();
-    return { id: Number(result[0]?.id ?? 0), userId, platform, ...data };
+    const result = await db.insert(integrations).values({ ...data, userId, platform });
+    return { id: Number(result[0].insertId), userId, platform, ...data };
   }
 }
 
@@ -451,8 +432,8 @@ export async function getUploadsByUserId(userId: number) {
 export async function createUpload(data: InsertUpload) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(uploads).values(data).returning();
-  return { id: Number(result[0]?.id ?? 0), ...data };
+  const result = await db.insert(uploads).values(data);
+  return { id: Number(result[0].insertId), ...data };
 }
 
 export async function deleteUpload(id: number) {
@@ -472,8 +453,8 @@ export async function getImportJobsByUserId(userId: number) {
 export async function createImportJob(data: InsertImportJob) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(importJobs).values(data).returning();
-  return { id: Number(result[0]?.id ?? 0), ...data };
+  const result = await db.insert(importJobs).values(data);
+  return { id: Number(result[0].insertId), ...data };
 }
 
 export async function updateImportJob(id: number, data: Partial<InsertImportJob>) {
@@ -494,8 +475,8 @@ export async function getImportJobById(id: number) {
 export async function createAnalyticsRecord(data: InsertAnalytics) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(analytics).values(data).returning();
-  return { id: Number(result[0]?.id ?? 0), ...data };
+  const result = await db.insert(analytics).values(data);
+  return { id: Number(result[0].insertId), ...data };
 }
 
 export async function getAnalyticsByUserId(userId: number, startDate?: Date, endDate?: Date) {
@@ -543,8 +524,8 @@ export async function getActivePostingSchedules(userId: number) {
 export async function createPostingSchedule(data: InsertPostingSchedule) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(postingSchedules).values(data).returning();
-  return { id: Number(result[0]?.id ?? 0), ...data };
+  const result = await db.insert(postingSchedules).values(data);
+  return { id: Number(result[0].insertId), ...data };
 }
 
 export async function updatePostingSchedule(id: number, data: Partial<InsertPostingSchedule>) {
@@ -592,8 +573,7 @@ export async function upsertUserSubscription(data: InsertUserSubscription) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  await db.insert(userSubscriptions).values(data).onConflictDoUpdate({
-    target: userSubscriptions.userId,
+  await db.insert(userSubscriptions).values(data).onDuplicateKeyUpdate({
     set: {
       tierId: data.tierId,
       status: data.status,
@@ -713,8 +693,7 @@ export async function upsertWhiteLabelSettings(data: InsertWhiteLabelSettings) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  await db.insert(whiteLabelSettings).values(data).onConflictDoUpdate({
-    target: whiteLabelSettings.userId,
+  await db.insert(whiteLabelSettings).values(data).onDuplicateKeyUpdate({
     set: {
       appName: data.appName,
       appTagline: data.appTagline,
@@ -847,7 +826,7 @@ export async function getCustomPromptTemplatesByUserId(userId: number) {
 export async function createCustomPromptTemplate(data: InsertCustomPromptTemplate) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(customPromptTemplates).values(data).returning();
+  const result = await db.insert(customPromptTemplates).values(data);
   return result;
 }
 
@@ -871,8 +850,8 @@ export async function deleteCustomPromptTemplate(id: number) {
 export async function createPropertyTour(data: InsertPropertyTour) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(propertyTours).values(data).returning();
-  return { id: Number(result[0]?.id ?? 0), ...data };
+  const result = await db.insert(propertyTours).values(data);
+  return { id: Number(result[0].insertId), ...data };
 }
 
 export async function getPropertyTourById(id: number) {
@@ -925,14 +904,14 @@ export async function getStuckProcessingTours(olderThanMinutes: number = 35) {
 export async function createContentTemplate(data: InsertContentTemplate) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(contentTemplates).values(data).returning();
-  return { id: Number(result[0]?.id ?? 0), ...data };
+  const result = await db.insert(contentTemplates).values(data);
+  return { id: Number(result[0].insertId), ...data };
 }
 
 export async function createContentTemplatesBatch(templates: InsertContentTemplate[]) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(contentTemplates).values(templates).returning();
+  const result = await db.insert(contentTemplates).values(templates);
   return result;
 }
 
@@ -989,7 +968,7 @@ export async function deleteContentTemplatesByBatchId(batchId: string) {
 export async function createDraft(data: InsertDraft) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(drafts).values(data).returning();
+  const result = await db.insert(drafts).values(data);
   return result[0];
 }
 
@@ -1016,7 +995,7 @@ export async function bulkDeleteDrafts(ids: number[]) {
 export async function createAiReel(data: InsertAiReel) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(aiReels).values(data).returning();
+  const result = await db.insert(aiReels).values(data);
   return result[0];
 }
 
@@ -1257,16 +1236,26 @@ export async function promoteUserToAdmin(userId: number): Promise<void> {
   await db.update(users).set({ role: "admin", updatedAt: new Date() }).where(eq(users.id, userId));
 }
 
-// ============ PASSWORD RESET HELPERS ============
+/**
+ * Accept the beta agreement for a user.
+ */
+export async function acceptBetaAgreement(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(users)
+    .set({
+      hasAcceptedBetaAgreement: true,
+      betaAgreementAcceptedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId));
+  return { success: true };
+}
 
 /**
- * Store a password reset token and expiry on a user record.
+ * Store a password reset token for a user.
  */
-export async function setPasswordResetToken(
-  userId: number,
-  token: string,
-  expiresAt: Date
-): Promise<void> {
+export async function setPasswordResetToken(userId: number, token: string, expiresAt: Date): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db

@@ -204,7 +204,7 @@ router.post("/clone-voice-direct", upload.single("audio"), async (req, res) => {
     formData.append("description", `Cloned voice for real estate agent - Amped Agent`);
     formData.append(
       "files",
-      new Blob([file.buffer], { type: mimeType }),
+      new Blob([Buffer.from(file.buffer)], { type: mimeType }),
       `voice-sample.${ext}`
     );
 

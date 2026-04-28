@@ -21,6 +21,7 @@ import {
   CheckCircle2,
   ExternalLink,
   GitBranch,
+  Zap,
 } from "lucide-react";
 import {
   Select,

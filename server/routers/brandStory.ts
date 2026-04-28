@@ -130,8 +130,9 @@ Return ONLY valid JSON in this exact format:
           elevatorPitch: parsed.elevatorPitch,
           socialCaption: parsed.socialCaption,
           linkedinSummary: parsed.linkedinSummary,
-        }).returning();
-        const [newStory] = await database!.select().from(brandStories).where(eq(brandStories.id, inserted[0]?.id)).limit(1);
+        });
+        const insertedId = Number(insertResult[0].insertId);
+        const [newStory] = await database!.select().from(brandStories).where(eq(brandStories.id, insertedId)).limit(1);
         return newStory;
       }
     }),

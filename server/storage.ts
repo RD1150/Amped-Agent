@@ -71,8 +71,7 @@ async function r2Put(
       Body: body,
       ContentType: contentType,
       ChecksumAlgorithm: undefined,
-    }),
-    { requestHandler: undefined }
+    })
   );
 
   // Always use presigned GET URLs — the public URL bucket is rate-limited/blocked.
