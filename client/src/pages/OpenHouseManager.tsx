@@ -21,6 +21,7 @@ import {
   CheckCircle2,
   ExternalLink,
   GitBranch,
+  Zap,
 } from "lucide-react";
 import {
   Select,
@@ -54,6 +55,11 @@ export default function OpenHouseManager() {
 
   const utils = trpc.useUtils();
   const { data: openHouses, isLoading } = trpc.openHouse.list.useQuery();
+  const { data: zapierHooks } = trpc.zapierWebhooks.getAll.useQuery(undefined, { retry: false });
+  const openHouseZapierActive = (zapierHooks as Array<{ eventType: string; configured: boolean; isEnabled: boolean }> | undefined)
+    ?.some((w) => w.eventType === "open_house_lead" && w.configured && w.isEnabled) ?? false;
+  const openHouseZapierConfigured = (zapierHooks as Array<{ eventType: string; configured: boolean }> | undefined)
+    ?.some((w) => w.eventType === "open_house_lead" && w.configured) ?? false;
 
   const createMutation = trpc.openHouse.create.useMutation({
     onSuccess: (data) => {
@@ -238,6 +244,43 @@ export default function OpenHouseManager() {
           New Open House
         </Button>
       </div>
+
+      {/* Zapier Status Banner */}
+      {!openHouseZapierActive && (
+        <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-sm ${
+          openHouseZapierConfigured
+            ? "bg-amber-50 border-amber-200 text-amber-800"
+            : "bg-slate-50 border-slate-200 text-slate-600"
+        }`}>
+          <Zap className={`h-4 w-4 shrink-0 ${openHouseZapierConfigured ? "text-amber-500" : "text-slate-400"}`} />
+          <span className="flex-1">
+            {openHouseZapierConfigured
+              ? "Zapier webhook is configured but currently disabled. Enable it to auto-send leads to your CRM."
+              : "Connect Zapier to automatically send every sign-in to your CRM or email tool."}
+          </span>
+          <button
+            onClick={() => setLocation("/settings/zapier")}
+            className={`font-semibold underline underline-offset-2 shrink-0 hover:opacity-80 transition-opacity ${
+              openHouseZapierConfigured ? "text-amber-700" : "text-[#FF6A00]"
+            }`}
+          >
+            {openHouseZapierConfigured ? "Re-enable" : "Set Up Zapier"}
+          </button>
+        </div>
+      )}
+      {openHouseZapierActive && (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+          <Zap className="h-4 w-4 text-emerald-600 shrink-0" />
+          <span className="flex-1">Zapier is active — every sign-in will be sent to your connected app automatically.</span>
+          <button
+            onClick={() => setLocation("/settings/zapier")}
+            className="text-emerald-700 font-semibold underline underline-offset-2 shrink-0 hover:opacity-80 transition-opacity"
+          >
+            Manage
+          </button>
+        </div>
+      )}
 
       {/* Create Form */}
       {showForm && (

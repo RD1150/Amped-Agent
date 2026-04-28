@@ -79,6 +79,12 @@ export default function Dashboard() {
   );
   const openHouseZapierActive = (zapierHooks as Array<{ eventType: string; configured: boolean; isEnabled: boolean }> | undefined)
     ?.some((w) => w.eventType === "open_house_lead" && w.configured && w.isEnabled) ?? false;
+  const { data: crmIntegrationsList } = trpc.crmIntegrations.getAll.useQuery(
+    undefined,
+    { enabled: !!user, retry: false }
+  );
+  const crmConnected = (crmIntegrationsList as Array<{ hasApiKey: boolean; isEnabled: boolean }> | undefined)
+    ?.some((c) => c.hasApiKey && c.isEnabled) ?? false;
 
   // Auto-start tour for first-time users
   useEffect(() => {
@@ -417,7 +423,7 @@ export default function Dashboard() {
                 {[
                   { icon: Rocket, label: "Listing Launch Kit", sub: "1 address → full marketing package", path: "/listing-launch-kit", badge: null },
                   { icon: QrCode, label: "Open House Manager", sub: "QR sign-in + auto follow-up", path: "/open-house", badge: openHouseZapierActive ? "Zapier" : null },
-                  { icon: Users, label: "CRM Pipeline", sub: "5-stage lead kanban", path: "/crm", badge: null },
+                  { icon: Users, label: "CRM Pipeline", sub: "5-stage lead kanban", path: "/crm", badge: crmConnected ? "CRM" : null },
                   { icon: MessageSquareQuote, label: "Testimonial Engine", sub: "Reviews → social posts", path: "/testimonials", badge: null },
                 ].map(({ icon: Icon, label, sub, path, badge }) => (
                   <button

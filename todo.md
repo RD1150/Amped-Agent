@@ -5376,3 +5376,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Wire open house sign-in form to call fireZapierWebhook("open_house_lead") on submission — already wired in openHouse.ts submitLead procedure
 - [x] Add Connected indicator (green dot/badge) to Open House Manager dashboard card when Zapier webhook is active
 - [x] Write vitest tests for the webhook firing logic — covered by zapierWebhooks.test.ts
+
+## Zapier Integration Completions (New)
+- [x] Add CRM Connected badge to CRM Pipeline dashboard card (shows when any CRM integration is active)
+- [x] Wire fireZapierWebhook("lead_magnet_download") in lead magnet submission handler — already wired in leadMagnet.ts
+- [x] Add Zapier status banner to Open House Manager page with link to /settings/zapier
