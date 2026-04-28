@@ -5386,3 +5386,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Add three-state Zapier status banner to Lead Magnet page
 - [x] Wire fireZapierWebhook("new_crm_lead") when a lead is added to CRM Pipeline
 - [x] Add Zapier automation summary card to SCALE section of dashboard
+
+## Bug Fix: Duplicate User Records (Critical)
+- [x] Delete duplicate user rows for owner openId, keeping only user ID 1
+- [x] Enforce UNIQUE constraint on openId column via db:push
+- [x] Verify login resolves to user ID 1 with profile data
