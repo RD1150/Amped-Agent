@@ -5447,3 +5447,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Auto-save highlights/neighborhoods/zip codes immediately on add or remove
 - [x] Bulk CSV import for Local Highlights (paste comma-separated list)
 - [x] Extend hasLoadedProfile guard to Target Neighborhoods and ZIP Codes
+
+## Demo Mode (2026-04-29)
+- [ ] Add /api/auth/demo endpoint that auto-logs into demo account
+- [ ] Add "Explore Demo" button to login page
+- [ ] Ensure demo account exists with pre-filled persona data

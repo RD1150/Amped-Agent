@@ -459,4 +459,21 @@ export function registerAuthRoutes(app: Express) {
       res.status(500).json({ error: "Something went wrong. Please try again." });
     }
   });
+
+  // ── Demo Access (hidden link — not shown on login page) ───────────────────
+  app.get("/api/auth/demo", async (req: Request, res: Response) => {
+    try {
+      const DEMO_EMAIL = "demo@ampedagent.com";
+      const user = await db.getUserByEmail(DEMO_EMAIL);
+      if (!user) {
+        res.status(404).send("Demo account not configured.");
+        return;
+      }
+      await issueSession(req, res, user.openId, user.name || "Sarah Mitchell");
+      res.redirect("/dashboard");
+    } catch (error) {
+      console.error("[Auth] Demo access failed:", error);
+      res.status(500).send("Demo access failed. Please try again.");
+    }
+  });
 }

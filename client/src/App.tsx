@@ -112,6 +112,7 @@ const VideoVoiceover = lazy(() => import("./pages/VideoVoiceover"));
 const Teleprompter = lazy(() => import("./pages/Teleprompter"));
 const CRMIntegrations = lazy(() => import("./pages/CRMIntegrations"));
 const ZapierWebhooks = lazy(() => import("./pages/ZapierWebhooks"));
+const DemoAccess = lazy(() => import("./pages/DemoAccess"));
 
 // Fallback spinner shown while a lazy chunk loads
 function PageLoader() {
@@ -169,6 +170,7 @@ function Router() {
         <Route path="/oh/:slug" component={PublicOpenHouseSignIn} />
         <Route path="/forgot-password" component={ForgotPassword} />
         <Route path="/reset-password" component={ResetPassword} />
+        <Route path="/demo-access" component={DemoAccess} />
 
         {/* Dashboard routes */}
         <Route>
