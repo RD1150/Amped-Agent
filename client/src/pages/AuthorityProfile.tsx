@@ -420,6 +420,27 @@ export default function AuthorityProfile() {
 
   const suggestMutation = trpc.persona.suggestLocalHighlights.useMutation();
 
+  // Auto-save: silently persist highlights, neighborhoods, and ZIP codes 800ms
+  // after the user stops making changes — no need to click "Save" for these fields.
+  const autoSaveHighlights = trpc.persona.updateAuthorityProfile.useMutation();
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    // Skip the very first render (data is still loading)
+    if (!hasLoadedProfile.current) return;
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      autoSaveHighlights.mutate({
+        targetNeighborhoods: JSON.stringify(targetNeighborhoods),
+        targetZipCodes: JSON.stringify(targetZipCodes),
+        localHighlights: JSON.stringify(localHighlights),
+      });
+    }, 800);
+    return () => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localHighlights, targetNeighborhoods, targetZipCodes]);
+
   const cloneVoiceMutation = trpc.persona.cloneVoice.useMutation({
     onSuccess: async (data) => {
       toast.success(`Voice cloned as "${data.voiceName}"! Generating a preview...`);
@@ -1292,7 +1313,14 @@ export default function AuthorityProfile() {
             {/* Local Highlights */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label>Local Highlights &amp; Amenities</Label>
+                <div className="flex items-center gap-2">
+                  <Label>Local Highlights &amp; Amenities</Label>
+                  {autoSaveHighlights.isPending && (
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Loader2 className="h-3 w-3 animate-spin" /> Saving…
+                    </span>
+                  )}
+                </div>
                 <Button
                   type="button"
                   variant="outline"
@@ -1355,6 +1383,32 @@ export default function AuthorityProfile() {
                 </div>
               )}
 
+              {/* Bulk CSV import */}
+              <div className="space-y-1">
+                <textarea
+                  className="w-full min-h-[60px] rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+                  placeholder="Paste a comma-separated list to import multiple highlights at once (e.g. North Ranch Country Club, Conejo Valley schools, Westlake Village lake)"
+                  onPaste={(e) => {
+                    e.preventDefault();
+                    const pasted = e.clipboardData.getData("text");
+                    const items = pasted
+                      .split(/[,\n]+/)
+                      .map((s) => s.trim())
+                      .filter((s) => s.length > 0);
+                    setLocalHighlights((prev) => {
+                      const merged = [...prev];
+                      for (const item of items) {
+                        if (!merged.includes(item) && merged.length < 20) merged.push(item);
+                      }
+                      return merged;
+                    });
+                  }}
+                  onChange={() => {}}
+                  value=""
+                  readOnly
+                />
+                <p className="text-xs text-muted-foreground">Paste a comma-separated list to add multiple highlights at once.</p>
+              </div>
               <div className="flex gap-2">
                 <Input
                   placeholder="e.g. North Ranch Country Club, Award-winning Conejo Valley schools"
@@ -1401,7 +1455,7 @@ export default function AuthorityProfile() {
                   ))}
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Up to 20 highlights. Press Enter or click Add. These are woven into AI Reels, posts, and scripts automatically.</p>
+              <p className="text-xs text-muted-foreground">Up to 20 highlights. Press Enter or click Add. Changes save automatically. These are woven into AI Reels, posts, and scripts automatically.</p>
             </div>
           </div>
         </Card>

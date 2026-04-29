@@ -5442,3 +5442,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 
 ## Bug Fix: Local Highlights & Amenities (2026-04-28)
 - [x] Fix: Local Highlights reset after adding 1 item — useEffect was re-running on every persona background refetch, wiping unsaved highlights. Fixed by adding hasLoadedProfile ref guard so form state is only populated from server data on the first load.
+
+## Local Highlights Improvements (2026-04-29)
+- [x] Auto-save highlights/neighborhoods/zip codes immediately on add or remove
+- [x] Bulk CSV import for Local Highlights (paste comma-separated list)
+- [x] Extend hasLoadedProfile guard to Target Neighborhoods and ZIP Codes
