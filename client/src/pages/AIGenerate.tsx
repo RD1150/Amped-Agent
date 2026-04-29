@@ -1,11 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
-import ImageLibraryPicker from "@/components/ImageLibraryPicker";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -13,1012 +11,634 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Sparkles, 
-  Home, 
-  TrendingUp, 
-  Newspaper, 
-  Lightbulb, 
-  MapPin,
+import {
+  Sparkles,
   Copy,
   Check,
   Calendar,
-  Image as ImageIcon,
   Loader2,
-  Trash2,
   RefreshCw,
-  Pencil,
-  Save,
-  Repeat2
+  ChevronLeft,
+  ChevronRight,
+  Settings2,
+  Users,
+  Star,
+  Zap,
+  Target,
+  ArrowRight,
+  Video,
+  UserCheck,
+  Repeat2,
+  BookOpen,
 } from "lucide-react";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { useLocation } from "wouter";
-import DashboardLayout from "@/components/DashboardLayout";
 import { getFirstPost } from "@/lib/postFormatter";
-import ComprehensiveTemplateSelector from "@/components/ComprehensiveTemplateSelector";
 import { PostingDialog } from "@/components/PostingDialog";
 import ScheduleToCalendarModal from "@/components/ScheduleToCalendarModal";
-import type { Template } from "../../../shared/templates";
 
 type ContentType = "property_listing" | "market_report" | "trending_news" | "tips" | "neighborhood" | "custom";
 type ContentFormat = "static_post" | "carousel" | "reel_script";
 type BrandVoice = "professional" | "friendly" | "luxury" | "casual" | "authoritative";
-type ImageStyle = "realistic" | "modern" | "luxury" | "minimal" | "vibrant";
-type TemplateType = "property_card" | "just_listed" | "just_sold" | "open_house" | "market_update" | "testimonial";
-type SelectedTemplate = Template | null;
-type StockCategory = "property" | "interior" | "exterior" | "neighborhood" | "people" | "abstract";
+type GoalType = "attract_buyers" | "engage_sphere" | "build_authority";
+type Step = 1 | 2 | 3 | 4;
+
+const PROGRESS_MESSAGES = [
+  "Analyzing your topic…",
+  "Researching market context…",
+  "Crafting your message…",
+  "Applying your brand voice…",
+  "Finalizing your content…",
+];
+
+const GOAL_CONFIG: Record<GoalType, { contentType: ContentType; tone: BrandVoice }> = {
+  attract_buyers:  { contentType: "property_listing", tone: "professional"  },
+  engage_sphere:   { contentType: "tips",             tone: "friendly"      },
+  build_authority: { contentType: "market_report",    tone: "authoritative" },
+};
 
 export default function AIGenerate() {
   const [, setLocation] = useLocation();
-
-  // Pre-fill from URL params (e.g. when opened from Content Templates)
   const urlParams = new URLSearchParams(window.location.search);
-  const prefillHook = urlParams.get("hook") ?? "";
-  const prefillTopic = urlParams.get("topic") ?? "";
-  const prefillContentType = (urlParams.get("contentType") as ContentType) ?? "custom";
-  const prefillFormat = urlParams.get("contentType") === "carousel" ? "carousel" as ContentFormat : "static_post" as ContentFormat;
 
-  const [topic, setTopic] = useState(prefillTopic);
-  const [contentType, setContentType] = useState<ContentType>(prefillContentType);
-  const [contentFormat, setContentFormat] = useState<ContentFormat>(prefillFormat);
+  // Step state
+  const [step, setStep] = useState<Step>(1);
+
+  // Screen 1 — topic
+  const [topic, setTopic] = useState(urlParams.get("topic") ?? "");
+  const [showCustomize, setShowCustomize] = useState(false);
+  const [contentFormat, setContentFormat] = useState<ContentFormat>("static_post");
   const [tone, setTone] = useState<BrandVoice>("professional");
+  const [contentType, setContentType] = useState<ContentType>("custom");
+
+  // Screen 2 — goal
+  const [goal, setGoal] = useState<GoalType | null>(null);
+
+  // Screen 3 — generation progress
+  const [progressIdx, setProgressIdx] = useState(0);
+  const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Screen 4 — results
   const [generatedContent, setGeneratedContent] = useState("");
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<SelectedTemplate>(null);
-  const [includeHeadshot, setIncludeHeadshot] = useState(true);
-  const [showBrandingOverlay, setShowBrandingOverlay] = useState(true);
-  const [customMessage, setCustomMessage] = useState("");
-  const [customHook, setCustomHook] = useState(prefillHook);
-  const [includeCTA, setIncludeCTA] = useState(false);
-  const [ctaText, setCtaText] = useState("");
   const [showPostingDialog, setShowPostingDialog] = useState(false);
-  const [isEditingContent, setIsEditingContent] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [marketLocation, setMarketLocation] = useState("");
-
-  // Image generation states
-  const [imagePrompt, setImagePrompt] = useState("");
-  const [imageStyle, setImageStyle] = useState<ImageStyle>("modern");
-  const [templateType, setTemplateType] = useState<TemplateType>("property_card");
-  const [stockQuery, setStockQuery] = useState("");
-  const [stockCategory, setStockCategory] = useState<StockCategory>("property");
-  const [stockImages, setStockImages] = useState<Array<{ url: string; index: number }>>([]);
-  const [showLibraryPicker, setShowLibraryPicker] = useState(false);
-
-  // Property listing fields
-  const [propertyData, setPropertyData] = useState({
-    address: "",
-    price: "",
-    bedrooms: "",
-    bathrooms: "",
-    sqft: "",
-    description: "",
-  });
+  const [savedToDrafts, setSavedToDrafts] = useState(false);
 
   const { data: persona } = trpc.persona.get.useQuery();
   const utils = trpc.useUtils();
 
   const generateContent = trpc.content.generate.useMutation({
     onSuccess: (result) => {
-      // Extract first clean post variation
+      clearProgressTimer();
       setGeneratedContent(getFirstPost(result.content));
-      if (result.imageUrl) {
-        setGeneratedImage(result.imageUrl);
-      }
-      setIsGenerating(false);
+      setStep(4);
     },
     onError: (error) => {
-      toast.error("Failed to generate content: " + error.message);
-      setIsGenerating(false);
-    },
-  });
-
-  const generateImage = trpc.images.generate.useMutation({
-    onSuccess: (result) => {
-      setGeneratedImage(result.url || null);
-      toast.success("Image generated successfully!");
-    },
-    onError: (error) => {
-      toast.error("Failed to generate image: " + error.message);
-    },
-  });
-
-  const generateTemplate = trpc.images.generateTemplate.useMutation({
-    onSuccess: (result) => {
-      setGeneratedImage(result.url || null);
-      toast.success("Template generated successfully!");
-    },
-    onError: (error) => {
-      toast.error("Failed to generate template: " + error.message);
-    },
-  });
-
-  const searchStock = trpc.images.searchStock.useMutation({
-    onSuccess: (result) => {
-      setStockImages(result.images.map(img => ({ url: img.url || "", index: img.index })));
-      toast.success(`Found ${result.images.length} stock images!`);
-    },
-    onError: (error) => {
-      toast.error("Failed to search stock images: " + error.message);
+      clearProgressTimer();
+      toast.error("Generation failed: " + error.message);
+      setStep(2);
     },
   });
 
   const createContent = trpc.content.create.useMutation({
     onSuccess: () => {
       utils.content.list.invalidate();
-      toast.success("Content saved to drafts");
+      setSavedToDrafts(true);
+      toast.success("Saved to drafts");
     },
   });
 
-  const handleGenerate = async () => {
-    if (!topic.trim() && contentType !== "property_listing") {
-      toast.error("Please enter a topic");
-      return;
+  function clearProgressTimer() {
+    if (progressTimer.current) {
+      clearInterval(progressTimer.current);
+      progressTimer.current = null;
     }
+  }
 
-    if (contentType === "property_listing" && !propertyData.address && !propertyData.description) {
-      toast.error("Please enter property details");
-      return;
-    }
+  // Kick off generation when entering step 3
+  useEffect(() => {
+    if (step !== 3 || !goal) return;
 
-    setIsGenerating(true);
-    setGeneratedContent("");
-    setGeneratedImage(null);
+    setProgressIdx(0);
+    progressTimer.current = setInterval(() => {
+      setProgressIdx((i) => Math.min(i + 1, PROGRESS_MESSAGES.length - 1));
+    }, 900);
 
+    const resolved = GOAL_CONFIG[goal];
     generateContent.mutate({
-      topic: topic || propertyData.description || propertyData.address,
-      contentType,
+      topic: topic.trim() || "real estate tips",
+      contentType: contentType !== "custom" ? contentType : resolved.contentType,
       format: contentFormat,
-      tone: tone || (persona?.brandVoice as BrandVoice) || "professional",
-      propertyData: contentType === "property_listing" ? {
-        address: propertyData.address,
-        price: propertyData.price ? parseInt(propertyData.price.replace(/[^0-9]/g, "")) : undefined,
-        bedrooms: propertyData.bedrooms ? parseInt(propertyData.bedrooms) : undefined,
-        bathrooms: propertyData.bathrooms ? parseInt(propertyData.bathrooms) : undefined,
-        sqft: propertyData.sqft ? parseInt(propertyData.sqft.replace(/[^0-9]/g, "")) : undefined,
-        description: propertyData.description,
-      } : undefined,
-      ctaText: includeCTA ? ctaText : undefined,
-      location: contentType === "market_report" && marketLocation.trim() ? marketLocation.trim() : undefined,
-      showBrandingOverlay,
+      tone: tone || resolved.tone || (persona?.brandVoice as BrandVoice) || "professional",
+      showBrandingOverlay: true,
     });
-  };
 
+    return () => clearProgressTimer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
-
-  const handleGenerateImage = () => {
-    if (!imagePrompt.trim()) {
-      toast.error("Please enter an image prompt");
+  function handleTopicNext() {
+    if (!topic.trim()) {
+      toast.error("Please describe your topic or property first");
       return;
     }
-    generateImage.mutate({ prompt: imagePrompt, style: imageStyle });
-  };
+    setStep(2);
+  }
 
-  const handleGenerateTemplate = async () => {
-    if (!selectedTemplate) {
-      toast.error("Please select a template first");
-      return;
-    }
+  function handleGoalSelect(g: GoalType) {
+    setGoal(g);
+    setStep(3);
+  }
 
-    if (!generatedContent) {
-      toast.error("Please generate post content first (Content tab)");
-      return;
-    }
-
-    try {
-      setIsGenerating(true);
-      const { renderTemplate } = await import("@/lib/templateRenderer");
-      
-      const imageUrl = await renderTemplate({
-        template: selectedTemplate,
-        postText: customMessage.trim() || generatedContent,
-        customHook: customHook.trim() || undefined,
-        businessName: persona?.businessName || undefined,
-        tagline: persona?.tagline || undefined,
-        headshotUrl: (includeHeadshot && persona?.headshotUrl) ? persona.headshotUrl : undefined,
-        primaryColor: persona?.primaryColor || undefined,
-        phone: persona?.phoneNumber || undefined,
-        email: persona?.emailAddress || undefined,
-        website: persona?.websiteUrl || undefined,
-        agentName: persona?.agentName || undefined,
-        licenseNumber: persona?.licenseNumber || undefined,
-        brokerageName: persona?.brokerageName || undefined,
-        brokerageDRE: persona?.brokerageDRE || undefined,
-      });
-      
-      setGeneratedImage(imageUrl);
-      toast.success("Template generated successfully!");
-    } catch (error) {
-      console.error("Template generation error:", error);
-      toast.error("Failed to generate template");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleSearchStock = () => {
-    if (!stockQuery.trim()) {
-      toast.error("Please enter a search query");
-      return;
-    }
-    searchStock.mutate({ query: stockQuery, category: stockCategory });
-  };
-
-  const handleCopy = () => {
+  function handleCopy() {
     navigator.clipboard.writeText(generatedContent);
     setCopied(true);
-    toast.success("Content copied to clipboard");
+    toast.success("Copied to clipboard");
     setTimeout(() => setCopied(false), 2000);
-  };
+  }
 
-  const handleSaveDraft = () => {
-    if (!generatedContent) {
-      toast.error("No content to save");
-      return;
-    }
-
+  function handleSaveDraft() {
+    if (!generatedContent) return;
     createContent.mutate({
       content: generatedContent,
       contentType,
       status: "draft",
-      imageUrl: generatedImage || undefined,
       aiGenerated: true,
     });
-  };
+  }
 
-  const contentTypeIcons = {
-    property_listing: Home,
-    market_report: TrendingUp,
-    trending_news: Newspaper,
-    tips: Lightbulb,
-    neighborhood: MapPin,
-    custom: Sparkles,
-  };
+  function handleRegenerate() {
+    setSavedToDrafts(false);
+    setGeneratedContent("");
+    setStep(3);
+  }
 
-  return (
-    <>
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Authority Post Builder</h1>
-          <p className="text-muted-foreground mt-2">
-            Build positioning power that converts content into closings
+  function handleStartOver() {
+    setStep(1);
+    setGoal(null);
+    setGeneratedContent("");
+    setSavedToDrafts(false);
+    setProgressIdx(0);
+  }
+
+  // ─── Step bar ─────────────────────────────────────────────────────────────
+  const STEP_LABELS = ["Topic", "Goal", "Generating", "Results"];
+
+  function StepBar() {
+    return (
+      <div className="flex items-center justify-center gap-0 mb-10">
+        {STEP_LABELS.map((label, i) => {
+          const num = (i + 1) as Step;
+          const isActive = step === num;
+          const isDone = step > num;
+          return (
+            <div key={label} className="flex items-center">
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                    isDone
+                      ? "bg-primary text-primary-foreground"
+                      : isActive
+                      ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {isDone ? <Check className="w-4 h-4" /> : num}
+                </div>
+                <span
+                  className={`text-xs hidden sm:block transition-colors ${
+                    isActive ? "text-primary font-medium" : "text-muted-foreground"
+                  }`}
+                >
+                  {label}
+                </span>
+              </div>
+              {i < STEP_LABELS.length - 1 && (
+                <div
+                  className={`h-0.5 w-12 sm:w-20 mx-1 mb-4 transition-all duration-500 ${
+                    step > num ? "bg-primary" : "bg-border"
+                  }`}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // ─── Screen 1: Topic Input ─────────────────────────────────────────────────
+  function Screen1() {
+    return (
+      <div className="max-w-xl mx-auto space-y-6">
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">What do you want to post about?</h1>
+          <p className="text-muted-foreground">
+            Describe your topic, listing, or idea — we'll handle the rest.
           </p>
         </div>
 
-        <Tabs defaultValue="content" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="content">Text Content</TabsTrigger>
-            <TabsTrigger value="images">AI Images</TabsTrigger>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
-            <TabsTrigger value="stock">Stock Photos</TabsTrigger>
-          </TabsList>
+        <div className="space-y-2">
+          <Textarea
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="e.g. Just listed a 3-bed home in Austin, TX — $485K, great schools, move-in ready…"
+            rows={4}
+            className="text-base resize-none"
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleTopicNext();
+            }}
+          />
+          <p className="text-xs text-muted-foreground text-right">Cmd+Enter to continue</p>
+        </div>
 
-          {/* Text Content Generation */}
-          <TabsContent value="content" className="space-y-6">
-            <div className="flex justify-center">
-              <Card className="max-w-4xl w-full">
-                <CardHeader>
-                  <CardTitle>Generate Content</CardTitle>
-                  <CardDescription>
-                    Create engaging social media posts for your real estate business
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                {/* Content Format Selector */}
-                <div className="space-y-4">
-                  <Label className="text-lg font-semibold">What type of content do you want to create?</Label>
-                  <div className="grid grid-cols-3 gap-6">
-                    <button
-                      onClick={() => setContentFormat("static_post")}
-                      className={`flex flex-col items-center gap-4 p-8 rounded-lg border-2 transition-all hover:border-primary ${
-                        contentFormat === "static_post" ? "border-primary bg-primary/5" : "border-border"
-                      }`}
-                    >
-                      <div className="text-5xl">📝</div>
-                      <div className="text-center">
-                        <div className="font-semibold">Static Post</div>
-                        <div className="text-xs text-muted-foreground mt-1">Image + Caption</div>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setContentFormat("carousel")}
-                      className={`flex flex-col items-center gap-4 p-8 rounded-lg border-2 transition-all hover:border-primary ${
-                        contentFormat === "carousel" ? "border-primary bg-primary/5" : "border-border"
-                      }`}
-                    >
-                      <div className="text-5xl">📊</div>
-                      <div className="text-center">
-                        <div className="font-semibold">Carousel</div>
-                        <div className="text-xs text-muted-foreground mt-1">Multi-slide post</div>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setContentFormat("reel_script")}
-                      className={`flex flex-col items-center gap-4 p-8 rounded-lg border-2 transition-all hover:border-primary ${
-                        contentFormat === "reel_script" ? "border-primary bg-primary/5" : "border-border"
-                      }`}
-                    >
-                      <div className="text-5xl">🎬</div>
-                      <div className="text-center">
-                        <div className="font-semibold">Reel Script</div>
-                        <div className="text-xs text-muted-foreground mt-1">Video script</div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
+        {/* Customize toggle */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowCustomize((v) => !v)}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Settings2 className="w-4 h-4" />
+            {showCustomize ? "Hide" : "Customize"} options
+            <ChevronRight
+              className={`w-3 h-3 transition-transform duration-200 ${showCustomize ? "rotate-90" : ""}`}
+            />
+          </button>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Content Type</Label>
-                    <Select value={contentType} onValueChange={(v) => setContentType(v as ContentType)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="property_listing">
-                          <div className="flex items-center gap-2">
-                            <Home className="h-4 w-4" />
-                            Property Listing
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="market_report">
-                          <div className="flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4" />
-                            Market Report
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="trending_news">
-                          <div className="flex items-center gap-2">
-                            <Newspaper className="h-4 w-4" />
-                            Trending News
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="tips">
-                          <div className="flex items-center gap-2">
-                            <Lightbulb className="h-4 w-4" />
-                            Tips & Advice
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="neighborhood">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            Neighborhood Spotlight
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="custom">
-                          <div className="flex items-center gap-2">
-                            <Sparkles className="h-4 w-4" />
-                            Custom
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Tone</Label>
-                    <Select value={tone} onValueChange={(v) => setTone(v as BrandVoice)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="professional">Professional</SelectItem>
-                        <SelectItem value="friendly">Friendly</SelectItem>
-                        <SelectItem value="luxury">Luxury</SelectItem>
-                        <SelectItem value="casual">Casual</SelectItem>
-                        <SelectItem value="authoritative">Authoritative</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {contentType === "property_listing" ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Address</Label>
-                        <Input
-                          value={propertyData.address}
-                          onChange={(e) => setPropertyData({ ...propertyData, address: e.target.value })}
-                          placeholder="123 Main St, City, State"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Price</Label>
-                        <Input
-                          value={propertyData.price}
-                          onChange={(e) => setPropertyData({ ...propertyData, price: e.target.value })}
-                          placeholder="$500,000"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label>Bedrooms</Label>
-                        <Input
-                          value={propertyData.bedrooms}
-                          onChange={(e) => setPropertyData({ ...propertyData, bedrooms: e.target.value })}
-                          placeholder="3"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Bathrooms</Label>
-                        <Input
-                          value={propertyData.bathrooms}
-                          onChange={(e) => setPropertyData({ ...propertyData, bathrooms: e.target.value })}
-                          placeholder="2"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Square Feet</Label>
-                        <Input
-                          value={propertyData.sqft}
-                          onChange={(e) => setPropertyData({ ...propertyData, sqft: e.target.value })}
-                          placeholder="2000"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Description</Label>
-                      <Textarea
-                        value={propertyData.description}
-                        onChange={(e) => setPropertyData({ ...propertyData, description: e.target.value })}
-                        placeholder="Describe the property's best features..."
-                        rows={3}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Label>Topic</Label>
-                    <Textarea
-                      value={topic}
-                      onChange={(e) => setTopic(e.target.value)}
-                      placeholder="What would you like to write about?"
-                      rows={3}
-                    />
-                    {contentType === "market_report" && (
-                      <div className="mt-3 space-y-1">
-                        <Label className="text-sm">Location <span className="text-muted-foreground font-normal">(for real market data)</span></Label>
-                        <Input
-                          value={marketLocation}
-                          onChange={(e) => setMarketLocation(e.target.value)}
-                          placeholder="e.g. Conejo Valley, CA or Beverly Hills, CA"
-                        />
-                        <p className="text-xs text-muted-foreground">Enter a city or area to pull real-time stats — median price, days on market, and inventory.</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* CTA Text Option */}
-                <div className="space-y-3 border-t pt-4">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="includeCTA"
-                      checked={includeCTA}
-                      onChange={(e) => setIncludeCTA(e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300"
-                    />
-                    <Label htmlFor="includeCTA" className="font-medium cursor-pointer">
-                      Add custom call-to-action text
-                    </Label>
-                  </div>
-                  
-                  {includeCTA && (
-                    <div className="space-y-2 pl-6">
-                      <Label htmlFor="ctaText">CTA Text</Label>
-                      <Input
-                        id="ctaText"
-                        value={ctaText}
-                        onChange={(e) => setCtaText(e.target.value)}
-                        placeholder="e.g., Call Today! or Schedule a Tour"
-                        maxLength={50}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        This text will appear at the bottom of your post
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <Button 
-                  onClick={handleGenerate} 
-                  disabled={isGenerating}
-                  className="w-full"
-                  size="lg"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Generate Content
-                    </>
-                  )}
-                </Button>
-
-                {generatedContent && (
-                  <div className="space-y-4">
-                    {generatedImage && (
-                      <div className="border rounded-lg p-4 bg-muted/50">
-                        <img src={generatedImage} alt="Generated content image" className="w-full rounded-lg mb-4" />
-                        <Button 
-                          onClick={() => {
-                            const link = document.createElement('a');
-                            link.href = generatedImage;
-                            link.download = `realty-content-${Date.now()}.jpg`;
-                            link.click();
-                            toast.success('Image downloaded!');
-                          }} 
-                          variant="outline" 
-                          className="w-full"
-                        >
-                          <ImageIcon className="mr-2 h-4 w-4" />
-                          Download Image
-                        </Button>
-                      </div>
-                    )}
-                    <div className="border rounded-lg p-4 bg-muted/50 relative">
-                      {isEditingContent ? (
-                        <Textarea
-                          value={generatedContent}
-                          onChange={(e) => setGeneratedContent(e.target.value)}
-                          className="min-h-[200px] w-full text-sm font-normal resize-y border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                          autoFocus
-                        />
-                      ) : (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{generatedContent}</ReactMarkdown>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => setIsEditingContent(!isEditingContent)}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        {isEditingContent ? (
-                          <><Save className="mr-2 h-4 w-4" />Done Editing</>
-                        ) : (
-                          <><Pencil className="mr-2 h-4 w-4" />Edit</>
-                        )}
-                      </Button>
-                      <Button onClick={handleCopy} variant="outline" className="flex-1">
-                        {copied ? (
-                          <>
-                            <Check className="mr-2 h-4 w-4" />
-                            Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="mr-2 h-4 w-4" />
-                            Copy
-                          </>
-                        )}
-                      </Button>
-                      <Button onClick={() => setShowScheduleModal(true)} variant="outline" className="flex-1">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        Add to Calendar
-                      </Button>
-                      <Button 
-                        onClick={() => {
-                          setGeneratedContent("");
-                          setGeneratedImage(null);
-                          toast.success("Content discarded");
-                        }} 
-                        variant="outline" 
-                        className="flex-1 text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </Button>
-                    </div>
-                    <div className="flex gap-2 mt-2">
-                      <Button 
-                        onClick={() => {
-                          const params = new URLSearchParams({
-                            topic: topic || "Social Media Post",
-                            body: generatedContent.slice(0, 600),
-                          });
-                          setLocation(`/repurpose?${params.toString()}`);
-                        }}
-                        variant="outline"
-                        className="flex-1 gap-2 text-primary border-primary/30 hover:bg-muted dark:hover:bg-primary/10"
-                      >
-                        <Repeat2 className="h-4 w-4" />
-                        Repurpose This
-                      </Button>
-                      <Button 
-                        onClick={() => {
-                          setGeneratedContent("");
-                          setGeneratedImage(null);
-                          handleGenerate();
-                        }} 
-                        variant="outline" 
-                        className="flex-1"
-                        disabled={generateContent.isPending}
-                      >
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Regenerate
-                      </Button>
-                      {contentFormat === "reel_script" ? (
-                        <Button 
-                          onClick={() => {
-                            // Navigate to Authority Reels Engine with script pre-filled
-                            setLocation("/autoreels?script=" + encodeURIComponent(generatedContent));
-                          }} 
-                          className="flex-1"
-                        >
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          Create Video from Script
-                        </Button>
-                      ) : (
-                        <Button onClick={() => setShowPostingDialog(true)} className="flex-1">
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          Post to Social Media
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* AI Image Generation */}
-          <TabsContent value="images" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>AI Image Generation</CardTitle>
-                <CardDescription>
-                  Generate custom visuals for your real estate content
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Image Prompt</Label>
-                  <Textarea
-                    value={imagePrompt}
-                    onChange={(e) => setImagePrompt(e.target.value)}
-                    placeholder="Describe the image you want to generate..."
-                    rows={3}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Style</Label>
-                  <Select value={imageStyle} onValueChange={(v) => setImageStyle(v as ImageStyle)}>
-                    <SelectTrigger>
+          {showCustomize && (
+            <div className="mt-4 p-4 rounded-xl border bg-muted/30 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Format
+                  </Label>
+                  <Select value={contentFormat} onValueChange={(v) => setContentFormat(v as ContentFormat)}>
+                    <SelectTrigger className="h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="realistic">Realistic</SelectItem>
-                      <SelectItem value="modern">Modern</SelectItem>
+                      <SelectItem value="static_post">📝 Static Post</SelectItem>
+                      <SelectItem value="carousel">📊 Carousel</SelectItem>
+                      <SelectItem value="reel_script">🎬 Reel Script</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Tone
+                  </Label>
+                  <Select value={tone} onValueChange={(v) => setTone(v as BrandVoice)}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="professional">Professional</SelectItem>
+                      <SelectItem value="friendly">Friendly</SelectItem>
                       <SelectItem value="luxury">Luxury</SelectItem>
-                      <SelectItem value="minimal">Minimal</SelectItem>
-                      <SelectItem value="vibrant">Vibrant</SelectItem>
+                      <SelectItem value="casual">Casual</SelectItem>
+                      <SelectItem value="authoritative">Authoritative</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowLibraryPicker(true)}
-                    className="flex-1"
-                    size="lg"
-                  >
-                    <ImageIcon className="mr-2 h-4 w-4" />
-                    Browse Library
-                  </Button>
-                  <Button 
-                    onClick={handleGenerateImage} 
-                    disabled={generateImage.isPending}
-                    className="flex-1"
-                    size="lg"
-                  >
-                    {generateImage.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        Generate Image
-                      </>
-                    )}
-                  </Button>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Content Type
+                </Label>
+                <Select value={contentType} onValueChange={(v) => setContentType(v as ContentType)}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="custom">✨ Auto-detect</SelectItem>
+                    <SelectItem value="property_listing">🏠 Property Listing</SelectItem>
+                    <SelectItem value="market_report">📈 Market Report</SelectItem>
+                    <SelectItem value="trending_news">📰 Trending News</SelectItem>
+                    <SelectItem value="tips">💡 Tips & Advice</SelectItem>
+                    <SelectItem value="neighborhood">📍 Neighborhood</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Button onClick={handleTopicNext} size="lg" className="w-full text-base h-12 font-semibold gap-2">
+          <Sparkles className="h-5 w-5" />
+          Generate Content
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  }
+
+  // ─── Screen 2: Goal Selection ──────────────────────────────────────────────
+  function Screen2() {
+    const goals: {
+      id: GoalType;
+      icon: React.ReactNode;
+      label: string;
+      description: string;
+      badge: string;
+    }[] = [
+      {
+        id: "attract_buyers",
+        icon: <Target className="w-7 h-7" />,
+        label: "Attract Buyers",
+        description: "Showcase listings and generate leads with compelling property content.",
+        badge: "Listing-focused",
+      },
+      {
+        id: "engage_sphere",
+        icon: <Users className="w-7 h-7" />,
+        label: "Engage Your Sphere",
+        description: "Stay top-of-mind with your network through helpful, relatable posts.",
+        badge: "Relationship-building",
+      },
+      {
+        id: "build_authority",
+        icon: <Star className="w-7 h-7" />,
+        label: "Build Authority",
+        description: "Position yourself as the local expert with market insights and data.",
+        badge: "Thought leadership",
+      },
+    ];
+
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">What's the goal of this post?</h1>
+          <p className="text-muted-foreground">Pick one — we'll tailor the message to match.</p>
+        </div>
+
+        <div className="grid gap-4">
+          {goals.map((g) => (
+            <button
+              key={g.id}
+              onClick={() => handleGoalSelect(g.id)}
+              className="group flex items-start gap-5 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+            >
+              <div className="text-primary mt-0.5 group-hover:scale-110 transition-transform flex-shrink-0">
+                {g.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="font-semibold text-lg">{g.label}</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {g.badge}
+                  </Badge>
                 </div>
+                <p className="text-sm text-muted-foreground">{g.description}</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all mt-1 flex-shrink-0" />
+            </button>
+          ))}
+        </div>
 
-                {generatedImage && (
-                  <div className="space-y-4">
-                    <img 
-                      src={generatedImage} 
-                      alt="Generated" 
-                      className="w-full rounded-lg border"
-                    />
-                    <Button 
-                      onClick={() => window.open(generatedImage, '_blank')} 
-                      variant="outline" 
-                      className="w-full"
-                    >
-                      Open Full Size
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+        <button
+          onClick={() => setStep(1)}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </button>
+      </div>
+    );
+  }
 
-          {/* Template Generation */}
-          <TabsContent value="templates" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Professional Templates</CardTitle>
-                <CardDescription>
-                  Choose from 50 professionally designed templates for all content types
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <ComprehensiveTemplateSelector
-                  selectedTemplateId={selectedTemplate?.id || null}
-                  onSelectTemplate={(template) => setSelectedTemplate(template)}
-                />
+  // ─── Screen 3: Generation Loading ─────────────────────────────────────────
+  function Screen3() {
+    return (
+      <div className="max-w-md mx-auto text-center space-y-8 py-8">
+        <div className="relative mx-auto w-20 h-20">
+          <div className="absolute inset-0 rounded-full bg-primary/10 animate-ping" />
+          <div className="relative w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+            <Sparkles className="w-9 h-9 text-primary animate-pulse" />
+          </div>
+        </div>
 
-                {selectedTemplate && (
-                  <div className="space-y-4">
-                    <div className="p-4 bg-secondary rounded-lg">
-                      <h4 className="font-semibold mb-2">Selected Template</h4>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        <strong>{selectedTemplate.name}</strong>
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {selectedTemplate.useCase}
-                      </p>
-                    </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold">Building your post…</h2>
+          <p className="text-muted-foreground text-sm min-h-[1.5rem] transition-all duration-500">
+            {PROGRESS_MESSAGES[progressIdx]}
+          </p>
+        </div>
 
-                    <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
-                        <input
-                          type="checkbox"
-                          id="showBrandingOverlay"
-                          checked={showBrandingOverlay}
-                          onChange={(e) => setShowBrandingOverlay(e.target.checked)}
-                          className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
-                        />
-                        <label htmlFor="showBrandingOverlay" className="text-sm cursor-pointer flex-1">
-                          Show agent branding overlay
-                        </label>
-                        {!showBrandingOverlay && (
-                          <span className="text-xs text-muted-foreground">💡 Branded posts get more engagement</span>
-                        )}
-                      </div>
+        <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+          <div
+            className="h-full bg-primary rounded-full transition-all duration-700"
+            style={{ width: `${((progressIdx + 1) / PROGRESS_MESSAGES.length) * 100}%` }}
+          />
+        </div>
 
-                    {persona?.headshotUrl && showBrandingOverlay && (
-                      <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
-                        <input
-                          type="checkbox"
-                          id="includeHeadshot"
-                          checked={includeHeadshot}
-                          onChange={(e) => setIncludeHeadshot(e.target.checked)}
-                          className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
-                        />
-                        <label htmlFor="includeHeadshot" className="text-sm cursor-pointer flex-1">
-                          Include my headshot on this post
-                        </label>
-                      </div>
-                    )}
+        <p className="text-xs text-muted-foreground">Personalizing for your brand and market…</p>
+      </div>
+    );
+  }
 
-                    <div className="space-y-2">
-                      <Label htmlFor="customHook" className="text-sm font-medium">
-                        Headline/Hook Text ✨
-                      </Label>
-                      <Input
-                        id="customHook"
-                        placeholder="e.g., JUST LISTED, MARKET UPDATE, YOUR DREAM HOME AWAITS..."
-                        value={customHook}
-                        onChange={(e) => setCustomHook(e.target.value)}
-                        className="bg-secondary border-border text-lg font-semibold"
-                        maxLength={80}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        This text will appear prominently on your graphic. Leave blank for auto-generated headline.
-                      </p>
-                    </div>
+  // ─── Screen 4: Results ─────────────────────────────────────────────────────
+  function Screen4() {
+    const goalLabel = goal
+      ? {
+          attract_buyers: "Attract Buyers",
+          engage_sphere: "Engage Your Sphere",
+          build_authority: "Build Authority",
+        }[goal]
+      : "";
 
-                    <div className="space-y-2">
-                      <Label htmlFor="customMessage" className="text-sm font-medium">
-                        Customize Message (Optional)
-                      </Label>
-                      <Textarea
-                        id="customMessage"
-                        placeholder="Leave blank to use AI-generated content, or type your own message to appear on the graphic..."
-                        value={customMessage}
-                        onChange={(e) => setCustomMessage(e.target.value)}
-                        rows={4}
-                        className="bg-secondary border-border resize-none"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        {customMessage.trim() ? "Using your custom message" : "Using AI-generated content"}
-                      </p>
-                    </div>
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Your content is ready</h1>
+            <p className="text-muted-foreground text-sm mt-0.5">
+              Goal: <span className="text-foreground font-medium">{goalLabel}</span>
+              {contentFormat !== "static_post" && (
+                <>
+                  {" · "}Format:{" "}
+                  <span className="text-foreground font-medium capitalize">
+                    {contentFormat.replace("_", " ")}
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
+          <button
+            onClick={handleStartOver}
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors flex-shrink-0 mt-1"
+          >
+            <ChevronLeft className="w-3 h-3" />
+            Start over
+          </button>
+        </div>
 
-                    <Button 
-                      onClick={handleGenerateTemplate} 
-                      disabled={generateTemplate.isPending}
-                      className="w-full"
-                      size="lg"
-                    >
-                      {generateTemplate.isPending ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generating Template...
-                        </>
-                      ) : (
-                        <>
-                          <ImageIcon className="mr-2 h-4 w-4" />
-                          Generate {selectedTemplate.name}
-                        </>
-                      )}
-                    </Button>
+        {/* Content card */}
+        <div className="rounded-2xl border bg-card p-5 space-y-4">
+          <div className="whitespace-pre-wrap text-sm leading-relaxed">{generatedContent}</div>
 
-                    {generatedImage && (
-                      <div className="space-y-4">
-                        <img 
-                          src={generatedImage} 
-                          alt="Generated Template" 
-                          className="w-full rounded-lg border"
-                        />
-                        <Button 
-                          onClick={() => window.open(generatedImage, '_blank')} 
-                          variant="outline" 
-                          className="w-full"
-                        >
-                          Download Template
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
+          <div className="flex gap-2 pt-3 border-t flex-wrap">
+            <Button variant="outline" size="sm" onClick={handleCopy} className="gap-1.5">
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-green-500" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+              {copied ? "Copied!" : "Copy"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRegenerate}
+              disabled={generateContent.isPending}
+              className="gap-1.5"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Regenerate
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSaveDraft}
+              disabled={savedToDrafts || createContent.isPending}
+              className="gap-1.5"
+            >
+              {savedToDrafts && <Check className="w-3.5 h-3.5 text-green-500" />}
+              {savedToDrafts ? "Saved" : "Save Draft"}
+            </Button>
+          </div>
+        </div>
 
-                {!selectedTemplate && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <ImageIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p>Select a template above to get started</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+        {/* Primary CTA */}
+        <Button
+          size="lg"
+          className="w-full h-12 text-base font-semibold gap-2"
+          onClick={() => setShowPostingDialog(true)}
+        >
+          <Zap className="w-5 h-5" />
+          Post to Social Media
+        </Button>
 
-          {/* Stock Photo Search */}
-          <TabsContent value="stock" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Stock Photo Search</CardTitle>
-                <CardDescription>
-                  Find AI-generated stock photos for your content
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Search Query</Label>
-                  <Input
-                    value={stockQuery}
-                    onChange={(e) => setStockQuery(e.target.value)}
-                    placeholder="e.g., modern kitchen, luxury home exterior..."
-                  />
+        {/* What's Next */}
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+            What's next
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button
+              onClick={() => setShowScheduleModal(true)}
+              className="group flex flex-col items-start gap-2 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
+            >
+              <Calendar className="w-5 h-5 text-primary" />
+              <div>
+                <p className="font-medium text-sm">Schedule It</p>
+                <p className="text-xs text-muted-foreground">Add to your content calendar</p>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all mt-auto" />
+            </button>
+
+            <button
+              onClick={() => {
+                const params = new URLSearchParams({
+                  topic: topic || "Social Media Post",
+                  body: generatedContent.slice(0, 600),
+                });
+                setLocation(`/repurpose?${params.toString()}`);
+              }}
+              className="group flex flex-col items-start gap-2 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
+            >
+              <Repeat2 className="w-5 h-5 text-primary" />
+              <div>
+                <p className="font-medium text-sm">Repurpose It</p>
+                <p className="text-xs text-muted-foreground">Turn into email, blog, or reel</p>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all mt-auto" />
+            </button>
+
+            {contentFormat === "reel_script" ? (
+              <button
+                onClick={() =>
+                  setLocation("/autoreels?script=" + encodeURIComponent(generatedContent))
+                }
+                className="group flex flex-col items-start gap-2 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
+              >
+                <Video className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="font-medium text-sm">Create a Reel</p>
+                  <p className="text-xs text-muted-foreground">Turn script into AI video</p>
                 </div>
-
-                <div className="space-y-2">
-                  <Label>Category</Label>
-                  <Select value={stockCategory} onValueChange={(v) => setStockCategory(v as StockCategory)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="property">Property</SelectItem>
-                      <SelectItem value="interior">Interior</SelectItem>
-                      <SelectItem value="exterior">Exterior</SelectItem>
-                      <SelectItem value="neighborhood">Neighborhood</SelectItem>
-                      <SelectItem value="people">People</SelectItem>
-                      <SelectItem value="abstract">Abstract</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all mt-auto" />
+              </button>
+            ) : (
+              <button
+                onClick={() => setLocation("/crm")}
+                className="group flex flex-col items-start gap-2 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
+              >
+                <UserCheck className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="font-medium text-sm">Manage Leads</p>
+                  <p className="text-xs text-muted-foreground">Follow up with your pipeline</p>
                 </div>
+                <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all mt-auto" />
+              </button>
+            )}
+          </div>
+        </div>
 
-                <Button 
-                  onClick={handleSearchStock} 
-                  disabled={searchStock.isPending}
-                  className="w-full"
-                  size="lg"
-                >
-                  {searchStock.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Searching...
-                    </>
-                  ) : (
-                    <>
-                      <ImageIcon className="mr-2 h-4 w-4" />
-                      Search Stock Photos
-                    </>
-                  )}
-                </Button>
+        {/* Tertiary links */}
+        <div className="flex flex-wrap gap-x-4 gap-y-2 pt-1">
+          <button
+            onClick={() => setLocation("/content-calendar")}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            View Content Calendar
+          </button>
+          <button
+            onClick={() => setLocation("/my-content")}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            All My Content
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-                {stockImages.length > 0 && (
-                  <div className="grid grid-cols-3 gap-4">
-                    {stockImages.map((img) => (
-                      <div key={img.index} className="space-y-2">
-                        <img 
-                          src={img.url} 
-                          alt={`Stock ${img.index}`} 
-                          className="w-full aspect-square object-cover rounded-lg border cursor-pointer hover:opacity-80 transition"
-                          onClick={() => setGeneratedImage(img.url)}
-                        />
-                        <Button 
-                          onClick={() => window.open(img.url, '_blank')} 
-                          variant="outline" 
-                          size="sm"
-                          className="w-full"
-                        >
-                          Use This
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+  // ─── Main render ──────────────────────────────────────────────────────────
+  return (
+    <>
+      <div className="min-h-[calc(100vh-8rem)] flex flex-col">
+        <div className="flex-1 flex flex-col justify-center px-4 py-8 max-w-3xl mx-auto w-full">
+          <StepBar />
+          {step === 1 && <Screen1 />}
+          {step === 2 && <Screen2 />}
+          {step === 3 && <Screen3 />}
+          {step === 4 && <Screen4 />}
+        </div>
       </div>
 
-      <PostingDialog
-        open={showPostingDialog}
-        onOpenChange={setShowPostingDialog}
-        content={generatedContent}
-        imageUrl={generatedImage}
-        onSuccess={() => {
-          toast.success("Content posted successfully!");
-        }}
-      />
+      {showPostingDialog && (
+        <PostingDialog
+          open={showPostingDialog}
+          onOpenChange={setShowPostingDialog}
+          content={generatedContent}
+        />
+      )}
 
       {showScheduleModal && (
         <ScheduleToCalendarModal
           open={showScheduleModal}
           onClose={() => setShowScheduleModal(false)}
           content={generatedContent}
-          title={topic || "Social Media Post"}
-          contentType={contentType}
-          imageUrl={generatedImage || undefined}
-          sourceLabel="Post"
         />
       )}
-
-      <ImageLibraryPicker
-        open={showLibraryPicker}
-        onClose={() => setShowLibraryPicker(false)}
-        onSelect={(urls) => {
-          if (urls.length > 0) {
-            setGeneratedImage(urls[0]);
-            toast.success("Image selected from library");
-          }
-        }}
-        multiSelect={false}
-        title="Select Image from Library"
-      />
     </>
   );
 }

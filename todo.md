@@ -5452,3 +5452,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add /api/auth/demo endpoint that auto-logs into demo account
 - [ ] Add "Explore Demo" button to login page
 - [ ] Ensure demo account exists with pre-filled persona data
+
+## Landing Page Testimonials Fix (2026-04-29)
+- [x] Remove fake testimonials (Sarah M., James T., Reena D.) from landing page
+- [x] Replace with honest early-access social proof block ("Join 50+ agents in early access")

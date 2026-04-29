@@ -74,29 +74,7 @@ export default function Landing() {
     { value: "100%", label: "Your face, your brand, your voice" },
   ];
 
-  const testimonials = [
-    {
-      quote:
-        "I posted my first AI reel on a Tuesday and had two buyer inquiries by Thursday. This is the tool I've been waiting for.",
-      name: "Sarah M.",
-      title: "Realtor · Los Angeles, CA",
-      initials: "SM",
-    },
-    {
-      quote:
-        "The property tour videos look like something a production company made. My sellers are blown away every single time.",
-      name: "James T.",
-      title: "Listing Agent · Austin, TX",
-      initials: "JT",
-    },
-    {
-      quote:
-        "I used to spend $800/month on a social media manager. Amped Agent does more for a fraction of the cost.",
-      name: "Reena D.",
-      title: "Team Lead · Beverly Hills, CA",
-      initials: "RD",
-    },
-  ];
+  // Testimonials removed — will be replaced with real beta user reviews
 
   const howItWorks = [
     {
@@ -330,46 +308,36 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Early Access Social Proof */}
       <section className="py-24 px-4 bg-gray-50 border-y">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="flex justify-center gap-1 mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-primary text-primary" />
-              ))}
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Agents Are Already Winning
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Real results from real estate professionals using Amped Agent.
-            </p>
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-semibold px-4 py-2 rounded-full mb-8">
+            <Zap className="w-4 h-4" />
+            Early Access — Limited Spots
           </div>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Join Agents Getting Early Access
+          </h2>
+          <p className="text-xl text-muted-foreground mb-12 max-w-xl mx-auto">
+            Amped Agent is in active beta. A growing group of real estate professionals are using it right now to create content, attract leads, and build their brand.
+          </p>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <Card key={i} className="border border-border">
-                <CardContent className="p-8">
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(5)].map((_, j) => (
-                      <Star key={j} className="w-4 h-4 fill-primary text-primary" />
-                    ))}
-                  </div>
-                  <p className="text-foreground mb-6 leading-relaxed italic">"{t.quote}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                      {t.initials}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-sm">{t.name}</div>
-                      <div className="text-xs text-muted-foreground">{t.title}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <div className="grid sm:grid-cols-3 gap-6 mb-12">
+            {[
+              { stat: "50+", label: "Agents in early access" },
+              { stat: "Beta", label: "Active & improving daily" },
+              { stat: "Free", label: "To start — no credit card" },
+            ].map((item, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-border p-6">
+                <div className="text-3xl font-bold text-primary mb-1">{item.stat}</div>
+                <div className="text-sm text-muted-foreground">{item.label}</div>
+              </div>
             ))}
           </div>
+
+          <p className="text-sm text-muted-foreground">
+            Real testimonials coming soon — we're collecting feedback from our first cohort of beta agents.
+          </p>
         </div>
       </section>
 
