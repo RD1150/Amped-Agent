@@ -5439,3 +5439,6 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Episode history tab with delete functionality
 - [x] Register /interview-podcast route in App.tsx
 - [x] Add "AI Interview Podcast" to sidebar navigation in DashboardLayout.tsx
+
+## Bug Fix: Local Highlights & Amenities (2026-04-28)
+- [x] Fix: Local Highlights reset after adding 1 item — useEffect was re-running on every persona background refetch, wiping unsaved highlights. Fixed by adding hasLoadedProfile ref guard so form state is only populated from server data on the first load.

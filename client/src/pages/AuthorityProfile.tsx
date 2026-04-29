@@ -333,10 +333,15 @@ export default function AuthorityProfile() {
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const voiceFileInputRef = useRef<HTMLInputElement>(null);
+  // Guard: only populate form fields from server data on the FIRST load.
+  // Without this, any background refetch of `persona` would reset the local
+  // state (e.g. localHighlights) and wipe out unsaved changes the user just made.
+  const hasLoadedProfile = useRef(false);
   const previewVoiceMutation = trpc.propertyTours.previewVoice.useMutation();
 
   useEffect(() => {
-    if (persona) {
+    if (persona && !hasLoadedProfile.current) {
+      hasLoadedProfile.current = true;
       // Parse customer avatar
       if (persona.customerAvatar) {
         try {
