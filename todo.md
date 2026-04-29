@@ -5391,3 +5391,51 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Delete duplicate user rows for owner openId, keeping only user ID 1
 - [x] Enforce UNIQUE constraint on openId column via db:push
 - [x] Verify login resolves to user ID 1 with profile data
+
+## AI Interview Podcast Feature (Apr 2026)
+- [ ] DB schema: interviewGuests table (id, name, role, bio, voiceId, avatarUrl, avatarKey, heygenAvatarId, isActive)
+- [ ] DB schema: interviewEpisodes table (id, userId, guestId, topic, script JSON, status, audioUrl, videoUrl, durationSeconds, creditsCost, createdAt)
+- [ ] Backend: interviewPodcast router (listGuests, generateScript, updateScript, generateAudio, generateVideo, listEpisodes, deleteEpisode)
+- [ ] Seed 5 guest personas: Home Stager, Mortgage Broker, Restaurant Reviewer, Neighborhood Expert, Interior Designer
+- [ ] Generate AI avatar images for each guest persona
+- [ ] Upload avatar images to S3 and store URLs in guest seed data
+- [ ] Frontend: InterviewPodcast.tsx page with guest picker, topic input, script review/edit, generate button
+- [ ] Frontend: Episode library with play, download, share, delete
+- [ ] Wire route /interview-podcast in App.tsx
+- [ ] Add "Interview Podcast" to sidebar nav under ENGAGE section
+- [ ] Vitest tests for interviewPodcast procedures
+
+## Logo Update
+- [ ] Upload wordmark logo (with "Amped Agent" text, transparent bg) to S3 and use in sidebar/header
+- [ ] Upload icon-only logo (large "A" bolt) to S3 and use as favicon and square icon slots
+- [ ] Remove old logo references
+
+## Social Media Post Publishing (Critical for Launch)
+- [ ] Wire Facebook post publishing via Graph API (text + image posts)
+- [ ] Wire Instagram post publishing via Facebook Graph API (image posts)
+- [ ] Wire LinkedIn post publishing via LinkedIn API v2 (text + image posts)
+- [ ] Wire Twitter/X post publishing via Twitter API v2 (text + image posts)
+- [ ] Connect Post buttons in UI to publish mutations with loading/success/error states
+- [ ] Add token expiry detection and re-auth prompts
+- [ ] Test all four platforms end-to-end
+
+## Twitter/X Integration (2026-04-28)
+- [x] Add Twitter/X columns to integrations table schema (accessTokenSecret, twitterApiKey, twitterApiSecret)
+- [x] Push schema migration to database
+- [x] Create Twitter router (server/routers/twitter.ts) with getConnection, connect, disconnect procedures
+- [x] Register Twitter router in server/routers.ts
+- [x] Add Twitter to social-posting.ts postToMultiplePlatforms function
+- [x] Update socialPosting router to include twitter in platforms enum
+- [x] Add Twitter/X card to Integrations page with API key credential form
+- [x] Add Twitter/X to PostingDialog.tsx platform options
+- [x] Add Twitter/X to VideoPostingDialog.tsx platform options
+
+## AI Interview Podcast Frontend (2026-04-28)
+- [x] Build InterviewPodcast.tsx page with 3-step wizard (Guest → Topic → Script)
+- [x] Guest selection with avatar cards and accent colors
+- [x] Topic input with exchange count selector
+- [x] Script review with editable exchange rows (host vs guest)
+- [x] Approve script mutation to save and mark as approved
+- [x] Episode history tab with delete functionality
+- [x] Register /interview-podcast route in App.tsx
+- [x] Add "AI Interview Podcast" to sidebar navigation in DashboardLayout.tsx

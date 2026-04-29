@@ -620,6 +620,13 @@ const menuSections = [
         badge: "New",
       },
       {
+        icon: Mic,
+        label: "AI Interview Podcast",
+        path: "/interview-podcast",
+        description: "Generate interview-style podcast episodes with expert guest personas",
+        badge: "New",
+      },
+      {
         icon: GitBranch,
         label: "Email Drip Sequences",
         path: "/drip-sequences",

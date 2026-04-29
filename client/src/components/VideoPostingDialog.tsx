@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Facebook, Instagram, Linkedin, CalendarIcon, Send, Loader2, MapPin, Share2 } from "lucide-react";
+import { Facebook, Instagram, Linkedin, CalendarIcon, Send, Loader2, MapPin, Share2, Twitter } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -46,6 +46,7 @@ export function VideoPostingDialog({
   const { data: facebookConnection } = trpc.facebook.getConnection.useQuery();
   const { data: instagramConnection } = trpc.facebook.getInstagramConnection.useQuery();
   const { data: linkedinConnection } = trpc.linkedin.getConnection.useQuery();
+  const { data: twitterConnection } = trpc.twitter.getConnection.useQuery();
 
   const postVideoMutation = trpc.socialPosting.postVideo.useMutation();
   const scheduleVideoMutation = trpc.socialPosting.scheduleVideo.useMutation();
@@ -74,6 +75,14 @@ export function VideoPostingDialog({
       connected: linkedinConnection?.isConnected,
       color: "text-blue-700",
       note: "Posts as a LinkedIn video",
+    },
+    {
+      id: "twitter",
+      name: "Twitter / X",
+      icon: Twitter,
+      connected: twitterConnection?.isConnected,
+      color: "text-sky-500",
+      note: "Posts as a tweet (text only — video not supported on free tier)",
     },
   ];
 

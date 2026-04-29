@@ -218,10 +218,13 @@ export const integrations = mysqlTable("integrations", {
   instagramUsername: varchar("instagramUsername", { length: 255 }),
   facebookPageId: varchar("facebookPageId", { length: 255 }), // The Facebook Page connected to Instagram
   facebookPageAccessToken: text("facebookPageAccessToken"), // Page access token for Instagram posting
+  // Twitter/X-specific fields (OAuth 1.0a)
+  accessTokenSecret: text("accessTokenSecret"), // OAuth 1.0a access token secret
+  twitterApiKey: text("twitterApiKey"), // Twitter app consumer key
+  twitterApiSecret: text("twitterApiSecret"), // Twitter app consumer secret
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
-
 export type Integration = typeof integrations.$inferSelect;
 export type InsertIntegration = typeof integrations.$inferInsert;
 
@@ -1571,3 +1574,50 @@ export const zapierWebhooks = mysqlTable("zapier_webhooks", {
 });
 export type ZapierWebhook = typeof zapierWebhooks.$inferSelect;
 export type InsertZapierWebhook = typeof zapierWebhooks.$inferInsert;
+
+/**
+ * Interview Guests — AI-generated guest personas for the Interview Podcast feature
+ * Each guest has a role (e.g. "Home Stager"), an AI-generated avatar image, and an ElevenLabs voice.
+ */
+export const interviewGuests = mysqlTable("interview_guests", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),           // e.g. "Sarah Mitchell"
+  role: varchar("role", { length: 255 }).notNull(),           // e.g. "Home Stager"
+  bio: text("bio"),                                           // Short character bio shown in UI
+  voiceId: varchar("voiceId", { length: 255 }).notNull(),     // ElevenLabs voice ID
+  voiceName: varchar("voiceName", { length: 255 }),           // Display name for the voice
+  avatarUrl: text("avatarUrl"),                               // S3 URL of AI-generated avatar image
+  avatarKey: varchar("avatarKey", { length: 500 }),           // S3 key for the avatar image
+  heygenAvatarId: varchar("heygenAvatarId", { length: 255 }), // HeyGen avatar ID for video generation
+  accentColor: varchar("accentColor", { length: 20 }).default("#6366f1"),
+  isActive: boolean("isActive").default(true).notNull(),
+  sortOrder: int("sortOrder").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type InterviewGuest = typeof interviewGuests.$inferSelect;
+export type InsertInterviewGuest = typeof interviewGuests.$inferInsert;
+
+/**
+ * Interview Episodes — AI-generated interview podcast episodes
+ * Each episode is a conversation between the agent (host) and an AI guest persona.
+ */
+export const interviewEpisodes = mysqlTable("interview_episodes", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  guestId: int("guestId").notNull(),
+  topic: varchar("topic", { length: 500 }).notNull(),
+  script: text("script"),                                     // JSON: Array<{speaker:"host"|"guest", text:string}>
+  status: varchar("status", { length: 50 }).default("draft").notNull(), // draft | approved | generating | ready | failed
+  audioUrl: text("audioUrl"),
+  audioKey: varchar("audioKey", { length: 500 }),
+  videoUrl: text("videoUrl"),
+  videoKey: varchar("videoKey", { length: 500 }),
+  durationSeconds: int("durationSeconds"),
+  creditsCost: int("creditsCost").default(0),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type InterviewEpisode = typeof interviewEpisodes.$inferSelect;
+export type InsertInterviewEpisode = typeof interviewEpisodes.$inferInsert;

@@ -10,7 +10,7 @@ export const socialPostingRouter = router({
   postNow: protectedProcedure
     .input(z.object({
       contentPostId: z.number(),
-      platforms: z.array(z.enum(["facebook", "instagram", "linkedin"])),
+      platforms: z.array(z.enum(["facebook", "instagram", "linkedin", "twitter"])),
     }))
     .mutation(async ({ ctx, input }) => {
       // Get the content post
@@ -55,6 +55,15 @@ export const socialPostingRouter = router({
             accountId: integration.accountId!,
             authorUrn: integration.accountId!, // LinkedIn uses URN format
           };
+        } else if (integration.platform === "twitter") {
+          return {
+            platform: "twitter" as const,
+            accessToken: integration.accessToken!,
+            accountId: integration.accountId!,
+            accessTokenSecret: integration.accessTokenSecret || undefined,
+            apiKey: integration.twitterApiKey || undefined,
+            apiSecret: integration.twitterApiSecret || undefined,
+          };
         }
         throw new Error(`Unsupported platform: ${integration.platform}`);
       });
@@ -93,7 +102,7 @@ export const socialPostingRouter = router({
     .input(z.object({
       contentPostId: z.number(),
       scheduledAt: z.date(),
-      platforms: z.array(z.enum(["facebook", "instagram", "linkedin"])),
+      platforms: z.array(z.enum(["facebook", "instagram", "linkedin", "twitter"])),
     }))
     .mutation(async ({ input }) => {
       // Update the content post with schedule
@@ -126,7 +135,7 @@ export const socialPostingRouter = router({
     .input(z.object({
       videoUrl: z.string().url(),
       caption: z.string(),
-      platforms: z.array(z.enum(["facebook", "instagram", "linkedin"])),
+      platforms: z.array(z.enum(["facebook", "instagram", "linkedin", "twitter"])),
       title: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
@@ -166,6 +175,15 @@ export const socialPostingRouter = router({
             accountId: integration.accountId!,
             authorUrn: integration.accountId!,
           };
+        } else if (integration.platform === "twitter") {
+          return {
+            platform: "twitter" as const,
+            accessToken: integration.accessToken!,
+            accountId: integration.accountId!,
+            accessTokenSecret: integration.accessTokenSecret || undefined,
+            apiKey: integration.twitterApiKey || undefined,
+            apiSecret: integration.twitterApiSecret || undefined,
+          };
         }
         throw new Error(`Unsupported platform: ${integration.platform}`);
       });
@@ -190,7 +208,7 @@ export const socialPostingRouter = router({
     .input(z.object({
       videoUrl: z.string().url(),
       caption: z.string(),
-      platforms: z.array(z.enum(["facebook", "instagram", "linkedin"])),
+      platforms: z.array(z.enum(["facebook", "instagram", "linkedin", "twitter"])),
       scheduledAt: z.date(),
       title: z.string().optional(),
     }))

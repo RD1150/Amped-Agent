@@ -13,6 +13,7 @@ import { stripeRouter } from "./routers/stripe";
 import { videoRouter } from "./routers/video";
 import { facebookRouter } from "./routers/facebook";
 import { linkedinRouter } from "./routers/linkedin";
+import { twitterRouter } from "./routers/twitter";
 import { socialPostingRouter } from "./routers/socialPosting";
 import { autoreelsRouter } from "./routers/autoreels";
 import { propertyToursRouter } from "./routers/propertyTours";
@@ -55,6 +56,7 @@ import { crmRouter } from "./routers/crm";
 import { crmIntegrationsRouter } from "./routers/crmIntegrations";
 import { zapierWebhooksRouter } from "./routers/zapierWebhooks";
 import { dripRouter } from "./routers/drip";
+import { interviewPodcastRouter } from "./routers/interviewPodcast";
 import { videoVoiceoverRouter } from "./routers/videoVoiceover";
 
 export const appRouter = router({
@@ -98,7 +100,9 @@ export const appRouter = router({
   crmIntegrations: crmIntegrationsRouter,
   zapierWebhooks: zapierWebhooksRouter,
   drip: dripRouter,
+  interviewPodcast: interviewPodcastRouter,
   videoVoiceover: videoVoiceoverRouter,
+  twitter: twitterRouter,
 
   support: router({
     chat: publicProcedure

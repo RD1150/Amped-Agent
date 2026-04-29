@@ -85,6 +85,7 @@ const GuideGenerator = lazy(() => import("./pages/GuideGenerator"));
 const ProspectingLetters = lazy(() => import("./pages/ProspectingLetters"));
 const LettersEmails = lazy(() => import("./pages/LettersEmails"));
 const PodcastBuilder = lazy(() => import("./pages/PodcastBuilder"));
+const InterviewPodcast = lazy(() => import("./pages/InterviewPodcast"));
 const MyDocuments = lazy(() => import("./pages/MyDocuments"));
 const PublicPresentation = lazy(() => import("./pages/PublicPresentation"));
 const PublicBuyerPresentation = lazy(() => import("./pages/PublicBuyerPresentation"));
@@ -211,6 +212,7 @@ function Router() {
                 <Route path="/prospecting-letters" component={ProspectingLetters} />
                 <Route path="/letters-emails" component={LettersEmails} />
                 <Route path="/podcast-builder" component={PodcastBuilder} />
+                <Route path="/interview-podcast" component={InterviewPodcast} />
                 <Route path="/my-documents" component={MyDocuments} />
                 <Route path="/newsletter" component={NewsletterBuilder} />
                 <Route path="/drafts" component={Drafts} />

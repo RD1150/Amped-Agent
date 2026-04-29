@@ -1,6 +1,6 @@
 /**
  * Social Media Posting Module
- * Handles posting to Facebook, LinkedIn, and Instagram via their APIs
+ * Handles posting to Facebook, LinkedIn, Instagram, and Twitter/X via their APIs
  * Supports both image posts and video posts
  */
 
@@ -244,14 +244,131 @@ export async function postToLinkedIn(
 }
 
 /**
+ * Post a tweet to Twitter/X via API v2
+ * Uses OAuth 1.0a (user context) for posting tweets
+ */
+export async function postToTwitter(
+  accessToken: string,
+  accessTokenSecret: string,
+  apiKey: string,
+  apiSecret: string,
+  content: PostContent
+): Promise<PostResult> {
+  try {
+    const tweetUrl = 'https://api.twitter.com/2/tweets';
+
+    // Truncate to 280 characters
+    const tweetText = content.text.length > 280
+      ? content.text.substring(0, 277) + '...'
+      : content.text;
+
+    const body: any = { text: tweetText };
+
+    // Generate OAuth 1.0a signature
+    const oauthHeader = generateOAuth1Header(
+      'POST',
+      tweetUrl,
+      apiKey,
+      apiSecret,
+      accessToken,
+      accessTokenSecret
+    );
+
+    const response = await axios.post(tweetUrl, body, {
+      headers: {
+        'Authorization': oauthHeader,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return {
+      success: true,
+      platform: 'twitter',
+      postId: response.data.data?.id,
+    };
+  } catch (error: any) {
+    console.error('[Twitter Post Error]', error.response?.data || error.message);
+    return {
+      success: false,
+      platform: 'twitter',
+      error: error.response?.data?.detail || error.response?.data?.title || error.message,
+    };
+  }
+}
+
+/**
+ * Generate OAuth 1.0a Authorization header for Twitter API v2
+ * Uses built-in Node.js crypto — no external oauth library needed
+ */
+function generateOAuth1Header(
+  method: string,
+  url: string,
+  consumerKey: string,
+  consumerSecret: string,
+  accessToken: string,
+  accessTokenSecret: string
+): string {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const crypto = require('crypto');
+
+  const oauthTimestamp = Math.floor(Date.now() / 1000).toString();
+  const oauthNonce = crypto.randomBytes(16).toString('hex');
+
+  const oauthParams: Record<string, string> = {
+    oauth_consumer_key: consumerKey,
+    oauth_nonce: oauthNonce,
+    oauth_signature_method: 'HMAC-SHA1',
+    oauth_timestamp: oauthTimestamp,
+    oauth_token: accessToken,
+    oauth_version: '1.0',
+  };
+
+  // Build parameter string (sorted alphabetically)
+  const paramString = Object.keys(oauthParams)
+    .sort()
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(oauthParams[key])}`)
+    .join('&');
+
+  // Build signature base string
+  const signatureBase = [
+    method.toUpperCase(),
+    encodeURIComponent(url),
+    encodeURIComponent(paramString),
+  ].join('&');
+
+  // Build signing key
+  const signingKey = `${encodeURIComponent(consumerSecret)}&${encodeURIComponent(accessTokenSecret)}`;
+
+  // Generate HMAC-SHA1 signature
+  const signature = crypto
+    .createHmac('sha1', signingKey)
+    .update(signatureBase)
+    .digest('base64');
+
+  // Build Authorization header
+  const authHeader =
+    'OAuth ' +
+    Object.keys(oauthParams)
+      .sort()
+      .map((key) => `${encodeURIComponent(key)}="${encodeURIComponent(oauthParams[key])}"`)
+      .join(', ') +
+    `, oauth_signature="${encodeURIComponent(signature)}"`;
+
+  return authHeader;
+}
+
+/**
  * Post to multiple platforms
  */
 export async function postToMultiplePlatforms(
   platforms: Array<{
-    platform: 'facebook' | 'instagram' | 'linkedin';
+    platform: 'facebook' | 'instagram' | 'linkedin' | 'twitter';
     accessToken: string;
     accountId: string;
     authorUrn?: string; // For LinkedIn
+    accessTokenSecret?: string; // For Twitter OAuth 1.0a
+    apiKey?: string; // For Twitter OAuth 1.0a consumer key
+    apiSecret?: string; // For Twitter OAuth 1.0a consumer secret
   }>,
   content: PostContent
 ): Promise<PostResult[]> {
@@ -273,6 +390,23 @@ export async function postToMultiplePlatforms(
           platform.authorUrn || platform.accountId,
           content
         );
+        break;
+      case 'twitter':
+        if (!platform.accessTokenSecret || !platform.apiKey || !platform.apiSecret) {
+          result = {
+            success: false,
+            platform: 'twitter',
+            error: 'Twitter requires API key, API secret, access token, and access token secret',
+          };
+        } else {
+          result = await postToTwitter(
+            platform.accessToken,
+            platform.accessTokenSecret,
+            platform.apiKey,
+            platform.apiSecret,
+            content
+          );
+        }
         break;
       default:
         result = {

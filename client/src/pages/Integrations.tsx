@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { CheckCircle2, AlertCircle, Facebook, Instagram, Linkedin, MapPin, ChevronDown, Youtube, Building2, Eye, EyeOff, Loader2, FlaskConical } from "lucide-react";
+import { CheckCircle2, AlertCircle, Facebook, Instagram, Linkedin, MapPin, ChevronDown, Youtube, Building2, Eye, EyeOff, Loader2, FlaskConical, Twitter } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -24,6 +24,53 @@ export default function Integrations() {
   
   // Get LinkedIn connection status
   const { data: linkedinConnection, refetch: refetchLinkedIn } = trpc.linkedin.getConnection.useQuery();
+
+  // Get Twitter connection status
+  const { data: twitterConnection, refetch: refetchTwitter } = trpc.twitter.getConnection.useQuery();
+  const [twitterApiKey, setTwitterApiKey] = useState("");
+  const [twitterApiSecret, setTwitterApiSecret] = useState("");
+  const [twitterAccessToken, setTwitterAccessToken] = useState("");
+  const [twitterAccessTokenSecret, setTwitterAccessTokenSecret] = useState("");
+  const [showTwitterApiSecret, setShowTwitterApiSecret] = useState(false);
+  const [showTwitterAccessTokenSecret, setShowTwitterAccessTokenSecret] = useState(false);
+  const connectTwitterMutation = trpc.twitter.connect.useMutation();
+  const disconnectTwitterMutation = trpc.twitter.disconnect.useMutation();
+
+  const handleConnectTwitter = async () => {
+    if (!twitterApiKey || !twitterApiSecret || !twitterAccessToken || !twitterAccessTokenSecret) {
+      toast.error("Please fill in all Twitter API credentials");
+      return;
+    }
+    try {
+      setIsConnecting(true);
+      const result = await connectTwitterMutation.mutateAsync({
+        apiKey: twitterApiKey,
+        apiSecret: twitterApiSecret,
+        accessToken: twitterAccessToken,
+        accessTokenSecret: twitterAccessTokenSecret,
+      });
+      await refetchTwitter();
+      toast.success(`Twitter connected as ${result.accountName}`);
+      setTwitterApiKey("");
+      setTwitterApiSecret("");
+      setTwitterAccessToken("");
+      setTwitterAccessTokenSecret("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to connect Twitter");
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const handleDisconnectTwitter = async () => {
+    try {
+      await disconnectTwitterMutation.mutateAsync();
+      await refetchTwitter();
+      toast.success("Twitter disconnected");
+    } catch {
+      toast.error("Failed to disconnect Twitter");
+    }
+  };
 
   const getAuthUrlMutation = trpc.facebook.getAuthUrl.useMutation();
   const disconnectFacebookMutation = trpc.facebook.disconnect.useMutation();
@@ -414,6 +461,136 @@ export default function Integrations() {
         </CardContent>
       </Card>
 
+      {/* Twitter / X Card */}
+      <Card className="border-2 border-sky-500/20">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-lg bg-sky-500/10 flex items-center justify-center">
+                <Twitter className="h-6 w-6 text-sky-500" />
+              </div>
+              <div>
+                <CardTitle>Twitter / X</CardTitle>
+                <CardDescription>Post tweets directly from Authority Content</CardDescription>
+              </div>
+            </div>
+            {twitterConnection?.isConnected ? (
+              <Badge variant="default" className="bg-primary/15 text-green-400 border-primary/20">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Connected
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="bg-muted text-muted-foreground">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Not Connected
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {twitterConnection?.isConnected ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="text-sm font-medium">{twitterConnection.accountName || "Twitter Account"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Connected {twitterConnection.connectedAt ? new Date(twitterConnection.connectedAt).toLocaleDateString() : ""}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDisconnectTwitter}
+                  disabled={disconnectTwitterMutation.isPending}
+                >
+                  Disconnect
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                <p className="text-sm font-medium">Connect Your Twitter / X Account</p>
+                <p className="text-xs text-muted-foreground">
+                  Enter your Twitter Developer App credentials. You can create a free app at{" "}
+                  <a href="https://developer.twitter.com" target="_blank" rel="noopener noreferrer" className="underline text-sky-500">developer.twitter.com</a>.
+                </p>
+              </div>
+              <div className="grid gap-3">
+                <div className="grid gap-1.5">
+                  <Label htmlFor="twitter-api-key">API Key (Consumer Key)</Label>
+                  <Input
+                    id="twitter-api-key"
+                    placeholder="Paste your Twitter API Key"
+                    value={twitterApiKey}
+                    onChange={(e) => setTwitterApiKey(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="twitter-api-secret">API Secret (Consumer Secret)</Label>
+                  <div className="relative">
+                    <Input
+                      id="twitter-api-secret"
+                      type={showTwitterApiSecret ? "text" : "password"}
+                      placeholder="Paste your API Secret"
+                      value={twitterApiSecret}
+                      onChange={(e) => setTwitterApiSecret(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowTwitterApiSecret(!showTwitterApiSecret)}
+                    >
+                      {showTwitterApiSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="twitter-access-token">Access Token</Label>
+                  <Input
+                    id="twitter-access-token"
+                    placeholder="Paste your Access Token"
+                    value={twitterAccessToken}
+                    onChange={(e) => setTwitterAccessToken(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="twitter-access-token-secret">Access Token Secret</Label>
+                  <div className="relative">
+                    <Input
+                      id="twitter-access-token-secret"
+                      type={showTwitterAccessTokenSecret ? "text" : "password"}
+                      placeholder="Paste your Access Token Secret"
+                      value={twitterAccessTokenSecret}
+                      onChange={(e) => setTwitterAccessTokenSecret(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowTwitterAccessTokenSecret(!showTwitterAccessTokenSecret)}
+                    >
+                      {showTwitterAccessTokenSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <Button
+                onClick={handleConnectTwitter}
+                disabled={isConnecting || connectTwitterMutation.isPending}
+                className="w-full bg-sky-500 hover:bg-sky-600 text-white"
+              >
+                <Twitter className="h-4 w-4 mr-2" />
+                {isConnecting ? "Connecting..." : "Connect Twitter / X"}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Google Business Profile Card */}
       <Card className="border-2 border-emerald-500/20">
         <CardHeader>
@@ -601,9 +778,9 @@ export default function Integrations() {
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-medium">Coming Soon</p>
+            <p className="text-sm font-medium">Twitter / X</p>
             <p className="text-xs text-muted-foreground">
-              TikTok and Twitter/X integrations are on the roadmap.
+              Twitter/X is now available via API key credentials. TikTok is on the roadmap.
             </p>
           </div>
         </CardContent>
