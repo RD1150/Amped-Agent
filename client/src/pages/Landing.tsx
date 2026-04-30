@@ -139,7 +139,7 @@ export default function Landing() {
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-            Amped Agent creates your real estate marketing in seconds — so you can focus on closing deals.
+            Amped Agent handles your real estate marketing — so you can focus on closing deals.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
