@@ -159,9 +159,8 @@ export default function Landing() {
           </div>
 
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6">
-            You didn't become an agent to spend
+            You didn't become an agent to spend your day
             <br className="hidden md:block" />
-            your day{" "}
             <span className="text-primary">writing posts, ads, and listing descriptions.</span>
           </h1>
 
