@@ -1621,3 +1621,22 @@ export const interviewEpisodes = mysqlTable("interview_episodes", {
 });
 export type InterviewEpisode = typeof interviewEpisodes.$inferSelect;
 export type InsertInterviewEpisode = typeof interviewEpisodes.$inferInsert;
+
+/**
+ * Agent feedback / ratings collected after first post generation
+ * Used to build real testimonials for the landing page
+ */
+export const feedbackRatings = mysqlTable("feedback_ratings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  rating: int("rating").notNull(), // 1, 2, or 3
+  quote: text("quote"), // Optional short quote from the agent
+  agentName: varchar("agentName", { length: 255 }), // Captured at submission time
+  agentTitle: varchar("agentTitle", { length: 255 }), // e.g. "Realtor · Austin, TX"
+  source: varchar("source", { length: 64 }).default("post_builder"), // Where it was collected
+  approved: boolean("approved").default(false).notNull(), // Admin approves before showing publicly
+  approvedAt: timestamp("approvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type FeedbackRating = typeof feedbackRatings.$inferSelect;
+export type InsertFeedbackRating = typeof feedbackRatings.$inferInsert;

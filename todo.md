@@ -5456,3 +5456,10 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 ## Landing Page Testimonials Fix (2026-04-29)
 - [x] Remove fake testimonials (Sarah M., James T., Reena D.) from landing page
 - [x] Replace with honest early-access social proof block ("Join 50+ agents in early access")
+
+## Post Builder Feedback / Rating Collection (2026-04-29)
+- [ ] Add feedback_ratings table to schema (userId, rating 1-3, quote, source, createdAt, approved)
+- [ ] Add tRPC procedures: submitFeedback, listFeedback (admin), approveFeedback
+- [ ] Add inline 1-3 rating prompt on Post Builder Screen 4 (first post only)
+- [ ] Add admin page to review and approve submitted feedback
+- [ ] Wire approved feedback to replace placeholder on landing page

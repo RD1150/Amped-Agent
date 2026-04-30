@@ -58,7 +58,7 @@ import { zapierWebhooksRouter } from "./routers/zapierWebhooks";
 import { dripRouter } from "./routers/drip";
 import { interviewPodcastRouter } from "./routers/interviewPodcast";
 import { videoVoiceoverRouter } from "./routers/videoVoiceover";
-
+import { feedbackRouter } from "./routers/feedback";
 export const appRouter = router({
   system: systemRouter,
   credits: creditsRouter,
@@ -102,6 +102,7 @@ export const appRouter = router({
   drip: dripRouter,
   interviewPodcast: interviewPodcastRouter,
   videoVoiceover: videoVoiceoverRouter,
+  feedback: feedbackRouter,
   twitter: twitterRouter,
 
   support: router({

@@ -792,6 +792,13 @@
       "when": 1777422012826,
       "tag": "0112_confused_tarantula",
       "breakpoints": true
+    },
+    {
+      "idx": 113,
+      "version": "5",
+      "when": 1777507966628,
+      "tag": "0113_same_katie_power",
+      "breakpoints": true
     }
   ]
 }
