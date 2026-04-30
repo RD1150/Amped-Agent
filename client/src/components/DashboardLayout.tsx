@@ -1057,10 +1057,10 @@ function CollapsibleNavSections({
                       }`}
                     />
                     <span
-                      className={`text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
+                      className={`text-[12px] font-bold uppercase tracking-[0.1em] transition-colors ${
                         hasActiveChild
                           ? "text-orange-500"
-                          : "text-gray-400 group-hover/sec:text-gray-600"
+                          : "text-gray-500 group-hover/sec:text-gray-700"
                       }`}
                     >
                       {section.title}
@@ -1123,7 +1123,7 @@ function CollapsibleNavSections({
               // Non-lifecycle sections (HOME, ACCOUNT, ADMIN): plain label, always open
               !isCollapsed && (
                 <div className="px-3 pt-5 pb-1">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400">
+                  <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-gray-500">
                     {section.title}
                   </span>
                 </div>
