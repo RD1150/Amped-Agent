@@ -5464,7 +5464,22 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add admin page to review and approve submitted feedback
 - [ ] Wire approved feedback to replace placeholder on landing page
 
-## Critical UX Fixes (Claude Build Brief)
-- [x] Fix double welcome modal — single onboarding flow only
-- [x] Fix all 11 broken 404 routes from Claude's audit
-- [x] Build branded 404 page
+## UX Polish (Claude Build Brief)
+- [ ] Add inline labels to credit counters in top nav ("video credits" / "AI credits")
+- [ ] Reduce orange overuse — limit to CTAs and active nav state only
+- [ ] Build admin feedback review page to approve/reject agent testimonials
+
+## UX Polish (Claude Build Brief - Apr 2026)
+- [x] Add inline labels to credit counters in top nav (video credits / AI credits)
+- [x] Reduce orange overuse — BETA badge, avatar, resize handle, Authority badge, collapsed icon now gray/neutral
+- [x] Build admin feedback review page at /admin/feedback to approve/reject agent testimonials
+- [x] Fix double welcome modal — removed duplicate WelcomeModal from DashboardLayout
+- [x] Fix all 404 routes — added /trending-news page and registered in App.tsx
+- [x] Build branded 404 page with Amped Agent branding
+- [x] Rewrite landing page hero with pain-point headline
+- [x] Rewrite How It Works section with Authority Profile moat + specific output numbers
+- [x] Add social proof placeholder section to landing page
+- [x] Fix landing page fake testimonials — replaced with honest early-access social proof block
+- [x] Fix landing page stat — "no credit card" → "14-day free trial"
+- [x] Post Builder 4-screen guided workflow (Topic → Goal → Generating → Results)
+- [x] Post Builder Screen 4 — inline 1-3 rating prompt for collecting real testimonials

@@ -34,7 +34,6 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const DataDeletion = lazy(() => import("./pages/DataDeletion"));
 const MarketStats = lazy(() => import("./pages/MarketStats"));
 const Hooks = lazy(() => import("./pages/Hooks"));
-const TrendingNews = lazy(() => import("./pages/TrendingNews"));
 const FacebookCallback = lazy(() => import("./pages/FacebookCallback"));
 const LinkedInCallback = lazy(() => import("./pages/LinkedInCallback"));
 const GoogleCallback = lazy(() => import("./pages/GoogleCallback"));
@@ -64,6 +63,7 @@ const AdminSettings = lazy(() => import("./pages/AdminSettings"));
 const AdminSpend = lazy(() => import("./pages/AdminSpend"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminInviteCodes = lazy(() => import("./pages/AdminInviteCodes"));
+const AdminFeedback = lazy(() => import("./pages/AdminFeedback"));
 const GenerationQuality = lazy(() => import("./pages/GenerationQuality"));
 const Drafts = lazy(() => import("./pages/Drafts"));
 const ScriptToReel = lazy(() => import("./pages/ScriptToReel"));
@@ -145,6 +145,7 @@ function Router() {
         <Route path="/admin/users" component={AdminUsers} />
         <Route path="/admin/generation-quality" component={GenerationQuality} />
         <Route path="/admin/invite-codes" component={AdminInviteCodes} />
+        <Route path="/admin/feedback" component={AdminFeedback} />
         <Route path="/landing" component={Landing} />
         <Route path="/terms" component={Terms} />
         <Route path="/terms-of-service" component={TermsOfService} />
@@ -223,7 +224,6 @@ function Router() {
                 <Route path="/authority-profile" component={AuthorityProfile} />
                 <Route path="/market-stats" component={MarketStats} />
                 <Route path="/hooks" component={Hooks} />
-                <Route path="/trending-news" component={TrendingNews} />
                 <Route path="/attract" component={AttractOverview} />
                 <Route path="/engage" component={EngageOverview} />
                 <Route path="/convert" component={ConvertOverview} />

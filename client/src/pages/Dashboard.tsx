@@ -86,12 +86,13 @@ export default function Dashboard() {
   const crmConnected = (crmIntegrationsList as Array<{ hasApiKey: boolean; isEnabled: boolean }> | undefined)
     ?.some((c) => c.hasApiKey && c.isEnabled) ?? false;
 
-  // Auto-start tour for first-time users
+  // Auto-start tour for first-time users — only after WelcomeScreen has been dismissed
   useEffect(() => {
-    if (shouldShowTour()) {
+    const welcomeSeen = localStorage.getItem('ampedagent_welcome_seen_v1');
+    if (shouldShowTour() && welcomeSeen) {
       setTimeout(() => {
         startDashboardTour();
-      }, 1000);
+      }, 1500);
     }
   }, []);
 

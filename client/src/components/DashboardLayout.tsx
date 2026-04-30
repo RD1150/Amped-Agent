@@ -1,5 +1,6 @@
 // nav-version: 2026-04-22-persona-brand
 import { useAuth } from "@/_core/hooks/useAuth";
+import { WelcomeModal } from "@/components/WelcomeModal";
 import { trpc } from "@/lib/trpc";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -82,6 +83,7 @@ import {
   Mic,
   Rocket,
   MessageSquareQuote,
+  MessageSquare,
   QrCode,
   GitBranch,
   Type,
@@ -367,8 +369,9 @@ function VideoPoolDisplay() {
           <span className={`text-sm font-medium ${
             isExhausted ? 'text-red-500' : isLow ? 'text-amber-600' : 'text-gray-700'
           }`}>
-            {isExhausted ? '0' : remaining} free
+            {isExhausted ? '0' : remaining}
           </span>
+          <span className="text-xs text-gray-400 hidden sm:inline">video credits</span>
           {isExhausted && (
             <Badge variant="destructive" className="text-xs px-1.5 py-0">Add Credits</Badge>
           )}
@@ -423,8 +426,9 @@ function CreditBalanceDisplay() {
     >
       <CreditCard className="h-4 w-4 text-gray-500" />
       <span className="text-sm font-medium text-gray-700">
-        {isOwner ? '∞ Unlimited' : credits}
+        {isOwner ? '∞' : credits}
       </span>
+      <span className="text-xs text-gray-400 hidden sm:inline">AI credits</span>
       {isLow && (
         <Badge variant="destructive" className="text-xs px-1.5 py-0">Low</Badge>
       )}
@@ -462,6 +466,12 @@ const menuSections = [
         label: "Authority Profile",
         path: "/authority-profile",
         description: "Your branding, bio, headshot — powers all content",
+      },
+      {
+        icon: UserCircle,
+        label: "Persona & Brand",
+        path: "/persona",
+        description: "Bio, brand voice, service cities, headshot",
       },
     ],
   },
@@ -873,6 +883,12 @@ const menuSections = [
     subtitle: "Own your market and build authority",
     items: [
       {
+        icon: Heart,
+        label: "Brand Story",
+        path: "/brand-story",
+        description: "Craft your authentic agent brand narrative",
+      },
+      {
         icon: TrendingUp,
         label: "Market Dominance",
         path: "/coach",
@@ -955,6 +971,12 @@ const menuSections = [
         label: "Invite Codes",
         path: "/admin/invite-codes",
         description: "Beta invite management",
+      },
+      {
+        icon: MessageSquare,
+        label: "Agent Feedback",
+        path: "/admin/feedback",
+        description: "Review & approve testimonials",
       },
     ],
   },
@@ -1044,10 +1066,10 @@ function CollapsibleNavSections({
                       }`}
                     />
                     <span
-                      className={`text-[12px] font-bold uppercase tracking-[0.1em] transition-colors ${
+                      className={`text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
                         hasActiveChild
                           ? "text-orange-500"
-                          : "text-gray-500 group-hover/sec:text-gray-700"
+                          : "text-gray-400 group-hover/sec:text-gray-600"
                       }`}
                     >
                       {section.title}
@@ -1110,7 +1132,7 @@ function CollapsibleNavSections({
               // Non-lifecycle sections (HOME, ACCOUNT, ADMIN): plain label, always open
               !isCollapsed && (
                 <div className="px-3 pt-5 pb-1">
-                  <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-gray-500">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400">
                     {section.title}
                   </span>
                 </div>
@@ -1155,7 +1177,7 @@ function CollapsibleNavSections({
                           variant="secondary"
                           className={`ml-auto text-[9px] px-1.5 py-0 h-3.5 font-medium ${
                             item.badge === "New" ? "bg-green-500/15 text-green-600 border-0" :
-                            item.badge === "Authority" ? "bg-orange-500/10 text-orange-500 border-0" :
+                            item.badge === "Authority" ? "bg-gray-100 text-gray-600 border-0" :
                             ""
                           }`}
                         >
@@ -1177,7 +1199,7 @@ function CollapsibleNavSections({
                             className="w-72 p-0 shadow-xl border border-border/60 rounded-xl overflow-hidden"
                           >
                             <div className="bg-gray-900 px-4 py-3 flex items-center gap-2">
-                              <item.icon className="h-4 w-4 text-orange-400 shrink-0" />
+                              <item.icon className="h-4 w-4 text-gray-500 shrink-0" />
                               <span className="text-sm font-semibold text-white">{item.label}</span>
                               {"badge" in item && item.badge && (
                                 <Badge className="ml-auto text-[10px] px-1.5 py-0 h-4 bg-white/20 text-white border-0">
@@ -1284,7 +1306,7 @@ export default function DashboardLayout({
         <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
           <div className="flex flex-col items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-gray-900 flex items-center justify-center">
                 <span className="text-xl font-bold text-white">A</span>
               </div>
               <span className="text-2xl font-bold text-gold-gradient">
@@ -1312,6 +1334,7 @@ export default function DashboardLayout({
 
   return (
     <>
+      <WelcomeModal />
       <PostTrialModal user={user} setLocation={setLocation} />
       <SidebarProvider
         style={
@@ -1394,12 +1417,12 @@ function DashboardLayoutContent({
                   alt="Amped Agent"
                   className="h-10 w-auto object-contain ml-3"
                 />
-                <span className="ml-2 text-[9px] font-bold tracking-widest uppercase bg-orange-100 text-orange-600 border border-orange-200 px-1.5 py-0.5 rounded-full leading-none">
+                <span className="ml-2 text-[9px] font-bold tracking-widest uppercase bg-gray-100 text-gray-500 border border-gray-200 px-1.5 py-0.5 rounded-full leading-none">
                   BETA
                 </span>
                 <button
                   onClick={toggleSidebar}
-                  className="absolute right-2 h-7 w-7 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  className="absolute right-2 h-7 w-7 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                   aria-label="Toggle navigation"
                 >
                   <PanelLeft className="h-4 w-4 text-gray-400" />
@@ -1410,12 +1433,12 @@ function DashboardLayoutContent({
               <div className="flex flex-col items-center gap-2 py-3">
                 <button
                   onClick={toggleSidebar}
-                  className="h-8 w-8 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  className="h-8 w-8 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                   aria-label="Toggle navigation"
                 >
                   <PanelLeft className="h-4 w-4 text-gray-400" />
                 </button>
-                <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
                   <span className="text-xs font-bold text-white">A</span>
                 </div>
               </div>
@@ -1444,7 +1467,7 @@ function DashboardLayoutContent({
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1.5 hover:bg-sidebar-accent transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Avatar className="h-8 w-8 border border-border shrink-0">
-                    <AvatarFallback className="text-xs font-medium bg-orange-500/20 text-orange-400">
+                    <AvatarFallback className="text-xs font-medium bg-gray-200 text-gray-600">
                       {user?.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -1482,7 +1505,7 @@ function DashboardLayoutContent({
 
         {/* Resize handle */}
         <div
-          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-orange-500/30 transition-colors ${
+          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-gray-300 transition-colors ${
             isCollapsed ? "hidden" : ""
           }`}
           onMouseDown={() => {
