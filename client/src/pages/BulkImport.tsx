@@ -229,20 +229,19 @@ export default function BulkImport() {
 
       {/* Generate All Posts CTA — shown when there are pending templates */}
       {pendingTotal > 0 && !isJobRunning && (
-        <Card className="border border-primary/20 bg-primary/5">
+        <Card className="border border-border bg-muted/30">
           <CardContent className="p-4">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
-                  <LayoutGrid className="w-5 h-5 text-primary" />
+                <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                  <LayoutGrid className="w-5 h-5 text-muted-foreground" />
                 </div>
                 <div>
                   <p className="font-semibold text-foreground text-sm">
-                    {pendingTotal} template{pendingTotal !== 1 ? "s" : ""} ready to generate
+                    Templates ready to generate
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Click below to generate full carousel post copy for all pending templates at once.
-                    Posts will be saved to your Drafts automatically.
+                    Generate post copy from your imported templates. Posts will be saved to your Drafts automatically.
                   </p>
                 </div>
               </div>
@@ -254,12 +253,12 @@ export default function BulkImport() {
                 {generateAllPosts.isPending && generatingBatchId === "all" ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Starting…
+                    Generating…
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Generate All {pendingTotal} Posts
+                    Generate Posts
                   </>
                 )}
               </Button>
@@ -273,7 +272,7 @@ export default function BulkImport() {
         <Card className="border border-border bg-card">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
-              <Table className="w-4 h-4 text-primary" />
+              <Table className="w-4 h-4 text-muted-foreground" />
               <CardTitle className="text-sm font-semibold">Carousel Format</CardTitle>
               <Badge variant="secondary" className="text-xs">Auto-hook</Badge>
             </div>
@@ -295,7 +294,7 @@ export default function BulkImport() {
         <Card className="border border-border bg-card">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-primary" />
+              <Zap className="w-4 h-4 text-muted-foreground" />
               <CardTitle className="text-sm font-semibold">Native Format</CardTitle>
               <Badge variant="outline" className="text-xs">Full control</Badge>
             </div>
@@ -334,8 +333,8 @@ export default function BulkImport() {
               className="hidden"
               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }}
             />
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Upload className="w-6 h-6 text-primary" />
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+              <Upload className="w-6 h-6 text-muted-foreground" />
             </div>
             {csvFile ? (
               <div className="text-center">
@@ -364,8 +363,8 @@ export default function BulkImport() {
                 )}
                 {detectedFormat === null && (
                   <div className="flex items-center gap-1.5 justify-center mt-2">
-                    <AlertCircle className="w-3.5 h-3.5 text-primary" />
-                    <span className="text-xs text-primary">
+                    <AlertCircle className="w-3.5 h-3.5 text-destructive" />
+                    <span className="text-xs text-destructive">
                       Could not detect format — ensure CSV has a 'Topic' or 'Hook' column
                     </span>
                   </div>
@@ -413,7 +412,7 @@ export default function BulkImport() {
 
       {/* AI Hook Note */}
       {detectedFormat === "carousel" && (
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20 text-sm text-primary dark:text-primary/80">
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-muted border border-border text-sm text-foreground">
           <Info className="w-4 h-4 mt-0.5 shrink-0" />
           <span>
             AI will generate a scroll-stopping hook for each row using the Topic and Description. This may take 10–20 seconds for large files.
@@ -432,7 +431,7 @@ export default function BulkImport() {
                 className="flex items-center justify-between p-3 rounded-lg border border-border bg-card gap-3 flex-wrap"
               >
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-foreground">
                       {batch.count} templates imported
@@ -440,10 +439,7 @@ export default function BulkImport() {
                     <p className="text-xs text-muted-foreground">
                       Batch {batch.importBatchId.slice(0, 8)}… · {new Date(batch.importedAt).toLocaleDateString()}
                       {batch.generatedCount > 0 && (
-                        <span className="ml-2 text-primary">· {batch.generatedCount} generated</span>
-                      )}
-                      {batch.pendingCount > 0 && (
-                        <span className="ml-2 text-primary">· {batch.pendingCount} pending</span>
+                        <span className="ml-2 text-muted-foreground">· {batch.generatedCount} generated</span>
                       )}
                     </p>
                   </div>
@@ -462,7 +458,7 @@ export default function BulkImport() {
                       ) : (
                         <Play className="w-3 h-3" />
                       )}
-                      Generate {batch.pendingCount}
+                      Generate
                     </Button>
                   )}
                   {batch.generatedCount > 0 && batch.pendingCount === 0 && (
@@ -475,9 +471,7 @@ export default function BulkImport() {
                       View Drafts <ArrowRight className="w-3 h-3" />
                     </Button>
                   )}
-                  <Badge variant="secondary" className="text-xs">
-                    {batch.count} items
-                  </Badge>
+
                 </div>
               </div>
             ))}
