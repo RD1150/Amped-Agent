@@ -268,9 +268,14 @@ export function registerAuthRoutes(app: Express) {
         return;
       }
 
-      const openId = googleOpenId(payload.sub);
+      const googleOId = googleOpenId(payload.sub);
       const name = payload.name || payload.email.split("@")[0];
       const email = payload.email.toLowerCase();
+
+      // If an email/password account already exists with this email, reuse its
+      // openId so both login methods resolve to the same account and same data.
+      const existingByEmail = await db.getUserByEmail(email);
+      const openId = existingByEmail ? existingByEmail.openId : googleOId;
 
       const existing = await db.getUserByOpenId(openId);
       const isNewUser = !existing;
@@ -279,7 +284,7 @@ export function registerAuthRoutes(app: Express) {
         openId,
         name,
         email,
-        loginMethod: "google",
+        loginMethod: existingByEmail ? (existingByEmail.loginMethod ?? "google") : "google",
         lastSignedIn: new Date(),
       });
 

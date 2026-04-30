@@ -5483,3 +5483,7 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [x] Fix landing page stat — "no credit card" → "14-day free trial"
 - [x] Post Builder 4-screen guided workflow (Topic → Goal → Generating → Results)
 - [x] Post Builder Screen 4 — inline 1-3 rating prompt for collecting real testimonials
+
+## Login & Property Tours Fixes
+- [ ] Fix RDIShop70 login — reset password and check Google OAuth
+- [ ] Consolidate Property Tours to one video style (placeholder for new example video)
