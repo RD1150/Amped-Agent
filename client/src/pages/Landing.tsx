@@ -158,10 +158,9 @@ export default function Landing() {
             The AI Video Platform Built for Real Estate Agents
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6">
-            You didn't become an agent to spend your day
-            <br className="hidden md:block" />
-            <span className="text-primary">writing posts, ads, and listing descriptions.</span>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6 max-w-4xl mx-auto">
+            You didn't become an agent to spend your day writing{" "}
+            <span className="text-primary">posts, ads, and listing descriptions.</span>
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-4 leading-relaxed">
