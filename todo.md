@@ -5463,3 +5463,8 @@ Note: Credits are NOT refunded on cancellation (Runway/Shotstack charge on submi
 - [ ] Add inline 1-3 rating prompt on Post Builder Screen 4 (first post only)
 - [ ] Add admin page to review and approve submitted feedback
 - [ ] Wire approved feedback to replace placeholder on landing page
+
+## Critical UX Fixes (Claude Build Brief)
+- [x] Fix double welcome modal — single onboarding flow only
+- [x] Fix all 11 broken 404 routes from Claude's audit
+- [x] Build branded 404 page

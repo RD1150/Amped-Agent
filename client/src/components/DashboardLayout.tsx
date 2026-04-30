@@ -1,6 +1,5 @@
 // nav-version: 2026-04-22-persona-brand
 import { useAuth } from "@/_core/hooks/useAuth";
-import { WelcomeModal } from "@/components/WelcomeModal";
 import { trpc } from "@/lib/trpc";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -464,12 +463,6 @@ const menuSections = [
         path: "/authority-profile",
         description: "Your branding, bio, headshot — powers all content",
       },
-      {
-        icon: UserCircle,
-        label: "Persona & Brand",
-        path: "/persona",
-        description: "Bio, brand voice, service cities, headshot",
-      },
     ],
   },
   {
@@ -879,12 +872,6 @@ const menuSections = [
     title: "DOMINATE",
     subtitle: "Own your market and build authority",
     items: [
-      {
-        icon: Heart,
-        label: "Brand Story",
-        path: "/brand-story",
-        description: "Craft your authentic agent brand narrative",
-      },
       {
         icon: TrendingUp,
         label: "Market Dominance",
@@ -1325,7 +1312,6 @@ export default function DashboardLayout({
 
   return (
     <>
-      <WelcomeModal />
       <PostTrialModal user={user} setLocation={setLocation} />
       <SidebarProvider
         style={
