@@ -503,9 +503,9 @@ export default function PropertyTours() {
 
       let pollCount = 0;
       // AI Walkthrough: Kling clips run in parallel, ~8-12 min total
-      // Standard Ken Burns: ~3-5 min total
+      // Cinematic tour: ~3-5 min total
       // ai-enhanced (AI Walkthrough): Kling AI clips (~8-15 min) + Creatomate render (~3-5 min) = up to 25 min
-      // standard: Ken Burns only, Creatomate render ~3-5 min = 7.5 min
+      // standard: Cinematic tour, Creatomate render ~3-5 min = 7.5 min
       const maxPolls = videoMode === "ai-enhanced" ? 360 : 90; // 360×5s=30min for AI Walkthrough, 90×5s=7.5min for standard
 
       // Stage → progress % and human-readable message
@@ -656,7 +656,7 @@ export default function PropertyTours() {
           <div>
             <h1 className="text-4xl font-bold mb-2">Property Tour</h1>
             <p className="text-muted-foreground">
-              Create cinematic property tour videos with Ken Burns effects
+              Create professional cinematic property tour videos with AI motion
             </p>
           </div>
           {dailyUsage && (
@@ -700,35 +700,7 @@ export default function PropertyTours() {
         </div>
       </div>
 
-      {/* Example Videos Section */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Example Videos</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
-          {/* Ken Burns Example */}
-          <Card className="overflow-hidden">
-            <div className="aspect-video bg-black">
-              <video
-                controls
-                className="w-full h-full"
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/ken-burns-example_38bbc49c.mp4"
-                preload="auto"
-                playsInline
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-lg mb-1">Standard — Ken Burns</h3>
-              <p className="text-sm text-muted-foreground mb-2">
-                Smooth cinematic zoom and pan with crossfade transitions
-              </p>
-              <p className="text-xs text-muted-foreground italic">
-                Note: Your profile picture and contact info will appear when branding is enabled
-              </p>
-            </div>
-          </Card>
-        </div>
-      </div>
+      {/* Example video placeholder — new cinematic example coming soon */}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Create New Tour Form */}
@@ -1196,7 +1168,7 @@ export default function PropertyTours() {
 
 
 
-            {/* Video Mode locked to Ken Burns */}
+            {/* Video Mode: Cinematic */}
             {/* Movement Speed Preset */}
             <div className="space-y-2">
               <Label htmlFor="movementSpeed">Camera Movement Speed</Label>

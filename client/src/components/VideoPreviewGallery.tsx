@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Clapperboard } from "lucide-react";
+import { Play, Clapperboard, Music, Layers, Mic } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import {
@@ -12,56 +12,43 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface VideoSample {
-  id: string;
-  title: string;
-  thumbnail: string;
-  videoUrl: string;
-  voice?: string;
-  description: string;
-  credits: number;
-  badge: string;
-  badgeColor: string;
-  isVertical?: boolean;
-}
+const sampleVideo = {
+  id: "1",
+  title: "Luxury Estate — Cinematic Property Tour",
+  thumbnail: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/prop1_exterior_de4423f4.jpg",
+  videoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/lBdDdFxODeKkouVu.mp4",
+  description: "Dramatic diagonal pans, hard cuts, letterbox bars, and warm color grade",
+  credits: 7,
+};
 
-const sampleVideos: VideoSample[] = [
-  {
-    id: "1",
-    title: "Luxury Estate — Cinematic Tour",
-    thumbnail: "https://d2xsxph8kpxj0f.cloudfront.net/310419663026756998/K9BXxKfRk2PJ2AbRYdraAT/prop1_exterior_de4423f4.jpg",
-    videoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310419663026756998/lBdDdFxODeKkouVu.mp4",
-    description: "Dramatic diagonal pans, hard cuts, letterbox bars, and warm color grade",
-    credits: 7,
-    badge: "Cinematic",
-    badgeColor: "default",
-  },
+const features = [
+  { icon: Clapperboard, label: "Cinematic camera movement", desc: "Diagonal pans, hard cuts & letterbox bars" },
+  { icon: Music,        label: "Licensed background music", desc: "Curated tracks matched to your listing" },
+  { icon: Mic,          label: "Optional AI voice-over",    desc: "Script auto-generated from your property details" },
+  { icon: Layers,       label: "Branded intro & outro",     desc: "Your name, logo, and contact info baked in" },
 ];
 
 export default function VideoPreviewGallery() {
   const [, setLocation] = useLocation();
-  const [selectedVideo, setSelectedVideo] = useState<VideoSample | null>(null);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
       <Card className="p-6">
         <div className="mb-6">
-          <h3 className="text-2xl font-bold mb-2">Video Sample</h3>
-          <p className="text-muted-foreground">
+          <h3 className="text-2xl font-bold mb-1">Video Sample</h3>
+          <p className="text-muted-foreground text-sm">
             Real AI-generated property video — created with Amped Agent
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          {/* Video card */}
-          <div className="group">
-            <div
-              className="relative rounded-lg overflow-hidden mb-3 cursor-pointer aspect-video"
-              onClick={() => setSelectedVideo(sampleVideos[0])}
-            >
+          {/* Video preview */}
+          <div className="group cursor-pointer" onClick={() => setOpen(true)}>
+            <div className="relative rounded-lg overflow-hidden mb-3 aspect-video">
               <img
-                src={sampleVideos[0].thumbnail}
-                alt={sampleVideos[0].title}
+                src={sampleVideo.thumbnail}
+                alt={sampleVideo.title}
                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -75,48 +62,35 @@ export default function VideoPreviewGallery() {
                   Cinematic
                 </Badge>
               </div>
+              {/* Play hint */}
+              <div className="absolute bottom-3 left-3">
+                <span className="text-xs text-white/80 bg-black/50 px-2 py-1 rounded">Click to play</span>
+              </div>
             </div>
-            <h4 className="font-semibold mb-1 text-sm">{sampleVideos[0].title}</h4>
-            <p className="text-xs text-muted-foreground mb-3">{sampleVideos[0].description}</p>
+            <h4 className="font-semibold mb-1 text-sm">{sampleVideo.title}</h4>
+            <p className="text-xs text-muted-foreground mb-3">{sampleVideo.description}</p>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">{sampleVideos[0].credits} credits</span>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setLocation("/property-tours")}
-              >
-                Try This Style
+              <span className="text-sm font-medium">{sampleVideo.credits} credits per video</span>
+              <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setOpen(true); }}>
+                Watch Sample
               </Button>
             </div>
           </div>
 
-          {/* Two styles info panel */}
-          <div className="p-5 bg-muted rounded-lg space-y-5">
-            <h4 className="font-semibold text-sm">Two Ways to Showcase a Property</h4>
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Play className="w-4 h-4 text-blue-600" />
-                <span className="font-medium text-sm">Ken Burns (5 credits)</span>
+          {/* Feature highlights */}
+          <div className="p-5 bg-muted rounded-lg space-y-4">
+            <h4 className="font-semibold text-sm mb-1">What's included in every video</h4>
+            {features.map(({ icon: Icon, label, desc }) => (
+              <div key={label} className="flex items-start gap-3">
+                <div className="mt-0.5 w-7 h-7 rounded-md bg-background flex items-center justify-center shrink-0 border border-border">
+                  <Icon className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium leading-tight">{label}</p>
+                  <p className="text-xs text-muted-foreground">{desc}</p>
+                </div>
               </div>
-              <ul className="space-y-1 text-xs text-muted-foreground">
-                <li>• Slow pan &amp; zoom effects</li>
-                <li>• Smooth crossfade transitions</li>
-                <li>• Professional background music</li>
-                <li>• Property text overlays</li>
-              </ul>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Clapperboard className="w-4 h-4 text-primary" />
-                <span className="font-medium text-sm">Cinematic (7 credits)</span>
-              </div>
-              <ul className="space-y-1 text-xs text-muted-foreground">
-                <li>• Diagonal pans &amp; hard cuts</li>
-                <li>• 2.39:1 letterbox bars</li>
-                <li>• Dark vignette &amp; warm grade</li>
-                <li>• Luxury brand aesthetic</li>
-              </ul>
-            </div>
+            ))}
             <Button
               size="sm"
               className="w-full mt-2"
@@ -128,23 +102,21 @@ export default function VideoPreviewGallery() {
         </div>
       </Card>
 
-      <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>{selectedVideo?.title}</DialogTitle>
-            <DialogDescription>{selectedVideo?.description}</DialogDescription>
+            <DialogTitle>{sampleVideo.title}</DialogTitle>
+            <DialogDescription>{sampleVideo.description}</DialogDescription>
           </DialogHeader>
           <div className="bg-black rounded-lg overflow-hidden aspect-video">
-            {selectedVideo?.videoUrl && (
-              <video
-                className="w-full h-full"
-                controls
-                autoPlay
-                src={selectedVideo.videoUrl}
-              >
-                Your browser does not support the video tag.
-              </video>
-            )}
+            <video
+              className="w-full h-full"
+              controls
+              autoPlay
+              src={sampleVideo.videoUrl}
+            >
+              Your browser does not support the video tag.
+            </video>
           </div>
         </DialogContent>
       </Dialog>
