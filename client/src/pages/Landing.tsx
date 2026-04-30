@@ -130,23 +130,16 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-medium px-4 py-1.5 rounded-full mb-8">
             <TrendingUp className="w-4 h-4" />
-            The AI Video Platform Built for Real Estate Agents
+            The AI Marketing Platform Built for Real Estate Agents
           </div>
 
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
-            Turn One Listing Into
-            <br />
-            <span className="text-primary">A Week of Content.</span>
+            You didn't become an agent to spend your day writing{" "}
+            <span className="text-primary">posts, ads, and listing descriptions.</span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-4 leading-relaxed">
-            Property tour videos. AI reels. Avatar videos. Live walkthroughs.
-            <br className="hidden md:block" />
-            Everything a top-producing agent needs to dominate their market — in one platform.
-          </p>
-
-          <p className="text-base font-semibold text-foreground mb-10">
-            Your competitors are still posting generic AI content. You won't be.
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
+            Amped Agent creates your real estate marketing in seconds — so you can focus on closing deals.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
@@ -169,7 +162,7 @@ export default function Landing() {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            7-day free trial &nbsp;·&nbsp; No credit card required &nbsp;·&nbsp; Cancel anytime
+            14-day free trial &nbsp;·&nbsp; No credit card required &nbsp;·&nbsp; Cancel anytime
           </p>
         </div>
       </section>
@@ -402,7 +395,7 @@ export default function Landing() {
             </Button>
           </div>
           <p className="text-sm text-primary-foreground/60">
-            7-day free trial &nbsp;·&nbsp; No credit card required &nbsp;·&nbsp; Cancel anytime
+            14-day free trial &nbsp;·&nbsp; No credit card required &nbsp;·&nbsp; Cancel anytime
           </p>
         </div>
       </section>
