@@ -80,8 +80,8 @@ function PhotoAvatarCard() {
                 className="h-20 w-20 rounded-full object-cover border-2 border-green-500"
               />
             ) : (
-              <div className="h-20 w-20 rounded-full bg-primary/15 flex items-center justify-center border-2 border-green-500">
-                <User className="h-8 w-8 text-primary" />
+              <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center border-2 border-green-500">
+                <User className="h-8 w-8 text-muted-foreground" />
               </div>
             )}
             <span className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
@@ -90,7 +90,7 @@ function PhotoAvatarCard() {
           </div>
           {/* Info */}
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm text-primary dark:text-green-400">Avatar ready</p>
+            <p className="font-semibold text-sm text-green-500">Avatar ready</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Created {twinStatus.trainedAt ? new Date(twinStatus.trainedAt).toLocaleDateString() : "recently"}.
               Used automatically when you select "Your Photo Avatar" in Avatar Video.
@@ -106,8 +106,8 @@ function PhotoAvatarCard() {
         </div>
       ) : twinStatus?.status === "training" ? (
         <div className="space-y-3">
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
-            <Loader2 className="h-6 w-6 text-primary animate-spin flex-shrink-0" />
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-muted border border-border">
+            <Loader2 className="h-6 w-6 text-muted-foreground animate-spin flex-shrink-0" />
             <div>
               <p className="font-semibold text-sm">Avatar training in progress…</p>
               <p className="text-xs text-muted-foreground mt-0.5">Usually takes 2–5 minutes. Auto-refreshing every 10s.</p>
@@ -220,7 +220,7 @@ function VoiceDirections({ defaultOpen = true }: { defaultOpen?: boolean }) {
           <ol className="space-y-3">
             {steps.map((step) => (
               <li key={step.num} className="flex gap-3">
-                <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary/15 text-primary text-[10px] font-bold shrink-0 mt-0.5">{step.num}</span>
+                <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-muted text-foreground text-[10px] font-bold shrink-0 mt-0.5">{step.num}</span>
                 <div>
                   <p className="text-xs font-semibold">{step.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.detail}</p>
@@ -245,7 +245,7 @@ function VoiceScript() {
   };
 
   return (
-    <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
+    <div className="rounded-lg border border-border bg-muted/30 p-4">
       <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-sm font-semibold">Read this script aloud to clone your voice</p>
@@ -258,7 +258,7 @@ function VoiceScript() {
           className="gap-1.5 shrink-0 ml-3"
         >
           {copied ? (
-            <><Check className="h-3.5 w-3.5 text-primary" /> Copied!</>
+            <><Check className="h-3.5 w-3.5 text-green-500" /> Copied!</>
           ) : (
             <><Copy className="h-3.5 w-3.5" /> Copy Script</>
           )}
@@ -749,7 +749,7 @@ export default function AuthorityProfile() {
                   <button
                     type="button"
                     onClick={() => setAvatarDescription(AUDIENCE_PRESETS[avatarType])}
-                    className="text-xs text-primary hover:underline flex items-center gap-1"
+                    className="text-xs text-muted-foreground hover:text-foreground hover:underline flex items-center gap-1"
                   >
                     ↺ Reset to preset
                   </button>
@@ -796,7 +796,7 @@ export default function AuthorityProfile() {
                 {brandValues.map((value, index) => (
                   <div
                     key={index}
-                    className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm flex items-center gap-2"
+                    className="bg-muted text-foreground px-3 py-1.5 rounded-full text-sm flex items-center gap-2"
                   >
                     {value}
                     <button
@@ -911,8 +911,8 @@ export default function AuthorityProfile() {
 
           {/* Existing cloned voice status */}
           {hasClonedVoice && (
-            <div className="flex items-center justify-between bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 mb-5">
-              <div className="flex items-center gap-2 text-primary dark:text-green-400">
+            <div className="flex items-center gap-3 bg-muted border border-border rounded-lg px-4 py-3 mb-5">
+              <div className="flex items-center gap-2 text-green-500">
                 <CheckCircle className="h-4 w-4 shrink-0" />
                 <div>
                   <p className="text-sm font-medium">Voice clone active: <span className="font-semibold">{clonedVoiceName}</span></p>
@@ -992,12 +992,12 @@ export default function AuthorityProfile() {
               {!isRecording && recordedBlob && recordedBlobUrl && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="h-4 w-4 text-primary shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
                     <span className="font-medium text-green-700 dark:text-green-400">
                       Recording captured — {formatSeconds(recordingSeconds)}
                     </span>
                     {recordingSeconds < 30 && (
-                      <span className="text-xs text-primary dark:text-primary/80">
+                      <span className="text-xs text-amber-500">
                         (too short — aim for 60+ seconds)
                       </span>
                     )}
@@ -1052,7 +1052,7 @@ export default function AuthorityProfile() {
                   onChange={handleVoiceFileSelect}
                 />
                 {voiceFile && (
-                  <span className="text-sm text-primary dark:text-green-400 flex items-center gap-1">
+                  <span className="text-sm text-green-500 flex items-center gap-1">
                     <CheckCircle className="h-3.5 w-3.5" />
                     {voiceFile.name} ({(voiceFile.size / 1024 / 1024).toFixed(1)}MB)
                   </span>
@@ -1086,8 +1086,8 @@ export default function AuthorityProfile() {
 
             {/* Post-clone preview */}
             {postClonePreviewUrl && (
-              <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 rounded-lg px-4 py-3">
-                <CheckCircle className="h-4 w-4 text-primary shrink-0" />
+              <div className="flex items-center gap-3 bg-muted border border-border rounded-lg px-4 py-3">
+                <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-green-700 dark:text-green-400">Voice cloned! Here's how it sounds:</p>
                   <audio controls src={postClonePreviewUrl} className="mt-1.5 w-full h-8" />
@@ -1169,7 +1169,7 @@ export default function AuthorityProfile() {
         {/* Hyperlocal SEO Card */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-1 flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-primary" />
+            <MapPin className="h-5 w-5 text-muted-foreground" />
             Hyperlocal SEO Targeting
           </h2>
           <p className="text-sm text-muted-foreground mb-4">
@@ -1216,7 +1216,7 @@ export default function AuthorityProfile() {
               {targetNeighborhoods.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {targetNeighborhoods.map((hood, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full">
+                    <span key={i} className="inline-flex items-center gap-1 bg-muted text-foreground text-xs font-medium px-2.5 py-1 rounded-full">
                       {hood}
                       <button
                         type="button"
@@ -1295,7 +1295,7 @@ export default function AuthorityProfile() {
               {targetZipCodes.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {targetZipCodes.map((zip, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full">
+                    <span key={i} className="inline-flex items-center gap-1 bg-muted text-foreground text-xs font-medium px-2.5 py-1 rounded-full">
                       {zip}
                       <button
                         type="button"

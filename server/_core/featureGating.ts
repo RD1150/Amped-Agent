@@ -74,7 +74,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     listingPhotoVideos: true,
     voiceCloning: true,
     teamSeats: 3,
-    whiteLabel: true,
+    whiteLabel: false,
     apiAccess: true,
     support: "phone-4hr",
   },

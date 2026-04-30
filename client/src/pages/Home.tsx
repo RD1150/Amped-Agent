@@ -84,7 +84,7 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               <div className="flex gap-0.5">
                 {[1,2,3,4,5].map(i => (
-                  <Star key={i} className="h-4 w-4 fill-amber-400 text-primary/80" />
+                  <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
               <p className="text-slate-300 font-semibold">
@@ -155,34 +155,34 @@ export default function HomePage() {
             </Card>
 
             {/* With Amped Agent */}
-            <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-primary/20 relative overflow-hidden">
+            <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-border relative overflow-hidden">
               <div className="absolute top-4 right-4 bg-muted0 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">
                 BEST VALUE
               </div>
               <CardContent className="p-8 space-y-6">
                 <h3 className="text-2xl font-bold text-white text-center mb-6">With Amped Agent</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
                     <span className="text-slate-200">Social Media Content</span>
                   </div>
-                  <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
                     <span className="text-slate-200">AI Video Generation</span>
                   </div>
-                  <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
                     <span className="text-slate-200">AI Avatar Videos</span>
                   </div>
-                  <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
                     <span className="text-slate-200">Content Calendar & Scheduling</span>
                   </div>
-                  <div className="flex items-center gap-3 pb-3 border-b border-primary/20">
-                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
                     <span className="text-slate-200">Faceless Vertical Videos</span>
                   </div>
-                  <div className="flex justify-between items-center pt-4 border-t-2 border-primary/20">
+                  <div className="flex justify-between items-center pt-4 border-t-2 border-white/10">
                     <span className="text-white font-bold text-lg">Total Monthly Cost</span>
                     <span className="text-primary font-bold text-2xl">$59-149</span>
                   </div>
@@ -200,7 +200,7 @@ export default function HomePage() {
           </div>
 
           {/* Savings Highlight */}
-          <div className="text-center bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 border border-primary/20 rounded-lg p-8">
+          <div className="text-center bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 border border-border rounded-lg p-8">
             <p className="text-2xl md:text-3xl font-bold text-white mb-2">
               Save up to <span className="text-primary">$105-$164/month</span>
             </p>
@@ -226,8 +226,8 @@ export default function HomePage() {
         <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
           {/* Benefit 1 */}
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-              <Sparkles className="h-8 w-8 text-primary" />
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
+              <Sparkles className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-2xl font-bold text-white">Content That Sounds Like You</h3>
             <p className="text-slate-300 leading-relaxed">
@@ -237,8 +237,8 @@ export default function HomePage() {
 
           {/* Benefit 2 */}
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-              <Palette className="h-8 w-8 text-primary" />
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
+              <Palette className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-2xl font-bold text-white">Professional Designs Without the Design Skills</h3>
             <p className="text-slate-300 leading-relaxed">
@@ -248,8 +248,8 @@ export default function HomePage() {
 
           {/* Benefit 3 */}
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-              <Calendar className="h-8 w-8 text-primary" />
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
+              <Calendar className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-2xl font-bold text-white">Set It and Forget It Scheduling</h3>
             <p className="text-slate-300 leading-relaxed">
@@ -259,8 +259,8 @@ export default function HomePage() {
 
           {/* Benefit 4 */}
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-              <Video className="h-8 w-8 text-primary" />
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
+              <Video className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-2xl font-bold text-white">AI-Powered Video Creation</h3>
             <p className="text-slate-300 leading-relaxed">
@@ -274,7 +274,7 @@ export default function HomePage() {
       <section id="testimonials" className="container mx-auto px-4 py-20 bg-slate-900/30">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Real Results From Real Agents</h2>
-          <p className="text-xl text-primary font-semibold">Join hundreds of agents who've transformed their social media presence</p>
+          <p className="text-xl text-muted-foreground font-semibold">Join hundreds of agents who've transformed their social media presence</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
@@ -283,7 +283,7 @@ export default function HomePage() {
             <CardContent className="p-6 space-y-4">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="h-5 w-5 fill-amber-500 text-primary" />
+                  <Star key={i} className="h-5 w-5 fill-amber-500 text-amber-500" />
                 ))}
               </div>
               <p className="text-slate-300 leading-relaxed italic">
@@ -306,7 +306,7 @@ export default function HomePage() {
             <CardContent className="p-6 space-y-4">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="h-5 w-5 fill-amber-500 text-primary" />
+                  <Star key={i} className="h-5 w-5 fill-amber-500 text-amber-500" />
                 ))}
               </div>
               <p className="text-slate-300 leading-relaxed italic">
@@ -329,7 +329,7 @@ export default function HomePage() {
             <CardContent className="p-6 space-y-4">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="h-5 w-5 fill-amber-500 text-primary" />
+                  <Star key={i} className="h-5 w-5 fill-amber-500 text-amber-500" />
                 ))}
               </div>
               <p className="text-slate-300 leading-relaxed italic">
@@ -350,8 +350,8 @@ export default function HomePage() {
 
         {/* Add Testimonial CTA */}
         <div className="mt-12 text-center space-y-4">
-          <div className="bg-primary/10 border border-primary/20 rounded-lg p-6 max-w-3xl mx-auto">
-            <p className="text-primary font-semibold mb-2">📝 TODO: Replace with Real Testimonials</p>
+          <div className="bg-muted border border-border rounded-lg p-6 max-w-3xl mx-auto">
+            <p className="text-foreground font-semibold mb-2">📝 TODO: Replace with Real Testimonials</p>
             <p className="text-slate-300 text-sm leading-relaxed">
               The testimonials above are examples. Replace them with real customer testimonials once you have beta users or early customers. 
               Collect testimonials by:
@@ -384,7 +384,7 @@ export default function HomePage() {
           {/* Feature 01 */}
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <div className="text-primary font-bold text-lg">01</div>
+              <div className="text-muted-foreground font-bold text-lg">01</div>
               <h3 className="text-3xl font-bold text-white">AI-Assisted Content Generation</h3>
               <p className="text-slate-300 leading-relaxed">
                 Generate posts with one click — no writing blocks, no guesswork. Quickly create market updates, homebuyer tips, and listing promos that sound like you.
@@ -393,19 +393,19 @@ export default function HomePage() {
                 <h4 className="text-white font-semibold">Key Benefits:</h4>
                 <ul className="space-y-2 text-slate-300">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Trending real estate topics tailored to your niche</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Captions written in your personal style</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Instantly create Reels or turn images into video slideshows</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Educational content that positions you as an expert</span>
                   </li>
                 </ul>
@@ -429,7 +429,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="space-y-6 order-1 md:order-2">
-              <div className="text-primary font-bold text-lg">02</div>
+              <div className="text-muted-foreground font-bold text-lg">02</div>
               <h3 className="text-3xl font-bold text-white">Design Tools + Templates</h3>
               <p className="text-slate-300 leading-relaxed">
                 Customize beautiful templates with your branding, headshot, brokerage, and contact information. Make every post instantly recognizable as yours.
@@ -438,15 +438,15 @@ export default function HomePage() {
                 <h4 className="text-white font-semibold">Key Benefits:</h4>
                 <ul className="space-y-2 text-slate-300">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Hundreds of real estate-specific templates</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Easy personalization with your colors and logo</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Save templates for consistent branding across all posts</span>
                   </li>
                 </ul>
@@ -460,7 +460,7 @@ export default function HomePage() {
           {/* Feature 03 */}
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <div className="text-primary font-bold text-lg">03</div>
+              <div className="text-muted-foreground font-bold text-lg">03</div>
               <h3 className="text-3xl font-bold text-white">Scheduler and Auto Posting</h3>
               <p className="text-slate-300 leading-relaxed">
                 Schedule weeks of content across Facebook, Instagram, LinkedIn, and X in minutes. Autopost at optimal times without logging into multiple platforms.
@@ -469,15 +469,15 @@ export default function HomePage() {
                 <h4 className="text-white font-semibold">Key Benefits:</h4>
                 <ul className="space-y-2 text-slate-300">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Manage all of your social media accounts from one spot</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Schedule up to 60 days of content in advance</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Auto posting means you can set it, and forget it</span>
                   </li>
                 </ul>
@@ -501,7 +501,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="space-y-6 order-1 md:order-2">
-              <div className="text-primary font-bold text-lg">04</div>
+              <div className="text-muted-foreground font-bold text-lg">04</div>
               <h3 className="text-3xl font-bold text-white">AutoReels - AI Video Generation</h3>
               <p className="text-slate-300 leading-relaxed">
                 Create scroll-stopping vertical videos with AI avatars and faceless reels in under 60 seconds. Perfect for Instagram Reels, TikTok, and YouTube Shorts.
@@ -510,19 +510,19 @@ export default function HomePage() {
                 <h4 className="text-white font-semibold">Key Benefits:</h4>
                 <ul className="space-y-2 text-slate-300">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>AI-powered script generation and video rendering</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>AI avatar intros with your personalized headshot</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>Faceless vertical videos with auto-captions</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <span>No video editing skills required</span>
                   </li>
                 </ul>
@@ -643,8 +643,8 @@ export default function HomePage() {
 
           {/* Instructions for updating */}
           <div className="mt-12 max-w-3xl mx-auto">
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-6">
-              <p className="text-primary font-semibold mb-2">📹 TODO: Replace with Real Sample Videos</p>
+            <div className="bg-muted border border-border rounded-lg p-6">
+              <p className="text-foreground font-semibold mb-2">📹 TODO: Replace with Real Sample Videos</p>
               <p className="text-slate-300 text-sm leading-relaxed mb-3">
                 Generate real Authority Reels videos using the Authority Reels Engine, then replace the placeholders above with actual video embeds or thumbnails.
               </p>

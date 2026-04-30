@@ -383,7 +383,7 @@ export default function AIGenerate() {
               onClick={() => handleGoalSelect(g.id)}
               className="group flex items-start gap-5 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
             >
-              <div className="text-primary mt-0.5 group-hover:scale-110 transition-transform flex-shrink-0">
+              <div className="text-muted-foreground mt-0.5 group-hover:scale-110 transition-transform flex-shrink-0">
                 {g.icon}
               </div>
               <div className="flex-1 min-w-0">
@@ -534,7 +534,7 @@ export default function AIGenerate() {
               onClick={() => setShowScheduleModal(true)}
               className="group flex flex-col items-start gap-2 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
             >
-              <Calendar className="w-5 h-5 text-primary" />
+              <Calendar className="w-5 h-5 text-muted-foreground" />
               <div>
                 <p className="font-medium text-sm">Schedule It</p>
                 <p className="text-xs text-muted-foreground">Add to your content calendar</p>
@@ -552,7 +552,7 @@ export default function AIGenerate() {
               }}
               className="group flex flex-col items-start gap-2 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
             >
-              <Repeat2 className="w-5 h-5 text-primary" />
+              <Repeat2 className="w-5 h-5 text-muted-foreground" />
               <div>
                 <p className="font-medium text-sm">Repurpose It</p>
                 <p className="text-xs text-muted-foreground">Turn into email, blog, or reel</p>
@@ -567,7 +567,7 @@ export default function AIGenerate() {
                 }
                 className="group flex flex-col items-start gap-2 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
               >
-                <Video className="w-5 h-5 text-primary" />
+                <Video className="w-5 h-5 text-muted-foreground" />
                 <div>
                   <p className="font-medium text-sm">Create a Reel</p>
                   <p className="text-xs text-muted-foreground">Turn script into AI video</p>
@@ -579,7 +579,7 @@ export default function AIGenerate() {
                 onClick={() => setLocation("/crm")}
                 className="group flex flex-col items-start gap-2 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
               >
-                <UserCheck className="w-5 h-5 text-primary" />
+                <UserCheck className="w-5 h-5 text-muted-foreground" />
                 <div>
                   <p className="font-medium text-sm">Manage Leads</p>
                   <p className="text-xs text-muted-foreground">Follow up with your pipeline</p>

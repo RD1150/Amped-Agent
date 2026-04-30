@@ -556,7 +556,7 @@ export default function AutoReels() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <Video className="h-8 w-8 text-primary" />
+          <Video className="h-8 w-8 text-muted-foreground" />
           <h1 className="text-3xl font-bold">AI Reels</h1>
         </div>
         <p className="text-muted-foreground">
@@ -568,11 +568,11 @@ export default function AutoReels() {
         /* Input Form */
         <div className="space-y-6">
           {/* Avatar Upload Section */}
-          <Card className="p-6 bg-gradient-to-br from-amber-500/5 to-amber-500/10 border-primary/20">
+          <Card className="p-6 bg-card border-border">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
-                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
-                  <User className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                  <User className="h-6 w-6 text-muted-foreground" />
                 </div>
               </div>
               <div className="flex-1">
@@ -580,8 +580,8 @@ export default function AutoReels() {
                 <p className="text-sm text-muted-foreground mb-2">
                   Upload your headshot to create a personalized AI avatar that introduces your reels. Your avatar will speak the hook at the beginning of your video.
                 </p>
-                <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 mb-4">
-                  <p className="text-xs font-medium text-primary dark:text-primary/80 mb-1">Recommended Headshot Specs:</p>
+                <div className="bg-muted border border-border rounded-lg p-3 mb-4">
+                  <p className="text-xs font-medium text-foreground mb-1">Recommended Headshot Specs:</p>
                   <ul className="text-xs text-muted-foreground space-y-0.5">
                     <li>• <strong>Size:</strong> 512×512px (square, 1:1 ratio)</li>
                     <li>• <strong>Format:</strong> JPG or PNG, under 5MB</li>
@@ -604,7 +604,7 @@ export default function AutoReels() {
                             />
                             <div className="flex-1">
                               <p className="text-sm font-medium">Avatar image saved</p>
-                              <p className="text-xs text-primary">✓ Saved to your profile</p>
+                              <p className="text-xs text-green-500">✓ Saved to your profile</p>
                               <p className="text-xs text-muted-foreground">Click to change</p>
                             </div>
                           </div>
@@ -647,7 +647,7 @@ export default function AutoReels() {
                         )}
                       </Button>
                       {avatarVideoUrl && (
-                        <p className="text-xs text-primary mt-2 text-center">✓ Avatar intro ready!</p>
+                        <p className="text-xs text-green-500 mt-2 text-center">✓ Avatar intro ready!</p>
                       )}
                     </div>
                   )}
@@ -673,13 +673,13 @@ export default function AutoReels() {
                         </div>
                       );
                       if (ageDays >= 75) return (
-                        <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/10 border border-primary/20 text-xs text-primary">
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-600 dark:text-amber-400">
                           <span className="font-medium">⚠ Expires in {90 - ageDays} days.</span>
                           <span>Consider regenerating your avatar intro soon.</span>
                         </div>
                       );
                       return (
-                        <p className="text-xs text-primary">✓ Valid for {90 - ageDays} more days</p>
+                        <p className="text-xs text-green-500">✓ Valid for {90 - ageDays} more days</p>
                       );
                     })()}
                   </div>
@@ -875,7 +875,7 @@ export default function AutoReels() {
                         variant="secondary"
                         size="sm"
                         onClick={() => setInputText(template.prompt)}
-                        className="text-xs pr-8 border-2 border-primary/20"
+                        className="text-xs pr-8 border-2 border-border"
                       >
                         {template.label}
                       </Button>
@@ -903,10 +903,10 @@ export default function AutoReels() {
               </div>
               
               {isMarketUpdateMode ? (
-                <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-5">
+                <div className="space-y-4 rounded-xl border border-border bg-muted/30 p-5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-primary dark:text-primary-foreground">📊 Market Update Reel</h3>
+                      <h3 className="font-semibold text-foreground">📊 Market Update Reel</h3>
                       <p className="text-xs text-muted-foreground mt-0.5">Fetches real MLS data for your market and generates a professional stat-slide video with voiceover.</p>
                     </div>
                     <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setIsMarketUpdateMode(false); setMarketData(null); setMarketLocation(""); }}>
@@ -965,7 +965,7 @@ export default function AutoReels() {
                       ].map((stat) => (
                         <div key={stat.label} className="rounded-lg bg-background border p-3 text-center">
                           <p className="text-xs text-muted-foreground">{stat.label}</p>
-                          <p className="text-xl font-bold text-primary dark:text-primary/80">{stat.value}</p>
+                          <p className="text-xl font-bold text-foreground">{stat.value}</p>
                           <p className="text-xs text-muted-foreground">{stat.sub}</p>
                         </div>
                       ))}
@@ -1181,7 +1181,7 @@ export default function AutoReels() {
                               <p className="text-xs text-muted-foreground">Your Cloned Voice</p>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] bg-primary/15 text-primary dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">Cloned</span>
+                              <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full font-medium">Cloned</span>
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -1337,11 +1337,11 @@ export default function AutoReels() {
             </div>
 
             {/* Background Photos Uploader */}
-            <div className="border rounded-xl p-5 space-y-4 bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-primary/20 mb-6">
+            <div className="border rounded-xl p-5 space-y-4 bg-muted/30 border-border mb-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center">
-                    <Upload className="h-5 w-5 text-primary" />
+                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                    <Upload className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <div>
                     <h3 className="font-semibold">Background Photos (Optional)</h3>
@@ -1357,7 +1357,7 @@ export default function AutoReels() {
                       <img
                         src={preview}
                         alt={`Background ${idx + 1}`}
-                        className="h-20 w-20 object-cover rounded-lg border-2 border-primary/20"
+                        className="h-20 w-20 object-cover rounded-lg border-2 border-border"
                       />
                       <button
                         type="button"
@@ -1370,8 +1370,8 @@ export default function AutoReels() {
                   ))}
                   {backgroundPhotoPreviews.length < 4 && (
                     <Label htmlFor="bg-photo-upload" className="cursor-pointer">
-                      <div className="h-20 w-20 border-2 border-dashed border-primary/20 rounded-lg flex flex-col items-center justify-center hover:border-blue-500/60 transition-colors">
-                        <Plus className="h-5 w-5 text-primary" />
+                      <div className="h-20 w-20 border-2 border-dashed border-muted-foreground/30 rounded-lg flex flex-col items-center justify-center hover:border-primary/50 transition-colors">
+                        <Plus className="h-5 w-5 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground mt-1">Add more</span>
                       </div>
                     </Label>
@@ -1381,15 +1381,15 @@ export default function AutoReels() {
 
               {backgroundPhotoPreviews.length === 0 && (
                 <Label htmlFor="bg-photo-upload" className="cursor-pointer block">
-                  <div className="border-2 border-dashed border-primary/20 rounded-lg p-6 hover:border-blue-500/50 transition-colors text-center">
+                  <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-6 hover:border-primary/50 transition-colors text-center">
                     {isUploadingPhotos ? (
                       <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                         <p className="text-sm text-muted-foreground">Uploading photos...</p>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center gap-2">
-                        <Upload className="h-8 w-8 text-primary/60" />
+                        <Upload className="h-8 w-8 text-muted-foreground" />
                         <p className="text-sm font-medium">Upload listing photos (up to 4)</p>
                         <p className="text-xs text-muted-foreground">JPG, PNG — or leave empty to use our real estate backgrounds</p>
                       </div>

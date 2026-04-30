@@ -85,6 +85,7 @@ const pricingTiers: PricingTier[] = [
       "Voice cloning (1 custom voice)",
       "Multiple avatar looks (3 styles)",
       "Custom branding overlays",
+      "Broker/team co-branded landing page",
       "Priority support (4hr)",
     ],
   },

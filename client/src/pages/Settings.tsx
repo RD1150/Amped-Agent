@@ -59,7 +59,7 @@ function SetPasswordCard({ user }: { user?: { passwordHash?: string | null; logi
     <Card className="bg-card border-border">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <KeyRound className="h-5 w-5 text-primary" />
+          <KeyRound className="h-5 w-5 text-muted-foreground" />
           {hasPassword ? "Change Password" : "Set a Password"}
         </CardTitle>
         <CardDescription>
@@ -70,7 +70,7 @@ function SetPasswordCard({ user }: { user?: { passwordHash?: string | null; logi
       </CardHeader>
       <CardContent>
         {!hasPassword && (
-          <div className="mb-4 rounded-lg bg-primary/10 border border-primary/20 px-4 py-3 text-sm">
+          <div className="mb-4 rounded-lg bg-muted border border-border px-4 py-3 text-sm">
             <p className="font-medium">Your account uses Google sign-in.</p>
             <p className="text-muted-foreground mt-0.5">Set a password below to also be able to sign in with <strong>{user?.email}</strong> + password.</p>
           </div>
@@ -481,7 +481,7 @@ export default function Settings() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5 text-primary" />
+            <User className="h-5 w-5 text-muted-foreground" />
             Profile
           </CardTitle>
           <CardDescription>
@@ -517,7 +517,7 @@ export default function Settings() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-primary" />
+            <Bell className="h-5 w-5 text-muted-foreground" />
             Notifications
           </CardTitle>
           <CardDescription>
@@ -549,7 +549,7 @@ export default function Settings() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Palette className="h-5 w-5 text-primary" />
+            <Palette className="h-5 w-5 text-muted-foreground" />
             Appearance
           </CardTitle>
           <CardDescription>
@@ -574,7 +574,7 @@ export default function Settings() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
+            <Shield className="h-5 w-5 text-muted-foreground" />
             Privacy & Security
           </CardTitle>
           <CardDescription>
@@ -625,9 +625,9 @@ export default function Settings() {
         <CardContent className="space-y-4">
           {/* Existing cloned voice status */}
           {clonedVoice?.clonedVoiceId && (
-            <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted border border-border">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-primary" />
+                <CheckCircle className="h-4 w-4 text-green-500" />
                 <div>
                   <p className="text-sm font-medium">{clonedVoice.clonedVoiceName}</p>
                   <p className="text-xs text-muted-foreground">Active cloned voice · auto-selected in all videos</p>
@@ -692,7 +692,7 @@ export default function Settings() {
             ) : (
               <div className="w-full space-y-3">
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-muted">
-                  <CheckCircle className="h-4 w-4 text-primary shrink-0" />
+                  <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">Recording complete ({recordingSeconds}s)</p>
                     <audio src={recordedUrl} controls className="w-full mt-1 h-8" />
@@ -721,7 +721,7 @@ export default function Settings() {
                   </Button>
                 </div>
                 {recordingSeconds < 15 && (
-                  <p className="text-xs text-primary flex items-center gap-1">
+                  <p className="text-xs text-destructive flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" /> Need at least 15 seconds for voice cloning.
                   </p>
                 )}
@@ -735,7 +735,7 @@ export default function Settings() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Mic className="h-5 w-5 text-primary" />
+            <Mic className="h-5 w-5 text-muted-foreground" />
             Voiceover Preferences
           </CardTitle>
           <CardDescription>
@@ -790,7 +790,7 @@ export default function Settings() {
                       <span className="text-sm font-medium">{v.name}</span>
                       <span className="text-sm text-muted-foreground ml-2">{v.desc}</span>
                       {v.tag && (
-                        <span className="ml-2 text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-medium">{v.tag}</span>
+                        <span className="ml-2 text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full font-medium">{v.tag}</span>
                       )}
                     </div>
                   </div>
@@ -829,7 +829,7 @@ export default function Settings() {
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5 text-primary" />
+            <User className="h-5 w-5 text-muted-foreground" />
             My Avatar
           </CardTitle>
           <CardDescription>
@@ -843,7 +843,7 @@ export default function Settings() {
               <img
                 src={currentUser.avatarImageUrl}
                 alt="Avatar"
-                className="h-20 w-20 rounded-full object-cover border-2 border-primary"
+                className="h-20 w-20 rounded-full object-cover border-2 border-border"
               />
             ) : (
               <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-muted-foreground/30">
@@ -855,7 +855,7 @@ export default function Settings() {
                 {currentUser?.avatarImageUrl ? 'Avatar headshot saved' : 'No avatar headshot uploaded'}
               </p>
               {currentUser?.avatarImageUrl && (
-                <p className="text-xs text-primary">✓ Saved to your profile — used in AI Reels</p>
+                <p className="text-xs text-green-500">✓ Saved to your profile — used in AI Reels</p>
               )}
               <div className="flex gap-2 mt-2">
                 <Button
@@ -887,7 +887,7 @@ export default function Settings() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Video className="h-4 w-4 text-primary" />
+                <Video className="h-4 w-4 text-muted-foreground" />
                 <p className="text-sm font-medium">Avatar Intro Video</p>
               </div>
               {avatarVideoExpired && (
@@ -896,12 +896,12 @@ export default function Settings() {
                 </span>
               )}
               {!avatarVideoExpired && avatarVideoExpiringSoon && (
-                <span className="flex items-center gap-1 text-xs text-primary font-medium">
+                <span className="flex items-center gap-1 text-xs text-amber-500 font-medium">
                   <AlertTriangle className="h-3 w-3" /> Expires in {90 - (avatarVideoAgeDays ?? 0)} days
                 </span>
               )}
               {!avatarVideoExpired && !avatarVideoExpiringSoon && avatarVideoAgeDays !== null && (
-                <span className="text-xs text-primary">{90 - avatarVideoAgeDays} days remaining</span>
+                <span className="text-xs text-muted-foreground">{90 - avatarVideoAgeDays} days remaining</span>
               )}
             </div>
             {currentUser?.avatarVideoUrl ? (
@@ -916,11 +916,7 @@ export default function Settings() {
               <p className="text-sm text-muted-foreground">No avatar intro video yet. Go to AI Reels to generate one.</p>
             )}
             {(avatarVideoExpiringSoon || avatarVideoExpired) && (
-              <div className={`flex items-start gap-2 p-3 rounded-lg border text-sm ${
-                avatarVideoExpired
-                  ? 'bg-red-500/10 border-red-500/20 text-red-600'
-                  : 'bg-primary/10 border-primary/20 text-primary'
-              }`}>
+              <div className={`flex items-start gap-2 p-3 rounded-lg border text-sm ${avatarVideoExpired ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400'}`}>
                 <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="font-medium">
@@ -950,13 +946,13 @@ export default function Settings() {
           {avatarList && avatarList.length > 0 ? (
             <div className="space-y-2">
               {avatarList.map((avatar) => (
-                <div key={avatar.id} className={`flex items-center gap-3 p-3 rounded-lg border ${avatar.isDefault ? 'border-primary/40 bg-primary/5' : 'border-border bg-muted/30'}`}>
+                <div key={avatar.id} className={`flex items-center gap-3 p-3 rounded-lg border ${avatar.isDefault ? 'border-border bg-muted/50' : 'border-border bg-muted/30'}`}>
                   {/* Thumbnail or icon */}
                   {avatar.thumbnailUrl ? (
                     <img src={avatar.thumbnailUrl} alt="Avatar" className="h-10 w-10 rounded-full object-cover flex-shrink-0" />
                   ) : (
-                    <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-                      <User className="h-5 w-5 text-primary" />
+                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                      <User className="h-5 w-5 text-muted-foreground" />
                     </div>
                   )}
                   {/* Nickname / ID */}
@@ -975,7 +971,7 @@ export default function Settings() {
                       </div>
                     ) : (
                       <div>
-                        <p className="text-sm font-medium truncate">{avatar.nickname || 'My Avatar'} {avatar.isDefault && <span className="ml-1 text-xs text-primary font-normal">(default)</span>}</p>
+                        <p className="text-sm font-medium truncate">{avatar.nickname || 'My Avatar'} {avatar.isDefault && <span className="ml-1 text-xs text-muted-foreground font-normal">(default)</span>}</p>
                         <p className="text-xs text-muted-foreground truncate">{avatar.didAvatarId}</p>
                       </div>
                     )}

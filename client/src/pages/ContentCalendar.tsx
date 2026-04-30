@@ -347,9 +347,9 @@ export default function ContentCalendar() {
       case "draft":
         return <Badge variant="secondary" className="text-xs">Draft</Badge>;
       case "scheduled":
-        return <Badge className="bg-primary/10 text-primary text-xs">Scheduled</Badge>;
+        return <Badge className="bg-muted text-muted-foreground text-xs">Scheduled</Badge>;
       case "published":
-        return <Badge className="bg-primary/15 text-green-400 text-xs">Published</Badge>;
+        return <Badge className="bg-green-500/15 text-green-400 text-xs">Published</Badge>;
       case "expired":
         return <Badge className="bg-red-500/20 text-red-400 text-xs">Expired</Badge>;
       default:
@@ -533,13 +533,13 @@ export default function ContentCalendar() {
               <div
                 key={index}
                 className={`min-h-[120px] p-2 border-r border-b border-border last:border-r-0 ${
-                  date ? (isToday(date) ? "bg-primary/5 ring-2 ring-primary ring-inset" : "hover:bg-secondary/50") : "bg-muted/20"
+                  date ? (isToday(date) ? "bg-muted/50 ring-2 ring-border ring-inset" : "hover:bg-secondary/50") : "bg-muted/20"
                 }`}
               >
                 {date && (
                   <>
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`text-sm font-medium ${isToday(date) ? "text-primary" : "text-foreground"}`}>
+                      <span className={`text-sm font-medium ${isToday(date) ? "text-foreground font-bold" : "text-foreground"}`}>
                         {date.getDate()}
                       </span>
                       <Button
