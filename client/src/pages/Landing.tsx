@@ -13,6 +13,10 @@ import {
   Zap,
   TrendingUp,
   Users,
+  Brain,
+  BarChart3,
+  Send,
+  Quote,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -79,21 +83,42 @@ export default function Landing() {
   const howItWorks = [
     {
       step: "01",
-      title: "Set up your profile",
+      icon: Brain,
+      title: "Build your Authority Profile",
       description:
-        "Add your headshot, market, brokerage, and brand voice. Takes 3 minutes. Done once.",
+        "Tell Amped Agent who you are — your market, your voice, your niche. Set up once. Every piece of content it creates from that point forward is written as you, not as a generic agent. The more you use it, the smarter it gets.",
+      hook: "Set up once. Gets smarter every week.",
     },
     {
       step: "02",
-      title: "Choose your content type",
+      icon: BarChart3,
+      title: "Generate a full week of content",
       description:
-        "AI Reel, Property Tour, Avatar Video, or Live Tour. Pick what you need for today.",
+        "In one session, Amped Agent produces 7 social posts, 3 reel scripts, and 2 sphere emails — all personalized to your market, your listings, and your brand voice. No blank page. No guessing what to say.",
+      hook: "7 posts. 3 reel scripts. 2 sphere emails. One session.",
     },
     {
       step: "03",
-      title: "Generate and post",
+      icon: Send,
+      title: "Publish and stay visible",
       description:
-        "AI produces your content. You review, download, and post. Your audience sees a professional.",
+        "Your content is ready. Schedule it, post it, or hand it off. While other agents disappear for weeks, you show up consistently — in your prospects' feeds, in their inbox, in their mind. That's how listings come to you.",
+      hook: "Stay visible. Walk away from the content grind.",
+    },
+  ];
+
+  const testimonialPlaceholders = [
+    {
+      quote: "[Beta agent quote — replace when collected]",
+      name: "[Agent Name]",
+      title: "[Title · Market]",
+      initials: "--",
+    },
+    {
+      quote: "[Beta agent quote — replace when collected]",
+      name: "[Agent Name]",
+      title: "[Title · Market]",
+      initials: "--",
     },
   ];
 
@@ -133,20 +158,21 @@ export default function Landing() {
             The AI Video Platform Built for Real Estate Agents
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
-            Turn One Listing Into
-            <br />
-            <span className="text-primary">A Week of Content.</span>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6">
+            You didn't become an agent to spend
+            <br className="hidden md:block" />
+            your day{" "}
+            <span className="text-primary">writing posts, ads, and listing descriptions.</span>
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-4 leading-relaxed">
-            Property tour videos. AI reels. Avatar videos. Live walkthroughs.
+            Amped Agent creates your real estate marketing in seconds —
             <br className="hidden md:block" />
-            Everything a top-producing agent needs to dominate their market — in one platform.
+            so you can focus on closing deals.
           </p>
 
           <p className="text-base font-semibold text-foreground mb-10">
-            Your competitors are still posting generic AI content. You won't be.
+            Your competitors are still doing it the hard way. You won't be.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
@@ -169,7 +195,7 @@ export default function Landing() {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            7-day free trial &nbsp;·&nbsp; No credit card required &nbsp;·&nbsp; Cancel anytime
+            14-day free trial &nbsp;·&nbsp; No credit card required &nbsp;·&nbsp; Cancel anytime
           </p>
         </div>
       </section>
@@ -232,23 +258,82 @@ export default function Landing() {
 
       {/* How It Works */}
       <section className="py-24 px-4 bg-gray-50 border-y">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Up and Running in Minutes</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">How Amped Agent Works</h2>
             <p className="text-xl text-muted-foreground">
-              No production crew. No video editor. No social media manager.
+              Three steps. A full week of professional content. Zero marketing team required.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {howItWorks.map((step, i) => (
-              <div key={i} className="text-center">
-                <div className="text-5xl font-extrabold text-primary/20 mb-4">{step.step}</div>
-                <h3 className="text-lg font-bold mb-2">{step.title}</h3>
-                <p className="text-muted-foreground">{step.description}</p>
-              </div>
-            ))}
+          <div className="space-y-8">
+            {howItWorks.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <div key={i} className="flex gap-6 items-start bg-white rounded-2xl border border-border p-8 hover:border-primary/30 hover:shadow-md transition-all">
+                  <div className="flex-shrink-0">
+                    <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">
+                      <Icon className="w-7 h-7 text-primary" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-xs font-bold text-primary/40 tracking-widest uppercase">Step {step.step}</span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed mb-3">{step.description}</p>
+                    <p className="text-sm font-semibold text-primary">{step.hook}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
+        </div>
+      </section>
+
+      {/* Social Proof — Beta Quotes */}
+      <section className="py-24 px-4 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">What Agents Are Saying</h2>
+            <p className="text-xl text-muted-foreground">
+              Real quotes from real agents in our beta cohort.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* PLACEHOLDER — replace with real beta agent quotes when collected */}
+            <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
+              <Quote className="w-8 h-8 text-gray-300 mb-4" />
+              <p className="text-muted-foreground italic text-sm mb-4">
+                Real agent testimonial coming soon — collecting feedback from our first beta cohort.
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs font-bold">?</div>
+                <div className="text-left">
+                  <div className="text-sm font-semibold text-gray-400">Beta Agent</div>
+                  <div className="text-xs text-gray-400">Real Estate Professional</div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
+              <Quote className="w-8 h-8 text-gray-300 mb-4" />
+              <p className="text-muted-foreground italic text-sm mb-4">
+                Real agent testimonial coming soon — collecting feedback from our first beta cohort.
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs font-bold">?</div>
+                <div className="text-left">
+                  <div className="text-sm font-semibold text-gray-400">Beta Agent</div>
+                  <div className="text-xs text-gray-400">Real Estate Professional</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground mt-8">
+            Used Amped Agent? <a href={getLoginUrl()} className="text-primary font-semibold hover:underline">Share your experience →</a>
+          </p>
         </div>
       </section>
 
@@ -402,7 +487,7 @@ export default function Landing() {
             </Button>
           </div>
           <p className="text-sm text-primary-foreground/60">
-            7-day free trial &nbsp;·&nbsp; No credit card required &nbsp;·&nbsp; Cancel anytime
+            14-day free trial &nbsp;·&nbsp; No credit card required &nbsp;·&nbsp; Cancel anytime
           </p>
         </div>
       </section>
