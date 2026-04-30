@@ -326,7 +326,7 @@ export default function Landing() {
             {[
               { stat: "50+", label: "Agents in early access" },
               { stat: "Beta", label: "Active & improving daily" },
-              { stat: "Free", label: "To start — no credit card" },
+              { stat: "14 days", label: "Free trial — no commitment" },
             ].map((item, i) => (
               <div key={i} className="bg-white rounded-2xl border border-border p-6">
                 <div className="text-3xl font-bold text-primary mb-1">{item.stat}</div>
