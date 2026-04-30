@@ -465,9 +465,23 @@ export function registerAuthRoutes(app: Express) {
     }
   });
 
-  // ── Demo Access (hidden link — not shown on login page) ───────────────────
+  // ── Demo Access (hidden link — not shown on login page) ─────────────────────
   app.get("/api/auth/demo", async (req: Request, res: Response) => {
     try {
+      // GUARD: If a valid session already exists, never overwrite it.
+      // This prevents the demo route from hijacking a real user's session.
+      const existingCookie = req.cookies?.[COOKIE_NAME];
+      if (existingCookie) {
+        try {
+          const session = await sdk.verifySession(existingCookie);
+          if (session) {
+            // Already logged in as a real user — just send them to the dashboard.
+            res.redirect("/dashboard");
+            return;
+          }
+        } catch { /* invalid/expired cookie — fall through to demo login */ }
+      }
+
       const DEMO_EMAIL = "demo@ampedagent.com";
       const user = await db.getUserByEmail(DEMO_EMAIL);
       if (!user) {
